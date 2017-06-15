@@ -3,5 +3,5 @@
 # Release specification
 #------------------------------------------------------------------------------
 vars:
-  release: 0.0.2
+  release: 0.0.3
   distro: cyberlinux

@@ -15,4 +15,5 @@ Tracking what to do and when it was done
 * 2017.06.15 - 
 
 ## Changes
+* 2017.06.15 - Adding githooks, spec.yaml and xcursor AUR PKGBUILDs
 * 2017.06.15 - Adding delve and helm aur PKGBUILDs

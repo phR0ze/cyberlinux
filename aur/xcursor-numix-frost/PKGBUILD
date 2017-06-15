@@ -1,0 +1,66 @@
+#-------------------------------------------------------------------------------
+# Maintained by phR0ze
+#-------------------------------------------------------------------------------
+pkgname=xcursor-numix-frost
+pkgver=0.9.9
+pkgrel=4
+pkgdesc="An X-cursor-theme for use along with numix products"
+arch=('any')
+url='https://github.com/osendott/custom-cursors'
+license=('GPL-3.0')
+depends=('libxcursor')
+makedepends=('inkscape')
+source=("$pkgname-$pkgver.tar.gz::${url}/blob/master/custom-cursors.tar.gz?raw=true")
+md5sums=('7455f69c54a72b7bc23fdfca19125cf3')
+
+# Automated build
+#-------------------------------------------------------------------------------
+build()
+{
+  cd $srcdir
+  tar -xzf src.tar.gz
+  tar -xzf theme.tar.gz
+
+  oldColor="#d64933"
+  newColor="#42a5f5"
+
+  # Replace colors in SVGs and convert to PNGs
+  #-----------------------------------------------------------------------------
+  for svg in src/*.svg; do
+    filename=`basename $svg`
+    name="${filename%.*}"
+
+    msg2 "Replacing color in $svg"
+    sed -i "s/$oldColor/$newColor/g" $svg
+
+    msg2 "Converting $svg to a PNG"
+    inkscape $svg --export-png="src/$name.png" --export-dpi=90
+  done
+
+  # Convert PNGs via xcursorgen
+  #-----------------------------------------------------------------------------
+  for cursor in src/*.cursor; do
+    msg2 "Converting $cursor via xcursorgen"
+    filename=`basename $cursor`
+    name="${filename%.*}"
+    cd $srcdir/src
+    xcursorgen $name.cursor $srcdir/theme/Numix-Cursor/cursors/$name
+  done
+
+  # Change cursor name to frost
+  #-----------------------------------------------------------------------------
+  sed -i "s/Numix-Cursor/Numix Frost/g" $srcdir/theme/Numix-Cursor/cursor.theme
+  sed -i "s/Numix-Cursor/Numix Frost/g" $srcdir/theme/Numix-Cursor/index.theme
+}
+
+# Create package
+#-------------------------------------------------------------------------------
+package()
+{
+  cd $srcdir/theme/Numix-Cursor
+  install -dm 755 $pkgdir/usr/share/icons/$pkgname
+  find . -type f -exec install -Dm644 "{}" "${pkgdir}/usr/share/icons/$pkgname/{}" \;
+  find . -type l -exec cp -d "{}" "${pkgdir}/usr/share/icons/$pkgname/{}" \;
+}
+
+# vim: ts=2:sw=2:sts=2
