@@ -6,6 +6,8 @@ Arch Linux filesystems which are bundled either as a bootable ISO. By default in
 provided for many common use cases but the option to build your own infinitely flexible flavor is
 yours for the taking.
 
+[![Build Status](https://travis-ci.org/phR0ze/cyberlinux)](https://travis-ci.org/phR0ze/cyberlinux)
+
 ### Disclaimer
 ***cyberlinux*** comes with absolutely no guarantees or support of any kind. It is to be used at
 your own risk.  Any damages, issues, losses or problems caused by the use of ***cyberlinux*** are
