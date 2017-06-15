@@ -10,3 +10,9 @@ Tracking what to do and when it was done
     * Update the README.md with instruction on how to use when done
 * Create a publicly available cyberlinux-k8snode vagrant image for deploying Kubernetes
     * Update the README.md with instruction on how to use when done
+
+## Testing
+* 2017.06.15 - 
+
+## Changes
+* 2017.06.15 - Adding delve and helm aur PKGBUILDs

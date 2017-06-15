@@ -1,0 +1,22 @@
+#-------------------------------------------------------------------------------
+# Maintained by phR0ze
+#-------------------------------------------------------------------------------
+pkgname=helm
+pkgver=2.4.2
+pkgrel=1
+pkgdesc='Tool for managing Kubernetes charts'
+arch=('i686' 'x86_64')
+url='https://github.com/kubernetes/helm'
+license=('Apache')
+depends=('glibc' 'bash' 'ebtables' 'ethtool' 'iptables' 'socat' 'docker' 'util-linux')
+makedepends=('git' 'go' 'rsync' 'go-bindata-git')
+source=("http://storage.googleapis.com/kubernetes-helm/helm-v${pkgver}-linux-amd64.tar.gz")
+sha256sums=('96f74ff04ec7eb38e5f53aba73132bfe4d6b81168f20574dad25a9bcaceec81b')
+
+package()
+{
+  install -dm 755 ${pkgdir}/usr/bin
+  install -Dm755 "${srcdir}/linux-amd64/helm" ${pkgdir}/usr/bin/
+}
+
+# vim: ts=2:sw=2:sts=2

@@ -25,7 +25,7 @@ strictly the responsiblity of the user and not the developer/creator of ***cyber
 * [Configure cyberlinux](#configure-cyberlinux)
     * [Update cyberlinux](#update-cyberlinux)
     * [Clone cyberlinux repo](#clone-cyberlinux-repo)
-    * [Full build of cyberlinux] (#full-build-of-cyberlinux)
+    * [Full build of cyberlinux](#full-build-of-cyberlinux)
 
 ## Background <a name="background"></a>
 ***cyberlinux*** is an evolution of an idea come to fruition.  The origin was the need for an
