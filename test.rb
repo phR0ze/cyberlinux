@@ -13,11 +13,11 @@ class TestFileInsert < Minitest::Test
   def test_multi_value_no_regex_create_file
 
     # Using mocks
-    mock = Minitest::Mock.new
-    mock.expect(:readlines, 'Lorem ipsum de foo bar')
-    File.stub(:open, mock){|x|
-      puts(x.readlines)
-    }
+    #mock = Minitest::Mock.new
+    #mock.expect(:readlines, 'Lorem ipsum de foo bar')
+    #File.stub(:open, mock){|x|
+    #  puts(x.readlines)
+    #}
     #assert_mock mock
 
     # Using stubs
