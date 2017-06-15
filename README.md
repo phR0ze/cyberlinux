@@ -15,7 +15,7 @@ strictly the responsiblity of the user and not the developer/creator of ***cyber
 
 ### Table of Contents
 * [Background](#background)
-   * [Evolution process](#evolution-process)
+   * [Evolution](#evolution)
    * [My take on Arch](#my-take-on-arch)
    * [Distro requirements](#distro-requirements)
 * [Build cyberlinux](#build-cyberlinux)
@@ -36,7 +36,7 @@ system customized for a handful of common use cases (e.g. desktop, theater, serv
 environment. As time passed the need for simpler maintainability and access to larger more
 up-to-date software repositories drove the search for the ideal Linux distribution.
 
-### Evolution process <a name="evolution-process"></a>
+### Evolution <a name="evolution"></a>
 
 **Ubuntu Online Install**  
 In the beginning I would deploy a super lightweight Ubuntu server system and then launch a custom
@@ -116,7 +116,7 @@ their custom repos.
 I boiled down my requirements for ***cyberlinux*** as follows:
 
 * Single configuration file to drive ISO creation
-* ISO must include all packages, config etc... without online requirements
+* ISO must include all packages, config etc... (i.e. works offline)
 * Boot splash screen shown with multi-flavor install options
 * Fast, simple automated installs with abosolute minimal initial user input
 * Fully pre-configured user environments to avoid post-install changes
