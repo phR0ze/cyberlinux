@@ -1,0 +1,20 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    colorize (0.8.1)
+    filesize (0.1.1)
+    net-scp (1.2.1)
+      net-ssh (>= 2.6.5)
+    net-ssh (4.1.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  colorize (>= 0.8.1)!
+  filesize (>= 0.1.1)!
+  net-scp (>= 1.2.1)!
+  net-ssh (>= 4.1.0)!
+
+BUNDLED WITH
+   1.15.1
