@@ -22,10 +22,10 @@ strictly the responsiblity of the user and not the developer/creator of ***cyber
     * [Full cyberlinux build](#full-cyberlinux-build)
 * [Deploy cyberlinux](#deploy-cyberlinux)
     * [Deploy flavor](#deploy-flavor)
-* [Configure cyberlinux](#configure-cyberlinux)
-    * [Update cyberlinux](#update-cyberlinux)
-    * [Clone cyberlinux repo](#clone-cyberlinux-repo)
-    * [Full build of cyberlinux](#full-build-of-cyberlinux)
+* [Troubleshooting](#troubleshooting)
+    * [BlackArch Signature issue](#blackarch-signature-issue)
+* [Contributions](#contributions)
+    * [Git-Hook Version Increment](#git-hook-version-increment)
 
 ## Background <a name="background"></a>
 ***cyberlinux*** is an evolution of an idea come to fruition.  The origin was the need for an
@@ -120,6 +120,7 @@ I boiled down my requirements for ***cyberlinux*** as follows:
 * Fully pre-configured user environments to avoid post-install changes
 * Live boot option for maintenance, rescue and secure work
 * Hardware boot and diagnostics options e.g. RAM validation
+* As light as possible while still offering an elegant solution
 
 ## Build cyberlinux <a name="build-cyberlinux"/></a>
 This section covers how to build your own cyberlinux ISO
@@ -174,9 +175,9 @@ TBD
 ### Deploy flavor<a name="deploy-flavor"/></a>
 TBD
 
-## Troubleshooting
+## Troubleshooting<a name="troubleshooting"/></a>
 
-### BlackArch Signature issue
+### BlackArch Signature issue <a name="blackarch-signature-issue"/></a>
 To fix the issue below delete ***/var/lib/pacman/sync/*.sig***
 
 Example: 
@@ -184,4 +185,16 @@ Example:
 error: blackarch: signature from "Levon 'noptrix' Kayan (BlackArch Developer) <noptrix@nullsecurity.net>" is invalid
 error: failed to update blackarch (invalid or corrupted database (PGP signature))
 error: database 'blackarch' is not valid (invalid or corrupted database (PGP signature))
+```
+
+## Contributions <a name="contributions"/></a>
+Pull requests are always welcome.  However understand that they will be evaluated purely on whether
+or not the change fits with my goals/ideals for the project.
+
+### Git-Hook Version Increment <a name="git-hook-version-increment"/></a>
+Enable the githooks to have automatic version increments
+
+```bash
+$ cd ~/Projects/cyberlinux
+$ git config core.hooksPath .githooks
 ```
