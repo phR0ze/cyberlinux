@@ -39,6 +39,9 @@ class Reduce
   # +offset+:: offset the insert location by this amount
   # +returns+:: true if a change was made to the file
   def file_insert(file, values, regex:nil, offset:1)
+    return false if not values or values.empty?
+
+    change = false
     values = [values] if values.is_a?(String)
     FileUtils.touch(file) if not File.exist?(file)
 
@@ -49,16 +52,14 @@ class Reduce
 
         # Match regex for insert location
         regex = Regexp.new(regex) if regex.is_a?(String)
-        i = regex ? lines.index{|x| x =~ regex} : nil
-        i += offset if i and offset
+        i = regex ? lines.index{|x| x =~ regex} : lines.size - 1
+        return false if not i
+        i += offset
 
         # Insert at offset
         values.each{|x|
-          if i and offset
-            lines.insert(i, x) and i += 1
-          else
-            lines << x
-          end
+          lines.insert(i, x) and i += 1
+          change = true
         }
 
         # Truncate then write out new content
@@ -71,6 +72,8 @@ class Reduce
       File.open(file, 'w'){|f| f.puts(lines)} if lines
       raise
     end
+
+    return change
   end
 
 end
