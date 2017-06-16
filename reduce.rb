@@ -23,12 +23,56 @@ end
 class Reduce
 
   def initialize
-    puts("Hello init")
   end
 
   def build()
     puts("Hello build")
   end
+
+  # Insert into a file
+  # Location of insert is determined by the given regex and offset.
+  # Append is used if no regex is given.
+  # Params:
+  # +file+:: path of file to modify
+  # +values+:: string or list of string values to insert
+  # +regex+:: regular expression for location, not used if offset is nil
+  # +offset+:: offset the insert location by this amount
+  # +returns+:: true if a change was made to the file
+  def file_insert(file, values, regex:nil, offset:1)
+    values = [values] if values.is_a?(String)
+    FileUtils.touch(file) if not File.exist?(file)
+
+    begin
+      lines = nil
+      File.open(file, 'r+') do |f|
+        lines = f.readlines
+
+        # Match regex for insert location
+        regex = Regexp.new(regex) if regex.is_a?(String)
+        i = regex ? lines.index{|x| x =~ regex} : nil
+        i += offset if i and offset
+
+        # Insert at offset
+        values.each{|x|
+          if i and offset
+            lines.insert(i, x) and i += 1
+          else
+            lines << x
+          end
+        }
+
+        # Truncate then write out new content
+        f.seek(0)
+        f.truncate(0)
+        f.puts(lines)
+      end
+    rescue
+      # Revert back to the original incase of failure
+      File.open(file, 'w'){|f| f.puts(lines)} if lines
+      raise
+    end
+  end
+
 end
 
 #-------------------------------------------------------------------------------

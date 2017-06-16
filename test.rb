@@ -3,29 +3,33 @@ require_relative 'reduce'
 require 'minitest/autorun'
 require 'yaml'
 
+# https://github.com/seattlerb/minitest/blob/master/test/minitest/test_minitest_mock.rb
 class TestFileInsert < Minitest::Test
+  parallelize_me!
+
   def setup
     @file = 'foo'
+    @data = ['Lorem ipsum de foo bar']
     @reduce = Reduce.new
+
+    @mock = Minitest::Mock.new
+    @mock.expect(:readlines, @data)
+    @mock.expect(:seek, nil, [0])
+    @mock.expect(:truncate, nil, [0])
   end
 
-  # Append, create file
-  def test_multi_value_no_regex_create_file
+  def test_single_append
+    @mock.expect(:puts, nil, [@data + ['foo']])
 
-    # Using mocks
-    #mock = Minitest::Mock.new
-    #mock.expect(:readlines, 'Lorem ipsum de foo bar')
-    #File.stub(:open, mock){|x|
-    #  puts(x.readlines)
-    #}
-    #assert_mock mock
-
-    # Using stubs
-    FileUtils.stub(:touch, 'foo'){|x|
-      File.stub(:exist?, false, 'foo'){|x|
-        FileUtils.touch('foo') if not File.exist?('foo')
+    FileUtils.stub(:touch, true, @file){
+      File.stub(:exist?, false, @file){
+        File.stub(:open, true, @mock){
+          @reduce.file_insert(@file, 'foo')
+        }
       }
     }
+
+    assert_mock @mock
   end
 end
 
