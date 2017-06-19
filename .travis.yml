@@ -1,6 +1,9 @@
 language: ruby
 rvm:
   - 2.4.1
-
 sudo: false
 dist: trusty
+
+# Configure notifications
+notifications:
+  email: false
