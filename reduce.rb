@@ -134,9 +134,10 @@ class Reduce
     FileUtils.touch(file) if not File.exist?(file)
 
     begin
-      lines = nil
+      data = nil
       File.open(file, 'r+') do |f|
-        lines = f.readlines
+        data = f.read
+        lines = data.split("\n")
 
         # Match regex for insert location
         regex = Regexp.new(regex) if regex.is_a?(String)
@@ -157,11 +158,54 @@ class Reduce
       end
     rescue
       # Revert back to the original incase of failure
-      File.open(file, 'w'){|f| f.puts(lines)} if lines
+      File.open(file, 'w'){|f| f << data} if data
       raise
     end
 
     return change
+  end
+
+  # Resolve templates
+  # Params:
+  # +files+:: file/s to resolve templates for
+  # +vars+:: hash or ostruct templating variables to use while resolving
+  # +returns+:: true on change
+  def resolve_templates(files, vars)
+    puts("Resolving templates...".colorize(:cyan))
+
+    changed = false
+    files = [files] if files.is_a?(String)
+
+    files.each do |file|
+      begin
+        data = nil
+        print("Resolving template: #{file}...")
+
+        # Resolve vars in file
+        File.open(file, 'r+') do |f|
+          data = f.read
+          _data = data.erb(vars)
+
+          # Determine if file changed
+          file_changed |= Digest::MD5.hexdigest(data) != Digest::MD5.hexdigest(_data)
+          puts(file_changed ? 'resolved'.colorize(:yellow) : 'skipped'.colorize(:cyan))
+          changed |= file_changed
+
+          # Truncate then write out new content
+          if file_changed
+            f.seek(0)
+            f.truncate(0)
+            f.puts(_data)
+          end
+        end
+      rescue
+        # Revert back to the original incase of failure
+        File.open(file, 'w'){|f| f << data} if data
+        raise
+      end
+    end
+
+    return changed
   end
 
   # Get layer dependencies

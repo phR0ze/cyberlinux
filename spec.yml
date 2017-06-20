@@ -1,9 +1,10 @@
 ---
 #------------------------------------------------------------------------------
 # Release specification
+# vars are used for specifying distribution specific values and templating
 #------------------------------------------------------------------------------
 vars:
-  release: 0.0.21
+  release: 0.0.22
   distro: cyberlinux
 
 #-------------------------------------------------------------------------------
@@ -28,6 +29,8 @@ layers:
   #-----------------------------------------------------------------------------
   - layer: base
     type: machine
+    vars:
+      fontsize: 10
 
   # shell - full shell environment
   #----------------------------------------------------------------------------
@@ -76,6 +79,8 @@ layers:
   - layer: theater
     type: machine
     base: heavy
+    vars:
+      fontsize: 18
 
   # server - server focused environment for file sharing and web apps
   #----------------------------------------------------------------------------
