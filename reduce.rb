@@ -11,6 +11,7 @@ require 'rubygems/package'      # tar
 require 'yaml'                  # YAML
 
 require_relative 'lib/erb'      # ERB Handlers for different types
+require_relative 'lib/fedit'    # Programatic file editor
 
 # Gems that should already be installed
 begin
@@ -115,97 +116,6 @@ class Reduce
 
   def build()
     puts("Hello build")
-  end
-
-  # Insert into a file
-  # Location of insert is determined by the given regex and offset.
-  # Append is used if no regex is given.
-  # Params:
-  # +file+:: path of file to modify
-  # +values+:: string or list of string values to insert
-  # +regex+:: regular expression for location, not used if offset is nil
-  # +offset+:: offset the insert location by this amount
-  # +returns+:: true if a change was made to the file
-  def file_insert(file, values, regex:nil, offset:1)
-    return false if not values or values.empty?
-
-    change = false
-    values = [values] if values.is_a?(String)
-    FileUtils.touch(file) if not File.exist?(file)
-
-    begin
-      data = nil
-      File.open(file, 'r+') do |f|
-        data = f.read
-        lines = data.split("\n")
-
-        # Match regex for insert location
-        regex = Regexp.new(regex) if regex.is_a?(String)
-        i = regex ? lines.index{|x| x =~ regex} : lines.size - 1
-        return false if not i
-        i += offset
-
-        # Insert at offset
-        values.each{|x|
-          lines.insert(i, x) and i += 1
-          change = true
-        }
-
-        # Truncate then write out new content
-        f.seek(0)
-        f.truncate(0)
-        f.puts(lines)
-      end
-    rescue
-      # Revert back to the original incase of failure
-      File.open(file, 'w'){|f| f << data} if data
-      raise
-    end
-
-    return change
-  end
-
-  # Resolve templates
-  # Params:
-  # +files+:: file/s to resolve templates for
-  # +vars+:: hash or ostruct templating variables to use while resolving
-  # +returns+:: true on change
-  def resolve_templates(files, vars)
-    puts("Resolving templates...".colorize(:cyan))
-
-    changed = false
-    files = [files] if files.is_a?(String)
-
-    files.each do |file|
-      begin
-        data = nil
-        print("Resolving template: #{file}...")
-
-        # Resolve vars in file
-        File.open(file, 'r+') do |f|
-          data = f.read
-          _data = data.erb(vars)
-
-          # Determine if file changed
-          file_changed |= Digest::MD5.hexdigest(data) != Digest::MD5.hexdigest(_data)
-          puts(file_changed ? 'resolved'.colorize(:yellow) : 'skipped'.colorize(:cyan))
-          changed |= file_changed
-
-          # Truncate then write out new content
-          if file_changed
-            f.seek(0)
-            f.truncate(0)
-            f.puts(_data)
-          end
-        end
-      rescue
-        # Revert back to the original incase of failure
-        File.open(file, 'w'){|f| f << data} if data
-        raise
-      end
-    end
-
-    return changed
   end
 
   # Get layer dependencies
