@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-require 'mocha/mini_test'
+#require 'mocha/mini_test'
 require 'minitest/autorun'
 require 'ostruct'
 
