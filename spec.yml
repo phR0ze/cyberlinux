@@ -1,102 +1,60 @@
 ---
 #------------------------------------------------------------------------------
 # Release specification
-# vars are used for specifying distribution specific values and templating
 #------------------------------------------------------------------------------
 vars:
-  release: 0.0.24
+  release: 0.0.25
   distro: cyberlinux
 
-#-------------------------------------------------------------------------------
-# Special purpose layer for building components
-#-------------------------------------------------------------------------------
 build:
   layer: build
   type: container
 
-#-------------------------------------------------------------------------------
-# Layers are granular re-buildable parts of the whole that can be layered to
-# form more complex parts. They promote reuse. A deployable stack of layers are
-# considered to be an install 'flavor'.
-# - Machine layers are installable sqfs images targeting 'baremetal' and 'VMs'
-# - Container layers are deployable docker images
-# - Files and packages are layered on top of dependency layers
-# - Layers are built in the order they are listed in the yaml
-#-------------------------------------------------------------------------------
 layers:
 
-  # base - minimal shell environment
-  #-----------------------------------------------------------------------------
   - layer: base
     type: machine
     vars:
       fontsize: 10
 
-  # shell - full shell environment
-  #----------------------------------------------------------------------------
   - layer: shell
     type: machine
     base: base
 
-  # lite - minimal X11 environment
-  #----------------------------------------------------------------------------
   - layer: lite
     type: machine
     base: shell
 
-  # music - minimal Music Player environment
-  #----------------------------------------------------------------------------
   - layer: music
     type: machine
     base: lite
 
-  # heavy - full cyberlinux build environment
-  #----------------------------------------------------------------------------
   - layer: heavy
     type: machine
     base: lite
 
-  # desktop - full desktop environment
-  #----------------------------------------------------------------------------
   - layer: desktop
     type: machine
     base: heavy
 
-  # k8snode - kubernetes node environment for container deployment
-  #----------------------------------------------------------------------------
   - layer: k8snode
     type: machine
     base: shell
 
-  # k8shost - full desktop environment for kubernetes development
-  #----------------------------------------------------------------------------
-  - layer: k8shost
-    type: machine
-    base: desktop
-
-  # theater - full theater environment with couch video playback as the focus
-  #----------------------------------------------------------------------------
   - layer: theater
     type: machine
     base: heavy
     vars:
       fontsize: 18
 
-  # server - server focused environment for file sharing and web apps
-  #----------------------------------------------------------------------------
   - layer: server
     type: machine
     base: lite
 
-  # live - full maintenance, recovery, or no trace privacy environment
-  #----------------------------------------------------------------------------
   - layer: live
     type: machine
     base: heavy
 
-#------------------------------------------------------------------------------
-# Defines the repositories that are available for pulling packages from
-#------------------------------------------------------------------------------
 repos:
   - repo: archlinux
     desc: Arch Linux is a lightweight and flexible rolling distribution
@@ -118,5 +76,3 @@ repos:
       - Server = http://distro.ibiblio.org/blackarch/$repo/os/$arch
       - Server = https://deadbeef.ninja/blackarch/$repo/os/$arch
       - Server = http://mirror.team-cymru.org/blackarch/$repo/os/$arch
-
-

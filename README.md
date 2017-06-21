@@ -13,6 +13,11 @@ yours for the taking.
 your own risk.  Any damages, issues, losses or problems caused by the use of ***cyberlinux*** are
 strictly the responsiblity of the user and not the developer/creator of ***cyberlinux***
 
+Additionally the pre-configured ***spec.yml*** that exists in this repo is purely for my own
+personal benefit and pull requests will be evaluated as such. If it is helpful to others that
+is great and if pull requests alighn with my desires they will be accepted. Typically I would expect
+those looking to leverage this framework to fork it and make their own configuration ***spec.yml***
+
 ### Table of Contents
 * [Background](#background)
    * [Evolution](#evolution)
@@ -24,6 +29,14 @@ strictly the responsiblity of the user and not the developer/creator of ***cyber
     * [Full cyberlinux build](#full-cyberlinux-build)
 * [Deploy cyberlinux](#deploy-cyberlinux)
     * [Deploy flavor](#deploy-flavor)
+* [Customization](#customization)
+    * [Variables](#variables)
+    * [Build Layer](#build-layer)
+    * [Layers](#layers)
+      * [Default Layers](#default-layers)
+    * [Changes](#changes)
+      * [Change](#change)
+      * [Change Block](#change-block)
 * [Troubleshooting](#troubleshooting)
     * [BlackArch Signature issue](#blackarch-signature-issue)
 * [Contributions](#contributions)
@@ -177,13 +190,156 @@ TBD
 ### Deploy flavor<a name="deploy-flavor"/></a>
 TBD
 
+## Customization <a name="customization"/></a>
+The heart of ***cyberlinux*** is it's ability to provide infinite variations of repeatable flavors
+that can be built together into a bootable/installable ISO.  This is driven through the
+***spec.yml*** which is the file documenting all of the packages and configuration to use
+when building ***cyberlinux***.
+
+### Variables <a name="variables"/></a>
+***vars*** are used for specifying distribution specific values and templating variables.
+***cyberlinux*** leverages Ruby's ERB templating in the spec.yml as well as any configuration files
+that are called out in the ***spec.yml*** with the ***resolve*** change function. The ***vars***
+blocks provide templating variables to use. Variables are evaluated first by pulling in all
+variables in the ***vars*** root section the overriding as needed for the specific ***layer***
+context that is being evaluated.
+
+```YAML
+vars:
+  release: 0.0.24
+  distro: cyberlinux
+  http_proxy: http://web-proxy.example.com:8080
+```
+
+### Build Layer <a name="build-layer"/></a>
+The ***build*** layer is a special purpose layer for building ***cyberlinux*** components in an
+isolated environment to avoid cluttering up the localhost as well as staying independent from it's
+specifics.
+
+### Layers <a name="layers"/></a>
+***Layers*** are granular re-buildable parts of the whole that can be layered to form more complex
+parts. They promote reuse. A deployable stack of layers are considered to be an install 'flavor'.
+Machine layers are installable sqfs images targeting 'baremetal' and 'VMs'. Container layers are
+deployable docker images. Files and packages are layered on top of dependency layers. Layers are
+built in the order they are listed in the yaml.
+
+Layers have a ***type*** which is one of two values either ***machine*** or ***container***
+
+#### Default Layers <a name="default-layers"/></a>
+**Base Layer**  
+The ***base*** layer is a minimal shell environment that is typically inherited by all other machine
+layers. Container based layers will not want to inherit from this as ***base*** contains the kernel
+and other full system type components not required by containers.
+
+**Shell Layer**  
+The ***shell*** layer is a full shell environment inheriting from base, meaning that it has all
+tooling needed for development and building applications from the terminal. There are no X11/GUI
+componentsa and a bare minimum set of services running.
+
+**Lite Layer**  
+The ***lite*** layer builds on top of the shell layer adding in a minimal X11 environment.
+
+**Music Layer**  
+The ***music*** layer builds on top of the lite layer adding in Music focused applications.
+
+**Heavy Layer**  
+The ***heavy*** layer builds on top of the lite layer fleshing out the applications offerings and
+adds a few more running services. This is really the base for all desktop type deployments. Heavy is
+the layer required to fully rebuild ***cyberlinux*** from source.
+
+**Desktop Layer**  
+The ***desktop*** layer builds on the build layer adding in all normal applications for a full
+desktop environmen (e.g. libreoffice and gimp).
+
+**K8sNode Layer**  
+The ***k8snode*** layer builds on the shell layer adding in the applications required to easily
+use this deployment as a node in a Kubernetes cluster. This includes ***kubectl***, ***helm*** and
+K8s networking components.
+
+**Theater Layer**  
+theater - full theater environment with couch video playback as the focus
+
+**Server Layer**  
+server - server focused environment for file sharing and web apps
+
+**Live Layer**  
+live - full maintenance, recovery, or no trace privacy environment
+
+### Changes <a name="changes"/></a>
+***Changes*** are a way to invoke blocks of configuration. They come in two flavors: the actual
+change calling out configuration and a change reference which simply groups changes into a block of
+changes that can be applied by referencing the change block's name.
+
+Changes must be either defined directly in the ***changes*** section of a ***layer*** or in the top
+level ***changes*** section of the ***spec.yml***. Change names when used as a re-usable change
+block in the ***changes*** section follow the convention of using an action followed by a short
+description separated by a hypen (e.g. ***config-autologin*** or ***remove-docs***).
+
+**Paths** referenced in a change are evaluated in the context of the layer so ***/*** the root
+would resolve to a layer's working directory e.g. ***~/Projects/cyberlinux/temp/work/layers/base***
+and ***/etc/lxdm/lxdm.conf*** would resolve to
+***~/Projects/cyberlinux/temp/work/layers/base/etc/lxdm/lxdm.conf*** when executing in the context
+of the ***base*** layer.
+
+In order to actually reference the host files system preced the path with an extra ***/*** such as
+***//etc/lxdm/lxdm.conf***.
+
+**Change Structure**
+```YAML
+# Structure for a change reference
+layers:
+  - layer: server
+    changes:
+      - { apply: config-autologin }
+      - { exec: 'ln -sf //usr/share/zoneinfo/Zulu /etc/localtime' }
+changes:
+  config-autologin:
+    - { edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(autologin)=.*', value: '\1=<%= USER %>'
+```
+
+#### Change <a name="change"/></a>
+Changes are a high level description of configuration that needs to take place. Changes support one
+of the following mechanisms. Changes are executed in the context of their encompassing ***layer***,
+which means that any templating that needs to occur will be evaluated with the layer's ***vars***
+overriding any inherited vars (i.e. this makes it possible to use the same change for multiple
+different layers with a different value being substituted in via templating and vars).
+
+| Change Type | Params | Description |
+| ----------- | ------ | ----------- |
+| apply | change name | Applies the referrenced change in the context of the encompassing ***layer*** |
+| edit | append, value | Append the given value to the implicated file |
+| edit | append, values | Append the given values to the implicated file |
+| edit | regex, value | Use regular expressions to match and replace with the given value |
+| edit | regex, append, values | Use regular expressions to location an insertion point for the values  |
+| exec | bash script | Executes the given bash script in the context of the encompassing ***layer*** |
+
+**Examples**
+```YAML
+- { apply: config-autologin }
+- { edit: /etc/foo/bar, append: true, value: 'Lorem ipsum de foo bar'}
+- { edit: /etc/foo/bar, append: true, values: ['Lorem ipsum', 'de foo bar'] }
+- { edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(autologin)=.*', value: '\1=<%= USER %>'
+- { edit: /etc/foo/bar, append: after, regex: 'Foo', value: 'Lorem ipsum de foo bar'}
+- { edit: /etc/foo/bar, append: after, regex: 'Foo', values: ['Lorem ipsum', 'de foo bar'] }
+- { exec: 'ln -sf //usr/share/zoneinfo/Zulu /etc/localtime' }
+```
+
+#### Change Block <a name="change-block"/></a>
+Change Blocks are listed in the ***changes*** top level seection of ***spec.yml***
+```YAML
+changes:
+```
+
+### Repos <a name="repos"/></a>
+Defines the repositories that are available for pulling packages from
+
 ## Troubleshooting<a name="troubleshooting"/></a>
 
 ### BlackArch Signature issue <a name="blackarch-signature-issue"/></a>
 To fix the issue below delete ***/var/lib/pacman/sync/*.sig***
 
 Example: 
-```bash
+```
 error: blackarch: signature from "Levon 'noptrix' Kayan (BlackArch Developer) <noptrix@nullsecurity.net>" is invalid
 error: failed to update blackarch (invalid or corrupted database (PGP signature))
 error: database 'blackarch' is not valid (invalid or corrupted database (PGP signature))
@@ -200,3 +356,7 @@ Enable the githooks to have automatic version increments
 $ cd ~/Projects/cyberlinux
 $ git config core.hooksPath .githooks
 ```
+
+<!-- 
+vim: ts=2:sw=2:sts=2
+-->

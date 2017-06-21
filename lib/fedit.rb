@@ -1,8 +1,55 @@
 #!/usr/bin/env ruby
 require 'digest'
 require 'fileutils'
+require 'ostruct'
 
 require_relative 'erb'
+
+# Edit files driven by 'changes'
+# Due to the nature of 'changes' see ../README.md the file implicated in the change
+# should be ignored in favor of the 'file' being passed in which should be properly
+# resolved at this point. Again all templating should have already been resolve as
+# well before this call.
+# Params:
+# +change+:: change yaml to execute
+# +file+:: file to work with
+# +returns+:: true on change
+def file_edit(change, file)
+  k = OpenStruct.new({after: 'after', append: 'append', regex: 'regex',
+    value: 'value', values: 'values'})
+
+  changed = false
+  values = change[k.value] ? [change[k.value]] : change[k.values]
+  FileUtils.mkdir_p(File.dirname(file)) if not File.exist?(File.dirname(file))
+
+  if not File.exist?(file)
+    changed |= file_insert(file, values, offset:nil)
+  else
+#    append = change[k.append]
+#    data = File.open(file, 'rb'){|f| next f.read}
+#    digest = Digest::MD5.hexdigest(data)
+#
+#    # Check if changes have already been made
+#    already = data =~ Regexp.new(Regexp.quote(values.first))
+#    already = values.all?{|y| data =~ Regexp.new(Regexp.quote(y))} if values.size > 1
+#
+#    # Regex replacements
+#    if not append
+#      file_replace(file, change[k.regex], values.first)
+#
+#    # File appends
+#    elsif not already
+#      offset = append == true ? nil : append == k.after ? 1 : 0
+#      file_insert(file, values, regex:change[k.regex], offset:offset)
+#    end
+#
+#    if digest != File.open(path, 'rb'){|f| next Digest::MD5.hexdigest(f.read)}
+#      changed |= true
+#    end
+  end
+
+  return changed
+end
 
 # Replace in file
 # Params:
