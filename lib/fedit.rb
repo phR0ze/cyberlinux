@@ -4,6 +4,42 @@ require 'fileutils'
 
 require_relative 'erb'
 
+# Replace in file
+# Params:
+# +file+:: file to modify
+# +regex+:: regular expression match on
+# +value+:: regulare expression to replace with
+# +returns+:: true on change
+def file_replace(file, regex, value)
+  changed = false
+  begin
+    data = nil
+    File.open(file, 'r+') do |f|
+      data = f.read
+      lines = data.split("\n")
+
+      # Search replace
+      regex = Regexp.new(regex) if regex.is_a?(String)
+      lines.each{|x| x.gsub!(regex, value)}
+      lines.each{|x| x.gsub!(/\r\n/, "\n")}
+
+      # Determine if file changed
+      changed = Digest::MD5.hexdigest(data) != Digest::MD5.hexdigest(lines * "\n")
+
+      # Truncate then write out new content
+      f.seek(0)
+      f.truncate(0)
+      f.puts(lines)
+    end
+  rescue
+    # Revert back to the original incase of failure
+    File.open(file, 'w'){|f| f << data} if data
+    raise
+  end
+
+  return changed
+end
+
 # Insert into a file
 # Location of insert is determined by the given regex and offset.
 # Append is used if no regex is given.
@@ -16,7 +52,7 @@ require_relative 'erb'
 def file_insert(file, values, regex:nil, offset:1)
   return false if not values or values.empty?
 
-  change = false
+  changed = false
   values = [values] if values.is_a?(String)
   FileUtils.touch(file) if not File.exist?(file)
 
@@ -35,7 +71,7 @@ def file_insert(file, values, regex:nil, offset:1)
       # Insert at offset
       values.each{|x|
         lines.insert(i, x) and i += 1
-        change = true
+        changed = true
       }
 
       # Truncate then write out new content
@@ -49,7 +85,7 @@ def file_insert(file, values, regex:nil, offset:1)
     raise
   end
 
-  return change
+  return changed
 end
 
 # Resolve template
@@ -69,7 +105,7 @@ def resolve_template(file, vars)
       _data = data.erb(vars)
 
       # Determine if file changed
-      changed |= Digest::MD5.hexdigest(data) != Digest::MD5.hexdigest(_data)
+      changed = Digest::MD5.hexdigest(data) != Digest::MD5.hexdigest(_data)
 
       # Truncate then write out new content
       if changed

@@ -4,10 +4,96 @@ require 'ostruct'
 
 require_relative '../lib/fedit'
 
+class TestFileReplace < Minitest::Test
+
+  def setup
+    @file = 'foo'
+    @vars ||= {'arch' => 'x86_64','release' => '4.7.4-1', 'distro' => 'cyberlinux'}
+    @mock = Minitest::Mock.new
+    @mock.expect(:seek, nil, [0])
+    @mock.expect(:truncate, nil, [0])
+
+    @file_replace_stub ||= ->(mock, file, regex, value){
+      File.stub(:open, true, mock){
+        file_replace(file, regex, value)
+      }
+    }
+  end
+
+  def test_file_replace_with_regex_comment_multiline
+    data = ['UseFooBar=true', 'UncleBob=false']
+    _data = ['#UseFooBar=true', '#UncleBob=false']
+    @mock.expect(:read, data * "\n")
+    @mock.expect(:puts, nil){|x|
+      print("Failed puts with: ", x) if x != _data
+      x == _data
+    }
+
+    # Weird, needs the ^ to not insert # at begining and end
+    assert(@file_replace_stub[@mock, @file, /^(.*)/, '#\1'])
+    assert_mock @mock
+  end
+
+  def test_file_replace_with_regex_set_value
+    data = ['UseFooBar=true', 'UncleBob=false']
+    _data = ['UseFooBar=false', 'UncleBob=false']
+    @mock.expect(:read, data * "\n")
+    @mock.expect(:puts, nil){|x| x == _data }
+
+    assert(@file_replace_stub[@mock, @file, /(UseFooBar)=.*/, '\1=false'])
+    assert_mock @mock
+  end
+
+  def test_file_replace_with_regex_uncomment_multiline
+    data = ['#UseFooBar=true', '#UncleBob=false']
+    _data = ['UseFooBar=true', 'UncleBob=false']
+    @mock.expect(:read, data * "\n")
+    @mock.expect(:puts, nil){|x| x == _data}
+
+    assert(@file_replace_stub[@mock, @file, /^#(.*)/, '\1'])
+    assert_mock @mock
+  end
+
+  def test_file_replace_with_regex_and_remember_change
+    data = ['bar1', '<%= distro %>', 'bar3']
+    _data = data.clone
+    _data[1] = '<%= bar2 %>'
+    @mock.expect(:read, data * "\n")
+    @mock.expect(:puts, nil){|x| x == _data }
+
+    assert(@file_replace_stub[@mock, @file, /(.*)distro(.*)/, '\1bar2\2'])
+    assert_mock @mock
+  end
+
+  def test_file_replace_with_regex_and_no_change
+    data = ['bar1', '<%= distro %>', 'bar3']
+    _data = data.clone
+    @mock.expect(:read, data * "\n")
+    @mock.expect(:puts, nil){|x| x == _data }
+
+    refute(@file_replace_stub[@mock, @file, /(.*)bistro(.*)/, '\1bar2\2'])
+    assert_mock @mock
+  end
+
+  def test_file_replace_rescue
+    data = ['bar1', 'bar2', 'bar3']
+    mock = Minitest::Mock.new
+    mock.expect(:read, nil) # passing in wrong type here to make it fail
+
+    File.stub(:open, true, mock){
+      assert_raises(NoMethodError){file_replace(@file, /.*foo/, 'foo')}
+    }
+    assert_mock mock
+  end
+end
+
 class TestResolveTemplate < Minitest::Test
 
   def setup
     @vars ||= {'arch' => 'x86_64','release' => '4.7.4-1', 'distro' => 'cyberlinux'}
+    @mock = Minitest::Mock.new
+    @mock.expect(:seek, nil, [0])
+    @mock.expect(:truncate, nil, [0])
 
     @resolve_template_stub ||= ->(mock, file, vars){
       File.stub(:open, true, mock){
@@ -22,21 +108,20 @@ class TestResolveTemplate < Minitest::Test
     mock.expect(:read, data)
     mock.expect(:<<, data, [data])
 
-    assert_raises(NameError){@resolve_template_stub[mock, 'foo', @vars]}
+    File.stub(:open, true, mock){
+      assert_raises(NameError){resolve_template('foo', @vars)}
+    }
     assert_mock mock
   end
 
   def test_resolve_template_with_change
     data = "bar1\n<%= distro %>\nbar3"
     _data = "bar1\ncyberlinux\nbar3"
-    mock = Minitest::Mock.new
-    mock.expect(:read, data)
-    mock.expect(:seek, nil, [0])
-    mock.expect(:truncate, nil, [0])
-    mock.expect(:puts, nil){|x| x == _data }
+    @mock.expect(:read, data)
+    @mock.expect(:puts, nil){|x| x == _data }
 
-    assert(@resolve_template_stub[mock, 'foo', @vars])
-    assert_mock mock
+    assert(@resolve_template_stub[@mock, 'foo', @vars])
+    assert_mock @mock
   end
 
   def test_resolve_template_with_single_file_and_no_change
@@ -53,6 +138,9 @@ class TestFileInsert < Minitest::Test
 
   def setup
     @file ||= 'foo'
+    @mock = Minitest::Mock.new
+    @mock.expect(:seek, nil, [0])
+    @mock.expect(:truncate, nil, [0])
 
     @file_insert_stub ||= ->(mock, file, values, regex:nil, offset:1){
       FileUtils.stub(:touch, true, file){
@@ -71,14 +159,11 @@ class TestFileInsert < Minitest::Test
     values = ['foo1', 'foo2']
     data = ['bar1', 'bar2', 'bar3']
     _data = data * "\n"
-    mock = Minitest::Mock.new
-    mock.expect(:read, _data)
-    mock.expect(:seek, nil, [0])
-    mock.expect(:truncate, nil, [0])
-    mock.expect(:puts, nil){|x| x == values + data }
+    @mock.expect(:read, _data)
+    @mock.expect(:puts, nil){|x| x == values + data }
 
-    assert(@file_insert_stub[mock, @file, values, regex:/.*bar2.*/, offset:-1])
-    assert_mock mock
+    assert(@file_insert_stub[@mock, @file, values, regex:/.*bar2.*/, offset:-1])
+    assert_mock @mock
   end
 
   def test_file_insert_multi_matching_regex_existing_file_with_zero_offset
@@ -87,14 +172,11 @@ class TestFileInsert < Minitest::Test
     _data = data * "\n"
     data.insert(1, values.first)
     data.insert(2, values.last)
-    mock = Minitest::Mock.new
-    mock.expect(:read, _data)
-    mock.expect(:seek, nil, [0])
-    mock.expect(:truncate, nil, [0])
-    mock.expect(:puts, nil){|x| x == data }
+    @mock.expect(:read, _data)
+    @mock.expect(:puts, nil){|x| x == data }
 
-    assert(@file_insert_stub[mock, @file, values, regex:/.*bar2.*/, offset:0])
-    assert_mock mock
+    assert(@file_insert_stub[@mock, @file, values, regex:/.*bar2.*/, offset:0])
+    assert_mock @mock
   end
 
   def test_file_insert_multi_matching_regex_existing_file_with_pos_offset
@@ -103,14 +185,11 @@ class TestFileInsert < Minitest::Test
     _data = data * "\n"
     data.insert(3, values.first)
     data.insert(4, values.last)
-    mock = Minitest::Mock.new
-    mock.expect(:read, _data)
-    mock.expect(:seek, nil, [0])
-    mock.expect(:truncate, nil, [0])
-    mock.expect(:puts, nil){|x| x == data }
+    @mock.expect(:read, _data)
+    @mock.expect(:puts, nil){|x| x == data }
 
-    assert(@file_insert_stub[mock, @file, values, regex:/.*bar2.*/, offset:2])
-    assert_mock mock
+    assert(@file_insert_stub[@mock, @file, values, regex:/.*bar2.*/, offset:2])
+    assert_mock @mock
   end
 
   def test_file_insert_single_non_matching_regex_existing_file_default_offset
@@ -129,14 +208,11 @@ class TestFileInsert < Minitest::Test
     _data = data * "\n"
     data.insert(2, values.first)
     data.insert(3, values.last)
-    mock = Minitest::Mock.new
-    mock.expect(:read, _data)
-    mock.expect(:seek, nil, [0])
-    mock.expect(:truncate, nil, [0])
-    mock.expect(:puts, nil){|x| x == data }
+    @mock.expect(:read, _data)
+    @mock.expect(:puts, nil){|x| x == data }
 
-    assert(@file_insert_stub[mock, @file, values, regex:/.*bar2.*/])
-    assert_mock mock
+    assert(@file_insert_stub[@mock, @file, values, regex:/.*bar2.*/])
+    assert_mock @mock
   end
 
   def test_file_insert_single_matching_regex_existing_file_default_offset
@@ -144,14 +220,11 @@ class TestFileInsert < Minitest::Test
     data = ['bar1', 'bar2', 'bar3']
     _data = data * "\n"
     data.insert(2, values.first)
-    mock = Minitest::Mock.new
-    mock.expect(:read, _data)
-    mock.expect(:seek, nil, [0])
-    mock.expect(:truncate, nil, [0])
-    mock.expect(:puts, nil){|x| x == data }
+    @mock.expect(:read, _data)
+    @mock.expect(:puts, nil){|x| x == data }
 
-    assert(@file_insert_stub[mock, @file, values, regex:/.*bar2.*/])
-    assert_mock mock
+    assert(@file_insert_stub[@mock, @file, values, regex:/.*bar2.*/])
+    assert_mock @mock
   end
 
   # Test Append
@@ -169,52 +242,40 @@ class TestFileInsert < Minitest::Test
     values = ['foo']
     data = ['bar1', 'bar2', 'bar3']
     _data = data * "\n"
-    mock = Minitest::Mock.new
-    mock.expect(:read, _data)
-    mock.expect(:seek, nil, [0])
-    mock.expect(:truncate, nil, [0])
-    mock.expect(:puts, nil){|x| x == data + values }
+    @mock.expect(:read, _data)
+    @mock.expect(:puts, nil){|x| x == data + values }
 
-    assert(@file_insert_stub[mock, @file, values])
-    assert_mock mock
+    assert(@file_insert_stub[@mock, @file, values])
+    assert_mock @mock
   end
 
   def test_file_insert_single_append_new_file
     values = ['foo']
-    mock = Minitest::Mock.new
-    mock.expect(:read, "")
-    mock.expect(:seek, nil, [0])
-    mock.expect(:truncate, nil, [0])
-    mock.expect(:puts, nil){|x| x == values }
+    @mock.expect(:read, "")
+    @mock.expect(:puts, nil){|x| x == values }
 
-    assert(@file_insert_stub[mock, @file, values])
-    assert_mock mock
+    assert(@file_insert_stub[@mock, @file, values])
+    assert_mock @mock
   end
 
   def test_file_insert_multi_append_existing_file
     values = ['foo1', 'foo2']
     data = ['bar1', 'bar2', 'bar3']
     _data = data * "\n"
-    mock = Minitest::Mock.new
-    mock.expect(:read, _data)
-    mock.expect(:seek, nil, [0])
-    mock.expect(:truncate, nil, [0])
-    mock.expect(:puts, nil){|x| x == data + values }
+    @mock.expect(:read, _data)
+    @mock.expect(:puts, nil){|x| x == data + values }
 
-    assert(@file_insert_stub[mock, @file, values])
-    assert_mock mock
+    assert(@file_insert_stub[@mock, @file, values])
+    assert_mock @mock
   end
 
   def test_file_insert_multi_append_new_file
     values = ['foo1', 'foo2']
-    mock = Minitest::Mock.new
-    mock.expect(:read, "")
-    mock.expect(:seek, nil, [0])
-    mock.expect(:truncate, nil, [0])
-    mock.expect(:puts, nil){|x| x == values }
+    @mock.expect(:read, "")
+    @mock.expect(:puts, nil){|x| x == values }
 
-    assert(@file_insert_stub[mock, @file, values])
-    assert_mock mock
+    assert(@file_insert_stub[@mock, @file, values])
+    assert_mock @mock
   end
 
   def test_file_insert_rescue
