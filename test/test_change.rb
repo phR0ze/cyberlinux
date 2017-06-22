@@ -2,42 +2,75 @@
 require 'minitest/autorun'
 require 'ostruct'
 
-require_relative '../lib/edit'
+require_relative '../lib/change'
 
-class TestEdit < Minitest::Test
+class TestApply < Minitest::Test
 
   def setup
     @file = 'foo'
+    @ctx = OpenStruct.new({root: '/de', vars: {var1: 'var1'}})
   end
 
-  def test_edit_doesnt_exist
-    change = { 'value' => 'foo' }
-    
+  def test_apply_file_doesnt_exist
+    change = { 'edit' => 'foo', 'value' => 'bar' }
+
     FileUtils.stub(:mkdir_p, true, @file){
       File.stub(:exist?, false, @file){
-        Edit.stub(:insert, true, @file){
-          assert(Edit.file(change, @file))
+        Change.stub(:insert, true, @file){
+          assert(Change.apply(change, @ctx))
         }
       }
     }
   end
 
-#  def test_edit_exists_changed
-#    change = { 'append' => true, 'value' => 'foo' }
+#  def test_apply_file_replace_exists_changed
+#    change = { 'edit' => 'foo', 'append' => true, 'value' => 'bar' }
+#
 #    mock = Minitest::Mock.new
-#    
-#    FileUtils.stub(:mkdir_p, true, @file){
-#      File.stub(:exist?, true, @file){
-#        File.stub(:read, "", @file){
-#          Edit.stub(:insert, true, @file){
-#            assert(Edit.file(change, @file))
-#          }
+#    mock.expect(:=~, false, [Regexp.new(Regexp.quote('foo'))])
+#
+#    assert_args = ->(file, regex, value){
+#      assert_equal(@file, file)
+#      assert_equal('', values)
+#      assert_equal('', value)
+#      true
+#    }
+#
+#    File.stub(:exist?, true, @file){
+#      File.stub(:read, mock, @file){
+#        Change.stub(:replace, assert_args){
+#          assert(Change.apply(change, @ctx))
 #        }
 #      }
 #    }
 #
 #    assert_mock(mock)
 #  end
+
+  def test_apply_file_insert_exists_changed
+    change = { 'edit' => 'foo', 'append' => true, 'value' => 'bar' }
+
+    mock = Minitest::Mock.new
+    mock.expect(:=~, false, [Regexp.new(Regexp.quote('bar'))])
+
+    assert_args = ->(file, values, opts){
+      assert_equal(File.join(@ctx.root, @file), file)
+      assert_equal(['bar'], values)
+      assert_nil(opts['regex'])
+      assert_nil(opts['offset'])
+      true
+    }
+
+    File.stub(:exist?, true, @file){
+      File.stub(:read, mock, @file){
+        Change.stub(:insert, assert_args){
+          assert(Change.apply(change, @ctx))
+        }
+      }
+    }
+
+    assert_mock(mock)
+  end
 end
 
 class TestReplace < Minitest::Test
@@ -51,7 +84,7 @@ class TestReplace < Minitest::Test
 
     @replace_lam ||= ->(mock, file, regex, value){
       File.stub(:open, true, mock){
-        Edit.replace(file, regex, value)
+        Change.replace(file, regex, value)
       }
     }
   end
@@ -116,7 +149,7 @@ class TestReplace < Minitest::Test
     @mock.expect(:read, nil) # passing in wrong type here to make it fail
 
     File.stub(:open, true, @mock){
-      assert_raises(NoMethodError){Edit.replace(@file, /.*foo/, 'foo')}
+      assert_raises(NoMethodError){Change.replace(@file, /.*foo/, 'foo')}
     }
   end
 end
@@ -131,7 +164,7 @@ class TestResolve < Minitest::Test
 
     @resolve_lam ||= ->(mock, file, vars){
       File.stub(:open, true, mock){
-        Edit.resolve(file, vars)
+        Change.resolve(file, vars)
       }
     }
   end
@@ -147,7 +180,7 @@ class TestResolve < Minitest::Test
     @mock.expect(:<<, data, [data])
 
     File.stub(:open, true, @mock){
-      assert_raises(NameError){Edit.resolve('foo', @vars)}
+      assert_raises(NameError){Change.resolve('foo', @vars)}
     }
   end
 
@@ -181,7 +214,7 @@ class TestFileInsert < Minitest::Test
       FileUtils.stub(:touch, true, file){
         File.stub(:exist?, false, file){
           File.stub(:open, true, mock){
-            Edit.insert(file, values, regex:regex, offset:offset)
+            Change.insert(file, values, regex:regex, offset:offset)
           }
         }
       }

@@ -304,24 +304,30 @@ which means that any templating that needs to occur will be evaluated with the l
 overriding any inherited vars (i.e. this makes it possible to use the same change for multiple
 different layers with a different value being substituted in via templating and vars).
 
+There are four fundamental changes types: ***apply, edit, exec*** and ***resolve***
+
 | Change Type | Params | Description |
 | ----------- | ------ | ----------- |
 | apply | change name | Applies the referrenced change in the context of the encompassing ***layer*** |
+| chroot | bash script | Variation of ***exec*** but executes in a chroot of the encompassing ***layer*** |
 | edit | append, value | Append the given value to the implicated file |
 | edit | append, values | Append the given values to the implicated file |
 | edit | regex, value | Use regular expressions to match and replace with the given value |
 | edit | regex, append, values | Use regular expressions to location an insertion point for the values  |
 | exec | bash script | Executes the given bash script in the context of the encompassing ***layer*** |
+| resolve | filepath | Resolves ERB templating for the given file in the context of the encompassing ***layer*** |
 
 **Examples**
 ```YAML
 - { apply: config-autologin }
+- { chroot: systemctl enable sshd.service }
 - { edit: /etc/foo/bar, append: true, value: 'Lorem ipsum de foo bar'}
 - { edit: /etc/foo/bar, append: true, values: ['Lorem ipsum', 'de foo bar'] }
 - { edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(autologin)=.*', value: '\1=<%= USER %>'
 - { edit: /etc/foo/bar, append: after, regex: 'Foo', value: 'Lorem ipsum de foo bar'}
 - { edit: /etc/foo/bar, append: after, regex: 'Foo', values: ['Lorem ipsum', 'de foo bar'] }
 - { exec: 'ln -sf //usr/share/zoneinfo/Zulu /etc/localtime' }
+- { resolve: /etc/os-release }
 ```
 
 #### Change Block <a name="change-block"/></a>

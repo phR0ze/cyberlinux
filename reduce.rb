@@ -11,7 +11,7 @@ require 'rubygems/package'      # tar
 require 'yaml'                  # YAML
 
 require_relative 'lib/erb'      # ERB Handlers for different types
-require_relative 'lib/edit'     # Programatic file editor
+require_relative 'lib/change'   # Programatic file editor
 
 # Gems that should already be installed
 begin
