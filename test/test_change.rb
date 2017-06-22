@@ -25,6 +25,11 @@ class TestApply < Minitest::Test
     })
   end
 
+  def test_apply_with_exec
+    change = { 'exec' => 'bob' }
+    refute(Change.apply(change, @ctx))
+  end
+
   def test_apply_with_templating_reference
     change = { 'apply' => 'config-foobar2'}
     change_insert_helper(change, 1)
@@ -152,12 +157,6 @@ class TestApply < Minitest::Test
     }
 
     assert_mock(mock)
-  end
-end
-
-class TestExec < Minitest::Test
-
-  def setup
   end
 end
 

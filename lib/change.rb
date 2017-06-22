@@ -5,11 +5,6 @@ require 'ostruct'
 
 require_relative 'erb'
 
-# There are four fundamental changes types
-# apply - apply implicated changes
-# edit - edit files as directed (insert, replace)
-# exec - execute a bash script optionally in a chroot
-# resolve - resolve ERB templating
 module Change
 
   # Apply the given change
@@ -24,8 +19,9 @@ module Change
   def apply(changes, ctx)
     changed = false
     changes = [changes] if not changes.is_a?(Array)
-    k = OpenStruct.new({after: 'after', apply: 'apply', before: 'before', append: 'append',
-      edit: 'edit', regex: 'regex', resolve: 'resolve', value: 'value', values: 'values'})
+    k = OpenStruct.new({after: 'after', apply: 'apply', append: 'append', before: 'before',
+      chroot: 'chroot', edit: 'edit', exec: 'exec', regex: 'regex', resolve: 'resolve',
+      value: 'value', values: 'values'})
     changes.each{|change|
 
       # Recurse on change references
@@ -37,7 +33,7 @@ module Change
           raise
         end
 
-      # Apply the actual change
+      # Apply the change
       else
 
         # Resolve templating in the actual change
@@ -46,7 +42,7 @@ module Change
         # Update paths according to the given ctx
         # TODO: handle context switch to different layer
         file = change[k.edit] || change[k.resolve]
-        file = file.start_with?('//') ? file[1..-1] : File.join(ctx.root, file)
+        file = file.start_with?('//') ? file[1..-1] : File.join(ctx.root, file) if file
 
         # Apply file edits
         if change[k.edit]
@@ -74,21 +70,8 @@ module Change
           end
 
         # Resolve template
-        elsif change[k.resolve]
-          changed |= Change.resolve(file, ctx.vars)
-        end
-      end
-    }
-
-    return changed
-  end
-  module_function(:apply)
-
-  # Execute the given bash script optionally in a chroot
-  # Params:
-  # +script+:: bash script to execute
-  # +chroot+:: chroot to execute in
-  def exec(script, chroot:nil)
+        elsif change[k.exec] || change[k.chroot]
+          puts(change[k.exec])
 #       # Split on spaces
 #        cmd = change[@k.exec].split(' ')
 #
@@ -101,9 +84,16 @@ module Change
 #        # Execute cmd
 #        sys(cmd * ' ')
 
+        # Resolve template
+        elsif change[k.resolve]
+          changed |= Change.resolve(file, ctx.vars)
+        end
+      end
+    }
 
+    return changed
   end
-  module_function(:exec)
+  module_function(:apply)
 
   # Replace in file
   # Params:
