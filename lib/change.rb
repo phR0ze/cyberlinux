@@ -40,12 +40,13 @@ module Change
       # Apply the actual change
       else
 
+        # Resolve templating in the actual change
+        change = change.erb(ctx.vars)
+
         # Update paths according to the given ctx
         # TODO: handle context switch to different layer
         file = change[k.edit] || change[k.resolve]
         file = file.start_with?('//') ? file[1..-1] : File.join(ctx.root, file)
-
-        # Resolve change templating according to the given ctx
 
         # Apply file edits
         if change[k.edit]

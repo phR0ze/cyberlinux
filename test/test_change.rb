@@ -11,14 +11,28 @@ class TestApply < Minitest::Test
     @ctx = OpenStruct.new({
       root: '/de',
       vars: {
-        var1: 'var1'
+        var1: 'var1',
+        file_var: 'foo'
       },
       changes: {
         'config-foobar1' => [
           { 'edit' => 'foo', 'append' => 'after', 'value' => 'bar', 'regex' => '/bob/' }
+        ],
+        'config-foobar2' => [
+          { 'edit' => '<%= file_var %>', 'append' => 'after', 'value' => 'bar', 'regex' => '/bob/' }
         ]
       }
     })
+  end
+
+  def test_apply_with_templating_reference
+    change = { 'apply' => 'config-foobar2'}
+    change_insert_helper(change, 1)
+  end
+
+  def test_apply_with_templating
+    change = { 'edit' => '<%= file_var %>', 'append' => 'after', 'value' => 'bar', 'regex' => '/bob/' }
+    change_insert_helper(change, 1)
   end
 
   def test_apply_with_resolve
