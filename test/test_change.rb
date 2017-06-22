@@ -8,7 +8,35 @@ class TestApply < Minitest::Test
 
   def setup
     @file = 'foo'
-    @ctx = OpenStruct.new({root: '/de', vars: {var1: 'var1'}})
+    @ctx = OpenStruct.new({
+      root: '/de',
+      vars: {
+        var1: 'var1'
+      },
+      changes: {
+        'config-foobar1' => [
+          { 'edit' => 'foo', 'append' => 'after', 'value' => 'bar', 'regex' => '/bob/' }
+        ]
+      }
+    })
+  end
+
+  def test_apply_with_resolve
+  end
+
+  def test_apply_with_resolve
+  end
+
+  def test_apply_with_apply_reference_fail
+    change = { 'apply' => 'config-bar' }
+    Change.stub(:puts, nil){
+      assert_raises(NoMethodError){change_insert_helper(change, 1)}
+    }
+  end
+
+  def test_apply_with_apply_reference_success
+    change = { 'apply' => 'config-foobar1' }
+    change_insert_helper(change, 1)
   end
 
   def test_apply_file_doesnt_exist
@@ -47,9 +75,7 @@ class TestApply < Minitest::Test
     assert_mock(mock)
   end
 
-  def change_insert_helper(append, offset)
-    change = { 'edit' => 'foo', 'append' => append, 'value' => 'bar', 'regex' => '/bob/' }
-
+  def change_insert_helper(change, offset)
     mock = Minitest::Mock.new
     mock.expect(:=~, false, [Regexp.new(Regexp.quote('bar'))])
 
@@ -73,9 +99,12 @@ class TestApply < Minitest::Test
   end
 
   def test_apply_insert
-    change_insert_helper('after', 1)
-    change_insert_helper('before', 0)
-    change_insert_helper(true, nil)
+    change = { 'edit' => 'foo', 'append' => 'after', 'value' => 'bar', 'regex' => '/bob/' }
+    change_insert_helper(change, 1)
+    change['append'] = 'before'
+    change_insert_helper(change, 0)
+    change['append'] = true
+    change_insert_helper(change, nil)
   end
 
   def test_apply_append

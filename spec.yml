@@ -3,7 +3,7 @@
 # Release specification
 #------------------------------------------------------------------------------
 vars:
-  release: 0.0.29
+  release: 0.0.30
   distro: cyberlinux
 
 build:
