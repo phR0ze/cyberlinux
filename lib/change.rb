@@ -89,6 +89,19 @@ module Change
   # +script+:: bash script to execute
   # +chroot+:: chroot to execute in
   def exec(script, chroot:nil)
+#       # Split on spaces
+#        cmd = change[@k.exec].split(' ')
+#
+#        # Redirect paths to work with rootfs
+#        cmd = cmd.map{|x| (x.include?('/') and not x.include?('//')) ? File.join(layer_work, x) : x}
+#
+#        # Remove escape for absolute paths
+#        cmd = cmd.map{|x| x.include?('//') ? x[1..-1] : x}
+#
+#        # Execute cmd
+#        sys(cmd * ' ')
+
+
   end
   module_function(:exec)
 

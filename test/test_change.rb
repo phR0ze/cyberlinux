@@ -155,24 +155,9 @@ class TestApply < Minitest::Test
   end
 end
 
-class TestReplace < Minitest::Test
+class TestExec < Minitest::Test
 
   def setup
-    @file = 'foo'
-    @vars ||= {'arch' => 'x86_64','release' => '4.7.4-1', 'distro' => 'cyberlinux'}
-    @mock = Minitest::Mock.new
-    @mock.expect(:seek, nil, [0])
-    @mock.expect(:truncate, nil, [0])
-
-    @replace_lam ||= ->(mock, file, regex, value){
-      File.stub(:open, true, mock){
-        Change.replace(file, regex, value)
-      }
-    }
-  end
-
-  def teardown
-    assert_mock(@mock)
   end
 end
 
