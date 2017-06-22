@@ -22,9 +22,17 @@ class TestApply < Minitest::Test
   end
 
   def test_apply_with_resolve
-  end
+    change = { 'resolve' => 'foo' }
 
-  def test_apply_with_resolve
+    assert_args = ->(file, vars){
+      assert_equal(File.join(@ctx.root, @file), file)
+      assert_equal(@ctx.vars, vars)
+      true
+    }
+
+    Change.stub(:resolve, assert_args){
+      assert(Change.apply(change, @ctx))
+    }
   end
 
   def test_apply_with_apply_reference_fail
