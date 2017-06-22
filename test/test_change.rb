@@ -23,32 +23,32 @@ class TestApply < Minitest::Test
     }
   end
 
-#  def test_apply_file_replace_exists_changed
-#    change = { 'edit' => 'foo', 'append' => true, 'value' => 'bar' }
-#
-#    mock = Minitest::Mock.new
-#    mock.expect(:=~, false, [Regexp.new(Regexp.quote('foo'))])
-#
-#    assert_args = ->(file, regex, value){
-#      assert_equal(@file, file)
-#      assert_equal('', values)
-#      assert_equal('', value)
-#      true
-#    }
-#
-#    File.stub(:exist?, true, @file){
-#      File.stub(:read, mock, @file){
-#        Change.stub(:replace, assert_args){
-#          assert(Change.apply(change, @ctx))
-#        }
-#      }
-#    }
-#
-#    assert_mock(mock)
-#  end
+  def test_apply_replace
+    change = { 'edit' => 'foo', 'regex' => '/bob/', 'value' => 'bar' }
 
-  def test_apply_file_insert_exists_changed
-    change = { 'edit' => 'foo', 'append' => true, 'value' => 'bar' }
+    mock = Minitest::Mock.new
+    mock.expect(:=~, false, [Regexp.new(Regexp.quote('bar'))])
+
+    assert_args = ->(file, regex, value){
+      assert_equal(File.join(@ctx.root, @file), file)
+      assert_equal('/bob/', regex)
+      assert_equal('bar', value)
+      true
+    }
+
+    File.stub(:exist?, true, @file){
+      File.stub(:read, mock, @file){
+        Change.stub(:replace, assert_args){
+          assert(Change.apply(change, @ctx))
+        }
+      }
+    }
+
+    assert_mock(mock)
+  end
+
+  def change_insert_helper(append, offset)
+    change = { 'edit' => 'foo', 'append' => append, 'value' => 'bar', 'regex' => '/bob/' }
 
     mock = Minitest::Mock.new
     mock.expect(:=~, false, [Regexp.new(Regexp.quote('bar'))])
@@ -56,8 +56,8 @@ class TestApply < Minitest::Test
     assert_args = ->(file, values, opts){
       assert_equal(File.join(@ctx.root, @file), file)
       assert_equal(['bar'], values)
-      assert_nil(opts['regex'])
-      assert_nil(opts['offset'])
+      assert_equal('/bob/', opts[:regex])
+      opts[:offset] ? assert_equal(offset, opts[:offset]) : assert_nil(opts[:offset])
       true
     }
 
@@ -70,6 +70,58 @@ class TestApply < Minitest::Test
     }
 
     assert_mock(mock)
+  end
+
+  def test_apply_insert
+    change_insert_helper('after', 1)
+    change_insert_helper('before', 0)
+    change_insert_helper(true, nil)
+  end
+
+  def test_apply_append
+    change = { 'edit' => 'foo', 'append' => true, 'value' => 'bar' }
+
+    mock = Minitest::Mock.new
+    mock.expect(:=~, false, [Regexp.new(Regexp.quote('bar'))])
+
+    assert_args = ->(file, values, opts){
+      assert_equal(File.join(@ctx.root, @file), file)
+      assert_equal(['bar'], values)
+      assert_nil(opts[:regex])
+      assert_nil(opts[:offset])
+      true
+    }
+
+    File.stub(:exist?, true, @file){
+      File.stub(:read, mock, @file){
+        Change.stub(:insert, assert_args){
+          assert(Change.apply(change, @ctx))
+        }
+      }
+    }
+
+    assert_mock(mock)
+  end
+end
+
+class TestReplace < Minitest::Test
+
+  def setup
+    @file = 'foo'
+    @vars ||= {'arch' => 'x86_64','release' => '4.7.4-1', 'distro' => 'cyberlinux'}
+    @mock = Minitest::Mock.new
+    @mock.expect(:seek, nil, [0])
+    @mock.expect(:truncate, nil, [0])
+
+    @replace_lam ||= ->(mock, file, regex, value){
+      File.stub(:open, true, mock){
+        Change.replace(file, regex, value)
+      }
+    }
+  end
+
+  def teardown
+    assert_mock(@mock)
   end
 end
 

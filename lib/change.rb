@@ -22,8 +22,8 @@ module Change
   # +returns+:: true on change
   def apply(change, ctx)
     changed = false
-    k = OpenStruct.new({after: 'after', append: 'append', edit: 'edit', regex: 'regex',
-      value: 'value', values: 'values'})
+    k = OpenStruct.new({after: 'after', before: 'before', append: 'append', edit: 'edit',
+      regex: 'regex', value: 'value', values: 'values'})
 
     # Update paths according to the given ctx
     file = change[k.edit]
