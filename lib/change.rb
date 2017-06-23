@@ -105,6 +105,7 @@ module Change
   end
   module_function(:apply)
 
+  # TODO: detect change to file system
   # TODO: handle context switch to different layer
   # Redirect paths according to the given contex
   # Params:
@@ -113,25 +114,21 @@ module Change
   # +k+:: OpenStruct of keys for mapping
   # +returns+:: redirected string
   def redirect(change, ctx, k)
+    all = [change[k.edit], change[k.resolve], change[k.exec]].compact
+    raise ArgumentError.new("Invalid change type") if not all.any?
+    return change if all.any?{|x| x.include?(ctx.root)}
 
     # Handle edits and resolves
     if (file = change[k.edit] || change[k.resolve])
       raise ArgumentError.new("Paths must be absolute") if not file.start_with?('/')
-      if not file.include?(ctx.root)
-        file = file.start_with?('//') ? file[1..-1] : File.join(ctx.root, file)
-        change[k.edit] = file if change[k.edit]
-        change[k.resolve] = file if change[k.resolve]
-      end
+      file = file.start_with?('//') ? file[1..-1] : File.join(ctx.root, file)
+      change[k.edit] = file if change[k.edit]
+      change[k.resolve] = file if change[k.resolve]
 
     # Handle bash scripts
     elsif change[k.exec]
-      if not change[k.exec].include?(ctx.root)
-        file = change[k.exec]
-        file = file.start_with?('//') ? file[1..-1] : File.join(ctx.root, file)
-        change[k.exec] = file
-          #@vars.kernel = page[/<title>(.*?)<\/title>/, 1][/.*linux (.*) \(x86_64\)/, 1]
-          #.map{|x| x.select{|y| not y[0] =~ /[0-9]/} * '-'}.sort
-      end
+      change[k.exec].gsub!(/ \/([^\/])/, ' ' + ctx.root + '/' + '\1')
+      change[k.exec].gsub!(/ \/\//, ' /')
     end
 
     return change

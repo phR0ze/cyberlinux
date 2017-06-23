@@ -10,6 +10,10 @@ class TestErb < Minitest::Test
     @vars ||= {'arch' => 'x86_64','release' => '4.7.4-1', 'distro' => 'cyberlinux'}
   end
 
+  def test_erb_with_nil_vars
+    assert_raises(ArgumentError){"<%= arch %>".erb(nil)}
+  end
+
   def test_erb_with_openstruct_vars
     vars = OpenStruct.new({'arch' => 'x86_64','release' => '4.7.4-1', 'distro' => 'cyberlinux'})
     assert_equal("<%= arch %>".erb(vars), vars.arch)

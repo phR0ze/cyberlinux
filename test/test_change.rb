@@ -3,6 +3,7 @@ require 'minitest/autorun'
 require 'ostruct'
 
 require_relative '../lib/change'
+require_relative '../lib/sys'
 
 class TestApply < Minitest::Test
 
@@ -26,8 +27,14 @@ class TestApply < Minitest::Test
   end
 
   def test_apply_with_exec
-    #change = { 'exec' => 'bob' }
-    #refute(Change.apply(change, @ctx))
+    ctx = OpenStruct.new({ root: '.', vars: { var1: 'var1', file_var: '/foo' } })
+
+    Sys.stub(:puts, nil){
+      refute(Change.apply({'exec' => 'touch /foo'}, ctx))
+      assert(File.exist?('foo'))
+      refute(Change.apply({'exec' => 'rm /foo'}, ctx))
+      refute(File.exist?('foo'))
+    }
   end
 
   def test_apply_with_templating_reference
@@ -166,9 +173,56 @@ class TestRedirect < Minitest::Test
     @ctx = OpenStruct.new({ root: '/de' })
   end
 
-  def test_redirect
-    change = {'exec' => '/foo'}
-    assert_equal({'exec' => '/de/foo'}, Change.redirect(change, @ctx, Change.keys))
+  def test_redirect_with_relative_root
+    change = {'exec' => "touch /foo"}
+    ctx = OpenStruct.new({ root: '.' })
+    assert_equal({'exec' => "touch ./foo"}, Change.redirect(change, ctx, Change.keys))
+  end
+
+  def test_redirect_with_exec_multi
+    change = {'exec' => "touch //foo && echo '/foo' > /foo; tee /foo2 /foo3"}
+    assert_equal({'exec' => "touch /foo && echo '/foo' > /de/foo; tee /de/foo2 /de/foo3"},
+      Change.redirect(change, @ctx, Change.keys))
+  end
+
+  def test_redirect_with_exec_combo
+    change = {'exec' => "touch //foo && echo '/foo' > /foo"}
+    assert_equal({'exec' => "touch /foo && echo '/foo' > /de/foo"}, Change.redirect(change, @ctx, Change.keys))
+  end
+
+  def test_redirect_with_exec_host
+    change = {'exec' => 'touch //foo'}
+    assert_equal({'exec' => 'touch /foo'}, Change.redirect(change, @ctx, Change.keys))
+  end
+
+  def test_redirect_with_exec
+    change = {'exec' => 'touch /foo'}
+    assert_equal({'exec' => 'touch /de/foo'}, Change.redirect(change, @ctx, Change.keys))
+  end
+
+  def test_redirect_with_bogus
+    change = {'bogus' => '/foo'}
+    assert_raises(ArgumentError){Change.redirect(change, @ctx, Change.keys)}
+  end
+
+  def test_redirect_with_resolve_host
+    change = {'resolve' => '//foo'}
+    assert_equal({'resolve' => '/foo'}, Change.redirect(change, @ctx, Change.keys))
+  end
+
+  def test_redirect_with_resolve
+    change = {'resolve' => '/foo'}
+    assert_equal({'resolve' => '/de/foo'}, Change.redirect(change, @ctx, Change.keys))
+  end
+
+  def test_redirect_with_edit_host
+    change = {'edit' => '//foo'}
+    assert_equal({'edit' => '/foo'}, Change.redirect(change, @ctx, Change.keys))
+  end
+
+  def test_redirect_with_edit
+    change = {'edit' => '/foo'}
+    assert_equal({'edit' => '/de/foo'}, Change.redirect(change, @ctx, Change.keys))
   end
 end
 

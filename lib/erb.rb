@@ -19,6 +19,8 @@ end
 class ERBResolve
 
   def initialize(vars)
+    raise ArgumentError.new("Variables are required") if not vars
+
     @vars = vars.is_a?(OpenStruct) ? vars.to_h : vars
     @context = ERBContext.new(@vars).get_binding
   end
