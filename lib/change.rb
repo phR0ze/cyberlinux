@@ -7,6 +7,26 @@ require_relative 'erb'
 
 module Change
 
+  # Get change keys
+  # Params:
+  # +returns+:: OpenStruct of all the string keys being used for changes
+  def keys
+    return OpenStruct.new({
+      after: 'after',
+      apply: 'apply',
+      append: 'append',
+      before: 'before',
+      chroot: 'chroot',
+      edit: 'edit',
+      exec: 'exec',
+      regex: 'regex',
+      resolve: 'resolve',
+      value: 'value',
+      values: 'values'
+    })
+  end
+  module_function(:keys)
+
   # Apply the given change
   # This is the only method that can directly deal with changes and is meant to be the entry point
   # for all changes. Other methods surfaced in this module are only exposed for simplicity.
@@ -19,9 +39,7 @@ module Change
   def apply(changes, ctx)
     changed = false
     changes = [changes] if not changes.is_a?(Array)
-    k = OpenStruct.new({after: 'after', apply: 'apply', append: 'append', before: 'before',
-      chroot: 'chroot', edit: 'edit', exec: 'exec', regex: 'regex', resolve: 'resolve',
-      value: 'value', values: 'values'})
+    k = Change.keys
     changes.each{|change|
 
       # Recurse on change references
@@ -39,13 +57,16 @@ module Change
         # Resolve templating in the actual change
         change = change.erb(ctx.vars)
 
-        # Update paths according to the given ctx
-        # TODO: handle context switch to different layer
-        file = change[k.edit] || change[k.resolve]
-        file = file.start_with?('//') ? file[1..-1] : File.join(ctx.root, file) if file
+        # Redirect paths as required
+        change = Change.redirect(change, ctx, k) if not change[k.chroot]
+
+        # Apply bash scripts
+        if change[k.chroot]
+          Sys.exec("arch-chroot #{ctx.root} #{change[k.chroot]}")
 
         # Apply file edits
-        if change[k.edit]
+        elsif change[k.edit]
+          file = change[k.edit]
           values = change[k.value] ? [change[k.value]] : change[k.values]
           FileUtils.mkdir_p(File.dirname(file)) if not File.exist?(File.dirname(file))
 
@@ -69,24 +90,13 @@ module Change
             end
           end
 
-        # Resolve template
-        elsif change[k.exec] || change[k.chroot]
-          puts(change[k.exec])
-#       # Split on spaces
-#        cmd = change[@k.exec].split(' ')
-#
-#        # Redirect paths to work with rootfs
-#        cmd = cmd.map{|x| (x.include?('/') and not x.include?('//')) ? File.join(layer_work, x) : x}
-#
-#        # Remove escape for absolute paths
-#        cmd = cmd.map{|x| x.include?('//') ? x[1..-1] : x}
-#
-#        # Execute cmd
-#        sys(cmd * ' ')
+        # Apply bash scripts
+        elsif change[k.exec]
+          Sys.exec(change[k.exec])
 
         # Resolve template
         elsif change[k.resolve]
-          changed |= Change.resolve(file, ctx.vars)
+          changed |= Change.resolve(change[k.resolve], ctx.vars)
         end
       end
     }
@@ -94,6 +104,39 @@ module Change
     return changed
   end
   module_function(:apply)
+
+  # TODO: handle context switch to different layer
+  # Redirect paths according to the given contex
+  # Params:
+  # +change+:: YAML block to redirect paths for
+  # +ctx+:: OpenStruct context to work with
+  # +k+:: OpenStruct of keys for mapping
+  # +returns+:: redirected string
+  def redirect(change, ctx, k)
+
+    # Handle edits and resolves
+    if (file = change[k.edit] || change[k.resolve])
+      raise ArgumentError.new("Paths must be absolute") if not file.start_with?('/')
+      if not file.include?(ctx.root)
+        file = file.start_with?('//') ? file[1..-1] : File.join(ctx.root, file)
+        change[k.edit] = file if change[k.edit]
+        change[k.resolve] = file if change[k.resolve]
+      end
+
+    # Handle bash scripts
+    elsif change[k.exec]
+      if not change[k.exec].include?(ctx.root)
+        file = change[k.exec]
+        file = file.start_with?('//') ? file[1..-1] : File.join(ctx.root, file)
+        change[k.exec] = file
+          #@vars.kernel = page[/<title>(.*?)<\/title>/, 1][/.*linux (.*) \(x86_64\)/, 1]
+          #.map{|x| x.select{|y| not y[0] =~ /[0-9]/} * '-'}.sort
+      end
+    end
+
+    return change
+  end
+  module_function(:redirect)
 
   # Replace in file
   # Params:
