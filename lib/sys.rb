@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
-require 'fileutils'         # advanced file utils: FileUtils
+require 'fileutils'
+require 'ostruct'
 
 begin
   require 'colorize'        # color output: colorize
@@ -84,6 +85,59 @@ module Sys
   end
   module_function(:umount)
 
+  # Drop root privileges to original user
+  # Only affects ruby commands not system commands
+  # Params:
+  # +returns+:: uid, gid of prior user
+  def drop_privileges()
+    uid = gid = nil
+
+    if not Gem.win_platform? and Process.uid.zero?
+      uid, gid = Process.uid, Process.gid
+      sudo_uid, sudo_gid = ENV['SUDO_UID'].to_i, ENV['SUDO_GID'].to_i
+      Process::Sys.setegid(sudo_uid)
+      Process::Sys.seteuid(sudo_gid)
+    end
+
+    return uid, gid
+  end
+  module_function(:drop_privileges)
+
+  # Raise privileges if dropped earlier
+  # Only affects ruby commands not system commands
+  # Params:
+  # +uid+:: uid of user to assume
+  # +gid+:: gid of user to assume
+  def raise_privileges(uid, gid)
+    if not Gem.win_platform? and uid and gid
+      Process::Sys.seteuid(uid)
+      Process::Sys.setegid(gid)
+    end
+  end
+  module_function(:raise_privileges)
+
+  # Capture stdout for the block given
+  # +block+:: block of code to execute
+  # +returns+:: string of the captured stdout
+  def capture(&block)
+
+    begin
+      # Capture output
+      stdout, stderr = StringIO.new, StringIO.new
+      $stdout, $stderr = stdout, stderr
+
+      # Invoke block
+      result = block.call
+
+    # Restore normal operation
+    ensure
+      $stdout, $stderr = STDOUT, STDERR
+    end
+
+    # Return results
+    OpenStruct.new(result: result, stdout: stdout.string, stderr: stderr.string)
+  end
+  module_function(:capture)
 end
 
 # vim: ft=ruby:ts=2:sw=2:sts=2

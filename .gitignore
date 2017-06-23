@@ -8,9 +8,6 @@ aur/*/*.deb
 aur/*/*.zip
 aur/awf/awf
 aur/delve/delve
-aur/alertmanager/alertmanager
-aur/chromium/extensions
-aur/freeswitch/freeswitch/
 aur/kubernetes/cni
 aur/kubernetes/kubernetes
 aur/kubernetes/release
