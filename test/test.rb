@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 require_relative 'test_erb'
+require_relative 'test_fedit'
 require_relative 'test_change'
 require_relative 'test_reduce'
 require_relative 'test_sys'

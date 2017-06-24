@@ -4,16 +4,29 @@
 #------------------------------------------------------------------------------
 vars:
   arch: x86_64
-  release: 0.0.37
+  release: 0.0.40
   distro: cyberlinux
   timezone: US/Mountain
+
+  netname: vboxnet0
+  netip: 192.168.56.1
+  netmask: 255.255.255.0
+  netcider: 24
+  netmatch: "en* eth*"
 
 build:
   layer: build
   type: container
+  multilib: true
+  run: [ '-e TERM=xterm {{ IMAGE }} bash -c "while :; do sleep 5; done"' ]
+  packages:
+    - { install: machine-core }
+    - { install: machine-tools }
+    - { install: dev-tools }
+    - { install: initramfs-deps }
+    - { install: isolinux-deps }
 
 layers:
-
   - layer: base
     type: machine
     vars:
@@ -78,3 +91,369 @@ repos:
       - Server = http://distro.ibiblio.org/blackarch/$repo/os/$arch
       - Server = https://deadbeef.ninja/blackarch/$repo/os/$arch
       - Server = http://mirror.team-cymru.org/blackarch/$repo/os/$arch
+
+packages:
+  container-core:
+    - { pkg: bash,                          desc: GNU Bourne Again shell }
+    - { pkg: gcc-libs,                      desc: GCC runtime libraries, multilib: false, depof: ncurses }
+    - { pkg: gcc-libs-multilib,             desc: GCC runtime libraries, multilib: true, depof: ncurses }
+    - { pkg: glibc,                         desc: GNU C Library, depof: bash }
+    - { pkg: filesystem,                    desc: Base Arch Linux filesystem, depof: glibc }
+    - { pkg: linux-api-headers,             desc: Linux API headers, depof: glibc }
+    - { pkg: ncurses,                       desc: System V curses emulation library, depof: bash }
+    - { pkg: tzdata,                        desc: Time zone data, depof: glibc }
+
+  machine-core:
+    - { install: container-core }
+    - { pkg: intel-ucode,                   desc: Microcode update files for Intel CPUs }
+    - { pkg: linux,                         desc: Linux kernel and supporting modules }
+    - { pkg: lsb-release,                   desc: LSB version query program }
+    - { pkg: mkinitcpio,                    desc: initramfs image creation utility }
+    #- { pkg: mkinitcpio-vt-colors,          desc: vt console colors, type: FOREIGN }
+    - { pkg: syslinux,                      desc: Boot loaders for ext2/3/4 USB and CD }
+    - { pkg: systemd,                       desc: System and service manager }
+    - { pkg: systemd-sysvcompat,            desc: Sysinit compat for systemd }
+
+  container-tools:
+    - { pkg: coreutils,                     desc: Basic linux utils e.g. cat/chown/chmod/cp/df/echo/ls/mv/ln }
+    - { pkg: gzip,                          desc: GNU compression utility, depof: locale-gen build-devel }
+    - { pkg: inetutils,                     desc: hostname, ftp, telnet }
+    - { pkg: iproute2,                      desc: ifcfg/ip other networking tools }
+    - { pkg: net-tools,                     desc: arp/ifconfig/iptunnel/netstat }
+    - { pkg: openssl,                       desc: Secure sockets layer and TLS, depof: coreutils }
+    - { pkg: perl,                          desc: Perl language, depof: openssl }
+    - { pkg: procps-ng,                     desc: pidof/pkill/ps/top/uptime etc..., size: 1MB }
+    - { pkg: sed,                           desc: GNU stream editor, depof: locale-gen build-devel, size: 1MB }
+    - { pkg: tar,                           desc: File store backup and transport utility, depof: k8s cp }
+    - { pkg: vim,                           desc: Improved version of vi text editor, size: 28MB }
+    - { pkg: vim-systemd,                   desc: Vim syntax highlighting for systemd }
+
+  machine-tools:
+    - { install: container-tools }
+    - { pkg: bash-completion,               desc: Bash tab completion }
+    - { pkg: e2fsprogs,                     desc: Ext2/3/4 filesystem utilities }
+    - { pkg: findutils,                     desc: find/xargs, depof: curl build-devel }
+    - { pkg: gcc,                           desc: GNU Compiler Collection, multilib: false, depof: base-devel }
+    - { pkg: gcc-multilib,                  desc: GNU Compiler Collection, multilib: true, depof: base-devel }
+    - { pkg: grep,                          desc: search text util, depof: build-devel }
+    - { pkg: gptfdisk,                      desc: Text-mode paritioning tools e.g. sgdisk }
+    - { pkg: haveged,                       desc: Entropy harvesting, depof: pacman-key --init }
+    - { pkg: logrotate,                     desc: Rotates system logs automatically }
+    - { pkg: openssh,                       desc: Open source SSH implementation }
+    - { pkg: pacman,                        desc: Package manager with dependency support, depof: build-devel }
+    - { pkg: rsync,                         desc: Remote file transfer sync utility }
+    - { pkg: shadow,                        desc: Account mgmt e.g. passwd/useradd/usermod/groupadd }
+    - { pkg: sudo,                          desc: Elevate some user commands to root, depof: build-devel }
+    - { pkg: util-linux,                    desc: blkid/fdisk/rename/cp etc..., depof: php-gd build-devel }
+    - { pkg: which,                         desc: Show the full path of commnds, depof: .bashrc build-devel }
+    - { pkg: archlinux-keyring,             desc: Arch Linux GPG keys }
+    - { pkg: antergos-keyring,              desc: Antergos GPG keyring, type: ANTERGOS }
+    - { pkg: blackarch-keyring,             desc: Blackarch GPG keyring, type: BLACKARCH }
+
+  initramfs-deps:
+    - { pkg: gptfdisk,                      desc: Paritioning tools e.g. sgdisk }
+    - { pkg: linux,                         desc: Linux kernel }
+    - { pkg: mkinitcpio,                    desc: initramfs image creation utility }
+    #- { pkg: mkinitcpio-vt-colors,          desc: vt console colors, type: FOREIGN }
+    - { pkg: rsync,                         desc: Remote file sync utility }
+    - { pkg: systemd,                       desc: System and service manager }
+
+  isolinux-deps:
+    - { pkg: gfxboot,                       desc: Graphical boot user interface }
+    - { pkg: intel-ucode,                   desc: Microcode update files for Intel CPUs }
+    - { pkg: memtest86+,                    desc: memtest is used in the ISO creation as menu option }
+    - { pkg: syslinux,                      desc: Boot loaders for ext2/3/4 USB and CD }
+
+  shell-tools:
+    - { install: dev-tools }
+    - { install: reduce-gems }
+
+    - { pkg: cronie,                        desc: Daemon for scheduling programs to run }
+    - { pkg: htop,                          desc: Interactive process viewer, alt: top }
+    - { pkg: iftop,                         desc: Display bandwidth usage on an interface }
+    - { pkg: inxi,                          desc: System info display tool for CPUs/RAM/Kernel etc... }
+    - { pkg: linux-docs,                    desc: Linux kernel docs }
+    - { pkg: lsof,                          desc: Lists open files for running processes }
+    - { pkg: man-db,                        desc: A utility for reading man pages }
+    - { pkg: man-pages,                     desc: Linux man pages }
+    - { pkg: moreutils,                     desc: Linux utils e.g. parallel-moreutils }
+    - { pkg: p7zip,                         desc: Thunar via file-roller leverages this to extract 7zips }
+    - { pkg: squashfs-tools,                desc: Tooling for squashfs like mksquashfs }
+    - { pkg: reptyr,                        desc: Attach running program to a new terminal }
+    - { pkg: tmux,                          desc: Terminal multiplexer built off screen }
+    - { pkg: usbutils,                      desc: USB device utilities including lsusb }
+
+    # Container support
+    - { pkg: docker,                        desc: Run applications as containers, depof: reduce }
+
+    # Packaging
+    - { pkg: pkgfile,                       desc: A pacman files and metadata explorer }
+    - { pkg: reflector,                     desc: Arch Linux latest pacman mirrors script }
+
+    # Disk utils
+    - { pkg: cdrkit,                        desc: CD/DVD burnig/extration and ISO creation }
+    - { pkg: inotify-tools,                 desc: Inotify C library for watching files }
+    - { pkg: iputils,                       desc: Network utils e.g. ping/tftpd }
+    - { pkg: libisoburn,                    desc: Libburn/libisofs/xorriso }
+    - { pkg: ntfs-3g,                       desc: NTFS filesystem driver and utilities }
+    - { pkg: smartmontools,                 desc: Control/monitor S.M.A.R.T. Drives }
+    - { pkg: testdisk,                      desc: Undeletes files from FAT/exFAT/NTFS/ext2 filesystems }
+    - { pkg: udisks2,                       desc: Enumerate and operate on storage devices }
+
+    # Compression
+    - { pkg: tar,                           desc: File store backup and transport utility }
+    - { pkg: unrar,                         desc: The RAR uncompression program }
+    - { pkg: unzip,                         desc: Extract and view files in .zip archives }
+    - { pkg: zip,                           desc: Zip file compression utilities }
+
+    # Network
+    - { pkg: curl,                          desc: Adding curl command to pull in packer scripts }
+    - { pkg: dnsutils,                      desc: Network utilities dig/host/nslookup }
+    - { pkg: gnu-netcat,                    desc: Network piping application }
+    - { pkg: nfs-utils,                     desc: Support programs for Network File Systems }
+    - { pkg: nmap,                          desc: Network discovery and security auditing }
+    - { pkg: tcpdump,                       desc: Network monitoring and data acquisition }
+    - { pkg: wget,                          desc: Retrieve files from the Web }
+
+  systemd:
+    - { pkg: systemd,                       desc: System and service manager }
+    - { pkg: systemd-sysvcompat,            desc: Sysinit compat for systemd }
+
+  dev-tools:
+    - { pkg: arch-install-scripts,          desc: arch-chroot/genfstab/pacstrap }
+    - { pkg: autoconf,                      desc: Automatically configure source code, depof: base-devel }
+    - { pkg: automake,                      desc: Automatically create Makefiles, depof: base-devel }
+    - { pkg: binutils,                      desc: Manipulate binary and object files, depof: base-devel }
+    - { pkg: bison,                         desc: General purpose parser generator, depof: base-devel }
+    #- { pkg: delve,                         desc: A debugger for the Go Programming Language, type: FOREIGN }
+    - { pkg: diffutils,                     desc: Patch file utility programs }
+    - { pkg: dos2unix,                      desc: Text file format converter }
+    - { pkg: fakeroot,                      desc: Tool for simulating supersuer privileges, depof: base-devel }
+    - { pkg: file,                          desc: File type identification utility, depof: base-devel }
+    - { pkg: flex,                          desc: Generate text-scanning programs, depof: base-devel }
+    - { pkg: gawk,                          desc: GNU version of awk, depof: base-devel }
+    - { pkg: gettext,                       desc: GNU internationalization library, depof: base-devel }
+    - { pkg: git,                           desc: Fast distributed version control system }
+    - { pkg: go,                            desc: Compiler and tools for the Go programming lang }
+    - { pkg: go-bindata,                    desc: Embed any file as Go code }
+    - { pkg: go-tools,                      desc: Developer tools for the Go programming lang }
+    - { pkg: glide,                         desc: Package management for the Go programing lang }
+    - { pkg: groff,                         desc: GNU trof text-formatting system, depof: base-devel }
+    - { pkg: libtool,                       desc: Generic library support script, depof: base-devel }
+    - { pkg: m4,                            desc: GNU macro processor, depof: base-devel }
+    - { pkg: make,                          desc: GNU utility to build programs, depof: base-devel }
+    - { pkg: patch,                         desc: Utility to apply patches to files, depof: base-devel }
+    - { pkg: pkg-config,                    desc: System for managing library flags, depof: base-devel }
+    - { pkg: psmisc,                        desc: fuser/killall/pstree }
+    - { pkg: python-pip,                    desc: Python package management tool }
+    - { pkg: python-yaml,                   desc: YAML support using fast libYAML library }
+    - { pkg: ruby,                          desc: Ruby lang quick and easy programming }
+    - { pkg: texinfo,                       desc: Documentation for online information, depof: base-devel }
+    - { pkg: yaourt,                        desc: Pacman wrapper with AUR, type: ANTERGOS }
+
+  pyside:
+    - { pkg: python-pyside,                 desc: LGPL Qt bindings for Python }
+    - { pkg: python-pyside-tools,           desc: PySide rcc and uic development tools }
+
+  reduce-gems:
+    - { pkg: bundler,                       desc: Gem management, type: GEM }
+    - { pkg: colorize,                      desc: Colorized output, type: GEM }
+    - { pkg: filesize,                      desc: Filesize to string maipulations, type: GEM }
+    - { pkg: mechanize,                     desc: Automate interation with websites, type: GEM, depof: chromium build }
+    - { pkg: net-ssh,                       desc: Pure Ruby SSH2 implementation, type: GEM }
+    - { pkg: net-scp,                       desc: Pure Ruby SCP implementation, type: GEM }
+    - { pkg: nokogiri,                      desc: HTML parser with XPath and CSS3 selectors, type: GEM, depof: chromium build}
+    - { pkg: pry,                           desc: Ruby debugger, type: GEM }
+
+  # Desktop packages
+  #-----------------------------------------------------------------------------
+  xwindows:
+    - { pkg: dconf,                         desc: A low-level configuration system }
+    - { pkg: xdg-utils,                     desc: Desktop integration utilities }
+    - { pkg: xdg-user-dirs,                 desc: Manage user directories like ~/Desktop }
+    - { pkg: xorg,                          desc: X.org X11 xorg-drivers and others }
+    - { pkg: xorg-xdpyinfo,                 desc: Xorg display info utility }
+    - { pkg: xsel,                          desc: Tool for getting/setting X selection }
+    - { pkg: xterm,                         desc: X terminal emulator }
+    - { pkg: alsa-utils,                    desc: Alsa utilities including amixer }
+    - { pkg: gnome-alsamixer,               desc: Gnome's audio controls not too bad }
+    - { pkg: gtk-engines,                   desc: GTK theme engines for cyberlinux theme }
+    - { pkg: gtk-engine-murrine,            desc: GTK theme engine for cyberlinux theme }
+    - { pkg: lxappearance-obconf,           desc: Openbox support for lxappearance }
+    - { pkg: lxdm,                          desc: Lightweight X11 Display Manager }
+    - { pkg: lxinput,                       desc: Keyboard and mouse config for LXDE }
+    - { pkg: lxrandr,                       desc: Monitor configuration tool for LXDE }
+    - { pkg: lxsession,                     desc: Lightweight X11 session manager for LXDE }
+    - { pkg: lxterminal,                    desc: Terminal for LXDE, alt: terminator }
+    - { pkg: oblogout,                      desc: Openbox logout script }
+    - { pkg: openbox,                       desc: Lightweight X11 window manager }
+    - { pkg: mesa,                          desc: Open-source OpenGL implementation }
+    - { pkg: mesa-demos,                    desc: Mesa demos and tools e.g glxinfo }
+    - { pkg: numix-frost-themes,            desc: Numix frost GTK2, GTK3 and OpenBox themes, type: ANTERGOS }
+    - { pkg: paper-icon-theme,              desc: cyberlinux icon theme, type: FOREIGN }
+    - { pkg: python-xdg,                    desc: Enable use of .desktop files in /etc/xdg }
+    - { pkg: xcursor-numix-frost,           desc: Numix frost cursor theme, type: FOREIGN }
+
+  xwindows-tools:
+    - { pkg: audacious,                     desc: Audio/Player, alt: deadbeaf, xnoise }
+    - { pkg: chromium,                      desc: Opensource project behind Chrome, type: FOREIGN }
+    - { pkg: chromium-widevine,             desc: Chromium support for Netflix, type: FOREIGN }
+    - { pkg: filezilla,                     desc: Network/Transfer }
+    - { pkg: gpicview,                      desc: Image viewer, alt: shotwell/viewnior }
+    - { pkg: gsimplecal,                    desc: Simple calendar like windows systray calendar }
+    - { pkg: gvim,                          desc: Improved version of vi text editor, conflict: vim }
+    - { pkg: hardinfo,                      desc: A system information and benchmark tool }
+    - { pkg: nitrogen,                      desc: System wallpaper }
+    - { pkg: pepper-flash,                  desc: Chromium flash support, type: ANTERGOS }
+    - { pkg: pnmixer,                       desc: Volume controls in system tray, type: AUR }
+    - { pkg: smplayer,                      desc: UI wrapper around mplayer with click to pause, alt: vlc }
+    - { pkg: smplayer-skins,                desc: Skins for SMPlayer }
+    - { pkg: smplayer-themes,               desc: Themes for SMPlayer }
+    - { pkg: thunar,                        desc: Lightweight File Manager from Xfce }
+    - { pkg: tint2,                         desc: Lightweight taskmanager and system tray }
+
+    # Media Codecs
+    - { pkg: gst-libav,                     desc: GStreamer libav Plugin }
+    - { pkg: gst-plugins-bad,               desc: GStreamer Bad Plugins }
+    - { pkg: gst-plugins-base,              desc: GStreamer Base Plugins }
+    - { pkg: gst-plugins-good,              desc: GStreamer Good Plugins }
+    - { pkg: gst-plugins-ugly,              desc: GStreamer Ugly Plugins }
+    - { pkg: libdvdcss,                     desc: DVD media codec support }
+
+    # X11 Fonts
+    - { pkg: adobe-source-code-pro-fonts,   desc: Mono-spaced coding environments }
+    - { pkg: adobe-source-sans-pro-fonts,   desc: Sans serif complement for UI}
+    - { pkg: adobe-source-serif-pro-fonts,  desc: Serif complement of SourceSansPro }
+    - { pkg: terminus-font,                 desc: Monospace bitmap font for consoles }
+    - { pkg: ttf-bitstream-vera,            desc: Bitstream vera fonts }
+    - { pkg: ttf-dejavu,                    desc: Bitstream Vera Fonts w/more characters }
+    - { pkg: ttf-droid,                     desc: Google Android general purpose fonts }
+    - { pkg: ttf-inconsolata-g,             desc: Best monospace terminal font, type: AUR }
+    - { pkg: ttf-indic-otf,                 desc: Indic Opentype Fonts collection }
+    - { pkg: ttf-liberation,                desc: Red Hats Liberation fonts.  }
+    - { pkg: ttf-ms-fonts,                  desc: Microsoft core fonts, type: AUR }
+
+  desktop-tools:
+    - { pkg: cinnamon-screensaver,          desc: Screensaver for the Cinnamon desktop, type: FOREIGN }
+    - { pkg: gimp,                          desc: Excellent image editor, alt: pinta }
+    - { pkg: inkscape,                      desc: Professional vector graphics editor }
+    - { pkg: libreoffice-fresh,             desc: LibreOffice branch with new features/enhancements }
+    - { pkg: keepass,                       desc: Cross platform password manager }
+    - { pkg: kolourpaint,                   desc: Paint application that saves jpg in format for GFXBoot }
+    - { pkg: python2-lxml,                  desc: Python wrapper for libxml2, deps: Inkscape }
+    - { pkg: openshot,                      desc: Simple powerful Video Editor, alt: pitivi, kdenlive }
+    - { pkg: scribus,                       desc: Open Source Desktop Publishing }
+    - { pkg: synergy,                       desc: Network/Virtual KVM }
+
+  heavy-tools:
+    - { install: teamviewer }
+    - { pkg: audacity,                      desc: Audio editor - cross platform, tried and tested }
+    - { pkg: conky,                         desc: Lightweight system monitor for X }
+    - { pkg: dmenu,                         desc: Super light weight application runner }
+    - { pkg: guake,                         desc: Drop-down python based quake style terminal }
+    - { pkg: gvfs,                          desc: Support for Trash and USB, depof: thunar-volman }
+    - { pkg: plank,                         desc: Elegant, simple, clean dock }
+    - { pkg: qopenvpn-pia,                  desc: OpenVPN system tray with PIA integration, type: FOREIGN }
+    - { pkg: thunar-archive-plugin,         desc: Thunar integration with file-roller }
+    - { pkg: thunar-media-tags-plugin,      desc: Thunar plugin to view media details }
+    - { pkg: thunar-volman,                 desc: Thunar plugin to automatically manage removeable devices }
+    - { pkg: visual-studio-code,            desc: Editor for modern development, type: AUR }
+    - { pkg: xfburn,                        desc: Burning tool, alt: k3b, brasero }
+    - { pkg: xfce4-screenshooter,           desc: Plugin that makes screenshots for the Xfce panel }
+    - { pkg: xnviewmp-system-libs,          desc: Efficient image viewer/browser/converter, type: AUR }
+
+    # Develop
+    - { pkg: awf-git,                       desc: Widget Factory for developing GTK themes, type: AUR }
+    - { pkg: meld,                          desc: Develop/Diff Tool - Graphical diff tool cross platform }
+    - { pkg: vim-fugitive,                  desc: Git wrapper }
+    - { pkg: vim-supertab,                  desc: <Tab> for all completion }
+    - { pkg: vim-ultisnips,                 desc: TextMate-style snippets for Vim }
+
+    # OpenGL
+    - { pkg: lib32-mesa,                    desc: OpenGL opensource implementation, depof: kodi/steam }
+    - { pkg: lib32-mesa-vdpau,              desc: Mesa vdpau drivers, depof: kodi/steam }
+    - { pkg: mesa-vdpau,                    desc: Mesa vdpau drivers, depof: kodi/steam }
+
+    # Office
+    - { pkg: cups-pdf,                      desc: System/Printer Driver - PDF printer driver }
+    - { pkg: leafpad,                       desc: Office/Notepad - Simple notepad knock off }
+    - { pkg: qpdfview,                      desc: A tabbed PDF viewer using the poppler library, type: AUR }
+
+    # Utility
+    - { pkg: catfish,                       desc: System/File Search - File search tool }
+    - { pkg: dconf-editor,                  desc: New configuration manager intended to replace gconf }
+    - { pkg: desktop-file-utils,            desc: Command line utilities for working with desktop entries }
+    - { pkg: file-roller,                   desc: System/Compression, alt: xarchiver }
+    - { pkg: galculator,                    desc: Office/Calculator }
+    - { pkg: gconf-editor,                  desc: Old Gnome configuration manager separate dconf-editor db }
+    - { pkg: gparted,                       desc: System/Partitioning - Partition magic type tool }
+    - { pkg: tumbler,                       desc: D-Bus thumbnail service for apps (e.g. Thunar) }
+
+  handbrake:
+    - { pkg: handbrake,                     desc: Video/Encoding - Video encoding tool for mp4/mkv }
+    - { pkg: handbrake-cli,                 desc: Video/Encoding - Video encoding tool for mp4/mkv }
+
+  theater-tools:
+    - { pkg: idesk,                         desc: Lightweight desktop icons for X }
+    - { pkg: kodi,                          desc: Software media player and entertainment hub }
+    - { pkg: tiny-media-manager,            desc: Cross platform media manager, type: AUR }
+
+  remote-desktop:
+    - { pkg: freerdp,                       desc: RDP client plugin for remmina }
+    - { pkg: remmina,                       desc: Network/Remoting - Nice remoting UI for RDP }
+
+  file-sharing:
+    - { pkg: qbittorrent,                   desc: Network/Bittorent, alt: deluge }
+
+  teamviewer:
+    - { pkg: teamviewer,                    desc: Network/Remoting - Better than VNC garbage, type: FOREIGN }
+
+  freeswitch:
+    #- { pkg: freeswitch,                    desc: An opensource telephony system, type: FOREIGN }
+    - { pkg: unixodbc,                      desc: Open spec for accessing Data Sources, depof: freeswitch }
+
+  php-apache:
+    - { pkg: apache,                        desc: Apache web server, deb: phpBB }
+    - { pkg: bzip2,                         desc: Compression util for the bzip2 format, depof: php-gd }
+    - { pkg: php,                           desc: PHP lang, depof: phpBB }
+    - { pkg: php-apache,                    desc: PHP apache module, depof: phpBB }
+    - { pkg: php-sqlite,                    desc: PHP sqlite module, depof: phpBB }
+    - { pkg: php-gd,                        desc: PHP gd module, depof: phpBB }
+    - { pkg: curl,                          desc: Network download REST command line tool, depof: php }
+    - { pkg: cracklib,                      desc: Cryptography suite, depof: shadow }
+    - { pkg: e2fsprogs,                     desc: Ext2/3/4 filesystem utilities, depof: shadow }
+    - { pkg: findutils,                     desc: Util to find applications, depof: curl }
+    - { pkg: shadow,                        desc: Account mgmt passwd/usermod/groupadd, depof: util-linux }
+    - { pkg: util-linux,                    desc: Utilities blkid/fdisk/rename/cp etc..., depof: php-gd }
+    - { pkg: xz,                            desc: Compression util for xz format, depof: php-gd }
+
+  # Virtualization packages
+  #-----------------------------------------------------------------------------
+  k8s-host:
+    - { pkg: bridge-utils,                  desc: Ethernet bridge config utils, depof: k8s }
+    - { pkg: ebtables,                      desc: Ethernet bridge filtering utilities, depof: k8s }
+    - { pkg: ethtool,                       desc: Network drivers and hardware util, depof: k8s }
+    - { pkg: helm,                          desc: Kubernetes package manager, type: FOREIGN }
+    - { pkg: kubectl,                       desc: Kubernetes cluster controller, type: FOREIGN }
+    - { pkg: socat,                         desc: Multipurpose relay, depof: k8s}
+
+  k8s-node:
+    - { pkg: jq,                            desc: Command line JSON processor, depof: kubectl }
+    - { pkg: helm,                          desc: Kubernetes package manager, type: FOREIGN }
+    - { pkg: kubeadm,                       desc: Kubernetes cluster bootstrap, type: FOREIGN }
+    - { pkg: kubectl,                       desc: Kubernetes cluster controller, type: FOREIGN }
+    - { pkg: kubelet,                       desc: Kubernetes node control agent, type: FOREIGN }
+    - { pkg: kubernetes-cni,                desc: Kubernetes networking plugins, type: FOREIGN }
+
+  vagrant-tools:
+    - { pkg: packer,                        desc: HashiCorp's vagrant box builder, type: FOREIGN }
+    - { pkg: vagrant,                       desc: Build and distribute virtualized dev environments }
+    - { pkg: virtualbox,                    desc: Cross platform virtualization with UI }
+    - { pkg: virtualbox-guest-iso,          desc: VirtualBox Guest Additions ISO image }
+    - { pkg: virtualbox-host-dkms,          desc: VirtualBox host kernel modules }
+
+  virtualbox-guest:
+    - { pkg: dkms,                          desc: Dynamic kernel modules system, depof: virtualbox }
+    - { pkg: linux-headers,                 desc: Linux kernel headers needed for dkms }
+    - { pkg: virtualbox-guest-utils-nox,    desc: VirtualBox guest drivers and utilities, offline: true }
+    - { pkg: virtualbox-guest-dkms,         desc: VirtualBox guest kernel modules, offline: true }

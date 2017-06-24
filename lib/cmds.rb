@@ -40,7 +40,7 @@ class Cmds
 
     @app = app
     @version = version
-    @examples = '' if not examples
+    @examples = examples || ''
   end
 
   # Array like accessor for checking if a command is set

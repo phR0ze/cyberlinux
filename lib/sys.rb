@@ -46,12 +46,7 @@ module Sys
   # +path+:: path to delete
   # +returns+:: path that was deleted
   def rm_rf(path)
-    if Gem.win_platform?
-      FileUtils.rm_rf(path)
-    else
-        Sys.exec("rm -rf #{path}")
-    end
-
+    Sys.exec("rm -rf #{path}")
     return path
   end
   module_function(:rm_rf)
@@ -92,7 +87,7 @@ module Sys
   def drop_privileges()
     uid = gid = nil
 
-    if not Gem.win_platform? and Process.uid.zero?
+    if Process.uid.zero?
       uid, gid = Process.uid, Process.gid
       sudo_uid, sudo_gid = ENV['SUDO_UID'].to_i, ENV['SUDO_GID'].to_i
       Process::Sys.setegid(sudo_uid)
@@ -109,7 +104,7 @@ module Sys
   # +uid+:: uid of user to assume
   # +gid+:: gid of user to assume
   def raise_privileges(uid, gid)
-    if not Gem.win_platform? and uid and gid
+    if uid and gid
       Process::Sys.seteuid(uid)
       Process::Sys.setegid(gid)
     end
