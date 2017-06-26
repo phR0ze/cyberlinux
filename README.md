@@ -41,6 +41,7 @@ those looking to leverage this framework to fork it and make their own configura
     * [BlackArch Signature issue](#blackarch-signature-issue)
 * [Contributions](#contributions)
     * [Git-Hook Version Increment](#git-hook-version-increment)
+* [Licenses](#licenses)
 
 ## Background <a name="background"></a>
 ***cyberlinux*** is an evolution of an idea come to fruition.  The origin was the need for an
@@ -367,7 +368,7 @@ $ git config core.hooksPath .githooks
 vim: ts=2:sw=2:sts=2
 -->
 
-## Licenses
+## Licenses <a name="licenses"/></a>
 Because of the nature of ***cyberlinux*** any licensing will be of a mixed nature.  In some cases as
 called out below such as ***reduce*** and the ***boot/initramfs/installer***, created by phR0ze, the
 license is MIT. In other cases such as ***gfxboot*** the license is GPL2 as it leverages OpenSUSE's
