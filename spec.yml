@@ -4,7 +4,7 @@
 #------------------------------------------------------------------------------
 vars:
   arch: x86_64
-  release: 0.0.40
+  release: 0.0.41
   distro: cyberlinux
   timezone: US/Mountain
 
@@ -18,13 +18,83 @@ build:
   layer: build
   type: container
   multilib: true
-  run: [ '-e TERM=xterm {{ IMAGE }} bash -c "while :; do sleep 5; done"' ]
+  run: [ '-e TERM=xterm <%= image %> bash -c "while :; do sleep 5; done"' ]
   packages:
     - { install: machine-core }
     - { install: machine-tools }
     - { install: dev-tools }
     - { install: initramfs-deps }
     - { install: isolinux-deps }
+
+isolinux:
+
+  gfxboot:
+    - splash=1
+
+  # Boot options for isolinux/gfxboot
+  # Entries will be written to isolinux.msg, isolinux.cfg and gfxboot.cfg files
+  # Kernel Params:
+  # autologin=1   // Automatically login without creds when given or if 'live'
+  entries:
+    - name: "Start <%= distro %>-live            -live boot env."
+      label: live
+      kernel: /<%=distro%>/vmlinuz
+      initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=live_layers%> showopts vga=792
+
+    - name: "Install <%= distro %>-desktop   -heavy + libreoffice"
+      label: desktop
+      kernel: /<%=distro%>/vmlinuz
+      initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=desktop_layers%> showopts vga=792
+
+    - name: "Install <%= distro %>-theater    -heavy + kodi w/configs"
+      label: theater
+      kernel: /<%=distro%>/vmlinuz
+      initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=theater_layers%> showopts vga=792
+
+    - name: "Install <%= distro %>-server     -lite + LAMP and services"
+      label: server
+      kernel: /<%=distro%>/vmlinuz
+      initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=server_layers%> showopts vga=792
+
+    - name: "Install <%= distro %>-heavy      -lite + more apps"
+      label: heavy
+      kernel: /<%=distro%>/vmlinuz
+      initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=heavy_layers%> showopts vga=792
+
+    - name: "Install <%= distro %>-music       -lite + custom configs"
+      label: music
+      kernel: /<%=distro%>/vmlinuz
+      initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=music_layers%> showopts vga=792
+
+    - name: "Install <%= distro %>-lite           -shell + minimal X11 env."
+      label: lite
+      kernel: /<%=distro%>/vmlinuz
+      initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=lite_layers%> showopts vga=792
+
+    - name: "Install <%= distro %>-k8snode  -shell + k8s node env."
+      label: k8snode
+      kernel: /<%=distro%>/vmlinuz
+      initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=k8snode_layers%> showopts vga=792
+
+    - name: "Install <%= distro %>-shell        -base + full shell env."
+      label: shell
+      kernel: /<%=distro%>/vmlinuz
+      initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=shell_layers%> showopts vga=792
+
+    - name: "Install <%= distro %>-base        -minimal shell env."
+      label: base
+      kernel: /<%=distro%>/vmlinuz
+      initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=base_layers%> showopts vga=792
+
+    - name: Hardware Detection Tool
+      label: hdt
+      kernel: hdt.c32
+      noboot: true
+
+    - name: memory test
+      label: memtest
+      kernel: memtest
+      noboot: true
 
 layers:
   - layer: base

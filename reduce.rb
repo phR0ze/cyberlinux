@@ -1,6 +1,5 @@
 #!/usr/bin/env ruby
 require 'erb'                   # leverage erb for templating
-require 'digest'                # work with digests
 require 'fileutils'             # advanced file utils: FileUtils
 require 'mkmf'                  # system utils: find_executable
 require 'open-uri'              # easily read HTTP
@@ -361,9 +360,9 @@ class Reduce
     layers = @spec[@k.layers].select{|x| x[@k.type] == @k.machine}.map{|x| x[@k.layer]} if isofull
     layers.each{|layer| changed |= build_layers(layer)} if layers
 
-#    # Build early userspace ramdisk for install executed by isolinux
-#    changed |= build_initramfs if [initramfs, iso, isofull].any?
-#
+    # Build early userspace ramdisk for install executed by isolinux
+    #changed |= build_initramfs if [initramfs, iso, isofull].any?
+
 #    # Build GFXBoot UI that boots initramfs installer and in turn the real kernel
 #    changed |= build_isolinux if [isolinux, iso, isofull].any?
 #
@@ -396,6 +395,48 @@ class Reduce
 #      end
 #    end
   end
+
+  # Create the initramfs.img
+  # which provides the boot environment we will install from
+  # Params:
+  # +returns+:: true on changed
+#  def build_initramfs()
+#    create_dir_structure
+#    changed = false
+#    initramfs_digests = File.join(@initramfs_work, 'digests')
+#
+#    puts("#{'-' * 80}\nBuilding initramfs image...\n#{'-' * 80}".colorize(:yellow))
+#    if syncfiles(File.basename(@initramfs_work), @initramfs_src, @initramfs_work, initramfs_digests) or
+#        not File.exist?(@initramfs_image)
+#      changed |= true
+#      installer = File.join(@initramfs_work, 'installer')
+#      installer_conf = File.join(@initramfs_work, 'installer.conf')
+#      mkinitcpio_conf = File.join(@initramfs_work, 'mkinitcpio.conf')
+#
+#      # Resolve template
+#      @vars.groups = @spec[@k.layers].select{|x| x[@k.type] == @k.machine}
+#        .map{|x| x[@k.groups] if x[@k.groups]}.compact.uniq * ','
+#      Fedit.resolve(installer, @vars)
+#
+#      # Build initramfs image in build container
+#      docker(@k.build, @k.build){|cont, home, cp, exec, execs, runuser|
+#        cp["#{installer} #{cont}:/usr/lib/initcpio/hooks"]
+#        cp["#{installer_conf} #{cont}:/usr/lib/initcpio/install/installer"]
+#        cp["#{mkinitcpio_conf} #{cont}:/etc"]
+#
+#        puts("Creating #{@initramfs_image}...".colorize(:cyan))
+#        initramfs = File.join('/root', File.basename(@initramfs_image))
+#        kernelstr = `#{execs} ls /lib/modules`.split("\n").sort.first
+#        puts("Using kernel: #{kernelstr}".colorize(:green))
+#
+#        exec["mkinitcpio -k #{kernelstr} -g #{initramfs}"]
+#        cp["#{cont}:#{initramfs} #{@initramfs_image}"]
+#        puts("Successfully built initramfs image #{@initramfs_image}".colorize(:green))
+#      }
+#    end
+#
+#    return changed
+#  end
 
   # Deploy vagrant node/s
   # Params:

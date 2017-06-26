@@ -1,0 +1,383 @@
+#!/bin/bash
+# http://archlinux.me/brain0/2010/02/13/early-userspace-in-arch-linux/
+# -----------------------------------------------------------------------------
+# Booting Linux Systems:
+# BIOS boots stage 1 bootloader (i.e. Master Boot Record) which then boots
+# stage 2 bootloader (i.e. ISOLinux) which then extracts the Kernel which then
+# boots the initramfs (i.e. early userspace) which then bootstraps the system
+# to the point where it can access the real root filesystem and then early
+# userspace turns control over to the init process (i.e. systemd) to complete
+# the boot process.
+# Thus booting into a live system means creating a unionfs mountpoint of the
+# correct squashfs images in the appropriate squence as implicated by the
+# kernel cmdline parameters and launching init from there.
+# -----------------------------------------------------------------------------
+none="\e[m"
+red="\e[1;31m"
+cyan="\e[0;36m"
+
+fail_to_shell()
+{
+    echo -e "${red}failed!${none}"
+    launch_interactive_shell
+}
+
+check_status()
+{
+    if [ $? -ne 0 ]; then
+        fail_to_shell
+    else
+        [ "$1" != "nomsg" ] && echo -e "${cyan}success!${none}"
+    fi
+}
+
+mount_layers()
+{
+    local images_path=$1                            # e.g. ${isomnt}/cyberlinux
+    local layered_mnt=$2                            # e.g. ${writemnt}/root
+    local layered_tmp=$3                            # e.g. ${writemnt}/temp
+
+    # Mount all implicated sqfs images
+    local layer_dirs=""
+    echo -e ":: Mounting implicated layers for install"
+    for x in ${layers//,/ }; do
+        local img_mnt="${readmnt}/${x}"             # i.e. ${readmnt}/{base,devel,lite, etc...}
+        local img_path="${images_path}/${x}.sqfs"   # e.g. ${isomnt}/cyberlinux/base.sqfs
+        layer_dirs="${layer_dirs}${img_mnt}:"
+
+        echo -en ":: Mounting ${img_path} at ${img_mnt}..."
+        mkdir -p "${img_mnt}"
+        mount -r -t squashfs ${img_path} ${img_mnt} &> /dev/null
+        check_status
+        mounts="${mounts}${img_mnt} "
+    done
+    layer_dirs=${layer_dirs%?}
+
+    # Layer squashfs images as implicated by $(layers)
+    # e.g. new writable root = (live,heavy,lite,devel,base)
+    echo -en ":: Overlay squashfs layers ${layer_dirs}..."
+    mkdir -p ${layered_mnt}
+    mkdir -p ${layered_tmp}
+    mount -t overlay -o lowerdir=${layer_dirs},upperdir=${layered_mnt},workdir=${layered_tmp} none ${layered_mnt}
+    check_status
+    mounts="${mounts}${layered_mnt} "
+}
+
+# Wait for install device to register with system then mount it.
+# Use kernel cmdline disk label to detect its existance
+mount_iso()
+{
+    echo -en ":: Locating install device labeled ${label}..."
+
+    local i=0
+    local success=0
+    while [ $success -eq 0 ]; do
+        sleep 0.25 # Sleep for a bit
+
+        # Mount iso by label from kernel cmdline
+        isodev=$(blkid -L ${label}) &> /dev/null
+        if [ "x${isodev}" != "x" ]; then
+            check_status
+            local fstype=$(blkid -s TYPE -o value ${isodev}) &> /dev/null
+            local install_type=$(lsblk -nl -o TYPE ${isodev}) &> /dev/null
+            echo -en ":: Mounting ${cyan}${install_type}${none} device ${cyan}${isodev}${none} to ${isomnt}..."
+            mount -r -t ${fstype} -o noatime ${isodev} ${isomnt} &> /dev/null
+            check_status && success=1
+        fi
+
+        # Timeout if takes more than 10 seconds
+        let "i+1"
+        [ $i -eq 40 ] && fail_to_shell
+    done
+}
+
+# Partition disk and mount for install at ${rootmnt}
+partition_and_mount_disk()
+{
+    # Handle user selection of install disk
+    #---------------------------------------------------------------------------
+    ifs=$IFS
+    IFS=$'\n'
+    while true; do
+        echo -e ":: Available disks for selection:"
+        echo $(lsblk -dn -o NAME,SIZE,VENDOR,MODEL,TYPE -x NAME | grep disk)
+        local disks=($(lsblk -dn -o NAME,SIZE,VENDOR,MODEL,TYPE -x NAME | grep disk))
+        for i in ${!disks[@]}; do
+            local disk=$(echo ${disks[$i]} | awk '{print $1}')
+            local size=$(echo ${disks[$i]} | awk '{print $2}')
+            local vendor=$(echo ${disks[$i]} | awk '{print $3}')
+            local model=$(echo ${disks[$i]} | awk '{print $4}')
+
+            # Filter on disks begining with "sd" and not isodev
+            if [ "${disk#*sd}" != "${disk}" ]; then
+
+                # Filter out the iso device
+                local dev=/dev/${disk}
+                if [ "${isodev#*$dev}" == "${isodev}" ]; then
+                    echo -e "   $(($i+1))) [${disk}] - ${size} ${vendor} ${model}"
+                fi
+            fi
+        done
+
+        echo -en "Enter a number (default=1): "
+        read choice
+        [ "x$choice" == "x" ] && choice=1
+        if [ $choice -gt 0 ] && [ $choice -le ${#disks[@]} ]; then
+            installdev=/dev/$(echo ${disks[$(($choice-1))]} | awk '{print $1}')
+            echo -e ":: Preparing disk ${cyan}$installdev${none} for installation"
+            break
+        else
+            echo -e "${red}Invalid selection, please try again${none}"
+        fi
+    done
+    IFS=$ifs
+    exit
+
+    # Wipe, partition and format disk
+    #---------------------------------------------------------------------------
+    echo -en ":: Disk ${cyan}${installdev}${none} identified as install disk..."
+    [ "x${installdev}" != "x" ]
+    check_status
+
+    echo -en ":: Destroy any magic strings and/or signatures on ${installdev}..."
+    wipefs --all --force ${installdev} &> /dev/null
+    check_status
+
+    echo -en ":: Wiping partition table on ${installdev}..."
+    sgdisk --zap ${installdev} &> /dev/null
+    check_status
+
+    echo -en ":: Creating ${installdev}1 as BIOS boot partition..."
+    sgdisk -n 0:0:+2M -t 0:ef02 -c 0:"BIOS boot" ${installdev} &> /dev/null
+    check_status
+
+    echo -en ":: Creating ${installdev}2 as Linux swap partition..."
+    sgdisk -n 0:0:+4G -t 0:8200 -c 0:"Linux swap" ${installdev} &> /dev/null
+    check_status
+
+    echo -en ":: Creating ${installdev}3 as Linux filesystem partition..."
+    sgdisk -n 0:0:0 -t 0:8300 -c 0:"Linux filesystem" ${installdev} &> /dev/null
+    check_status
+
+    echo -en ":: Setting boot flag on ${installdev}3..."
+    sgdisk ${installdev} --attributes=3:set:2 &> /dev/null
+    check_status
+
+    echo -en ":: Formating ${installdev}2 as (swap)..."
+    mkswap ${installdev}2 &> /dev/null
+    check_status
+
+    echo -en ":: Starting swap on ${installdev}2..."
+    swapon ${installdev}2 &> /dev/null
+    check_status
+
+    echo -en ":: Formating ${installdev}3 as (ext4)..."
+    # -O ^64bit     makes compatible with syslinux
+    # -F            force creation even if some params don't make sense
+    # -L            set volume name used for /boot/syslinux/syslinux.cfg
+    # -m 0          don't reserve blocks for super user daemons
+    # -q            run in quiet mode for scripts
+    mkfs.ext4 -O ^64bit -F -m 0 -q -L root ${installdev}3 &> /dev/null
+    check_status
+
+    echo -en ":: Mounting ${installdev}3 as ${rootmnt}..."
+    # Disable access time writes (speeds things up)
+    mount -o noatime ${installdev}3 ${rootmnt} &> /dev/null
+    check_status
+}
+
+mount_chroot_dirs()
+{
+    # Ensure mount point directories exist
+    for x in "sys proc dev dev/pts"; do
+        mkdir -p ${rootmnt}/${x} &> /dev/null
+    done
+
+    # Mount current system in newchroot
+    mount -t sysfs sysfs ${rootmnt}/sys &> /dev/null
+    mount -t proc /proc ${rootmnt}/proc &> /dev/null
+    mount -o bind /dev ${rootmnt}/dev &> /dev/null
+    mount -t devpts /dev/pts ${rootmnt}/dev/pts &> /dev/null
+}
+
+umount_chroot_dirs()
+{
+    for x in "sys proc dev/pts dev"; do
+        umount -f ${rootmnt}/${x} &> /dev/null
+    done
+}
+
+umount_all()
+{
+    mounts="${mounts}${isomnt}"
+    for x in ${mounts}; do
+        echo -en ":: Unmounting ${x}..."
+        umount -f ${x} &> /dev/null
+        check_status
+    done
+}
+
+config_system()
+{
+    # Handle user creation
+    #---------------------------------------------------------------------------
+    $user = 'vagrant'
+    $pass = 'vagrant'
+
+    echo -en ":: Set root user password..."
+    chroot ${rootmnt} usermod -p ${pass} root
+    check_status
+
+    # Filter groups down to just those that exist
+    local groups=""
+    for x in ${all_groups//,/ }; do
+        if [ $(grep -E "^$x:" ${rootmnt}/etc/group) ]; then
+            [ $groups ] && groups="${groups},${x}" || groups="${x}"
+        fi
+    done
+
+    echo -en ":: Create user group '${user}'..."
+    chroot ${rootmnt} groupadd ${user}
+    check_status
+
+    echo -en ":: Create user '${user}' with groups '${groups}'..."
+    chroot ${rootmnt} useradd -m -g ${user} -G ${groups} -s /bin/bash ${user}
+    check_status
+
+    echo -en ":: Set user password..."
+    chroot ${rootmnt} usermod -p ${pass} ${user}
+    check_status
+
+    echo -en ":: Add new user to sudoers list..."
+    chroot ${rootmnt} /bin/bash -c "echo '${user} ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers"
+    check_status
+
+    echo -en ":: Set unique machine-id..."
+    chroot ${rootmnt} dbus-uuidgen --ensure=/etc/machine-id &> /dev/null
+    chroot ${rootmnt} ln -sf /etc/machine-id /var/lib/dbus/machine-id &> /dev/null
+    check_status
+
+    # Set hostname to chosen layer
+    echo -en ":: Set hostname to ${images_path}-${target_layer}..."
+    sed -i -e "s/\(.*\)/\1-${target_layer}/" "${rootmnt}/etc/hostname"
+    check_status
+
+    # Configure static networking
+    if [ "x${staticip}" != "x" ]; then
+        local staticpath="${rootmnt}/etc/systemd/network/10-static.network"
+        echo -en ":: Configuring static networking..."
+        echo -e "[Match]\nName=${netmatch}\n" > $staticpath
+        echo -e "[Network]\nAddress=${staticip}/${netcider}\nIPForward=kernel\n" >> $staticpath
+        check_status
+    fi
+
+    # Autologin if lxdm exists and parameter is set
+    if [ -e "${rootmnt}/etc/lxdm/lxdm.conf" ]; then
+        if [ "$autologin" == "1" ]; then
+            echo -en ":: Enable autologin for LXDM..."
+            sed -i -e "s/^#\s*\(autologin\)=.*/\1=${user}/" "${rootmnt}/etc/lxdm/lxdm.conf"
+            check_status
+        fi
+    fi
+}
+
+# Create a new system mount then overlay layers as specified
+# called by initcpio system with /new_root as param
+installer()
+{
+    # Calculate spacing for welcome message
+    # 4 chars on lead and 1 char on trail so (80 - 5)=75 to work with
+    msg="Welcome to -==[ ${label} ]==- Installer"
+    lead_len=$(((75 - ${#msg})/2))
+    lead_pad=$(printf "%${lead_len}s" "")
+    trail_pad=$(printf "%$((75 - ${#msg} - ${lead_len}))s" "")
+    echo -e ":: ${cyan}*****************************************************************************${none}"
+    echo -e ":: ${cyan}*${none}${trail_pad}Welcome to ${cyan}-==[ ${label} ]==-${none} Installer${trail_pad}${cyan}*${none}"
+    echo -e ":: ${cyan}*****************************************************************************${none}"
+    echo -e ":: ${cyan}${params}${none}"
+
+    # Configure vars
+    rootmnt="${1}"          # /new_root passed in as 1st param
+    local rw_ram_size="75%"
+    echo -e ":: New Root path '${rootmnt}'"
+
+    # Mount ISO from CD/USB
+    mount_iso
+
+    # Mount live system or Install to local disk
+    local mode=$([ "$target_layer" == 'live' ] && echo 'Starting' || echo 'Installing')
+    echo -e ":: ${mode} ${cyan}${target_layer}${none} system with layers ${cyan}${layers}${none}"
+    echo -e ":: ${cyan}--------------------------------------------------------------------${none}"
+    if [ $target_layer == "live" ]; then
+        echo -en ":: Creating live tmpfs filesystem for writes, size=${rw_ram_size}..."
+        mount -t tmpfs -o "size=${rw_ram_size}",mode=0755 none ${writemnt} &> /dev/null
+        check_status
+        mount_layers "${isomnt}/${images_path}" ${writemnt}/root ${writemnt}/temp
+
+        echo -en ":: Re-bind ${writemnt}/root to new root location ${rootmnt}..."
+        mount -o bind ${writemnt}/root ${rootmnt} &> /dev/null
+        check_status
+    else
+        mount_layers "${isomnt}/${images_path}" ${readmnt}/root ${readmnt}/temp
+        partition_and_mount_disk
+        echo -e ":: Copying ${readmnt}/root to ${rootmnt}"
+        rsync -ah --info=progress2 ${readmnt}/root/* ${rootmnt}
+    fi
+
+    # Configure system
+    mount_chroot_dirs
+    config_system
+
+    # Install bootloader
+    if [ $target_layer != "live" ]; then
+        echo -en ":: Install syslinux bootloader on ${installdev}..."
+        chroot ${rootmnt} syslinux-install_update -i -a -m &> /dev/null
+        check_status
+
+        echo -en ":: Generate new initramfs..."
+        chroot ${rootmnt} mkinitcpio -p linux &> /dev/null
+        check_status
+    fi
+    umount_chroot_dirs
+
+    # Unmount everything after install
+    [ $target_layer != "live" ] && umount_all
+}
+
+#----------------------------------------------------------------------------------------
+# Early user space hook
+#----------------------------------------------------------------------------------------
+run_hook()
+{
+    # Set cmdline params as variables to use during install
+    params=$(cat /proc/cmdline)
+    for x in ${params}; do
+        case "${x}" in
+            'layers'=*) layers=${x//layers=} ;;
+            'staticip'=*) staticip=${x//staticip=} ;;
+            'autologin'=*) autologin=${x//autologin=} ;;
+            *) continue ;;
+        esac
+    done
+
+    # Set additional variables
+    mounts=""
+    isomnt=/mnt/iso
+    readmnt=/mnt/read
+    writemnt=/mnt/write
+
+    # Resolve template variables
+    label="<%= label %>"
+    repos="<%= repos %>"
+    all_groups="<%= groups %>"
+    images_path="<%= distro %>"
+    netmatch="<%= netmatch %>"
+    netcider="<%= netcider %>"
+
+    pass=$regular_pwd
+    target_layer=$(echo $layers | awk -F, '{print $1}')
+    [ "$target_layer" == "live" ] && autologin=1
+
+    # Custom handler defined above.
+    mount_handler="installer"
+}

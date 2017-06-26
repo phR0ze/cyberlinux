@@ -16,8 +16,8 @@ end
 # Resolve variables for the given data type
 # Params:
 # +vars+:: hash or OpenStruct of ERB variables to use
+# +die+:: when false don't fail when missing variables
 class ERBResolve
-
   def initialize(vars)
     raise ArgumentError.new("Variables are required") if not vars
 

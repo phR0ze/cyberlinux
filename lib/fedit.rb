@@ -29,7 +29,7 @@ module Fedit
 
       # Modified files: in both but digest is different
       modifiedfiles = files.select{|x| digests[x] and
-        Digest::MD5.hexdigest(File.open(x, 'rb')) != digests[x]}
+        Digest::MD5.hexdigest(File.binread(x)) != digests[x]}
     else
       newfiles = files
     end
@@ -49,7 +49,7 @@ module Fedit
     # Build up digests structure
     digests = {}
     files.each{|x|
-      digests[x] = Digest::MD5.hexdigest(File.read(x, 'rb')) if File.exist?(x)
+      digests[x] = Digest::MD5.hexdigest(File.binread(x)) if File.exist?(x)
     }
 
     # Write out digests structure as yaml with named header
