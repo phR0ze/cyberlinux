@@ -1,0 +1,11 @@
+%% include system.ps
+%% include splash.ps
+
+%% include timeout.ps
+%% include main.ps
+
+%% include window.ps
+%% include button.ps
+%% include menu.ps
+%% include xmenu.ps
+%% include panel.ps

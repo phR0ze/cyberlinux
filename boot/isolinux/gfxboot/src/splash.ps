@@ -1,0 +1,113 @@
+%******************************************************************************
+% Boot loader splash code.
+%******************************************************************************
+/.b_init	 0 def
+/.b_done	 1 def
+/.b_run		 2 def
+
+% Called from main.ps to launch splash
+/splash.show {
+  currentimage
+
+  "splash.jpg" findfile /splash.file over def setimage
+
+  0 0 moveto 0 0 image.size image
+
+  splash.init
+  splash.skip not { 100000 usleep } if
+  splash.skip not {
+    {
+      0 usleep
+      splash.skip { exit } if
+      splash.run { exit } if
+    } loop
+  } if
+
+  splash.free
+  setimage
+  /splash.file xfree
+
+} def
+
+/splash.init {
+  /splash_ok false def
+  /splash_text "text.jpg" readimage def
+  /splash_text_tmp splash_text imgsize 0 0 moveto savescreen def
+
+  config.welcome.x config.welcome.y moveto
+  /splash_orig splash_text imgsize savescreen def
+  /splash_buf splash_text imgsize savescreen def
+
+  /splash_idx 0 def
+  /splash_start 10 def
+  /splash_steps 20 def
+
+  /splash_ok true def
+} def
+
+% Called from main.ps in Menu.Init
+% so by waiting we get a splash timeout effectively
+/splash.done {
+  splash.skip not { 1500000 usleep } if
+} def
+
+/splash.free {
+  splash_ok not { return } if
+
+  /splash_text xfree
+  /splash_text_tmp xfree
+
+  /splash_orig xfree
+  /splash_buf xfree
+
+  /splash_ok false def
+} def
+
+
+% Run splash animations. Return 'true' when done.
+% ( ) ==> ( true|false )
+/splash.run {
+  splash_ok not { true return } if
+
+  /splash_idx inc
+  splash_idx splash_start splash_steps add gt { true return } if
+  splash_idx splash_start lt { false return } if
+  splash_buf splash_orig over length memcpy
+  splash_text_tmp splash_text over length memcpy
+  0 255 splash_idx splash_start sub 20 mul sub 0 max splash_text_tmp blend
+
+  0 0 moveto
+  0xffffff splash_text_tmp splash_buf blend
+
+  config.welcome.x config.welcome.y moveto splash_buf restorescreen
+
+  false
+} def
+
+% ( ) ==> ( true|false )
+/splash.skip {
+  % Any key pressed?
+  getkey 0xffff and {
+    /splash.skip true def
+    true
+  } {
+    false
+  } ifelse
+} def
+
+% ( img ) => ( width heigh )
+/imgsize {
+  dup .undef eq {
+    pop 0 0
+  } {
+    getdword dup
+    0xffff and exch 16 shr
+  } ifelse
+} def
+
+% ( file_name ) ==> ( image )
+/readimage {
+  findfile dup .undef ne {
+    dup setimage 0 0 image.size unpackimage exch free
+  } if
+} def

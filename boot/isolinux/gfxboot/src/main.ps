@@ -1,0 +1,299 @@
+%*******************************************************************************
+% GFXBoot UI
+%---------------------------------------
+%
+% Requirements:
+% - Must define a at least KeyEvent callback
+% - When finished either 'true' or 'false' must be left on TOS
+%
+% Callback Functions:
+% - KeyEvent (handle user input loop)
+% - MenuInit (draw boot menu)
+% - InfoBoxInit (show message box)
+% - InfoBoxDone (hide message box)
+% - Timeout (called every 18.3th second until timeout occurs)
+% - Timer (called every 18.3th second regardless of timeout)
+% 
+%*******************************************************************************
+
+% Global definitions and configuration
+%*******************************************************************************
+/cmdlinelength              512 def
+/config.rtl                 false def
+/config.lang                "English (US)" def
+/config.talk                false                   def
+/config._2space             false                   def
+
+% Transparency (0...255)
+/config.menu.transparency   70                     def
+
+/config.splash              "splash"                   false gfxconfig.set.bool
+/config.isolinux.labels     "isolinux.labels"         [ "" ] gfxconfig.set.array_str
+/config.gfxboot.menu.names  "gfxboot.menu.names"      [ "" ] gfxconfig.set.array_str
+/config.gfxboot.noboot      "gfxboot.noboot"          [ "" ] gfxconfig.set.array_str
+/config.background          "background"    "background.jpg" gfxconfig.set.str
+/config.font.normal         "font.normal"        "16x16.fnt" gfxconfig.set.str
+/config.font.large          "font.large"         "16x16.fnt" gfxconfig.set.str
+
+% Menu colors
+/xmenu.normal.bg            "menu.normal.bg"        0xd8deed gfxconfig.set.int
+/xmenu.normal.fg            "menu.normal.fg"           black gfxconfig.set.int
+/xmenu.normal.alt.fg        "menu.normal.alt.fg"    0x606060 gfxconfig.set.int
+/xmenu.selected.bg          "menu.selected.bg"      0x6c6c6c gfxconfig.set.int 
+/xmenu.selected.fg          "menu.selected.fg"         white gfxconfig.set.int
+/menu.text.normal           "mainmenu.normal.fg"       white gfxconfig.set.int
+/menu.text.select           "mainmenu.selected.fg"     black gfxconfig.set.int
+/menu.bar.color             "mainmenu.bar.color"       white gfxconfig.set.int
+/menu.bar.min.width         "mainmenu.bar.minwidth"      300 gfxconfig.set.int
+
+% Transparency (0...255)
+/menu.bar.transparency      "mainmenu.bar.transparency"    70 gfxconfig.set.int
+
+% Window colors
+/window.color.bg            "window.bg"             0xd8deed gfxconfig.set.int
+/window.color.fg            "window.fg"                black gfxconfig.set.int
+/window.title.bg            "window.title.bg"       0x217b05 gfxconfig.set.int
+/window.title.fg            "window.title.fg"          white gfxconfig.set.int
+/window.title.error.bg      "window.title.error.bg" 0xc00000 gfxconfig.set.int
+
+% Boot options
+/boot.text.options          "bootopt.label.fg"         white gfxconfig.set.int
+/boot.text.normal           "bootopt.text.fg"          white gfxconfig.set.int
+/boot.pos.x
+/boot.pos.y                 "bootopt.pos"            261 465 gfxconfig.set.int2
+
+% Main menu position on screen
+% x=-1 will center menu
+/menu.start.x
+/menu.start.y               "mainmenu.pos"           150 220 gfxconfig.set.int2
+/menu.max.entries           "mainmenu.entries"             8 gfxconfig.set.int
+
+% Welcome image position
+/config.welcome.x           "welcome.x"                  660 gfxconfig.set.int
+/config.welcome.y           "welcome.y"                  190 gfxconfig.set.int
+
+% F-key panel options
+/config.panel.x             "panel.x"                    122 gfxconfig.set.int
+/panel.normal.fg            "panel.normal.fg"          white gfxconfig.set.int
+/panel.title.fg             "panel.title.fg"           white gfxconfig.set.int
+/panel.f-key.fg             "panel.f-key.fg"        0xffe050 gfxconfig.set.int
+/config.key.F1              "key.F1"                  "lang" gfxconfig.set.str
+/config.key.F2              "key.F2"                 "video" gfxconfig.set.str
+/config.key.F3              "key.F3"            "kernelopts" gfxconfig.set.str
+
+%*******************************************************************************
+% Transform the menu items taken from isolinux.cfg labels
+%*******************************************************************************
+/menuitem.transform {
+  config.isolinux.labels getindex
+  config.gfxboot.menu.names exch get
+} def
+
+%*******************************************************************************
+% Setup boot menu
+%--------------------------------------
+% Called before the first key event and passed the bootloader config data
+%
+% ( menu_entries_array cmdline_args_array defaultentry ) == > ( )
+%*******************************************************************************
+/MenuInit {
+  splash.done
+
+  colorbits 8 le { 0 setcolor 0 0 moveto screen.size fillrect loadpalette } if
+  0 0 moveto currentpoint clip.size image
+
+  % Set fonts
+  font.large setfont
+  /menu.text.xofs      10 def
+  /menu.text.yofs       2 def
+  /menu.item.height    fontheight dup 2 div add def
+  /menu.bar.height     fontheight menu.text.yofs dup add add def
+  font.normal setfont
+
+  % Set menu items
+  /menu.bar.width menu.bar.min.width def
+  /menu.entry -1 def
+  /menu.dentry exch def
+  /menu.args exch def
+  /menu.texts exch def
+  menu.texts length 0 eq { return } if
+
+  window.main
+  dup window.init
+  window.show
+} def
+
+%*******************************************************************************
+% Handle user input loop
+%--------------------------------------
+% ( key ) ==> ( input_buffer menu_entry return )
+%
+% - key = 0 indicates the bootloader timeout is up
+% - input_buffer is the command line you entered in bootloader
+% - menu_entry is the menu entry number you wanted to boot
+%
+%:keys:
+%  bit 0-7	    ascii
+%  bit 8-15	    scan code
+%  bit 16-32	status bits (ctrl, shift...)
+%
+%:return:
+%   0   ok, stay in input loop
+%   1   switch to text mode
+% >=2   start linux
+%*******************************************************************************
+/KeyEvent {
+  menu.texts 0 eq { pop "" -1 1 return } if
+  dup 0 eq { boot.ed.list buildcmdline 2 return } if
+  dup 0xff00 and 16 shl over 0xff and dup 0xe0 eq { pop 0 } if add /key exch def
+  16 shr 0xffff and /keystat exch def
+
+  key
+  dup 0xffffff and dup { exch } if pop
+
+  % Handle key press 
+  window.input
+  pop
+
+  % Close dialogs
+  window.action actExit eq {
+    /window.action actNothing def
+    "" -1 1 return
+  } if
+
+  window.action actStart eq {
+    /window.action actNothing def
+    /load_error false def
+    boot.ed.list buildcmdline
+    2 return
+  } if
+
+  window.action actRedraw eq {
+    /window.action actNothing def
+    main.redraw
+  } if
+
+  window.action actRedrawPanel eq {
+    /window.action actNothing def
+    panel.show
+  } if
+
+  "" -1 0
+} def
+
+% ( edit_object_list ) ==> ( cmdline menu_entry )
+%
+/cmd.buf cmdlinelength string def
+/buildcmdline {
+
+  % Menu entry less than 0 or menu entry greater than list length set return values as "" and -1
+  menu.entry 0 lt menu.entry menu.texts length ge or { pop "" -1 return } if
+
+  [ over
+    {
+      dup .inp_show get {
+
+        % Append menu selection and kernel params hidden portion to cmd.buf
+        menu.texts menu.entry get "%s " cmd.buf sprintf
+        /cmdline.hidden over dup length .inp_hidden ge { .inp_hidden get } { pop .undef } ifelse def
+        cmdline.hidden "%s " cmd.buf dup length add sprintf
+
+        % Add user-supplied options to array
+        cmd.buf exch .inp_buf get 
+      } {
+        pop
+      } ifelse
+    } forall
+  ]
+
+  % Append user options to cmdline from results array
+  dup length 0 ne { dup 1 get "%s" cmd.buf dup length add sprintf } if
+
+  % Free up results array and pop from stack
+  dup { free } forall free
+
+  % Pop original param and push results
+  pop cmd.buf menu.entry
+} def
+
+%*******************************************************************************
+% Handle keyboard input.
+%
+% ( key_in ) ==> ( key_out )
+%*******************************************************************************
+/main.input {
+  dup 0 eq { return } if 
+
+  % Handle panel input
+  panel.input
+
+  % Execute debug when F10 is hit
+  %dup keyF10 eq {
+  %  "You pressed F10" print
+  %  pop 0
+  %} if
+
+  % Start the selected option
+  dup keyEnter eq {
+    /window.action actStart def
+    pop 0
+  } if
+
+  % Select the next option (up)
+  dup keyUp eq {
+    menu.entry 0 gt {
+      menu.entry false MenuSelect
+      menu.entry menu.shift eq {
+        /menu.shift menu.shift 1 sub def main.drawmenu
+      } if
+      /menu.entry menu.entry 1 sub def
+      menu.entry true MenuSelect
+    } if
+    pop 0
+  } if
+
+  % Select the next option (down)
+  dup keyDown eq {
+    menu.entry menu.texts length 1 sub lt {
+      menu.entry false MenuSelect
+      menu.visible.entries menu.entry menu.shift sub sub 1 eq {
+        /menu.shift menu.shift 1 add def main.drawmenu
+      } if
+      /menu.entry menu.entry 1 add def
+      menu.entry true MenuSelect
+    } if
+    pop 0
+  } if
+
+} def
+
+%*******************************************************************************
+% Main entry point for GFXBoot UI
+%*******************************************************************************
+
+% Set a decent video mode
+/config.screen.width /config.screen.height "screen.size" 800 600 gfxconfig.set.int2
+config.screen.width config.screen.height 32 findmode setmode
+
+% drawing area size
+/clip.size { screen.size } def
+
+% Set background image
+config.background findfile setimage
+
+% get font(s)
+/font.normal config.font.normal findfile def
+/font.large
+  % don't load it twice
+  config.font.normal config.font.large eq {
+    font.normal
+  } {
+    config.font.large findfile
+  } ifelse
+def
+
+% Show splash animation
+% Then display menu after timeout
+config.splash {
+  splash.show
+} if
