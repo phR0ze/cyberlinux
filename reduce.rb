@@ -1199,6 +1199,7 @@ if __FILE__ == $0
   examples += "Build k8snode layer: sudo ./#{app}.rb clean build --layers=k8snode --iso\n".colorize(:green)
   examples += "Pack k8snode layer: ./#{app}.rb pack --layers=k8snode\n".colorize(:green)
   examples += "Deploy nodes: sudo ./#{app}.rb deploy --layer=k8snode --nodes=10,11,12\n".colorize(:green)
+  examples += "Deploy container: sudo ./#{app}.rb deploy --run --layer=build\n".colorize(:green)
   examples += "\n"
 
   opts = Cmds.new(app, version, examples)
