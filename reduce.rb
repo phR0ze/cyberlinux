@@ -60,10 +60,12 @@ class Reduce
       base: 'base',
       build: 'build',
       changes: 'changes',
+      command: 'command',
       cpus: 'cpus',
       conflict: 'conflict',
       container: 'container',
       desc: 'desc',
+      docker: 'docker',
       FOREIGN: 'FOREIGN',
       GEM: 'GEM',
       i686: 'i686',
@@ -77,12 +79,12 @@ class Reduce
       off: 'off',
       offline: 'offline',
       packages: 'packages',
+      params: 'params',
       pgp_key: 'pgp_key',
       pkg: 'pkg',
       ram: 'ram',
       repo: 'repo',
       repos: 'repos',
-      run: 'run',
       type: 'type',
       vagrant: 'vagrant',
       vars: 'vars',
@@ -564,24 +566,22 @@ class Reduce
       # Run container
       #-------------------------------------------------------------------------
       if run or exec
-        run_params = []
-        cont = name || 'dev'
 
-        # Get layer run params
+        # Get docker params
+        params = []
         layers = getlayers(layer).reverse[0..-2].each{|_layer|
-          yml = getlayer(_layer)
-          loc = yml[@k.run].index{|x| x.include?('{{')}
-          run_params << yml[@k.run][0..loc-1] if yml[@k.run].size > 1
+          docker = getlayer(_layer)[@k.docker]
+          params << docker[@k.vars] if docker[@k.vars]
         }
 
         # Resolve image variable
         # Ex: docker run --rm --name dev66 -h dev66 -e TERM=xterm build-1.0.59 bash -c "while :; do sleep 5; done"
-        vars = {IMAGE: image}
+        cont = name || 'dev'
         env = '' and @proxyenv.each{|k,v| env << "-e #{k}=#{v} " if v}
-        run_params = exec ? "-it #{env} #{image} #{exec}" :
-          (run_params << layer_yml[@k.run].erb(vars)).flatten * ' '
+        params = exec ? "-it #{env} #{image} #{exec}" :
+          (params << "#{image} #{layer_yml[@k.docker][@k.command]}").flatten * ' '
         begin
-          Sys.exec("docker run --rm --name #{cont} --hostname #{cont} #{run_params}", die:false)
+          Sys.exec("docker run --rm --name #{cont} --hostname #{cont} #{params}", die:false)
         ensure
           exists = `docker ps -a --format "{{.Names}}"`.split("\n").find{|x| x == cont}
           Sys.exec("docker kill #{cont}") if exists
@@ -1218,7 +1218,7 @@ if __FILE__ == $0
     CmdOpt.new('--all', 'Clean all components'),
     CmdOpt.new('--initramfs', 'Clean initramfs image'),
     CmdOpt.new('--isolinux', 'Clean isolinux boot'),
-    CmdOpt.new('--layers x,y,z', 'Clean given layers', type:Array),
+    CmdOpt.new('--layers=x,y,z', 'Clean given layers', type:Array),
     CmdOpt.new('--iso', 'Clean bootable ISO'),
     CmdOpt.new('--iso-full', 'Clean bootable ISO and all machine layers'),
     CmdOpt.new('--vms', 'Clean VMs that are no longer deployed'),
@@ -1226,16 +1226,16 @@ if __FILE__ == $0
   opts.add('build', 'Build ISO components', [
     CmdOpt.new('--initramfs', 'Build initramfs image'),
     CmdOpt.new('--isolinux', 'Build isolinux boot'),
-    CmdOpt.new('--layers x,y,z', 'Build given layers', type:Array),
+    CmdOpt.new('--layers=x,y,z', 'Build given layers', type:Array),
     CmdOpt.new('--iso', 'Build USB bootable ISO with existing layers'),
     CmdOpt.new('--iso-full', 'Build USB bootable ISO with all machine layers'),
   ])
   opts.add('deploy', 'Deploy VMs or containers', [
-    CmdOpt.new('--layer LAYER', 'Deploy a specific layer VM [REQUIRED]'),
-    CmdOpt.new('--name NAME', 'Give a name to the specific node being deployed'),
+    CmdOpt.new('--layer=LAYER', 'Deploy a specific layer VM', type:String, required:true),
+    CmdOpt.new('--name=NAME', 'Give a name to the specific node being deployed', type:String),
     CmdOpt.new('--run', 'Run default container run'),
-    CmdOpt.new('--exec CMD', 'Specific command to run in container'),
-    CmdOpt.new('--nodes x,y,z', 'Comma delimited list of last octet IPs (e.g. 10,11,2)', type:Array),
+    CmdOpt.new('--exec=CMD', 'Specific command to run in container', type:String),
+    CmdOpt.new('--nodes=x,y,z', 'Comma delimited list of last octet IPs (e.g. 10,11,2)', type:Array),
     CmdOpt.new('--force', 'Deploy the given layer/s even if already exists'),
     CmdOpt.new('--ipv6', 'Enable ipv6 on the given nodes'),
     CmdOpt.new('--vagrantfile', 'Export the Vagrantfile only'),
@@ -1261,6 +1261,10 @@ if __FILE__ == $0
   # Execute 'build' command
   reduce.build(initramfs: opts[:initramfs], isolinux: opts[:isolinux],
     layers: opts[:layers], iso: opts[:iso], isofull: opts[:isofull]) if opts[:build]
+
+  # Execute 'deploy' command
+  reduce.deploy(opts[:layer], name: opts[:name], run: opts[:run], exec: opts[:exec], nodes: opts[:nodes],
+    ipv6: opts[:ipv6], vagrantfile: opts[:vagrantfile], force: opts[:force]) if opts[:deploy]
 end
 
 # vim: ft=ruby:ts=2:sw=2:sts=2

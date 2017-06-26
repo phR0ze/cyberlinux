@@ -31,13 +31,17 @@ rescue Exception => e
 end
 
 class CmdOpt
-  attr_accessor(:conf)
-  attr_accessor(:type)
-  attr_accessor(:desc)
-  def initialize(conf, desc, type:nil)
-    @conf = conf
+  attr_reader(:key)
+  attr_reader(:conf)
+  attr_reader(:type)
+  attr_reader(:desc)
+  attr_reader(:required)
+  def initialize(conf, desc, type:nil, required:false)
+    @conf = conf.gsub(' ', '=')
+    @key = conf.gsub('-', '').split('=').first.to_sym
     @type = type
     @desc = desc
+    @required = required
   end
 end
 
@@ -57,7 +61,7 @@ class Cmds
   def initialize(app, version, examples)
     @opts = {}
     @cmds = {}
-    @commands = {}
+    @cmds_config = {}
 
     @app = app
     @version = version
@@ -76,12 +80,12 @@ class Cmds
   # +desc+:: description of the command
   # +opts+:: list of command options
   def add(cmd, desc, opts)
-    @commands[cmd] = [desc, OptionParser.new{|parser|
-      parser.banner = "#{banner}\nUsage: ./#{@app}.rb #{cmd} [options]"
-      opts.each{|opt| parser.on(opt.conf, opt.type, opt.desc){|x|
-        @opts[opt.conf.gsub('-', '').split(' ').first.to_sym] = x
-      }}
-    }]
+    @cmds_config[cmd] = {desc: desc, inopts: opts, outopts: OptionParser.new{|parser|
+      required = opts.map{|x| x.conf if x.required}.compact * ' '
+      required += ' ' if not required.empty?
+      parser.banner = "#{banner}\nUsage: ./#{@app}.rb #{cmd} #{required}[options]"
+      opts.each{|opt| parser.on(opt.conf, opt.type, opt.desc){|x| @opts[opt.key] = x }}
+    }}
   end
 
   # Returns banner string
@@ -95,7 +99,7 @@ class Cmds
 
     # Construct help for the application
     help = "COMMANDS:\n"
-    @commands.each{|k,v| help += "    #{k.ljust(33, ' ')}#{v.first}\n" }
+    @cmds_config.each{|k,v| help += "    #{k.ljust(33, ' ')}#{v[:desc]}\n" }
     help += "\nsee './#{@app}.rb COMMAND --help' for specific command info"
 
     # Construct top level option parser
@@ -107,8 +111,8 @@ class Cmds
 
     # Invoke the option parser with help if any un-recognized commands are given
     cmds = ARGV.select{|x| not x.start_with?('-')}
-    ARGV.clear and ARGV << '-h' if ARGV.empty? or cmds.any?{|x| not @commands[x]}
-    cmds.each{|x| puts("Error: Invalid command '#{x}'".colorize(:red)) if not @commands[x]}
+    ARGV.clear and ARGV << '-h' if ARGV.empty? or cmds.any?{|x| not @cmds_config[x]}
+    cmds.each{|x| puts("Error: Invalid command '#{x}'".colorize(:red)) if not @cmds_config[x]}
     @optparser.order!
 
     # Now remove them from ARGV leaving only options
@@ -118,7 +122,16 @@ class Cmds
     cmds.each do |cmd|
       begin
         @cmds[cmd.to_sym] = true
-        @commands[cmd].last.order!
+        @cmds_config[cmd][:outopts].order!
+
+        # Ensure that all required options were given
+        @cmds_config[cmd][:inopts].each{|x|
+          if x.required and not @opts[x.key]
+            puts("Error: Missing required option '#{x.key}'".colorize(:red))
+            ARGV.clear and ARGV << "-h"
+            @cmds_config[cmd][:outopts].order!
+          end
+        }
       rescue OptionParser::InvalidOption => e
         # Options parser will raise an invalid exception if it doesn't recognize something
         # However we want to ignore that as it may be another command's option
