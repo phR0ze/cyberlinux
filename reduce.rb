@@ -574,7 +574,7 @@ class Reduce
           params << docker[@k.vars] if docker[@k.vars]
         }
 
-        # Resolve image variable
+        # Run docker container
         # Ex: docker run --rm --name dev66 -h dev66 -e TERM=xterm build-1.0.59 bash -c "while :; do sleep 5; done"
         cont = name || 'dev'
         env = '' and @proxyenv.each{|k,v| env << "-e #{k}=#{v} " if v}
