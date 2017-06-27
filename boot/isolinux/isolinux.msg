@@ -1,4 +1,4 @@
-Welcome to <%= DISTRO %>!
+Welcome to <%= distro %>!
 
 To start the system enter start and press <return>
 

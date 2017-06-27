@@ -389,7 +389,6 @@ run_hook()
 
     # Resolve template variables
     label="<%= label %>"
-    repos="<%= repos %>"
     all_groups="<%= groups %>"
     images_path="<%= distro %>"
     netmatch="<%= netmatch %>"

@@ -66,16 +66,23 @@ class Reduce
       container: 'container',
       desc: 'desc',
       docker: 'docker',
+      entries: 'entries',
       FOREIGN: 'FOREIGN',
       GEM: 'GEM',
+      gfxboot: 'gfxboot',
       i686: 'i686',
       ignore: 'ignore',
+      initrd: 'initrd',
       install: 'install',
+      isolinux: 'isolinux',
+      kernel: 'kernel',
+      label: 'label',
       layer: 'layer',
       layers: 'layers',
       machine: 'machine',
       mirrors: 'mirrors',
       multilib: 'multilib',
+      name: 'name',
       off: 'off',
       offline: 'offline',
       packages: 'packages',
@@ -384,82 +391,159 @@ class Reduce
     layers.each{|layer| changed |= build_layers(layer)} if layers
 
     # Build early userspace ramdisk for install executed by isolinux
-    #changed |= build_initramfs if [initramfs, iso, isofull].any?
+    changed |= build_initramfs if [initramfs, iso, isofull].any?
 
-#    # Build GFXBoot UI that boots initramfs installer and in turn the real kernel
-#    changed |= build_isolinux if [isolinux, iso, isofull].any?
-#
-#    # Create ISO Hybrid CD/USB bootable image to launch isolinux via xorriso
-#    # Note: the eltorito-boot and eltorito-catalog appear to be paths
-#    # relative to the construction of the ISO which threw me off for awhile
-#    if [iso, isofull].any?
-#      puts("#{'-' * 80}\nBuilding ISO Hybrid CD/USB bootable image...\n#{'-' * 80}".colorize(:yellow))
-#      if changed or not File.exist?(@vars.isofile)
-#        cmd = "xorriso -as mkisofs "
-#        cmd += "-iso-level 3 -rock -joliet "
-#        cmd += "-max-iso9660-filenames -omit-period "
-#        cmd += "-omit-version-number "
-#        cmd += "-relaxed-filenames -allow-lowercase "
-#        cmd += "-volid \"#{@vars.label}\" "
-#        cmd += "-appid \"#{@vars.distro} %s\" " % 'Install/Live CD'
-#        cmd += "-publisher \"#{@vars.distro}\" "
-#        cmd += "-preparer \"#{@vars.distro}\" "
-#        cmd += "-eltorito-boot \"%s\" " % 'isolinux/isolinux.bin'
-#        cmd += "-eltorito-catalog \"%s\" " % 'isolinux/boot.cat'
-#        cmd += "-no-emul-boot -boot-load-size 4 -boot-info-table "
-#        cmd += "-isohybrid-mbr \"#{File.join(@isolinux_dst, 'isohdpfx.bin')}\" "
-#        cmd += "-output \"#{@vars.isofile}\" "
-#        cmd += "\"#{@isopath}\""
-#        if Sys.exec(cmd)
-#          puts("Successfully built ISO Hybrid CD/USB bootable image:\n#{@vars.isofile}".colorize(:green))
-#        else
-#          !puts("Error: Failed to build ISO Hybrid CD/USB bootable image:\n#{@vars.isofile}".colorize(:red)) and exit
-#        end
-#      end
-#    end
+    # Build GFXBoot UI that boots initramfs installer and in turn the real kernel
+    changed |= build_isolinux if [isolinux, iso, isofull].any?
+
+    # Create ISO Hybrid CD/USB bootable image to launch isolinux via xorriso
+    # Note: the eltorito-boot and eltorito-catalog appear to be paths
+    # relative to the construction of the ISO which threw me off for awhile
+    if [iso, isofull].any?
+      puts("#{'-' * 80}\nBuilding ISO Hybrid CD/USB bootable image...\n#{'-' * 80}".colorize(:yellow))
+      if changed or not File.exist?(@vars.isofile)
+        cmd = "xorriso -as mkisofs "
+        cmd += "-iso-level 3 -rock -joliet "
+        cmd += "-max-iso9660-filenames -omit-period "
+        cmd += "-omit-version-number "
+        cmd += "-relaxed-filenames -allow-lowercase "
+        cmd += "-volid \"#{@vars.label}\" "
+        cmd += "-appid \"#{@vars.distro} %s\" " % 'Install/Live CD'
+        cmd += "-publisher \"#{@vars.distro}\" "
+        cmd += "-preparer \"#{@vars.distro}\" "
+        cmd += "-eltorito-boot \"%s\" " % 'isolinux/isolinux.bin'
+        cmd += "-eltorito-catalog \"%s\" " % 'isolinux/boot.cat'
+        cmd += "-no-emul-boot -boot-load-size 4 -boot-info-table "
+        cmd += "-isohybrid-mbr \"#{File.join(@isolinux_dst, 'isohdpfx.bin')}\" "
+        cmd += "-output \"#{@vars.isofile}\" "
+        cmd += "\"#{@isopath}\""
+        msg = "ISO Hybrid CD/USB bootable image:\n#{@vars.isofile}"
+        if Sys.exec(cmd)
+          puts("Successfully built #{msg}".colorize(:green))
+        else
+          !puts("Error: Failed to build #{msg}".colorize(:red)) and exit
+        end
+      end
+    end
   end
 
   # Create the initramfs.img
   # which provides the boot environment we will install from
   # Params:
   # +returns+:: true on changed
-#  def build_initramfs()
-#    create_dir_structure
-#    changed = false
-#    initramfs_digests = File.join(@initramfs_work, 'digests')
-#
-#    puts("#{'-' * 80}\nBuilding initramfs image...\n#{'-' * 80}".colorize(:yellow))
-#    if syncfiles(File.basename(@initramfs_work), @initramfs_src, @initramfs_work, initramfs_digests) or
-#        not File.exist?(@initramfs_image)
-#      changed |= true
-#      installer = File.join(@initramfs_work, 'installer')
-#      installer_conf = File.join(@initramfs_work, 'installer.conf')
-#      mkinitcpio_conf = File.join(@initramfs_work, 'mkinitcpio.conf')
-#
-#      # Resolve template
-#      @vars.groups = @spec[@k.layers].select{|x| x[@k.type] == @k.machine}
-#        .map{|x| x[@k.groups] if x[@k.groups]}.compact.uniq * ','
-#      Fedit.resolve(installer, @vars)
-#
-#      # Build initramfs image in build container
-#      docker(@k.build, @k.build){|cont, home, cp, exec, execs, runuser|
-#        cp["#{installer} #{cont}:/usr/lib/initcpio/hooks"]
-#        cp["#{installer_conf} #{cont}:/usr/lib/initcpio/install/installer"]
-#        cp["#{mkinitcpio_conf} #{cont}:/etc"]
-#
-#        puts("Creating #{@initramfs_image}...".colorize(:cyan))
-#        initramfs = File.join('/root', File.basename(@initramfs_image))
-#        kernelstr = `#{execs} ls /lib/modules`.split("\n").sort.first
-#        puts("Using kernel: #{kernelstr}".colorize(:green))
-#
-#        exec["mkinitcpio -k #{kernelstr} -g #{initramfs}"]
-#        cp["#{cont}:#{initramfs} #{@initramfs_image}"]
-#        puts("Successfully built initramfs image #{@initramfs_image}".colorize(:green))
-#      }
-#    end
-#
-#    return changed
-#  end
+  def build_initramfs()
+    create_dir_structure
+    changed = false
+    initramfs_digests = File.join(@initramfs_work, 'digests')
+
+    puts("#{'-' * 80}\nBuilding initramfs image...\n#{'-' * 80}".colorize(:yellow))
+    if syncfiles(File.basename(@initramfs_work), @initramfs_src, @initramfs_work, initramfs_digests) or
+        not File.exist?(@initramfs_image)
+      changed |= true
+      installer = File.join(@initramfs_work, 'installer')
+      installer_conf = File.join(@initramfs_work, 'installer.conf')
+      mkinitcpio_conf = File.join(@initramfs_work, 'mkinitcpio.conf')
+
+      # Resolve template
+      @vars.groups = @spec[@k.layers].select{|x| x[@k.type] == @k.machine}
+        .map{|x| x[@k.groups] if x[@k.groups]}.compact.uniq * ','
+      Fedit.resolve(installer, @vars)
+
+      # Build initramfs image in build container
+      docker(@k.build, @k.build){|cont, home, cp, exec, execs, runuser|
+        cp["#{installer} #{cont}:/usr/lib/initcpio/hooks"]
+        cp["#{installer_conf} #{cont}:/usr/lib/initcpio/install/installer"]
+        cp["#{mkinitcpio_conf} #{cont}:/etc"]
+
+        puts("Creating #{@initramfs_image}...".colorize(:cyan))
+        initramfs = File.join('/root', File.basename(@initramfs_image))
+        kernelstr = `#{execs} ls /lib/modules`.split("\n").sort.first
+        puts("Using kernel: #{kernelstr}".colorize(:green))
+
+        exec["mkinitcpio -k #{kernelstr} -g #{initramfs}"]
+        cp["#{cont}:#{initramfs} #{@initramfs_image}"]
+        puts("Successfully built initramfs image #{@initramfs_image}".colorize(:green))
+      }
+    end
+
+    return changed
+  end
+
+  # Build bootable ISOLinux with USB support
+  # Params:
+  # +clean+:: clean isolinux
+  # +returns+:: true on changed
+  def build_isolinux()
+    create_dir_structure
+    changed = false
+    yml = @spec[@k.isolinux]
+    isolinux_digests = File.join(@isolinux_work, 'digests')
+
+    puts("#{'-' * 80}\nBuilding isolinux with gfxboot ui...\n#{'-' * 80}".colorize(:yellow))
+    if syncfiles(File.basename(@k.isolinux), @isolinux_src, @isolinux_work, isolinux_digests) or
+        not File.exist?(File.join(@isolinux_dst, 'isohdpfx.bin'))
+      changed |= true
+
+      # Inject boot menu items from spec file
+      File.open(File.join(@isolinux_work, 'isolinux.msg'), 'a'){|f|
+        yml[@k.entries].each{|x| f << "#{x[@k.label].ljust(21)}- #{x[@k.name]}\n"}}
+      File.open(File.join(@isolinux_work, 'isolinux.cfg'), 'a'){|f|
+        yml[@k.entries].each{|x|
+          f << "label #{x[@k.label]}\n"
+          f << "  kernel #{x[@k.kernel]}\n"
+          f << "  append initrd=#{x[@k.initrd]}\n" if x[@k.initrd]}}
+      Fedit.resolve(File.join(@isolinux_work, 'isolinux.msg'), @vars)
+
+      # Inject gfxboot configuration
+      File.open(File.join(@isolinux_work, 'gfxboot/data/gfxboot.cfg'), 'a'){|f|
+        yml[@k.gfxboot].each{|x| f << "#{x}\n"}
+        f << "isolinux.labels=%s\n" % (yml[@k.entries].map{|x| x[@k.label]} * ',')
+        f << "gfxboot.menu.names=%s\n" % (yml[@k.entries].map{|x| x[@k.name]} * ',')
+        f << "gfx.noboot=%s\n" % (yml[@k.entries].map{|x| x[@k.label] if x[@k.noboot]}.compact * ',')
+      }
+
+      # Compile GFXboot ui and extract isolinux files
+      docker(@k.build, @k.build){|cont, home, cp, exec, execs, runuser|
+
+        puts("Compile and extract isolinux UI...".colorize(:cyan))
+        cp["#{File.join(@isolinux_work, 'gfxboot')} #{cont}:#{home}"]
+        exec["chown -R #{@k.build}:#{@k.build} #{home}"]
+        runuser["cd #{home}/gfxboot && make clean && make"]
+        cp["#{cont}:#{home}/gfxboot/build/gfxboot.ui #{@isolinux_work}"]
+
+        puts("Extract isolinux binaries/modules...".colorize(:cyan))
+        cp["#{cont}:/usr/lib/syslinux/bios/isolinux.bin #{@isolinux_work}"] # El Torito Boot loader
+        cp["#{cont}:/usr/lib/syslinux/bios/isohdpfx.bin #{@isolinux_work}"] # USB support
+        cp["#{cont}:/usr/lib/syslinux/bios/ldlinux.c32 #{@isolinux_work}"]  # BIOS support
+        cp["#{cont}:/usr/lib/syslinux/bios/gfxboot.c32 #{@isolinux_work}"]  # High-graphics menu support
+        cp["#{cont}:/usr/lib/syslinux/bios/mboot.c32 #{@isolinux_work}"]    # Layer image loading support
+        cp["#{cont}:/usr/lib/syslinux/bios/chain.c32 #{@isolinux_work}"]    # Chain load HDT and Memory Test
+        cp["#{cont}:/usr/lib/syslinux/bios/whichsys.c32 #{@isolinux_work}"] # Chain load HDT and Memory Test
+        cp["#{cont}:/usr/lib/syslinux/bios/libcom32.c32 #{@isolinux_work}"] # Chain load HDT and Memory Test
+        cp["#{cont}:/usr/lib/syslinux/bios/hdt.c32 #{@isolinux_work}"]      # Hardware Detection Tool dep
+        cp["#{cont}:/usr/lib/syslinux/bios/libmenu.c32 #{@isolinux_work}"]  # Hardware Detection Tool dep
+        cp["#{cont}:/usr/lib/syslinux/bios/libutil.c32 #{@isolinux_work}"]  # Hardware Detection Tool dep
+        cp["#{cont}:/usr/lib/syslinux/bios/libgpl.c32 #{@isolinux_work}"]   # Hardware Detection Tool dep
+        cp["#{cont}:/boot/memtest86+/memtest.bin #{@isolinux_work}/memtest"]# Memory test
+        cp["#{cont}:/boot/intel-ucode.img #{@ucode_image}"]                 # Intel microcode updates
+        cp["#{cont}:/boot/vmlinuz-linux #{@vmlinuz_image}"]                 # Linux kernel
+      }
+
+      puts("Copying isolinux destination files...".colorize(:cyan))
+      Dir.glob(File.join(@isolinux_work, '**/*'), File::FNM_DOTMATCH).each{|x|
+        if File.basename(x) != 'digests' and not x.include?("gfxboot/") and File.file?(x)
+          dst = x.sub(@isolinux_work, @isolinux_dst)
+          puts("Copying to #{dst}")
+          FileUtils.mkdir_p(File.dirname(dst))
+          FileUtils.cp(x, dst)
+        end
+      }
+
+      puts("Successfully built isolinux".colorize(:green))
+    end
+
+    return changed
+  end
 
   # Deploy vagrant node/s
   # Params:
@@ -987,6 +1071,10 @@ class Reduce
     exec = ->(cmd){Sys.exec("docker exec #{cont} bash -c \"#{vars}#{cmd.gsub(/"/, '\"')}\"")}
     execs = "docker exec #{cont}"
     runuser = ->(cmd){Sys.exec("docker exec #{cont} runuser #{user} -c \"#{vars}#{cmd.gsub(/"/, '\"')}\"")}
+    if user != 'root'
+      exec["groupadd #{user}"]
+      exec["useradd -m -g #{user} -s /bin/bash #{user}"]
+    end
     block.call(cont, home, cp, exec, execs, runuser)
 
     # Shutdown container
