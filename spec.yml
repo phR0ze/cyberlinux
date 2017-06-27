@@ -25,7 +25,7 @@
 #------------------------------------------------------------------------------
 vars:
   arch: x86_64
-  release: 0.0.47
+  release: 0.0.48
   distro: cyberlinux
   timezone: US/Mountain
 
@@ -202,7 +202,7 @@ packages:
     - { pkg: linux,                         desc: Linux kernel and supporting modules }
     - { pkg: lsb-release,                   desc: LSB version query program }
     - { pkg: mkinitcpio,                    desc: initramfs image creation utility }
-    #- { pkg: mkinitcpio-vt-colors,          desc: vt console colors, type: FOREIGN }
+    - { pkg: mkinitcpio-vt-colors,          desc: vt console colors, type: FOREIGN }
     - { pkg: syslinux,                      desc: Boot loaders for ext2/3/4 USB and CD }
     - { pkg: systemd,                       desc: System and service manager }
     - { pkg: systemd-sysvcompat,            desc: Sysinit compat for systemd }
@@ -247,7 +247,7 @@ packages:
     - { pkg: gptfdisk,                      desc: Paritioning tools e.g. sgdisk }
     - { pkg: linux,                         desc: Linux kernel }
     - { pkg: mkinitcpio,                    desc: initramfs image creation utility }
-    #- { pkg: mkinitcpio-vt-colors,          desc: vt console colors, type: FOREIGN }
+    - { pkg: mkinitcpio-vt-colors,          desc: vt console colors, type: FOREIGN }
     - { pkg: rsync,                         desc: Remote file sync utility }
     - { pkg: systemd,                       desc: System and service manager }
 

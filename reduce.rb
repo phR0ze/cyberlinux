@@ -635,6 +635,7 @@ class Reduce
         exit unless Process.uid.zero?
 
       # Remove old 'live' images and/or skip if current
+      force = true && @build_dirty = false if layer == @k.build and @build_dirty
       image = evalimages!(@type.tgz, layer:layer, live:true, force:force)
       puts("Image #{image} already exists".colorize(:green)) if image
 
@@ -653,10 +654,11 @@ class Reduce
 
         # Get docker params
         params = []
-        layers = getlayers(layer).reverse[0..-2].each{|_layer|
-          docker = getlayer(_layer)[@k.docker]
-          params << docker[@k.vars] if docker[@k.vars]
+        layers = getlayers(layer).reverse[0..-1].each{|x|
+          docker = getlayer(x)[@k.docker]
+          params << docker[@k.params] if docker[@k.params]
         }
+        puts("docker: using params #{params}".colorize(:cyan))
 
         # Run docker container
         # Ex: docker run --rm --name dev66 -h dev66 -e TERM=xterm build-1.0.59 bash -c "while :; do sleep 5; done"
@@ -708,7 +710,8 @@ class Reduce
         end
 
         # Install layer specific packages via pacman
-        layer_changed |= installpkgs(layer, layer_yml, layer_work)
+        skip_aur = layer == @k.build ? true : false
+        layer_changed |= installpkgs(layer, layer_yml, layer_work, skip_aur:skip_aur)
 
         # Copy over all layer data if it exists
         layer_changed |= syncfiles(layer, layer_src, layer_work, layer_digests)
@@ -738,9 +741,12 @@ class Reduce
           puts("Successfully built #{layer_image}".colorize(:green))
           relocate_tracking_files(layer_work, restore:true)
           layer_changed |= true
+
+          # Build and inject aur/foreign packages for build container
         else
           puts("Image already built #{layer_image}".colorize(:green))
         end
+        @build_dirty |= installpkgs(layer, layer_yml, layer_work) if layer == @k.build
 
       ensure
         # Ensure joined file system is unmounted
@@ -757,8 +763,9 @@ class Reduce
   # +layer+:: layer name to work with
   # +layer_yml+:: layer yaml to work with
   # +layer_work+:: the directory where to install the layer packages to
+  # +skip_aur+:: skip aur and foreign packages when true
   # +returns+:: true if any packages were installed
-  def installpkgs(layer, layer_yml, layer_work)
+  def installpkgs(layer, layer_yml, layer_work, skip_aur:false)
     msg = "Installing packages for '#{layer}'..."
     pkgfile = File.join(layer_work, 'packages')
 
@@ -837,11 +844,15 @@ class Reduce
       end
 
       # Build cache and install aur packages and/or foreign packages
-      if pkgs[:aur].any? or pkgs[:foreign].any?
+      if pkgs[:aur].any? or pkgs[:foreign].any? and not skip_aur
         pacstrap.call("Installing aur/foreign", "Failed to install packages correctly"){
           buildpkgs(layer, layer_yml, layer_work, pkgs[:aur] + pkgs[:foreign])
           next Sys.exec(['pacstrap', '-GMcd', layer_work, '--config', @pacman_aur_conf, '--needed',
             *(pkgs[:aur] + pkgs[:foreign])], env:@proxyenv)}
+      elsif skip_aur
+        puts("Skipping aur/foreign packages for now, will come back to them in second pass.".colorize(:cyan))
+        pkgs[:aur].clear if pkgs[:aur].any?
+        pkgs[:foreign].clear if pkgs[:foreign].any?
       end
 
       # Install ruby gems
@@ -952,8 +963,6 @@ class Reduce
 
     # Build AUR/FOREIGN packages in build container
     if pkgs.any?
-      !puts("Error: automated package building not yet supported!".colorize(:red)) and exit
-
       docker(@k.build, @k.build){|cont, home, cp, exec, execs, runuser|
         pkgs.each{|pkg|
           pkgdir = "#{home}/#{pkg}"
