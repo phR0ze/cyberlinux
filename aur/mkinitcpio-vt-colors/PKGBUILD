@@ -1,0 +1,51 @@
+#-------------------------------------------------------------------------------
+# Maintainer: phR0ze
+# Adapted from Evan Purkhiser
+# https://github.com/EvanPurkhiser/mkinitcpio-colors
+#-------------------------------------------------------------------------------
+pkgname=mkinitcpio-vt-colors
+pkgver='1.0.0'          # mkinitcpio-colors 5264b13, linux-vt-setcolors d27b553
+pkgrel=1
+pkgdesc="mkinitcpio hook to set VT console colors during early userspace"
+arch=('i686' 'x86_64')
+url="https://github.com/EvanPurkhiser/mkinitcpio-colors"
+license=('MIT')
+depends=('mkinitcpio' 'glibc')
+provides=('linux-vt-setcolors')
+install="usage.install"
+
+source=('vt-colors.conf')
+md5sums=('SKIP')
+
+# Strip out debug symbols and remove .la and .a files
+options=('strip' '!libtool' '!staticlibs')
+
+# Automate the build steps to compile the software
+#-------------------------------------------------------------------------------
+build()
+{
+    # Copy over source
+    mkdir -p $srcdir
+    cp -r $srcdir/../$pkgname $srcdir
+
+    # Build source
+	cd $srcdir/$pkgname
+	make
+}
+
+# Install files into fakeroot and package
+#-------------------------------------------------------------------------------
+package()
+{
+	cd $srcdir/$pkgname
+
+    # Install vt-setcolors to /usr/bin/vt-setcolors with man page
+	make PREFIX=/usr DESTDIR="${pkgdir}" install
+
+    # Install mkinitcpio hooks
+	install -Dm 644 $srcdir/vt-colors.conf $pkgdir/etc/vt-colors.conf
+	install -Dm 644 hooks/vt-colors $pkgdir/usr/lib/initcpio/hooks/vt-colors
+	install -Dm 644 install/vt-colors $pkgdir/usr/lib/initcpio/install/vt-colors
+
+	install -Dm 644 LICENSE $pkgdir/usr/share/licenses/$pkgname/LICENSE
+}

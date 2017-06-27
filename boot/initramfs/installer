@@ -117,42 +117,43 @@ partition_and_mount_disk()
 {
     # Handle user selection of install disk
     #---------------------------------------------------------------------------
-    ifs=$IFS
-    IFS=$'\n'
-    while true; do
-        echo -e ":: Available disks for selection:"
-        echo $(lsblk -dn -o NAME,SIZE,VENDOR,MODEL,TYPE -x NAME | grep disk)
-        local disks=($(lsblk -dn -o NAME,SIZE,VENDOR,MODEL,TYPE -x NAME | grep disk))
-        for i in ${!disks[@]}; do
-            local disk=$(echo ${disks[$i]} | awk '{print $1}')
-            local size=$(echo ${disks[$i]} | awk '{print $2}')
-            local vendor=$(echo ${disks[$i]} | awk '{print $3}')
-            local model=$(echo ${disks[$i]} | awk '{print $4}')
-
-            # Filter on disks begining with "sd" and not isodev
-            if [ "${disk#*sd}" != "${disk}" ]; then
-
-                # Filter out the iso device
-                local dev=/dev/${disk}
-                if [ "${isodev#*$dev}" == "${isodev}" ]; then
-                    echo -e "   $(($i+1))) [${disk}] - ${size} ${vendor} ${model}"
-                fi
-            fi
-        done
-
-        echo -en "Enter a number (default=1): "
-        read choice
-        [ "x$choice" == "x" ] && choice=1
-        if [ $choice -gt 0 ] && [ $choice -le ${#disks[@]} ]; then
-            installdev=/dev/$(echo ${disks[$(($choice-1))]} | awk '{print $1}')
-            echo -e ":: Preparing disk ${cyan}$installdev${none} for installation"
-            break
-        else
-            echo -e "${red}Invalid selection, please try again${none}"
-        fi
-    done
-    IFS=$ifs
-    exit
+    fail_to_shell
+#    ifs=$IFS
+#    IFS=$'\n'
+#    while true; do
+#        echo -e ":: Available disks for selection:"
+#        echo $(lsblk -dn -o NAME,SIZE,VENDOR,MODEL,TYPE -x NAME | grep disk)
+#        local disks=($(lsblk -dn -o NAME,SIZE,VENDOR,MODEL,TYPE -x NAME | grep disk))
+#        for i in ${!disks[@]}; do
+#            local disk=$(echo ${disks[$i]} | awk '{print $1}')
+#            local size=$(echo ${disks[$i]} | awk '{print $2}')
+#            local vendor=$(echo ${disks[$i]} | awk '{print $3}')
+#            local model=$(echo ${disks[$i]} | awk '{print $4}')
+#
+#            # Filter on disks begining with "sd" and not isodev
+#            if [ "${disk#*sd}" != "${disk}" ]; then
+#
+#                # Filter out the iso device
+#                local dev=/dev/${disk}
+#                if [ "${isodev#*$dev}" == "${isodev}" ]; then
+#                    echo -e "   $(($i+1))) [${disk}] - ${size} ${vendor} ${model}"
+#                fi
+#            fi
+#        done
+#
+#        echo -en "Enter a number (default=1): "
+#        read choice
+#        [ "x$choice" == "x" ] && choice=1
+#        if [ $choice -gt 0 ] && [ $choice -le ${#disks[@]} ]; then
+#            installdev=/dev/$(echo ${disks[$(($choice-1))]} | awk '{print $1}')
+#            echo -e ":: Preparing disk ${cyan}$installdev${none} for installation"
+#            break
+#        else
+#            echo -e "${red}Invalid selection, please try again${none}"
+#        fi
+#    done
+#    IFS=$ifs
+#    exit
 
     # Wipe, partition and format disk
     #---------------------------------------------------------------------------

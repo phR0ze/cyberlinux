@@ -710,43 +710,48 @@ class Reduce
         end
 
         # Install layer specific packages via pacman
-        skip_aur = layer == @k.build ? true : false
-        layer_changed |= installpkgs(layer, layer_yml, layer_work, skip_aur:skip_aur)
+        skip = layer == @k.build ? true : false
+        while true do
+          _changed, skipped = installpkgs(layer, layer_yml, layer_work, skip:skip)
+          layer_changed |= _changed
 
-        # Copy over all layer data if it exists
-        layer_changed |= syncfiles(layer, layer_src, layer_work, layer_digests)
+          # Copy over all layer data if it exists
+          layer_changed |= syncfiles(layer, layer_src, layer_work, layer_digests)
 
-        # Apply file manipulations
-        if layer_changed or not File.exist?(File.join(layer_work, 'changed')) or not File.exist?(layer_image)
-          layer_changed |= Change.apply(layer_yml[@k.changes] || [],
-            OpenStruct.new({root: layer_work, vars: @vars}))
-          File.open(File.join(layer_work, 'changed'), 'w'){|f|}
-        end
-
-        # Build layer image if needed
-        if layer_changed or not File.exist?(layer_image)
-          puts("Creating #{layer_image}...".colorize(:cyan))
-          Sys.umount(layer_work, retries:10) if layer_yml[@k.type] == @k.machine
-          relocate_tracking_files(layer_work)
-
-          # Create squashfs image for machine layers
-          if layer_yml[@k.type] == @k.machine
-            Sys.exec("mksquashfs #{layer_work} #{layer_image} -noappend -comp xz -b 256K -Xbcj x86")
-
-          # Create compressed tarball for container layers
-          else
-            Sys.exec("tar --numeric-owner --xattrs --acls -C #{layer_work} -czf #{layer_image} .")
+          # Apply file manipulations
+          if layer_changed or not File.exist?(File.join(layer_work, 'changed')) or not File.exist?(layer_image)
+            layer_changed |= Change.apply(layer_yml[@k.changes] || [],
+              OpenStruct.new({root: layer_work, vars: @vars}))
+            File.open(File.join(layer_work, 'changed'), 'w'){|f|}
           end
 
-          puts("Successfully built #{layer_image}".colorize(:green))
-          relocate_tracking_files(layer_work, restore:true)
-          layer_changed |= true
+          # Build layer image if needed
+          if layer_changed or not File.exist?(layer_image)
+            puts("Creating #{layer_image}...".colorize(:cyan))
+            Sys.umount(layer_work, retries:10) if layer_yml[@k.type] == @k.machine
+            relocate_tracking_files(layer_work)
 
-          # Build and inject aur/foreign packages for build container
-        else
-          puts("Image already built #{layer_image}".colorize(:green))
+            # Create squashfs image for machine layers
+            if layer_yml[@k.type] == @k.machine
+              Sys.exec("mksquashfs #{layer_work} #{layer_image} -noappend -comp xz -b 256K -Xbcj x86")
+
+            # Create compressed tarball for container layers
+            else
+              Sys.exec("tar --numeric-owner --xattrs --acls -C #{layer_work} -czf #{layer_image} .")
+            end
+
+            puts("Successfully built #{layer_image}".colorize(:green))
+            relocate_tracking_files(layer_work, restore:true)
+            layer_changed |= true
+          else
+            puts("Image already built #{layer_image}".colorize(:green))
+          end
+
+          # Only loop if there are aur/foreign packages to build still.
+          # This will only happen in the build case
+          break if not skipped
+          skip = false
         end
-        @build_dirty |= installpkgs(layer, layer_yml, layer_work) if layer == @k.build
 
       ensure
         # Ensure joined file system is unmounted
@@ -763,9 +768,9 @@ class Reduce
   # +layer+:: layer name to work with
   # +layer_yml+:: layer yaml to work with
   # +layer_work+:: the directory where to install the layer packages to
-  # +skip_aur+:: skip aur and foreign packages when true
-  # +returns+:: true if any packages were installed
-  def installpkgs(layer, layer_yml, layer_work, skip_aur:false)
+  # +skip+:: skip aur/foreign packages when true
+  # +returns+:: tuple(true if any pkgs were installed, true if pkgs were skipped)
+  def installpkgs(layer, layer_yml, layer_work, skip:false)
     msg = "Installing packages for '#{layer}'..."
     pkgfile = File.join(layer_work, 'packages')
 
@@ -844,15 +849,18 @@ class Reduce
       end
 
       # Build cache and install aur packages and/or foreign packages
-      if pkgs[:aur].any? or pkgs[:foreign].any? and not skip_aur
+      if pkgs[:aur].any? or pkgs[:foreign].any?
         pacstrap.call("Installing aur/foreign", "Failed to install packages correctly"){
-          buildpkgs(layer, layer_yml, layer_work, pkgs[:aur] + pkgs[:foreign])
-          next Sys.exec(['pacstrap', '-GMcd', layer_work, '--config', @pacman_aur_conf, '--needed',
-            *(pkgs[:aur] + pkgs[:foreign])], env:@proxyenv)}
-      elsif skip_aur
-        puts("Skipping aur/foreign packages for now, will come back to them in second pass.".colorize(:cyan))
-        pkgs[:aur].clear if pkgs[:aur].any?
-        pkgs[:foreign].clear if pkgs[:foreign].any?
+          _changed, pkgs[:skipped] = buildpkgs(layer, layer_yml, layer_work, pkgs[:aur] + pkgs[:foreign], skip:skip)
+          if pkgs[:skipped]
+            puts("Skipping aur/foreign packages for now, will come back to them in second pass.".colorize(:cyan))
+            pkgs[:aur].clear if pkgs[:aur].any?
+            pkgs[:foreign].clear if pkgs[:foreign].any?
+          else
+            next Sys.exec(['pacstrap', '-GMcd', layer_work, '--config', @pacman_aur_conf, '--needed',
+              *(pkgs[:aur] + pkgs[:foreign])], env:@proxyenv)
+          end
+        }
       end
 
       # Install ruby gems
@@ -888,7 +896,7 @@ class Reduce
       puts("#{msg}skipping".colorize(:cyan))
     end
 
-    return pkgs.any?{|k,v| v.any? if k != :conflict and k != :ignore}
+    return pkgs.any?{|k,v| v.any? if k != :conflict and k != :ignore}, pkgs[:skipped]
   end
 
   # Install the indicated gem
@@ -945,7 +953,9 @@ class Reduce
   # +pkgs+:: packages to build
   # +layer_yml+:: layer yaml to work with
   # +layer_work+:: the directory where to install the layer packages to
-  def buildpkgs(layer, layer_yml, layer_work, pkgs)
+  # +skip+:: skip aur/foreign packages when true
+  # +returns+:: tuple(true pkgs were installed, true if pkgs were skipped)
+  def buildpkgs(layer, layer_yml, layer_work, pkgs, skip=false)
     changed = false
     aur_database = File.join(@aurcache, 'aur.db.tar.gz')
 
@@ -963,6 +973,8 @@ class Reduce
 
     # Build AUR/FOREIGN packages in build container
     if pkgs.any?
+      return changed, true if skip
+
       docker(@k.build, @k.build){|cont, home, cp, exec, execs, runuser|
         pkgs.each{|pkg|
           pkgdir = "#{home}/#{pkg}"
@@ -1008,7 +1020,7 @@ class Reduce
       Sys.exec("repo-add #{aur_database} #{@aurcache}/*.xz")
     end
 
-    return changed
+    return changed, false
   end
 
   # Get packages for the given layer

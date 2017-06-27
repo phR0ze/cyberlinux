@@ -1,0 +1,12 @@
+post_install() {
+	echo ""
+	echo "1. Create /etc/vt-colors.conf"
+    echo "   Add color codes COLOR_X=hexcode where X is between 0 and 15"
+	echo ""
+	echo "2. Edit: sudo vim /etc/mkinitcpio.conf"
+	echo "   Add vt-colors on the HOOKS line after autodetect"
+	echo ""
+	echo "3. Test: sudo mkinitcpio"
+	echo "3. Execute: sudo mkinitcpio -p linux"
+	echo ""
+}
