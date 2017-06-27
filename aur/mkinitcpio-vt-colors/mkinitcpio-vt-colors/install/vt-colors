@@ -4,7 +4,7 @@ build()
     # subshell to avoid namespace pollution
     (
         [[ -s /etc/vt-colors.conf ]] && . /etc/vt-colors.conf
-        
+
         for COLOR_ID in $(seq 0 15)
         do
             COLOR=$(eval "echo \$COLOR_${COLOR_ID}")
@@ -21,7 +21,7 @@ build()
         echo -ne "$COLORS" > "$BUILDROOT/consolecolors"
         exit 0
     )
-    
+
     add_runscript
     add_binary "/usr/bin/vt-setcolors"
 }

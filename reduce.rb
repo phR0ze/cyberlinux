@@ -710,7 +710,7 @@ class Reduce
         end
 
         # Install layer specific packages via pacman
-        skip = layer == @k.build ? true : false
+        skip = layer == @k.build ? !File.exist?(layer_image) : false
         while true do
           _changed, skipped = installpkgs(layer, layer_yml, layer_work, skip:skip)
           layer_changed |= _changed
@@ -750,6 +750,7 @@ class Reduce
           # Only loop if there are aur/foreign packages to build still.
           # This will only happen in the build case
           break if not skipped
+          @build_dirty = true
           skip = false
         end
 
@@ -853,7 +854,6 @@ class Reduce
         pacstrap.call("Installing aur/foreign", "Failed to install packages correctly"){
           _changed, pkgs[:skipped] = buildpkgs(layer, layer_yml, layer_work, pkgs[:aur] + pkgs[:foreign], skip:skip)
           if pkgs[:skipped]
-            puts("Skipping aur/foreign packages for now, will come back to them in second pass.".colorize(:cyan))
             pkgs[:aur].clear if pkgs[:aur].any?
             pkgs[:foreign].clear if pkgs[:foreign].any?
           else
@@ -896,7 +896,8 @@ class Reduce
       puts("#{msg}skipping".colorize(:cyan))
     end
 
-    return pkgs.any?{|k,v| v.any? if k != :conflict and k != :ignore}, pkgs[:skipped]
+    changed = pkgs.any?{|k,v| v.any? if k != :conflict and k != :ignore and k != :skipped}
+    return changed, pkgs[:skipped]
   end
 
   # Install the indicated gem
@@ -955,7 +956,7 @@ class Reduce
   # +layer_work+:: the directory where to install the layer packages to
   # +skip+:: skip aur/foreign packages when true
   # +returns+:: tuple(true pkgs were installed, true if pkgs were skipped)
-  def buildpkgs(layer, layer_yml, layer_work, pkgs, skip=false)
+  def buildpkgs(layer, layer_yml, layer_work, pkgs, skip:false)
     changed = false
     aur_database = File.join(@aurcache, 'aur.db.tar.gz')
 
@@ -973,6 +974,7 @@ class Reduce
 
     # Build AUR/FOREIGN packages in build container
     if pkgs.any?
+      puts("Skipping packages #{pkgs} for this pass".colorize(:cyan)) if skip
       return changed, true if skip
 
       docker(@k.build, @k.build){|cont, home, cp, exec, execs, runuser|
