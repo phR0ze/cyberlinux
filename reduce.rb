@@ -70,6 +70,7 @@ class Reduce
       FOREIGN: 'FOREIGN',
       GEM: 'GEM',
       gfxboot: 'gfxboot',
+      groups: 'groups',
       i686: 'i686',
       ignore: 'ignore',
       initrd: 'initrd',
@@ -511,6 +512,7 @@ class Reduce
         runuser["cd #{home}/gfxboot && make clean && make"]
         cp["#{cont}:#{home}/gfxboot/build/gfxboot.ui #{@isolinux_work}"]
 
+        # https://wiki.archlinux.org/index.php/syslinux
         puts("Extract isolinux binaries/modules...".colorize(:cyan))
         cp["#{cont}:/usr/lib/syslinux/bios/isolinux.bin #{@isolinux_work}"] # El Torito Boot loader
         cp["#{cont}:/usr/lib/syslinux/bios/isohdpfx.bin #{@isolinux_work}"] # USB support
@@ -524,6 +526,7 @@ class Reduce
         cp["#{cont}:/usr/lib/syslinux/bios/libmenu.c32 #{@isolinux_work}"]  # Hardware Detection Tool dep
         cp["#{cont}:/usr/lib/syslinux/bios/libutil.c32 #{@isolinux_work}"]  # Hardware Detection Tool dep
         cp["#{cont}:/usr/lib/syslinux/bios/libgpl.c32 #{@isolinux_work}"]   # Hardware Detection Tool dep
+        cp["#{cont}:/usr/share/hwdata/pci.ids #{@isolinux_work}"]           # Hardware Detection Tool dep
         cp["#{cont}:/boot/memtest86+/memtest.bin #{@isolinux_work}/memtest"]# Memory test
         cp["#{cont}:/boot/intel-ucode.img #{@ucode_image}"]                 # Intel microcode updates
         cp["#{cont}:/boot/vmlinuz-linux #{@vmlinuz_image}"]                 # Linux kernel
@@ -1307,6 +1310,7 @@ if __FILE__ == $0
   version = reduce.instance_variable_get(:@vars).release
   examples = "Machine Examples:\n".colorize(:green)
   examples += "Full ISO Build: sudo ./#{app}.rb clean build --iso-full\n".colorize(:green)
+  examples += "Rebuild initramfs: sudo ./#{app}.rb clean build --initramfs --iso\n".colorize(:green)
   examples += "Build k8snode layer: sudo ./#{app}.rb clean build --layers=k8snode --iso\n".colorize(:green)
   examples += "Pack k8snode layer: ./#{app}.rb pack --layers=k8snode\n".colorize(:green)
   examples += "Deploy nodes: sudo ./#{app}.rb deploy --layer=k8snode --nodes=10,11,12\n".colorize(:green)

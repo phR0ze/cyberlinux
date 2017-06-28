@@ -52,6 +52,31 @@ check_status()
     fi
 }
 
+getsel()
+{
+    local _result=$1                                # Return value container
+    local options=$2                                # Space separate options
+
+    local result=''
+    local out_of_bounds=1
+    for x in $options; do
+        local out_of_bounds=$(($out_of_bounds+1))
+    done
+    while true; do
+        echo -en "   Enter a number (default=1): "
+        read choice
+        [ "x$choice" == "x" ] && choice=1
+        if [ $choice -gt 0 ] && [ $choice -le $out_of_bounds ]; then
+            local result=$(echo $options | awk "{print \$$choice}")
+            break
+        else
+            echo -e "   ${red}Invalid selection, please try again${none}"
+       fi
+    done
+
+    eval $_result=$result
+}
+
 mount_layers()
 {
     local images_path=$1                            # e.g. ${isomnt}/cyberlinux
@@ -101,7 +126,7 @@ mount_iso()
             check_status
             local fstype=$(blkid -s TYPE -o value ${isodev}) &> /dev/null
             local install_type=$(lsblk -nl -o TYPE ${isodev}) &> /dev/null
-            echo -en ":: Mounting ${cyan}${install_type}${none} device ${cyan}${isodev}${none} to ${isomnt}..."
+            echo -en "   Mounting ${cyan}${install_type}${none} device ${cyan}${isodev}${none} to ${isomnt}..."
             mount -r -t ${fstype} -o noatime ${isodev} ${isomnt} &> /dev/null
             check_status && success=1
         fi
@@ -115,10 +140,6 @@ mount_iso()
 # Partition disk and mount for install at ${rootmnt}
 partition_and_mount_disk()
 {
-    # Handle user selection of install disk
-    #---------------------------------------------------------------------------
-    fail_to_shell
-
     # Wipe, partition and format disk
     #---------------------------------------------------------------------------
     echo -en ":: Disk ${cyan}${installdev}${none} identified as install disk..."
@@ -205,10 +226,6 @@ umount_all()
 
 config_system()
 {
-    # Handle user creation
-    $user = 'vagrant'
-    $pass = 'vagrant'
-
     echo -en ":: Set root user password..."
     chroot ${rootmnt} usermod -p ${pass} root
     check_status
@@ -237,24 +254,34 @@ config_system()
     chroot ${rootmnt} /bin/bash -c "echo '${user} ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers"
     check_status
 
-    echo -en ":: Set unique machine-id..."
-    chroot ${rootmnt} dbus-uuidgen --ensure=/etc/machine-id &> /dev/null
-    chroot ${rootmnt} ln -sf /etc/machine-id /var/lib/dbus/machine-id &> /dev/null
-    check_status
-
     # Set hostname to chosen layer
-    echo -en ":: Set hostname to ${images_path}-${target_layer}..."
-    sed -i -e "s/\(.*\)/\1-${target_layer}/" "${rootmnt}/etc/hostname"
+    echo -en ":: Set hostname to ${hostname}..."
+    echo $hostname > "${rootmnt}/etc/hostname"
     check_status
 
-    # Configure static networking
-    if [ "x${staticip}" != "x" ]; then
-        local staticpath="${rootmnt}/etc/systemd/network/10-static.network"
+    # Configure networking
+    netmatch='en* eth*'
+    if [ "x${netip}" != "xDHCP" ]; then
+        local conf="${rootmnt}/etc/systemd/network/10-static.network"
         echo -en ":: Configuring static networking..."
-        echo -e "[Match]\nName=${netmatch}\n" > $staticpath
-        echo -e "[Network]\nAddress=${staticip}/${netcider}\nIPForward=kernel\n" >> $staticpath
+        echo -e "[Match]\nName=${netmatch}\n" > $conf
+        echo -e "[Network]\nAddress=${netip}\nIPForward=kernel\n" >> $conf
+        check_status
+    else
+        local conf="${rootmnt}/etc/systemd/network/20-dhcp.network"
+        echo -en ":: Configuring dhcp networking..."
+        echo -e "[Match]\nName=${netmatch}\n" > $conf
+        echo -e "[Network]\nDHCP=ipv4\nIPForward=kernel\n" >> $conf
+        echo -e "[DHCP]\nUseDomains=true\n" >> $conf
         check_status
     fi
+    chroot ${rootmnt} ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+
+    chroot ${rootmnt} systemctl enable sshd.service &> /dev/null
+    chroot ${rootmnt} systemctl enable systemd-networkd.service &> /dev/null
+    chroot ${rootmnt} systemctl enable systemd-networkd-wait-online.service &> /dev/null
+    chroot ${rootmnt} systemctl enable systemd-resolved.service &> /dev/null
+    chroot ${rootmnt} systemctl enable systemd-timesyncd.service &> /dev/null
 
     # Autologin if lxdm exists and parameter is set
     if [ -e "${rootmnt}/etc/lxdm/lxdm.conf" ]; then
@@ -280,69 +307,93 @@ installer()
     echo -e ":: ${cyan}*****************************************************************************${none}"
     echo -e ":: ${cyan}*${none}${trail_pad}Welcome to ${cyan}-==[ ${label} ]==-${none} Installer${trail_pad}${cyan}*${none}"
     echo -e ":: ${cyan}*****************************************************************************${none}"
-    echo -e ":: ${cyan}${params}${none}"
+    echo -e "   ${params}"
 
     # Mount install source device
     #---------------------------------------------------------------------------
     mount_iso
 
-    # Handle user input
-    #---------------------------------------------------------------------------
-
     # Collect install destination device
-
-    # Collect static networking info
-    netmatch="<%= netmatch %>"
-    netcider="<%= netcider %>"
-
-    # Collect timezone info
-    timzeone=US/Mountain
-
-    fail_to_shell
+    #---------------------------------------------------------------------------
     ifs=$IFS
     IFS=$'\n'
-    while true; do
-        echo -e ":: Available disks for selection:"
-        local disks=$(lsblk -dn -o NAME,SIZE,VENDOR,MODEL,TYPE -x NAME | grep disk)
-        for x in $disks; do
-            local disk=$(echo $x | awk '{print $1}')
-            local size=$(echo $x | awk '{print $2}')
-            local vendor=$(echo $x | awk '{print $3}')
-            local model=$(echo $x | awk '{print $4}')
+    local i=0
+    echo -e "\n${cyan}:: Select a disk as your install destination:${none}"
+    local disks=''
+    local alldisks=$(lsblk -dn -o NAME,SIZE,VENDOR,MODEL,TYPE -x NAME | grep disk)
+    for x in $alldisks; do
+        local disk=$(echo $x | awk '{print $1}')
+        local size=$(echo $x | awk '{print $2}')
+        local vendor=$(echo $x | awk '{print $3}')
+        local model=$(echo $x | awk '{print $4}')
 
-            # Limit to just disks begining with "sd"
-            if [ "${disk#*sd}" != "${disk}" ]; then
+        # Limit to just disks begining with "sd"
+        if [ "${disk#*sd}" != "${disk}" ]; then
 
-                # Limit to non iso device
-                local dev=/dev/${disk}
-                if [ "${isodev#*$dev}" == "${isodev}" ]; then
-                    echo -e "   $(($i+1))) [${disk}] - ${size} ${vendor} ${model}"
-                fi
+            # Limit to non iso device
+            local dev=/dev/${disk}
+            if [ "${isodev#*$dev}" == "${isodev}" ]; then
+                local i=$((i+1))
+                local disks="${disks} /dev/${disk}"
+                echo -e "   ${i}) [${cyan}/dev/${disk}${none}] - ${size} ${vendor} ${model}"
             fi
-        done
-
-        echo -en "Enter a number (default=1): "
-        read choice
-        [ "x$choice" == "x" ] && choice=1
-        if [ $choice -gt 0 ] && [ $choice -le  ]; then
-            installdev=/dev/$(echo ${disks[$(($choice-1))]} | awk '{print $1}')
-            echo -e ":: Preparing disk ${cyan}$installdev${none} for installation"
-            break
-        else
-            echo -e "${red}Invalid selection, please try again${none}"
-       fi
+        fi
     done
     IFS=$ifs
+    getsel installdev $disks
+
+    # Collect networking info
+    #---------------------------------------------------------------------------
+    echo -e "\n${cyan}:: Configure networking:${none}"
+#    # Add mkinitcpio-nfs-utils back into spec 'build' section
+#    # Add net back into mkinitcpio.conf
+#    # Add lshw back into spec 'build' section
+#    local allnics=$(lshw -short -c network | grep network)
+#    for x in $allnics; do
+#        local nic=$(echo $x | awk '{print $2}')
+#        local desc=$(echo $x | awk '{$1=$2=$3=""; print$0}' | sed -e 's/^\s*//')
+#        local i=$((i+1))
+#        local nics="${nics} ${nic}"
+#        echo -e "   ${i}) [${cyan}${nic}${none}] - ${desc}"
+#    done
+    hostname="${images_path}-${target_layer}"
+    echo -en "   Enter hostname (default=${hostname}): "
+    read _hostname
+    [ "x$_hostname" != "x" ] && hostname=$_hostname
+
+    netip="DHCP"
+    echo -en "   Enter static IP (default=${netip}): "
+    read _netip
+    [ "x$_netip" != "x" ] && netip=$_netip
+
+    # Collect timezone info
+    #---------------------------------------------------------------------------
+    echo -e "\n${cyan}:: Enter your timezone:${none}"
+    local timezones="US/Mountain"
+    echo -e "   1) [${cyan}${timezones}${none}]"
+    getsel timezone $timezones
+
+    # Collect username and password
+    #---------------------------------------------------------------------------
+    user=vagrant
+    pass=vagrant
+    echo -e "\n${cyan}:: Create new user account:${none}"
+    echo -en "   Enter your username (default=${user}): "
+    read _user
+    echo -en "   Enter your password (default=${pass}): "
+    read -s _pass
+    [ "x$_user" != "x" ] && user=$_user
+    [ "x$_pass" != "x" ] && pass=$_pass
+    pass=$(mkpasswd -m sha $pass)
 
     # Mount live system or Install to local disk
     #---------------------------------------------------------------------------
-    rootmnt="${1}"          # /new_root passed in as 1st param
+    rootmnt="${1}"                          # /new_root passed in as 1st param
     local rw_ram_size="75%"
-    echo -e ":: New Root path '${rootmnt}'"
-
     local mode=$([ "$target_layer" == 'live' ] && echo 'Starting' || echo 'Installing')
-    echo -e ":: ${mode} ${cyan}${target_layer}${none} system with layers ${cyan}${layers}${none}"
-    echo -e ":: ${cyan}--------------------------------------------------------------------${none}"
+    echo -e "\n\n${cyan}:: ${mode} '${target_layer}' system with layers '${layers}'${none}"
+    echo -e "${cyan}:: --------------------------------------------------------------------${none}"
+    echo -e ":: New Root path '${rootmnt}'"
     if [ $target_layer == "live" ]; then
         echo -en ":: Creating live tmpfs filesystem for writes, size=${rw_ram_size}..."
         mount -t tmpfs -o "size=${rw_ram_size}",mode=0755 none ${writemnt} &> /dev/null
@@ -363,6 +414,10 @@ installer()
     #---------------------------------------------------------------------------
     mount_chroot_dirs
     config_system
+    echo -en ":: Set unique machine-id..."
+    chroot ${rootmnt} dbus-uuidgen --ensure=/etc/machine-id &> /dev/null
+    chroot ${rootmnt} ln -sf /etc/machine-id /var/lib/dbus/machine-id &> /dev/null
+    check_status
 
     # Install bootloader
     #---------------------------------------------------------------------------
@@ -391,7 +446,6 @@ run_hook()
     for x in ${params}; do
         case "${x}" in
             'layers'=*) layers=${x//layers=} ;;
-            'staticip'=*) staticip=${x//staticip=} ;;
             'autologin'=*) autologin=${x//autologin=} ;;
             *) continue ;;
         esac

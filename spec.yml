@@ -25,14 +25,14 @@
 #------------------------------------------------------------------------------
 vars:
   arch: x86_64
-  release: 0.0.51
+  release: 0.0.52
   distro: cyberlinux
 
-  netname: vboxnet0
-  netip: 192.168.56.1
-  netmask: 255.255.255.0
-  netcider: 24
-  netmatch: "en* eth*"
+  #netname: vboxnet0
+  #netip: 192.168.56.1
+  #netmask: 255.255.255.0
+  #netcider: 24
+  #netmatch: "en* eth*"
 
 build:
   layer: build
