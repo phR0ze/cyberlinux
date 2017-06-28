@@ -25,7 +25,7 @@
 #------------------------------------------------------------------------------
 vars:
   arch: x86_64
-  release: 0.0.54
+  release: 0.0.55
   distro: cyberlinux
   timezone: US/Mountain
 
@@ -139,7 +139,12 @@ layers:
       - { install: machine-tools }
       - { install: virtualbox-guest }
     changes:
+      - { apply: config-hosts }
+      - { apply: config-locale }
+      - { apply: config-makepkg }
       - { apply: config-mkinitcpio }
+      - { apply: config-os-release }
+      - { apply: config-lsb-release }
 
   - layer: shell
     type: machine
@@ -208,17 +213,32 @@ changes:
     - { chroot: 'useradd -m -G lp,wheel,network,storage,users -s /bin/bash build || true' }
     - { exec: 'find /<%= base_src %>/etc/skel -maxdepth 1 -type f | xargs cp -t /home/build' }
     - { edit: /etc/sudoers, append: true, value: "build ALL=(ALL) NOPASSWD: ALL" }
+  config-hosts:
+    - { exec: 'rm /etc/hosts' }
+    - edit: /etc/hosts
+      append: true
+      values:
+        - '127.0.0.1 localhost'
   config-locale:
     - { exec: 'ln -sf //usr/share/zoneinfo/<%= timezone %> /etc/localtime' }
     - edit: /etc/locale.conf
       append: true
-      values: 
+      values:
         - 'LANG=en_US.UTF-8'
         - 'LANGUAGE=en_US.UTF-8'
         - 'LC_ALL=en_US.UTF-8'
     - { edit: /etc/locale.gen, regex: '^#(en_US\..*)', value: '\1' }
     - { chroot: locale-gen }
     - { edit: /etc/profile.d/locale.sh, append: true, value: "export LC_COLLATE=C" }
+  config-lsb-release:
+    - { exec: 'rm /etc/lsb-release' }
+    - edit: /etc/lsb-release
+      append: true
+      values:
+        - 'LSB_VERSION=1.4'
+        - 'DISTRIB_ID=<%= distro %>'
+        - 'DISTRIB_RELEASE=rolling'
+        - 'DISTRIB_DESCRIPTION="<%= distro %>"'
   config-makepkg:
     - { edit: /etc/makepkg.conf, regex: '^#(MAKEFLAGS)=.*', value: '\1="-j8"' }
     - { edit: /etc/makepkg.conf, regex: '^(COMPRESSXZ)=.*', value: '\1=(xz -c -z - --threads=0)' }
@@ -226,6 +246,15 @@ changes:
     - edit: /etc/mkinitcpio.conf
       regex: '^(HOOKS).*'
       value: '\1="base udev autodetect vt-colors modconf block filesystems keyboard"'
+  config-os-release:
+    - { exec: 'rm /etc/os-release' }
+    - edit: /etc/os-release
+      append: true
+      values:
+        - 'NAME="<%= distro =>"'
+        - 'ID=<%= distro =>'
+        - 'VERSION=<%= release %>'
+        - 'PRETTY_NAME="<%= distro =>"'
   config-root-user:
     - { exec: "echo 'TERM=xterm' > /etc/environment" }
     - { exec: 'find /<%= base_src %>/etc/skel -maxdepth 1 -type f | xargs cp -t /root' }
