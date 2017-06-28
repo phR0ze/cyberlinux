@@ -122,7 +122,7 @@ class TestApply < Minitest::Test
 
     Change.stub(:puts, nil){
       File.stub(:exist?, true, @file){
-        File.stub(:read, mock, @file){
+        File.stub(:binread, mock, @file){
           Fedit.stub(:replace, assert_args){
             assert(Change.apply(change, @ctx))
           }
@@ -147,7 +147,7 @@ class TestApply < Minitest::Test
 
     Change.stub(:puts, nil){
       File.stub(:exist?, true, @file){
-        File.stub(:read, mock, @file){
+        File.stub(:binread, mock, @file){
           Fedit.stub(:insert, assert_args){
             assert(Change.apply(change, @ctx))
           }
@@ -183,7 +183,7 @@ class TestApply < Minitest::Test
 
     Change.stub(:puts, nil){
       File.stub(:exist?, true, @file){
-        File.stub(:read, mock, @file){
+        File.stub(:binread, mock, @file){
           Fedit.stub(:insert, assert_args){
             assert(Change.apply(change, @ctx))
           }
