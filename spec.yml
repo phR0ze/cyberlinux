@@ -25,7 +25,7 @@
 #------------------------------------------------------------------------------
 vars:
   arch: x86_64
-  release: 0.0.52
+  release: 0.0.53
   distro: cyberlinux
 
   #netname: vboxnet0

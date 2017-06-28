@@ -63,7 +63,7 @@ getsel()
         local out_of_bounds=$(($out_of_bounds+1))
     done
     while true; do
-        echo -en "   Enter a number (default=1): "
+        echo -en "   Enter a number (default=${cyan}1${none}): "
         read choice
         [ "x$choice" == "x" ] && choice=1
         if [ $choice -gt 0 ] && [ $choice -le $out_of_bounds ]; then
@@ -357,12 +357,12 @@ installer()
 #        echo -e "   ${i}) [${cyan}${nic}${none}] - ${desc}"
 #    done
     hostname="${images_path}-${target_layer}"
-    echo -en "   Enter hostname (default=${hostname}): "
+    echo -en "   Enter hostname (default=${cyan}${hostname}${none}): "
     read _hostname
     [ "x$_hostname" != "x" ] && hostname=$_hostname
 
     netip="DHCP"
-    echo -en "   Enter static IP (default=${netip}): "
+    echo -en "   Enter static IP (default=${cyan}${netip}${none}): "
     read _netip
     [ "x$_netip" != "x" ] && netip=$_netip
 
@@ -378,9 +378,9 @@ installer()
     user=vagrant
     pass=vagrant
     echo -e "\n${cyan}:: Create new user account:${none}"
-    echo -en "   Enter your username (default=${user}): "
+    echo -en "   Enter your username (default=${cyan}${user}${none}): "
     read _user
-    echo -en "   Enter your password (default=${pass}): "
+    echo -en "   Enter your password (default=${cyan}${pass}${none}): "
     read -s _pass
     [ "x$_user" != "x" ] && user=$_user
     [ "x$_pass" != "x" ] && pass=$_pass
