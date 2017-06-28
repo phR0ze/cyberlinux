@@ -974,7 +974,7 @@ class Reduce
 
     # Build AUR/FOREIGN packages in build container
     if pkgs.any?
-      puts("Skipping packages #{pkgs} for this pass".colorize(:cyan)) if skip
+      puts("Scheduling packages #{pkgs} for second pass".colorize(:cyan)) if skip
       return changed, true if skip
 
       docker(@k.build, @k.build){|cont, home, cp, exec, execs, runuser|

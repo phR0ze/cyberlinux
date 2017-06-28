@@ -118,42 +118,6 @@ partition_and_mount_disk()
     # Handle user selection of install disk
     #---------------------------------------------------------------------------
     fail_to_shell
-#    ifs=$IFS
-#    IFS=$'\n'
-#    while true; do
-#        echo -e ":: Available disks for selection:"
-#        echo $(lsblk -dn -o NAME,SIZE,VENDOR,MODEL,TYPE -x NAME | grep disk)
-#        local disks=($(lsblk -dn -o NAME,SIZE,VENDOR,MODEL,TYPE -x NAME | grep disk))
-#        for i in ${!disks[@]}; do
-#            local disk=$(echo ${disks[$i]} | awk '{print $1}')
-#            local size=$(echo ${disks[$i]} | awk '{print $2}')
-#            local vendor=$(echo ${disks[$i]} | awk '{print $3}')
-#            local model=$(echo ${disks[$i]} | awk '{print $4}')
-#
-#            # Filter on disks begining with "sd" and not isodev
-#            if [ "${disk#*sd}" != "${disk}" ]; then
-#
-#                # Filter out the iso device
-#                local dev=/dev/${disk}
-#                if [ "${isodev#*$dev}" == "${isodev}" ]; then
-#                    echo -e "   $(($i+1))) [${disk}] - ${size} ${vendor} ${model}"
-#                fi
-#            fi
-#        done
-#
-#        echo -en "Enter a number (default=1): "
-#        read choice
-#        [ "x$choice" == "x" ] && choice=1
-#        if [ $choice -gt 0 ] && [ $choice -le ${#disks[@]} ]; then
-#            installdev=/dev/$(echo ${disks[$(($choice-1))]} | awk '{print $1}')
-#            echo -e ":: Preparing disk ${cyan}$installdev${none} for installation"
-#            break
-#        else
-#            echo -e "${red}Invalid selection, please try again${none}"
-#        fi
-#    done
-#    IFS=$ifs
-#    exit
 
     # Wipe, partition and format disk
     #---------------------------------------------------------------------------
@@ -242,7 +206,6 @@ umount_all()
 config_system()
 {
     # Handle user creation
-    #---------------------------------------------------------------------------
     $user = 'vagrant'
     $pass = 'vagrant'
 
@@ -309,6 +272,7 @@ installer()
 {
     # Calculate spacing for welcome message
     # 4 chars on lead and 1 char on trail so (80 - 5)=75 to work with
+    #---------------------------------------------------------------------------
     msg="Welcome to -==[ ${label} ]==- Installer"
     lead_len=$(((75 - ${#msg})/2))
     lead_pad=$(printf "%${lead_len}s" "")
@@ -318,15 +282,64 @@ installer()
     echo -e ":: ${cyan}*****************************************************************************${none}"
     echo -e ":: ${cyan}${params}${none}"
 
-    # Configure vars
+    # Mount install source device
+    #---------------------------------------------------------------------------
+    mount_iso
+
+    # Handle user input
+    #---------------------------------------------------------------------------
+
+    # Collect install destination device
+
+    # Collect static networking info
+    netmatch="<%= netmatch %>"
+    netcider="<%= netcider %>"
+
+    # Collect timezone info
+    timzeone=US/Mountain
+
+    fail_to_shell
+    ifs=$IFS
+    IFS=$'\n'
+    while true; do
+        echo -e ":: Available disks for selection:"
+        local disks=$(lsblk -dn -o NAME,SIZE,VENDOR,MODEL,TYPE -x NAME | grep disk)
+        for x in $disks; do
+            local disk=$(echo $x | awk '{print $1}')
+            local size=$(echo $x | awk '{print $2}')
+            local vendor=$(echo $x | awk '{print $3}')
+            local model=$(echo $x | awk '{print $4}')
+
+            # Limit to just disks begining with "sd"
+            if [ "${disk#*sd}" != "${disk}" ]; then
+
+                # Limit to non iso device
+                local dev=/dev/${disk}
+                if [ "${isodev#*$dev}" == "${isodev}" ]; then
+                    echo -e "   $(($i+1))) [${disk}] - ${size} ${vendor} ${model}"
+                fi
+            fi
+        done
+
+        echo -en "Enter a number (default=1): "
+        read choice
+        [ "x$choice" == "x" ] && choice=1
+        if [ $choice -gt 0 ] && [ $choice -le  ]; then
+            installdev=/dev/$(echo ${disks[$(($choice-1))]} | awk '{print $1}')
+            echo -e ":: Preparing disk ${cyan}$installdev${none} for installation"
+            break
+        else
+            echo -e "${red}Invalid selection, please try again${none}"
+       fi
+    done
+    IFS=$ifs
+
+    # Mount live system or Install to local disk
+    #---------------------------------------------------------------------------
     rootmnt="${1}"          # /new_root passed in as 1st param
     local rw_ram_size="75%"
     echo -e ":: New Root path '${rootmnt}'"
 
-    # Mount ISO from CD/USB
-    mount_iso
-
-    # Mount live system or Install to local disk
     local mode=$([ "$target_layer" == 'live' ] && echo 'Starting' || echo 'Installing')
     echo -e ":: ${mode} ${cyan}${target_layer}${none} system with layers ${cyan}${layers}${none}"
     echo -e ":: ${cyan}--------------------------------------------------------------------${none}"
@@ -347,10 +360,12 @@ installer()
     fi
 
     # Configure system
+    #---------------------------------------------------------------------------
     mount_chroot_dirs
     config_system
 
     # Install bootloader
+    #---------------------------------------------------------------------------
     if [ $target_layer != "live" ]; then
         echo -en ":: Install syslinux bootloader on ${installdev}..."
         chroot ${rootmnt} syslinux-install_update -i -a -m &> /dev/null
@@ -392,10 +407,7 @@ run_hook()
     label="<%= label %>"
     all_groups="<%= groups %>"
     images_path="<%= distro %>"
-    netmatch="<%= netmatch %>"
-    netcider="<%= netcider %>"
 
-    pass=$regular_pwd
     target_layer=$(echo $layers | awk -F, '{print $1}')
     [ "$target_layer" == "live" ] && autologin=1
 

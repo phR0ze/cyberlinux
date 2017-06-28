@@ -25,9 +25,8 @@
 #------------------------------------------------------------------------------
 vars:
   arch: x86_64
-  release: 0.0.50
+  release: 0.0.51
   distro: cyberlinux
-  timezone: US/Mountain
 
   netname: vboxnet0
   netip: 192.168.56.1
@@ -175,6 +174,8 @@ layers:
   - layer: live
     type: machine
     base: heavy
+    vars:
+      autologin: 1
 
 repos:
   - repo: archlinux

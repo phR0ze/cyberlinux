@@ -2,7 +2,6 @@
 Tracking what to do and when it was done
 
 ## Backlog
-* Templating fails if a variable can't be found
 * Upstream all AUR packages ***cyberlinux*** to depends on
 * Create a publicly available vagrant image for cyberlinux-k8snode
 * Update README.md with how to use publicly available vagrant image for cyberlinux-k8snode
