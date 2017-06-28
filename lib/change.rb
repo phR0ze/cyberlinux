@@ -65,6 +65,7 @@ module Change
 
       # Recurse on change references
       if change[k.apply]
+        puts("Applying '#{change[k.apply]}'")
         begin
           changed |= apply(ctx.changes[change[k.apply]], ctx)
         rescue
@@ -88,6 +89,7 @@ module Change
         # Apply file edits
         elsif change[k.edit]
           file = change[k.edit]
+          puts("Editing: #{file}")
           values = change[k.value] ? [change[k.value]] : change[k.values]
           FileUtils.mkdir_p(File.dirname(file)) if not File.exist?(File.dirname(file))
 
@@ -97,7 +99,7 @@ module Change
             append = change[k.append]
 
             # Check if the changes have already been made
-            data = File.read(file, 'rb')
+            data = File.binread(file)
             already = values.all?{|y| data =~ Regexp.new(Regexp.quote(y))}
 
             # Regex replacements
@@ -127,7 +129,6 @@ module Change
   module_function(:apply)
 
   # TODO: detect change to file system
-  # TODO: handle context switch to different layer
   # Redirect paths according to the given contex
   # Params:
   # +change+:: YAML block to redirect paths for

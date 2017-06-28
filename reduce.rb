@@ -171,6 +171,8 @@ class Reduce
     @spec[@k.layers].select{|x| x[@k.type] == @k.machine}
       .each{|x| @vars["#{x[@k.layer]}_layers"] = getlayers(x[@k.layer]) * ','}
     @spec[@k.layers].each{|x| @vars["#{x[@k.layer]}_src"] = File.join(@layerspath, x[@k.layer])}
+    @vars.groups = @spec[@k.layers].select{|x| x[@k.type] == @k.machine}
+      .map{|x| x[@k.groups] if x[@k.groups]}.compact.uniq * ','
     @spec = @spec.erb(@vars)
     @repos = @spec[@k.repos].map{|x| x[@k.repo].upcase} << nil
   end
@@ -446,8 +448,6 @@ class Reduce
       mkinitcpio_conf = File.join(@initramfs_work, 'mkinitcpio.conf')
 
       # Resolve template
-      @vars.groups = @spec[@k.layers].select{|x| x[@k.type] == @k.machine}
-        .map{|x| x[@k.groups] if x[@k.groups]}.compact.uniq * ','
       Fedit.resolve(installer, @vars)
 
       # Build initramfs image in build container
@@ -722,9 +722,10 @@ class Reduce
           layer_changed |= syncfiles(layer, layer_src, layer_work, layer_digests)
 
           # Apply file manipulations
+          puts("Applying changes...".colorize(:cyan))
           if layer_changed or not File.exist?(File.join(layer_work, 'changed')) or not File.exist?(layer_image)
             layer_changed |= Change.apply(layer_yml[@k.changes] || [],
-              OpenStruct.new({root: layer_work, vars: @vars}))
+              OpenStruct.new({root: layer_work, vars: @vars, changes: @spec[@k.changes]}))
             File.open(File.join(layer_work, 'changed'), 'w'){|f|}
           end
 
@@ -1097,10 +1098,6 @@ class Reduce
     exec = ->(cmd){Sys.exec("docker exec #{cont} bash -c \"#{vars}#{cmd.gsub(/"/, '\"')}\"")}
     execs = "docker exec #{cont}"
     runuser = ->(cmd){Sys.exec("docker exec #{cont} runuser #{user} -c \"#{vars}#{cmd.gsub(/"/, '\"')}\"")}
-    if user != 'root'
-      exec["groupadd #{user}"]
-      exec["useradd -m -g #{user} -s /bin/bash #{user}"]
-    end
     block.call(cont, home, cp, exec, execs, runuser)
 
     # Shutdown container

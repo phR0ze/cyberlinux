@@ -369,9 +369,8 @@ installer()
     # Collect timezone info
     #---------------------------------------------------------------------------
     echo -e "\n${cyan}:: Enter your timezone:${none}"
-    local timezones="US/Mountain"
-    echo -e "   1) [${cyan}${timezones}${none}]"
-    getsel timezone $timezones
+    echo -e "   1) [${cyan}${timezone}${none}]"
+    getsel timezone $timezone
 
     # Collect username and password
     #---------------------------------------------------------------------------
@@ -459,6 +458,7 @@ run_hook()
 
     # Resolve template variables
     label="<%= label %>"
+    timezone="<%= timezone %>"
     all_groups="<%= groups %>"
     images_path="<%= distro %>"
 

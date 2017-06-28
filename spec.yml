@@ -25,14 +25,9 @@
 #------------------------------------------------------------------------------
 vars:
   arch: x86_64
-  release: 0.0.53
+  release: 0.0.54
   distro: cyberlinux
-
-  #netname: vboxnet0
-  #netip: 192.168.56.1
-  #netmask: 255.255.255.0
-  #netcider: 24
-  #netmatch: "en* eth*"
+  timezone: US/Mountain
 
 build:
   layer: build
@@ -47,6 +42,13 @@ build:
     - { install: dev-tools }
     - { install: initramfs-deps }
     - { install: isolinux-deps }
+  changes:
+    - { apply: remove-docs }
+    - { apply: config-locale }
+    - { apply: config-makepkg }
+    - { apply: config-root-user }
+    - { apply: config-sudo-vars }
+    - { apply: config-build-user }
 
 isolinux:
 
@@ -136,6 +138,8 @@ layers:
       - { install: machine-core }
       - { install: machine-tools }
       - { install: virtualbox-guest }
+    changes:
+      - { apply: config-mkinitcpio }
 
   - layer: shell
     type: machine
@@ -198,6 +202,39 @@ repos:
       - Server = http://distro.ibiblio.org/blackarch/$repo/os/$arch
       - Server = https://deadbeef.ninja/blackarch/$repo/os/$arch
       - Server = http://mirror.team-cymru.org/blackarch/$repo/os/$arch
+
+changes:
+  config-build-user:
+    - { chroot: 'useradd -m -G lp,wheel,network,storage,users -s /bin/bash build || true' }
+    - { exec: 'find /<%= base_src %>/etc/skel -maxdepth 1 -type f | xargs cp -t /home/build' }
+    - { edit: /etc/sudoers, append: true, value: "build ALL=(ALL) NOPASSWD: ALL" }
+  config-locale:
+    - { exec: 'ln -sf //usr/share/zoneinfo/<%= timezone %> /etc/localtime' }
+    - edit: /etc/locale.conf
+      append: true
+      values: 
+        - 'LANG=en_US.UTF-8'
+        - 'LANGUAGE=en_US.UTF-8'
+        - 'LC_ALL=en_US.UTF-8'
+    - { edit: /etc/locale.gen, regex: '^#(en_US\..*)', value: '\1' }
+    - { chroot: locale-gen }
+    - { edit: /etc/profile.d/locale.sh, append: true, value: "export LC_COLLATE=C" }
+  config-makepkg:
+    - { edit: /etc/makepkg.conf, regex: '^#(MAKEFLAGS)=.*', value: '\1="-j8"' }
+    - { edit: /etc/makepkg.conf, regex: '^(COMPRESSXZ)=.*', value: '\1=(xz -c -z - --threads=0)' }
+  config-mkinitcpio:
+    - edit: /etc/mkinitcpio.conf
+      regex: '^(HOOKS).*'
+      value: '\1="base udev autodetect vt-colors modconf block filesystems keyboard"'
+  config-root-user:
+    - { exec: "echo 'TERM=xterm' > /etc/environment" }
+    - { exec: 'find /<%= base_src %>/etc/skel -maxdepth 1 -type f | xargs cp -t /root' }
+  config-sudo-vars:
+    - edit: /etc/sudoers
+      append: true
+      value: 'Defaults env_keep += "ftp_proxy http_proxy https_proxy no_proxy"'
+  remove-docs:
+    - { exec: 'rm -rf /usr/share/{man,doc}' }
 
 packages:
   container-core:

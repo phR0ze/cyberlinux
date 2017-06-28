@@ -85,9 +85,7 @@ class TestApply < Minitest::Test
 
   def test_apply_with_apply_reference_fail
     change = { 'apply' => 'config-bar' }
-    Change.stub(:puts, nil){
-      assert_raises(NoMethodError){change_insert_helper(change, 1)}
-    }
+    assert_raises(NoMethodError){change_insert_helper(change, 1)}
   end
 
   def test_apply_with_apply_reference_success
@@ -98,10 +96,12 @@ class TestApply < Minitest::Test
   def test_apply_file_doesnt_exist
     change = { 'edit' => '/foo', 'value' => 'bar' }
 
-    FileUtils.stub(:mkdir_p, true, @file){
-      File.stub(:exist?, false, @file){
-        Fedit.stub(:insert, true, @file){
-          assert(Change.apply(change, @ctx))
+    Change.stub(:puts, nil){
+      FileUtils.stub(:mkdir_p, true, @file){
+        File.stub(:exist?, false, @file){
+          Fedit.stub(:insert, true, @file){
+            assert(Change.apply(change, @ctx))
+          }
         }
       }
     }
@@ -120,10 +120,12 @@ class TestApply < Minitest::Test
       true
     }
 
-    File.stub(:exist?, true, @file){
-      File.stub(:read, mock, @file){
-        Fedit.stub(:replace, assert_args){
-          assert(Change.apply(change, @ctx))
+    Change.stub(:puts, nil){
+      File.stub(:exist?, true, @file){
+        File.stub(:read, mock, @file){
+          Fedit.stub(:replace, assert_args){
+            assert(Change.apply(change, @ctx))
+          }
         }
       }
     }
@@ -143,10 +145,12 @@ class TestApply < Minitest::Test
       true
     }
 
-    File.stub(:exist?, true, @file){
-      File.stub(:read, mock, @file){
-        Fedit.stub(:insert, assert_args){
-          assert(Change.apply(change, @ctx))
+    Change.stub(:puts, nil){
+      File.stub(:exist?, true, @file){
+        File.stub(:read, mock, @file){
+          Fedit.stub(:insert, assert_args){
+            assert(Change.apply(change, @ctx))
+          }
         }
       }
     }
@@ -177,10 +181,12 @@ class TestApply < Minitest::Test
       true
     }
 
-    File.stub(:exist?, true, @file){
-      File.stub(:read, mock, @file){
-        Fedit.stub(:insert, assert_args){
-          assert(Change.apply(change, @ctx))
+    Change.stub(:puts, nil){
+      File.stub(:exist?, true, @file){
+        File.stub(:read, mock, @file){
+          Fedit.stub(:insert, assert_args){
+            assert(Change.apply(change, @ctx))
+          }
         }
       }
     }
