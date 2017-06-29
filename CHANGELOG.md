@@ -2,6 +2,7 @@
 Tracking what to do and when it was done
 
 ## Backlog
+* sshd not running on boot of base
 * Request corporate proxy info from user
 * Upstream all AUR packages ***cyberlinux*** to depends on
 * Create a publicly available vagrant image for cyberlinux-k8snode
