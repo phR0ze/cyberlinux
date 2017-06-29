@@ -20,7 +20,6 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-require 'erb'                   # leverage erb for templating
 require 'fileutils'             # advanced file utils: FileUtils
 require 'mkmf'                  # system utils: find_executable
 require 'open-uri'              # easily read HTTP
@@ -29,7 +28,7 @@ require 'open3'                 # Better system commands
 require 'rubygems/package'      # tar
 require 'yaml'                  # YAML
 
-require_relative 'lib/erb'      # ERB Handlers for different types
+require_relative 'lib/core'     # ERB Handlers for different types
 require_relative 'lib/change'   # Programatic file editor
 require_relative 'lib/cmds'     # optparse wrapper for commands
 require_relative 'lib/sys'      # System helpers

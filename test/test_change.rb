@@ -201,6 +201,14 @@ class TestRedirect < Minitest::Test
     @ctx = OpenStruct.new({ root: '/de' })
   end
 
+  def test_reusing_change_multiple_times
+    change = {'exec' => "touch /foo"}
+    ctx = OpenStruct.new({ root: '/build' })
+    assert_equal({'exec' => "touch /build/foo"}, Change.redirect(change, ctx, Change.keys))
+    ctx = OpenStruct.new({ root: '/base' })
+    assert_equal({'exec' => "touch /base/foo"}, Change.redirect(change, ctx, Change.keys))
+  end
+
   def test_redirect_with_relative_root
     change = {'exec' => "touch /foo"}
     ctx = OpenStruct.new({ root: '.' })

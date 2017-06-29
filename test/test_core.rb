@@ -23,9 +23,9 @@
 require 'minitest/autorun'
 require 'ostruct'
 
-require_relative '../lib/erb'
+require_relative '../lib/core'
 
-class TestErb < Minitest::Test
+class TestCore < Minitest::Test
 
   def setup
     @vars ||= {'arch' => 'x86_64','release' => '4.7.4-1', 'distro' => 'cyberlinux'}

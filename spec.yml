@@ -25,7 +25,7 @@
 #------------------------------------------------------------------------------
 vars:
   arch: x86_64
-  release: 0.0.61
+  release: 0.0.62
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -323,7 +323,6 @@ changes:
         - "Wants=network-online.target\nAfter=network.target network-online.target"
         - "\n[Service]\nUser=root\nType=oneshot\nExecStart=/usr/bin/proxyd"
         - "\n[Install]\nWantedBy=multi-user.target"
-    - { chroot: systemctl daemon-reload }
   config-resolved:
     - { exec: ln -sf //run/systemd/resolve/resolv.conf /etc/resolv.conf }
   config-root-user:

@@ -67,25 +67,43 @@ class ERBResolve
   end
 end
 
-# String extension to easily inject ERB variables into a string
-# +vars+:: hash of variables to inject into the string
+# String extensions
 class ::String
+
+  # Easily inject ERB variables into a string
+  # +vars+:: hash of variables to inject into the string
   def erb(vars = {})
     ERBResolve.new(vars).resolve(self)
   end
 end
 
-# Hash extension to easily inject ERB variables into hash values
-# +vars+:: hash of variables to inject into the string
+# Hash extensions
 class ::Hash
+
+  # Do a deep copy on the object
+  def clone
+    hash = {}
+    self.each{|k, v| hash[k] = v.clone }
+    return hash
+  end
+
+  # Easily inject ERB variables into hash values
+  # +vars+:: hash of variables to inject into the string
   def erb(vars = {})
     ERBResolve.new(vars).resolve(self)
   end
 end
 
-# Array extension to easily inject ERB variables into Array values
-# +vars+:: hash of variables to inject into the string
+# Array extensions
 class ::Array
+
+  # Do a deep copy on the object
+  def clone
+    return self.map{|x| x.clone }
+  end
+
+  # Easily inject ERB variables into Array values
+  # +vars+:: hash of variables to inject into the string
   def erb(vars = {})
     ERBResolve.new(vars).resolve(self)
   end

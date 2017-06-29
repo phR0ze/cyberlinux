@@ -24,7 +24,7 @@ require 'digest'
 require 'fileutils'
 require 'yaml'
 
-require_relative 'erb'
+require_relative 'core'
 
 module Fedit
 

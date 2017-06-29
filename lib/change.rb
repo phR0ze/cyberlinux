@@ -23,7 +23,7 @@
 require 'fileutils'
 require 'ostruct'
 
-require_relative 'erb'
+require_relative 'core'
 require_relative 'fedit'
 
 module Change
@@ -128,7 +128,6 @@ module Change
   end
   module_function(:apply)
 
-  # TODO: detect change to file system
   # Redirect paths according to the given contex
   # Params:
   # +change+:: YAML block to redirect paths for
@@ -139,21 +138,22 @@ module Change
     all = [change[k.edit], change[k.resolve], change[k.exec]].compact
     raise ArgumentError.new("Invalid change type") if not all.any?
     return change if all.any?{|x| x.include?(ctx.root)}
+    _change = change.clone
 
     # Handle edits and resolves
-    if (file = change[k.edit] || change[k.resolve])
+    if (file = _change[k.edit] || _change[k.resolve])
       raise ArgumentError.new("Paths must be absolute") if not file.start_with?('/')
       file = file.start_with?('//') ? file[1..-1] : File.join(ctx.root, file)
-      change[k.edit] = file if change[k.edit]
-      change[k.resolve] = file if change[k.resolve]
+      _change[k.edit] = file if _change[k.edit]
+      _change[k.resolve] = file if _change[k.resolve]
 
     # Handle bash scripts
-    elsif change[k.exec]
-      change[k.exec].gsub!(/ \/([^\/])/, ' ' + ctx.root + '/' + '\1')
-      change[k.exec].gsub!(/ \/\//, ' /')
+    elsif _change[k.exec]
+      _change[k.exec].gsub!(/ \/([^\/])/, ' ' + ctx.root + '/' + '\1')
+      _change[k.exec].gsub!(/ \/\//, ' /')
     end
 
-    return change
+    return _change
   end
   module_function(:redirect)
 end
