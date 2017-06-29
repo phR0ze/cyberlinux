@@ -174,7 +174,7 @@ class Reduce
     @vars.groups = @spec[@k.layers].select{|x| x[@k.type] == @k.machine}
       .map{|x| x[@k.groups] if x[@k.groups]}.compact.uniq * ','
     @repos = @spec[@k.repos].map{|x| x[@k.repo].upcase} << nil
-    @vars.repos = @repos.map{|x| x.downcase if x}.compact
+    @vars.repos = @repos.map{|x| x.downcase if x}.compact * ' '
     @spec = @spec.erb(@vars)
   end
 
