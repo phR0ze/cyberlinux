@@ -25,7 +25,7 @@
 #------------------------------------------------------------------------------
 vars:
   arch: x86_64
-  release: 0.0.58
+  release: 0.0.59
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -211,7 +211,7 @@ changes:
     - { apply: config-makepkg }
     - { apply: config-mkinitcpio }
     - { apply: config-os-release }
-    - { apply: config-pacman-mirrors }
+    - { apply: config-pacman }
     - { apply: config-proxyd }
     - { apply: config-resolved }
     - { apply: config-sshd }
@@ -263,7 +263,9 @@ changes:
     - { chroot: "bash -c 'haveged -r 0 && pacman-key --init'" }
     - { chroot: 'pacman-key --populate <%= repos %>' }
     - { chroot: 'pacman -Sy' }
-  config-pacman-mirrors:
+  config-pacman:
+    - { exec: 'rm -f /etc/pacman.d/gnupg/dirmngr.conf' }
+    - { edit: /etc/pacman.d/gnupg/dirmngr.conf, append: true, value: "honor-http-proxy" }
     - { exec: 'rm -f /etc/pacman-mirrors.conf' }
     - edit: /etc/pacman-mirrors.conf
       append: true
@@ -273,6 +275,30 @@ changes:
         - 'OnlyCountry=<%= country %>'
         - 'MirrorlistsDir="/etc/pacman.d/mirrors"'
         - 'OutputMirrorlist="/etc/pacman.d/mirrorlist"'
+    - { exec: 'rm -f /etc/pacman.d/mirrorlist' }
+    - edit: /etc/pacman.d/mirrorlist
+      append: true
+      values:
+        - 'Server = http://mirror.kaminski.io/archlinux/$repo/os/$arch'
+        - 'Server = http://mirror.csclub.uwaterloo.ca/archlinux/$repo/os/$arch'
+        - 'Server = http://arch.localmsp.org/arch/$repo/os/$arch'
+        - 'Server = http://mirror.us.leaseweb.net/archlinux/$repo/os/$arch'
+        - 'Server = http://mirrors.kernel.org/archlinux/$repo/os/$arch'
+        - 'Server = https://mirrors.kernel.org/archlinux/$repo/os/$arch'
+        - 'Server = http://mirrors.rit.edu/archlinux/$repo/os/$arch'
+        - 'Server = http://mirror.umd.edu/archlinux/$repo/os/$arch'
+        - 'Server = http://mirror.yellowfiber.net/archlinux/$repo/os/$arch'
+        - 'Server = https://arch.localmsp.org/arch/$repo/os/$arch'
+        - 'Server = http://archlinux.mirror.colo-serv.net/$repo/os/$arch'
+        - 'Server = http://mirror.frgl.pw/archlinux/$repo/os/$arch'
+        - 'Server = https://mirrors.tuxns.net/archlinux/$repo/os/$arch'
+        - 'Server = http://mirror.htnshost.com/archlinux/$repo/os/$arch'
+        - 'Server = https://mirror.csclub.uwaterloo.ca/archlinux/$repo/os/$arch'
+        - 'Server = http://mirror.nl.leaseweb.net/archlinux/$repo/os/$arch'
+        - 'Server = http://ftp.gwdg.de/pub/linux/archlinux/$repo/os/$arch'
+        - 'Server = http://mirror.tyborek.pl/arch/$repo/os/$arch'
+        - 'Server = http://mirror5.bastelfreak.org/archlinux/$repo/os/$arch'
+        - 'Server = http://ftp.snt.utwente.nl/pub/os/linux/archlinux/$repo/os/$arch'
   config-os-release:
     - { exec: 'rm -f /etc/os-release' }
     - edit: /etc/os-release
