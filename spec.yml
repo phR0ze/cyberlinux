@@ -25,7 +25,7 @@
 #------------------------------------------------------------------------------
 vars:
   arch: x86_64
-  release: 0.0.60
+  release: 0.0.61
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -251,7 +251,7 @@ changes:
         - 'LSB_VERSION=1.4'
         - 'DISTRIB_ID=<%= distro %>'
         - 'DISTRIB_RELEASE=rolling'
-        - 'DISTRIB_DESCRIPTION="<%= distro %>"'
+        - 'DISTRIB_DESCRIPTION=<%= distro %>'
   config-makepkg:
     - { edit: /etc/makepkg.conf, regex: '^#(MAKEFLAGS)=.*', value: '\1="-j8"' }
     - { edit: /etc/makepkg.conf, regex: '^(COMPRESSXZ)=.*', value: '\1=(xz -c -z - --threads=0)' }
@@ -304,25 +304,26 @@ changes:
     - edit: /etc/os-release
       append: true
       values:
-        - 'NAME="<%= distro =>"'
-        - 'ID=<%= distro =>'
+        - 'NAME=<%= distro %>'
+        - 'ID=<%= distro %>'
         - 'VERSION=<%= release %>'
-        - 'PRETTY_NAME="<%= distro =>"'
+        - 'PRETTY_NAME=<%= distro %>'
   config-proxyd:
     - edit: /usr/bin/proxyd
       append: true
       values:
-        - "#!/bin/bash\n"
-        - "while [ ! -e //etc/resolv.conf ]; do sleep 1; done\n"
-        - "#TODO: detect proxy somehow and set properly"
+        - "#!/bin/bash"
+        - "\nwhile [ ! -e //etc/resolv.conf ]; do sleep 1; done"
+        - "\n#TODO: detect proxy somehow and set properly"
     - { exec: chmod +x /usr/bin/proxyd }
     - edit: /usr/lib/systemd/system/proxyd.service
       append: true
       values:
         - "[Unit]\nDescription=Handle corporate proxies transparently"
-        - "Wants=network-online.target\nAfter=network.target network-online.target\n"
-        - "[Service]\nUser=root\nType=oneshot\nExecStart=/usr/bin/proxyd\n"
-        - "[Install]\nWantedBy=multi-user.target"
+        - "Wants=network-online.target\nAfter=network.target network-online.target"
+        - "\n[Service]\nUser=root\nType=oneshot\nExecStart=/usr/bin/proxyd"
+        - "\n[Install]\nWantedBy=multi-user.target"
+    - { chroot: systemctl daemon-reload }
   config-resolved:
     - { exec: ln -sf //run/systemd/resolve/resolv.conf /etc/resolv.conf }
   config-root-user:
