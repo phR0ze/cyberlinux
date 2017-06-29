@@ -32,6 +32,22 @@ end
 
 module Sys
 
+  # Update pacman database
+  def pacman_update
+    success = false
+    while not success
+      begin
+        Sys.exec("pacman -Sy")
+        success = true
+      rescue Exception => e
+        puts("pacman update failed 1")
+        puts(e.message)
+        puts("pacman update failed 2")
+      end
+    end
+  end
+  module_function(:pacman_update)
+
   # Run the system command in an exception wrapper
   # Params:
   # +cmd+:: cmd to execute
