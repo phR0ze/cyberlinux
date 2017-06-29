@@ -275,13 +275,6 @@ config_system()
         echo -e "[DHCP]\nUseDomains=true\n" >> $conf
         check_status
     fi
-    chroot ${rootmnt} ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
-
-    chroot ${rootmnt} systemctl enable sshd.service &> /dev/null
-    chroot ${rootmnt} systemctl enable systemd-networkd.service &> /dev/null
-    chroot ${rootmnt} systemctl enable systemd-networkd-wait-online.service &> /dev/null
-    chroot ${rootmnt} systemctl enable systemd-resolved.service &> /dev/null
-    chroot ${rootmnt} systemctl enable systemd-timesyncd.service &> /dev/null
 
     # Autologin if lxdm exists and parameter is set
     if [ -e "${rootmnt}/etc/lxdm/lxdm.conf" ]; then

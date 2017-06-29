@@ -25,9 +25,10 @@
 #------------------------------------------------------------------------------
 vars:
   arch: x86_64
-  release: 0.0.56
+  release: 0.0.57
   distro: cyberlinux
   timezone: US/Mountain
+  country: United_States
 
 build:
   layer: build
@@ -43,12 +44,11 @@ build:
     - { install: initramfs-deps }
     - { install: isolinux-deps }
   changes:
+    - { apply: config-base }
     - { apply: remove-docs }
-    - { apply: config-locale }
-    - { apply: config-makepkg }
     - { apply: config-root-user }
-    - { apply: config-sudo-vars }
     - { apply: config-build-user }
+    - { apply: config-pacman-keys }
 
 isolinux:
 
@@ -139,12 +139,7 @@ layers:
       - { install: machine-tools }
       - { install: virtualbox-guest }
     changes:
-      - { apply: config-hosts }
-      - { apply: config-locale }
-      - { apply: config-makepkg }
-      - { apply: config-mkinitcpio }
-      - { apply: config-os-release }
-      - { apply: config-lsb-release }
+      - { apply: config-base }
 
   - layer: shell
     type: machine
@@ -209,12 +204,30 @@ repos:
       - Server = http://mirror.team-cymru.org/blackarch/$repo/os/$arch
 
 changes:
+  config-base:
+    - { apply: config-hosts }
+    - { apply: config-locale }
+    - { apply: config-lsb-release }
+    - { apply: config-makepkg }
+    - { apply: config-mkinitcpio }
+    - { apply: config-os-release }
+    - { apply: config-pacman-mirrors }
+    - { apply: config-proxyd }
+    - { apply: config-resolved }
+    - { apply: config-sshd }
+    - { apply: config-sudo-vars }
+    - { apply: config-sysctld }
+    - { apply: config-syslinux }
+    - { apply: config-timesyncd }
+    - { apply: config-user-dirs }
+    - { apply: config-vconsole }
+    - { apply: enable-base-services }
   config-build-user:
     - { chroot: 'useradd -m -G lp,wheel,network,storage,users -s /bin/bash build || true' }
     - { exec: 'find /<%= base_src %>/etc/skel -maxdepth 1 -type f | xargs cp -t /home/build' }
     - { edit: /etc/sudoers, append: true, value: "build ALL=(ALL) NOPASSWD: ALL" }
   config-hosts:
-    - { exec: 'rm /etc/hosts' }
+    - { exec: 'rm -f /etc/hosts' }
     - edit: /etc/hosts
       append: true
       values:
@@ -231,7 +244,7 @@ changes:
     - { chroot: locale-gen }
     - { edit: /etc/profile.d/locale.sh, append: true, value: "export LC_COLLATE=C" }
   config-lsb-release:
-    - { exec: 'rm /etc/lsb-release' }
+    - { exec: 'rm -f /etc/lsb-release' }
     - edit: /etc/lsb-release
       append: true
       values:
@@ -246,8 +259,22 @@ changes:
     - edit: /etc/mkinitcpio.conf
       regex: '^(HOOKS).*'
       value: '\1="base udev autodetect vt-colors modconf block filesystems keyboard"'
+  config-pacman-keys:
+    - { chroot: "bash -c 'haveged -r 0 && pacman-key --init'" }
+    - { chroot: 'pacman-key --populate <%= repos %>' }
+    - { chroot: 'pacman -Sy' }
+  config-pacman-mirrors:
+    - { exec: 'rm -f /etc/pacman-mirrors.conf' }
+    - edit: /etc/pacman-mirrors.conf
+      append: true
+      values:
+        - 'Branch=stable'
+        - 'Method=rank'
+        - 'OnlyCountry=<%= country %>'
+        - 'MirrorlistsDir="/etc/pacman.d/mirrors"'
+        - 'OutputMirrorlist="/etc/pacman.d/mirrorlist"'
   config-os-release:
-    - { exec: 'rm /etc/os-release' }
+    - { exec: 'rm -f /etc/os-release' }
     - edit: /etc/os-release
       append: true
       values:
@@ -255,13 +282,76 @@ changes:
         - 'ID=<%= distro =>'
         - 'VERSION=<%= release %>'
         - 'PRETTY_NAME="<%= distro =>"'
+  config-proxyd:
+    - edit: /usr/bin/proxyd
+      append: true
+      values:
+        - "#!/bin/bash\n"
+        - "while [ ! -e //etc/resolv.conf ]; do sleep 1; done\n"
+        - "#TODO: detect proxy somehow and set properly"
+    - { exec: chmod +x /usr/bin/proxyd }
+    - edit: /usr/lib/systemd/system/proxyd.service
+      append: true
+      values:
+        - "[Unit]\nDescription=Handle corporate proxies transparently"
+        - "Wants=network-online.target\nAfter=network.target network-online.target\n"
+        - "[Service]\nUser=root\nType=oneshot\nExecStart=/usr/bin/proxyd\n"
+        - "[Install]\nWantedBy=multi-user.target"
+  config-resolved:
+    - { exec: ln -sf //run/systemd/resolve/resolv.conf /etc/resolv.conf }
   config-root-user:
     - { exec: "echo 'TERM=xterm' > /etc/environment" }
     - { exec: 'find /<%= base_src %>/etc/skel -maxdepth 1 -type f | xargs cp -t /root' }
+  config-sshd:
+    - { edit: /etc/ssh/sshd_config, regex: '^#(PermitRootLogin).*', value: '\1 yes' }
+    - { edit: /etc/ssh/sshd_config, regex: '^#(UsePrivilegeSeparation).*', value: '\1 sandbox' }
   config-sudo-vars:
     - edit: /etc/sudoers
       append: true
       value: 'Defaults env_keep += "ftp_proxy http_proxy https_proxy no_proxy"'
+  config-sysctld:
+    - { edit: '/etc/sysctl.d/10-<%= distro %>.conf', append: true, value: "vm.swappiness = 1\n" }
+    - { edit: '/etc/sysctl.d/10-<%= distro %>.conf', append: true, value: "net.ipv4.ip_forward = 1\n" }
+  config-syslinux:
+    - { exec: 'rm -f /boot/syslinux/syslinux.cfg' }
+    - edit: /boot/syslinux/syslinux.cfg
+      append: true
+      values:
+        - 'PROMPT 0                     # Set to 1 to show menu'
+        - 'TIMEOUT 0                    # Time to show menu in 1/10 s so 50=5s'
+        - 'DEFAULT <%= distro %>'
+        - 'LABEL <%= distro %>'
+        - '    MENU LABEL <%= distro %>'
+        - '    LINUX ../vmlinuz-linux'
+        - '    APPEND root=LABEL=root rw ipv6.disable=1 vga=791'
+        - '    INITRD ../initramfs-linux.img'
+  config-timesyncd:
+    - { exec: 'rm -f /etc/systemd/timesyncd.conf' }
+    - edit: /etc/systemd/timesyncd.conf
+      append: true
+      values:
+        - '[Time]'
+        - 'NTP=0.arch.pool.ntp.org 1.arch.pool.ntp.org 2.arch.pool.ntp.org 3.arch.pool.ntp.org'
+        - 'FallbackNTP=0.pool.ntp.org 1.pool.ntp.org 0.fr.pool.ntp.org'
+  config-user-dirs:
+    - { exec: 'rm -f /etc/xdg/user-dirs.defaults' }
+    - edit: /etc/xdg/user-dirs.defaults
+      append: true
+      values:
+        - 'DESKTOP=Desktop'
+        - 'DOCUMENTS=Documents'
+        - 'DOWNLOAD=Downloads'
+        - 'PROJECTS=Projects'
+        - 'SCRIPTS=bin'
+  config-vconsole:
+    - {edit: /etc/vconsole.conf, append: true, value: 'KEYMAP=us' }
+  enable-base-services:
+    - { chroot: systemctl enable sshd.service }
+    - { chroot: systemctl enable proxyd.service }
+    - { chroot: systemctl enable systemd-networkd.service }
+    - { chroot: systemctl enable systemd-networkd-wait-online.service }
+    - { chroot: systemctl enable systemd-resolved.service }
+    - { chroot: systemctl enable systemd-timesyncd.service }
   remove-docs:
     - { exec: 'rm -rf /usr/share/{man,doc}' }
 

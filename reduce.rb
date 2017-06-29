@@ -173,8 +173,9 @@ class Reduce
     @spec[@k.layers].each{|x| @vars["#{x[@k.layer]}_src"] = File.join(@layerspath, x[@k.layer])}
     @vars.groups = @spec[@k.layers].select{|x| x[@k.type] == @k.machine}
       .map{|x| x[@k.groups] if x[@k.groups]}.compact.uniq * ','
-    @spec = @spec.erb(@vars)
     @repos = @spec[@k.repos].map{|x| x[@k.repo].upcase} << nil
+    @vars.repos = @repos.map{|x| x.downcase if x}.compact
+    @spec = @spec.erb(@vars)
   end
 
   # Create directory structure for project
@@ -723,10 +724,11 @@ class Reduce
 
           # Apply file manipulations
           puts("Applying changes...".colorize(:cyan))
-          if layer_changed or not File.exist?(File.join(layer_work, 'changed')) or not File.exist?(layer_image)
+          changedfile = File.join(layer_work, 'changed')
+          if layer_changed or not File.exist?(changedfile) or not File.exist?(layer_image)
             layer_changed |= Change.apply(layer_yml[@k.changes] || [],
               OpenStruct.new({root: layer_work, vars: @vars, changes: @spec[@k.changes]}))
-            File.open(File.join(layer_work, 'changed'), 'w'){|f|}
+            File.open(changedfile, 'w'){|f|}
           end
 
           # Build layer image if needed
@@ -738,9 +740,8 @@ class Reduce
             # Create squashfs image for machine layers
             if layer_yml[@k.type] == @k.machine
               Sys.exec("mksquashfs #{layer_work} #{layer_image} -noappend -comp xz -b 256K -Xbcj x86")
-
-            # Create compressed tarball for container layers
             else
+              # Create compressed tarball for container layers
               Sys.exec("tar --numeric-owner --xattrs --acls -C #{layer_work} -czf #{layer_image} .")
             end
 
