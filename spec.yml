@@ -22,7 +22,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.65
+  release: 0.0.66
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -208,7 +208,7 @@ changes:
         - 'echo "[Service]" > ${proxyfile}'
         - 'echo "Environment=\"http_proxy=${proxy}\"" >> ${proxyfile}'
         - 'echo "Environment=\"https_proxy=${proxy}\"" >> ${proxyfile}'
-        - 'echo "Environment=\"no_proxy=${noproxy}\"" >> ${proxyfile}'
+        - 'echo "Environment=\"no_proxy=${no_proxy}\"" >> ${proxyfile}'
     - { chroot: systemctl enable docker.service }
   config-hosts:
     - { exec: 'rm -f /etc/hosts' }

@@ -320,16 +320,16 @@ config_system()
 # called by initcpio system with /new_root as param
 installer()
 {
-    # Calculate spacing for welcome message
-    # 4 chars on lead and 1 char on trail so (80 - 5)=75 to work with
+    # Welcome message, centered
     #---------------------------------------------------------------------------
-    msg="Welcome to -==[ ${label} ]==- Installer"
-    lead_len=$(((75 - ${#msg})/2))
-    lead_pad=$(printf "%${lead_len}s" "")
-    trail_pad=$(printf "%$((75 - ${#msg} - ${lead_len}))s" "")
-    echo -e "${cyan}:: *****************************************************************************${none}"
-    echo -e "${cyan}:: *${none}${trail_pad}Welcome to ${cyan}-==[ ${label} ]==-${none} Installer${trail_pad}${cyan}*${none}"
-    echo -e "${cyan}:: *****************************************************************************${none}"
+    local msg="--===<<<[[ ${label} ]]>>>===--"
+    local len=$((75 - ${#msg}))
+    local padleft=$(bash -c "printf '%0.1s' ' '{1..$((len/2))} $pad")
+    local padright=$(bash -c "printf '%0.1s' ' '{1..$((len/2))} $pad")
+    [ $((len%2)) == 1 ] && local padright="$padright "
+    echo -e "${cyan}:: $(bash -c "printf '%0.1s' '*'{1..77}")${none}"
+    echo -e "${cyan}:: *${padleft}${msg}${padright}*${none}"
+    echo -e "${cyan}:: $(bash -c "printf '%0.1s' '*'{1..77}")${none}"
     echo -e "   ${params}"
 
     # Mount install source device
