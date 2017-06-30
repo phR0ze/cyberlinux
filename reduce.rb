@@ -1018,7 +1018,7 @@ class Reduce
           # Extract packages from container
           `#{execs} ls #{pkgdir}`.split("\n")
             .select{|x| x.include?(pkg) and x.include?('pkg.tar.xz')}
-            .each{|x| cp["#{cont}:#{pkgdir}/#{x} #{@aurcache}"]
+            .each{|x| cp["#{cont}:#{pkgdir}/#{x} #{@aurcache}"]}
         }
       }
 
