@@ -22,7 +22,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.66
+  release: 0.0.67
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -103,10 +103,15 @@ layers:
   - layer: k8snode
     type: machine
     base: shell
+    vagrant: { vram: 8, cpus: 2, ram: 2048 }
     boot:
       - entry: "Install <%= distro %>-k8snode  -shell + k8s node env."
         kernel: /<%=distro%>/vmlinuz
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=k8snode_layers%> showopts vga=792
+    packages:
+      - { install: k8s-node }
+    changes:
+      - { chroot: systemctl enable kubelet.service }
 
   - layer: theater
     type: machine
@@ -705,16 +710,16 @@ packages:
     - { pkg: ebtables,                      desc: Ethernet bridge filtering utilities, depof: k8s }
     - { pkg: ethtool,                       desc: Network drivers and hardware util, depof: k8s }
     - { pkg: helm,                          desc: Kubernetes package manager, type: FOREIGN }
-    - { pkg: kubectl,                       desc: Kubernetes cluster controller, type: FOREIGN }
+    - { pkg: kubernetes-kubectl,            desc: Kubernetes cluster controller, type: FOREIGN, aurpath: kubernetes }
     - { pkg: socat,                         desc: Multipurpose relay, depof: k8s}
 
   k8s-node:
     - { pkg: jq,                            desc: Command line JSON processor, depof: kubectl }
     - { pkg: helm,                          desc: Kubernetes package manager, type: FOREIGN }
-    - { pkg: kubeadm,                       desc: Kubernetes cluster bootstrap, type: FOREIGN }
-    - { pkg: kubectl,                       desc: Kubernetes cluster controller, type: FOREIGN }
-    - { pkg: kubelet,                       desc: Kubernetes node control agent, type: FOREIGN }
-    - { pkg: kubernetes-cni,                desc: Kubernetes networking plugins, type: FOREIGN }
+    - { pkg: kubernetes-kubeadm,            desc: Kubernetes cluster bootstrap, type: FOREIGN, aurpath: kubernetes }
+    - { pkg: kubernetes-kubectl,            desc: Kubernetes cluster controller, type: FOREIGN, aurpath: kubernetes }
+    - { pkg: kubernetes-kubelet,            desc: Kubernetes node control agent, type: FOREIGN, aurpath: kubernetes }
+    - { pkg: kubernetes-cni,                desc: Kubernetes networking plugins, type: FOREIGN, aurpath: kubernetes }
 
   vagrant-tools:
     - { pkg: packer,                        desc: HashiCorp's vagrant box builder, type: FOREIGN }

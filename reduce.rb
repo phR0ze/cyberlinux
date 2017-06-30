@@ -56,6 +56,7 @@ class Reduce
     })
     @k = OpenStruct.new({
       AUR: 'AUR',
+      aurpath: 'aurpath',
       base: 'base',
       boot: 'boot',
       build: 'build',
@@ -857,8 +858,15 @@ class Reduce
 
       # Build cache and install aur packages and/or foreign packages
       if pkgs[:aur].any? or pkgs[:foreign].any?
+
+        # Collapse aur paths for foreign packages
+        foreignpkgs = pkgs[:foreign].map{|x|
+          pkg = all_pkgs.find{|y| y[@k.pkg] == x}
+          pkg[@k.aurpath] || x
+        }.uniq
+
         pacstrap.call("Installing aur/foreign", "Failed to install packages correctly"){
-          _changed, pkgs[:skipped] = buildpkgs(layer, layer_yml, layer_work, pkgs[:aur] + pkgs[:foreign], skip:skip)
+          _changed, pkgs[:skipped] = buildpkgs(layer, layer_yml, layer_work, pkgs[:aur] + foreignpkgs, skip:skip)
           if pkgs[:skipped]
             pkgs[:aur].clear if pkgs[:aur].any?
             pkgs[:foreign].clear if pkgs[:foreign].any?
@@ -961,7 +969,7 @@ class Reduce
   # +layer_yml+:: layer yaml to work with
   # +layer_work+:: the directory where to install the layer packages to
   # +skip+:: skip aur/foreign packages when true
-  # +returns+:: tuple(true pkgs were installed, true if pkgs were skipped)
+  # +returns+:: tuple(true pkgs were built, true if pkgs were skipped)
   def buildpkgs(layer, layer_yml, layer_work, pkgs, skip:false)
     changed = false
     aur_database = File.join(@aurcache, 'aur.db.tar.gz')
@@ -1007,10 +1015,10 @@ class Reduce
           # Build package
           runuser["cd #{pkgdir} && makepkg -s --noconfirm --needed --nocheck"]
 
-          # Extract package from container
-          pkgname = `#{execs} ls #{pkgdir}`.split("\n")
-            .find{|x| x.include?(pkg) and x.include?('pkg.tar.xz')}
-          cp["#{cont}:#{pkgdir}/#{pkgname} #{@aurcache}"]
+          # Extract packages from container
+          `#{execs} ls #{pkgdir}`.split("\n")
+            .select{|x| x.include?(pkg) and x.include?('pkg.tar.xz')}
+            .each{|x| cp["#{cont}:#{pkgdir}/#{x} #{@aurcache}"]
         }
       }
 

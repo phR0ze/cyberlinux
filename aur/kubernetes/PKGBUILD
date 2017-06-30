@@ -1,0 +1,75 @@
+# Maintained by phR0ze
+# Split package providing kubernetes components
+
+pkgname=('kubernetes-kubeadm' 'kubernetes-kubectl' 'kubernetes-kubelet' 'kubernetes-cni')
+pkgver='1.6.2'
+pkgrel=1
+cniver='0.5.2'
+pkgdesc='Tool to create a secure Kubernetes cluster'
+arch=('i686' 'x86_64')
+url='http://kubernetes.io/docs/getting-started-guides/kubeadm/'
+license=('Apache')
+install=kubeadm.install
+depends=('glibc' 'bash' 'ebtables' 'ethtool' 'iptables' 'socat' 'docker' 'util-linux')
+makedepends=('git' 'go' 'rsync' 'go-bindata')
+source=("git+https://github.com/kubernetes/kubernetes.git#tag=v${pkgver//_/-}"
+        "git+https://github.com/kubernetes/release.git#branch=master"
+        "git+https://github.com/containernetworking/cni.git#tag=v${cniver//_/-}"
+        'kubeadm.install')
+sha256sums=('SKIP' 'SKIP' 'SKIP' '52fb94c650014b4ca1aed2e3b5c3695d4e98b3d15cbe2637b51e3c52259320fb')
+
+# Automated build of kubernetes
+#-------------------------------------------------------------------------------
+build()
+{
+    # Build linux binaries in a container
+    cd $srcdir/kubernetes
+    build/run.sh make
+
+    # Build kubernetes-cni
+    cd $srcdir/cni
+    bash -c 'CGO_ENABLED=0 GOOS=linux GOARCH=amd64 ./build.sh'
+}
+
+# Create package for kubeadm
+#-------------------------------------------------------------------------------
+package_kubernetes-kubeadm()
+{
+    cd $srcdir/kubernetes
+    install -dm 755 $pkgdir/usr/bin
+    install -Dm755 _output/dockerized/bin/linux/amd64/kubeadm $pkgdir/usr/bin/
+}
+
+package_kubernetes-kubectl()
+{
+    cd $srcdir/kubernetes
+    install -dm 755 $pkgdir/usr/bin
+    install -Dm755 _output/dockerized/bin/linux/amd64/kubectl $pkgdir/usr/bin/
+}
+
+package_kubernetes-kubelet()
+{
+    cd $srcdir/kubernetes
+    install -dm 755 $pkgdir/usr/bin
+    install -Dm755 _output/dockerized/bin/linux/amd64/kubelet $pkgdir/usr/bin/
+
+    # Create kubelet default volumes directory
+    install -d $pkgdir/var/lib/kubelet
+
+    # Install systemd unit files
+    cd $srcdir/release/debian/xenial/kubelet/lib/systemd/system
+    install -dm 755 $pkgdir/usr/lib/systemd/system
+    install -m 644 -t $pkgdir/usr/lib/systemd/system kubelet.service
+
+    # Create override location for kubelet confs
+    cd $srcdir/release/debian/xenial/kubeadm/channel/stable/etc/systemd/system
+    install -dm 755 $pkgdir/etc/systemd/system/kubelet.service.d/
+    install -m 644 -t $pkgdir/etc/systemd/system/kubelet.service.d/ kubelet.service.d/10-kubeadm.conf
+}
+
+package_kubernetes-cni()
+{
+    cd $srcdir/cni
+    install -dm 755 $pkgdir/opt/cni/bin
+    install -m 755 -t $pkgdir/opt/cni/bin bin/*
+}
