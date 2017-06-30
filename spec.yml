@@ -20,15 +20,118 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-#------------------------------------------------------------------------------
-# Release specification
-#------------------------------------------------------------------------------
 vars:
   arch: x86_64
-  release: 0.0.64
+  release: 0.0.65
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
+
+layers:
+  - layer: base
+    type: machine
+    multilib: true
+    vagrant: { vram: 8 }
+    vars: { fontsize: 10 }
+    groups: [lp, wheel, network, storage, users]
+    boot:
+      - entry: "Install <%= distro %>-base        -minimal shell env."
+        kernel: /<%=distro%>/vmlinuz
+        initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=base_layers%> showopts vga=792
+      - entry: Hardware Detection Tool
+        label: hdt
+        kernel: hdt.c32
+        noboot: true
+      - entry: memory test
+        label: memtest
+        kernel: memtest
+        noboot: true
+    packages:
+      - { install: machine-core }
+      - { install: machine-tools }
+      - { install: virtualbox-guest }
+    changes:
+      - { apply: config-base }
+
+  - layer: shell
+    type: machine
+    base: base
+    vagrant: { vram: 8 }
+    groups: [docker]
+    boot:
+      - entry: "Install <%= distro %>-shell        -base + full shell env."
+        kernel: /<%=distro%>/vmlinuz
+        initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=shell_layers%> showopts vga=792
+    packages:
+      - { install: shell-tools }
+    changes:
+      - { apply: config-docker }
+      - { chroot: systemctl enable cronie.service }
+
+  - layer: lite
+    type: machine
+    base: shell
+    boot:
+      - entry: "Install <%= distro %>-lite           -shell + minimal X11 env."
+        kernel: /<%=distro%>/vmlinuz
+        initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=lite_layers%> showopts vga=792
+
+  - layer: music
+    type: machine
+    base: lite
+    boot:
+      - entry: "Install <%= distro %>-music       -lite + custom configs"
+        kernel: /<%=distro%>/vmlinuz
+        initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=music_layers%> showopts vga=792
+
+  - layer: server
+    type: machine
+    base: lite
+    boot:
+      - entry: "Install <%= distro %>-server     -lite + LAMP and services"
+        kernel: /<%=distro%>/vmlinuz
+        initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=server_layers%> showopts vga=792
+
+  - layer: heavy
+    type: machine
+    base: lite
+    boot:
+      - entry: "Install <%= distro %>-heavy      -lite + more apps"
+        kernel: /<%=distro%>/vmlinuz
+        initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=heavy_layers%> showopts vga=792
+
+  - layer: k8snode
+    type: machine
+    base: shell
+    boot:
+      - entry: "Install <%= distro %>-k8snode  -shell + k8s node env."
+        kernel: /<%=distro%>/vmlinuz
+        initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=k8snode_layers%> showopts vga=792
+
+  - layer: theater
+    type: machine
+    base: heavy
+    vars: { fontsize: 18 }
+    boot:
+      - entry: "Install <%= distro %>-theater    -heavy + kodi w/configs"
+        kernel: /<%=distro%>/vmlinuz
+        initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=theater_layers%> showopts vga=792
+
+  - layer: desktop
+    type: machine
+    base: heavy
+    boot:
+      - entry: "Install <%= distro %>-desktop   -heavy + libreoffice"
+        kernel: /<%=distro%>/vmlinuz
+        initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=desktop_layers%> showopts vga=792
+
+  - layer: live
+    type: machine
+    base: heavy
+    boot:
+      - entry: "Start <%= distro %>-live            -live boot env."
+        kernel: /<%=distro%>/vmlinuz
+        initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=live_layers%> showopts vga=792
 
 build:
   layer: build
@@ -49,134 +152,6 @@ build:
     - { apply: config-root-user }
     - { apply: config-build-user }
     - { apply: config-pacman-keys }
-
-isolinux:
-
-  gfxboot:
-    - splash=1
-
-  # Boot options for isolinux/gfxboot
-  # Entries will be written to isolinux.msg, isolinux.cfg and gfxboot.cfg files
-  # Kernel Params:
-  # autologin=1   // Automatically login without creds when given or if 'live'
-  entries:
-    - name: "Start <%= distro %>-live            -live boot env."
-      label: live
-      kernel: /<%=distro%>/vmlinuz
-      initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=live_layers%> showopts vga=792
-
-    - name: "Install <%= distro %>-desktop   -heavy + libreoffice"
-      label: desktop
-      kernel: /<%=distro%>/vmlinuz
-      initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=desktop_layers%> showopts vga=792
-
-    - name: "Install <%= distro %>-theater    -heavy + kodi w/configs"
-      label: theater
-      kernel: /<%=distro%>/vmlinuz
-      initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=theater_layers%> showopts vga=792
-
-    - name: "Install <%= distro %>-server     -lite + LAMP and services"
-      label: server
-      kernel: /<%=distro%>/vmlinuz
-      initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=server_layers%> showopts vga=792
-
-    - name: "Install <%= distro %>-heavy      -lite + more apps"
-      label: heavy
-      kernel: /<%=distro%>/vmlinuz
-      initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=heavy_layers%> showopts vga=792
-
-    - name: "Install <%= distro %>-music       -lite + custom configs"
-      label: music
-      kernel: /<%=distro%>/vmlinuz
-      initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=music_layers%> showopts vga=792
-
-    - name: "Install <%= distro %>-lite           -shell + minimal X11 env."
-      label: lite
-      kernel: /<%=distro%>/vmlinuz
-      initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=lite_layers%> showopts vga=792
-
-    - name: "Install <%= distro %>-k8snode  -shell + k8s node env."
-      label: k8snode
-      kernel: /<%=distro%>/vmlinuz
-      initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=k8snode_layers%> showopts vga=792
-
-    - name: "Install <%= distro %>-shell        -base + full shell env."
-      label: shell
-      kernel: /<%=distro%>/vmlinuz
-      initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=shell_layers%> showopts vga=792
-
-    - name: "Install <%= distro %>-base        -minimal shell env."
-      label: base
-      kernel: /<%=distro%>/vmlinuz
-      initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=base_layers%> showopts vga=792
-
-    - name: Hardware Detection Tool
-      label: hdt
-      kernel: hdt.c32
-      noboot: true
-
-    - name: memory test
-      label: memtest
-      kernel: memtest
-      noboot: true
-
-layers:
-  - layer: base
-    type: machine
-    multilib: true
-    vagrant: { vram: 8 }
-    vars: { fontsize: 10 }
-    groups: [lp, wheel, network, storage, users]
-    packages:
-      - { install: machine-core }
-      - { install: machine-tools }
-      - { install: virtualbox-guest }
-    changes:
-      - { apply: config-base }
-
-  - layer: shell
-    type: machine
-    base: base
-    vagrant: { vram: 8 }
-    groups: [docker]
-    packages:
-      - { install: shell-tools }
-    changes:
-      - { apply: config-docker }
-      - { chroot: systemctl enable cronie.service }
-
-  - layer: lite
-    type: machine
-    base: shell
-
-  - layer: music
-    type: machine
-    base: lite
-
-  - layer: heavy
-    type: machine
-    base: lite
-
-  - layer: desktop
-    type: machine
-    base: heavy
-
-  - layer: k8snode
-    type: machine
-    base: shell
-
-  - layer: theater
-    type: machine
-    base: heavy
-    vars: { fontsize: 18 }
-
-  - layer: server
-    type: machine
-    base: lite
-
-  - layer: live
-    type: machine
-    base: heavy
 
 repos:
   - repo: archlinux

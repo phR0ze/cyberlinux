@@ -57,6 +57,7 @@ class Reduce
     @k = OpenStruct.new({
       AUR: 'AUR',
       base: 'base',
+      boot: 'boot',
       build: 'build',
       changes: 'changes',
       command: 'command',
@@ -65,7 +66,7 @@ class Reduce
       container: 'container',
       desc: 'desc',
       docker: 'docker',
-      entries: 'entries',
+      entry: 'entry',
       FOREIGN: 'FOREIGN',
       GEM: 'GEM',
       gfxboot: 'gfxboot',
@@ -83,6 +84,7 @@ class Reduce
       mirrors: 'mirrors',
       multilib: 'multilib',
       name: 'name',
+      noboot: 'noboot',
       off: 'off',
       offline: 'offline',
       packages: 'packages',
@@ -477,7 +479,7 @@ class Reduce
   def build_isolinux()
     create_dir_structure
     changed = false
-    yml = @spec[@k.isolinux]
+    layers = @spec[@k.layers].select{|x| x[@k.boot]}.reverse
     isolinux_digests = File.join(@isolinux_work, 'digests')
 
     puts("#{'-' * 80}\nBuilding isolinux with gfxboot ui...\n#{'-' * 80}".colorize(:yellow))
@@ -485,22 +487,22 @@ class Reduce
         not File.exist?(File.join(@isolinux_dst, 'isohdpfx.bin'))
       changed |= true
 
-      # Inject boot menu items from spec file
+      # Inject boot menu items from layers
       File.open(File.join(@isolinux_work, 'isolinux.msg'), 'a'){|f|
-        yml[@k.entries].each{|x| f << "#{x[@k.label].ljust(21)}- #{x[@k.name]}\n"}}
+        layers.each{|layer| layer[@k.boot].each{|x|
+          f << "#{(x[@k.label] || layer[@k.layer]).ljust(21)}- #{x[@k.entry]}\n"}}}
       File.open(File.join(@isolinux_work, 'isolinux.cfg'), 'a'){|f|
-        yml[@k.entries].each{|x|
-          f << "label #{x[@k.label]}\n"
+        layers.each{|layer| layer[@k.boot].each{|x|
+          f << "label #{x[@k.label] || layer[@k.layer]}\n"
           f << "  kernel #{x[@k.kernel]}\n"
-          f << "  append initrd=#{x[@k.initrd]}\n" if x[@k.initrd]}}
+          f << "  append initrd=#{x[@k.initrd]}\n" if x[@k.initrd]}}}
       Fedit.resolve(File.join(@isolinux_work, 'isolinux.msg'), @vars)
 
       # Inject gfxboot configuration
       File.open(File.join(@isolinux_work, 'gfxboot/data/gfxboot.cfg'), 'a'){|f|
-        yml[@k.gfxboot].each{|x| f << "#{x}\n"}
-        f << "isolinux.labels=%s\n" % (yml[@k.entries].map{|x| x[@k.label]} * ',')
-        f << "gfxboot.menu.names=%s\n" % (yml[@k.entries].map{|x| x[@k.name]} * ',')
-        f << "gfx.noboot=%s\n" % (yml[@k.entries].map{|x| x[@k.label] if x[@k.noboot]}.compact * ',')
+        f << "isolinux.labels=%s\n" % (layers.map{|x| x[@k.boot].map{|y| y[@k.label] || x[@k.layer]}}.flatten * ',')
+        f << "gfxboot.menu.names=%s\n" % (layers.map{|x| x[@k.boot].map{|y| y[@k.entry]}}.flatten * ',')
+        f << "gfx.noboot=%s\n" % (layers.map{|x| x[@k.boot].map{|y| (y[@k.label] || x[@k.layer]) if y[@k.noboot]}}.flatten.compact * ',')
       }
 
       # Compile GFXboot ui and extract isolinux files

@@ -1,0 +1,33 @@
+cyberlinux is leveraging many open source works to provide a modified
+copy mixed with new source content by the developer phR0ze.  As such many
+open source licenses are in play.  However all source is publlicly available
+via github and all original licenses intact as specified by the originators,
+thus any GPL or other open source licenses should be satisfied.
+
+Any source developed by phR0ze in the making of this project such as Reduce
+(i.e. reduce.rb and supporting ruby libs, tests and scripts) as well as yaml
+configuration, shell scripts etc.. made by phR0ze are licensed under the 
+MIT License below where not conflicting with existing licenses.  In the case
+of existing software that has been included or modified the license of the
+existing software (e.g. GPL2, GPL3 etc...) apply where applicable.
+
+MIT License
+Copyright (c) 2017 phR0ze
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
