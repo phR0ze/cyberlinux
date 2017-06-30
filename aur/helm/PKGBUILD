@@ -9,7 +9,7 @@ arch=('i686' 'x86_64')
 url='https://github.com/kubernetes/helm'
 license=('Apache')
 depends=('glibc' 'bash' 'ebtables' 'ethtool' 'iptables' 'socat' 'docker' 'util-linux')
-makedepends=('git' 'go' 'rsync' 'go-bindata-git')
+makedepends=('git' 'go' 'rsync' 'go-bindata')
 source=("http://storage.googleapis.com/kubernetes-helm/helm-v${pkgver}-linux-amd64.tar.gz")
 sha256sums=('96f74ff04ec7eb38e5f53aba73132bfe4d6b81168f20574dad25a9bcaceec81b')
 
