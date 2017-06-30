@@ -25,7 +25,7 @@
 #------------------------------------------------------------------------------
 vars:
   arch: x86_64
-  release: 0.0.63
+  release: 0.0.64
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -124,16 +124,9 @@ layers:
   - layer: base
     type: machine
     multilib: true
-    vagrant:
-      vram: 8
-    vars:
-      fontsize: 10
-    groups:
-      - lp
-      - wheel
-      - network
-      - storage
-      - users
+    vagrant: { vram: 8 }
+    vars: { fontsize: 10 }
+    groups: [lp, wheel, network, storage, users]
     packages:
       - { install: machine-core }
       - { install: machine-tools }
@@ -144,6 +137,13 @@ layers:
   - layer: shell
     type: machine
     base: base
+    vagrant: { vram: 8 }
+    groups: [docker]
+    packages:
+      - { install: shell-tools }
+    changes:
+      - { apply: config-docker }
+      - { chroot: systemctl enable cronie.service }
 
   - layer: lite
     type: machine
@@ -168,8 +168,7 @@ layers:
   - layer: theater
     type: machine
     base: heavy
-    vars:
-      fontsize: 18
+    vars: { fontsize: 18 }
 
   - layer: server
     type: machine
@@ -178,8 +177,6 @@ layers:
   - layer: live
     type: machine
     base: heavy
-    vars:
-      autologin: 1
 
 repos:
   - repo: archlinux
@@ -212,7 +209,7 @@ changes:
     - { apply: config-mkinitcpio }
     - { apply: config-os-release }
     - { apply: config-pacman }
-    - { apply: config-proxyd }
+    - { apply: config-proxy }
     - { apply: config-resolved }
     - { apply: config-sshd }
     - { apply: config-sudo-vars }
@@ -226,6 +223,18 @@ changes:
     - { chroot: 'useradd -m -G lp,wheel,network,storage,users -s /bin/bash build || true' }
     - { exec: 'find /<%= base_src %>/etc/skel -maxdepth 1 -type f | xargs cp -t /home/build' }
     - { edit: /etc/sudoers, append: true, value: "build ALL=(ALL) NOPASSWD: ALL" }
+  config-docker:
+    - edit: /usr/bin/proxy
+      append: after
+      regex: 'OTHER_PROXY_SETTINGS'
+      values:
+        - "\nmkdir -p /etc/systemd/system/docker.service.d"
+        - 'proxyfile=/etc/systemd/system/docker.service.d/20-proxy.conf'
+        - 'echo "[Service]" > ${proxyfile}'
+        - 'echo "Environment=\"http_proxy=${proxy}\"" >> ${proxyfile}'
+        - 'echo "Environment=\"https_proxy=${proxy}\"" >> ${proxyfile}'
+        - 'echo "Environment=\"no_proxy=${noproxy}\"" >> ${proxyfile}'
+    - { chroot: systemctl enable docker.service }
   config-hosts:
     - { exec: 'rm -f /etc/hosts' }
     - edit: /etc/hosts
@@ -233,7 +242,6 @@ changes:
       values:
         - '127.0.0.1 localhost'
   config-locale:
-    - { exec: 'ln -sf //usr/share/zoneinfo/<%= timezone %> /etc/localtime' }
     - edit: /etc/locale.conf
       append: true
       values:
@@ -308,21 +316,21 @@ changes:
         - 'ID=<%= distro %>'
         - 'VERSION=<%= release %>'
         - 'PRETTY_NAME=<%= distro %>'
-  config-proxyd:
-    - edit: /usr/bin/proxyd
+  config-proxy:
+    - edit: /usr/bin/proxy
       append: true
       values:
-        - "#!/bin/bash"
-        - "\nwhile [ ! -e //etc/resolv.conf ]; do sleep 1; done"
-        - "\n#TODO: detect proxy somehow and set properly"
-    - { exec: chmod +x /usr/bin/proxyd }
-    - edit: /usr/lib/systemd/system/proxyd.service
-      append: true
-      values:
-        - "[Unit]\nDescription=Handle corporate proxies transparently"
-        - "Wants=network-online.target\nAfter=network.target network-online.target"
-        - "\n[Service]\nUser=root\nType=oneshot\nExecStart=/usr/bin/proxyd"
-        - "\n[Install]\nWantedBy=multi-user.target"
+        - '#!/bin/bash'
+        - "\n# Executed during installation to configure the proxy"
+        - 'proxy=$1'
+        - 'no_proxy=$2'
+        - 'echo "export ftp_proxy=${proxy}" > /etc/profile.d/setproxy.sh'
+        - 'echo "export http_proxy=${proxy}" >> /etc/profile.d/setproxy.sh'
+        - 'echo "export https_proxy=${proxy}" >> /etc/profile.d/setproxy.sh'
+        - '[ $no_proxy ] && echo "export no_proxy=${no_proxy}" >> /etc/profile.d/setproxy.sh'
+        - 'chmod +x /etc/profile.d/setproxy.sh'
+        - "\n# OTHER_PROXY_SETTINGS"
+    - { exec: chmod +x /usr/bin/proxy }
   config-resolved:
     - { exec: ln -sf //run/systemd/resolve/resolv.conf /etc/resolv.conf }
   config-root-user:
@@ -373,7 +381,6 @@ changes:
     - {edit: /etc/vconsole.conf, append: true, value: 'KEYMAP=us' }
   enable-base-services:
     - { chroot: systemctl enable sshd.service }
-    - { chroot: systemctl enable proxyd.service }
     - { chroot: systemctl enable systemd-networkd.service }
     - { chroot: systemctl enable systemd-networkd-wait-online.service }
     - { chroot: systemctl enable systemd-resolved.service }

@@ -52,6 +52,21 @@ check_status()
     fi
 }
 
+# Get a simple user input
+getinput()
+{
+    local _result=$1                                # Return value container
+    local input=$2                                  # User input value to prompt for
+    local result=$3                                 # Default value to use if not set
+    local silent=$4                                 # Don't echo when set
+
+    echo -en "   Enter ${input} (default=${cyan}${result}${none}): "
+    [ $silent ] && read -s value || read value
+    [ "x$value" != "x" ] && local result=$value
+
+    eval $_result=$result
+}
+
 getsel()
 {
     local _result=$1                                # Return value container
@@ -259,6 +274,11 @@ config_system()
     echo $hostname > "${rootmnt}/etc/hostname"
     check_status
 
+    # Configure timezone
+    echo -en ":: Set timezone to ${timezone}..."
+    chroot ${rootmnt} ln -sf /usr/share/zoneinfo/$timezone /etc/localtime &> /dev/null
+    check_status
+
     # Configure networking
     netmatch='en* eth*'
     if [ "x${netip}" != "xDHCP" ]; then
@@ -273,6 +293,16 @@ config_system()
         echo -e "[Match]\nName=${netmatch}\n" > $conf
         echo -e "[Network]\nDHCP=ipv4\nIPForward=kernel\n" >> $conf
         echo -e "[DHCP]\nUseDomains=true\n" >> $conf
+        check_status
+    fi
+    if [ $proxy ] && [ "x$proxy" != "xNone" ]; then
+        echo -en ":: Set proxy to ${proxy}..."
+        chroot ${rootmnt} proxy $proxy &> /dev/null
+        check_status
+    fi
+    if [ $no_proxy ] && [ "x$no_proxy" != "xNone" ]; then
+        echo -en ":: Set no_proxy to ${no_proxy}..."
+        chroot ${rootmnt} proxy $proxy $no_proxy &> /dev/null
         check_status
     fi
 
@@ -297,9 +327,9 @@ installer()
     lead_len=$(((75 - ${#msg})/2))
     lead_pad=$(printf "%${lead_len}s" "")
     trail_pad=$(printf "%$((75 - ${#msg} - ${lead_len}))s" "")
-    echo -e ":: ${cyan}*****************************************************************************${none}"
-    echo -e ":: ${cyan}*${none}${trail_pad}Welcome to ${cyan}-==[ ${label} ]==-${none} Installer${trail_pad}${cyan}*${none}"
-    echo -e ":: ${cyan}*****************************************************************************${none}"
+    echo -e "${cyan}:: *****************************************************************************${none}"
+    echo -e "${cyan}:: *${none}${trail_pad}Welcome to ${cyan}-==[ ${label} ]==-${none} Installer${trail_pad}${cyan}*${none}"
+    echo -e "${cyan}:: *****************************************************************************${none}"
     echo -e "   ${params}"
 
     # Mount install source device
@@ -349,33 +379,21 @@ installer()
 #        local nics="${nics} ${nic}"
 #        echo -e "   ${i}) [${cyan}${nic}${none}] - ${desc}"
 #    done
-    hostname="${images_path}-${target_layer}"
-    echo -en "   Enter hostname (default=${cyan}${hostname}${none}): "
-    read _hostname
-    [ "x$_hostname" != "x" ] && hostname=$_hostname
-
-    netip="DHCP"
-    echo -en "   Enter static IP (default=${cyan}${netip}${none}): "
-    read _netip
-    [ "x$_netip" != "x" ] && netip=$_netip
+    getinput hostname 'hostname' "${images_path}-${target_layer}"
+    getinput netip 'static IP' 'DHCP'
+    getinput proxy 'proxy' 'None'
+    [ "x${proxy}" != "xNone" ] && getinput no_proxy 'no_proxy' 'None'
 
     # Collect timezone info
     #---------------------------------------------------------------------------
-    echo -e "\n${cyan}:: Enter your timezone:${none}"
-    echo -e "   1) [${cyan}${timezone}${none}]"
-    getsel timezone $timezone
+    echo -e "\n${cyan}:: Configure timezone:${none}"
+    getinput timezone 'timezone' $timezone
 
     # Collect username and password
     #---------------------------------------------------------------------------
-    user=vagrant
-    pass=vagrant
     echo -e "\n${cyan}:: Create new user account:${none}"
-    echo -en "   Enter your username (default=${cyan}${user}${none}): "
-    read _user
-    echo -en "   Enter your password (default=${cyan}${pass}${none}): "
-    read -s _pass
-    [ "x$_user" != "x" ] && user=$_user
-    [ "x$_pass" != "x" ] && pass=$_pass
+    getinput user 'new username' 'vagrant'
+    getinput pass 'new password' 'vagrant' 1
     pass=$(mkpasswd -m sha $pass)
 
     # Mount live system or Install to local disk
