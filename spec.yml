@@ -22,7 +22,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.70
+  release: 0.0.71
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -143,12 +143,13 @@ build:
   type: container
   multilib: true
   docker:
-    params: '-e TERM=xterm'
+    params: '-e TERM=xterm -v /var/run/docker.sock:/var/run/docker.sock'
     command: 'bash -c "while :; do sleep 5; done"'
   packages:
     - { install: machine-core }
     - { install: machine-tools }
     - { install: dev-tools }
+    - { install: shell-tools }
     - { install: initramfs-deps }
     - { install: isolinux-deps }
   changes:
@@ -157,6 +158,8 @@ build:
     - { apply: config-root-user }
     - { apply: config-build-user }
     - { apply: config-pacman-keys }
+    - { apply: config-docker }
+    - { chroot: systemctl enable cronie.service }
 
 repos:
   - repo: archlinux
