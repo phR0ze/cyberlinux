@@ -22,7 +22,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.78
+  release: 0.0.79
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -617,8 +617,8 @@ packages:
 
   xwindows-tools:
     - { pkg: audacious,                     desc: Audio/Player, alt: deadbeaf, xnoise }
-    - { pkg: chromium,                      desc: Opensource project behind Chrome, type: FOREIGN }
-    - { pkg: chromium-widevine,             desc: Chromium support for Netflix, type: FOREIGN }
+    #- { pkg: chromium,                      desc: Opensource project behind Chrome, type: FOREIGN }
+    #- { pkg: chromium-widevine,             desc: Chromium support for Netflix, type: FOREIGN }
     - { pkg: filezilla,                     desc: Network/Transfer }
     - { pkg: gpicview,                      desc: Image viewer, alt: shotwell/viewnior }
     - { pkg: gsimplecal,                    desc: Simple calendar like windows systray calendar }
