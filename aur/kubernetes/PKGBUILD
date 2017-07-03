@@ -37,7 +37,10 @@ source=("git+https://github.com/kubernetes/kubernetes.git#tag=v${pkgver//_/-}"
         "git+https://github.com/kubernetes/release.git#branch=master"
         "git+https://github.com/containernetworking/cni.git#tag=v${cniver//_/-}"
         'kubeadm.install')
-sha256sums=('SKIP' 'SKIP' 'SKIP' '52fb94c650014b4ca1aed2e3b5c3695d4e98b3d15cbe2637b51e3c52259320fb')
+sha256sums=('SKIP'
+        'SKIP'
+        'SKIP'
+        'ff97101a4a4705293d11e19a6bbc3af1025720af0da8c667bebae753a942756a')
 
 # Automated build of kubernetes
 #-------------------------------------------------------------------------------

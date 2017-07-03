@@ -22,7 +22,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.71
+  release: 0.0.73
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -35,7 +35,7 @@ layers:
     vars: { fontsize: 10 }
     groups: [lp, wheel, network, storage, users]
     boot:
-      - entry: "Install <%= distro %>-base        -minimal shell env."
+      - entry: "Install <%=distro%>-base        -minimal shell env."
         kernel: /<%=distro%>/vmlinuz
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=base_layers%> showopts vga=792
       - entry: Hardware Detection Tool
@@ -59,7 +59,7 @@ layers:
     vagrant: { vram: 8 }
     groups: [docker]
     boot:
-      - entry: "Install <%= distro %>-shell        -base + full shell env."
+      - entry: "Install <%=distro%>-shell        -base + full shell env."
         kernel: /<%=distro%>/vmlinuz
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=shell_layers%> showopts vga=792
     packages:
@@ -71,16 +71,27 @@ layers:
   - layer: lite
     type: machine
     base: shell
+    vagrant: { vram: 8 }
+    vars:
+      wallpaper: /usr/share/wallpaper/white-smoke.jpg
+    groups:
+      - video
+      - audio
     boot:
-      - entry: "Install <%= distro %>-lite           -shell + minimal X11 env."
+      - entry: "Install <%=distro%>-lite           -shell + minimal X11 env."
         kernel: /<%=distro%>/vmlinuz
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=lite_layers%> showopts vga=792
+    packages:
+      - { install: xwindows }
+      - { install: xwindows-tools }
+    changes:
+      - { apply: config-lxdm }
 
   - layer: music
     type: machine
     base: lite
     boot:
-      - entry: "Install <%= distro %>-music       -lite + custom configs"
+      - entry: "Install <%=distro%>-music       -lite + custom configs"
         kernel: /<%=distro%>/vmlinuz
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=music_layers%> showopts vga=792
 
@@ -88,7 +99,7 @@ layers:
     type: machine
     base: lite
     boot:
-      - entry: "Install <%= distro %>-server     -lite + LAMP and services"
+      - entry: "Install <%=distro%>-server     -lite + LAMP and services"
         kernel: /<%=distro%>/vmlinuz
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=server_layers%> showopts vga=792
 
@@ -96,7 +107,7 @@ layers:
     type: machine
     base: lite
     boot:
-      - entry: "Install <%= distro %>-heavy      -lite + more apps"
+      - entry: "Install <%=distro%>-heavy      -lite + more apps"
         kernel: /<%=distro%>/vmlinuz
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=heavy_layers%> showopts vga=792
 
@@ -105,7 +116,7 @@ layers:
     base: shell
     vagrant: { vram: 8, cpus: 2, ram: 2048 }
     boot:
-      - entry: "Install <%= distro %>-k8snode  -shell + k8s node env."
+      - entry: "Install <%=distro%>-k8snode  -shell + k8s node env."
         kernel: /<%=distro%>/vmlinuz
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=k8snode_layers%> showopts vga=792
     packages:
@@ -118,7 +129,7 @@ layers:
     base: heavy
     vars: { fontsize: 18 }
     boot:
-      - entry: "Install <%= distro %>-theater    -heavy + kodi w/configs"
+      - entry: "Install <%=distro%>-theater    -heavy + kodi w/configs"
         kernel: /<%=distro%>/vmlinuz
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=theater_layers%> showopts vga=792
 
@@ -126,7 +137,7 @@ layers:
     type: machine
     base: heavy
     boot:
-      - entry: "Install <%= distro %>-desktop   -heavy + libreoffice"
+      - entry: "Install <%=distro%>-desktop   -heavy + libreoffice"
         kernel: /<%=distro%>/vmlinuz
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=desktop_layers%> showopts vga=792
 
@@ -134,7 +145,7 @@ layers:
     type: machine
     base: heavy
     boot:
-      - entry: "Start <%= distro %>-live            -live boot env."
+      - entry: "Start <%=distro%>-live            -live boot env."
         kernel: /<%=distro%>/vmlinuz
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=live_layers%> showopts vga=792
 
@@ -203,8 +214,8 @@ changes:
     - { apply: config-vconsole }
     - { apply: enable-base-services }
   config-build-user:
-    - { chroot: 'useradd -m -G lp,wheel,network,storage,users -s /bin/bash build || true' }
-    - { exec: 'find /<%= base_src %>/etc/skel -maxdepth 1 -type f | xargs cp -t /home/build' }
+    - { chroot: 'useradd -m -G lp,docker,wheel,network,storage,users -s /bin/bash build || true' }
+    - { exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /home/build' }
     - { edit: /etc/sudoers, append: true, value: "build ALL=(ALL) NOPASSWD: ALL" }
   config-docker:
     - edit: /usr/bin/proxy
@@ -240,9 +251,19 @@ changes:
       append: true
       values:
         - 'LSB_VERSION=1.4'
-        - 'DISTRIB_ID=<%= distro %>'
+        - 'DISTRIB_ID=<%=distro%>'
         - 'DISTRIB_RELEASE=rolling'
-        - 'DISTRIB_DESCRIPTION=<%= distro %>'
+        - 'DISTRIB_DESCRIPTION=<%=distro%>'
+  config-lxdm:
+    - { exec: ln -sf //usr/lib/systemd/system/lxdm.service /etc/systemd/system/display-manager.service }
+    - { edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(session)=.*', value: '\1=/usr/bin/openbox-session' }
+    - { edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(numlock)=.*', value: '\1=1' }
+    #- { edit: /etc/lxdm/lxdm.conf, regex: '^(gtk_theme)=.*', value: '\1=cyberlinux' }
+    - { edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(bg)=.*', value: '\1=<%=wallpaper%>' }
+    - { edit: /etc/lxdm/lxdm.conf, regex: '^(bottom_pane)=.*', value: '\1=0' }
+    - { edit: /etc/lxdm/lxdm.conf, regex: '^(lang)=.*', value: '\1=0' }
+    #- { edit: /etc/lxdm/lxdm.conf, regex: '^(theme)=.*', value: '\1=Industrial' }
+    - { edit: /etc/lxdm/lxdm.conf, regex: '^(disable)=.*', value: '\1=1' }
   config-makepkg:
     - { edit: /etc/makepkg.conf, regex: '^#(MAKEFLAGS)=.*', value: '\1="-j8"' }
     - { edit: /etc/makepkg.conf, regex: '^(COMPRESSXZ)=.*', value: '\1=(xz -c -z - --threads=0)' }
@@ -252,7 +273,7 @@ changes:
       value: '\1="base udev autodetect vt-colors modconf block filesystems keyboard"'
   config-pacman-keys:
     - { chroot: "bash -c 'haveged -r 0 && pacman-key --init'" }
-    - { chroot: 'pacman-key --populate <%= repos %>' }
+    - { chroot: 'pacman-key --populate <%=repos%>' }
     - { chroot: 'pacman -Sy' }
   config-pacman:
     - { exec: 'rm -f /etc/pacman.d/gnupg/dirmngr.conf' }
@@ -263,7 +284,7 @@ changes:
       values:
         - 'Branch=stable'
         - 'Method=rank'
-        - 'OnlyCountry=<%= country %>'
+        - 'OnlyCountry=<%=country%>'
         - 'MirrorlistsDir="/etc/pacman.d/mirrors"'
         - 'OutputMirrorlist="/etc/pacman.d/mirrorlist"'
     - { exec: 'rm -f /etc/pacman.d/mirrorlist' }
@@ -295,10 +316,10 @@ changes:
     - edit: /etc/os-release
       append: true
       values:
-        - 'NAME=<%= distro %>'
-        - 'ID=<%= distro %>'
-        - 'VERSION=<%= release %>'
-        - 'PRETTY_NAME=<%= distro %>'
+        - 'NAME=<%=distro%>'
+        - 'ID=<%=distro%>'
+        - 'VERSION=<%=release%>'
+        - 'PRETTY_NAME=<%=distro%>'
   config-proxy:
     - edit: /usr/bin/proxy
       append: true
@@ -318,7 +339,7 @@ changes:
     - { exec: ln -sf //run/systemd/resolve/resolv.conf /etc/resolv.conf }
   config-root-user:
     - { exec: "echo 'TERM=xterm' > /etc/environment" }
-    - { exec: 'find /<%= base_src %>/etc/skel -maxdepth 1 -type f | xargs cp -t /root' }
+    - { exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /root' }
   config-sshd:
     - { edit: /etc/ssh/sshd_config, regex: '^#(PermitRootLogin).*', value: '\1 yes' }
     - { edit: /etc/ssh/sshd_config, regex: '^#(UsePrivilegeSeparation).*', value: '\1 sandbox' }
@@ -327,8 +348,8 @@ changes:
       append: true
       value: 'Defaults env_keep += "ftp_proxy http_proxy https_proxy no_proxy"'
   config-sysctld:
-    - { edit: '/etc/sysctl.d/10-<%= distro %>.conf', append: true, value: "vm.swappiness = 1\n" }
-    - { edit: '/etc/sysctl.d/10-<%= distro %>.conf', append: true, value: "net.ipv4.ip_forward = 1\n" }
+    - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', append: true, value: "vm.swappiness = 1\n" }
+    - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', append: true, value: "net.ipv4.ip_forward = 1\n" }
   config-syslinux:
     - { exec: 'rm -f /boot/syslinux/syslinux.cfg' }
     - edit: /boot/syslinux/syslinux.cfg
@@ -336,9 +357,9 @@ changes:
       values:
         - 'PROMPT 0                     # Set to 1 to show menu'
         - 'TIMEOUT 0                    # Time to show menu in 1/10 s so 50=5s'
-        - 'DEFAULT <%= distro %>'
-        - 'LABEL <%= distro %>'
-        - '    MENU LABEL <%= distro %>'
+        - 'DEFAULT <%=distro%>'
+        - 'LABEL <%=distro%>'
+        - '    MENU LABEL <%=distro%>'
         - '    LINUX ../vmlinuz-linux'
         - '    APPEND root=LABEL=root rw ipv6.disable=1 vga=791'
         - '    INITRD ../initramfs-linux.img'
@@ -582,7 +603,7 @@ packages:
     - { pkg: gsimplecal,                    desc: Simple calendar like windows systray calendar }
     - { pkg: gvim,                          desc: Improved version of vi text editor, conflict: vim }
     - { pkg: hardinfo,                      desc: A system information and benchmark tool }
-    - { pkg: nitrogen,                      desc: System wallpaper }
+    - { pkg: nitrogen,                      desc: System wallpaper manager }
     - { pkg: pepper-flash,                  desc: Chromium flash support, type: ANTERGOS }
     - { pkg: pnmixer,                       desc: Volume controls in system tray, type: AUR }
     - { pkg: smplayer,                      desc: UI wrapper around mplayer with click to pause, alt: vlc }

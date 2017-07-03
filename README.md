@@ -374,7 +374,11 @@ called out below such as ***reduce*** and the ***boot/initramfs/installer***, cr
 license is MIT. In other cases such as ***gfxboot*** the license is GPL2 as it leverages OpenSUSE's
 work.
 
-### Reduce
+### ART works
+All art works used in the distribution have been carefully selected to be either creative commons,
+public domain, or lay claim on fair use licensing.
+
+### Reduce, build and Install Scripts
 ***reduce.rb*** and all Ruby code related to it is licensed below via MIT additionally the
 boot/initramfs/installer bash code base is likewise MIT licensed.
 
