@@ -22,7 +22,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.75
+  release: 0.0.76
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -239,7 +239,7 @@ changes:
     - { exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /home/build' }
     - { edit: /etc/sudoers, append: true, value: "build ALL=(ALL) NOPASSWD: ALL" }
   config-docker:
-    - edit: /usr/bin/proxy
+    - edit: /usr/bin/setproxy
       append: after
       regex: 'OTHER_PROXY_SETTINGS'
       values:
@@ -342,7 +342,7 @@ changes:
         - 'VERSION=<%=release%>'
         - 'PRETTY_NAME=<%=distro%>'
   config-proxy:
-    - edit: /usr/bin/proxy
+    - edit: /usr/bin/setproxy
       append: true
       values:
         - '#!/bin/bash'
@@ -355,7 +355,7 @@ changes:
         - '[ $no_proxy ] && echo "export no_proxy=${no_proxy}" >> /etc/profile.d/setproxy.sh'
         - 'chmod +x /etc/profile.d/setproxy.sh'
         - "\n# OTHER_PROXY_SETTINGS"
-    - { exec: chmod +x /usr/bin/proxy }
+    - { exec: chmod +x /usr/bin/setproxy }
   config-resolved:
     - { exec: ln -sf //run/systemd/resolve/resolv.conf /etc/resolv.conf }
   config-root-user:

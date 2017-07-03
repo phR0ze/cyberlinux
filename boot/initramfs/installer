@@ -297,7 +297,7 @@ config_system()
     fi
     if [ $proxy ] && [ "x$proxy" != "xNone" ]; then
         echo -en ":: Set proxy to ${proxy}..."
-        chroot ${rootmnt} proxy $proxy &> /dev/null
+        chroot ${rootmnt} setproxy $proxy &> /dev/null
         check_status
     fi
     if [ $no_proxy ] && [ "x$no_proxy" != "xNone" ]; then
