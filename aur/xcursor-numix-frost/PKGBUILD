@@ -30,7 +30,7 @@ arch=('any')
 url='https://github.com/osendott/custom-cursors'
 license=('GPL-3.0')
 depends=('libxcursor')
-makedepends=('inkscape' 'xcursorgen')
+makedepends=('inkscape' 'xorg-xcursorgen')
 source=("$pkgname-$pkgver.tar.gz::${url}/blob/master/custom-cursors.tar.gz?raw=true")
 md5sums=('7455f69c54a72b7bc23fdfca19125cf3')
 
