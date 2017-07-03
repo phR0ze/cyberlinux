@@ -22,13 +22,39 @@
 
 vars:
   arch: x86_64
-  release: 0.0.74
+  release: 0.0.75
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
 
+build:
+  name: build
+  type: container
+  multilib: true
+  docker:
+    params: '-e TERM=xterm -v /var/run/docker.sock:/var/run/docker.sock'
+    command: 'bash -c "while :; do sleep 5; done"'
+  packages:
+    - { install: machine-core }
+    - { install: machine-tools }
+    - { install: dev-tools }
+    - { install: shell-tools }
+    - { install: initramfs-deps }
+    - { install: isolinux-deps }
+  changes:
+    - { apply: config-base }
+    - { apply: remove-docs }
+    - { apply: config-root-user }
+    - { apply: config-build-user }
+    - { apply: config-pacman-keys }
+    - { apply: config-docker }
+    - { chroot: systemctl enable cronie.service }
+
 layers:
-  - layer: base
+
+  # Base
+  # ----------------------------------------------------------------------------
+  - name: base
     type: machine
     multilib: true
     vagrant: { vram: 8 }
@@ -53,7 +79,9 @@ layers:
     changes:
       - { apply: config-base }
 
-  - layer: shell
+  # Shell
+  # ----------------------------------------------------------------------------
+  - name: shell
     type: machine
     base: base
     vagrant: { vram: 8 }
@@ -68,7 +96,9 @@ layers:
       - { apply: config-docker }
       - { chroot: systemctl enable cronie.service }
 
-  - layer: lite
+  # Lite
+  # ----------------------------------------------------------------------------
+  - name: lite
     type: machine
     base: shell
     vagrant: { vram: 8 }
@@ -87,7 +117,9 @@ layers:
     changes:
       - { apply: config-lxdm }
 
-  - layer: music
+  # Music
+  # ----------------------------------------------------------------------------
+  - name: music
     type: machine
     base: lite
     boot:
@@ -95,7 +127,9 @@ layers:
         kernel: /<%=distro%>/vmlinuz
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=music_layers%> showopts vga=792
 
-  - layer: server
+  # Server
+  # ----------------------------------------------------------------------------
+  - name: server
     type: machine
     base: lite
     boot:
@@ -103,7 +137,9 @@ layers:
         kernel: /<%=distro%>/vmlinuz
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=server_layers%> showopts vga=792
 
-  - layer: heavy
+  # Heavy
+  # ----------------------------------------------------------------------------
+  - name: heavy
     type: machine
     base: lite
     boot:
@@ -111,7 +147,9 @@ layers:
         kernel: /<%=distro%>/vmlinuz
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=heavy_layers%> showopts vga=792
 
-  - layer: k8snode
+  # K8snode
+  # ----------------------------------------------------------------------------
+  - name: k8snode
     type: machine
     base: shell
     vagrant: { vram: 8, cpus: 2, ram: 2048 }
@@ -124,7 +162,9 @@ layers:
     changes:
       - { chroot: systemctl enable kubelet.service }
 
-  - layer: theater
+  # Theater
+  # ----------------------------------------------------------------------------
+  - name: theater
     type: machine
     base: heavy
     vars: { fontsize: 18 }
@@ -133,7 +173,9 @@ layers:
         kernel: /<%=distro%>/vmlinuz
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=theater_layers%> showopts vga=792
 
-  - layer: desktop
+  # Desktop
+  # ----------------------------------------------------------------------------
+  - name: desktop
     type: machine
     base: heavy
     boot:
@@ -141,7 +183,9 @@ layers:
         kernel: /<%=distro%>/vmlinuz
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=desktop_layers%> showopts vga=792
 
-  - layer: live
+  # Live
+  # ----------------------------------------------------------------------------
+  - name: live
     type: machine
     base: heavy
     boot:
@@ -149,33 +193,10 @@ layers:
         kernel: /<%=distro%>/vmlinuz
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=live_layers%> showopts vga=792
 
-build:
-  layer: build
-  type: container
-  multilib: true
-  docker:
-    params: '-e TERM=xterm -v /var/run/docker.sock:/var/run/docker.sock'
-    command: 'bash -c "while :; do sleep 5; done"'
-  packages:
-    - { install: machine-core }
-    - { install: machine-tools }
-    - { install: dev-tools }
-    - { install: shell-tools }
-    - { install: initramfs-deps }
-    - { install: isolinux-deps }
-  changes:
-    - { apply: config-base }
-    - { apply: remove-docs }
-    - { apply: config-root-user }
-    - { apply: config-build-user }
-    - { apply: config-pacman-keys }
-    - { apply: config-docker }
-    - { chroot: systemctl enable cronie.service }
-
 repos:
-  - repo: archlinux
+  - name: archlinux
     desc: Arch Linux is a lightweight and flexible rolling distribution
-  - repo: antergos
+  - name: antergos
     desc: Arch Linux based distribution with some pre-built AUR packages
     pgp_key: "http://pgp.mit.edu:11371/pks/lookup?op=get&search=0x6D6DDA3D2A45C7B4"
     mirrors:
@@ -185,7 +206,7 @@ repos:
       - Server = http://mirrors.acm.wpi.edu/antergos/$repo/$arch
       - Server = http://antergos.x86innovations.com/$repo/$arch
       - Server = http://repo.antergos.info/$repo/$arch
-  - repo: blackarch
+  - name: blackarch
     desc: Arch Linux based penetration testing distribution with over 1400 tools
     pgp_key: "http://pgp.mit.edu:11371/pks/lookup?op=get&search=0x63EC0ADBEA87E4E3"
     mirrors:

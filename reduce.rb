@@ -93,7 +93,6 @@ class Reduce
       pgp_key: 'pgp_key',
       pkg: 'pkg',
       ram: 'ram',
-      repo: 'repo',
       repos: 'repos',
       type: 'type',
       vagrant: 'vagrant',
@@ -171,13 +170,12 @@ class Reduce
     # Configure variables
     @vars.label = "#{@vars.distro.upcase}_#{@vars.release.gsub('.', '')}"
     @spec[@k.layers].select{|x| x[@k.type] == @k.machine}
-      .each{|x| @vars["#{x[@k.layer]}_layers"] = getlayers(x[@k.layer]) * ','}
-    @spec[@k.layers].each{|x| @vars["#{x[@k.layer]}_src"] = File.join(@layerspath, x[@k.layer])}
+      .each{|x| @vars["#{x[@k.name]}_layers"] = getlayers(x[@k.name]) * ','}
+    @spec[@k.layers].each{|x| @vars["#{x[@k.name]}_src"] = File.join(@layerspath, x[@k.name])}
     @vars.groups = @spec[@k.layers].select{|x| x[@k.type] == @k.machine}
       .map{|x| x[@k.groups] if x[@k.groups]}.compact.uniq * ','
-    @repos = @spec[@k.repos].map{|x| x[@k.repo].upcase} << nil
+    @repos = @spec[@k.repos].map{|x| x[@k.name].upcase} << nil
     @vars.repos = @repos.map{|x| x.downcase if x}.compact * ' '
-    @spec = @spec.erb(@vars)
   end
 
   # Create directory structure for project
@@ -246,8 +244,9 @@ class Reduce
   # +isos+:: list all isos
   # +images+:: list all docker images
   # +spec+:: list out the resolved spec
+  # +layer+:: layer spec to list out
   # +all+:: list all components
-  def list(boxes:nil, isos:nil, images:nil, spec:nil, all:nil)
+  def list(boxes:nil, isos:nil, images:nil, spec:nil, layer:nil, all:nil)
     all = all || ![boxes, isos, images].any?
 
     # Formatting block for images
@@ -268,7 +267,13 @@ class Reduce
     putimages[@type.tgz, true, 'Container Deployed Images:'] if images or all
 
     # List out the resolved spec
-    puts(@spec.to_yaml) if spec
+    if spec
+      if not layer
+        puts(@spec) if spec
+      else
+        puts(getlayer(layer).to_yaml)
+      end
+    end
   end
 
   # Clean components as directed
@@ -310,8 +315,8 @@ class Reduce
     end
 
     # Clean given layers
-    (layers || (all ? @spec[@k.layers].map{|x| x[@k.layer]} << @k.build : nil) ||
-        (isofull ? @spec[@k.layers].select{|x| x[@k.type] == @k.machine}.map{|x| x[@k.layer]} << @k.build : [])).each{|layer|
+    (layers || (all ? @spec[@k.layers].map{|x| x[@k.name]} << @k.build : nil) ||
+        (isofull ? @spec[@k.layers].select{|x| x[@k.type] == @k.machine}.map{|x| x[@k.name]} << @k.build : [])).each{|layer|
       puts("Cleaning layer '#{layer}'...".colorize(:cyan))
       path = File.join(@workpath, layer)
       puts("Deleting #{path}".colorize(:red)) if File.exist?(path)
@@ -393,7 +398,7 @@ class Reduce
 
     # Build implicated layers
     changed |= build_layers(@k.build) if not (layers || []).include?(@k.build)
-    layers = @spec[@k.layers].select{|x| x[@k.type] == @k.machine}.map{|x| x[@k.layer]} if isofull
+    layers = @spec[@k.layers].select{|x| x[@k.type] == @k.machine}.map{|x| x[@k.name]} if isofull
     layers.each{|layer| changed |= build_layers(layer)} if layers
 
     # Build early userspace ramdisk for install executed by isolinux
@@ -491,19 +496,19 @@ class Reduce
       # Inject boot menu items from layers
       File.open(File.join(@isolinux_work, 'isolinux.msg'), 'a'){|f|
         layers.each{|layer| layer[@k.boot].each{|x|
-          f << "#{(x[@k.label] || layer[@k.layer]).ljust(21)}- #{x[@k.entry]}\n"}}}
+          f << "#{(x[@k.label] || layer[@k.name]).ljust(21)}- #{x[@k.entry]}\n"}}}
       File.open(File.join(@isolinux_work, 'isolinux.cfg'), 'a'){|f|
         layers.each{|layer| layer[@k.boot].each{|x|
-          f << "label #{x[@k.label] || layer[@k.layer]}\n"
+          f << "label #{x[@k.label] || layer[@k.name]}\n"
           f << "  kernel #{x[@k.kernel]}\n"
           f << "  append initrd=#{x[@k.initrd]}\n" if x[@k.initrd]}}}
       Fedit.resolve(File.join(@isolinux_work, 'isolinux.msg'), @vars)
 
       # Inject gfxboot configuration
       File.open(File.join(@isolinux_work, 'gfxboot/data/gfxboot.cfg'), 'a'){|f|
-        f << "isolinux.labels=%s\n" % (layers.map{|x| x[@k.boot].map{|y| y[@k.label] || x[@k.layer]}}.flatten * ',')
+        f << "isolinux.labels=%s\n" % (layers.map{|x| x[@k.boot].map{|y| y[@k.label] || x[@k.name]}}.flatten * ',')
         f << "gfxboot.menu.names=%s\n" % (layers.map{|x| x[@k.boot].map{|y| y[@k.entry]}}.flatten * ',')
-        f << "gfx.noboot=%s\n" % (layers.map{|x| x[@k.boot].map{|y| (y[@k.label] || x[@k.layer]) if y[@k.noboot]}}.flatten.compact * ',')
+        f << "gfx.noboot=%s\n" % (layers.map{|x| x[@k.boot].map{|y| (y[@k.label] || x[@k.name]) if y[@k.noboot]}}.flatten.compact * ',')
       }
 
       # Compile GFXboot ui and extract isolinux files
@@ -688,7 +693,7 @@ class Reduce
   # +returns+:: true if changed
   def build_layers(target_layer)
     changed = false
-    layers = @spec[@k.layers].map{|x| x[@k.layer]}
+    layers = @spec[@k.layers].map{|x| x[@k.name]}
     !puts("Error: Layer 'build' name not allowed") and exit if layers.include?(@k.build)
     !puts("Error: Layer '#{target_layer}' doesn't exist".colorize(:red)) and
       exit unless (layers + [nil, @k.build]).include?(target_layer)
@@ -728,8 +733,9 @@ class Reduce
           puts("Applying changes...".colorize(:cyan))
           changedfile = File.join(layer_work, 'changed')
           if layer_changed or not File.exist?(changedfile) or not File.exist?(layer_image)
+            vars = layer_yml[@k.vars] ? @vars.to_h.merge(layer_yml[@k.vars]) : @vars
             layer_changed |= Change.apply(layer_yml[@k.changes] || [],
-              OpenStruct.new({root: layer_work, vars: @vars, changes: @spec[@k.changes]}))
+              OpenStruct.new({root: layer_work, vars: vars, changes: @spec[@k.changes]}))
             File.open(changedfile, 'w'){|f|}
           end
 
@@ -1044,7 +1050,7 @@ class Reduce
 
     # Detect multilib value
     multilib = layers.any?{|x| x[@k.multilib]}
-    puts("Multilib: #{multilib} for #{layers.map{|x| "'#{x[@k.layer]}'"} * ','}".colorize(:cyan))
+    puts("Multilib: #{multilib} for #{layers.map{|x| "'#{x[@k.name]}'"} * ','}".colorize(:cyan))
 
     # Get all packages for given layers
     layers.each{|layer|
@@ -1068,7 +1074,7 @@ class Reduce
       # Remove duplicates
       all_pkgs.uniq!
 
-      result[layer[@k.layer]] = all_pkgs
+      result[layer[@k.name]] = all_pkgs
     }
 
     return result.length == 1 ? result.values.first : result
@@ -1278,14 +1284,12 @@ class Reduce
   # +layer+:: the layer to get dependencies for
   # +returns+:: list of layers (e.g. heavy => heavy, lite, shell, base)
   def getlayers(layer)
-    return nil if not getlayer(layer)
-
     layers = [layer]
     return layers if layer == @k.build
 
     _layer = layer
     while _layer
-      _layer = @spec[@k.layers].find{|x| x[@k.layer] == _layer}[@k.base]
+      _layer = @spec[@k.layers].find{|x| x[@k.name] == _layer}[@k.base]
       layers << _layer if _layer
     end
 
@@ -1297,8 +1301,16 @@ class Reduce
   # +layer+:: layer name to get yaml for
   # +returns+:: yaml for the indicated layer
   def getlayer(layer)
-    return layer == @k.build ? @spec[@k.build] :
-      @spec[@k.layers].find{|x| x[@k.layer] == layer}
+
+    # Get yaml for the given layer
+    layer = layer == @k.build ? @spec[@k.build] : @spec[@k.layers].find{|x| x[@k.name] == layer}
+    !puts("Error: invalid layer '#{layer}'".colorize(:red)) and exit if not layer
+
+    # Resolve templating for the given layer
+    vars = layer[@k.vars] ? @vars.to_h.merge(layer[@k.vars]) : @vars
+    layer = layer.erb(vars)
+
+    return layer
   end
 
 end
@@ -1331,6 +1343,7 @@ if __FILE__ == $0
     CmdOpt.new('--isos', 'List all isos'),
     CmdOpt.new('--images', 'List all docker images'),
     CmdOpt.new('--spec', 'List out the resolved spec'),
+    CmdOpt.new('--layer=LAYER', 'List out the spec yaml for the given layer', type:String),
   ])
   opts.add('clean', 'Clean ISO components', [
     CmdOpt.new('--all', 'Clean all components'),
@@ -1369,7 +1382,7 @@ if __FILE__ == $0
 
   # Execute 'list' command
   reduce.list(boxes: opts[:boxes], isos: opts[:isos], images: opts[:images],
-    spec: opts[:spec], all: opts[:all]) if opts[:list]
+    spec: opts[:spec], layer: opts[:layer], all: opts[:all]) if opts[:list]
 
   # Execute 'clean' command
   reduce.clean(initramfs: opts[:initramfs], isolinux: opts[:isolinux],

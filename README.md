@@ -30,6 +30,7 @@ those looking to leverage this framework to fork it and make their own configura
 * [Deploy cyberlinux](#deploy-cyberlinux)
     * [Deploy flavor](#deploy-flavor)
 * [Customization](#customization)
+    * [Spec Structure](#spec-structure)
     * [Variables](#variables)
     * [Build Layer](#build-layer)
     * [Layers](#layers)
@@ -196,6 +197,30 @@ The heart of ***cyberlinux*** is it's ability to provide infinite variations of 
 that can be built together into a bootable/installable ISO.  This is driven through the
 ***spec.yml*** which is the file documenting all of the packages and configuration to use
 when building ***cyberlinux***.
+
+### Spec Structure <a name="spec-structure"/></a>
+```YAML
+vars:
+  distro: cyberlinux
+build:
+  name: build
+  type: container
+  ...
+layers:
+  - name: base
+    changes:
+      - { apply: config-autologin }
+      - { exec: 'ln -sf //usr/share/zoneinfo/Zulu /etc/localtime' }
+repos:
+  - name: archlinux
+changes:
+  config-autologin:
+    - { edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(autologin)=.*', value: '\1=<%= USER %>'
+packages:
+  machine-core:
+    - { install: container-core }
+```
+
 
 ### Variables <a name="variables"/></a>
 ***vars*** are used for specifying distribution specific values and templating variables.
