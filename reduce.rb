@@ -1286,6 +1286,8 @@ class Reduce
   def getlayers(layer)
     layers = [layer]
     return layers if layer == @k.build
+    !puts("Error: invalid layer '#{layer}'".colorize(:red)) and
+      exit if not @spec[@k.layers].find{|x| x[@k.name] == layer}
 
     _layer = layer
     while _layer

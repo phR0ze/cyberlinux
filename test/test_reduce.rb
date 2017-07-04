@@ -24,16 +24,6 @@ require 'minitest/autorun'
 
 require_relative '../reduce'
 
-#    @resolve_templates_stub ||= ->(mock, file, vars){
-#      File.stub(:open, true, mock){
-#        @reduce.stub(:puts, nil){
-#          @reduce.stub(:print, nil){
-#            @reduce.resolve_templates(file, vars)
-#          }
-#        }
-#      }
-#    }
-
 class TestGetLayers < Minitest::Test
 
   def setup
@@ -42,7 +32,11 @@ class TestGetLayers < Minitest::Test
   end
 
   def test_getlayers_with_bad_layer_name
-    refute(@reduce.getlayers('foo'))
+    @reduce.stub(:exit, nil){
+      @reduce.stub(:puts, nil){
+        assert_raises(NoMethodError){@reduce.getlayers('foo')}
+      }
+    }
   end
 
   def test_getlayers_with_good_layer_name_expecting_single_result
@@ -68,19 +62,23 @@ class TestGetLayer < Minitest::Test
   end
 
   def test_getlayer_with_bad_layer_name
-    refute(@reduce.getlayer('foo'))
+    @reduce.stub(:exit, nil){
+      @reduce.stub(:puts, nil){
+        assert_raises(NoMethodError){@reduce.getlayer('foo')}
+      }
+    }
   end
 
   def test_getlayer_build
     yml = @reduce.getlayer(@k.build)
     assert(yml)
-    assert_equal(yml[@k.layer], @k.build)
+    assert_equal(yml[@k.name], @k.build)
   end
 
   def test_getlayer_with_good_layer_name
     yml = @reduce.getlayer(@k.base)
     assert(yml)
-    assert_equal(yml[@k.layer], @k.base)
+    assert_equal(yml[@k.name], @k.base)
   end
 end
 
