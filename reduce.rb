@@ -55,6 +55,7 @@ class Reduce
       sqfs: 'sqfs'
     })
     @k = OpenStruct.new({
+      all: 'all',
       AUR: 'AUR',
       aurpath: 'aurpath',
       base: 'base',
@@ -377,8 +378,9 @@ class Reduce
   # +layers+:: build given layers
   # +iso+:: build iso image from whatever machine layers exist
   # +isofull+:: build iso image including all machine layers
-  def build(initramfs:nil, isolinux:nil, layers:nil, iso:nil, isofull:nil)
-    opts = [initramfs, isolinux, layers, iso, isofull]
+  # +package+:: build the given foreign package or 'all' if specified
+  def build(initramfs:nil, isolinux:nil, layers:nil, iso:nil, isofull:nil, package:nil)
+    opts = [initramfs, isolinux, layers, iso, isofull, package]
     !puts("Error: no build options specified".colorize(:red)) and exit unless opts.any?
     changed = false
 
@@ -400,6 +402,13 @@ class Reduce
     changed |= build_layers(@k.build) if not (layers || []).include?(@k.build)
     layers = @spec[@k.layers].select{|x| x[@k.type] == @k.machine}.map{|x| x[@k.name]} if isofull
     layers.each{|layer| changed |= build_layers(layer)} if layers
+
+    # Build aur/foreign packages upfront
+    if package
+      packages = package.downcase != @k.all ? [package] : getpkgs(nil).values.flatten
+        .map{|x| x[@k.pkg] if [@k.FOREIGN, @k.AUR].include?(x[@k.type])}.compact.uniq
+      buildpkgs(packages)
+    end
 
     # Build early userspace ramdisk for install executed by isolinux
     changed |= build_initramfs if [initramfs, iso, isofull].any?
@@ -872,7 +881,7 @@ class Reduce
         }.uniq
 
         pacstrap.call("Installing aur/foreign", "Failed to install packages correctly"){
-          _, deferred = buildpkgs(layer, layer_yml, layer_work, pkgs[:aur] + foreignpkgs, defer:defer)
+          _, deferred = buildpkgs(pkgs[:aur] + foreignpkgs, defer:defer)
           pkgs[:deferred] |= deferred
           if deferred
             pkgs[:aur].clear if pkgs[:aur].any?
@@ -967,11 +976,9 @@ class Reduce
   # Params:
   # +layer+:: layer name to work with
   # +pkgs+:: packages to build
-  # +layer_yml+:: layer yaml to work with
-  # +layer_work+:: the directory where to install the layer packages to
   # +defer+:: defer building aur/foreign packages when true
   # +returns+:: tuple(true pkgs were built, true if pkgs were deferred)
-  def buildpkgs(layer, layer_yml, layer_work, pkgs, defer:false)
+  def buildpkgs(pkgs, defer:false)
     changed = false
     aur_database = File.join(@aurcache, 'aur.db.tar.gz')
 
@@ -1059,7 +1066,7 @@ class Reduce
         return pkgs.map{|x|
           if x[@k.install] || (x[@k.ignore] && !x[@k.pkg])
             pkgkey = x[@k.install] || x[@k.ignore]
-            pkgset = Marshal.load(Marshal.dump(@spec[@k.packages][pkgkey]))
+            pkgset = @spec[@k.packages][pkgkey].clone
             !puts("Error: missing package set '#{pkgkey}'".colorize(:red)) and exit unless pkgset
             # TODO: when multilib=true and arch is i686 then do opposite
             pkgset.reject!{|y| multilib ? y[@k.multilib] == false : y[@k.multilib]} if x[@k.install]
@@ -1362,6 +1369,7 @@ if __FILE__ == $0
     CmdOpt.new('--layers=x,y,z', 'Build given layers', type:Array),
     CmdOpt.new('--iso', 'Build USB bootable ISO with existing layers'),
     CmdOpt.new('--iso-full', 'Build USB bootable ISO with all machine layers'),
+    CmdOpt.new('--package=PACKAGE', "Build the given aur/foreign package or 'all'", type:String),
   ])
   opts.add('deploy', 'Deploy VMs or containers', [
     CmdOpt.new('--layer=LAYER', 'Deploy a specific layer VM', type:String, required:true),
@@ -1393,7 +1401,7 @@ if __FILE__ == $0
 
   # Execute 'build' command
   reduce.build(initramfs: opts[:initramfs], isolinux: opts[:isolinux],
-    layers: opts[:layers], iso: opts[:iso], isofull: opts[:isofull]) if opts[:build]
+    layers: opts[:layers], iso: opts[:iso], isofull: opts[:isofull], package: opts[:package]) if opts[:build]
 
   # Execute 'deploy' command
   reduce.deploy(opts[:layer], name: opts[:name], run: opts[:run], exec: opts[:exec], nodes: opts[:nodes],
