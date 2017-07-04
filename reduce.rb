@@ -405,8 +405,13 @@ class Reduce
 
     # Build aur/foreign packages upfront
     if package
-      packages = package.downcase != @k.all ? [package] : getpkgs(nil).values.flatten
-        .map{|x| x[@k.pkg] if [@k.FOREIGN, @k.AUR].include?(x[@k.type])}.compact.uniq
+      packages = [package]
+      if package.downcase == @k.all
+        aur_pkgs = getpkgs(nil).values.flatten.map{|x| x[@k.pkg] if x[@k.type] == @k.AUR}
+        foreign_pkgs = getpkgs(nil).values.flatten.select{|x| x[@k.type] == @k.FOREIGN}
+          .map{|x| x[@k.aurpath] ? x[@k.aurpath] : x[@k.pkg]}
+        packages = (aur_pkgs + foreign_pkgs).compact.uniq
+      end
       buildpkgs(packages)
     end
 
