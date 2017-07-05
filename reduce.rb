@@ -405,12 +405,10 @@ class Reduce
 
     # Build aur/foreign packages upfront
     if package
-      packages = [package]
+      packages = package != @k.all ? {package => nil} : {}
       if package.downcase == @k.all
-        aur_pkgs = getpkgs(nil).values.flatten.map{|x| x[@k.pkg] if x[@k.type] == @k.AUR}
-        foreign_pkgs = getpkgs(nil).values.flatten.select{|x| x[@k.type] == @k.FOREIGN}
-          .map{|x| x[@k.aurpath] ? x[@k.aurpath] : x[@k.pkg]}
-        packages = (aur_pkgs + foreign_pkgs).compact.uniq
+        getpkgs(nil).values.flatten.select{|x| x[@k.type] == @k.AUR or x[@k.type] == @k.FOREIGN}
+          .each{|x| packages[x[@k.pkg]] = x[@k.aurpath]}
       end
       buildpkgs(packages)
     end
@@ -568,6 +566,73 @@ class Reduce
     end
 
     return changed
+  end
+
+  # Pack the given layer or all layers if no specific layer given
+  # Params:
+  # +layers+:: layers to pack into an image else all
+  # +disksize+:: disk size to use for pack
+  # +force+:: pack even if already exists
+  def pack(layers, disksize:nil, force:nil)
+    _layers = @spec[@k.layers].select{|x| x[@k.boot]}
+    layers = layers || _layers.reject{|x| x[@k.name] == 'live' or not x[@k.boot].any?{|y| y[@k.initrd]}}
+    puts("#{'-' * 80}\nPacking layers #{layers * ','}\n#{'-' * 80}".colorize(:yellow))
+    !puts("Error: must be executed as non-root user".colorize(:red)) and
+      exit unless not Process.uid.zero?
+    create_dir_structure
+
+    # Ensure we have the right binaries available
+    !puts("Ensure 'packer' https://www.packer.io/downloads.html is in the path".colorize(:red)) and
+      exit unless find_executable('packer')
+    !puts("Please install 'virtualbox' via 'sudo pacman -S virtualbox'".colorize(:red)) and
+      exit unless find_executable('vboxmanage')
+
+    # Locate latest iso
+    isos = getimages(@type.iso).keys
+    !puts("Error: no ISOs found".colorize(:red)) and exit unless isos.any?
+    @vars.isofile = isos.shift
+
+    @vars.release = @vars.isofile[/-(.*?)-/, 1]
+    puts("Release: #{@vars.release}".colorize(:cyan))
+    puts("ISO: #{@vars.isofile}".colorize(:cyan))
+
+    # Configure host-only network
+    config_network = "#{@sudoinv}vboxmanage hostonlyif ipconfig "
+    config_network += "#{@vars.netname} -ip #{@vars.netip} -netmask #{@vars.netmask}"
+    if not Sys.exec(config_network, die:false)
+      Sys.exec("#{@sudoinv}vboxmanage hostonlyif create")
+      Sys.exec(config_network)
+    end
+
+    # Pack implicated layers into vagrant boxes
+    installables = _layers.map{|x| x[@k.boot].map{|y| x[@k.name] if y[@k.initrd]}}.reverse.flatten.compact
+    layers.each do |layer|
+
+      # Remove old boxes and/or skip if current
+      image = evalimages!(@type.box, layer:layer, force:force)
+      !puts("Box #{image} already exists".colorize(:green)) and next if image
+
+      # Clean up build artifacts and prep for build
+      puts("Building vagrant image with packer for layer '#{layer}'".colorize(:cyan))
+      output_dir = File.join(@packer_work, layer)
+      puts("Removing old packer artifacts at #{output_dir}".colorize(:red))
+      rm_rf(output_dir)
+
+      # Copy over and resolve packer template and scripts
+      puts("Copy over and resolve packer template and scripts".colorize(:cyan))
+      template = File.join(@packer_work, "#{layer}.json")
+      Dir.glob(File.join(@packer_src, '*.sh')).each{|x| FileUtils.cp(x, @packer_work) }
+      FileUtils.cp(File.join(@packer_src, 'packer.json'), template)
+      @vars.layer = layer
+      @vars.disksize = disksize || '40000'
+      @vars.downs = ['"<down>"'] * installables.index(layer) * ','
+      resolve_templates(template, @vars)
+
+      # Create a new vagrant image for the given layer
+      puts("Building vagrant image using packer".colorize(:cyan))
+      pwd = Dir.pwd and Dir.chdir(@packer_work)
+      Sys.exec("packer build -only=virtualbox-iso #{layer}.json")
+    end
   end
 
   # Deploy vagrant node/s
@@ -879,14 +944,15 @@ class Reduce
       # Build cache and install aur packages and/or foreign packages
       if pkgs[:aur].any? or pkgs[:foreign].any?
 
-        # Collapse aur paths for foreign packages
-        foreignpkgs = pkgs[:foreign].map{|x|
+        # Include aur paths for foreign packages
+        _pkgs = {}
+        (pkgs[:aur] + pkgs[:foreign]).map{|x|
           pkg = all_pkgs.find{|y| y[@k.pkg] == x}
-          pkg[@k.aurpath] || x
-        }.uniq
+          _pkgs[x] = pkg[@k.aurpath]
+        }
 
         pacstrap.call("Installing aur/foreign", "Failed to install packages correctly"){
-          _, deferred = buildpkgs(pkgs[:aur] + foreignpkgs, defer:defer)
+          _, deferred = buildpkgs(_pkgs, defer:defer)
           pkgs[:deferred] |= deferred
           if deferred
             pkgs[:aur].clear if pkgs[:aur].any?
@@ -980,7 +1046,7 @@ class Reduce
   # Build packages
   # Params:
   # +layer+:: layer name to work with
-  # +pkgs+:: packages to build
+  # +pkgs+:: hash of {pkg => aurpath} packages to build
   # +defer+:: defer building aur/foreign packages when true
   # +returns+:: tuple(true pkgs were built, true if pkgs were deferred)
   def buildpkgs(pkgs, defer:false)
@@ -997,15 +1063,16 @@ class Reduce
     # Filter out cached packages
     cached = Dir[File.join(@aurcache, '*.xz')].map{|x| File.basename(x).split('.').first.split('-')[0..-2]}
       .map{|x| x.select{|y| not y[0] =~ /[0-9]/} * '-'}.sort
-    pkgs.reject!{|x| cached.include?(x)}
+    pkgs.reject!{|k,v| cached.include?(k)}
 
     # Build AUR/FOREIGN packages in build container
     if pkgs.any?
-      puts("Scheduling packages #{pkgs} for second pass".colorize(:cyan)) if defer
+      puts("Scheduling packages #{pkgs.map{|k,v| k}} for second pass".colorize(:cyan)) if defer
       return changed, true if defer
 
       docker(@k.build, @k.build){|cont, home, cp, exec, execs, runuser|
-        pkgs.each{|pkg|
+        _pkgs = pkgs.map{|k,v| v || k}.uniq
+        _pkgs.each{|pkg|
           pkgdir = "#{home}/#{pkg}"
           foreign = File.exist?(File.join(@aurpath, pkg))
           puts("Building #{foreign ? 'FOREIGN':'AUR'} package '#{pkg}'...".colorize(:cyan))
@@ -1039,6 +1106,13 @@ class Reduce
       files = File.join(@aurcache, 'aur*')
       puts("Delete old aur database files #{files}".colorize(:cyan))
       rm_rf(files)
+
+      # Remove old cached versions of the package
+      pkgs.each{|pkg,v|
+        files = File.join('/var/cache/pacman/pkg', "#{pkg}*")
+        puts("Delete old pacman cached files #{files}".colorize(:cyan))
+        rm_rf(files)
+      }
     else
       puts("All AUR/FOREIGN packages are already built and cached".colorize(:cyan))
     end
@@ -1376,6 +1450,12 @@ if __FILE__ == $0
     CmdOpt.new('--iso-full', 'Build USB bootable ISO with all machine layers'),
     CmdOpt.new('--package=PACKAGE', "Build the given aur/foreign package or 'all'", type:String),
   ])
+  opts.add('pack', 'Pack ISO layers into vagrant boxes', [
+    CmdOpt.new('--all', 'Pack all layers'),
+    CmdOpt.new('--layers=x,y,z', 'Pack given layers', type:Array),
+    CmdOpt.new('--disksize=DISKSIZE', 'Set the disk size in MB e.g. 10000', type:String),
+    CmdOpt.new('--force', 'Pack the given layer/s even if they already exists'),
+  ])
   opts.add('deploy', 'Deploy VMs or containers', [
     CmdOpt.new('--layer=LAYER', 'Deploy a specific layer VM', type:String, required:true),
     CmdOpt.new('--name=NAME', 'Give a name to the specific node being deployed', type:String),
@@ -1407,6 +1487,9 @@ if __FILE__ == $0
   # Execute 'build' command
   reduce.build(initramfs: opts[:initramfs], isolinux: opts[:isolinux],
     layers: opts[:layers], iso: opts[:iso], isofull: opts[:isofull], package: opts[:package]) if opts[:build]
+
+  # Execute 'pack' command
+  reduce.pack(opts[:layers], disksize: opts[:disksize], force: opts[:force]) if opts[:pack]
 
   # Execute 'deploy' command
   reduce.deploy(opts[:layer], name: opts[:name], run: opts[:run], exec: opts[:exec], nodes: opts[:nodes],

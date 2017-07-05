@@ -22,10 +22,15 @@
 
 vars:
   arch: x86_64
-  release: 0.0.82
+  release: 0.0.83
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
+
+  # Vagrant networking
+  netname: vboxnet0
+  netip: 192.168.56.1
+  netmask: 255.255.255.0
 
 build:
   name: build
@@ -755,16 +760,16 @@ packages:
     - { pkg: ebtables,                      desc: Ethernet bridge filtering utilities, depof: k8s }
     - { pkg: ethtool,                       desc: Network drivers and hardware util, depof: k8s }
     - { pkg: helm,                          desc: Kubernetes package manager, type: FOREIGN }
-    - { pkg: kubernetes-kubectl,            desc: Kubernetes cluster controller, type: FOREIGN, aurpath: kubernetes }
+    - { pkg: kubernetes-kubectl,            desc: K8s cluster controller, type: FOREIGN, aurpath: kubernetes }
     - { pkg: socat,                         desc: Multipurpose relay, depof: k8s}
 
   k8s-node:
     - { pkg: jq,                            desc: Command line JSON processor, depof: kubectl }
     - { pkg: helm,                          desc: Kubernetes package manager, type: FOREIGN }
-    - { pkg: kubernetes-kubeadm,            desc: Kubernetes cluster bootstrap, type: FOREIGN, aurpath: kubernetes }
-    - { pkg: kubernetes-kubectl,            desc: Kubernetes cluster controller, type: FOREIGN, aurpath: kubernetes }
-    - { pkg: kubernetes-kubelet,            desc: Kubernetes node control agent, type: FOREIGN, aurpath: kubernetes }
-    - { pkg: kubernetes-cni,                desc: Kubernetes networking plugins, type: FOREIGN, aurpath: kubernetes }
+    - { pkg: kubernetes-kubeadm,            desc: K8s cluster bootstrap, type: FOREIGN, aurpath: kubernetes }
+    - { pkg: kubernetes-kubectl,            desc: K8s cluster controller, type: FOREIGN, aurpath: kubernetes }
+    - { pkg: kubernetes-kubelet,            desc: K8s node control agent, type: FOREIGN, aurpath: kubernetes }
+    - { pkg: kubernetes-cni,                desc: K8s networking plugins, type: FOREIGN, aurpath: kubernetes }
 
   vagrant-tools:
     - { pkg: packer,                        desc: HashiCorp's vagrant box builder, type: FOREIGN }
