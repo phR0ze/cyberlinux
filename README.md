@@ -2,7 +2,7 @@
 ***cyberlinux*** was designed to provide the unobtrusive beauty and power of Arch Linux as a fully
 customized multi-flavor automated offline deployment. Using a clean declarative yaml specification,
 processed by ***reduce***, cyberlinux is able to completely customize and automate the building of
-Arch Linux filesystems which are bundled either as a bootable ISO. By default install flavors are
+Arch Linux filesystems which are bundled as a bootable ISO. By default install flavors are
 provided for many common use cases but the option to build your own infinitely flexible flavor is
 yours for the taking.
 
