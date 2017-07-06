@@ -10,7 +10,7 @@
             "boot_wait": "8s",
             "boot_command": [
                 <%= downs %>,
-                "automate=1<enter>"
+                "vagrant=1<enter>"
             ],
             "disk_size": <%= disksize %>,
             "hard_drive_interface": "sata",

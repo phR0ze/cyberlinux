@@ -61,7 +61,8 @@ getinput()
     local silent=$4                                 # Don't echo when set
 
     echo -en "   Enter ${input} (default=${cyan}${result}${none}): "
-    if [ "x$automate" != "x1" ]; then
+    [ "x$vagrant" == "x1" ] && echo ''
+    if [ "x$vagrant" != "x1" ]; then
         [ $silent ] && read -s value || read value
         [ "x$value" != "x" ] && local result=$value
     fi
@@ -81,7 +82,7 @@ getsel()
     done
     while true; do
         echo -en "   Enter a number (default=${cyan}1${none}): "
-        [ "x$automate" != "x1" ] && read choice
+        [ "x$vagrant" == "x1" ] && echo '' || read choice
         [ "x$choice" == "x" ] && choice=1
         if [ $choice -gt 0 ] && [ $choice -le $out_of_bounds ]; then
             local result=$(echo $options | awk "{print \$$choice}")
@@ -458,7 +459,7 @@ run_hook()
     for x in ${params}; do
         case "${x}" in
             'layers'=*) layers=${x//layers=} ;;
-            'automate'=*) automate=${x//automate=} ;;
+            'vagrant'=*) vagrant=${x//vagrant=} ;;
             'autologin'=*) autologin=${x//autologin=} ;;
             *) continue ;;
         esac
@@ -477,7 +478,7 @@ run_hook()
     images_path="<%= distro %>"
 
     target_layer=$(echo $layers | awk -F, '{print $1}')
-    [ "x$automate" == "x1" ] && autologin=1
+    [ "x$vagrant" == "x1" ] && autologin=1
     [ "$target_layer" == "live" ] && autologin=1
 
     # Custom handler defined above.
