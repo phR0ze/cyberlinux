@@ -1,0 +1,78 @@
+#MIT License
+#Copyright (c) 2017 phR0ze
+#
+#Permission is hereby granted, free of charge, to any person obtaining a copy
+#of this software and associated documentation files (the "Software"), to deal
+#in the Software without restriction, including without limitation the rights
+#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#copies of the Software, and to permit persons to whom the Software is
+#furnished to do so, subject to the following conditions:
+#
+#The above copyright notice and this permission notice shall be included in all
+#copies or substantial portions of the Software.
+#
+#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+#SOFTWARE.
+
+nodes = [
+  <%= nodes %>
+]
+no_proxy = nodes.map{|x| x[:ip][0..x[:ip].index('/')-1]} * ','
+
+Vagrant.configure("2") do |config|
+  config.vm.synced_folder(".", "/vagrant", disabled:true)
+
+  # Configure each node
+  #-----------------------------------------------------------------------------
+  nodes.each do |node|
+    config.vm.define node[:host] do |conf|
+      conf.vm.box = node[:box]
+      conf.vm.hostname = node[:host]
+
+      # Custom VirtualBox settings
+      #-------------------------------------------------------------------------
+      conf.vm.provider :virtualbox do |vbox|
+        vbox.name = node[:host]
+        vbox.cpus = node[:cpus]
+        vbox.memory = node[:ram]
+        vbox.customize(["modifyvm", :id, "--vram", node[:vram]])
+        vbox.customize(["modifyvm", :id, "--accelerate3d", node[:v3d]])
+
+        # Configure Audio
+        audio_driver = RUBY_PLATFORM == 'x86_64-linux' ? 'alsa' : 'dsound'
+        vbox.customize(["modifyvm", :id, "--audio", audio_driver, "--audiocontroller", "ac97"])
+
+        # Configure Networking
+        vbox.customize(["modifyvm", :id, "--nic1", "nat"])
+        vbox.customize(["modifyvm", :id, "--nic2", "hostonly"])
+        vbox.customize(["modifyvm", :id, "--hostonlyadapter2", node[:net]])
+      end
+
+      # Custom VM provisioning
+      #-------------------------------------------------------------------------
+      conf.vm.provision :shell do |script|
+        ipv6 = node[:ipv6] || false
+        script.args = [node[:ip], no_proxy, ipv6.to_s]
+        script.inline = <<-SHELL
+          # Configure host-only static ip address
+          echo -e "[Match]\\nName=enp0s8 eth0\\n" > /etc/systemd/network/10-static.network
+          echo -e "[Network]\\nAddress=${1}\\nIPForward=kernel" >> /etc/systemd/network/10-static.network
+
+          # Add local private ip to no_proxy
+          sed -i -e "s/\\(.*no_proxy=localhost.*\\)/\\1,${2}/" /usr/bin/setproxy
+
+          # Enable IPv6 for node if directed
+          [ ${3} == "true" ] && sed -i -e "s/ ipv6.disable=1//" /boot/syslinux/syslinux.cfg
+          SHELL
+      end
+
+    end
+  end
+end
+
+# vim: ft=ruby:ts=2:sw=2:sts=2

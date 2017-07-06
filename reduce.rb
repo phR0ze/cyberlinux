@@ -626,7 +626,7 @@ class Reduce
       @vars.layer = layer
       @vars.disksize = disksize || '40000'
       @vars.downs = ['"<down>"'] * installables.index(layer) * ','
-      resolve_templates(template, @vars)
+      Fedit.resolve(template, @vars)
 
       # Create a new vagrant image for the given layer
       puts("Building vagrant image using packer".colorize(:cyan))
@@ -700,7 +700,8 @@ class Reduce
       # Create Vagrantfile for deployment
       vagrantfile_path = File.join(@vagrantpath, 'Vagrantfile')
       FileUtils.cp(File.join(@packer_src, 'Vagrantfile'), vagrantfile_path)
-      file_insert(vagrantfile_path, specs.map{|x| '  ' + x.to_s} * ",\n", regex:/nodes = \[/, offset:2)
+      @vars.nodes = specs.map{|x| '  ' + x.to_s} * ",\n"
+      Fedit.resolve(vagrantfile_path, @vars)
 
       # Initialize a new vagrant instance
       #-----------------------------------------------------------------------

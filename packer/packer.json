@@ -1,0 +1,56 @@
+{
+    "builders": [
+        {
+            "type": "virtualbox-iso",
+            "iso_url": "file://<%= isofile %>",
+            "iso_checksum_type": "none",
+            "guest_os_type": "ArchLinux_64",
+            "guest_additions_mode": "disable",
+            "http_directory": ".",
+            "boot_wait": "8s",
+            "boot_command": [
+                <%= downs %>,
+                "autologin=1<enter>",
+                "<enter>",
+                "<enter>",
+                "<enter>",
+                "<enter>",
+                "<enter>",
+                "<enter>",
+                "<enter>"
+            ],
+            "disk_size": <%= disksize %>,
+            "hard_drive_interface": "sata",
+            "ssh_username": "root",
+            "ssh_password": "vagrant",
+            "ssh_timeout": "20m",
+            "headless": true,
+            "vm_name": "packer-<%= layer %>",
+            "output_directory": "<%= layer %>",
+            "vboxmanage": [
+                ["modifyvm", "{{.Name}}", "--memory", "512"],
+                ["modifyvm", "{{.Name}}", "--cpus", "1"]
+            ],
+            "shutdown_command": "poweroff"
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "shell",
+            "script": "packer.sh"
+        },
+        {
+            "type": "shell",
+            "script": "virtualbox.sh",
+            "only": ["virtualbox-iso"]
+        }
+    ],
+    "post-processors": [
+        {
+            "type": "vagrant",
+            "output": "../../images/<%= layer %>-<%= release %>.box",
+            "compression_level": 0,
+            "keep_input_artifact": false
+        }
+    ]
+}
