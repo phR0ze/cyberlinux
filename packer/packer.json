@@ -10,14 +10,7 @@
             "boot_wait": "8s",
             "boot_command": [
                 <%= downs %>,
-                "autologin=1<enter>",
-                "<enter>",
-                "<enter>",
-                "<enter>",
-                "<enter>",
-                "<enter>",
-                "<enter>",
-                "<enter>"
+                "automate=1<enter>"
             ],
             "disk_size": <%= disksize %>,
             "hard_drive_interface": "sata",
