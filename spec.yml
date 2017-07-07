@@ -22,7 +22,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.87
+  release: 0.0.88
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -30,7 +30,7 @@ vars:
   # Vagrant networking
   netname: vboxnet0
   netip: 192.168.56.1
-  netmask: 255.255.255.0
+  subnet: 255.255.255.0
 
 build:
   name: build
@@ -248,8 +248,9 @@ changes:
       append: after
       regex: 'OTHER_PROXY_SETTINGS'
       values:
-        - "\nmkdir -p /etc/systemd/system/docker.service.d"
+        - "\n# Configure docker proxy settings"
         - 'proxyfile=/etc/systemd/system/docker.service.d/20-proxy.conf'
+        - 'mkdir -p /etc/systemd/system/docker.service.d'
         - 'echo "[Service]" > ${proxyfile}'
         - 'echo "Environment=\"http_proxy=${proxy}\"" >> ${proxyfile}'
         - 'echo "Environment=\"https_proxy=${proxy}\"" >> ${proxyfile}'
@@ -351,14 +352,17 @@ changes:
       append: true
       values:
         - '#!/bin/bash'
-        - "\n# Executed during installation to configure the proxy"
-        - 'proxy=$1'
-        - 'no_proxy=$2'
-        - 'echo "export ftp_proxy=${proxy}" > /etc/profile.d/setproxy.sh'
-        - 'echo "export http_proxy=${proxy}" >> /etc/profile.d/setproxy.sh'
-        - 'echo "export https_proxy=${proxy}" >> /etc/profile.d/setproxy.sh'
-        - '[ $no_proxy ] && echo "export no_proxy=${no_proxy}" >> /etc/profile.d/setproxy.sh'
-        - 'chmod +x /etc/profile.d/setproxy.sh'
+        - "\n# Executed by Vagrantfile for vagrant deployments"
+        - "# Executed by installer for non-vagrant deployments"
+        - 'proxy='
+        - 'no_proxy='
+        - "\n# Configure system proxies"
+        - '\nproxyfile=/etc/profile.d/setproxy.sh'
+        - 'echo "export ftp_proxy=${proxy}" > $proxyfile'
+        - 'echo "export http_proxy=${proxy}" >> $proxyfile'
+        - 'echo "export https_proxy=${proxy}" >> $proxyfile'
+        - '[ $no_proxy ] && echo "export no_proxy=${no_proxy}" >> $proxyfile'
+        - 'chmod +x $proxyfile'
         - "\n# OTHER_PROXY_SETTINGS"
     - { exec: chmod +x /usr/bin/setproxy }
   config-resolved:
@@ -662,6 +666,7 @@ packages:
   desktop-tools:
     - { pkg: cinnamon-screensaver,          desc: Screensaver for the Cinnamon desktop, type: FOREIGN }
     - { pkg: gimp,                          desc: Excellent image editor, alt: pinta }
+    - { pkg: hunspell-en_US,                desc: US dictionaries for spell checking, deps: libreoffice }
     - { pkg: inkscape,                      desc: Professional vector graphics editor }
     - { pkg: libreoffice-fresh,             desc: LibreOffice branch with new features/enhancements }
     - { pkg: keepass,                       desc: Cross platform password manager }

@@ -22,7 +22,7 @@
 
 require 'minitest/autorun'
 
-require_relative '../reduce'
+load '../reduce'
 
 class TestGetLayers < Minitest::Test
 

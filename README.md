@@ -27,6 +27,8 @@ those looking to leverage this framework to fork it and make their own configura
     * [Package versions](#package-versions)
     * [Linux Dev Envioronment](#linux-dev-environment)
     * [Full cyberlinux build](#full-cyberlinux-build)
+* [Pack cyberlinux](#pack-cyberlinux)
+    * [Pack flavor](#pack-flavor)
 * [Deploy cyberlinux](#deploy-cyberlinux)
     * [Deploy flavor](#deploy-flavor)
 * [Customization](#customization)
@@ -164,9 +166,9 @@ If your not currently running ***cyberlinux*** and don't have a spare machine yo
 a vagrant cyberlinux box.
 
 ```bash
-$ git clone https://github.com/phR0ze/cyberlinux.git
-$ cd cyberlinux
-$ vagrant ?????
+git clone https://github.com/phR0ze/cyberlinux.git
+cd cyberlinux
+vagrant ?????
 ```
 
 **VirtualBox install**  
@@ -186,11 +188,37 @@ Alternately you can install to a VM using a cyberlinux ISO.
 2. [Clone cyberlinux repo](#clone-cyberlinux-repo)
 3. [Full build of cyberlinux](#full-build-of-cyberlinux)
 
+## Pack cyberlinux <a name="pack-cyberlinux"/></a>
+***reduce*** provides the ability to pack any given layer into a vagrant box that can then be
+uploaded for public use or deployed locally.
+
+```bash
+# Pack all layers, boxes end up in .../cyberlinux/temp/images
+./reduce pack
+```
+
+### Pack flavor<a name="pack-flavor"/></a>
+To pack a specific flavor for use - e.g. k8snode -  use the following:
+
+```bash
+./reduce pack --layers=k8snode
+```
+
 ## Deploy cyberlinux <a name="deploy-cyberlinux"/></a>
-TBD
+The simplest way to quickly deploy a cyberlinux box for development is to leverage the ***vagrant***
+images that are publicly available. Use ***reduce*** to launch them with custom values as
+specified in the layer block in the ***spec***.
 
 ### Deploy flavor<a name="deploy-flavor"/></a>
-TBD
+To deploy a specific flavor for use - e.g. k8snode - use the following. This will deploy a vagrant
+box for the k8snode flavor and specify to use an ip from the ***spec*** specified ***subnet*** using
+the given ***--nodes*** value for the last octet.
+
+
+```bash
+# Deploys a k8snode with ip address of 192.168.56.10
+sudo ./reduce deploy --layer=k8snode --nodes=10
+```
 
 ## Customization <a name="customization"/></a>
 The heart of ***cyberlinux*** is it's ability to provide infinite variations of repeatable flavors
@@ -385,8 +413,8 @@ or not the change fits with my goals/ideals for the project.
 Enable the githooks to have automatic version increments
 
 ```bash
-$ cd ~/Projects/cyberlinux
-$ git config core.hooksPath .githooks
+cd ~/Projects/cyberlinux
+git config core.hooksPath .githooks
 ```
 
 <!-- 
@@ -404,7 +432,7 @@ All art works used in the distribution have been carefully selected to be either
 public domain, or lay claim on fair use licensing.
 
 ### Reduce, build and Install Scripts
-***reduce.rb*** and all Ruby code related to it is licensed below via MIT additionally the
+***reduce*** and all Ruby code related to it is licensed below via MIT additionally the
 boot/initramfs/installer bash code base is likewise MIT licensed.
 
 MIT License

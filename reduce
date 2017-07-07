@@ -598,7 +598,7 @@ class Reduce
 
     # Configure host-only network
     config_network = "#{@sudoinv}vboxmanage hostonlyif ipconfig "
-    config_network += "#{@vars.netname} -ip #{@vars.netip} -netmask #{@vars.netmask}"
+    config_network += "#{@vars.netname} -ip #{@vars.netip} -netmask #{@vars.subnet}"
     if not Sys.exec(config_network, die:false)
       Sys.exec("#{@sudoinv}vboxmanage hostonlyif create")
       Sys.exec(config_network)
@@ -670,7 +670,7 @@ class Reduce
       !puts("Ensure 'virtualbox' https://www.virtualbox.org/wiki/Downloads is in the path".colorize(:red)) and
         exit unless find_executable('vboxmanage')
       config_network = "#{@sudoinv}vboxmanage hostonlyif ipconfig "
-      config_network += "#{@vars.netname} -ip #{@vars.netip} -netmask #{@vars.netmask}"
+      config_network += "#{@vars.netname} -ip #{@vars.netip} -netmask #{@vars.subnet}"
       if not Sys.exec(config_network, die:false)
         Sys.exec("#{@sudoinv}vboxmanage hostonlyif create")
         Sys.exec(config_network)
@@ -691,6 +691,7 @@ class Reduce
           vram: layer_yml[@k.vagrant][@k.vram] || 8,
           net: @vars.netname,
           v3d: layer_yml[@k.vagrant][@k.v3d] || @k.off,
+          proxy: @proxyenv,
           ipv6: ipv6
         }
         specs << spec
@@ -1412,12 +1413,12 @@ if __FILE__ == $0
   reduce = Reduce.new
   version = reduce.instance_variable_get(:@vars).release
   examples = "Machine Examples:\n".colorize(:green)
-  examples += "Full ISO Build: sudo ./#{app}.rb clean build --iso-full\n".colorize(:green)
-  examples += "Rebuild initramfs: sudo ./#{app}.rb clean build --initramfs --iso\n".colorize(:green)
-  examples += "Build k8snode layer: sudo ./#{app}.rb clean build --layers=k8snode --iso\n".colorize(:green)
-  examples += "Pack k8snode layer: ./#{app}.rb pack --layers=k8snode\n".colorize(:green)
-  examples += "Deploy nodes: sudo ./#{app}.rb deploy --layer=k8snode --nodes=10,11,12\n".colorize(:green)
-  examples += "Deploy container: sudo ./#{app}.rb deploy --run --layer=build\n".colorize(:green)
+  examples += "Full ISO Build: sudo ./#{app} clean build --iso-full\n".colorize(:green)
+  examples += "Rebuild initramfs: sudo ./#{app} clean build --initramfs --iso\n".colorize(:green)
+  examples += "Build k8snode layer: sudo ./#{app} clean build --layers=k8snode --iso\n".colorize(:green)
+  examples += "Pack k8snode layer: ./#{app} pack --layers=k8snode\n".colorize(:green)
+  examples += "Deploy nodes: sudo ./#{app} deploy --layer=k8snode --nodes=10,11,12\n".colorize(:green)
+  examples += "Deploy container: sudo ./#{app} deploy --run --layer=build\n".colorize(:green)
   examples += "\n"
 
   opts = Cmds.new(app, version, examples)

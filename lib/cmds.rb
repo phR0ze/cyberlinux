@@ -83,7 +83,7 @@ class Cmds
     @cmds_config[cmd] = {desc: desc, inopts: opts, outopts: OptionParser.new{|parser|
       required = opts.map{|x| x.conf if x.required}.compact * ' '
       required += ' ' if not required.empty?
-      parser.banner = "#{banner}\nUsage: ./#{@app}.rb #{cmd} #{required}[options]"
+      parser.banner = "#{banner}\nUsage: ./#{@app} #{cmd} #{required}[options]"
       opts.each{|opt| parser.on(opt.conf, opt.type, opt.desc){|x| @opts[opt.key] = x }}
     }}
   end
@@ -100,11 +100,11 @@ class Cmds
     # Construct help for the application
     help = "COMMANDS:\n"
     @cmds_config.each{|k,v| help += "    #{k.ljust(33, ' ')}#{v[:desc]}\n" }
-    help += "\nsee './#{@app}.rb COMMAND --help' for specific command info"
+    help += "\nsee './#{@app} COMMAND --help' for specific command info"
 
     # Construct top level option parser
     @optparser = OptionParser.new do |parser|
-      parser.banner = "#{banner}\n#{@examples}Usage: ./#{@app}.rb commands [options]"
+      parser.banner = "#{banner}\n#{@examples}Usage: ./#{@app} commands [options]"
       parser.on('-h', '--help', 'Print command/options help') {|x| !puts(parser) and exit }
       parser.separator(help)
     end
