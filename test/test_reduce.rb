@@ -22,7 +22,8 @@
 
 require 'minitest/autorun'
 
-load '../reduce'
+reduce_path = File.join(File.dirname(File.expand_path(__FILE__)), '../reduce')
+load reduce_path
 
 class TestGetLayers < Minitest::Test
 
