@@ -22,7 +22,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.89
+  release: 0.0.90
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -556,6 +556,7 @@ packages:
     - { pkg: binutils,                      desc: Manipulate binary and object files, depof: base-devel }
     - { pkg: bison,                         desc: General purpose parser generator, depof: base-devel }
     #- { pkg: delve,                         desc: A debugger for the Go Programming Language, type: FOREIGN }
+    - { pkg: devtools,                      desc: Misc development tools including makepkg conf, depof: reduce }
     - { pkg: diffutils,                     desc: Patch file utility programs }
     - { pkg: dos2unix,                      desc: Text file format converter }
     - { pkg: fakeroot,                      desc: Tool for simulating supersuer privileges, depof: base-devel }
