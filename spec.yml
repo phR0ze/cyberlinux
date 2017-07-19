@@ -22,7 +22,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.92
+  release: 0.0.93
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -623,6 +623,7 @@ packages:
     - { pkg: mesa-demos,                    desc: Mesa demos and tools e.g glxinfo }
     - { pkg: numix-frost-themes,            desc: Numix frost GTK2, GTK3 and OpenBox themes, type: ANTERGOS }
     - { pkg: paper-icon-theme,              desc: cyberlinux icon theme, type: FOREIGN }
+    - { pkg: pulseaudio-alsa,               desc: ALSA Configuration for PulseAudio }
     - { pkg: python-xdg,                    desc: Enable use of .desktop files in /etc/xdg }
     - { pkg: xcursor-numix-frost,           desc: Numix frost cursor theme, type: FOREIGN }
 

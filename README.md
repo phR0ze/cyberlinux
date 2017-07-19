@@ -24,7 +24,7 @@ those looking to leverage this framework to fork it and make their own configura
    * [My take on Arch](#my-take-on-arch)
    * [Distro requirements](#distro-requirements)
 * [Build cyberlinux](#build-cyberlinux)
-    * [Package versions](#package-versions)
+    * [Dependency versions](#dependency-versions)
     * [Linux Dev Envioronment](#linux-dev-environment)
     * [Full cyberlinux build](#full-cyberlinux-build)
 * [Pack cyberlinux](#pack-cyberlinux)
@@ -144,7 +144,7 @@ I boiled down my requirements for ***cyberlinux*** as follows:
 ## Build cyberlinux <a name="build-cyberlinux"/></a>
 This section covers how to build your own cyberlinux ISO
 
-### Package versions <a name="package-versions"/></a>
+### Dependency versions <a name="dependency-versions"/></a>
 **Working combinations:**  
 * ***Kernel=4.11.3-1, Vagrant=1.9.5, Packer=1.0.0, VirtualBox=5.1.22***
 
@@ -184,7 +184,13 @@ Alternately you can install to a VM using a cyberlinux ISO.
 2.	Once booted to ISO choose ***cyberlinux-heavy***  
 
 ### Full cyberlinux Build <a name="full-cyberlinux-build"/></a>
-1. [Update cyberlinux](#update-cyberlinux)
+```bash
+# Clone cyberlinux
+git clone git@github.com:phR0ze/cyberlinux.git
+
+# Full build of cyberlinux
+sudo ./reduce clean build --iso-full
+```
 2. [Clone cyberlinux repo](#clone-cyberlinux-repo)
 3. [Full build of cyberlinux](#full-build-of-cyberlinux)
 
@@ -210,8 +216,9 @@ images that are publicly available. Use ***reduce*** to launch them with custom 
 specified in the layer block in the ***spec***.
 
 ### Deploy flavor<a name="deploy-flavor"/></a>
-To deploy a specific flavor for use - e.g. k8snode - use the following. This will deploy a vagrant
-box for the k8snode flavor and specify to use an ip from the ***spec*** specified ***subnet*** using
+To deploy a specific flavor for use - e.g. k8snode - use the following. This will deploy your
+locally built vagrant box for the k8snoe flavor if it exists and fall back on the public one if it
+doesn't exist. It will derive it's static ip from the ***spec*** specified ***subnet*** using
 the given ***--nodes*** value for the last octet.
 
 
