@@ -22,7 +22,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.90
+  release: 0.0.91
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -570,6 +570,7 @@ packages:
     - { pkg: go-tools,                      desc: Developer tools for the Go programming lang }
     - { pkg: glide,                         desc: Package management for the Go programing lang }
     - { pkg: groff,                         desc: GNU trof text-formatting system, depof: base-devel }
+    - { pkg: jq,                            desc: Command line JSON processor }
     - { pkg: libtool,                       desc: Generic library support script, depof: base-devel }
     - { pkg: m4,                            desc: GNU macro processor, depof: base-devel }
     - { pkg: make,                          desc: GNU utility to build programs, depof: base-devel }
