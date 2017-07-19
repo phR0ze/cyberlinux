@@ -22,7 +22,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.91
+  release: 0.0.92
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -654,12 +654,11 @@ packages:
 
     # X11 Fonts
     - { pkg: adobe-source-code-pro-fonts,   desc: Mono-spaced coding environments }
-    - { pkg: adobe-source-sans-pro-fonts,   desc: Sans serif complement for UI}
-    - { pkg: adobe-source-serif-pro-fonts,  desc: Serif complement of SourceSansPro }
     - { pkg: terminus-font,                 desc: Monospace bitmap font for consoles }
     - { pkg: ttf-bitstream-vera,            desc: Bitstream vera fonts }
     - { pkg: ttf-dejavu,                    desc: Bitstream Vera Fonts w/more characters }
     - { pkg: ttf-droid,                     desc: Google Android general purpose fonts }
+    - { pkg: ttf-google-fonts-typewolf,     desc: Typewolf's 40 best fonts from the Google Fonts project, type: ANTERGOS }
     - { pkg: ttf-inconsolata-g,             desc: Best monospace terminal font, type: AUR }
     - { pkg: ttf-indic-otf,                 desc: Indic Opentype Fonts collection }
     - { pkg: ttf-liberation,                desc: Red Hats Liberation fonts.  }
