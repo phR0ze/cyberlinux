@@ -56,8 +56,8 @@ Vagrant.configure("2") do |config|
       #-------------------------------------------------------------------------
       conf.vm.provision :shell do |script|
         ipv6 = node[:ipv6] || false
-        proxy = node[:proxy]['http_proxy'] || false
-        no_proxy = node[:proxy]['no_proxy'] || false
+        proxy = node[:proxy] || false
+        no_proxy = node[:no_proxy] || false
         no_proxy += ",#{nodes.map{|x| x[:ip][0..x[:ip].index('/')-1]} * ','}" if no_proxy
         script.args = [node[:ip], proxy, no_proxy, ipv6.to_s]
         script.inline = <<-SHELL

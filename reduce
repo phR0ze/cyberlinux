@@ -691,7 +691,8 @@ class Reduce
           vram: layer_yml[@k.vagrant][@k.vram] || 8,
           net: @vars.netname,
           v3d: layer_yml[@k.vagrant][@k.v3d] || @k.off,
-          proxy: @proxyenv,
+          proxy: @proxyenv['http_proxy'],
+          no_proxy: @proxyenv['no_proxy'],
           ipv6: ipv6
         }
         specs << spec
