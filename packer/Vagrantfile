@@ -62,6 +62,7 @@ Vagrant.configure("2") do |config|
         script.args = [node[:ip], proxy, no_proxy, ipv6.to_s]
         script.inline = <<-SHELL
           echo "Configuring host-only static ip address"
+          echo "VM Static IP: ${1}"
           echo -e "[Match]\\nName=enp0s8 eth0\\n" > /etc/systemd/network/10-static.network
           echo -e "[Network]\\nAddress=${1}\\nIPForward=kernel" >> /etc/systemd/network/10-static.network
 
