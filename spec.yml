@@ -22,7 +22,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.97
+  release: 0.0.98
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -357,7 +357,7 @@ changes:
         - 'proxy='
         - 'no_proxy='
         - "\n# Configure system proxies"
-        - '\nproxyfile=/etc/profile.d/setproxy.sh'
+        - 'proxyfile=/etc/profile.d/setproxy.sh'
         - 'echo "export ftp_proxy=${proxy}" > $proxyfile'
         - 'echo "export http_proxy=${proxy}" >> $proxyfile'
         - 'echo "export https_proxy=${proxy}" >> $proxyfile'
