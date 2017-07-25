@@ -27,8 +27,10 @@ chown vagrant:users /home/vagrant/.ssh/authorized_keys
 chmod 0600 /home/vagrant/.ssh/authorized_keys
 
 echo ">> Prime pacman keys"
+proxy=<%= proxy %>
 systemctl start haveged
 pacman-key --init
 pacman-key --populate archlinux blackarch antergos
+[ x"$proxy" != x"" ] && export http_proxy=$proxy
 pacman -Sy
 systemctl stop haveged

@@ -119,6 +119,7 @@ class Reduce
       'no_proxy' => ENV['no_proxy']
     }
     @proxy = ENV['http_proxy']
+    @vars.proxy = @proxy
     @proxy_export = @proxy ? (@proxyenv.map{|k,v| "export #{k}=#{v}"} * ';') + ";" : nil
 
     # Set paths
@@ -620,8 +621,12 @@ class Reduce
 
       # Copy over and resolve packer template and scripts
       puts("Copy over and resolve packer template and scripts".colorize(:cyan))
+      Dir.glob(File.join(@packer_src, '*.sh')).each{|x|
+        FileUtils.cp(x, @packer_work)
+        Fedit.resolve(File.join(@packer_work, File.basename(x)), @vars)
+      }
+
       template = File.join(@packer_work, "#{layer}.json")
-      Dir.glob(File.join(@packer_src, '*.sh')).each{|x| FileUtils.cp(x, @packer_work) }
       FileUtils.cp(File.join(@packer_src, 'packer.json'), template)
       @vars.layer = layer
       @vars.disksize = disksize || '40000'
