@@ -300,11 +300,11 @@ config_system()
     fi
     if [ $proxy ] && [ "x$proxy" != "xNone" ]; then
         echo -en ":: Set proxy to ${proxy}..."
-        sed -i -e "s/^\(proxy\)=.*/\1=${proxy}/" "${rootmnt}/usr/bin/setproxy"
+        sed -i -e "s|^\(proxy\)=.*|\1=${proxy}|" "${rootmnt}/usr/bin/setproxy"
         check_status
         if [ $no_proxy ] && [ "x$no_proxy" != "xNone" ]; then
             echo -en ":: Set no_proxy to ${no_proxy}..."
-            sed -i -e "s/^\(no_proxy\)=.*/\1=${no_proxy}/" "${rootmnt}/usr/bin/setproxy"
+            sed -i -e "s|^\(no_proxy\)=.*|\1=${no_proxy}|" "${rootmnt}/usr/bin/setproxy"
             check_status
         fi
         chroot ${rootmnt} /usr/bin/setproxy &> /dev/null

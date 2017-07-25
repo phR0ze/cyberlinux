@@ -65,9 +65,12 @@ Vagrant.configure("2") do |config|
           echo -e "[Match]\\nName=enp0s8 eth0\\n" > /etc/systemd/network/10-static.network
           echo -e "[Network]\\nAddress=${1}\\nIPForward=kernel" >> /etc/systemd/network/10-static.network
 
-          echo "Configuring proxy settings"
-          [ ${2} != "false" ] && sed -i -e "s|^\\(proxy\\)=.*|\\1=${2}|" /usr/bin/setproxy
-          [ ${3} != "false" ] && sed -i -e "s|^\\(no_proxy\\)=.*|\\1=${3}|" /usr/bin/setproxy
+          if [ ${2} != "false" ]; then
+            echo "Configuring proxy settings"
+            sed -i -e "s|^\\(proxy\\)=.*|\\1=${2}|" /usr/bin/setproxy
+            [ ${3} != "false" ] && sed -i -e "s|^\\(no_proxy\\)=.*|\\1=${3}|" /usr/bin/setproxy
+            chroot ${rootmnt} /usr/bin/setproxy &> /dev/null
+          fi
 
           echo "Enable IPv6 for node if directed"
           [ ${4} == "true" ] && sed -i -e "s/ ipv6.disable=1//" /boot/syslinux/syslinux.cfg
