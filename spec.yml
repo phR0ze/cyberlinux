@@ -22,7 +22,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.95
+  release: 0.0.96
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -163,7 +163,7 @@ layers:
         kernel: /<%=distro%>/vmlinuz
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=k8snode_layers%> showopts vga=792
     packages:
-      - { install: k8s-node }
+      - { install: k8snode-tools }
     changes:
       - { chroot: systemctl enable kubelet.service }
 
@@ -507,7 +507,7 @@ packages:
     - { pkg: man-db,                        desc: A utility for reading man pages }
     - { pkg: man-pages,                     desc: Linux man pages }
     - { pkg: moreutils,                     desc: Linux utils e.g. parallel-moreutils }
-    - { pkg: p7zip,                         desc: Thunar via file-roller leverages this to extract 7zips }
+    - { pkg: p7zip,                         desc: Comman-line file archiver for 7zip format, depof: thunar }
     - { pkg: squashfs-tools,                desc: Tooling for squashfs like mksquashfs }
     - { pkg: reptyr,                        desc: Attach running program to a new terminal }
     - { pkg: tmux,                          desc: Terminal multiplexer built off screen }
@@ -762,7 +762,7 @@ packages:
 
   # Virtualization packages
   #-----------------------------------------------------------------------------
-  k8s-host:
+  k8shost-tools:
     - { pkg: bridge-utils,                  desc: Ethernet bridge config utils, depof: k8s }
     - { pkg: ebtables,                      desc: Ethernet bridge filtering utilities, depof: k8s }
     - { pkg: ethtool,                       desc: Network drivers and hardware util, depof: k8s }
@@ -770,7 +770,7 @@ packages:
     - { pkg: kubernetes-kubectl,            desc: K8s cluster controller, type: FOREIGN, aurpath: kubernetes }
     - { pkg: socat,                         desc: Multipurpose relay, depof: k8s}
 
-  k8s-node:
+  k8snode-tools:
     - { pkg: jq,                            desc: Command line JSON processor, depof: kubectl }
     - { pkg: helm,                          desc: Kubernetes package manager, type: FOREIGN }
     - { pkg: kubernetes-kubeadm,            desc: K8s cluster bootstrap, type: FOREIGN, aurpath: kubernetes }

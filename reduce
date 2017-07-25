@@ -1323,13 +1323,22 @@ class Reduce
     # Get disk image data
     #---------------------------------------------------------------------------
     elsif not live
-      images = []
-      @imagepaths.each{|path|
-        files = File.exist?(path) ? Dir[File.join(path, "*.#{type}")] : []
-        images += layer ? files.select{|x| x.include?(layer)} : files}
+
+      # Get all files of the given type from the watched locations
+      files = []
+      files += @imagepaths.map{|x| File.exist?(x) ? Dir[File.join(x, "*.#{type}")] : []}.flatten
+
+      # For isos and boxes filter on files that contain the distro name
+      if [@type.box, @type.iso].include?(type)
+        files.delete_if{|x| !File.basename(x).start_with?(@vars.distro)}
+      end
+
+      # Sort the resulting list by version
+      images = layer ? files.select{|x| x.include?(layer)} : files
       images = [@type.sqfs, @type.img].include?(type) ? images.sort :
-        images.delete_if{|x| !x.include?(@vars.distro)}
-          .sort_by{|x| x[/-(\d+\.\d+\.\d+).*/, 1].split('.').map{|y| y.to_i}}.reverse
+        images.sort_by{|x| x[/-(\d+\.\d+\.\d+).*/, 1].split('.').map{|y| y.to_i}}.reverse
+
+      # Add file size to each entry
       images.each{|x| image_maps[x] = File.size(x)}
     end
 

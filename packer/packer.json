@@ -41,7 +41,7 @@
     "post-processors": [
         {
             "type": "vagrant",
-            "output": "../../images/<%= layer %>-<%= release %>.box",
+            "output": "../../images/<%= distro %>-<%= layer %>-<%= release %>.box",
             "compression_level": 0,
             "keep_input_artifact": false
         }
