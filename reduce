@@ -698,7 +698,7 @@ class Reduce
           net: @vars.netname,
           v3d: layer_yml[@k.vagrant][@k.v3d] || @k.off,
           proxy: @proxyenv['http_proxy'],
-          no_proxy: @proxyenv['no_proxy'] + ',' +  nodes * ',',
+          no_proxy: @proxy ? @proxyenv['no_proxy'] + ',' + nodes.map{|x| "#{@vars.netip[0..-2]}#{x}"} * ',' : nil,
           ipv6: ipv6
         }
         specs << spec

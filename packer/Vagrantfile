@@ -70,7 +70,7 @@ Vagrant.configure("2") do |config|
             echo "Configuring proxy settings"
             sed -i -e "s|^\\(proxy\\)=.*|\\1=${2}|" /usr/bin/setproxy
             [ ${3} != "false" ] && sed -i -e "s|^\\(no_proxy\\)=.*|\\1=${3}|" /usr/bin/setproxy
-            chroot ${rootmnt} /usr/bin/setproxy &> /dev/null
+            /usr/bin/setproxy
           fi
 
           echo "Enable IPv6 for node if directed"
