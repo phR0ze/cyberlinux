@@ -684,8 +684,7 @@ class Reduce
       # Generate vagrant node parameters
       #---------------------------------------------------------------------------
       specs = []
-      nodes = nodes || [rand(2..254)]
-      nodes.each do |node|
+      (nodes || [rand(2..254)]).each do |node|
         host = name || layer
         host = "#{host}#{node.to_s}".gsub(' ', '').gsub('-', '').gsub('_', '')
         spec = {
@@ -698,7 +697,7 @@ class Reduce
           net: @vars.netname,
           v3d: layer_yml[@k.vagrant][@k.v3d] || @k.off,
           proxy: @proxyenv['http_proxy'],
-          no_proxy: @proxy ? @proxyenv['no_proxy'] + ',' + nodes.map{|x| "#{@vars.netip[0..-2]}#{x}"} * ',' : nil,
+          no_proxy: @proxyenv['no_proxy'],
           ipv6: ipv6
         }
         specs << spec
