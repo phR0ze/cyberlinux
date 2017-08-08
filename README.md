@@ -13,10 +13,11 @@ yours for the taking.
 your own risk.  Any damages, issues, losses or problems caused by the use of ***cyberlinux*** are
 strictly the responsiblity of the user and not the developer/creator of ***cyberlinux***
 
-Additionally the pre-configured ***spec.yml*** that exists in this repo is purely for my own
-personal benefit and pull requests will be evaluated as such. If it is helpful to others that
-is great and if pull requests alighn with my desires they will be accepted. Typically I would expect
-those looking to leverage this framework to fork it and make their own configuration ***spec.yml***
+Additionally the pre-configured ***spec.yml*** and ***layers*** files exist in this repo is purely for
+my own personal benefit and pull requests will be evaluated as such. I intend to make the defaults
+generally useful but foremost it needs to be useful for my purposes. Pull requests align with my
+desires will be accepted. Typically I would expect those looking to leverage this framework to fork
+it and make their own configuration ***spec.yml***
 
 ### Table of Contents
 * [Background](#background)
