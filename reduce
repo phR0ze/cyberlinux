@@ -245,11 +245,10 @@ class Reduce
   # +boxes+:: list all boxes
   # +isos+:: list all isos
   # +images+:: list all docker images
-  # +spec+:: list out the resolved spec
-  # +layer+:: layer spec to list out
+  # +layer+:: layer to get resolved spec for
   # +all+:: list all components
-  def list(boxes:nil, isos:nil, images:nil, spec:nil, layer:nil, all:nil)
-    all = all || ![boxes, isos, images].any?
+  def list(boxes:nil, isos:nil, images:nil, layer:nil, all:nil)
+    all = all || ![boxes, isos, images, layer].any?
 
     # Formatting block for images
     putimages = ->(type, live, name){
@@ -269,12 +268,8 @@ class Reduce
     putimages[@type.tgz, true, 'Container Deployed Images:'] if images or all
 
     # List out the resolved spec
-    if spec
-      if not layer
-        puts(@spec) if spec
-      else
-        puts(getlayer(layer).to_yaml)
-      end
+    if layer
+      puts(getlayer(layer).to_yaml)
     end
   end
 
@@ -510,12 +505,13 @@ class Reduce
       File.open(File.join(@isolinux_work, 'isolinux.msg'), 'a'){|f|
         layers.each{|layer| layer[@k.boot].each{|x|
           f << "#{(x[@k.label] || layer[@k.name]).ljust(21)}- #{x[@k.entry]}\n"}}}
+      Fedit.resolve(File.join(@isolinux_work, 'isolinux.msg'), @vars)
       File.open(File.join(@isolinux_work, 'isolinux.cfg'), 'a'){|f|
         layers.each{|layer| layer[@k.boot].each{|x|
           f << "label #{x[@k.label] || layer[@k.name]}\n"
           f << "  kernel #{x[@k.kernel]}\n"
           f << "  append initrd=#{x[@k.initrd]}\n" if x[@k.initrd]}}}
-      Fedit.resolve(File.join(@isolinux_work, 'isolinux.msg'), @vars)
+      Fedit.resolve(File.join(@isolinux_work, 'isolinux.cfg'), @vars)
 
       # Inject gfxboot configuration
       File.open(File.join(@isolinux_work, 'gfxboot/data/gfxboot.cfg'), 'a'){|f|
@@ -523,6 +519,7 @@ class Reduce
         f << "gfxboot.menu.names=%s\n" % (layers.map{|x| x[@k.boot].map{|y| y[@k.entry]}}.flatten * ',')
         f << "gfx.noboot=%s\n" % (layers.map{|x| x[@k.boot].map{|y| (y[@k.label] || x[@k.name]) if y[@k.noboot]}}.flatten.compact * ',')
       }
+      Fedit.resolve(File.join(@isolinux_work, 'gfxboot/data/gfxboot.cfg'), @vars)
 
       # Compile GFXboot ui and extract isolinux files
       docker(@k.build, @k.build){|cont, home, cp, exec, execs, runuser|
@@ -1447,8 +1444,8 @@ if __FILE__ == $0
     CmdOpt.new('--boxes', 'List all boxes'),
     CmdOpt.new('--isos', 'List all isos'),
     CmdOpt.new('--images', 'List all docker images'),
-    CmdOpt.new('--spec', 'List out the resolved spec'),
-    CmdOpt.new('--layer=LAYER', 'List out the spec yaml for the given layer', type:String),
+    CmdOpt.new('--layer=LAYER', 'List out the resolved spec in context of give layer', type:String),
+    CmdOpt.new('--raw', 'Automation suitable output'),
   ])
   opts.add('clean', 'Clean ISO components', [
     CmdOpt.new('--all', 'Clean all components'),
@@ -1486,7 +1483,7 @@ if __FILE__ == $0
   opts.parse!
 
   # Execute
-  puts(opts.banner)
+  puts(opts.banner) unless opts[:raw]
 
   # Execute 'info' command
   reduce.info(aurpkgs: opts[:aurpkgs], foreignpkgs: opts[:foreignpkgs],
@@ -1494,7 +1491,7 @@ if __FILE__ == $0
 
   # Execute 'list' command
   reduce.list(boxes: opts[:boxes], isos: opts[:isos], images: opts[:images],
-    spec: opts[:spec], layer: opts[:layer], all: opts[:all]) if opts[:list]
+    layer: opts[:layer], all: opts[:all]) if opts[:list]
 
   # Execute 'clean' command
   reduce.clean(initramfs: opts[:initramfs], isolinux: opts[:isolinux],

@@ -1,4 +1,3 @@
----
 #MIT License
 #Copyright (c) 2017 phR0ze
 #
@@ -22,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.104
+  release: 0.0.105
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -131,6 +130,10 @@ layers:
       - entry: "Install <%=distro%>-music       -lite + custom configs"
         kernel: /<%=distro%>/vmlinuz
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=music_layers%> showopts vga=792
+    packages:
+      - { pkg: idesk,                         desc: Lightweight desktop icons for X }
+    changes:
+      - { apply: config-idesk }
 
   # Server
   # ----------------------------------------------------------------------------
@@ -262,6 +265,61 @@ changes:
       append: true
       values:
         - '127.0.0.1 localhost'
+  config-idesk:
+    - edit: /etc/skel/.idesktop/browser.lnk
+      append: true
+      values:
+        - 'table Icon'
+        - '  Icon: /usr/share/icons/hicolor/64x64/apps/firefox.png'
+        - '  X: 330'
+        - '  Y: 615'
+        - '  Command[0]: firefox'
+        - 'end'
+    - edit: /etc/skel/.idesktop/pandora.lnk
+      append: true
+      values:
+        - 'table Icon'
+        - '  Icon: /usr/share/icons/hicolor/72x72/apps/pandora.png'
+        - '  X: 330'
+        - '  Y: 615'
+        - '  Command[0]: firefox'
+        - 'end'
+    - edit: /etc/skel/.idesktop/audio-player.lnk
+      append: true
+      values:
+        - 'table Icon'
+        - '  Icon: /usr/share/icons/hicolor/72x72/apps/audacious.png'
+        - '  X: 500'
+        - '  Y: 616'
+        - '  Command[0]: audacious'
+        - 'end'
+    - edit: /etc/skel/.idesktop/video-player.lnk
+      append: true
+      values:
+        - 'table Icon'
+        - '  Icon: /usr/share/icons/hicolor/64x64/apps/smplayer.png'
+        - '  X: 88'
+        - '  Y: 615'
+        - '  Command[0]: smplayer'
+        - 'end'
+    - edit: /etc/skel/.idesktop/shutdown.lnk
+      append: true
+      values:
+        - 'table Icon'
+        - '  Icon: /usr/share/icons/hicolor/72x72/actions/system-shutdown.png'
+        - '  X: 8'
+        - '  Y: 615'
+        - '  Command[0]: sudo poweroff'
+        - 'end'
+    - edit: /etc/skel/.idesktop/reboot.lnk
+      append: true
+      values:
+        - 'table Icon'
+        - '  Icon: /usr/share/icons/hicolor/72x72/actions/system-reboot.png'
+        - '  X: 88'
+        - '  Y: 615'
+        - '  Command[0]: sudo reboot'
+        - 'end'
   config-locale:
     - edit: /etc/locale.conf
       append: true
@@ -378,8 +436,8 @@ changes:
       append: true
       value: 'Defaults env_keep += "ftp_proxy http_proxy https_proxy no_proxy"'
   config-sysctld:
-    - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', append: true, value: "vm.swappiness = 1\n" }
-    - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', append: true, value: "net.ipv4.ip_forward = 1\n" }
+    - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', append: true, value: "vm.swappiness = 1" }
+    - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', append: true, value: "net.ipv4.ip_forward = 1" }
   config-syslinux:
     - { exec: 'rm -f /boot/syslinux/syslinux.cfg' }
     - edit: /boot/syslinux/syslinux.cfg
@@ -597,8 +655,6 @@ packages:
     - { pkg: nokogiri,                      desc: HTML parser with XPath and CSS3 selectors, type: GEM, depof: chromium build}
     - { pkg: pry,                           desc: Ruby debugger, type: GEM }
 
-  # Desktop packages
-  #-----------------------------------------------------------------------------
   xwindows:
     - { pkg: dconf,                         desc: A low-level configuration system }
     - { pkg: xdg-utils,                     desc: Desktop integration utilities }
