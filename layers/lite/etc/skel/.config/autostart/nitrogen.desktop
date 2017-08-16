@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=nitrogen
+GenericName=Wallpaper Setter
+Comment=Browse and set desktop backgrounds
+Icon=nitrogen
+Exec=nitrogen --restore
+Categories=Utility;GTK;DesktopSettings;
+Keywords=background;desktop;

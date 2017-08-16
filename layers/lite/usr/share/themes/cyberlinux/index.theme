@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=X-GNOME-Metatheme
+Name=cyberlinux
+Comment=Dark modern flat theme
+Encoding=UTF-8
+
+[X-GNOME-Metatheme]
+GtkTheme=cyberlinux
+MetacityTheme=cyberlinux
+ButtonLayout=:minimize,maximize,close
+

@@ -300,11 +300,24 @@ config_system()
     fi
     if [ $proxy ] && [ "x$proxy" != "xNone" ]; then
         echo -en ":: Set proxy to ${proxy}..."
+        proxy_port=${proxy//*:/}
+        proxy_host=$(echo ${proxy//:/ } | awk '{print $1":"$2}')
         sed -i -e "s|^\(proxy\)=.*|\1=${proxy}|" "${rootmnt}/usr/bin/setproxy"
+        sed -i -e "s|^\(proxy_host\)=.*|\1=${proxy_host}|" "${rootmnt}/usr/bin/setproxy"
+        sed -i -e "s|^\(proxy_port\)=.*|\1=${proxy_port}|" "${rootmnt}/usr/bin/setproxy"
         check_status
         if [ $no_proxy ] && [ "x$no_proxy" != "xNone" ]; then
             echo -en ":: Set no_proxy to ${no_proxy}..."
+            no_proxy_array="["
+            ifs=$IFS; IFS=','
+            for x in $no_proxy; do
+                no_proxy_array="${no_proxy_array}'${x}', "
+            done
+            no_proxy_array=$(echo $no_proxy_array | awk '{print substr($0, 1, length($0)-2}')
+            no_proxy_array="${no_proxy_array}]"
+            IFS=$ifs
             sed -i -e "s|^\(no_proxy\)=.*|\1=${no_proxy}|" "${rootmnt}/usr/bin/setproxy"
+            sed -i -e "s|^\(no_proxy_array\)=.*|\1=${no_proxy_array}|" "${rootmnt}/usr/bin/setproxy"
             check_status
         fi
         chroot ${rootmnt} /usr/bin/setproxy &> /dev/null
