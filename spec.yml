@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.105
+  release: 0.0.106
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -97,8 +97,7 @@ layers:
     packages:
       - { install: shell-tools }
     changes:
-      - { apply: config-docker }
-      - { chroot: systemctl enable cronie.service }
+      - { apply: config-shell }
 
   # Lite
   # ----------------------------------------------------------------------------
@@ -119,7 +118,7 @@ layers:
       - { install: xwindows }
       - { install: xwindows-tools }
     changes:
-      - { apply: config-lxdm }
+      - { apply: config-lite }
 
   # Music
   # ----------------------------------------------------------------------------
@@ -180,6 +179,8 @@ layers:
       - entry: "Install <%=distro%>-theater    -heavy + kodi w/configs"
         kernel: /<%=distro%>/vmlinuz
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=theater_layers%> showopts vga=792
+    changes:
+      - { apply: config-idesk }
 
   # Desktop
   # ----------------------------------------------------------------------------
@@ -226,10 +227,14 @@ repos:
 changes:
   config-base:
     - { apply: config-hosts }
+    - { apply: config-fonts }
     - { apply: config-locale }
+    - { apply: config-logind }
     - { apply: config-lsb-release }
+    - { apply: config-journald }
     - { apply: config-makepkg }
     - { apply: config-mkinitcpio }
+    - { apply: config-modprobed }
     - { apply: config-os-release }
     - { apply: config-pacman }
     - { apply: config-proxy }
@@ -242,6 +247,12 @@ changes:
     - { apply: config-user-dirs }
     - { apply: config-vconsole }
     - { apply: enable-base-services }
+  config-shell:
+    - { apply: config-docker }
+    - { chroot: systemctl enable cronie.service }
+  config-lite:
+    - { apply: config-lxdm }
+    - { apply: config-mimeapps }
   config-build-user:
     - { chroot: 'useradd -m -G lp,docker,wheel,network,storage,users -s /bin/bash build || true' }
     - { exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /home/build' }
@@ -265,6 +276,57 @@ changes:
       append: true
       values:
         - '127.0.0.1 localhost'
+  config-fonts:
+    - edit: /etc/skel/.config/fontconfig/fonts.conf
+      append: true
+      values:
+        - "<?xml version='1.0'?>"
+        - "<!DOCTYPE fontconfig SYSTEM 'fonts.dtd'>"
+        - '<fontconfig>'
+        - '  <!-- Set default fonts by alias -->'
+        - '  <alias><family>serif</family>'
+        - '    <prefer>'
+        - '      <family>Source Serif Pro</family>'
+        - '      <family>Liberation Serif</family>'
+        - '    </prefer>'
+        - '  </alias>'
+        - '  <alias><family>sans-serif</family>'
+        - '    <prefer>'
+        - '      <family>Source Sans Pro</family>'
+        - '      <family>Liberation Sans</family>'
+        - '    </prefer>'
+        - '  </alias>'
+        - '  <alias><family>monospace</family>'
+        - '    <prefer>'
+        - '      <family>Inconsolata-g</family>'
+        - '      <family>Source Code Pro</family>'
+        - '      <family>Liberation Mono</family>'
+        - '    </prefer>'
+        - '  </alias>'
+        - '  <!-- Override Helvetica with Adobe choice -->'
+        - '  <match>'
+        - '    <test name="family"><string>Helvetica</string></test>'
+        - '    <edit binding="same" mode="assign" name="family"><string>Source Sans Pro</string></edit>'
+        - '  </match>'
+        - '  <!-- Define font family for unrecognnized fonts -->'
+        - '  <alias><family>Source Code Pro</family><default><family>monospace</family></default></alias>'
+        - '  <alias><family>Droid Sans Mono</family><default><family>monospace</family></default></alias>'
+        - '  <!-- By default fontconfig assumes any unrecognized font is sans-serif, so -->'
+        - '  <!-- the fonts above have /both/ families. "delete" applies to the first match -->'
+        - '  <match>'
+        - '    <test compare="eq" name="family"><string>sans-serif</string></test>'
+        - '    <test compare="eq" name="family"><string>monospace</string></test>'
+        - '    <edit mode="delete" name="family"/>'
+        - '  </match>'
+        - '  <!-- Hinting and subpixel rendering -->'
+        - '  <match target="font">'
+        - '    <edit mode="assign" name="rgba"><const>rgb</const></edit>'
+        - '    <edit mode="assign" name="hinting"><bool>true</bool></edit>'
+        - '    <edit mode="assign" name="hintstyle"><const>hintslight</const></edit>'
+        - '    <edit mode="assign" name="lcdfilter"><const>lcddefault</const></edit>'
+        - '    <edit mode="assign" name="antialias"><bool>true</bool></edit>'
+        - '  </match>'
+        - '</fontconfig>'
   config-idesk:
     - edit: /etc/skel/.idesktop/browser.lnk
       append: true
@@ -320,6 +382,8 @@ changes:
         - '  Y: 615'
         - '  Command[0]: sudo reboot'
         - 'end'
+  config-journald:
+    - { edit: /etc/systemd/journald.conf, regex: '^#(SystemMaxUse).*', value: '\1=100M' }
   config-locale:
     - edit: /etc/locale.conf
       append: true
@@ -330,6 +394,11 @@ changes:
     - { edit: /etc/locale.gen, regex: '^#(en_US\..*)', value: '\1' }
     - { chroot: locale-gen }
     - { edit: /etc/profile.d/locale.sh, append: true, value: "export LC_COLLATE=C" }
+  config-logind:
+    - { edit: /etc/systemd/logind.conf, regex: '^#(HandlePowerKey).*', value: '\1=ignore' }
+    - { edit: /etc/systemd/logind.conf, regex: '^#(HandleSuspendKey).*', value: '\1=ignore' }
+    - { edit: /etc/systemd/logind.conf, regex: '^#(HandleHibernateKey).*', value: '\1=ignore' }
+    - { edit: /etc/systemd/logind.conf, regex: '^#(HandleLidSwitch).*', value: '\1=ignore' }
   config-lsb-release:
     - { exec: 'rm -f /etc/lsb-release' }
     - edit: /etc/lsb-release
@@ -352,10 +421,32 @@ changes:
   config-makepkg:
     - { edit: /etc/makepkg.conf, regex: '^#(MAKEFLAGS)=.*', value: '\1="-j8"' }
     - { edit: /etc/makepkg.conf, regex: '^(COMPRESSXZ)=.*', value: '\1=(xz -c -z - --threads=0)' }
+  config-mimeapps:
+    - edit: /etc/skel/.config/mimeapps.list
+      append: true
+      values:
+        - '[Default Applications]'
+        - 'application/x-executable=geany.desktop;'
+        - 'application/pdf=qpdfview.desktop;'
+        - 'text/plain=leafpad.desktop;'
+        - 'application/xml=geany.desktop;'
+        - 'application/x-shellscript=geany.desktop;'
+        - 'image/png=viewnior.desktop;'
+        - 'inode/directory=thunar.deskop;'
+        - '[Added Associations]'
+        - 'application/x-executable=geany.desktop;'
+        - 'application/pdf=qpdfview.desktop;'
+        - 'text/plain=leafpad.desktop;'
+        - 'application/xml=geany.desktop;'
+        - 'application/x-shellscript=geany.desktop;'
+        - 'image/png=gpicview.desktop;'
+        - 'inode/directory=thunar.deskop;'
   config-mkinitcpio:
     - edit: /etc/mkinitcpio.conf
       regex: '^(HOOKS).*'
       value: '\1="base udev autodetect vt-colors modconf block filesystems keyboard"'
+  config-modprobed:
+    - { edit: /etc/modprobe.d/pcspkr.conf, append: true, value: "blacklist pcspkr" }
   config-pacman-keys:
     - { chroot: "bash -c 'haveged -r 0 && pacman-key --init'" }
     - { chroot: 'pacman-key --populate <%=repos%>' }
