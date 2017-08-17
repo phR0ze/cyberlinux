@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.115
+  release: 0.0.117
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -41,16 +41,16 @@ build:
   packages:
     - { install: machine-core }
     - { install: machine-tools }
-    - { install: dev-tools }
-    - { install: shell-tools }
-    - { install: initramfs-deps }
-    - { install: isolinux-deps }
+    - { install: dev-pkgs }
+    - { install: shell-pkgs }
+    - { install: initramfs-pkgs }
+    - { install: isolinux-pkgs }
   changes:
-    - { apply: config-base }
+    - { apply: base-config }
     - { apply: remove-docs }
-    - { apply: config-root-user }
-    - { apply: config-build-user }
-    - { apply: config-pacman-keys }
+    - { apply: root-user-config }
+    - { apply: build-user-config }
+    - { apply: pacman-keys-config }
     - { chroot: systemctl enable cronie.service }
 
 layers:
@@ -80,7 +80,7 @@ layers:
       - { install: machine-tools }
       - { install: virtualbox-guest }
     changes:
-      - { apply: config-base }
+      - { apply: base-config }
 
   # Shell
   # ----------------------------------------------------------------------------
@@ -93,9 +93,9 @@ layers:
         kernel: /<%=distro%>/vmlinuz
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=shell_layers%> showopts vga=792
     packages:
-      - { install: shell-tools }
+      - { install: shell-pkgs }
     changes:
-      - { apply: config-shell }
+      - { apply: shell-config }
 
   # Lite
   # ----------------------------------------------------------------------------
@@ -113,10 +113,9 @@ layers:
         kernel: /<%=distro%>/vmlinuz
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=lite_layers%> showopts vga=792
     packages:
-      - { install: xwindows }
-      - { install: xwindows-tools }
+      - { install: lite-pkgs }
     changes:
-      - { apply: config-lite }
+      - { apply: lite-config }
 
   # Music
   # ----------------------------------------------------------------------------
@@ -129,8 +128,6 @@ layers:
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=music_layers%> showopts vga=792
     packages:
       - { pkg: idesk,                         desc: Lightweight desktop icons for X }
-    changes:
-      - { apply: config-idesk }
 
   # Server
   # ----------------------------------------------------------------------------
@@ -141,6 +138,10 @@ layers:
       - entry: "Install <%=distro%>-server     -lite + LAMP and services"
         kernel: /<%=distro%>/vmlinuz
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=server_layers%> showopts vga=792
+    packages:
+      - { install: php-apache }
+    changes:
+      - { apply: docker-config }
 
   # Heavy
   # ----------------------------------------------------------------------------
@@ -155,7 +156,7 @@ layers:
     packages:
       - { install: docker }
     changes:
-      - { apply: config-docker }
+      - { apply: docker-config }
 
   # K8snode
   # ----------------------------------------------------------------------------
@@ -171,7 +172,7 @@ layers:
     packages:
       - { install: k8snode-tools }
     changes:
-      - { apply: config-docker }
+      - { apply: docker-config }
       - { chroot: systemctl enable kubelet.service }
 
   # Theater
@@ -184,8 +185,6 @@ layers:
       - entry: "Install <%=distro%>-theater    -heavy + kodi w/configs"
         kernel: /<%=distro%>/vmlinuz
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=theater_layers%> showopts vga=792
-    changes:
-      - { apply: config-idesk }
 
   # Desktop
   # ----------------------------------------------------------------------------
@@ -230,43 +229,43 @@ repos:
       - Server = http://mirror.team-cymru.org/blackarch/$repo/os/$arch
 
 changes:
-  config-base:
-    - { apply: config-hosts }
-    - { apply: config-fonts }
-    - { apply: config-locale }
-    - { apply: config-logind }
-    - { apply: config-lsb-release }
-    - { apply: config-journald }
-    - { apply: config-makepkg }
-    - { apply: config-mkinitcpio }
-    - { apply: config-modprobed }
-    - { apply: config-os-release }
-    - { apply: config-pacman }
-    - { apply: config-proxy }
-    - { apply: config-resolved }
-    - { apply: config-sshd }
-    - { apply: config-sudo-vars }
-    - { apply: config-sysctld }
-    - { apply: config-syslinux }
-    - { apply: config-timesyncd }
-    - { apply: config-user-dirs }
-    - { apply: config-vconsole }
+  base-config:
+    - { apply: hosts-config }
+    - { apply: fonts-config }
+    - { apply: locale-config }
+    - { apply: logind-config }
+    - { apply: lsb-release-config }
+    - { apply: journald-config }
+    - { apply: makepkg-config }
+    - { apply: mkinitcpio-config }
+    - { apply: modprobed-config }
+    - { apply: os-release-config }
+    - { apply: pacman-config }
+    - { apply: proxy-config }
+    - { apply: resolved-config }
+    - { apply: sshd-config }
+    - { apply: sudo-vars-config }
+    - { apply: sysctld-config }
+    - { apply: syslinux-config }
+    - { apply: timesyncd-config }
+    - { apply: user-dirs-config }
+    - { apply: vconsole-config }
     - { apply: enable-base-services }
-  config-shell:
+  shell-config:
     - { chroot: systemctl enable cronie.service }
-  config-lite:
-    - { apply: config-lxdm }
-    - { apply: config-dconf }
-    - { apply: config-gtk }
-    - { apply: config-openbox }
-    - { apply: config-oblogout }
-    - { apply: config-mimeapps }
-    - { apply: config-wallpaper }
-  config-build-user:
+  lite-config:
+    - { apply: lxdm-config }
+    - { apply: dconf-config }
+    - { apply: gtk-config }
+    - { apply: openbox-config }
+    - { apply: oblogout-config }
+    - { apply: mimeapps-config }
+    - { apply: wallpaper-config }
+  build-user-config:
     - { chroot: 'useradd -m -G lp,wheel,network,storage,users -s /bin/bash build || true' }
     - { exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /home/build' }
     - { edit: /etc/sudoers, append: true, value: "build ALL=(ALL) NOPASSWD: ALL" }
-  config-dconf:
+  dconf-config:
     - edit: /etc/dconf/profile/user
       append: true
       values:
@@ -304,7 +303,7 @@ changes:
         - 'echo "host=\"${proxy_host}\"" >> ${proxyfile}'
         - 'echo "port=${proxy_port}" >> ${proxyfile}'
         - ''
-  config-docker:
+  docker-config:
     - edit: /usr/bin/setproxy
       append: after
       regex: 'OTHER_PROXY_SETTINGS'
@@ -317,13 +316,13 @@ changes:
         - 'echo "Environment=\"https_proxy=${proxy}\"" >> ${proxyfile}'
         - 'echo "Environment=\"no_proxy=${no_proxy}\"" >> ${proxyfile}'
     - { chroot: systemctl enable docker.service }
-  config-hosts:
+  hosts-config:
     - { exec: 'rm -f /etc/hosts' }
     - edit: /etc/hosts
       append: true
       values:
         - '127.0.0.1 localhost'
-  config-fonts:
+  fonts-config:
     - edit: /etc/skel/.config/fontconfig/fonts.conf
       append: true
       values:
@@ -374,7 +373,7 @@ changes:
         - '    <edit mode="assign" name="antialias"><bool>true</bool></edit>'
         - '  </match>'
         - '</fontconfig>'
-  config-gtk:
+  gtk-config:
     - edit: /etc/skel/.gtkrc-2.0
       append: true
       values:
@@ -419,64 +418,9 @@ changes:
         - 'Name=Default'
         - 'Comment=Default Cursor Theme'
         - 'Inherits=xcursor-numix-frost'
-  config-idesk:
-    - edit: /etc/skel/.idesktop/browser.lnk
-      append: true
-      values:
-        - 'table Icon'
-        - '  Icon: /usr/share/icons/hicolor/64x64/apps/firefox.png'
-        - '  X: 330'
-        - '  Y: 615'
-        - '  Command[0]: firefox'
-        - 'end'
-    - edit: /etc/skel/.idesktop/pandora.lnk
-      append: true
-      values:
-        - 'table Icon'
-        - '  Icon: /usr/share/icons/hicolor/72x72/apps/pandora.png'
-        - '  X: 330'
-        - '  Y: 615'
-        - '  Command[0]: firefox'
-        - 'end'
-    - edit: /etc/skel/.idesktop/audio-player.lnk
-      append: true
-      values:
-        - 'table Icon'
-        - '  Icon: /usr/share/icons/hicolor/72x72/apps/audacious.png'
-        - '  X: 500'
-        - '  Y: 616'
-        - '  Command[0]: audacious'
-        - 'end'
-    - edit: /etc/skel/.idesktop/video-player.lnk
-      append: true
-      values:
-        - 'table Icon'
-        - '  Icon: /usr/share/icons/hicolor/64x64/apps/smplayer.png'
-        - '  X: 88'
-        - '  Y: 615'
-        - '  Command[0]: smplayer'
-        - 'end'
-    - edit: /etc/skel/.idesktop/shutdown.lnk
-      append: true
-      values:
-        - 'table Icon'
-        - '  Icon: /usr/share/icons/hicolor/72x72/actions/system-shutdown.png'
-        - '  X: 8'
-        - '  Y: 615'
-        - '  Command[0]: sudo poweroff'
-        - 'end'
-    - edit: /etc/skel/.idesktop/reboot.lnk
-      append: true
-      values:
-        - 'table Icon'
-        - '  Icon: /usr/share/icons/hicolor/72x72/actions/system-reboot.png'
-        - '  X: 88'
-        - '  Y: 615'
-        - '  Command[0]: sudo reboot'
-        - 'end'
-  config-journald:
+  journald-config:
     - { edit: /etc/systemd/journald.conf, regex: '^#(SystemMaxUse).*', value: '\1=100M' }
-  config-locale:
+  locale-config:
     - edit: /etc/locale.conf
       append: true
       values:
@@ -486,12 +430,12 @@ changes:
     - { edit: /etc/locale.gen, regex: '^#(en_US\..*)', value: '\1' }
     - { chroot: locale-gen }
     - { edit: /etc/profile.d/locale.sh, append: true, value: "export LC_COLLATE=C" }
-  config-logind:
+  logind-config:
     - { edit: /etc/systemd/logind.conf, regex: '^#(HandlePowerKey).*', value: '\1=ignore' }
     - { edit: /etc/systemd/logind.conf, regex: '^#(HandleSuspendKey).*', value: '\1=ignore' }
     - { edit: /etc/systemd/logind.conf, regex: '^#(HandleHibernateKey).*', value: '\1=ignore' }
     - { edit: /etc/systemd/logind.conf, regex: '^#(HandleLidSwitch).*', value: '\1=ignore' }
-  config-lsb-release:
+  lsb-release-config:
     - { exec: 'rm -f /etc/lsb-release' }
     - edit: /etc/lsb-release
       append: true
@@ -500,8 +444,9 @@ changes:
         - 'DISTRIB_ID=<%=distro%>'
         - 'DISTRIB_RELEASE=rolling'
         - 'DISTRIB_DESCRIPTION=<%=distro%>'
-  config-lxdm:
+  lxdm-config:
     - { exec: ln -sf //usr/lib/systemd/system/lxdm.service /etc/systemd/system/display-manager.service }
+    - { edit: /usr/share/lxdm/themes/Industrial/gtkrc, regex: '^(\s*fg\[NORMAL\]=).*', value: '\1="#ffffff"' }
     - { edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(session)=.*', value: '\1=/usr/bin/openbox-session' }
     - { edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(numlock)=.*', value: '\1=1' }
     - { edit: /etc/lxdm/lxdm.conf, regex: '^(gtk_theme)=.*', value: '\1=<%=distro%>' }
@@ -531,10 +476,10 @@ changes:
         - 'fi'
         - 'xrandr --output $display --mode $resolution'
         - '(sleep 1s && xset s off -dpms) &                # Disable DPMS and prevent screen blanking'
-  config-makepkg:
+  makepkg-config:
     - { edit: /etc/makepkg.conf, regex: '^#(MAKEFLAGS)=.*', value: '\1="-j8"' }
     - { edit: /etc/makepkg.conf, regex: '^(COMPRESSXZ)=.*', value: '\1=(xz -c -z - --threads=0)' }
-  config-mimeapps:
+  mimeapps-config:
     - edit: /etc/skel/.config/mimeapps.list
       append: true
       values:
@@ -567,13 +512,13 @@ changes:
         - 'video/x-matroska=smplayer.desktop;'
         - 'video/mp4=smplayer.desktop;'
         - 'video/mpeg=smplayer.desktop;'
-  config-mkinitcpio:
+  mkinitcpio-config:
     - edit: /etc/mkinitcpio.conf
       regex: '^(HOOKS).*'
       value: '\1="base udev autodetect vt-colors modconf block filesystems keyboard"'
-  config-modprobed:
+  modprobed-config:
     - { edit: /etc/modprobe.d/pcspkr.conf, append: true, value: "blacklist pcspkr" }
-  config-oblogout:
+  oblogout-config:
     - edit: /etc/oblogout.conf
       append: true
       values:
@@ -595,7 +540,7 @@ changes:
         - 'restart = systemctl reboot'
         - 'shutdown = systemctl poweroff'
         - 'lock = cinnamon-screensaver-command --lock'
-  config-openbox:
+  openbox-config:
     - edit: /etc/skel/.config/openbox/autostart
       append: true
       values:
@@ -617,11 +562,11 @@ changes:
       values:
         - '# Source the user rc file if it exists'
         - '[ -r ~/.bashrc ] && source ~/.bashrc'
-  config-pacman-keys:
+  pacman-keys-config:
     - { chroot: "bash -c 'haveged -r 0 && pacman-key --init'" }
     - { chroot: 'pacman-key --populate <%=repos%>' }
     - { chroot: 'pacman -Sy' }
-  config-pacman:
+  pacman-config:
     - { exec: 'rm -f /etc/pacman.d/gnupg/dirmngr.conf' }
     - { edit: /etc/pacman.d/gnupg/dirmngr.conf, append: true, value: "honor-http-proxy" }
     - { exec: 'rm -f /etc/pacman-mirrors.conf' }
@@ -657,7 +602,7 @@ changes:
         - 'Server = http://mirror.vfn-nrw.de/archlinux/$repo/os/$arch'
         - 'Server = https://mirror.us.leaseweb.net/archlinux/$repo/os/$arch'
         - 'Server = http://archlinux.dynamict.se/$repo/os/$arch'
-  config-os-release:
+  os-release-config:
     - { exec: 'rm -f /etc/os-release' }
     - edit: /etc/os-release
       append: true
@@ -666,7 +611,7 @@ changes:
         - 'ID=<%=distro%>'
         - 'VERSION=<%=release%>'
         - 'PRETTY_NAME=<%=distro%>'
-  config-proxy:
+  proxy-config:
     - edit: /usr/bin/setproxy
       append: true
       values:
@@ -687,22 +632,22 @@ changes:
         - 'chmod +x $proxyfile'
         - "\n# OTHER_PROXY_SETTINGS"
     - { exec: chmod +x /usr/bin/setproxy }
-  config-resolved:
+  resolved-config:
     - { exec: ln -sf //run/systemd/resolve/resolv.conf /etc/resolv.conf }
-  config-root-user:
+  root-user-config:
     - { exec: "echo 'TERM=xterm' > /etc/environment" }
     - { exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /root' }
-  config-sshd:
+  sshd-config:
     - { edit: /etc/ssh/sshd_config, regex: '^#(PermitRootLogin).*', value: '\1 yes' }
     - { edit: /etc/ssh/sshd_config, regex: '^#(UsePrivilegeSeparation).*', value: '\1 sandbox' }
-  config-sudo-vars:
+  sudo-vars-config:
     - edit: /etc/sudoers
       append: true
       value: 'Defaults env_keep += "ftp_proxy http_proxy https_proxy no_proxy"'
-  config-sysctld:
+  sysctld-config:
     - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', append: true, value: "vm.swappiness = 1" }
     - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', append: true, value: "net.ipv4.ip_forward = 1" }
-  config-syslinux:
+  syslinux-config:
     - { exec: 'rm -f /boot/syslinux/syslinux.cfg' }
     - edit: /boot/syslinux/syslinux.cfg
       append: true
@@ -715,7 +660,7 @@ changes:
         - '    LINUX ../vmlinuz-linux'
         - '    APPEND root=LABEL=root rw ipv6.disable=1 vga=791'
         - '    INITRD ../initramfs-linux.img'
-  config-timesyncd:
+  timesyncd-config:
     - { exec: 'rm -f /etc/systemd/timesyncd.conf' }
     - edit: /etc/systemd/timesyncd.conf
       append: true
@@ -723,7 +668,7 @@ changes:
         - '[Time]'
         - 'NTP=0.arch.pool.ntp.org 1.arch.pool.ntp.org 2.arch.pool.ntp.org 3.arch.pool.ntp.org'
         - 'FallbackNTP=0.pool.ntp.org 1.pool.ntp.org 0.fr.pool.ntp.org'
-  config-user-dirs:
+  user-dirs-config:
     - { exec: 'rm -f /etc/xdg/user-dirs.defaults' }
     - edit: /etc/xdg/user-dirs.defaults
       append: true
@@ -733,9 +678,9 @@ changes:
         - 'DOWNLOAD=Downloads'
         - 'PROJECTS=Projects'
         - 'SCRIPTS=bin'
-  config-vconsole:
+  vconsole-config:
     - {edit: /etc/vconsole.conf, append: true, value: 'KEYMAP=us' }
-  config-wallpaper:
+  wallpaper-config:
     - edit: /etc/skel/.config/nitrogen/bg-saved.cfg
       append: true
       values:
@@ -824,7 +769,7 @@ packages:
     - { pkg: antergos-keyring,              desc: Antergos GPG keyring, type: ANTERGOS }
     - { pkg: blackarch-keyring,             desc: Blackarch GPG keyring, type: BLACKARCH }
 
-  initramfs-deps:
+  initramfs-pkgs:
     - { pkg: gptfdisk,                      desc: Paritioning tools e.g. sgdisk }
     - { pkg: linux,                         desc: Linux kernel }
     - { pkg: mkinitcpio,                    desc: initramfs image creation utility }
@@ -832,14 +777,14 @@ packages:
     - { pkg: rsync,                         desc: Remote file sync utility }
     - { pkg: systemd,                       desc: System and service manager }
 
-  isolinux-deps:
+  isolinux-pkgs:
     - { pkg: gfxboot,                       desc: Graphical boot user interface }
     - { pkg: intel-ucode,                   desc: Microcode update files for Intel CPUs }
     - { pkg: memtest86+,                    desc: memtest is used in the ISO creation as menu option }
     - { pkg: syslinux,                      desc: Boot loaders for ext2/3/4 USB and CD }
 
-  shell-tools:
-    - { install: dev-tools }
+  shell-pkgs:
+    - { install: dev-pkgs }
     - { install: reduce-gems }
 
     - { pkg: cronie,                        desc: Daemon for scheduling programs to run }
@@ -890,7 +835,7 @@ packages:
     - { pkg: systemd,                       desc: System and service manager }
     - { pkg: systemd-sysvcompat,            desc: Sysinit compat for systemd }
 
-  dev-tools:
+  dev-pkgs:
     - { pkg: arch-install-scripts,          desc: arch-chroot/genfstab/pacstrap }
     - { pkg: autoconf,                      desc: Automatically configure source code, depof: base-devel }
     - { pkg: automake,                      desc: Automatically create Makefiles, depof: base-devel }
@@ -938,7 +883,7 @@ packages:
     - { pkg: nokogiri,                      desc: HTML parser with XPath and CSS3 selectors, type: GEM, depof: chromium build}
     - { pkg: pry,                           desc: Ruby debugger, type: GEM }
 
-  xwindows:
+  lite-pkgs:
     - { pkg: dconf,                         desc: A low-level configuration system }
     - { pkg: xdg-utils,                     desc: Desktop integration utilities }
     - { pkg: xdg-user-dirs,                 desc: Manage user directories like ~/Desktop }
@@ -966,7 +911,7 @@ packages:
     - { pkg: python2-xdg,                   desc: Enable use of .desktop files in /etc/xdg in openbox }
     - { pkg: xcursor-numix-frost,           desc: Numix frost cursor theme, type: FOREIGN }
 
-  xwindows-tools:
+    # XWindows tools
     - { pkg: audacious,                     desc: Audio/Player, alt: deadbeaf, xnoise }
     #- { pkg: chromium,                      desc: Opensource project behind Chrome, type: FOREIGN }
     #- { pkg: chromium-widevine,             desc: Chromium support for Netflix, type: FOREIGN }
@@ -1018,7 +963,6 @@ packages:
     - { pkg: synergy,                       desc: Network/Virtual KVM }
 
   heavy-tools:
-    - { install: teamviewer }
     - { pkg: audacity,                      desc: Audio editor - cross platform, tried and tested }
     - { pkg: conky,                         desc: Lightweight system monitor for X }
     - { pkg: dmenu,                         desc: Super light weight application runner }

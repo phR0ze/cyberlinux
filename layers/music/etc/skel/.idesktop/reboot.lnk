@@ -1,0 +1,6 @@
+table Icon
+  Icon: /usr/share/icons/hicolor/72x72/actions/system-reboot.png
+  X: 88
+  Y: 615
+  Command[0]: sudo reboot
+end

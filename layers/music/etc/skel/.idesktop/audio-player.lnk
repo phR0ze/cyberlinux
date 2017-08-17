@@ -1,0 +1,6 @@
+table Icon
+  Icon: /usr/share/icons/hicolor/72x72/apps/audacious.png
+  X: 500
+  Y: 616
+  Command[0]: audacious
+end
