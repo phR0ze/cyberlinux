@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.107
+  release: 0.0.108
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -267,6 +267,38 @@ changes:
       values:
         - 'user-db:user'
         - 'system-db:local'
+    - edit: /usr/bin/setproxy
+      append: before
+      regex: 'OTHER_PROXY_SETTINGS'
+      values:
+        - '# Configure system proxy settings for XWindows'
+        - 'proxyfile=/etc/dconf/db/local.d/00-proxy'
+        - 'mkdir -p /etc/dconf/db/local.d'
+        - 'echo "[org/gnome/system/proxy]" >> ${proxyfile}'
+        - 'echo "mode=\"none\"" >> ${proxyfile}'
+        - 'echo -e "ignore-hosts=${no_proxy_array}\n" >> ${proxyfile}'
+        - 'echo "[org/gnome/system/proxy/ftp]" >> ${proxyfile}'
+        - 'echo "host=\"${proxy_host}\"" >> ${proxyfile}'
+        - 'echo -e "port=${proxy_port}\n" >> ${proxyfile}'
+        - 'echo "[org/gnome/system/proxy/http]" >> ${proxyfile}'
+        - 'echo "host=\"${proxy_host}\"" >> ${proxyfile}'
+        - 'echo -e "port=${proxy_port}\n" >> ${proxyfile}'
+        - 'echo "[org/gnome/system/proxy/https]" >> ${proxyfile}'
+        - 'echo "host=\"${proxy_host}\"" >> ${proxyfile}'
+        - 'echo -e "port=${proxy_port}\n" >> ${proxyfile}'
+        - 'echo "[system/proxy]" >> ${proxyfile}'
+        - 'echo "mode=\"none\"" >> ${proxyfile}'
+        - 'echo -e "ignore-hosts=${no_proxy_array}\n" >> ${proxyfile}'
+        - 'echo "[system/proxy/ftp]" >> ${proxyfile}'
+        - 'echo "host=\"${proxy_host}\"" >> ${proxyfile}'
+        - 'echo -e "port=${proxy_port}\n" >> ${proxyfile}'
+        - 'echo "[system/proxy/http]" >> ${proxyfile}'
+        - 'echo "host=\"${proxy_host}\"" >> ${proxyfile}'
+        - 'echo -e "port=${proxy_port}\n" >> ${proxyfile}'
+        - 'echo "[system/proxy/https]" >> ${proxyfile}'
+        - 'echo "host=\"${proxy_host}\"" >> ${proxyfile}'
+        - 'echo "port=${proxy_port}" >> ${proxyfile}'
+        - ''
   config-docker:
     - edit: /usr/bin/setproxy
       append: after
@@ -356,6 +388,25 @@ changes:
         - 'gtk-xft-hinting=1'
         - 'gtk-xft-hintstyle="hintfull"'
         - 'gtk-xft-rgba="rgb"'
+    - edit: /etc/skel/.config/gtk-3.0/settings.ini
+      append: true
+      values:
+        - '[Settings]'
+        - 'gtk-theme-name=Numix-Frost'
+        - 'gtk-icon-theme-name=Paper'
+        - 'gtk-font-name=Source Sans Pro 10'
+        - 'gtk-cursor-theme-name=xcursor-numix-frost'
+        - 'gtk-cursor-theme-size=0'
+        - 'gtk-toolbar-style=GTK_TOOLBAR_BOTH'
+        - 'gtk-toolbar-icon-size=GTK_ICON_SIZE_LARGE_TOOLBAR'
+        - 'gtk-button-images=1'
+        - 'gtk-menu-images=1'
+        - 'gtk-enable-event-sounds=1'
+        - 'gtk-enable-input-feedback-sounds=1'
+        - 'gtk-xft-antialias=1'
+        - 'gtk-xft-hinting=1'
+        - 'gtk-xft-hintstyle=hintfull'
+        - 'gtk-xft-rgba=rgb'
     - edit: /etc/skel/.icons/default/index.theme
       append: true
       values:
@@ -618,43 +669,17 @@ changes:
         - "\n# Executed by Vagrantfile for vagrant deployments"
         - "# Executed by installer for non-vagrant deployments"
         - 'proxy='
-        - 'proxyhost='
-        - 'proxyport='
+        - 'proxy_host='
+        - 'proxy_port='
         - 'no_proxy='
         - 'no_proxy_array='
-        - "\n# Configure system proxies"
+        - "\n# Configure system proxies for shell"
         - 'proxyfile=/etc/profile.d/setproxy.sh'
         - 'echo "export ftp_proxy=${proxy}" > $proxyfile'
         - 'echo "export http_proxy=${proxy}" >> $proxyfile'
         - 'echo "export https_proxy=${proxy}" >> $proxyfile'
         - '[ $no_proxy ] && echo "export no_proxy=${no_proxy}" >> $proxyfile'
         - 'chmod +x $proxyfile'
-        - "\nproxyfile=/etc/dconf/db/local.d/00-proxy"
-        - 'mkdir -p /etc/dconf/db/local.d'
-        - 'echo "[org/gnome/system/proxy]" >> ${proxyfile}'
-        - 'echo "mode=\"none\"" >> ${proxyfile}'
-        - 'echo "ignore-hosts=${no_proxy_array}" >> ${proxyfile}'
-        - 'echo "[org/gnome/system/proxy/ftp]" >> ${proxyfile}'
-        - 'echo "host=\"${proxy_host}\"" >> ${proxyfile}'
-        - 'echo "port=${proxy_port}" >> ${proxyfile}'
-        - 'echo "[org/gnome/system/proxy/http]" >> ${proxyfile}'
-        - 'echo "host=\"${proxy_host}\"" >> ${proxyfile}'
-        - 'echo "port=${proxy_port}" >> ${proxyfile}'
-        - 'echo "[org/gnome/system/proxy/https]" >> ${proxyfile}'
-        - 'echo "host=\"${proxy_host}\"" >> ${proxyfile}'
-        - 'echo "port=${proxy_port}" >> ${proxyfile}'
-        - 'echo "[system/proxy]" >> ${proxyfile}'
-        - 'echo "mode=\"none\"" >> ${proxyfile}'
-        - 'echo "ignore-hosts=${no_proxy_array}" >> ${proxyfile}'
-        - 'echo "[system/proxy/ftp]" >> ${proxyfile}'
-        - 'echo "host=\"${proxy_host}\"" >> ${proxyfile}'
-        - 'echo "port=${proxy_port}" >> ${proxyfile}'
-        - 'echo "[system/proxy/http]" >> ${proxyfile}'
-        - 'echo "host=\"${proxy_host}\"" >> ${proxyfile}'
-        - 'echo "port=${proxy_port}" >> ${proxyfile}'
-        - 'echo "[system/proxy/https]" >> ${proxyfile}'
-        - 'echo "host=\"${proxy_host}\"" >> ${proxyfile}'
-        - 'echo "port=${proxy_port}" >> ${proxyfile}'
         - "\n# OTHER_PROXY_SETTINGS"
     - { exec: chmod +x /usr/bin/setproxy }
   config-resolved:
