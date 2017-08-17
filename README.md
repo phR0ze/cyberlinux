@@ -244,13 +244,15 @@ build:
   ...
 layers:
   - name: base
+    packages:
+      - { install: machine-core }
     changes:
-      - { apply: config-autologin }
+      - { apply: autologin-config }
       - { exec: 'ln -sf //usr/share/zoneinfo/Zulu /etc/localtime' }
 repos:
   - name: archlinux
 changes:
-  config-autologin:
+  autologin-config:
     - { edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(autologin)=.*', value: '\1=<%= USER %>'
 packages:
   machine-core:
