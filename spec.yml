@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.114
+  release: 0.0.115
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -104,7 +104,7 @@ layers:
     base: shell
     vagrant: { vram: 8 }
     vars:
-      wallpaper: /usr/share/wallpaper/blue-smoke.jpg
+      wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg
     groups:
       - video
       - audio
