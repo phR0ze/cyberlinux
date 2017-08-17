@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.113
+  release: 0.0.114
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -51,7 +51,6 @@ build:
     - { apply: config-root-user }
     - { apply: config-build-user }
     - { apply: config-pacman-keys }
-    - { apply: config-docker }
     - { chroot: systemctl enable cronie.service }
 
 layers:
@@ -264,7 +263,7 @@ changes:
     - { apply: config-mimeapps }
     - { apply: config-wallpaper }
   config-build-user:
-    - { chroot: 'useradd -m -G lp,docker,wheel,network,storage,users -s /bin/bash build || true' }
+    - { chroot: 'useradd -m -G lp,wheel,network,storage,users -s /bin/bash build || true' }
     - { exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /home/build' }
     - { edit: /etc/sudoers, append: true, value: "build ALL=(ALL) NOPASSWD: ALL" }
   config-dconf:
