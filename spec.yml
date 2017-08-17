@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.108
+  release: 0.0.111
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -106,7 +106,7 @@ layers:
     base: shell
     vagrant: { vram: 8 }
     vars:
-      wallpaper: /usr/share/wallpaper/white-smoke.jpg
+      wallpaper: /usr/share/wallpaper/blue-smoke.jpg
     groups:
       - video
       - audio
@@ -254,9 +254,10 @@ changes:
     - { apply: config-lxdm }
     - { apply: config-dconf }
     - { apply: config-gtk }
-    - { apply: config-oblogout }
     - { apply: config-openbox }
+    - { apply: config-oblogout }
     - { apply: config-mimeapps }
+    - { apply: config-wallpaper }
   config-build-user:
     - { chroot: 'useradd -m -G lp,docker,wheel,network,storage,users -s /bin/bash build || true' }
     - { exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /home/build' }
@@ -730,6 +731,28 @@ changes:
         - 'SCRIPTS=bin'
   config-vconsole:
     - {edit: /etc/vconsole.conf, append: true, value: 'KEYMAP=us' }
+  config-wallpaper:
+    - edit: /etc/skel/.config/nitrogen/bg-saved.cfg
+      append: true
+      values:
+        - '[xin_-1]'
+        - 'file=<%=wallpaper%>'
+        - 'mode=4'
+        - 'bgcolor=#000000'
+    - edit: /etc/skel/.config/nitrogen/nitrogen.cfg
+      append: true
+      values:
+        - '[geometry]'
+        - 'posx=89'
+        - 'posy=70'
+        - 'sizex=839'
+        - "sizey=643\n"
+        - '[nitrogen]'
+        - 'view=icon'
+        - 'recurse=true'
+        - 'sort=alpha'
+        - 'icon_caps=false'
+        - 'dirs=/usr/share/wallpaper;'
   enable-base-services:
     - { chroot: systemctl enable sshd.service }
     - { chroot: systemctl enable systemd-networkd.service }
@@ -939,7 +962,7 @@ packages:
     - { pkg: numix-frost-themes,            desc: Numix frost GTK2, GTK3 and OpenBox themes, type: ANTERGOS }
     - { pkg: paper-icon-theme,              desc: cyberlinux icon theme, type: FOREIGN }
     - { pkg: pulseaudio-alsa,               desc: ALSA Configuration for PulseAudio }
-    - { pkg: python-xdg,                    desc: Enable use of .desktop files in /etc/xdg }
+    - { pkg: python2-xdg,                   desc: Enable use of .desktop files in /etc/xdg in openbox }
     - { pkg: xcursor-numix-frost,           desc: Numix frost cursor theme, type: FOREIGN }
 
   xwindows-tools:
