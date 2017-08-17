@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.112
+  release: 0.0.113
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -89,7 +89,6 @@ layers:
     type: machine
     base: base
     vagrant: { vram: 8 }
-    groups: [docker]
     boot:
       - entry: "Install <%=distro%>-shell        -base + full shell env."
         kernel: /<%=distro%>/vmlinuz
@@ -149,16 +148,22 @@ layers:
   - name: heavy
     type: machine
     base: lite
+    groups: [docker]
     boot:
       - entry: "Install <%=distro%>-heavy      -lite + more apps"
         kernel: /<%=distro%>/vmlinuz
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=heavy_layers%> showopts vga=792
+    packages:
+      - { install: docker }
+    changes:
+      - { apply: config-docker }
 
   # K8snode
   # ----------------------------------------------------------------------------
   - name: k8snode
     type: machine
     base: shell
+    groups: [docker]
     vagrant: { vram: 8, cpus: 2, ram: 2048 }
     boot:
       - entry: "Install <%=distro%>-k8snode  -shell + k8s node env."
@@ -167,6 +172,7 @@ layers:
     packages:
       - { install: k8snode-tools }
     changes:
+      - { apply: config-docker }
       - { chroot: systemctl enable kubelet.service }
 
   # Theater
@@ -248,7 +254,6 @@ changes:
     - { apply: config-vconsole }
     - { apply: enable-base-services }
   config-shell:
-    - { apply: config-docker }
     - { chroot: systemctl enable cronie.service }
   config-lite:
     - { apply: config-lxdm }
@@ -853,9 +858,6 @@ packages:
     - { pkg: tmux,                          desc: Terminal multiplexer built off screen }
     - { pkg: usbutils,                      desc: USB device utilities including lsusb }
 
-    # Container support
-    - { pkg: docker,                        desc: Run applications as containers, depof: reduce }
-
     # Packaging
     - { pkg: pkgfile,                       desc: A pacman files and metadata explorer }
     - { pkg: reflector,                     desc: Arch Linux latest pacman mirrors script }
@@ -1100,7 +1102,11 @@ packages:
 
   # Virtualization packages
   #-----------------------------------------------------------------------------
+  docker:
+    - { pkg: docker,                        desc: Run applications as containers, depof: reduce }
+
   k8shost-tools:
+    - { install: docker }
     - { pkg: bridge-utils,                  desc: Ethernet bridge config utils, depof: k8s }
     - { pkg: ebtables,                      desc: Ethernet bridge filtering utilities, depof: k8s }
     - { pkg: ethtool,                       desc: Network drivers and hardware util, depof: k8s }
@@ -1109,6 +1115,7 @@ packages:
     - { pkg: socat,                         desc: Multipurpose relay, depof: k8s}
 
   k8snode-tools:
+    - { install: docker }
     - { pkg: jq,                            desc: Command line JSON processor, depof: kubectl }
     - { pkg: helm,                          desc: Kubernetes package manager, type: FOREIGN }
     - { pkg: kubernetes-kubeadm,            desc: K8s cluster bootstrap, type: FOREIGN, aurpath: kubernetes }
