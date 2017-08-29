@@ -23,7 +23,7 @@
 # Maintainer: phR0ze
 #-------------------------------------------------------------------------------
 pkgname=delve
-pkgver=0.12.2
+pkgver=1.0.0
 pkgrel=1
 pkgdesc='A debugger for the Go Programming Language'
 arch=('x86_64')
@@ -32,7 +32,7 @@ url="https://$_gourl/$pkgname"
 license=('MIT')
 depends=('glibc')
 makedepends=('git' 'go')
-source=("git+https://$_gourl/$pkgname.git#tag=v${pkgver//_/-}")
+source=("git+https://$_gourl/$pkgname.git#tag=v${pkgver//_/-}-rc.1")
 sha256sums=('SKIP')
 
 prepare()
