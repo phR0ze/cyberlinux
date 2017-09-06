@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.119
+  release: 0.0.120
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -139,7 +139,10 @@ layers:
         kernel: /<%=distro%>/vmlinuz
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=server_layers%> showopts vga=792
     packages:
+      - { install: docker }
       - { install: php-apache }
+      - { install: media-tools }
+      - { install: file-sharing }
     changes:
       - { apply: docker-config }
 
@@ -1005,11 +1008,12 @@ packages:
     - { pkg: gparted,                       desc: System/Partitioning - Partition magic type tool }
     - { pkg: tumbler,                       desc: D-Bus thumbnail service for apps (e.g. Thunar) }
 
-  handbrake:
+  media-tools:
     - { pkg: handbrake,                     desc: Video/Encoding - Video encoding tool for mp4/mkv }
     - { pkg: handbrake-cli,                 desc: Video/Encoding - Video encoding tool for mp4/mkv }
 
   theater-tools:
+    - { install: media-tools }
     - { pkg: idesk,                         desc: Lightweight desktop icons for X }
     - { pkg: kodi,                          desc: Software media player and entertainment hub }
     - { pkg: tiny-media-manager,            desc: Cross platform media manager, type: AUR }
