@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.120
+  release: 0.0.121
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -30,6 +30,9 @@ vars:
   netname: vboxnet0
   netip: 192.168.56.1
   subnet: 255.255.255.0
+
+  # NFS allowed cidr
+  nfscidr: 192.168.56.0/24
 
 build:
   name: build
@@ -139,12 +142,9 @@ layers:
         kernel: /<%=distro%>/vmlinuz
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=server_layers%> showopts vga=792
     packages:
-      - { install: docker }
-      - { install: php-apache }
-      - { install: media-tools }
-      - { install: file-sharing }
+      - { install: server-pkgs }
     changes:
-      - { apply: docker-config }
+      - { apply: server-config }
 
   # Heavy
   # ----------------------------------------------------------------------------
@@ -253,7 +253,11 @@ changes:
     - { apply: timesyncd-config }
     - { apply: user-dirs-config }
     - { apply: vconsole-config }
-    - { apply: enable-base-services }
+    - { chroot: systemctl enable sshd.service }
+    - { chroot: systemctl enable systemd-networkd.service }
+    - { chroot: systemctl enable systemd-networkd-wait-online.service }
+    - { chroot: systemctl enable systemd-resolved.service }
+    - { chroot: systemctl enable systemd-timesyncd.service }
   shell-config:
     - { chroot: systemctl enable cronie.service }
   lite-config:
@@ -264,10 +268,64 @@ changes:
     - { apply: oblogout-config }
     - { apply: mimeapps-config }
     - { apply: wallpaper-config }
+  server-config:
+    - { apply: nfs-config }
+    - { apply: docker-config }
+    - { apply: apache-php-config }
+    - { chroot: systemctl enable http.service }
+    - { chroot: systemctl enable nfs-server.service }
   build-user-config:
     - { chroot: 'useradd -m -G lp,wheel,network,storage,users -s /bin/bash build || true' }
     - { exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /home/build' }
     - { edit: /etc/sudoers, append: true, value: "build ALL=(ALL) NOPASSWD: ALL" }
+  apache-php-config:
+    - { edit: /etc/httpd/conf/httpd.conf, regex: '^(Listen).*', value: '\1 80' }
+    - { edit: /etc/httpd/conf/httpd.conf, regex: '^(DocumentRoot).*', value: '\1 /srv/http' }
+    - { edit: /etc/httpd/conf/httpd.conf, regex: '^(.*DirectoryIndex index.html).*', value: '\1 index.php' }
+    - { edit: /etc/httpd/conf/httpd.conf, regex: '^(LoadModule mpm_event.*)', value: '#\1' }
+    - edit: /etc/httpd/conf/httpd.conf
+      append: before
+      regex: '<IfModule mpm_prefork'
+      values:
+        - "MaxMemFree 2048"
+        - "LoadModule php7_module modules/libphp7.so"
+        - "LoadModule mpm_prefork_module modules/mod_mpm_prefork.so"
+    - edit: /etc/httpd/conf/httpd.conf
+      append: after
+      regex: '<IfModule mpm_prefork'
+      values:
+        # StartServers: number of server processes to start, default (5)
+        - "    StartServers           1"
+        # MinSpareServers: minimum number of server processes which are kept spare, default (5)
+        - "    MinSpareServers        1"
+        # MaxSpareServers: maximum number of server processes which are kept spare, default (10)
+        - "    MaxSpareServers        1"
+        # MaxRequestWorkers: maximum number of server processes allowed to start, default (256)
+        - "    MaxRequestWorkers     30"
+        # MaxConnectionsPerChild: max num of connections a server process serves before term, default (0)
+        - "    MaxConnectionsPerChild 0"
+    - edit: /etc/httpd/conf/httpd.conf
+      append: after
+      regex: 'DirectoryIndex index.html'
+      values:
+        - "    <IfModule php7_module>"
+        - "        DirectoryIndex index.html index.php"
+        - "        <FilesMatch \"\\.php$\">"
+        - "            SetHandler application/x-httpd-php"
+        - "        </FilesMatch>"
+        - "        <FilesMatch \"\\.phps$\">"
+        - "            SetHandler application/x-httpd-php-source"
+        - "        </FilesMatch>"
+        - "    </IfModule>"
+    - { edit: /etc/php/php.ini, regex: '^(max_execution_time).*', value: '\1 = 6000' }
+    - { edit: /etc/php/php.ini, regex: '^(max_input_time).*', value: '\1 = 6000' }
+    - { edit: /etc/php/php.ini, regex: '^(memory_limit).*', value: '\1 = 128M' }
+    - { edit: /etc/php/php.ini, regex: '^(post_max_size).*', value: '\1 = 210M' }
+    - { edit: /etc/php/php.ini, regex: '^(upload_max_filesize).*', value: '\1 = 200M' }
+    - { edit: /etc/php/php.ini, regex: '^;(extension=gd.so.*)', value: '\1' }
+    - { edit: /etc/php/php.ini, regex: '^;(extension=gettext.so.*)', value: '\1' }
+    - { edit: /etc/php/php.ini, regex: '^;(extension=pdo_sqlite.so.*)', value: '\1' }
+    - { edit: /etc/php/php.ini, regex: '^;(extension=sqlite3.so.*)', value: '\1' }
   dconf-config:
     - edit: /etc/dconf/profile/user
       append: true
@@ -521,6 +579,19 @@ changes:
       value: '\1="base udev autodetect vt-colors modconf block filesystems keyboard"'
   modprobed-config:
     - { edit: /etc/modprobe.d/pcspkr.conf, append: true, value: "blacklist pcspkr" }
+  nfs-config:
+    - edit: /etc/exports
+      append: true
+      values:
+        - '/srv/nfs             <%=nfscidr%>(rw,no_subtree_check,fsid=0)'
+        - '/srv/nfs/Audio       <%=nfscidr%>(rw,no_subtree_check,nohide)'
+        - '/srv/nfs/Documents   <%=nfscidr%>(rw,no_subtree_check,nohide)'
+        - '/srv/nfs/Install     <%=nfscidr%>(rw,no_subtree_check,nohide)'
+        - '/srv/nfs/Pictures    <%=nfscidr%>(rw,no_subtree_check,nohide)'
+        - '/srv/nfs/Other       <%=nfscidr%>(rw,no_subtree_check,nohide)'
+        - '/srv/nfs/Video       <%=nfscidr%>(rw,no_subtree_check,nohide)'
+    - { chroot: 'mkdir -p /srv/nfs{Audio,Documents,Install,Pictures,Other,Video}' }
+    - { chroot: "echo 'options nfs nfs4_disable_idmapping=0' > /etc/modprobe.d/nfs.conf" }
   oblogout-config:
     - edit: /etc/oblogout.conf
       append: true
@@ -705,12 +776,6 @@ changes:
         - 'sort=alpha'
         - 'icon_caps=false'
         - 'dirs=/usr/share/wallpaper;'
-  enable-base-services:
-    - { chroot: systemctl enable sshd.service }
-    - { chroot: systemctl enable systemd-networkd.service }
-    - { chroot: systemctl enable systemd-networkd-wait-online.service }
-    - { chroot: systemctl enable systemd-resolved.service }
-    - { chroot: systemctl enable systemd-timesyncd.service }
   remove-docs:
     - { exec: 'rm -rf /usr/share/{man,doc}' }
 
@@ -952,6 +1017,12 @@ packages:
     - { pkg: ttf-liberation,                desc: Red Hats Liberation fonts.  }
     - { pkg: ttf-ms-fonts,                  desc: Microsoft core fonts, type: AUR }
 
+  server-pkgs:
+    - { install: docker }
+    - { install: apache-php }
+    - { install: media-tools }
+    - { install: file-sharing }
+
   desktop-tools:
     - { pkg: cinnamon-screensaver,          desc: Screensaver for the Cinnamon desktop, type: FOREIGN }
     - { pkg: gimp,                          desc: Excellent image editor, alt: pinta }
@@ -1032,7 +1103,7 @@ packages:
     #- { pkg: freeswitch,                    desc: An opensource telephony system, type: FOREIGN }
     - { pkg: unixodbc,                      desc: Open spec for accessing Data Sources, depof: freeswitch }
 
-  php-apache:
+  apache-php:
     - { pkg: apache,                        desc: Apache web server, deb: phpBB }
     - { pkg: bzip2,                         desc: Compression util for the bzip2 format, depof: php-gd }
     - { pkg: php,                           desc: PHP lang, depof: phpBB }
