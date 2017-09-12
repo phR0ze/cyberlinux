@@ -379,31 +379,20 @@ installer()
     IFS=$ifs
     getsel installdev $disks
 
-    # Collect networking info
+    # Configure networking
     #---------------------------------------------------------------------------
     echo -e "\n${cyan}:: Configure networking:${none}"
-#    # Add mkinitcpio-nfs-utils back into spec 'build' section
-#    # Add net back into mkinitcpio.conf
-#    # Add lshw back into spec 'build' section
-#    local allnics=$(lshw -short -c network | grep network)
-#    for x in $allnics; do
-#        local nic=$(echo $x | awk '{print $2}')
-#        local desc=$(echo $x | awk '{$1=$2=$3=""; print$0}' | sed -e 's/^\s*//')
-#        local i=$((i+1))
-#        local nics="${nics} ${nic}"
-#        echo -e "   ${i}) [${cyan}${nic}${none}] - ${desc}"
-#    done
     getinput hostname 'hostname' "${images_path}-${target_layer}"
     getinput netip 'static IP' 'DHCP'
-    getinput proxy 'proxy' 'None'
-    [ "x${proxy}" != "xNone" ] && getinput no_proxy 'no_proxy' 'None'
+    getinput proxy 'proxy, url:port format' 'None'
+    [ "x${proxy}" != "xNone" ] && getinput no_proxy 'no_proxy, comma delimited' 'None'
 
-    # Collect timezone info
+    # Configure timezone
     #---------------------------------------------------------------------------
     echo -e "\n${cyan}:: Configure timezone:${none}"
     getinput timezone 'timezone' $timezone
 
-    # Collect username and password
+    # Create new user account
     #---------------------------------------------------------------------------
     echo -e "\n${cyan}:: Create new user account:${none}"
     getinput user 'new username' 'vagrant'
