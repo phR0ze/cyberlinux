@@ -854,19 +854,19 @@
       </position>
     </application>
 
-    <!-- Force tint2 to the bottom left -->
+    <!-- Force tint2 to the top left -->
     <application name="tint2">
       <position force="yes">
         <x>0</x>
-        <y>-1</y>
+        <y>0</y>
       </position>
     </application>
 
-    <!-- Force gsimplecal to the bottom right -->
+    <!-- Force gsimplecal to the top right -->
     <application name="gsimplecal">
       <position force="yes">
         <x>-1</x>
-        <y>-1</y>
+        <y>0</y>
       </position>
     </application>
 
