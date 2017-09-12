@@ -285,7 +285,8 @@ specifics.
 parts. They promote reuse. A deployable stack of layers are considered to be an install 'flavor'.
 Machine layers are installable sqfs images targeting 'baremetal' and 'VMs'. Container layers are
 deployable docker images. Files and packages are layered on top of dependency layers. Layers are
-built in the order they are listed in the yaml.
+built in the order they are listed in the yaml and this is the same order used in the ISO install
+menus.
 
 Layers have a ***type*** which is one of two values either ***machine*** or ***container***
 

@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.123
+  release: 0.0.124
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -140,7 +140,7 @@ layers:
     boot:
       - entry: "Install <%=distro%>-server     -lite + LAMP and services"
         kernel: /<%=distro%>/vmlinuz
-        initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=server_layers%> showopts vga=792
+        initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=server_layers%> showopts autologin=1 vga=792
     packages:
       - { install: server-pkgs }
     changes:
