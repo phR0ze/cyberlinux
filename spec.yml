@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.126
+  release: 0.0.127
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -978,6 +978,8 @@ packages:
     - { pkg: pulseaudio-alsa,               desc: ALSA Configuration for PulseAudio }
     - { pkg: python2-xdg,                   desc: Enable use of .desktop files in /etc/xdg in openbox }
     - { pkg: xcursor-numix-frost,           desc: Numix frost cursor theme, type: FOREIGN }
+    # xdg_menu --format openbox3 --root-menu /etc/xdg/menus/arch-applications.menu > xdg-menu.xml
+    - { pkg: archlinux-xdg-menu,            desc: Automatic OpenBox menu generation from xdg files }
 
     # XWindows tools
     - { pkg: audacious,                     desc: Audio/Player, alt: deadbeaf, xnoise }
