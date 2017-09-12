@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.121
+  release: 0.0.122
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -272,7 +272,7 @@ changes:
     - { apply: nfs-config }
     - { apply: docker-config }
     - { apply: apache-php-config }
-    - { chroot: systemctl enable http.service }
+    - { chroot: systemctl enable httpd.service }
     - { chroot: systemctl enable nfs-server.service }
   build-user-config:
     - { chroot: 'useradd -m -G lp,wheel,network,storage,users -s /bin/bash build || true' }
