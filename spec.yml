@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.128
+  release: 0.0.130
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -993,11 +993,13 @@ packages:
     - { pkg: nitrogen,                      desc: System wallpaper manager }
     - { pkg: pepper-flash,                  desc: Chromium flash support, type: ANTERGOS }
     - { pkg: pnmixer,                       desc: Volume controls in system tray, type: AUR }
+    - { pkg: qt4,                           desc: A cross-platform application and UI framework, deps: vlc }
     - { pkg: smplayer,                      desc: UI wrapper around mplayer with click to pause, alt: vlc }
     - { pkg: smplayer-skins,                desc: Skins for SMPlayer }
     - { pkg: smplayer-themes,               desc: Themes for SMPlayer }
     - { pkg: thunar,                        desc: Lightweight File Manager from Xfce }
     - { pkg: tint2,                         desc: Lightweight taskmanager and system tray }
+    - { pkg: vlc,                           desc: Multi-platform MPEG, VCD/DVD, and DivX player }
 
     # Media Codecs
     - { pkg: gst-libav,                     desc: GStreamer libav Plugin }
