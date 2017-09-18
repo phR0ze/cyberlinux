@@ -33,6 +33,7 @@
       <item label="GNOME ALSA Mixer" icon="/usr/share/pixmaps/gnome-alsamixer/gnome-alsamixer-icon.png"><action name="Execute"><execute>gnome-alsamixer</execute></action></item>
       <item label="HandBrake" icon="/usr/share/icons/hicolor/scalable/apps/hb-icon.svg"><action name="Execute"><execute>ghb</execute></action></item>
       <item label="SMPlayer" icon="/usr/share/icons/hicolor/32x32/apps/smplayer.png"><action name="Execute"><execute>smplayer</execute></action></item>
+      <item label="VLC" icon="/usr/share/icons/hicolor/32x32/apps/vlc.png"><action name="Execute"><execute>vlc</execute></action></item>
     </menu>
 
     <!-- Network -->
