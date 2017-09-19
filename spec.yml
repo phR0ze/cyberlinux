@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.131
+  release: 0.0.133
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -63,7 +63,6 @@ layers:
   - name: base
     type: machine
     multilib: true
-    vagrant: { vram: 8 }
     vars: { fontsize: 10 }
     groups: [lp, wheel, network, storage, users]
     boot:
@@ -90,7 +89,6 @@ layers:
   - name: shell
     type: machine
     base: base
-    vagrant: { vram: 8 }
     boot:
       - entry: "Install <%=distro%>-shell        -base + full shell env."
         kernel: /<%=distro%>/vmlinuz
@@ -105,7 +103,6 @@ layers:
   - name: lite
     type: machine
     base: shell
-    vagrant: { vram: 8 }
     vars:
       wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg
     groups:
@@ -151,15 +148,15 @@ layers:
   - name: heavy
     type: machine
     base: lite
-    groups: [docker]
+    vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: on }
     boot:
       - entry: "Install <%=distro%>-heavy      -lite + more apps"
         kernel: /<%=distro%>/vmlinuz
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=heavy_layers%> showopts vga=792
     packages:
-      - { install: docker }
+      - { install: heavy-pkgs }
     changes:
-      - { apply: docker-config }
+      - { apply: heavy-config }
 
   # K8snode
   # ----------------------------------------------------------------------------
@@ -173,7 +170,7 @@ layers:
         kernel: /<%=distro%>/vmlinuz
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=k8snode_layers%> showopts vga=792
     packages:
-      - { install: k8snode-tools }
+      - { install: k8snode-pkgs }
     changes:
       - { apply: docker-config }
       - { chroot: systemctl enable kubelet.service }
@@ -194,10 +191,15 @@ layers:
   - name: desktop
     type: machine
     base: heavy
+    groups: [docker]
     boot:
-      - entry: "Install <%=distro%>-desktop   -heavy + libreoffice"
+      - entry: "Install <%=distro%>-desktop   -heavy + docker, libreoffice"
         kernel: /<%=distro%>/vmlinuz
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=desktop_layers%> showopts vga=792
+    packages:
+      - { install: docker }
+    changes:
+      - { apply: docker-config }
 
   # Live
   # ----------------------------------------------------------------------------
@@ -268,6 +270,9 @@ changes:
     - { apply: oblogout-config }
     - { apply: mimeapps-config }
     - { apply: wallpaper-config }
+  heavy-config:
+    - { apply: guake-config }
+    - { apply: plank-config }
   server-config:
     - { apply: nfs-config }
     - { apply: docker-config }
@@ -479,6 +484,34 @@ changes:
         - 'Name=Default'
         - 'Comment=Default Cursor Theme'
         - 'Inherits=xcursor-numix-frost'
+  guake-config:
+    - { chroot: 'mkdir -p /etc/skel/.config/gconf/apps/guake/{general,style/{background,font}}' }
+    - { chroot: 'touch /etc/skel/.config/gconf/apps/guake/%gconf.xml' }
+    - edit: /etc/skel/.config/gconf/apps/guake/general/%gconf.xml
+      append: true
+      values:
+        - '<?xml version="1.0"?>'
+        - '<gconf>'
+        - '  <entry name="use_popup" mtime="1476881725" type="bool" value="false"/>'
+        - '  <entry name="history_size" mtime="1478548706" type="int" value="10000"/>'
+        - '  <entry name="use_default_font" mtime="1476881725" type="bool" value="false"/>'
+        - '</gconf>'
+    - { chroot: 'touch /etc/skel/.config/gconf/apps/guake/style/%gconf.xml' }
+    - edit: /etc/skel/.config/gconf/apps/guake/style/background/%gconf.xml
+      append: true
+      values:
+        - '<?xml version="1.0"?>'
+        - '<gconf>'
+        - '  <entry name="transparency" mtime="1478548706" type="int" value="10"/>'
+        - '</gconf>'
+    - edit: /etc/skel/.config/gconf/apps/guake/style/font/%gconf.xml
+      append: true
+      values:
+        - '<?xml version="1.0"?>'
+        - '<gconf>'
+        - '  <entry name="style" mtime="1476881725" type="string"><stringvalue>Inconsolata-g Medium 11</stringvalue></entry>'
+        - '  <entry name="color" mtime="1476881725" type="string"><stringvalue>#D4D4D4D4D4D4</stringvalue></entry>'
+        - '</gconf>'
   journald-config:
     - { edit: /etc/systemd/journald.conf, regex: '^#(SystemMaxUse).*', value: '\1=100M' }
   locale-config:
@@ -590,7 +623,7 @@ changes:
         - '/srv/nfs/Pictures    <%=nfscidr%>(rw,no_subtree_check,nohide)'
         - '/srv/nfs/Other       <%=nfscidr%>(rw,no_subtree_check,nohide)'
         - '/srv/nfs/Video       <%=nfscidr%>(rw,no_subtree_check,nohide)'
-    - { chroot: 'mkdir -p /srv/nfs{Audio,Documents,Install,Pictures,Other,Video}' }
+    - { chroot: 'mkdir -p /srv/nfs/{Audio,Documents,Install,Pictures,Other,Video}' }
     - { chroot: "echo 'options nfs nfs4_disable_idmapping=0' > /etc/modprobe.d/nfs.conf" }
   oblogout-config:
     - edit: /etc/oblogout.conf
@@ -676,6 +709,18 @@ changes:
         - 'Server = http://mirror.vfn-nrw.de/archlinux/$repo/os/$arch'
         - 'Server = https://mirror.us.leaseweb.net/archlinux/$repo/os/$arch'
         - 'Server = http://archlinux.dynamict.se/$repo/os/$arch'
+  plank-config:
+    - edit: /etc/dconf/db/local.d/02-plank
+      append: true
+      values:
+        - "[net/launchpad/plank/docks/dock1]\n"
+        - "hide-mode='window-dodge'\n"
+        - "icon-size=36\n"
+        - "position='top'\n"
+        - "dock-items=['lxterminal.dockitem','thunar.dockitem','xnviewmp.dockitem','smplayer.dockitem','virtualbox.dockitem','filezilla.dockitem','chromium.dockitem']\n"
+        - "pinned-only=true\n"
+        - "theme='Transparent'\n"
+    - { chroot: dconf update }
   os-release-config:
     - { exec: 'rm -f /etc/os-release' }
     - edit: /etc/os-release
@@ -1021,13 +1066,45 @@ packages:
     - { pkg: ttf-liberation,                desc: Red Hats Liberation fonts.  }
     - { pkg: ttf-ms-fonts,                  desc: Microsoft core fonts, type: AUR }
 
-  server-pkgs:
-    - { install: docker }
-    - { install: apache-php }
-    - { install: media-tools }
+  heavy-pkgs:
+    - { install: media-pkgs }
     - { install: file-sharing }
+    - { install: remote-desktop }
+    - { pkg: audacity,                      desc: Audio editor - cross platform, tried and tested }
+    - { pkg: conky,                         desc: Lightweight system monitor for X }
+    - { pkg: dmenu,                         desc: Super light weight application runner }
+    - { pkg: guake,                         desc: Drop-down python based quake style terminal }
+    - { pkg: gvfs,                          desc: Support for Trash and USB, depof: thunar-volman }
+    - { pkg: plank,                         desc: Elegant, simple, clean dock }
+    #- { pkg: qopenvpn-pia,                  desc: OpenVPN system tray with PIA integration, type: FOREIGN }
+    - { pkg: thunar-archive-plugin,         desc: Thunar integration with file-roller }
+    - { pkg: thunar-media-tags-plugin,      desc: Thunar plugin to view media details }
+    - { pkg: thunar-volman,                 desc: Thunar plugin to automatically manage removeable devices }
+    - { pkg: xfburn,                        desc: Burning tool, alt: k3b, brasero }
+    - { pkg: xfce4-screenshooter,           desc: Plugin that makes screenshots for the Xfce panel }
+    - { pkg: xnviewmp-system-libs,          desc: Efficient image viewer/browser/converter, type: AUR }
 
-  desktop-tools:
+    # OpenGL
+    - { pkg: lib32-mesa,                    desc: OpenGL opensource implementation, depof: kodi/steam }
+    - { pkg: lib32-mesa-vdpau,              desc: Mesa vdpau drivers, depof: kodi/steam }
+    - { pkg: mesa-vdpau,                    desc: Mesa vdpau drivers, depof: kodi/steam }
+
+    # Office
+    - { pkg: cups-pdf,                      desc: System/Printer Driver - PDF printer driver }
+    - { pkg: evince,                        desc: Document viewer (PDF,Postscript,djvu,tiff,dvi,XPS,cbr,cbz,cb7 and cbt) }
+    - { pkg: leafpad,                       desc: Office/Notepad - Simple notepad knock off }
+
+    # Utility
+    - { pkg: catfish,                       desc: System/File Search - File search tool }
+    - { pkg: dconf-editor,                  desc: New configuration manager intended to replace gconf }
+    - { pkg: desktop-file-utils,            desc: Command line utilities for working with desktop entries }
+    - { pkg: file-roller,                   desc: System/Compression integrates well in Thunar }
+    - { pkg: galculator,                    desc: Office/Calculator }
+    - { pkg: gconf-editor,                  desc: Old Gnome configuration manager separate dconf-editor db }
+    - { pkg: gparted,                       desc: System/Partitioning - Partition magic type tool }
+    - { pkg: tumbler,                       desc: D-Bus thumbnail service for apps (e.g. Thunar) }
+
+  desktop-pkgs:
     - { pkg: cinnamon-screensaver,          desc: Screensaver for the Cinnamon desktop, type: FOREIGN }
     - { pkg: gimp,                          desc: Excellent image editor, alt: pinta }
     - { pkg: hunspell-en_US,                desc: US dictionaries for spell checking, deps: libreoffice }
@@ -1040,55 +1117,26 @@ packages:
     - { pkg: scribus,                       desc: Open Source Desktop Publishing }
     - { pkg: synergy,                       desc: Network/Virtual KVM }
 
-  heavy-tools:
-    - { pkg: audacity,                      desc: Audio editor - cross platform, tried and tested }
-    - { pkg: conky,                         desc: Lightweight system monitor for X }
-    - { pkg: dmenu,                         desc: Super light weight application runner }
-    - { pkg: guake,                         desc: Drop-down python based quake style terminal }
-    - { pkg: gvfs,                          desc: Support for Trash and USB, depof: thunar-volman }
-    - { pkg: plank,                         desc: Elegant, simple, clean dock }
-    - { pkg: qopenvpn-pia,                  desc: OpenVPN system tray with PIA integration, type: FOREIGN }
-    - { pkg: thunar-archive-plugin,         desc: Thunar integration with file-roller }
-    - { pkg: thunar-media-tags-plugin,      desc: Thunar plugin to view media details }
-    - { pkg: thunar-volman,                 desc: Thunar plugin to automatically manage removeable devices }
-    - { pkg: visual-studio-code,            desc: Editor for modern development, type: AUR }
-    - { pkg: xfburn,                        desc: Burning tool, alt: k3b, brasero }
-    - { pkg: xfce4-screenshooter,           desc: Plugin that makes screenshots for the Xfce panel }
-    - { pkg: xnviewmp-system-libs,          desc: Efficient image viewer/browser/converter, type: AUR }
-
     # Develop
     - { pkg: awf-git,                       desc: Widget Factory for developing GTK themes, type: AUR }
     - { pkg: meld,                          desc: Develop/Diff Tool - Graphical diff tool cross platform }
     - { pkg: vim-fugitive,                  desc: Git wrapper }
     - { pkg: vim-supertab,                  desc: <Tab> for all completion }
     - { pkg: vim-ultisnips,                 desc: TextMate-style snippets for Vim }
+    - { pkg: visual-studio-code,            desc: Editor for modern development, type: AUR }
 
-    # OpenGL
-    - { pkg: lib32-mesa,                    desc: OpenGL opensource implementation, depof: kodi/steam }
-    - { pkg: lib32-mesa-vdpau,              desc: Mesa vdpau drivers, depof: kodi/steam }
-    - { pkg: mesa-vdpau,                    desc: Mesa vdpau drivers, depof: kodi/steam }
+  server-pkgs:
+    - { install: docker }
+    - { install: apache-php }
+    - { install: media-pkgs }
+    - { install: file-sharing }
 
-    # Office
-    - { pkg: cups-pdf,                      desc: System/Printer Driver - PDF printer driver }
-    - { pkg: leafpad,                       desc: Office/Notepad - Simple notepad knock off }
-    - { pkg: qpdfview,                      desc: A tabbed PDF viewer using the poppler library, type: AUR }
-
-    # Utility
-    - { pkg: catfish,                       desc: System/File Search - File search tool }
-    - { pkg: dconf-editor,                  desc: New configuration manager intended to replace gconf }
-    - { pkg: desktop-file-utils,            desc: Command line utilities for working with desktop entries }
-    - { pkg: file-roller,                   desc: System/Compression, alt: xarchiver }
-    - { pkg: galculator,                    desc: Office/Calculator }
-    - { pkg: gconf-editor,                  desc: Old Gnome configuration manager separate dconf-editor db }
-    - { pkg: gparted,                       desc: System/Partitioning - Partition magic type tool }
-    - { pkg: tumbler,                       desc: D-Bus thumbnail service for apps (e.g. Thunar) }
-
-  media-tools:
+  media-pkgs:
     - { pkg: handbrake,                     desc: Video/Encoding - Video encoding tool for mp4/mkv }
     - { pkg: handbrake-cli,                 desc: Video/Encoding - Video encoding tool for mp4/mkv }
 
-  theater-tools:
-    - { install: media-tools }
+  theater-pkgs:
+    - { install: media-pkgs }
     - { pkg: idesk,                         desc: Lightweight desktop icons for X }
     - { pkg: kodi,                          desc: Software media player and entertainment hub }
     - { pkg: tiny-media-manager,            desc: Cross platform media manager, type: AUR }
@@ -1127,7 +1175,7 @@ packages:
   docker:
     - { pkg: docker,                        desc: Run applications as containers, depof: reduce }
 
-  k8shost-tools:
+  k8shost-pkgs:
     - { install: docker }
     - { pkg: bridge-utils,                  desc: Ethernet bridge config utils, depof: k8s }
     - { pkg: ebtables,                      desc: Ethernet bridge filtering utilities, depof: k8s }
@@ -1136,7 +1184,7 @@ packages:
     - { pkg: kubernetes-kubectl,            desc: K8s cluster controller, type: FOREIGN, aurpath: kubernetes }
     - { pkg: socat,                         desc: Multipurpose relay, depof: k8s}
 
-  k8snode-tools:
+  k8snode-pkgs:
     - { install: docker }
     - { pkg: jq,                            desc: Command line JSON processor, depof: kubectl }
     - { pkg: helm,                          desc: Kubernetes package manager, type: FOREIGN }
@@ -1145,7 +1193,7 @@ packages:
     - { pkg: kubernetes-kubelet,            desc: K8s node control agent, type: FOREIGN, aurpath: kubernetes }
     - { pkg: kubernetes-cni,                desc: K8s networking plugins, type: FOREIGN, aurpath: kubernetes }
 
-  vagrant-tools:
+  vagrant-pkgs:
     - { pkg: packer,                        desc: HashiCorp's vagrant box builder, type: FOREIGN }
     - { pkg: vagrant,                       desc: Build and distribute virtualized dev environments }
     - { pkg: virtualbox,                    desc: Cross platform virtualization with UI }

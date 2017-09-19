@@ -31,6 +31,7 @@ fork it and make their own configuration ***spec.yml***
 * [Pack cyberlinux](#pack-cyberlinux)
     * [Pack deployment](#pack-deployment)
 * [Deploy cyberlinux](#deploy-cyberlinux)
+    * [Desktop Deployment](#desktop-deployment)
     * [Server Deployment](#server-deployment)
 * [Customization](#customization)
     * [Spec Structure](#spec-structure)
@@ -216,10 +217,28 @@ The simplest way to quickly deploy a cyberlinux box for development is to levera
 images that are publicly available. Use ***reduce*** to launch them with custom values as
 specified in the layer block in the ***spec***.
 
+### Desktop Deployment<a name="desktop-deployment"/></a>
+The ***desktop*** deployment was created to serve as a full developer environment and daily runner.
+It is an amalgam of most other deployment options. Although it is the heaviest of the deployments,
+resource wise, it is still built with speed and efficiency in mind.
+
+**Requirements:** 
+* Development (vscode, go, ruby, python)
+* File Sharing (NFS, Torrent, SFTP, FTP)
+* Productivity and Office (libreoffice, pdfs)
+* Virtual Machines and Containers (virtualbox, docker)
+* Media Processing/Consumption (vlc, smplayer, mvp, handbrake, makemkv)
+
 ### Server Deployment<a name="server-deployment"/></a>
 The ***server*** deployment was created to serve as a light weight web and file server that would
 be run on lower end headless hardware. As such many of the desktop widgets and such have been left
 out to facilitate efficient remote desktop sessions.
+
+**Requirements:** 
+* Web Server (PHP)
+* Telephony Engine (FreeSWITCH, Blink)
+* File Sharing (NFS, Torrent, SFTP, FTP)
+* Media Processing (Handbrake, makemkv-cli)
 
 ```bash
 # Deploys a k8snode with ip address of 192.168.56.10

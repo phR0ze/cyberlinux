@@ -1,0 +1,56 @@
+#MIT License
+#Copyright (c) 2017 phR0ze
+#
+#Permission is hereby granted, free of charge, to any person obtaining a copy
+#of this software and associated documentation files (the "Software"), to deal
+#in the Software without restriction, including without limitation the rights
+#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#copies of the Software, and to permit persons to whom the Software is
+#furnished to do so, subject to the following conditions:
+#
+#The above copyright notice and this permission notice shall be included in all
+#copies or substantial portions of the Software.
+#
+#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+#SOFTWARE.
+
+#-------------------------------------------------------------------------------
+# Configure conky to display date and calendar in top right
+#-------------------------------------------------------------------------------
+own_window_hints undecorated,below,sticky,skip_taskbar,skip_pager
+alignment top_right                         # Aligned position on the desktop
+own_window yes                              # Create own window to draw
+own_window_transparent yes                  # Set the background opacity to 0%
+double_buffer yes                           # Double buffer to avoid flickering
+maximum_width 330                           # Maximum width of conky window
+total_run_times 0                           # Run conky forever
+update_interval 1                           # Update interval for conky in seconds
+uppercase no                                # User upper case text
+use_xft yes                                 # Anti-aliased fonts
+gap_x 20                                    # Gap in pixels between right or left border of screen
+gap_y 20                                    # Gap in pixels between top or bottom of screen
+
+color1 ffffff
+color2 3CB0FD
+color3 0a6da6
+
+# offset, font, color, value
+TEXT
+# Time/Date
+${voffset -45}\
+${font Designer Block:bold:size=100}${color1}${time %I}\
+${offset 3}${voffset -38}${font Designer Block:bold:size=50}${color3}:${time %M}\
+${font Designer Block:bold:size=14}${time %p}\
+${offset -110}${voffset 13}${font Designer Block:bold:size=35}${color1}${time %a} ${time %d}\
+${voffset -10}${font Designer Block:bold:size=20}${exec ~/bin/conky_date.py}
+# Month/Year
+${offset 8}${voffset 25}${font Designer Block:normal:size=24}${color1}${time %B}.${time %Y} ${hr 2}
+# Day names
+${offset 8}${font Liberation Mono:bold:size=14}${color2}${offset -10}  Su  Mo  Tu  We  Th  Fr  Sa
+# Days
+${offset 8}${font Liberation Mono:size=14}${color1}${offset -10}${execp python ~/bin/conky_cal.py 2}
