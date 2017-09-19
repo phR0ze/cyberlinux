@@ -1,23 +1,23 @@
 # cyberlinux
 ***cyberlinux*** was designed to provide the unobtrusive beauty and power of Arch Linux as a fully
-customized multi-flavor automated offline deployment. Using a clean declarative yaml specification,
+customized automated offline multi-deployment ISO. Using a clean declarative yaml specification,
 processed by ***reduce***, cyberlinux is able to completely customize and automate the building of
-Arch Linux filesystems which are bundled as a bootable ISO. By default install flavors are
-provided for many common use cases but the option to build your own infinitely flexible flavor is
-yours for the taking.
+Arch Linux filesystems which are bundled as a bootable ISO. Many common use cases are available as 
+deployment options right out of the box, but the option to build your own infinitely flexible
+deployment is yours for the taking.
 
 [![Build Status](https://travis-ci.org/phR0ze/cyberlinux.svg)](https://travis-ci.org/phR0ze/cyberlinux)
 
 ### Disclaimer
 ***cyberlinux*** comes with absolutely no guarantees or support of any kind. It is to be used at
 your own risk.  Any damages, issues, losses or problems caused by the use of ***cyberlinux*** are
-strictly the responsiblity of the user and not the developer/creator of ***cyberlinux***
+strictly the responsiblity of the user and not the developer/creator of ***cyberlinux***.
 
-Additionally the pre-configured ***spec.yml*** and ***layers*** files exist in this repo is purely for
-my own personal benefit and pull requests will be evaluated as such. I intend to make the defaults
-generally useful but foremost it needs to be useful for my purposes. Pull requests align with my
-desires will be accepted. Typically I would expect those looking to leverage this framework to fork
-it and make their own configuration ***spec.yml***
+Additionally the pre-configured ***spec.yml*** and ***layers*** files that exist in this repo are
+purely for my own personal benefit and pull requests will be evaluated as such. I intend to make the
+defaults generally useful but foremost it needs to be useful for my purposes. Pull requests aligning
+with my desires will be accepted. Typically I would expect those looking to leverage this framework to
+fork it and make their own configuration ***spec.yml***
 
 ### Table of Contents
 * [Background](#background)
@@ -29,9 +29,9 @@ it and make their own configuration ***spec.yml***
     * [Linux Dev Envioronment](#linux-dev-environment)
     * [Full cyberlinux build](#full-cyberlinux-build)
 * [Pack cyberlinux](#pack-cyberlinux)
-    * [Pack flavor](#pack-flavor)
+    * [Pack deployment](#pack-deployment)
 * [Deploy cyberlinux](#deploy-cyberlinux)
-    * [Deploy flavor](#deploy-flavor)
+    * [Server Deployment](#server-deployment)
 * [Customization](#customization)
     * [Spec Structure](#spec-structure)
     * [Variables](#variables)
@@ -79,7 +79,7 @@ best thing and fell in love with ***manjaroiso*** and ***Thus*** as the means to
 offline ISO with pre/post install configuration changes.  This seemed to solve most of my problems.
 I now had offline install capabilities, latest versioned packages available and the ability to make
 some small pre/post install changes.  However it didn't allow for custom applications for different
-install flavors without heroic effort.  As time passed I found I was making more and more changes
+deployment options without heroic effort.  As time passed I found I was making more and more changes
 to ***Thus***, the installer, and other installation aspects other than what was allowed for with
 Manjaro's current tool set at the time. I soon realized that I had evolved my use of Manjaro so far
 beyond its original purpose that consuming updates from upstream Manjaro and other tasks were
@@ -114,11 +114,11 @@ One of the main reasons I'm moving off Manjaro to pure Arch is to get access to 
 repository of penetration testing tools.
 
 **Manjaro** - http://manjaro.org/get-manjaro  
-Manjaro is an Arch split-off distro which used to have a really nice OpenBox flavor that suited my
-needs quite well.  They have since dropped the OpenBox flavor but their distribution is still one 
-of the best distros out there and have a great community which adds to Arch's appeal with a little
-adaptation. The main draw back with Manjaro is that that it can't leverage the Arch repos as is due
-to their differences.
+Manjaro is an Arch split-off distro which used to have a really nice OpenBox deployment that suited
+my needs quite well.  They have since dropped the OpenBox deployment but their distribution is still
+one of the best distros out there and have a great community which adds to Arch's appeal with a
+little adaptation. The main draw back with Manjaro is that that it can't leverage the Arch repos as
+is due to their differences.
 
 **ArchBang** - http://bbs.archbang.org  
 ArchBang caught my eye because they are devoted to using lite components like OpenBox, LXTerminal,
@@ -135,7 +135,7 @@ I boiled down my requirements for ***cyberlinux*** as follows:
 
 * Single configuration file to drive ISO creation
 * ISO must include all packages, config etc... (i.e. works offline)
-* Boot splash screen shown with multi-flavor install options
+* Boot splash screen shown with multi-deployment options
 * Fast, simple automated installs with abosolute minimal initial user input
 * Fully pre-configured user environments to avoid post-install changes
 * Live boot option for maintenance, rescue and secure work
@@ -160,7 +160,7 @@ Install ***cyberlinux*** via a USB directly onto a machine
 
 1. Download the latest ***cyberlinux ISO*** 
 2. Burn the ISO to a USB
-3. Boot from the USB and install the ***cyberlinux-heavy*** flavor
+3. Boot from the USB and install the ***cyberlinux-heavy*** deployment
 
 **Vagrant VM**  
 If your not currently running ***cyberlinux*** and don't have a spare machine you can always deploy
@@ -204,8 +204,8 @@ uploaded for public use or deployed locally.
 ./reduce pack
 ```
 
-### Pack flavor<a name="pack-flavor"/></a>
-To pack a specific flavor for use - e.g. k8snode -  use the following:
+### Pack deployment<a name="pack-deployment"/></a>
+To pack a specific deployment for use - e.g. k8snode -  use the following:
 
 ```bash
 ./reduce pack --layers=k8snode
@@ -216,12 +216,10 @@ The simplest way to quickly deploy a cyberlinux box for development is to levera
 images that are publicly available. Use ***reduce*** to launch them with custom values as
 specified in the layer block in the ***spec***.
 
-### Deploy flavor<a name="deploy-flavor"/></a>
-To deploy a specific flavor for use - e.g. k8snode - use the following. This will deploy your
-locally built vagrant box for the k8snoe flavor if it exists and fall back on the public one if it
-doesn't exist. It will derive it's static ip from the ***spec*** specified ***subnet*** using
-the given ***--nodes*** value for the last octet.
-
+### Server Deployment<a name="server-deployment"/></a>
+The ***server*** deployment was created to serve as a light weight web and file server that would
+be run on lower end headless hardware. As such many of the desktop widgets and such have been left
+out to facilitate efficient remote desktop sessions.
 
 ```bash
 # Deploys a k8snode with ip address of 192.168.56.10
@@ -229,9 +227,9 @@ sudo ./reduce deploy --layer=k8snode --nodes=10
 ```
 
 ## Customization <a name="customization"/></a>
-The heart of ***cyberlinux*** is it's ability to provide infinite variations of repeatable flavors
-that can be built together into a bootable/installable ISO.  This is driven through the
-***spec.yml*** which is the file documenting all of the packages and configuration to use
+The heart of ***cyberlinux*** is it's ability to provide infinite variations of repeatable
+deployments that can be built together into a bootable/installable ISO.  This is driven through
+the ***spec.yml*** which is the file documenting all of the packages and configuration to use
 when building ***cyberlinux***.
 
 ### Spec Structure <a name="spec-structure"/></a>
@@ -282,7 +280,7 @@ specifics.
 
 ### Layers <a name="layers"/></a>
 ***Layers*** are granular re-buildable parts of the whole that can be layered to form more complex
-parts. They promote reuse. A deployable stack of layers are considered to be an install 'flavor'.
+parts. They promote reuse. A deployable stack of layers are considered to be a ***deployment***.
 Machine layers are installable sqfs images targeting 'baremetal' and 'VMs'. Container layers are
 deployable docker images. Files and packages are layered on top of dependency layers. Layers are
 built in the order they are listed in the yaml and this is the same order used in the ISO install
