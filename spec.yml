@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.133
+  release: 0.0.134
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -182,7 +182,7 @@ layers:
     base: heavy
     vars: { fontsize: 18 }
     boot:
-      - entry: "Install <%=distro%>-theater    -heavy + kodi w/configs"
+      - entry: "Install <%=distro%>-theater    -heavy + media/kodi"
         kernel: /<%=distro%>/vmlinuz
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=theater_layers%> showopts vga=792
 
@@ -193,7 +193,7 @@ layers:
     base: heavy
     groups: [docker]
     boot:
-      - entry: "Install <%=distro%>-desktop   -heavy + docker, libreoffice"
+      - entry: "Install <%=distro%>-desktop   -heavy + dev/office"
         kernel: /<%=distro%>/vmlinuz
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=desktop_layers%> showopts vga=792
     packages:
@@ -713,13 +713,21 @@ changes:
     - edit: /etc/dconf/db/local.d/02-plank
       append: true
       values:
-        - "[net/launchpad/plank/docks/dock1]\n"
-        - "hide-mode='window-dodge'\n"
-        - "icon-size=36\n"
-        - "position='top'\n"
-        - "dock-items=['lxterminal.dockitem','thunar.dockitem','xnviewmp.dockitem','smplayer.dockitem','virtualbox.dockitem','filezilla.dockitem','chromium.dockitem']\n"
-        - "pinned-only=true\n"
-        - "theme='Transparent'\n"
+        - '[net/launchpad/plank/docks/dock1]'
+        - "hide-mode='window-dodge'"
+        - 'icon-size=36'
+        - "position='top'"
+        - "dock-items=['lxterminal.dockitem','thunar.dockitem','xnviewmp.dockitem','smplayer.dockitem','vlc.dockitem','ghb.dockitem','filezilla.dockitem','firefox.dockitem']"
+        - "pinned-only=true"
+        - "theme='Transparent'"
+    - { edit: /etc/skel/.config/plank/dock1/launchers/lxterminal.dockitem, append: true, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/lxterminal.desktop"]}
+    - { edit: /etc/skel/.config/plank/dock1/launchers/thunar.dockitem, append: true, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/Thunar.desktop"]}
+    - { edit: /etc/skel/.config/plank/dock1/launchers/xnviewmp.dockitem, append: true, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/xnviewmp.desktop"]}
+    - { edit: /etc/skel/.config/plank/dock1/launchers/smplayer.dockitem, append: true, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/smplayer.desktop"]}
+    - { edit: /etc/skel/.config/plank/dock1/launchers/vlc.dockitem, append: true, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/vlc.desktop"]}
+    - { edit: /etc/skel/.config/plank/dock1/launchers/ghb.dockitem, append: true, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/ghb.desktop"]}
+    - { edit: /etc/skel/.config/plank/dock1/launchers/filezilla.dockitem, append: true, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/filezilla.desktop"]}
+    - { edit: /etc/skel/.config/plank/dock1/launchers/firefox.dockitem, append: true, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/firefox.desktop"]}
     - { chroot: dconf update }
   os-release-config:
     - { exec: 'rm -f /etc/os-release' }
@@ -1030,13 +1038,15 @@ packages:
     - { pkg: audacious,                     desc: Audio/Player, alt: deadbeaf, xnoise }
     #- { pkg: chromium,                      desc: Opensource project behind Chrome, type: FOREIGN }
     #- { pkg: chromium-widevine,             desc: Chromium support for Netflix, type: FOREIGN }
+    - { pkg: firefox,                       desc: Standalone web broser from mozilla.org }
     - { pkg: filezilla,                     desc: Network/Transfer }
+    - { pkg: flashplugin,                   desc: Adobe Flash Player NPAPI }
     - { pkg: gpicview,                      desc: Image viewer, alt: shotwell/viewnior }
     - { pkg: gsimplecal,                    desc: Simple calendar like windows systray calendar }
     - { pkg: gvim,                          desc: Improved version of vi text editor, conflict: vim }
     - { pkg: hardinfo,                      desc: A system information and benchmark tool }
     - { pkg: nitrogen,                      desc: System wallpaper manager }
-    - { pkg: pepper-flash,                  desc: Chromium flash support, type: ANTERGOS }
+    #- { pkg: pepper-flash,                  desc: Chromium flash support, type: ANTERGOS }
     - { pkg: pnmixer,                       desc: Volume controls in system tray, type: AUR }
     - { pkg: qt4,                           desc: A cross-platform application and UI framework, deps: vlc }
     - { pkg: smplayer,                      desc: UI wrapper around mplayer with click to pause, alt: vlc }

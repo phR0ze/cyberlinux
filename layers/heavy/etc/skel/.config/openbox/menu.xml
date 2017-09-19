@@ -38,7 +38,7 @@
       <item label="Audacious" icon="/usr/share/icons/hicolor/32x32/apps/audacious.png"><action name="Execute"><execute>audacious</execute></action></item>
       <item label="Audacity" icon="/usr/share/icons/hicolor/32x32/apps/audacity.png"><action name="Execute"><execute>env UBUNTU_MENUPROXY=0 audacity</execute></action></item>
       <item label="GNOME ALSA Mixer" icon="/usr/share/pixmaps/gnome-alsamixer/gnome-alsamixer-icon.png"><action name="Execute"><execute>gnome-alsamixer</execute></action></item>
-      <item label="HandBrake" icon="/usr/share/icons/hicolor/32x32/apps/hb-icon.png"><action name="Execute"><execute>ghb</execute></action></item>
+      <item label="HandBrake" icon="/usr/share/icons/hicolor/scalable/apps/hb-icon.svg"><action name="Execute"><execute>ghb</execute></action></item>
       <item label="SMPlayer" icon="/usr/share/icons/hicolor/32x32/apps/smplayer.png"><action name="Execute"><execute>smplayer</execute></action></item>
       <item label="VLC" icon="/usr/share/icons/hicolor/32x32/apps/vlc.png"><action name="Execute"><execute>vlc</execute></action></item>
       <item label="Xfburn" icon="/usr/share/icons/Paper/32x32/apps/xfburn.png"><action name="Execute"><execute>xfburn</execute></action></item>
@@ -47,7 +47,8 @@
     <!-- Network -->
     <menu id="Network" icon="/usr/share/icons/Paper/32x32/categories/applications-internet.png" label="Network">
       <item label="FileZilla" icon="/usr/share/icons/Paper/32x32/apps/filezilla.png"><action name="Execute"><execute>filezilla</execute></action></item>
-      <item label="Chromium" icon="/usr/share/icons/Paper/32x32/apps/chromium-browser.png"><action name="Execute"><execute>chromium</execute></action></item>
+      <!--<item label="Chromium" icon="/usr/share/icons/Paper/32x32/apps/chromium-browser.png"><action name="Execute"><execute>chromium</execute></action></item>-->
+      <item label="Firefox" icon="/usr/share/icons/Paper/32x32/apps/firefox.png"><action name="Execute"><execute>firefox</execute></action></item>
       <item label="qBittorrent" icon="/usr/share/icons/Paper/32x32/apps/qbittorrent.png"><action name="Execute"><execute>qbittorrent</execute></action></item>
       <item label="qOpenVPN" icon="/usr/share/icons/hicolor/32x32/apps/openvpn.png"><action name="Execute"><execute>qopenvpn</execute></action></item>
       <item label="Remmina" icon="/usr/share/icons/Paper/32x32/apps/remmina.png"><action name="Execute"><execute>/usr/bin/remmina</execute></action></item>
