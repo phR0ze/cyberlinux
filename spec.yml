@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.135
+  release: 0.0.136
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -78,7 +78,10 @@ layers:
         kernel: memtest
         noboot: true
     packages:
-      - { install: base-pkgs }
+      - { install: machine-core }
+      - { install: machine-tools }
+      - { install: virtualbox-guest }
+
     changes:
       - { apply: base-config }
 
@@ -532,6 +535,7 @@ changes:
   lxdm-config:
     - { exec: ln -sf //usr/lib/systemd/system/lxdm.service /etc/systemd/system/display-manager.service }
     - { edit: /usr/share/lxdm/themes/Industrial/gtkrc, regex: '^(\s*fg\[NORMAL\]=).*', value: '\1="#ffffff"' }
+    #- { edit: /usr/share/lxdm/themes/Industrial/gtk.css, regex: '^(\s*fg\[NORMAL\]=).*', value: '\1="#ffffff"' }
     - { edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(session)=.*', value: '\1=/usr/bin/openbox-session' }
     - { edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(numlock)=.*', value: '\1=1' }
     - { edit: /etc/lxdm/lxdm.conf, regex: '^(gtk_theme)=.*', value: '\1=<%=distro%>' }
@@ -901,15 +905,9 @@ packages:
     - { pkg: memtest86+,                    desc: memtest is used in the ISO creation as menu option }
     - { pkg: syslinux,                      desc: Boot loaders for ext2/3/4 USB and CD }
 
-  base-pkgs:
-    - { install: machine-core }
-    - { install: machine-tools }
-    - { install: virtualbox-guest }
-
   shell-pkgs:
     - { install: dev-pkgs }
     - { install: reduce-gems }
-
     - { pkg: cronie,                        desc: Daemon for scheduling programs to run }
     - { pkg: htop,                          desc: Interactive process viewer, alt: top }
     - { pkg: iftop,                         desc: Display bandwidth usage on an interface }

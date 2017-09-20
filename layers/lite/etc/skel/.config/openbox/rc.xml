@@ -133,12 +133,12 @@
     </keybind>
 
     <!-- Maximize window -->
-    <keybind key="W-Prior">
+    <keybind key="W-Up">
       <action name="Maximize"/>
     </keybind>
 
     <!-- Minimize window -->
-    <keybind key="W-Next">
+    <keybind key="W-Down">
       <action name="Iconify"/>
     </keybind>
 
@@ -196,7 +196,7 @@
     </keybind>
 
     <!-- Dock window top -->
-    <keybind key="W-Up">
+    <keybind key="W-Prior">
       <action name="Unmaximize"/>
       <action name="MoveResizeTo">
         <x>0</x>
@@ -207,7 +207,7 @@
     </keybind>
 
     <!-- Dock window bottom -->
-    <keybind key="W-Down">
+    <keybind key="W-Next">
       <action name="Unmaximize"/>
       <action name="MoveResizeTo">
         <x>0</x>
