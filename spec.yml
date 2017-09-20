@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.134
+  release: 0.0.135
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -66,7 +66,7 @@ layers:
     vars: { fontsize: 10 }
     groups: [lp, wheel, network, storage, users]
     boot:
-      - entry: "Install <%=distro%>-base        -minimal shell env."
+      - entry: "Install <%=distro%>-base        -minimal shell env"
         kernel: /<%=distro%>/vmlinuz
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=base_layers%> showopts vga=792
       - entry: Hardware Detection Tool
@@ -78,9 +78,7 @@ layers:
         kernel: memtest
         noboot: true
     packages:
-      - { install: machine-core }
-      - { install: machine-tools }
-      - { install: virtualbox-guest }
+      - { install: base-pkgs }
     changes:
       - { apply: base-config }
 
@@ -90,7 +88,7 @@ layers:
     type: machine
     base: base
     boot:
-      - entry: "Install <%=distro%>-shell        -base + full shell env."
+      - entry: "Install <%=distro%>-shell        -base + full shell dev env"
         kernel: /<%=distro%>/vmlinuz
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=shell_layers%> showopts vga=792
     packages:
@@ -109,25 +107,13 @@ layers:
       - video
       - audio
     boot:
-      - entry: "Install <%=distro%>-lite           -shell + minimal X11 env."
+      - entry: "Install <%=distro%>-lite           -shell + minimal X11 env"
         kernel: /<%=distro%>/vmlinuz
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=lite_layers%> showopts vga=792
     packages:
       - { install: lite-pkgs }
     changes:
       - { apply: lite-config }
-
-  # Music
-  # ----------------------------------------------------------------------------
-  - name: music
-    type: machine
-    base: lite
-    boot:
-      - entry: "Install <%=distro%>-music       -lite + custom configs"
-        kernel: /<%=distro%>/vmlinuz
-        initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=music_layers%> showopts vga=792
-    packages:
-      - { pkg: idesk,                         desc: Lightweight desktop icons for X }
 
   # Server
   # ----------------------------------------------------------------------------
@@ -172,8 +158,7 @@ layers:
     packages:
       - { install: k8snode-pkgs }
     changes:
-      - { apply: docker-config }
-      - { chroot: systemctl enable kubelet.service }
+      - { apply: k8snode-config }
 
   # Theater
   # ----------------------------------------------------------------------------
@@ -197,9 +182,9 @@ layers:
         kernel: /<%=distro%>/vmlinuz
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=desktop_layers%> showopts vga=792
     packages:
-      - { install: docker }
+      - { install: desktop-pkgs }
     changes:
-      - { apply: docker-config }
+      - { apply: desktop-config }
 
   # Live
   # ----------------------------------------------------------------------------
@@ -272,7 +257,13 @@ changes:
     - { apply: wallpaper-config }
   heavy-config:
     - { apply: guake-config }
-    - { apply: plank-config }
+    - { apply: plank-heavy-config }
+  desktop-config:
+    - { apply: docker-config }
+    - { apply: plank-desktop-config }
+  k8snode-config:
+    - { apply: docker-config }
+    - { chroot: systemctl enable kubelet.service }
   server-config:
     - { apply: nfs-config }
     - { apply: docker-config }
@@ -709,7 +700,13 @@ changes:
         - 'Server = http://mirror.vfn-nrw.de/archlinux/$repo/os/$arch'
         - 'Server = https://mirror.us.leaseweb.net/archlinux/$repo/os/$arch'
         - 'Server = http://archlinux.dynamict.se/$repo/os/$arch'
-  plank-config:
+  plank-desktop-config:
+    - edit: /etc/dconf/db/local.d/02-plank
+      regex: '^(dock-items=[).*'
+      value: "\\1 'lxterminal.dockitem','thunar.dockitem','xnviewmp.dockitem','smplayer.dockitem','vlc.dockitem','ghb.dockitem','filezilla.dockitem','firefox.dockitem','calc.dockitem','writer.dockitem']"
+    - { edit: /etc/skel/.config/plank/dock1/launchers/calc.dockitem, append: true, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/libreoffice-calc.desktop"]}
+    - { edit: /etc/skel/.config/plank/dock1/launchers/writer.dockitem, append: true, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/libreoffice-writer.desktop"]}
+  plank-heavy-config:
     - edit: /etc/dconf/db/local.d/02-plank
       append: true
       values:
@@ -904,6 +901,11 @@ packages:
     - { pkg: memtest86+,                    desc: memtest is used in the ISO creation as menu option }
     - { pkg: syslinux,                      desc: Boot loaders for ext2/3/4 USB and CD }
 
+  base-pkgs:
+    - { install: machine-core }
+    - { install: machine-tools }
+    - { install: virtualbox-guest }
+
   shell-pkgs:
     - { install: dev-pkgs }
     - { install: reduce-gems }
@@ -962,7 +964,7 @@ packages:
     - { pkg: automake,                      desc: Automatically create Makefiles, depof: base-devel }
     - { pkg: binutils,                      desc: Manipulate binary and object files, depof: base-devel }
     - { pkg: bison,                         desc: General purpose parser generator, depof: base-devel }
-    #- { pkg: delve,                         desc: A debugger for the Go Programming Language, type: FOREIGN }
+    - { pkg: delve,                         desc: A debugger for the Go Programming Language, type: FOREIGN }
     - { pkg: devtools,                      desc: Misc development tools including makepkg conf, depof: reduce }
     - { pkg: diffutils,                     desc: Patch file utility programs }
     - { pkg: dos2unix,                      desc: Text file format converter }
@@ -1027,7 +1029,7 @@ packages:
     - { pkg: mesa,                          desc: Open-source OpenGL implementation }
     - { pkg: mesa-demos,                    desc: Mesa demos and tools e.g glxinfo }
     - { pkg: numix-frost-themes,            desc: Numix frost GTK2, GTK3 and OpenBox themes, type: ANTERGOS }
-    - { pkg: paper-icon-theme,              desc: cyberlinux icon theme, type: FOREIGN }
+    - { pkg: paper-icon-theme,              desc: Paper icon theme, type: AUR }
     - { pkg: pulseaudio-alsa,               desc: ALSA Configuration for PulseAudio }
     - { pkg: python2-xdg,                   desc: Enable use of .desktop files in /etc/xdg in openbox }
     - { pkg: xcursor-numix-frost,           desc: Numix frost cursor theme, type: FOREIGN }
@@ -1115,6 +1117,7 @@ packages:
     - { pkg: tumbler,                       desc: D-Bus thumbnail service for apps (e.g. Thunar) }
 
   desktop-pkgs:
+    - { install: docker }
     - { pkg: cinnamon-screensaver,          desc: Screensaver for the Cinnamon desktop, type: FOREIGN }
     - { pkg: gimp,                          desc: Excellent image editor, alt: pinta }
     - { pkg: hunspell-en_US,                desc: US dictionaries for spell checking, deps: libreoffice }
@@ -1124,6 +1127,7 @@ packages:
     - { pkg: kolourpaint,                   desc: Paint application that saves jpg in format for GFXBoot }
     - { pkg: python2-lxml,                  desc: Python wrapper for libxml2, deps: Inkscape }
     - { pkg: openshot,                      desc: Simple powerful Video Editor, alt: pitivi, kdenlive }
+    - { pkg: openvpn-update-systemd-resolved, desc: OpenVPN systemd-resolved updater, type: AUR }
     - { pkg: scribus,                       desc: Open Source Desktop Publishing }
     - { pkg: synergy,                       desc: Network/Virtual KVM }
 

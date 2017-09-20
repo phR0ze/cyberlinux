@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Cinnamon Screensaver
+Comment=Desktop screen saver and lock
+Exec=cinnamon-screensaver
+Icon=cinnamon-screensaver
+Terminal=false
+StartupNotify=true
+Type=Application
+Categories=System;Utility

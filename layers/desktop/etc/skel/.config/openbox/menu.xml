@@ -18,18 +18,33 @@
       <item label="Bulk Rename" icon="/usr/share/icons/Paper/32x32/apps/Thunar.png"><action name="Execute"><execute>/usr/lib/Thunar/ThunarBulkRename</execute></action></item>
       <item label="Catfish File Search" icon="/usr/share/icons/Paper/32x32/apps/system-search.png"><action name="Execute"><execute>catfish</execute></action></item>
       <item label="Galculator" icon="/usr/share/icons/Paper/32x32/apps/galculator.png"><action name="Execute"><execute>galculator</execute></action></item>
+      <item label="KeePass" icon="/usr/share/icons/hicolor/32x32/apps/keepass.png"><action name="Execute"><execute>keepass</execute></action></item>
       <item label="Leafpad" icon="/usr/share/icons/hicolor/32x32/apps/leafpad.png"><action name="Execute"><execute>leafpad</execute></action></item>
       <item label="Screenshot" icon="/usr/share/icons/Paper/32x32/apps/applets-screenshooter.png"><action name="Execute"><execute>xfce4-screenshooter</execute></action></item>
+      <item label="Synergy" icon="/usr/share/icons/Paper/32x32/apps/synergy.png"><action name="Execute"><execute>synergy</execute></action></item>
     </menu>
 
     <!-- Development -->
     <menu id="Development" icon="/usr/share/icons/Paper/32x32/categories/applications-development.png" label="Development">
       <item label="GVim" icon="/usr/share/icons/Paper/32x32/apps/gvim.png"><action name="Execute"><execute>gvim -f</execute></action></item>
+      <item label="Meld" icon="/usr/share/icons/Paper/32x32/apps/meld.png"><action name="Execute"><execute>meld</execute></action></item>
+      <item label="Visual Studio Code" icon="/usr/share/icons/Paper/32x32/apps/visual-studio-code.png"><action name="Execute"><execute>code</execute></action></item>
     </menu>
+
+    <!-- Games -->
+    <!-- <menu id="Games" icon="/usr/share/icons/Paper/32x32/categories/applications-games.png" label="Games">
+      <item label="Steam (Purge Libraries)" icon="/usr/share/icons/Paper/32x32/apps/steam.png"><action name="Execute"><execute>/usr/bin/steam-clean</execute></action></item>
+      <item label="Steam (Steam Runtime)" icon="/usr/share/icons/Paper/32x32/apps/steam.png"><action name="Execute"><execute>env STEAM_RUNTIME=1 /usr/bin/steam</execute></action></item>
+      <item label="Steam (System Libraries)" icon="/usr/share/icons/Paper/32x32/apps/steam.png"><action name="Execute"><execute>env STEAM_RUNTIME=0 /usr/bin/steam</execute></action></item>
+    </menu> -->
 
     <!-- Graphics -->
     <menu id="Graphics" icon="/usr/share/icons/Paper/32x32/categories/applications-graphics.png" label="Graphics">
+      <item label="Gimp" icon="/usr/share/icons/Paper/32x32/apps/gimp.png"><action name="Execute"><execute>gimp-2.8</execute></action></item>
       <item label="Image Viewer" icon="/usr/share/icons/Paper/32x32/apps/gpicview.png"><action name="Execute"><execute>gpicview </execute></action></item>
+      <item label="Inkscape" icon="/usr/share/icons/Paper/32x32/apps/inkscape.png"><action name="Execute"><execute>inkscape</execute></action></item>
+      <item label="Kolour Paint" icon="/usr/share/icons/Paper/32x32/apps/kolourpaint.png"><action name="Execute"><execute>kolourpaint</execute></action></item>
+      <item label="LibreOffice Draw" icon="/usr/share/icons/Paper/32x32/apps/libreoffice-draw.png"><action name="Execute"><execute>libreoffice --draw</execute></action></item>
       <item label="Nitrogen" icon="/usr/share/icons/hicolor/32x32/apps/nitrogen.png"><action name="Execute"><execute>nitrogen</execute></action></item>
       <item label="Xnview" icon="/usr/share/icons/hicolor/32x32/apps/xnviewmp.png"><action name="Execute"><execute>xnviewmp</execute></action></item>
     </menu>
@@ -40,6 +55,7 @@
       <item label="Audacity" icon="/usr/share/icons/hicolor/32x32/apps/audacity.png"><action name="Execute"><execute>env UBUNTU_MENUPROXY=0 audacity</execute></action></item>
       <item label="GNOME ALSA Mixer" icon="/usr/share/pixmaps/gnome-alsamixer/gnome-alsamixer-icon.png"><action name="Execute"><execute>gnome-alsamixer</execute></action></item>
       <item label="HandBrake" icon="/usr/share/icons/hicolor/scalable/apps/hb-icon.svg"><action name="Execute"><execute>ghb</execute></action></item>
+      <item label="OpenShot" icon="/usr/share/icons/Paper/32x32/apps/openshot.png"><action name="Execute"><execute>openshot-qt</execute></action></item>
       <item label="SMPlayer" icon="/usr/share/icons/hicolor/32x32/apps/smplayer.png"><action name="Execute"><execute>smplayer</execute></action></item>
       <item label="VLC" icon="/usr/share/icons/hicolor/32x32/apps/vlc.png"><action name="Execute"><execute>vlc</execute></action></item>
       <item label="Xfburn" icon="/usr/share/icons/Paper/32x32/apps/xfburn.png"><action name="Execute"><execute>xfburn</execute></action></item>
@@ -59,6 +75,14 @@
     <!-- Office -->
     <menu id="Office" icon="/usr/share/icons/Paper/32x32/categories/applications-office.png" label="Office">
       <item label="Evince" icon="/usr/share/icons/Paper/32x32/apps/evince.png"><action name="Execute"><execute>evince</execute></action></item>
+      <item label="LibreOffice Base" icon="/usr/share/icons/Paper/32x32/apps/libreoffice-base.png"><action name="Execute"><execute>libreoffice --base</execute></action></item>
+      <item label="LibreOffice Calc" icon="/usr/share/icons/Paper/32x32/apps/libreoffice-calc.png"><action name="Execute"><execute>libreoffice --calc</execute></action></item>
+      <item label="LibreOffice Draw" icon="/usr/share/icons/Paper/32x32/apps/libreoffice-draw.png"><action name="Execute"><execute>libreoffice --draw</execute></action></item>
+      <item label="LibreOffice Impress" icon="/usr/share/icons/Paper/32x32/apps/libreoffice-impress.png"><action name="Execute"><execute>libreoffice --impress</execute></action></item>
+      <item label="LibreOffice Math" icon="/usr/share/icons/Paper/32x32/apps/libreoffice-math.png"><action name="Execute"><execute>libreoffice --math</execute></action></item>
+      <item label="LibreOffice Writer" icon="/usr/share/icons/Paper/32x32/apps/libreoffice-writer.png"><action name="Execute"><execute>libreoffice --writer</execute></action></item>
+      <item label="LibreOffice" icon="/usr/share/icons/Paper/32x32/apps/libreoffice-startcenter.png"><action name="Execute"><execute>libreoffice</execute></action></item>
+      <item label="Scribus" icon="/usr/share/icons/Paper/32x32/apps/scribus.png"><action name="Execute"><execute>scribus</execute></action></item>
     </menu>
 
     <!-- Settings -->
@@ -99,6 +123,7 @@
       <item label="GParted" icon="/usr/share/icons/Paper/32x32/apps/gparted.png"><action name="Execute"><execute>sudo gparted</execute></action></item>
       <item label="HardInfo" icon="/usr/share/hardinfo/pixmaps/logo.png"><action name="Execute"><execute>hardinfo</execute></action></item>
       <item label="Htop" icon="/usr/share/icons/Paper/32x32/apps/htop.png"><action name="Execute"><execute>lxterminal -e 'htop'</execute></action></item>
+      <item label="VirtualBox" icon="/usr/share/icons/Paper/32x32/apps/virtualbox.png"><action name="Execute"><execute>VirtualBox</execute></action></item>
     </menu>
     <separator/>
     <item label="Run..." icon="/usr/share/icons/Paper/32x32/mimetypes/application-x-executable.png"><action name="Execute"><execute>dmenu_run -fn -misc-fixed-*-*-*-*-20-200-*-*-*-*-*-*  -i -nb '#000000' -nf '#efefef' -sf '#000000' -sb '#3cb0fd'</execute></action></item>

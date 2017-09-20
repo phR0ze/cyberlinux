@@ -73,7 +73,7 @@
       <item label="Tint2 Themes" icon="/usr/share/icons/Paper/32x32/apps/tint2conf.png"><action name="Execute"><execute>tint2conf</execute></action></item>
     </menu>
 
-    <!-- Pacman/Servers -->
+    <!-- System -->
     <menu id="System" icon="/usr/share/icons/Paper/32x32/categories/applications-system.png" label="System">
       <item label="HardInfo" icon="/usr/share/hardinfo/pixmaps/logo.png"><action name="Execute"><execute>hardinfo</execute></action></item>
       <item label="Htop" icon="/usr/share/icons/Paper/32x32/apps/htop.png"><action name="Execute"><execute>lxterminal -e 'htop'</execute></action></item>
