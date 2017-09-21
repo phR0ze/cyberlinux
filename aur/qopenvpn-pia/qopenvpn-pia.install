@@ -1,0 +1,7 @@
+post_install() {
+  echo "Create a credentials file '/etc/openvpn/client/pia.creds'"
+  echo "Set 1st line to the vpn user"
+  echo "Set 2nd line to the vpn pass"
+}
+
+# vim: ts=2 sw=2 et:

@@ -1,0 +1,87 @@
+#MIT License
+#Copyright (c) 2017 phR0ze
+#
+#Permission is hereby granted, free of charge, to any person obtaining a copy
+#of this software and associated documentation files (the "Software"), to deal
+#in the Software without restriction, including without limitation the rights
+#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#copies of the Software, and to permit persons to whom the Software is
+#furnished to do so, subject to the following conditions:
+#
+#The above copyright notice and this permission notice shall be included in all
+#copies or substantial portions of the Software.
+#
+#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+#SOFTWARE.
+
+#-------------------------------------------------------------------------------
+# Maintained by phR0ze
+#-------------------------------------------------------------------------------
+pkgname=qopenvpn-pia
+pkgver=2.0.1
+pkgrel=4
+pkgdesc="Simple OpenVPN PyQt GUI with PIA VPN profiles included"
+arch=('any')
+url="https://github.com/phR0ze/qopenvpn"
+license=('GPL3')
+depends=('python-pyqt5' 'openvpn' 'systemd')
+makedepends=('python-setuptools')
+install=$pkgname.install
+conficts=('qopenvpn')
+
+source=("$pkgname-$pkgver.tar.gz::https://github.com/phR0ze/qopenvpn/archive/$pkgver.tar.gz"
+        "https://www.privateinternetaccess.com/openvpn/openvpn-ip.zip"
+        "https://www.privateinternetaccess.com/openvpn/openvpn-strong.zip"
+        "override.conf")
+
+sha256sums=('cdb683040e28bf4c04eed21941132e2ca8f83e4dc72f9af446aeed07f1f04335'
+            '8d7d75b7cc7b5a40dc26f778eb646c348011657bba90e137a359d18332c4bdad'
+            '4897c3a8dd988e87c4c53db2dd1522a0a7112d58a0357425c09d1ce5f9f5a1b5'
+            '2e2fc1590238d95bd86d8281e361abaced00c0d6d86d89ce8ceab097a6ce33e4')
+
+prepare()
+{
+  # Build QOpenVPN
+  cd $srcdir/qopenvpn-$pkgver
+  python setup.py build
+
+  # Rename PIA configuration files
+  # openvpn doesn't do well with spaces
+  for ovpn in $srcdir/*.ovpn; do
+    dir=$(dirname "$ovpn")
+    base=$(basename "$ovpn")
+    x="${base//ovpn/conf}"
+    x="${x// /-}"
+    x="${x,,}"
+    msg2 "Renaming: $base => $x"
+    mv "$ovpn" "$dir/$x"
+  done
+}
+
+package()
+{
+  # Package QOpenVPN
+  cd $srcdir/qopenvpn-$pkgver
+  python setup.py install --root=$pkgdir
+
+  # Modify openvpn configuration to leverage a passwords file
+  install -dm750 $pkgdir/etc/systemd/system/openvpn-client@.service.d
+  install -Dm600 -t $pkgdir/etc/systemd/system/openvpn-client@.service.d $srcdir/override.conf
+
+  # Package PIA configuration
+  cd $srcdir
+  install -dm750 $pkgdir/etc/openvpn/client
+
+  # Install openvpn profiles and certs
+  for x in $srcdir/*.conf $srcdir/*.crt $srcdir/*.pem; do
+    msg2 "Installing: $x"
+    install -Dm600 -t $pkgdir/etc/openvpn/client "$x"
+  done
+}
+
+# vim: ts=2:sw=2:sts=2
