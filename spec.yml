@@ -705,9 +705,6 @@ changes:
         - 'Server = https://mirror.us.leaseweb.net/archlinux/$repo/os/$arch'
         - 'Server = http://archlinux.dynamict.se/$repo/os/$arch'
   plank-desktop-config:
-    - edit: /etc/dconf/db/local.d/02-plank
-      regex: '^(dock-items=[).*'
-      value: "\\1 'lxterminal.dockitem','thunar.dockitem','xnviewmp.dockitem','smplayer.dockitem','vlc.dockitem','ghb.dockitem','filezilla.dockitem','firefox.dockitem','calc.dockitem','writer.dockitem']"
     - { edit: /etc/skel/.config/plank/dock1/launchers/calc.dockitem, append: true, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/libreoffice-calc.desktop"]}
     - { edit: /etc/skel/.config/plank/dock1/launchers/writer.dockitem, append: true, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/libreoffice-writer.desktop"]}
   plank-heavy-config:

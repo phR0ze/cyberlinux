@@ -31,7 +31,7 @@
     <menu id="Graphics" icon="/usr/share/icons/Paper/32x32/categories/applications-graphics.png" label="Graphics">
       <item label="Image Viewer" icon="/usr/share/icons/Paper/32x32/apps/gpicview.png"><action name="Execute"><execute>gpicview </execute></action></item>
       <item label="Nitrogen" icon="/usr/share/icons/hicolor/32x32/apps/nitrogen.png"><action name="Execute"><execute>nitrogen</execute></action></item>
-      <item label="Xnview" icon="/usr/share/icons/hicolor/32x32/apps/xnviewmp.png"><action name="Execute"><execute>xnviewmp</execute></action></item>
+      <item label="Xnview" icon="/opt/xnviewmp/xnviewmp.png"><action name="Execute"><execute>xnviewmp</execute></action></item>
     </menu>
 
     <!-- Multimedia -->
