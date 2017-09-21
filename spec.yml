@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.139
+  release: 0.0.142
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1100,7 +1100,7 @@ packages:
     - { pkg: guake,                         desc: Drop-down python based quake style terminal }
     - { pkg: gvfs,                          desc: Support for Trash and USB, depof: thunar-volman }
     - { pkg: plank,                         desc: Elegant, simple, clean dock }
-    #- { pkg: qopenvpn-pia,                  desc: OpenVPN system tray with PIA integration, type: FOREIGN }
+    - { pkg: qopenvpn-pia,                  desc: OpenVPN system tray with PIA integration, type: FOREIGN }
     - { pkg: thunar-archive-plugin,         desc: Thunar integration with file-roller }
     - { pkg: thunar-media-tags-plugin,      desc: Thunar plugin to view media details }
     - { pkg: thunar-volman,                 desc: Thunar plugin to automatically manage removeable devices }
