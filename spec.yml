@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.136
+  release: 0.0.137
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -534,14 +534,12 @@ changes:
         - 'DISTRIB_DESCRIPTION=<%=distro%>'
   lxdm-config:
     - { exec: ln -sf //usr/lib/systemd/system/lxdm.service /etc/systemd/system/display-manager.service }
-    - { edit: /usr/share/lxdm/themes/Industrial/gtkrc, regex: '^(\s*fg\[NORMAL\]=).*', value: '\1="#ffffff"' }
-    #- { edit: /usr/share/lxdm/themes/Industrial/gtk.css, regex: '^(\s*fg\[NORMAL\]=).*', value: '\1="#ffffff"' }
-    - { edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(session)=.*', value: '\1=/usr/bin/openbox-session' }
+    - { edit: /usr/share/lxdm/themes/Industrial/gtk.css, regex: '^(\s*font: Sans).*', value: '\1 18;' }
+    - { edit: /usr/share/lxdm/themes/Industrial/gtk.css, regex: '^(\s*color:) #000000.*', value: '\1 #ffffff;' }
     - { edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(numlock)=.*', value: '\1=1' }
     - { edit: /etc/lxdm/lxdm.conf, regex: '^(gtk_theme)=.*', value: '\1=<%=distro%>' }
     - { edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(bg)=.*', value: '\1=<%=wallpaper%>' }
     - { edit: /etc/lxdm/lxdm.conf, regex: '^(bottom_pane)=.*', value: '\1=0' }
-    - { edit: /etc/lxdm/lxdm.conf, regex: '^(lang)=.*', value: '\1=0' }
     - { edit: /etc/lxdm/lxdm.conf, regex: '^(theme)=.*', value: '\1=Industrial' }
     - { edit: /etc/lxdm/lxdm.conf, regex: '^(disable)=.*', value: '\1=1' }
     - { exec: rm -f /etc/lxdm/PostLogout }
@@ -1014,7 +1012,7 @@ packages:
     - { pkg: gtk-engines,                   desc: GTK theme engines for cyberlinux theme }
     - { pkg: gtk-engine-murrine,            desc: GTK theme engine for cyberlinux theme }
     - { pkg: lxappearance-obconf,           desc: Openbox support for lxappearance }
-    - { pkg: lxdm,                          desc: Lightweight X11 Display Manager }
+    - { pkg: lxdm-gtk3,                     desc: Lightweight X11 Display Manager }
     - { pkg: lxinput,                       desc: Keyboard and mouse config for LXDE }
     - { pkg: lxrandr,                       desc: Monitor configuration tool for LXDE }
     - { pkg: lxsession,                     desc: Lightweight X11 session manager for LXDE }
