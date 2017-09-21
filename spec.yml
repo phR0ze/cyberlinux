@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.137
+  release: 0.0.138
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -325,6 +325,25 @@ changes:
     - { edit: /etc/php/php.ini, regex: '^;(extension=gettext.so.*)', value: '\1' }
     - { edit: /etc/php/php.ini, regex: '^;(extension=pdo_sqlite.so.*)', value: '\1' }
     - { edit: /etc/php/php.ini, regex: '^;(extension=sqlite3.so.*)', value: '\1' }
+  cinnamon-screensaver-config:
+    - edit: /etc/dconf/db/local.d/03-cinnamon
+      append: true
+      values:
+        - "[org/cinnamon/desktop/screensaver]\n"
+        - "use-custom-format=true\n"
+        - "time-format='%I:%M%P'\n\n"
+        - "[org/cinnamon/desktop/background]\n"
+        - "picture-uri='file:///usr/share/backgrounds/<%=wallpaper%>'\n"
+    - { chroot: dconf update }
+    # This file edit is an ugly hack to fix cinnamon-screensaver as it broke in a recent version
+    - edit: /usr/share/glib-2.0/schemas/org.cinnamon.desktop.screensaver.gschema.xml
+      append: before
+      regex: '</schema>'
+      values:
+        - "    <key type=\"b\" name=\"logout-enabled\"><default>false</default></key>\n"
+        - "    <key type=\"s\" name=\"logout-command\"><default>''</default></key>\n"
+        - "    <key type=\"u\" name=\"logout-delay\"><default>7200</default></key>\n"
+    - { chroot: glib-compile-schemas /usr/share/glib-2.0/schemas }
   dconf-config:
     - edit: /etc/dconf/profile/user
       append: true
