@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.148
+  release: 0.0.149
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -264,6 +264,7 @@ changes:
   desktop-config:
     - { apply: docker-config }
     - { apply: plank-desktop-config }
+    - { apply: cinnamon-screensaver-config }
   k8snode-config:
     - { apply: docker-config }
     - { chroot: systemctl enable kubelet.service }
