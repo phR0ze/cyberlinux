@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.150
+  release: 0.0.151
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -336,7 +336,7 @@ changes:
         - "use-custom-format=true\n"
         - "time-format='%I:%M%P'\n\n"
         - "[org/cinnamon/desktop/background]\n"
-        - "picture-uri='file:///usr/share/backgrounds/<%=wallpaper%>'\n"
+        - "picture-uri='file://<%=wallpaper%>'\n"
     - { chroot: dconf update }
     # This file edit is an ugly hack to fix cinnamon-screensaver as it broke in a recent version
     - edit: /usr/share/glib-2.0/schemas/org.cinnamon.desktop.screensaver.gschema.xml
