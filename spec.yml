@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.151
+  release: 0.0.152
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -595,7 +595,7 @@ changes:
       values:
         - '[Default Applications]'
         - 'application/x-executable=geany.desktop;'
-        - 'application/pdf=qpdfview.desktop;'
+        - 'application/pdf=evince.desktop;'
         - 'text/plain=leafpad.desktop;'
         - 'application/xml=geany.desktop;'
         - 'application/x-shellscript=geany.desktop;'
@@ -604,7 +604,7 @@ changes:
         - '[Added Associations]'
         - 'audio/mpeg=audacious.desktop;'
         - 'audio/x-wav=audacious.desktop;'
-        - 'application/pdf=qpdfview.desktop;'
+        - 'application/pdf=evince.desktop;'
         - 'application/msword=libreoffice-writer.desktop;'
         - 'application/rtf=libreoffice-writer.desktop;'
         - 'application/vnd.ms-powerpoint=libreoffice-impress.desktop;'
@@ -1099,16 +1099,17 @@ packages:
     - { install: file-sharing }
     - { install: remote-desktop }
     - { pkg: audacity,                      desc: Audio editor - cross platform, tried and tested }
+    - { pkg: brasero,                       desc: Burning tool, alt: k3b, xfburn }
     - { pkg: conky,                         desc: Lightweight system monitor for X }
     - { pkg: dmenu,                         desc: Super light weight application runner }
     - { pkg: guake,                         desc: Drop-down python based quake style terminal }
     - { pkg: gvfs,                          desc: Support for Trash and USB, depof: thunar-volman }
     - { pkg: plank,                         desc: Elegant, simple, clean dock }
     - { pkg: qopenvpn-pia,                  desc: OpenVPN system tray with PIA integration, type: FOREIGN }
+    - { pkg: sound-juicer,                  desc: A lean and friendly audio CD extractor for GNOME }
     - { pkg: thunar-archive-plugin,         desc: Thunar integration with file-roller }
     - { pkg: thunar-media-tags-plugin,      desc: Thunar plugin to view media details }
     - { pkg: thunar-volman,                 desc: Thunar plugin to automatically manage removeable devices }
-    - { pkg: xfburn,                        desc: Burning tool, alt: k3b, brasero }
     - { pkg: xfce4-screenshooter,           desc: Plugin that makes screenshots for the Xfce panel }
     - { pkg: xnviewmp-system-libs,          desc: Efficient image viewer/browser/converter, type: AUR }
 
