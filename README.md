@@ -161,7 +161,7 @@ Install ***cyberlinux*** via a USB directly onto a machine
 
 1. Download the latest ***cyberlinux ISO*** 
 2. Burn the ISO to a USB
-3. Boot from the USB and install the ***cyberlinux-heavy*** deployment
+3. Boot from the USB and install the ***cyberlinux-desktop*** deployment
 
 **Vagrant VM**  
 If your not currently running ***cyberlinux*** and don't have a spare machine you can always deploy
@@ -181,20 +181,13 @@ Alternately you can install to a VM using a cyberlinux ISO.
     a. Set ***System >Processor = 4***  
     b. Set ***Display >Video = 32***  
     c. Set ***Network >Bridged Adapter***  
-    d. Set ***Storage >IDE Empty*** to ***cyberlinux-1.0.1-x86_64.iso***  
+    d. Set ***Storage >IDE Empty*** to ***cyberlinux-0.0.147-4.12.13-1-x86_64.iso***  
     e. Click ***OK***  
-2.	Once booted to ISO choose ***cyberlinux-heavy***  
+2.	Once booted to ISO choose ***cyberlinux-desktop***  
 
 ### Full cyberlinux Build <a name="full-cyberlinux-build"/></a>
-```bash
-# Clone cyberlinux
-git clone git@github.com:phR0ze/cyberlinux.git
-
-# Full build of cyberlinux
-sudo ./reduce clean build --iso-full
-```
-2. [Clone cyberlinux repo](#clone-cyberlinux-repo)
-3. [Full build of cyberlinux](#full-build-of-cyberlinux)
+1. Clone cyberlinux, Run: ```git clone git@github.com:phR0ze/cyberlinux.git```
+2. Trigger a full build, Run: ```sudo ./reduce clean build --iso-full```
 
 ## Pack cyberlinux <a name="pack-cyberlinux"/></a>
 ***reduce*** provides the ability to pack any given layer into a vagrant box that can then be
