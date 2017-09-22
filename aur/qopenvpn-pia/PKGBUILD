@@ -42,13 +42,12 @@ source=("$pkgname-$pkgver.tar.gz::https://github.com/phR0ze/qopenvpn/archive/$pk
 sha256sums=('cdb683040e28bf4c04eed21941132e2ca8f83e4dc72f9af446aeed07f1f04335'
             '8d7d75b7cc7b5a40dc26f778eb646c348011657bba90e137a359d18332c4bdad'
             '4897c3a8dd988e87c4c53db2dd1522a0a7112d58a0357425c09d1ce5f9f5a1b5'
-            '2e2fc1590238d95bd86d8281e361abaced00c0d6d86d89ce8ceab097a6ce33e4')
+            '416f5b2e8237b2c1f60d145943ba9a059cba513e9f97fc230cdc36f08c76cea3')
 
 prepare()
 {
   # Build QOpenVPN
-  mv $srcdir/qopenvpn-$pkgver $srcdir/qopenvpn
-  cd $srcdir/qopenvpn
+  cd $srcdir/qopenvpn-$pkgver
   python setup.py build
 
   # Rename PIA configuration files
@@ -67,15 +66,15 @@ prepare()
 package()
 {
   # Package QOpenVPN
-  cd $srcdir/qopenvpn
+  cd $srcdir/qopenvpn-$pkgver
   python setup.py install --root=$pkgdir
 
   # Modify openvpn configuration to leverage a passwords file
-  install -Dm600 $srcdir/overide.conf -t $pkgdir/etc/systemd/system/openvpn-client@.service.d
+  install -Dm600 $srcdir/override.conf -t $pkgdir/etc/systemd/system/openvpn-client@.service.d
 
   # Install the qopenvpn icon
-  install -Dm600 $srcdir/qopenvpn.png -t $pkgdir/usr/share/icons/hicolor/32x32/apps
-  install -Dm600 $srcdir/qopenvpn.png -t $pkgdir/usr/share/icons/hicolor/48x48/apps
+  install -Dm600 $srcdir/qopenvpn-$pkgver/qopenvpn.png -t $pkgdir/usr/share/icons/hicolor/32x32/apps
+  install -Dm600 $srcdir/qopenvpn-$pkgver/qopenvpn.png -t $pkgdir/usr/share/icons/hicolor/48x48/apps
 
   # Package PIA configuration
   cd $srcdir
