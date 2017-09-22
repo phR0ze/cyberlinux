@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.152
+  release: 0.0.153
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1106,7 +1106,7 @@ packages:
     - { pkg: gvfs,                          desc: Support for Trash and USB, depof: thunar-volman }
     - { pkg: plank,                         desc: Elegant, simple, clean dock }
     - { pkg: qopenvpn-pia,                  desc: OpenVPN system tray with PIA integration, type: FOREIGN }
-    - { pkg: sound-juicer,                  desc: A lean and friendly audio CD extractor for GNOME }
+    - { pkg: asunder,                       desc: A lean and friendly audio CD ripper and encoder }
     - { pkg: thunar-archive-plugin,         desc: Thunar integration with file-roller }
     - { pkg: thunar-media-tags-plugin,      desc: Thunar plugin to view media details }
     - { pkg: thunar-volman,                 desc: Thunar plugin to automatically manage removeable devices }

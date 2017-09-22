@@ -36,13 +36,13 @@
 
     <!-- Multimedia -->
     <menu id="Multimedia" icon="/usr/share/icons/Paper/32x32/categories/applications-multimedia.png" label="Multimedia">
+      <item label="Asunder" icon="/usr/share/icons/hicolor/32x32/apps/brasero.png"><action name="Execute"><execute>asunder</execute></action></item>
       <item label="Audacious" icon="/usr/share/icons/hicolor/32x32/apps/audacious.png"><action name="Execute"><execute>audacious</execute></action></item>
       <item label="Audacity" icon="/usr/share/icons/hicolor/32x32/apps/audacity.png"><action name="Execute"><execute>env UBUNTU_MENUPROXY=0 audacity</execute></action></item>
-      <item label="Brasero" icon="/usr/share/icons/Paper/32x32/apps/brasero.png"><action name="Execute"><execute>Brasero</execute></action></item>
+      <item label="Brasero" icon="/usr/share/icons/Paper/32x32/apps/brasero.png"><action name="Execute"><execute>brasero</execute></action></item>
       <item label="GNOME ALSA Mixer" icon="/usr/share/pixmaps/gnome-alsamixer/gnome-alsamixer-icon.png"><action name="Execute"><execute>gnome-alsamixer</execute></action></item>
       <item label="HandBrake" icon="/usr/share/icons/hicolor/scalable/apps/hb-icon.svg"><action name="Execute"><execute>ghb</execute></action></item>
       <item label="SMPlayer" icon="/usr/share/icons/hicolor/32x32/apps/smplayer.png"><action name="Execute"><execute>smplayer</execute></action></item>
-      <item label="Sound Juicer" icon="/usr/share/icons/hicolor/32x32/apps/sound-juicer.png"><action name="Execute"><execute>Sound Juicer</execute></action></item>
       <item label="VLC" icon="/usr/share/icons/hicolor/32x32/apps/vlc.png"><action name="Execute"><execute>vlc</execute></action></item>
     </menu>
 
