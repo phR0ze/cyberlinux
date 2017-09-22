@@ -47,7 +47,8 @@ sha256sums=('cdb683040e28bf4c04eed21941132e2ca8f83e4dc72f9af446aeed07f1f04335'
 prepare()
 {
   # Build QOpenVPN
-  cd $srcdir/qopenvpn-$pkgver
+  mv $srcdir/qopenvpn-$pkgver $srcdir/qopenvpn
+  cd $srcdir/qopenvpn
   python setup.py build
 
   # Rename PIA configuration files
@@ -66,12 +67,15 @@ prepare()
 package()
 {
   # Package QOpenVPN
-  cd $srcdir/qopenvpn-$pkgver
+  cd $srcdir/qopenvpn
   python setup.py install --root=$pkgdir
 
   # Modify openvpn configuration to leverage a passwords file
-  install -dm750 $pkgdir/etc/systemd/system/openvpn-client@.service.d
-  install -Dm600 -t $pkgdir/etc/systemd/system/openvpn-client@.service.d $srcdir/override.conf
+  install -Dm600 $srcdir/overide.conf -t $pkgdir/etc/systemd/system/openvpn-client@.service.d
+
+  # Install the qopenvpn icon
+  install -Dm600 $srcdir/qopenvpn.png -t $pkgdir/usr/share/icons/hicolor/32x32/apps
+  install -Dm600 $srcdir/qopenvpn.png -t $pkgdir/usr/share/icons/hicolor/48x48/apps
 
   # Package PIA configuration
   cd $srcdir
