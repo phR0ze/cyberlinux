@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.153
+  release: 0.0.154
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -943,7 +943,6 @@ packages:
 
     # Packaging
     - { pkg: pkgfile,                       desc: A pacman files and metadata explorer }
-    - { pkg: reflector,                     desc: Arch Linux latest pacman mirrors script }
 
     # Disk utils
     - { pkg: cdrkit,                        desc: CD/DVD burnig/extration and ISO creation }
