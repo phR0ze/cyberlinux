@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.155
+  release: 0.0.156
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -472,7 +472,7 @@ changes:
         - 'gtk-enable-input-feedback-sounds=0'
         - 'gtk-xft-antialias=1'
         - 'gtk-xft-hinting=1'
-        - 'gtk-xft-hintstyle="hintfull"'
+        - 'gtk-xft-hintstyle="hintslight"'
         - 'gtk-xft-rgba="rgb"'
     - edit: /etc/skel/.config/gtk-3.0/settings.ini
       append: true
@@ -491,7 +491,7 @@ changes:
         - 'gtk-enable-input-feedback-sounds=1'
         - 'gtk-xft-antialias=1'
         - 'gtk-xft-hinting=1'
-        - 'gtk-xft-hintstyle=hintfull'
+        - 'gtk-xft-hintstyle=hintslight'
         - 'gtk-xft-rgba=rgb'
     - edit: /etc/skel/.icons/default/index.theme
       append: true
@@ -1097,15 +1097,16 @@ packages:
     - { install: media-pkgs }
     - { install: file-sharing }
     - { install: remote-desktop }
+    - { pkg: asunder,                       desc: A lean and friendly audio CD ripper and encoder }
     - { pkg: audacity,                      desc: Audio editor - cross platform, tried and tested }
     - { pkg: brasero,                       desc: Burning tool, alt: k3b, xfburn }
     - { pkg: conky,                         desc: Lightweight system monitor for X }
     - { pkg: dmenu,                         desc: Super light weight application runner }
+    - { pkg: devede,                        desc: A program to create VideoDVDs and CDs }
     - { pkg: guake,                         desc: Drop-down python based quake style terminal }
     - { pkg: gvfs,                          desc: Support for Trash and USB, depof: thunar-volman }
     - { pkg: plank,                         desc: Elegant, simple, clean dock }
     - { pkg: qopenvpn-pia,                  desc: OpenVPN system tray with PIA integration, type: FOREIGN }
-    - { pkg: asunder,                       desc: A lean and friendly audio CD ripper and encoder }
     - { pkg: thunar-archive-plugin,         desc: Thunar integration with file-roller }
     - { pkg: thunar-media-tags-plugin,      desc: Thunar plugin to view media details }
     - { pkg: thunar-volman,                 desc: Thunar plugin to automatically manage removeable devices }
@@ -1164,9 +1165,9 @@ packages:
   media-pkgs:
     - { pkg: handbrake,                     desc: Video/Encoding - Video encoding tool for mp4/mkv }
     - { pkg: handbrake-cli,                 desc: Video/Encoding - Video encoding tool for mp4/mkv }
+    - { pkg: makemkv,                       desc: DVD and Blu-ray to MKV converter, type: AUR }
 
   theater-pkgs:
-    - { install: media-pkgs }
     - { pkg: idesk,                         desc: Lightweight desktop icons for X }
     - { pkg: kodi,                          desc: Software media player and entertainment hub }
     - { pkg: tiny-media-manager,            desc: Cross platform media manager, type: AUR }
