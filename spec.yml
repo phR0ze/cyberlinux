@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.157
+  release: 0.0.158
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -274,8 +274,6 @@ changes:
     - { apply: nfs-config }
     - { apply: docker-config }
     - { apply: apache-php-config }
-    - { chroot: systemctl enable httpd.service }
-    - { chroot: systemctl enable nfs-server.service }
   build-user-config:
     - { chroot: 'useradd -m -G lp,wheel,network,storage,users -s /bin/bash build || true' }
     - { exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /home/build' }
@@ -328,6 +326,7 @@ changes:
     - { edit: /etc/php/php.ini, regex: '^;(extension=gettext.so.*)', value: '\1' }
     - { edit: /etc/php/php.ini, regex: '^;(extension=pdo_sqlite.so.*)', value: '\1' }
     - { edit: /etc/php/php.ini, regex: '^;(extension=sqlite3.so.*)', value: '\1' }
+    - { chroot: systemctl enable httpd.service }
   cinnamon-screensaver-config:
     - edit: /etc/dconf/db/local.d/03-cinnamon
       append: true
@@ -634,13 +633,15 @@ changes:
       values:
         - '/srv/nfs             <%=nfscidr%>(rw,no_subtree_check,fsid=0)'
         - '/srv/nfs/Audio       <%=nfscidr%>(rw,no_subtree_check,nohide)'
+        - '/srv/nfs/Cache       <%=nfscidr%>(rw,no_subtree_check,nohide)'
         - '/srv/nfs/Documents   <%=nfscidr%>(rw,no_subtree_check,nohide)'
         - '/srv/nfs/Install     <%=nfscidr%>(rw,no_subtree_check,nohide)'
         - '/srv/nfs/Pictures    <%=nfscidr%>(rw,no_subtree_check,nohide)'
         - '/srv/nfs/Other       <%=nfscidr%>(rw,no_subtree_check,nohide)'
         - '/srv/nfs/Video       <%=nfscidr%>(rw,no_subtree_check,nohide)'
-    - { chroot: 'mkdir -p /srv/nfs/{Audio,Documents,Install,Pictures,Other,Video}' }
+    - { chroot: 'mkdir -p /srv/nfs/{Audio,Cache,Documents,Install,Pictures,Other,Video}' }
     - { chroot: "echo 'options nfs nfs4_disable_idmapping=0' > /etc/modprobe.d/nfs.conf" }
+    - { chroot: systemctl enable nfs-server.service }
   oblogout-config:
     - edit: /etc/oblogout.conf
       append: true
