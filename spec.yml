@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.156
+  release: 0.0.157
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1112,6 +1112,7 @@ packages:
     - { pkg: thunar-volman,                 desc: Thunar plugin to automatically manage removeable devices }
     - { pkg: xfce4-screenshooter,           desc: Plugin that makes screenshots for the Xfce panel }
     - { pkg: xnviewmp-system-libs,          desc: Efficient image viewer/browser/converter, type: AUR }
+    - { pkg: winff,                         desc: GUI for ffmpeg }
 
     # OpenGL
     - { pkg: lib32-mesa,                    desc: OpenGL opensource implementation, depof: kodi/steam }
