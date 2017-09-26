@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.158
+  release: 0.0.159
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -631,16 +631,18 @@ changes:
     - edit: /etc/exports
       append: true
       values:
-        - '/srv/nfs             <%=nfscidr%>(rw,no_subtree_check,fsid=0)'
-        - '/srv/nfs/Audio       <%=nfscidr%>(rw,no_subtree_check,nohide)'
         - '/srv/nfs/Cache       <%=nfscidr%>(rw,no_subtree_check,nohide)'
         - '/srv/nfs/Documents   <%=nfscidr%>(rw,no_subtree_check,nohide)'
         - '/srv/nfs/Install     <%=nfscidr%>(rw,no_subtree_check,nohide)'
+        - '/srv/nfs/Media       <%=nfscidr%>(rw,no_subtree_check,nohide)'
         - '/srv/nfs/Pictures    <%=nfscidr%>(rw,no_subtree_check,nohide)'
         - '/srv/nfs/Other       <%=nfscidr%>(rw,no_subtree_check,nohide)'
-        - '/srv/nfs/Video       <%=nfscidr%>(rw,no_subtree_check,nohide)'
-    - { chroot: 'mkdir -p /srv/nfs/{Audio,Cache,Documents,Install,Pictures,Other,Video}' }
+    - { chroot: 'mkdir -p /srv/nfs/{Cache,Documents,Install,Media,Pictures,Other}' }
     - { chroot: "echo 'options nfs nfs4_disable_idmapping=0' > /etc/modprobe.d/nfs.conf" }
+    # Share pacman cache with other machines on the LAN
+    - { edit: /etc/fstab, append: true, value: "/var/cache/pacman/pkg /srv/nfs/Cache none bind 0 0" }
+    # Manually mount on client side with this
+    #- { edit: /etc/fstab, append: true, value: serverip:/srv/nfs/Cache /var/cache/pacman/pkg nfs noauto,noatime,rsize=8192,wsize=8192,timeo=14,_netdev 0 0
     - { chroot: systemctl enable nfs-server.service }
   oblogout-config:
     - edit: /etc/oblogout.conf
