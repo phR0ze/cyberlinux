@@ -24,24 +24,21 @@ fork it and make their own configuration ***spec.yml***
    * [Evolution](#evolution)
    * [My take on Arch](#my-take-on-arch)
    * [Distro requirements](#distro-requirements)
-* [Build cyberlinux](#build-cyberlinux)
+* [Deploy cyberlinux](#deploy-cyberlinux)
+    * [Deploy via USB](#deploy-via-usb)
+    * [Deploy via Vagrant Box](#deploy-via-vagrant-box)
+    * [Deployment Options](#deployment-options)
+* [Roll your own cyberlinux](#build-cyberlinux)
     * [Dependency versions](#dependency-versions)
     * [Linux Dev Envioronment](#linux-dev-environment)
     * [Full cyberlinux build](#full-cyberlinux-build)
-* [Pack cyberlinux](#pack-cyberlinux)
-    * [Pack deployment](#pack-deployment)
-* [Deploy cyberlinux](#deploy-cyberlinux)
-    * [Desktop Deployment](#desktop-deployment)
-    * [Server Deployment](#server-deployment)
-* [Customization](#customization)
-    * [Spec Structure](#spec-structure)
-    * [Variables](#variables)
-    * [Build Layer](#build-layer)
-    * [Layers](#layers)
-      * [Default Layers](#default-layers)
-    * [Changes](#changes)
-      * [Change](#change)
-      * [Change Block](#change-block)
+    * [Pack cyberlinux](#pack-cyberlinux)
+    * [Customization](#customization)
+        * [Spec Structure](#spec-structure)
+        * [Variables](#variables)
+        * [Build Layer](#build-layer)
+        * [Layers](#layers)
+        * [Changes](#changes)
 * [Troubleshooting](#troubleshooting)
     * [BlackArch Signature issue](#blackarch-signature-issue)
 * [Contributions](#contributions)
@@ -143,8 +140,61 @@ I boiled down my requirements for ***cyberlinux*** as follows:
 * Hardware boot and diagnostics options e.g. RAM validation
 * As light as possible while still offering an elegant solution
 
-## Build cyberlinux <a name="build-cyberlinux"/></a>
-This section covers how to build your own cyberlinux ISO
+## Deploy cyberlinux <a name="deploy-cyberlinux"/></a>
+There are a number of ways to get up and running quickly with ***cyberlinux***
+
+### Deploy via USB <a name="deploy-via-usb"/></a>
+Download the latest ISO from https://github.com/phR0ze/cyberlinux/releases
+
+```bash
+# Determine the correct USB device
+sudo fdisk -l
+# Burn the ISO to your USB
+dd bs=4M if=~/Downloads/cyberlinux-0.0.159-4.12.13-1-x86_64.iso of=/dev/sdb
+```
+
+### Deploy via Vagrant Box <a name="deploy-via-vagrant-box"/></a>
+Install ***vagrant*** then do the following:
+
+```bash
+# Create a Vagrantfile describing the cyberlinux-desktop box to use
+vagrant init phR0ze/cyberlinux-desktop --box-version 0.0.159
+# Download and deploy cyberlinux-desktop box
+vagrant up
+```
+
+### Deployment Options <a name="deployment-options"/></a>
+
+#### Desktop Deployment <a name="desktop-deployment"/></a>
+The ***desktop*** deployment was created to serve as a full developer environment and daily runner.
+It is an amalgam of most other deployment options. Although it is the heaviest of the deployments,
+resource wise, it is still built with speed and efficiency in mind.
+
+**Requirements:** 
+* Development (vscode, go, ruby, python)
+* File Sharing (NFS, Torrent, SFTP, FTP)
+* Productivity and Office (libreoffice, pdfs)
+* Virtual Machines and Containers (virtualbox, docker)
+* Media Processing/Consumption (vlc, smplayer, mvp, handbrake, makemkv)
+
+#### Server Deployment <a name="server-deployment"/></a>
+The ***server*** deployment was created to serve as a light weight web and file server that would
+be run on lower end headless hardware. As such many of the desktop widgets and such have been left
+out to facilitate efficient remote desktop sessions.
+
+**Requirements:** 
+* Web Server (PHP)
+* Telephony Engine (FreeSWITCH, Blink)
+* File Sharing (NFS, Torrent, SFTP, FTP)
+* Media Processing (Handbrake, makemkv-cli)
+
+```bash
+# Deploys a k8snode with ip address of 192.168.56.10
+sudo ./reduce deploy --layer=k8snode --nodes=10
+```
+
+## Roll your own cyberlinux <a name="build-cyberlinux"/></a>
+This section covers how to roll your own cyberlinux ISO
 
 ### Dependency versions <a name="dependency-versions"/></a>
 **Working combinations:**  
@@ -189,7 +239,10 @@ Alternately you can install to a VM using a cyberlinux ISO.
 1. Clone cyberlinux, Run: ```git clone git@github.com:phR0ze/cyberlinux.git```
 2. Trigger a full build, Run: ```sudo ./reduce clean build --iso-full```
 
-## Pack cyberlinux <a name="pack-cyberlinux"/></a>
+### Burn cyberlinux to USB <a name="burn-cyberlinux-to-usb"/></a>
+1. Clone cyberlinux, Run: ```git clone git@github.com:phR0ze/cyberlinux.git```
+
+### Pack cyberlinux <a name="pack-cyberlinux"/></a>
 ***reduce*** provides the ability to pack any given layer into a vagrant box that can then be
 uploaded for public use or deployed locally.
 
@@ -198,53 +251,25 @@ uploaded for public use or deployed locally.
 ./reduce pack
 ```
 
-### Pack deployment<a name="pack-deployment"/></a>
 To pack a specific deployment for use - e.g. k8snode -  use the following:
 
-```bash
-./reduce pack --layers=k8snode
-```
+1. Pack image: ```./reduce pack --layers=k8snode```
+2. Login to https://app.vagrantup.com/session
+3. Click ***New Vagrant Box***
+4. Set ***Name*** to ***cyberlinux-k8snode*** and ***Short description*** then click ***Create box***
+5. Click ***New Version*** to current ***0.0.159*** and click ***Create version*** 
+6. Click ***Add a provider*** set ***Provider*** to ***virtualbox*** and click ***Continue to upload***
+7. Select the box ***~/Projects/cyberlinux/temp/images/cyberlinux-desktop-0.0.159.box*** 
+8. Once uploaded click the ***Finish*** button
+9. Compete the process by releasing the box to make it publicly available
 
-## Deploy cyberlinux <a name="deploy-cyberlinux"/></a>
-The simplest way to quickly deploy a cyberlinux box for development is to leverage the ***vagrant***
-images that are publicly available. Use ***reduce*** to launch them with custom values as
-specified in the layer block in the ***spec***.
-
-### Desktop Deployment<a name="desktop-deployment"/></a>
-The ***desktop*** deployment was created to serve as a full developer environment and daily runner.
-It is an amalgam of most other deployment options. Although it is the heaviest of the deployments,
-resource wise, it is still built with speed and efficiency in mind.
-
-**Requirements:** 
-* Development (vscode, go, ruby, python)
-* File Sharing (NFS, Torrent, SFTP, FTP)
-* Productivity and Office (libreoffice, pdfs)
-* Virtual Machines and Containers (virtualbox, docker)
-* Media Processing/Consumption (vlc, smplayer, mvp, handbrake, makemkv)
-
-### Server Deployment<a name="server-deployment"/></a>
-The ***server*** deployment was created to serve as a light weight web and file server that would
-be run on lower end headless hardware. As such many of the desktop widgets and such have been left
-out to facilitate efficient remote desktop sessions.
-
-**Requirements:** 
-* Web Server (PHP)
-* Telephony Engine (FreeSWITCH, Blink)
-* File Sharing (NFS, Torrent, SFTP, FTP)
-* Media Processing (Handbrake, makemkv-cli)
-
-```bash
-# Deploys a k8snode with ip address of 192.168.56.10
-sudo ./reduce deploy --layer=k8snode --nodes=10
-```
-
-## Customization <a name="customization"/></a>
+### Customization <a name="customization"/></a>
 The heart of ***cyberlinux*** is it's ability to provide infinite variations of repeatable
 deployments that can be built together into a bootable/installable ISO.  This is driven through
 the ***spec.yml*** which is the file documenting all of the packages and configuration to use
 when building ***cyberlinux***.
 
-### Spec Structure <a name="spec-structure"/></a>
+#### Spec Structure <a name="spec-structure"/></a>
 ```YAML
 vars:
   distro: cyberlinux
@@ -270,7 +295,7 @@ packages:
 ```
 
 
-### Variables <a name="variables"/></a>
+#### Variables <a name="variables"/></a>
 ***vars*** are used for specifying distribution specific values and templating variables.
 ***cyberlinux*** leverages Ruby's ERB templating in the spec.yml as well as any configuration files
 that are called out in the ***spec.yml*** with the ***resolve*** change function. The ***vars***
@@ -285,12 +310,12 @@ vars:
   http_proxy: http://web-proxy.example.com:8080
 ```
 
-### Build Layer <a name="build-layer"/></a>
+#### Build Layer <a name="build-layer"/></a>
 The ***build*** layer is a special purpose layer for building ***cyberlinux*** components in an
 isolated environment to avoid cluttering up the localhost as well as staying independent from it's
 specifics.
 
-### Layers <a name="layers"/></a>
+#### Layers <a name="layers"/></a>
 ***Layers*** are granular re-buildable parts of the whole that can be layered to form more complex
 parts. They promote reuse. A deployable stack of layers are considered to be a ***deployment***.
 Machine layers are installable sqfs images targeting 'baremetal' and 'VMs'. Container layers are
@@ -300,7 +325,7 @@ menus.
 
 Layers have a ***type*** which is one of two values either ***machine*** or ***container***
 
-#### Default Layers <a name="default-layers"/></a>
+##### Default Layers <a name="default-layers"/></a>
 **Base Layer**  
 The ***base*** layer is a minimal shell environment that is typically inherited by all other machine
 layers. Container based layers will not want to inherit from this as ***base*** contains the kernel
@@ -340,7 +365,7 @@ server - server focused environment for file sharing and web apps
 **Live Layer**  
 live - full maintenance, recovery, or no trace privacy environment
 
-### Changes <a name="changes"/></a>
+#### Changes <a name="changes"/></a>
 ***Changes*** are a way to invoke blocks of configuration. They come in two flavors: the actual
 change calling out configuration and a change reference which simply groups changes into a block of
 changes that can be applied by referencing the change block's name.
@@ -372,7 +397,7 @@ changes:
     - { edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(autologin)=.*', value: '\1=<%= USER %>'
 ```
 
-#### Change <a name="change"/></a>
+##### Change <a name="change"/></a>
 Changes are a high level description of configuration that needs to take place. Changes support one
 of the following mechanisms. Changes are executed in the context of their encompassing ***layer***,
 which means that any templating that needs to occur will be evaluated with the layer's ***vars***
