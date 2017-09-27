@@ -149,9 +149,13 @@ There are a number of ways to get up and running quickly with ***cyberlinux***
 Deploy ***cyberlinux*** via a USB directly onto a machine
 
 1. Download the latest [***cyberlinux ISO***](https://github.com/phR0ze/cyberlinux/releases)
-2. Burn the ISO to a USB  (Linux)  
+2. Burn the ISO to a USB via ***dd***  
     a. Determine correct USB device: ```sudo fdisk -l```  
     b. Burn to USB: ```sudo dd bs=4M if=~/cyberlinux-0.0.159-4.12.13-1-x86_64.iso of=/dev/sdb status=progress```  
+2. Burn the ISO to a USB via ***MultiWriter***  
+    a. Install MultiWriter: ```sudo pacman -S gnome-multi-writer```  
+    b. Launch MultiWriter: ```gnome-multi-writer```  
+    c. Add the ISO and point it at your USB and click start  
 3. Boot from the USB and choose the ***cyberlinux-desktop*** deployment option
 
 ### Virtual box deployment <a name="virtual-box-deployment"/></a>
@@ -169,11 +173,20 @@ Deploy ***cyberlinux*** via a VM using Virtual Box
 ### Vagrant box deployment <a name="vagrant-box-deployment"/></a>
 Deploy ***cyberlinux*** via a VM using a Vagrant Box
 
+**Raw Vagrant Use**  
 ```bash
 # Create a Vagrantfile describing the cyberlinux-desktop box to use
 vagrant init phR0ze/cyberlinux-desktop --box-version 0.0.159
 # Download and deploy cyberlinux-desktop box
 vagrant up
+```
+
+**Vagrant with Reduce**  
+```bash
+# Clone cyberlinux
+git clone git@github.com:phR0ze/cyberlinux.git
+# Deploy cyberlinux vagrant box via reduce
+cd cyberlinux; ./reduce 
 ```
 
 ### Deployment Options <a name="deployment-options"/></a>
