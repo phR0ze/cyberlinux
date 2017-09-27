@@ -20,6 +20,7 @@
       <item label="Galculator" icon="/usr/share/icons/Paper/32x32/apps/galculator.png"><action name="Execute"><execute>galculator</execute></action></item>
       <item label="KeePass" icon="/usr/share/icons/hicolor/32x32/apps/keepass.png"><action name="Execute"><execute>keepass</execute></action></item>
       <item label="Leafpad" icon="/usr/share/icons/hicolor/32x32/apps/leafpad.png"><action name="Execute"><execute>leafpad</execute></action></item>
+      <item label="Multi Writer" icon="/usr/share/icons/Paper/32x32/apps/drive-harddisk-usb.png"><action name="Execute"><execute>gnome-multi-writer</execute></action></item>
       <item label="Screenshot" icon="/usr/share/icons/Paper/32x32/apps/applets-screenshooter.png"><action name="Execute"><execute>xfce4-screenshooter</execute></action></item>
       <item label="Synergy" icon="/usr/share/icons/Paper/32x32/apps/synergy.png"><action name="Execute"><execute>synergy</execute></action></item>
     </menu>

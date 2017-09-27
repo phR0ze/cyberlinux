@@ -151,7 +151,7 @@ Deploy ***cyberlinux*** via a USB directly onto a machine
 1. Download the latest [***cyberlinux ISO***](https://github.com/phR0ze/cyberlinux/releases)
 2. Burn the ISO to a USB  (Linux)  
     a. Determine correct USB device: ```sudo fdisk -l```  
-    b. Burn to USB: ```dd bs=4M if=~/cyberlinux-0.0.159-4.12.13-1-x86_64.iso of=/dev/sdb```  
+    b. Burn to USB: ```sudo dd bs=4M if=~/cyberlinux-0.0.159-4.12.13-1-x86_64.iso of=/dev/sdb status=progress```  
 3. Boot from the USB and choose the ***cyberlinux-desktop*** deployment option
 
 ### Virtual box deployment <a name="virtual-box-deployment"/></a>
