@@ -25,9 +25,11 @@ fork it and make their own configuration ***spec.yml***
    * [My take on Arch](#my-take-on-arch)
    * [Distro requirements](#distro-requirements)
 * [Deploy cyberlinux](#deploy-cyberlinux)
-    * [Deploy via USB](#deploy-via-usb)
-    * [Deploy via Vagrant Box](#deploy-via-vagrant-box)
+    * [Bare metal deployment](#bare-metal-deployment)
+    * [Virtual box deployment](#virtual-box-deployment)
+    * [Vagrant box deployment](#vagrant-box-deployment)
     * [Deployment Options](#deployment-options)
+    * [Deployment Next Steps](#deployment-next-steps)
 * [Roll your own cyberlinux](#build-cyberlinux)
     * [Dependency versions](#dependency-versions)
     * [Linux Dev Envioronment](#linux-dev-environment)
@@ -143,18 +145,29 @@ I boiled down my requirements for ***cyberlinux*** as follows:
 ## Deploy cyberlinux <a name="deploy-cyberlinux"/></a>
 There are a number of ways to get up and running quickly with ***cyberlinux***
 
-### Deploy via USB <a name="deploy-via-usb"/></a>
-Download the latest ISO from https://github.com/phR0ze/cyberlinux/releases
+### Bare metal deployment <a name="bare-metal-deployment"/></a>
+Deploy ***cyberlinux*** via a USB directly onto a machine
 
-```bash
-# Determine the correct USB device
-sudo fdisk -l
-# Burn the ISO to your USB
-dd bs=4M if=~/Downloads/cyberlinux-0.0.159-4.12.13-1-x86_64.iso of=/dev/sdb
-```
+1. Download the latest [***cyberlinux ISO***](https://github.com/phR0ze/cyberlinux/releases)
+2. Burn the ISO to a USB  (Linux)  
+    a. Determine correct USB device: ```sudo fdisk -l```  
+    b. Burn to USB: ```dd bs=4M if=~/cyberlinux-0.0.159-4.12.13-1-x86_64.iso of=/dev/sdb```  
+3. Boot from the USB and choose the ***cyberlinux-desktop*** deployment option
 
-### Deploy via Vagrant Box <a name="deploy-via-vagrant-box"/></a>
-Install ***vagrant*** then do the following:
+### Virtual box deployment <a name="virtual-box-deployment"/></a>
+Deploy ***cyberlinux*** via a VM using Virtual Box
+
+1. Create a VM named ***cyberlinux-desktop*** with ***4GB RAM, 40GB HDD***  
+2. Once created edit ***Settings***  
+    a. Set ***System >Processor = 4***  
+    b. Set ***Display >Video = 32***  
+    c. Set ***Network >Bridged Adapter***  
+    d. Set ***Storage >IDE Empty*** to ***cyberlinux-0.0.159-4.12.13-1-x86_64.iso***  
+    e. Click ***OK***  
+2.	Once booted to the ISO choose the ***cyberlinux-desktop*** deployment option
+
+### Vagrant box deployment <a name="vagrant-box-deployment"/></a>
+Deploy ***cyberlinux*** via a VM using a Vagrant Box
 
 ```bash
 # Create a Vagrantfile describing the cyberlinux-desktop box to use
@@ -193,6 +206,8 @@ out to facilitate efficient remote desktop sessions.
 sudo ./reduce deploy --layer=k8snode --nodes=10
 ```
 
+### Deployment Next Steps<a name="deployment-next-steps"/></a>
+
 ## Roll your own cyberlinux <a name="build-cyberlinux"/></a>
 This section covers how to roll your own cyberlinux ISO
 
@@ -205,42 +220,19 @@ This section covers how to roll your own cyberlinux ISO
 
 ### Linux dev environment <a name="linux-dev-environment"/></a>
 There are three different ways you can get a development environment up and running.
-
-**Bare metal install**  
-Install ***cyberlinux*** via a USB directly onto a machine
-
-1. Download the latest ***cyberlinux ISO*** 
-2. Burn the ISO to a USB
-3. Boot from the USB and install the ***cyberlinux-desktop*** deployment
-
-**Vagrant VM**  
-If your not currently running ***cyberlinux*** and don't have a spare machine you can always deploy
-a vagrant cyberlinux box.
-
-```bash
-git clone https://github.com/phR0ze/cyberlinux.git
-cd cyberlinux
-vagrant ?????
-```
-
-**VirtualBox install**  
-Alternately you can install to a VM using a cyberlinux ISO.
-
-1. Create a VM named ***cyberlinux-build*** with ***4GB RAM, 40GB HDD***  
-2. Once created edit ***Settings***  
-    a. Set ***System >Processor = 4***  
-    b. Set ***Display >Video = 32***  
-    c. Set ***Network >Bridged Adapter***  
-    d. Set ***Storage >IDE Empty*** to ***cyberlinux-0.0.147-4.12.13-1-x86_64.iso***  
-    e. Click ***OK***  
-2.	Once booted to ISO choose ***cyberlinux-desktop***  
+* [Bare metal deployment](#bare-metal-deployment)
+* [Virtual box deployment](#virtual-box-deployment)
+* [Vagrant box deployment](#vagrant-box-deployment)
 
 ### Full cyberlinux Build <a name="full-cyberlinux-build"/></a>
-1. Clone cyberlinux, Run: ```git clone git@github.com:phR0ze/cyberlinux.git```
-2. Trigger a full build, Run: ```sudo ./reduce clean build --iso-full```
+Once you happy with the current configuration build with the following
 
-### Burn cyberlinux to USB <a name="burn-cyberlinux-to-usb"/></a>
-1. Clone cyberlinux, Run: ```git clone git@github.com:phR0ze/cyberlinux.git```
+```bash
+# Clone cyberlinux
+git clone git@github.com:phR0ze/cyberlinux.git
+# Trigger full build
+sudo ./reduce clean build --iso-full
+```
 
 ### Pack cyberlinux <a name="pack-cyberlinux"/></a>
 ***reduce*** provides the ability to pack any given layer into a vagrant box that can then be
@@ -475,7 +467,8 @@ work.
 
 ### ART works
 All art works used in the distribution have been carefully selected to be either creative commons,
-public domain, or lay claim on fair use licensing.
+public domain, or lay claim on fair use licensing. If for some reason a licensing mistake has been
+made please let me know and I'll review the claim immediately.
 
 ### Reduce, build and Install Scripts
 ***reduce*** and all Ruby code related to it is licensed below via MIT additionally the
