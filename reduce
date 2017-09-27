@@ -662,11 +662,17 @@ class Reduce
         exit unless find_executable('vagrant')
       clean(vms:true)
 
-      # Update vagrant box registry
+      # Choose a vagrant box to use and update registry if needed
+      vagrant_box = layer
       box = getimages(@type.box, layer:layer).keys.shift
-      !puts("Error: no box found for #{layer}, please pack the box first".colorize(:red)) and exit unless box
-      puts("Updating vagrant registry for '#{layer}'".colorize(:cyan))
-      Sys.exec("#{@sudoinv}vagrant box add #{layer} #{box} --force")
+      if !box
+        vagrant_box = "phR0ze/cyberlinux-#{layer}"
+        puts("Downloading '#{vagrant_box}' from vagrantup.com".colorize(:cyan))
+      else
+        !puts("Error: no box found for #{layer}, please pack the box first".colorize(:red)) and exit unless box
+        puts("Updating vagrant registry for '#{layer}'".colorize(:cyan))
+        Sys.exec("#{@sudoinv}vagrant box add #{layer} #{box} --force")
+      end
 
       # Configure host-only network
       !puts("Ensure 'virtualbox' https://www.virtualbox.org/wiki/Downloads is in the path".colorize(:red)) and
@@ -682,12 +688,12 @@ class Reduce
       #---------------------------------------------------------------------------
       specs = []
       (nodes || [rand(2..254)]).each do |node|
-        host = name || layer
-        host = "#{host}#{node.to_s}".gsub(' ', '').gsub('-', '').gsub('_', '')
+        host = name || vagrant_box
+        host = "#{host}#{node.to_s}".gsub(' ', '-').gsub('/', '-').gsub('_', '-')
         spec = {
           host: host,
           ip: "#{@vars.netip[0..-2]}#{node}/24",
-          box: layer,
+          box: vagrant_box,
           cpus: layer_yml[@k.vagrant][@k.cpus] || 1,
           ram: layer_yml[@k.vagrant][@k.ram] || 512,
           vram: layer_yml[@k.vagrant][@k.vram] || 8,

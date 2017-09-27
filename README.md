@@ -186,7 +186,7 @@ vagrant up
 # Clone cyberlinux
 git clone git@github.com:phR0ze/cyberlinux.git
 # Deploy cyberlinux vagrant box via reduce
-cd cyberlinux; ./reduce 
+cd cyberlinux; sudo ./reduce deploy --layer=desktop
 ```
 
 ### Deployment Options <a name="deployment-options"/></a>

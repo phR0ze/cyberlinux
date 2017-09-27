@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.163
+  release: 0.0.164
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -65,6 +65,7 @@ layers:
     multilib: true
     vars: { fontsize: 10 }
     groups: [lp, wheel, network, storage, users]
+    vagrant: { vram: 32, cpus: 2, ram: 2048 }
     boot:
       - entry: "Install <%=distro%>-base        -minimal shell env"
         kernel: /<%=distro%>/vmlinuz
@@ -90,6 +91,7 @@ layers:
   - name: shell
     type: machine
     base: base
+    vagrant: { vram: 32, cpus: 2, ram: 2048 }
     boot:
       - entry: "Install <%=distro%>-shell        -base + full shell dev env"
         kernel: /<%=distro%>/vmlinuz
@@ -109,6 +111,7 @@ layers:
     groups:
       - video
       - audio
+    vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     boot:
       - entry: "Install <%=distro%>-lite           -shell + minimal X11 env"
         kernel: /<%=distro%>/vmlinuz
@@ -123,6 +126,7 @@ layers:
   - name: server
     type: machine
     base: lite
+    vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     boot:
       - entry: "Install <%=distro%>-server     -lite + LAMP and services"
         kernel: /<%=distro%>/vmlinuz
@@ -137,7 +141,7 @@ layers:
   - name: heavy
     type: machine
     base: lite
-    vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: on }
+    vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     boot:
       - entry: "Install <%=distro%>-heavy      -lite + more apps"
         kernel: /<%=distro%>/vmlinuz
@@ -169,6 +173,7 @@ layers:
     type: machine
     base: heavy
     vars: { fontsize: 18 }
+    vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     boot:
       - entry: "Install <%=distro%>-theater    -heavy + media/kodi"
         kernel: /<%=distro%>/vmlinuz
@@ -182,6 +187,7 @@ layers:
     groups: [docker]
     vars:
       wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg
+    vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     boot:
       - entry: "Install <%=distro%>-desktop   -heavy + dev/office"
         kernel: /<%=distro%>/vmlinuz
@@ -196,6 +202,7 @@ layers:
   - name: live
     type: machine
     base: heavy
+    vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     boot:
       - entry: "Start <%=distro%>-live            -live boot env."
         kernel: /<%=distro%>/vmlinuz
@@ -1023,6 +1030,7 @@ packages:
     - { pkg: net-scp,                       desc: Pure Ruby SCP implementation, type: GEM }
     - { pkg: nokogiri,                      desc: HTML parser with XPath and CSS3 selectors, type: GEM, depof: chromium build}
     - { pkg: pry,                           desc: Ruby debugger, type: GEM }
+    - { pkg: rest-client,                   desc: Simple HTTP and REST client, type: GEM }
 
   lite-pkgs:
     - { pkg: dconf,                         desc: A low-level configuration system }
