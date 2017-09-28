@@ -63,7 +63,12 @@ getinput()
     echo -en "   Enter ${input} (default=${cyan}${result}${none}): "
     [ "x$vagrant" == "x1" ] && echo ''
     if [ "x$vagrant" != "x1" ]; then
-        [ $silent ] && read -s value || read value
+        if [ $silent ]; then
+            read -s value
+            echo ''
+        else
+            read value
+        fi
         [ "x$value" != "x" ] && local result=$value
     fi
 
@@ -396,7 +401,15 @@ installer()
     #---------------------------------------------------------------------------
     echo -e "\n${cyan}:: Create new user account:${none}"
     getinput user 'new username' 'vagrant'
-    getinput pass 'new password' 'vagrant' 1
+    while true; do
+        getinput pass 'new password' 'vagrant' 1
+        getinput pass2 'password again' 'vagrant' 1
+        if [ "x$pass" != "x$pass2" ]; then
+            echo -e "   ${red}Passwords don't match, please try again${none}"
+        else
+            break
+       fi
+    done
     pass=$(mkpasswd -m sha $pass)
 
     # Mount live system or Install to local disk
@@ -404,7 +417,7 @@ installer()
     rootmnt="${1}"                          # /new_root passed in as 1st param
     local rw_ram_size="75%"
     local mode=$([ "$target_layer" == 'live' ] && echo 'Starting' || echo 'Installing')
-    echo -e "\n\n${cyan}:: ${mode} '${target_layer}' system with layers '${layers}'${none}"
+    echo -e "\n${cyan}:: ${mode} '${target_layer}' system with layers '${layers}'${none}"
     echo -e "${cyan}:: --------------------------------------------------------------------${none}"
     echo -e ":: New Root path '${rootmnt}'"
     if [ $target_layer == "live" ]; then
