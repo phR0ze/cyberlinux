@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.164
+  release: 0.0.165
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -361,7 +361,7 @@ changes:
         - 'system-db:local'
     - edit: /usr/bin/setproxy
       append: before
-      regex: 'OTHER_PROXY_SETTINGS'
+      regex: 'PROXY_SETTINGS_MARKER'
       values:
         - '# Configure system proxy settings for XWindows'
         - 'proxyfile=/etc/dconf/db/local.d/00-proxy'
@@ -393,8 +393,8 @@ changes:
         - ''
   docker-config:
     - edit: /usr/bin/setproxy
-      append: after
-      regex: 'OTHER_PROXY_SETTINGS'
+      append: before
+      regex: 'PROXY_SETTINGS_MARKER'
       values:
         - "\n# Configure docker proxy settings"
         - 'proxyfile=/etc/systemd/system/docker.service.d/20-proxy.conf'
@@ -786,7 +786,7 @@ changes:
         - 'echo "export https_proxy=${proxy}" >> $proxyfile'
         - '[ $no_proxy ] && echo "export no_proxy=${no_proxy}" >> $proxyfile'
         - 'chmod +x $proxyfile'
-        - "\n# OTHER_PROXY_SETTINGS"
+        - "\n# PROXY_SETTINGS_MARKER"
     - { exec: chmod +x /usr/bin/setproxy }
   resolved-config:
     - { exec: ln -sf //run/systemd/resolve/resolv.conf /etc/resolv.conf }
