@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.168
+  release: 0.0.169
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -231,9 +231,8 @@ repos:
       - Server = http://mirror.team-cymru.org/blackarch/$repo/os/$arch
   - name: cyberlinux
     desc: Arch Linux based distro for power users that desire full customization, performance and automation
-    pgp_key: "http://pgp.mit.edu:11371/pks/lookup?op=get&search=0x63EC0ADBEA87E4E3"
     mirrors:
-      - Server = https://pages.github.com/phR0ze/cyberlinux-repo/$repo/$arch
+      - Server = https://phR0ze.github.io/cyberlinux-repo/$repo/$arch
 
 changes:
   base-config:
@@ -883,7 +882,7 @@ packages:
     - { pkg: linux,                         desc: Linux kernel and supporting modules }
     - { pkg: lsb-release,                   desc: LSB version query program }
     - { pkg: mkinitcpio,                    desc: initramfs image creation utility }
-    - { pkg: mkinitcpio-vt-colors,          desc: vt console colors, type: FOREIGN }
+    - { pkg: mkinitcpio-vt-colors,          desc: vt console colors, type: CYBERLINUX }
     - { pkg: syslinux,                      desc: Boot loaders for ext2/3/4 USB and CD }
     - { pkg: systemd,                       desc: System and service manager }
     - { pkg: systemd-sysvcompat,            desc: Sysinit compat for systemd }
@@ -928,7 +927,7 @@ packages:
     - { pkg: gptfdisk,                      desc: Paritioning tools e.g. sgdisk }
     - { pkg: linux,                         desc: Linux kernel }
     - { pkg: mkinitcpio,                    desc: initramfs image creation utility }
-    - { pkg: mkinitcpio-vt-colors,          desc: vt console colors, type: FOREIGN }
+    - { pkg: mkinitcpio-vt-colors,          desc: vt console colors, type: CYBERLINUX }
     - { pkg: rsync,                         desc: Remote file sync utility }
     - { pkg: systemd,                       desc: System and service manager }
 
@@ -994,7 +993,7 @@ packages:
     - { pkg: automake,                      desc: Automatically create Makefiles, depof: base-devel }
     - { pkg: binutils,                      desc: Manipulate binary and object files, depof: base-devel }
     - { pkg: bison,                         desc: General purpose parser generator, depof: base-devel }
-    - { pkg: delve,                         desc: A debugger for the Go Programming Language, type: FOREIGN }
+    - { pkg: delve,                         desc: A debugger for the Go Programming Language, type: CYBERLINUX }
     - { pkg: devtools,                      desc: Misc development tools including makepkg conf, depof: reduce }
     - { pkg: diffutils,                     desc: Patch file utility programs }
     - { pkg: dos2unix,                      desc: Text file format converter }
@@ -1060,17 +1059,17 @@ packages:
     - { pkg: mesa,                          desc: Open-source OpenGL implementation }
     - { pkg: mesa-demos,                    desc: Mesa demos and tools e.g glxinfo }
     - { pkg: numix-frost-themes,            desc: Numix frost GTK2, GTK3 and OpenBox themes, type: ANTERGOS }
-    - { pkg: paper-icon-theme,              desc: Paper icon theme, type: AUR }
+    - { pkg: paper-icon-theme,              desc: Paper icon theme, type: CYBERLINUX }
     - { pkg: pulseaudio-alsa,               desc: ALSA Configuration for PulseAudio }
     - { pkg: python2-xdg,                   desc: Enable use of .desktop files in /etc/xdg in openbox }
-    - { pkg: xcursor-numix-frost,           desc: Numix frost cursor theme, type: FOREIGN }
+    - { pkg: xcursor-numix-frost,           desc: Numix frost cursor theme, type: CYBERLINUX }
     # xdg_menu --format openbox3 --root-menu /etc/xdg/menus/arch-applications.menu > xdg-menu.xml
     - { pkg: archlinux-xdg-menu,            desc: Automatic OpenBox menu generation from xdg files }
 
     # XWindows tools
     - { pkg: audacious,                     desc: Audio/Player, alt: deadbeaf, xnoise }
-    #- { pkg: chromium,                      desc: Opensource project behind Chrome, type: FOREIGN }
-    #- { pkg: chromium-widevine,             desc: Chromium support for Netflix, type: FOREIGN }
+    #- { pkg: chromium,                      desc: Opensource project behind Chrome, type: CYBERLINUX }
+    #- { pkg: chromium-widevine,             desc: Chromium support for Netflix, type: CYBERLINUX }
     - { pkg: firefox,                       desc: Standalone web broser from mozilla.org }
     - { pkg: filezilla,                     desc: Network/Transfer }
     - { pkg: flashplugin,                   desc: Adobe Flash Player NPAPI }
@@ -1080,7 +1079,7 @@ packages:
     - { pkg: hardinfo,                      desc: A system information and benchmark tool }
     - { pkg: nitrogen,                      desc: System wallpaper manager }
     #- { pkg: pepper-flash,                  desc: Chromium flash support, type: ANTERGOS }
-    - { pkg: pnmixer,                       desc: Volume controls in system tray, type: AUR }
+    - { pkg: pnmixer,                       desc: Volume controls in system tray, type: CYBERLINUX }
     - { pkg: qt4,                           desc: A cross-platform application and UI framework, deps: vlc }
     - { pkg: smplayer,                      desc: UI wrapper around mplayer with click to pause, alt: vlc }
     - { pkg: smplayer-skins,                desc: Skins for SMPlayer }
@@ -1104,10 +1103,10 @@ packages:
     - { pkg: ttf-dejavu,                    desc: Bitstream Vera Fonts w/more characters }
     - { pkg: ttf-droid,                     desc: Google Android general purpose fonts }
     - { pkg: ttf-google-fonts-typewolf,     desc: Typewolf's 40 best fonts from the Google Fonts project, type: ANTERGOS }
-    - { pkg: ttf-inconsolata-g,             desc: Best monospace terminal font, type: AUR }
+    - { pkg: ttf-inconsolata-g,             desc: Best monospace terminal font, type: CYBERLINUX }
     - { pkg: ttf-indic-otf,                 desc: Indic Opentype Fonts collection }
     - { pkg: ttf-liberation,                desc: Red Hats Liberation fonts.  }
-    - { pkg: ttf-ms-fonts,                  desc: Microsoft core fonts, type: AUR }
+    - { pkg: ttf-ms-fonts,                  desc: Microsoft core fonts, type: CYBERLINUX }
 
   heavy-pkgs:
     - { install: media-pkgs }
@@ -1124,7 +1123,7 @@ packages:
     - { pkg: gvfs,                          desc: Support for Trash and USB, depof: thunar-volman }
     - { pkg: id3v2,                         desc: Utility to edit id3v2 tags }
     - { pkg: plank,                         desc: Elegant, simple, clean dock }
-    - { pkg: qopenvpn-pia,                  desc: OpenVPN system tray with PIA integration, type: FOREIGN }
+    - { pkg: qopenvpn-pia,                  desc: OpenVPN system tray with PIA integration, type: CYBERLINUX }
     - { pkg: shotwell,                      desc: A digital photo organizer designed for the GNOME desktop environment }
     - { pkg: thunar-archive-plugin,         desc: Thunar integration with file-roller }
     - { pkg: thunar-media-tags-plugin,      desc: Thunar plugin to view media details }
@@ -1163,17 +1162,17 @@ packages:
     - { pkg: kolourpaint,                   desc: Paint application that saves jpg in format for GFXBoot }
     - { pkg: python2-lxml,                  desc: Python wrapper for libxml2, deps: Inkscape }
     - { pkg: openshot,                      desc: Simple powerful Video Editor, alt: pitivi, kdenlive }
-    - { pkg: openvpn-update-systemd-resolved, desc: OpenVPN systemd-resolved updater, type: AUR }
+    - { pkg: openvpn-update-systemd-resolved, desc: OpenVPN systemd-resolved updater, type: CYBERLINUX }
     - { pkg: scribus,                       desc: Open Source Desktop Publishing }
     - { pkg: synergy,                       desc: Network/Virtual KVM }
 
     # Develop
-    - { pkg: awf-git,                       desc: Widget Factory for developing GTK themes, type: AUR }
+    - { pkg: awf-git,                       desc: Widget Factory for developing GTK themes, type: CYBERLINUX }
     - { pkg: meld,                          desc: Develop/Diff Tool - Graphical diff tool cross platform }
     - { pkg: vim-fugitive,                  desc: Git wrapper }
     - { pkg: vim-supertab,                  desc: <Tab> for all completion }
     - { pkg: vim-ultisnips,                 desc: TextMate-style snippets for Vim }
-    - { pkg: visual-studio-code,            desc: Editor for modern development, type: AUR }
+    - { pkg: visual-studio-code,            desc: Editor for modern development, type: CYBERLINUX }
 
   server-pkgs:
     - { install: docker }
@@ -1184,7 +1183,7 @@ packages:
   media-pkgs:
     - { pkg: handbrake,                     desc: Video/Encoding - Video encoding tool for mp4/mkv }
     - { pkg: handbrake-cli,                 desc: Video/Encoding - Video encoding tool for mp4/mkv }
-    - { pkg: makemkv,                       desc: DVD and Blu-ray to MKV converter, type: AUR }
+    - { pkg: makemkv,                       desc: DVD and Blu-ray to MKV converter, type: CYBERLINUX }
 
   theater-pkgs:
     - { pkg: idesk,                         desc: Lightweight desktop icons for X }
@@ -1230,21 +1229,21 @@ packages:
     - { pkg: bridge-utils,                  desc: Ethernet bridge config utils, depof: k8s }
     - { pkg: ebtables,                      desc: Ethernet bridge filtering utilities, depof: k8s }
     - { pkg: ethtool,                       desc: Network drivers and hardware util, depof: k8s }
-    - { pkg: helm,                          desc: Kubernetes package manager, type: FOREIGN }
-    - { pkg: kubernetes-kubectl,            desc: K8s cluster controller, type: FOREIGN, aurpath: kubernetes }
+    - { pkg: helm,                          desc: Kubernetes package manager, type: CYBERLINUX }
+    - { pkg: kubernetes-kubectl,            desc: K8s cluster controller, type: CYBERLINUX, aurpath: kubernetes }
     - { pkg: socat,                         desc: Multipurpose relay, depof: k8s}
 
   k8snode-pkgs:
     - { install: docker }
     - { pkg: jq,                            desc: Command line JSON processor, depof: kubectl }
-    - { pkg: helm,                          desc: Kubernetes package manager, type: FOREIGN }
-    - { pkg: kubernetes-kubeadm,            desc: K8s cluster bootstrap, type: FOREIGN, aurpath: kubernetes }
-    - { pkg: kubernetes-kubectl,            desc: K8s cluster controller, type: FOREIGN, aurpath: kubernetes }
-    - { pkg: kubernetes-kubelet,            desc: K8s node control agent, type: FOREIGN, aurpath: kubernetes }
-    - { pkg: kubernetes-cni,                desc: K8s networking plugins, type: FOREIGN, aurpath: kubernetes }
+    - { pkg: helm,                          desc: Kubernetes package manager, type: CYBERLINUX }
+    - { pkg: kubernetes-kubeadm,            desc: K8s cluster bootstrap, type: CYBERLINUX, aurpath: kubernetes }
+    - { pkg: kubernetes-kubectl,            desc: K8s cluster controller, type: CYBERLINUX, aurpath: kubernetes }
+    - { pkg: kubernetes-kubelet,            desc: K8s node control agent, type: CYBERLINUX, aurpath: kubernetes }
+    - { pkg: kubernetes-cni,                desc: K8s networking plugins, type: CYBERLINUX, aurpath: kubernetes }
 
   vagrant-pkgs:
-    - { pkg: packer,                        desc: HashiCorp's vagrant box builder, type: FOREIGN }
+    - { pkg: packer,                        desc: HashiCorp's vagrant box builder, type: CYBERLINUX }
     - { pkg: vagrant,                       desc: Build and distribute virtualized dev environments }
     - { pkg: virtualbox,                    desc: Cross platform virtualization with UI }
     - { pkg: virtualbox-guest-iso,          desc: VirtualBox Guest Additions ISO image }
