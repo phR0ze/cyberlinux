@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.166
+  release: 0.0.167
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1117,6 +1117,7 @@ packages:
     - { pkg: gnome-multi-writer,            desc: Write an ISO file to multiple USB devices at once }
     - { pkg: guake,                         desc: Drop-down python based quake style terminal }
     - { pkg: gvfs,                          desc: Support for Trash and USB, depof: thunar-volman }
+    - { pkg: id3v2,                         desc: Utility to edit id3v2 tags }
     - { pkg: plank,                         desc: Elegant, simple, clean dock }
     - { pkg: qopenvpn-pia,                  desc: OpenVPN system tray with PIA integration, type: FOREIGN }
     - { pkg: thunar-archive-plugin,         desc: Thunar integration with file-roller }
