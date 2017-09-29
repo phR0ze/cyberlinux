@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.169
+  release: 0.0.170
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -229,10 +229,10 @@ repos:
       - Server = http://distro.ibiblio.org/blackarch/$repo/os/$arch
       - Server = https://deadbeef.ninja/blackarch/$repo/os/$arch
       - Server = http://mirror.team-cymru.org/blackarch/$repo/os/$arch
-  - name: cyberlinux
-    desc: Arch Linux based distro for power users that desire full customization, performance and automation
-    mirrors:
-      - Server = https://phR0ze.github.io/cyberlinux-repo/$repo/$arch
+  # - name: cyberlinux
+  #   desc: Arch Linux based distro for power users that desire full customization, performance and automation
+  #   mirrors:
+  #     - Server = https://phR0ze.github.io/cyberlinux-repo/$repo/$arch
 
 changes:
   base-config:
