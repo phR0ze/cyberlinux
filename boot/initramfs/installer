@@ -200,6 +200,17 @@ partition_and_mount_disk()
         echo -en ":: Creating ${install_dev}1 as BIOS boot partition..."
         echo -en ":: Creating ${install_dev}2 as Linux swap partition..."
         echo -en ":: Creating ${install_dev}3 as Linux filesystem partition..."
+
+        # Create partition layout
+        # http://www.thegeekstuff.com/2017/05/sfdisk-examples/
+        echo '0,512'
+        echo ',512'
+        echo ';'
+        #sfdisk /dev/sdf <<EOF
+
+        echo -en ":: Setting boot flag on ${install_dev}3..."
+        sfdisk -A3 ${install_dev}
+        check_status
     fi
 
     echo -en ":: Formating ${install_dev}2 as (swap)..."
