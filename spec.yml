@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.171
+  release: 0.0.172
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -923,6 +923,7 @@ packages:
     - { pkg: archlinux-keyring,             desc: Arch Linux GPG keys }
     - { pkg: antergos-keyring,              desc: Antergos GPG keyring, type: ANTERGOS }
     - { pkg: blackarch-keyring,             desc: Blackarch GPG keyring, type: BLACKARCH }
+    - { pkg: cyberlinux-keyring,            desc: Blackarch GPG keyring, type: CYBERLINUX }
 
   initramfs-pkgs:
     - { pkg: gptfdisk,                      desc: Paritioning tools e.g. sgdisk }
