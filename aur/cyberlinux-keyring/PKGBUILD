@@ -24,7 +24,7 @@
 #-------------------------------------------------------------------------------
 pkgname=cyberlinux-keyring
 pkgver=0.0.170
-pkgrel=1
+pkgrel=2
 pkgdesc='cyberlinux PGP keyring'
 arch=('any')
 url='https://github.com/phR0ze/cyberlinux/tree/master/aur/cyberlinux-keyring'
@@ -32,7 +32,8 @@ license=('MIT')
 install="${pkgname}.install"
 
 source=('cyberlinux.gpg' 'cyberlinux-trusted' 'cyberlinux-revoked')
-md5sums=('SKIP' 'SKIP' 'SKIP')
+md5sums=('0d6e52c6c157e737e0964ee8d9b3e811' 'd41d8cd98f00b204e9800998ecf8427e'
+'d41d8cd98f00b204e9800998ecf8427e')
 
 package() {
 	cd "${srcdir}"
