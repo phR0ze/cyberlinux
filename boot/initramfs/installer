@@ -195,18 +195,20 @@ partition_and_mount_disk()
         sgdisk ${install_dev} --attributes=3:set:2 &> /dev/null
         check_status
 
-        echo -en ":: Formating ${install_dev}2 as (swap)..."
-        mkswap ${install_dev}2 &> /dev/null
-        check_status
-
-        echo -en ":: Starting swap on ${install_dev}2..."
-        swapon ${install_dev}2 &> /dev/null
-        check_status
-
     # Create a MBR boot disk
     else
         echo -en ":: Creating ${install_dev}1 as BIOS boot partition..."
+        echo -en ":: Creating ${install_dev}2 as Linux swap partition..."
+        echo -en ":: Creating ${install_dev}3 as Linux filesystem partition..."
     fi
+
+    echo -en ":: Formating ${install_dev}2 as (swap)..."
+    mkswap ${install_dev}2 &> /dev/null
+    check_status
+
+    echo -en ":: Starting swap on ${install_dev}2..."
+    swapon ${install_dev}2 &> /dev/null
+    check_status
 
     echo -en ":: Formating ${install_dev}3 as (ext4)..."
     # -O ^64bit     makes compatible with syslinux

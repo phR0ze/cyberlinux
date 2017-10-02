@@ -1263,7 +1263,7 @@ class Reduce
       # Update digests
       Fedit.update_digests(layer, layer_digests, files)
     else
-      puts("#{msg}skipping".colorize(:cyan))
+      puts("#{msg}...skipping".colorize(:cyan))
     end
 
     puts("Completed constructing/modifiying files for '#{layer}' layer".colorize(:green))
