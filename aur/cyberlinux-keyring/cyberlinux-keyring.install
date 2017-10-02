@@ -1,0 +1,7 @@
+post_upgrade() {
+	usr/bin/pacman-key --populate cyberlinux
+}
+
+post_install() {
+	post_upgrade
+}

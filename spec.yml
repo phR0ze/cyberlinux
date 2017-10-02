@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.170
+  release: 0.0.171
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -211,6 +211,11 @@ layers:
 repos:
   - name: archlinux
     desc: Arch Linux is a lightweight and flexible rolling distribution
+  - name: cyberlinux
+    desc: Arch Linux based distro for power users that desire full customization, performance and automation
+    pgp_key: "http://pgp.mit.edu:11371/pks/lookup?op=get&search=0x5599A811941331FD"
+    mirrors:
+      - Server = https://phR0ze.github.io/cyberlinux-repo/$repo/$arch
   - name: antergos
     desc: Arch Linux based distribution with some pre-built AUR packages
     pgp_key: "http://pgp.mit.edu:11371/pks/lookup?op=get&search=0x6D6DDA3D2A45C7B4"
@@ -229,10 +234,6 @@ repos:
       - Server = http://distro.ibiblio.org/blackarch/$repo/os/$arch
       - Server = https://deadbeef.ninja/blackarch/$repo/os/$arch
       - Server = http://mirror.team-cymru.org/blackarch/$repo/os/$arch
-  # - name: cyberlinux
-  #   desc: Arch Linux based distro for power users that desire full customization, performance and automation
-  #   mirrors:
-  #     - Server = https://phR0ze.github.io/cyberlinux-repo/$repo/$arch
 
 changes:
   base-config:
@@ -1230,17 +1231,17 @@ packages:
     - { pkg: ebtables,                      desc: Ethernet bridge filtering utilities, depof: k8s }
     - { pkg: ethtool,                       desc: Network drivers and hardware util, depof: k8s }
     - { pkg: helm,                          desc: Kubernetes package manager, type: CYBERLINUX }
-    - { pkg: kubernetes-kubectl,            desc: K8s cluster controller, type: CYBERLINUX, aurpath: kubernetes }
+    - { pkg: kubernetes-kubectl,            desc: K8s cluster controller, type: CYBERLINUX }
     - { pkg: socat,                         desc: Multipurpose relay, depof: k8s}
 
   k8snode-pkgs:
     - { install: docker }
     - { pkg: jq,                            desc: Command line JSON processor, depof: kubectl }
     - { pkg: helm,                          desc: Kubernetes package manager, type: CYBERLINUX }
-    - { pkg: kubernetes-kubeadm,            desc: K8s cluster bootstrap, type: CYBERLINUX, aurpath: kubernetes }
-    - { pkg: kubernetes-kubectl,            desc: K8s cluster controller, type: CYBERLINUX, aurpath: kubernetes }
-    - { pkg: kubernetes-kubelet,            desc: K8s node control agent, type: CYBERLINUX, aurpath: kubernetes }
-    - { pkg: kubernetes-cni,                desc: K8s networking plugins, type: CYBERLINUX, aurpath: kubernetes }
+    - { pkg: kubernetes-kubeadm,            desc: K8s cluster bootstrap, type: CYBERLINUX }
+    - { pkg: kubernetes-kubectl,            desc: K8s cluster controller, type: CYBERLINUX }
+    - { pkg: kubernetes-kubelet,            desc: K8s node control agent, type: CYBERLINUX }
+    - { pkg: kubernetes-cni,                desc: K8s networking plugins, type: CYBERLINUX }
 
   vagrant-pkgs:
     - { pkg: packer,                        desc: HashiCorp's vagrant box builder, type: CYBERLINUX }

@@ -165,54 +165,61 @@ partition_and_mount_disk()
 {
     # Wipe, partition and format disk
     #---------------------------------------------------------------------------
-    echo -en ":: Disk ${cyan}${installdev}${none} identified as install disk..."
-    [ "x${installdev}" != "x" ]
+    echo -en ":: Disk ${cyan}${install_dev}${none} identified as install disk..."
+    [ "x${install_dev}" != "x" ]
     check_status
 
-    echo -en ":: Destroy any magic strings and/or signatures on ${installdev}..."
-    wipefs --all --force ${installdev} &> /dev/null
+    echo -en ":: Destroy any magic strings and/or signatures on ${install_dev}..."
+    wipefs --all --force ${install_dev} &> /dev/null
     check_status
 
-    echo -en ":: Wiping partition table on ${installdev}..."
-    sgdisk --zap ${installdev} &> /dev/null
+    echo -en ":: Wiping partition table on ${install_dev}..."
+    sgdisk --zap ${install_dev} &> /dev/null
     check_status
 
-    echo -en ":: Creating ${installdev}1 as BIOS boot partition..."
-    sgdisk -n 0:0:+2M -t 0:ef02 -c 0:"BIOS boot" ${installdev} &> /dev/null
-    check_status
+    # Create a GPT boot disk
+    if [ "x${install_boot_type}" == "xgpt" ]; then
+        echo -en ":: Creating ${install_dev}1 as BIOS boot partition..."
+        sgdisk -n 0:0:+2M -t 0:ef02 -c 0:"BIOS boot" ${install_dev} &> /dev/null
+        check_status
 
-    echo -en ":: Creating ${installdev}2 as Linux swap partition..."
-    sgdisk -n 0:0:+4G -t 0:8200 -c 0:"Linux swap" ${installdev} &> /dev/null
-    check_status
+        echo -en ":: Creating ${install_dev}2 as Linux swap partition..."
+        sgdisk -n 0:0:+4G -t 0:8200 -c 0:"Linux swap" ${install_dev} &> /dev/null
+        check_status
 
-    echo -en ":: Creating ${installdev}3 as Linux filesystem partition..."
-    sgdisk -n 0:0:0 -t 0:8300 -c 0:"Linux filesystem" ${installdev} &> /dev/null
-    check_status
+        echo -en ":: Creating ${install_dev}3 as Linux filesystem partition..."
+        sgdisk -n 0:0:0 -t 0:8300 -c 0:"Linux filesystem" ${install_dev} &> /dev/null
+        check_status
 
-    echo -en ":: Setting boot flag on ${installdev}3..."
-    sgdisk ${installdev} --attributes=3:set:2 &> /dev/null
-    check_status
+        echo -en ":: Setting boot flag on ${install_dev}3..."
+        sgdisk ${install_dev} --attributes=3:set:2 &> /dev/null
+        check_status
 
-    echo -en ":: Formating ${installdev}2 as (swap)..."
-    mkswap ${installdev}2 &> /dev/null
-    check_status
+        echo -en ":: Formating ${install_dev}2 as (swap)..."
+        mkswap ${install_dev}2 &> /dev/null
+        check_status
 
-    echo -en ":: Starting swap on ${installdev}2..."
-    swapon ${installdev}2 &> /dev/null
-    check_status
+        echo -en ":: Starting swap on ${install_dev}2..."
+        swapon ${install_dev}2 &> /dev/null
+        check_status
 
-    echo -en ":: Formating ${installdev}3 as (ext4)..."
+    # Create a MBR boot disk
+    else
+        echo -en ":: Creating ${install_dev}1 as BIOS boot partition..."
+    fi
+
+    echo -en ":: Formating ${install_dev}3 as (ext4)..."
     # -O ^64bit     makes compatible with syslinux
     # -F            force creation even if some params don't make sense
     # -L            set volume name used for /boot/syslinux/syslinux.cfg
     # -m 0          don't reserve blocks for super user daemons
     # -q            run in quiet mode for scripts
-    mkfs.ext4 -O ^64bit -F -m 0 -q -L root ${installdev}3 &> /dev/null
+    mkfs.ext4 -O ^64bit -F -m 0 -q -L root ${install_dev}3 &> /dev/null
     check_status
 
-    echo -en ":: Mounting ${installdev}3 as ${rootmnt}..."
+    echo -en ":: Mounting ${install_dev}3 as ${rootmnt}..."
     # Disable access time writes (speeds things up)
-    mount -o noatime ${installdev}3 ${rootmnt} &> /dev/null
+    mount -o noatime ${install_dev}3 ${rootmnt} &> /dev/null
     check_status
 }
 
@@ -382,7 +389,8 @@ installer()
         fi
     done
     IFS=$ifs
-    getsel installdev $disks
+    getsel install_dev $disks
+    getinput install_boot_type 'boot type' 'gpt'
 
     # Configure networking
     #---------------------------------------------------------------------------
@@ -448,7 +456,7 @@ installer()
     # Install bootloader
     #---------------------------------------------------------------------------
     if [ $target_layer != "live" ]; then
-        echo -en ":: Install syslinux bootloader on ${installdev}..."
+        echo -en ":: Install syslinux bootloader on ${install_dev}..."
         chroot ${rootmnt} syslinux-install_update -i -a -m &> /dev/null
         check_status
 
