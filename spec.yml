@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.176
+  release: 0.0.177
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1039,14 +1039,11 @@ packages:
     - { pkg: rest-client,                   desc: Simple HTTP and REST client, type: GEM }
 
   lite-pkgs:
-    - { pkg: dconf,                         desc: A low-level configuration system }
-    - { pkg: xdg-utils,                     desc: Desktop integration utilities }
-    - { pkg: xdg-user-dirs,                 desc: Manage user directories like ~/Desktop }
-    - { pkg: xorg,                          desc: X.org X11 xorg-drivers and others }
-    - { pkg: xorg-xdpyinfo,                 desc: Xorg display info utility }
-    - { pkg: xsel,                          desc: Tool for getting/setting X selection }
-    - { pkg: xterm,                         desc: X terminal emulator }
     - { pkg: alsa-utils,                    desc: Alsa utilities including amixer }
+    # xdg_menu --format openbox3 --root-menu /etc/xdg/menus/arch-applications.menu > xdg-menu.xml
+    - { pkg: archlinux-xdg-menu,            desc: Automatic OpenBox menu generation from xdg files }
+    - { pkg: dconf,                         desc: A low-level configuration system }
+    - { pkg: dmenu,                         desc: Super light weight application runner }
     - { pkg: gnome-alsamixer,               desc: Gnome's audio controls not too bad }
     - { pkg: gtk-engines,                   desc: GTK theme engines for cyberlinux theme }
     - { pkg: gtk-engine-murrine,            desc: GTK theme engine for cyberlinux theme }
@@ -1065,8 +1062,12 @@ packages:
     - { pkg: pulseaudio-alsa,               desc: ALSA Configuration for PulseAudio }
     - { pkg: python2-xdg,                   desc: Enable use of .desktop files in /etc/xdg in openbox }
     - { pkg: xcursor-numix-frost,           desc: Numix frost cursor theme, type: CYBERLINUX }
-    # xdg_menu --format openbox3 --root-menu /etc/xdg/menus/arch-applications.menu > xdg-menu.xml
-    - { pkg: archlinux-xdg-menu,            desc: Automatic OpenBox menu generation from xdg files }
+    - { pkg: xdg-user-dirs,                 desc: Manage user directories like ~/Desktop }
+    - { pkg: xdg-utils,                     desc: Desktop integration utilities }
+    - { pkg: xorg,                          desc: X.org X11 xorg-drivers and others }
+    - { pkg: xorg-xdpyinfo,                 desc: Xorg display info utility }
+    - { pkg: xsel,                          desc: Tool for getting/setting X selection }
+    - { pkg: xterm,                         desc: X terminal emulator }
 
     # XWindows tools
     - { pkg: audacious,                     desc: Audio/Player, alt: deadbeaf, xnoise }
@@ -1118,7 +1119,6 @@ packages:
     - { pkg: audacity,                      desc: Audio editor - cross platform, tried and tested }
     - { pkg: brasero,                       desc: Burning tool, alt: k3b, xfburn }
     - { pkg: conky,                         desc: Lightweight system monitor for X }
-    - { pkg: dmenu,                         desc: Super light weight application runner }
     - { pkg: devede,                        desc: A program to create VideoDVDs and CDs }
     - { pkg: gnome-multi-writer,            desc: Write an ISO file to multiple USB devices at once }
     - { pkg: guake,                         desc: Drop-down python based quake style terminal }
