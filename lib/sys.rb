@@ -53,7 +53,7 @@ module Sys
   # +cmd+:: cmd to execute
   # +env+:: optional environment variables to set
   # +die+:: fail on errors if true
-  # +returns+:: true on success else false
+  # +returns+:: boolean status, string message
   def exec(cmd, env:{}, die:true)
     result = false
     puts("exec: #{cmd.is_a?(String) ? cmd : cmd * ' '}")

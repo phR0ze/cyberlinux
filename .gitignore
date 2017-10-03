@@ -1,4 +1,6 @@
 *.swp
+doc
+.yardoc
 mkmf.log
 aur/*/src/
 aur/*/pkg/

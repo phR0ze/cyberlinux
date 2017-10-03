@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.177
+  release: 0.0.178
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1125,7 +1125,6 @@ packages:
     - { pkg: gvfs,                          desc: Support for Trash and USB, depof: thunar-volman }
     - { pkg: id3v2,                         desc: Utility to edit id3v2 tags }
     - { pkg: plank,                         desc: Elegant, simple, clean dock }
-    - { pkg: qopenvpn-pia,                  desc: OpenVPN system tray with PIA integration, type: CYBERLINUX }
     - { pkg: shotwell,                      desc: A digital photo organizer designed for the GNOME desktop environment }
     - { pkg: thunar-archive-plugin,         desc: Thunar integration with file-roller }
     - { pkg: thunar-media-tags-plugin,      desc: Thunar plugin to view media details }
@@ -1198,6 +1197,7 @@ packages:
 
   file-sharing:
     - { pkg: qbittorrent,                   desc: Network/Bittorent, alt: deluge }
+    - { pkg: qopenvpn-pia,                  desc: OpenVPN system tray with PIA integration, type: CYBERLINUX }
 
   teamviewer:
     - { pkg: teamviewer,                    desc: Network/Remoting - Better than VNC garbage, type: FOREIGN }
