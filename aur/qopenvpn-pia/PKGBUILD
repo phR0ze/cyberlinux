@@ -24,12 +24,12 @@
 #-------------------------------------------------------------------------------
 pkgname=qopenvpn-pia
 pkgver=2.0.1
-pkgrel=4
+pkgrel=5
 pkgdesc="Simple OpenVPN PyQt GUI with PIA VPN profiles included"
 arch=('any')
 url="https://github.com/phR0ze/qopenvpn"
 license=('GPL3')
-depends=('python-pyqt5' 'openvpn' 'systemd')
+depends=('python-pyqt5' 'qt5-svg' 'openvpn' 'systemd')
 makedepends=('python-setuptools')
 install=$pkgname.install
 conficts=('qopenvpn')
