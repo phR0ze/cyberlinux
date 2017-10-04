@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.179
+  release: 0.0.180
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -307,13 +307,13 @@ changes:
       regex: '<IfModule mpm_prefork'
       values:
         # StartServers: number of server processes to start, default (5)
-        - "    StartServers           1"
+        - "    StartServers           5"
         # MinSpareServers: minimum number of server processes which are kept spare, default (5)
-        - "    MinSpareServers        1"
+        - "    MinSpareServers        5"
         # MaxSpareServers: maximum number of server processes which are kept spare, default (10)
-        - "    MaxSpareServers        1"
+        - "    MaxSpareServers        5"
         # MaxRequestWorkers: maximum number of server processes allowed to start, default (256)
-        - "    MaxRequestWorkers     30"
+        - "    MaxRequestWorkers     100"
         # MaxConnectionsPerChild: max num of connections a server process serves before term, default (0)
         - "    MaxConnectionsPerChild 0"
     - edit: /etc/httpd/conf/httpd.conf
