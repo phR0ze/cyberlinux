@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.178
+  release: 0.0.179
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -643,7 +643,7 @@ changes:
     - edit: /etc/exports
       append: true
       values:
-        - '/srv/nfs/Cache       <%=nfscidr%>(rw,no_subtree_check,nohide)'
+        - '/srv/nfs/Cache       <%=nfscidr%>(rw,no_subtree_check,nohide,no_root_squash)'
         - '/srv/nfs/Documents   <%=nfscidr%>(rw,no_subtree_check,nohide)'
         - '/srv/nfs/Install     <%=nfscidr%>(rw,no_subtree_check,nohide)'
         - '/srv/nfs/Media       <%=nfscidr%>(rw,no_subtree_check,nohide)'
@@ -654,7 +654,7 @@ changes:
     # Share pacman cache with other machines on the LAN
     - { edit: /etc/fstab, append: true, value: "/var/cache/pacman/pkg /srv/nfs/Cache none bind 0 0" }
     # Manually mount on client side with this
-    #- { edit: /etc/fstab, append: true, value: serverip:/srv/nfs/Cache /var/cache/pacman/pkg nfs noauto,noatime,rsize=8192,wsize=8192,timeo=14,_netdev 0 0
+    #- { edit: /etc/fstab, append: true, value: serverip:/srv/nfs/Cache /var/cache/pacman/pkg nfs auto,noatime,rsize=8192,wsize=8192,timeo=14,_netdev 0 0
     - { chroot: systemctl enable nfs-server.service }
   oblogout-config:
     - edit: /etc/oblogout.conf
