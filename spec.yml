@@ -1180,6 +1180,8 @@ packages:
     - { install: apache-php }
     - { install: media-pkgs }
     - { install: file-sharing }
+    - { pkg: keepass,                       desc: Cross platform password manager }
+    - { pkg: file-roller,                   desc: System/Compression integrates well in Thunar }
 
   media-pkgs:
     - { pkg: handbrake,                     desc: Video/Encoding - Video encoding tool for mp4/mkv }

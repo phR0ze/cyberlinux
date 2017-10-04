@@ -13,7 +13,9 @@
 
     <!-- Accessories -->
     <menu id="Accessories" icon="/usr/share/icons/Paper/32x32/categories/applications-utilities.png" label="Accessories">
+      <item label="Archive Manager" icon="/usr/share/icons/Paper/32x32/apps/file-roller.png"><action name="Execute"><execute>file-roller</execute></action></item>
       <item label="Bulk Rename" icon="/usr/share/icons/Paper/32x32/apps/Thunar.png"><action name="Execute"><execute>/usr/lib/Thunar/ThunarBulkRename</execute></action></item>
+      <item label="KeePass" icon="/usr/share/icons/hicolor/32x32/apps/keepass.png"><action name="Execute"><execute>keepass</execute></action></item>
     </menu>
 
     <!-- Development -->
