@@ -30,9 +30,6 @@ install=freeswitch.install
 
 # Minimal modules for a Google/Callcentric/Linksys solution
 modules=(
-  applications/mod_sms
-  xml_int/mod_xml_curl
-
   #applications/mod_callcenter        # Inbound call queueing system
   applications/mod_commands           # CORE: Handles console commands
   #applications/mod_conference        # Conference call support
