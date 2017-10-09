@@ -10,8 +10,7 @@ pkgdesc="Cross-Platform Scalable FREE Multi-Protocol Soft Switch"
 arch=('i686' 'x86_64')
 url="http://freeswitch.org/"
 license=('MPL')
-depends=('curl' 'xz' 'python' 'libtheora' 'unixodbc' 'libvorbis' 'speex' 'libjpeg-turbo'
-    'postgresql-libs' 'libshout' 'lua' 'openssl-1.0' 'opus' 'freetype2')
+depends=('curl' 'xz' 'python' 'libtheora' 'unixodbc' 'libjpeg-turbo' 'openssl-1.0' 'freetype2')
 makedepends=('git' 'libjpeg' 'ldns' 'libedit' 'curl' 'python2' 'unixodbc' 'sed' 'make'
     'yasm' 'mpg123' 'lame' 'libsndfile')
 provides=('freeswitch')
@@ -31,17 +30,14 @@ install=freeswitch.install
 
 # Minimal modules for a Google/Callcentric/Linksys solution
 modules=(
-  #applications/mod_callcenter
-  applications/mod_commands
-  #applications/mod_conference
-  applications/mod_db
+  #applications/mod_db
   applications/mod_dptools
-  applications/mod_enum
-  applications/mod_esf
+  #applications/mod_enum
+  #applications/mod_esf
   applications/mod_expr
-  applications/mod_fifo
-  applications/mod_fsv
-  applications/mod_hash
+  #applications/mod_fifo
+  #applications/mod_fsv
+  #applications/mod_hash
   applications/mod_httapi
   applications/mod_sms
   applications/mod_spandsp
@@ -49,8 +45,9 @@ modules=(
   #applications/mod_voicemail
   #codecs/mod_amr
   #codecs/mod_b64
-  codecs/mod_g723_1
-  codecs/mod_g729
+  codecs/mod_g711
+  #codecs/mod_g723_1
+  #codecs/mod_g729
   #codecs/mod_h26x
   #codecs/mod_opus
   dialplans/mod_dialplan_xml
@@ -59,8 +56,8 @@ modules=(
   #endpoints/mod_skinny
   endpoints/mod_sofia
   #endpoints/mod_verto
-  event_handlers/mod_cdr_csv
-  event_handlers/mod_cdr_sqlite
+  #event_handlers/mod_cdr_csv
+  #event_handlers/mod_cdr_sqlite
   event_handlers/mod_event_socket
   formats/mod_local_stream
   formats/mod_native_file
@@ -71,15 +68,16 @@ modules=(
   #languages/mod_lua
   loggers/mod_console
   loggers/mod_logfile
-  loggers/mod_syslog
+  #loggers/mod_syslog
   say/mod_say_en
   xml_int/mod_xml_cdr
   xml_int/mod_xml_curl
   xml_int/mod_xml_rpc
   xml_int/mod_xml_scgi
-#  #applications/mod_callcenter        # Inbound call queueing system
-#  applications/mod_commands           # CORE: Handles console commands
-#  #applications/mod_conference        # Conference call support
+
+  #applications/mod_callcenter        # Inbound call queueing system
+  applications/mod_commands           # CORE: Handles console commands
+  #applications/mod_conference        # Conference call support
 #  #applications/mod_db                # API and dialplan interface to various database backends
 #  applications/mod_dptools            # CORE: Dialplan applications for XML dialplans
 #  #applications/mod_enum              # Number mapping allowing Freeswitch servers to communicate directly
