@@ -55,7 +55,7 @@ modules=(
   #codecs/mod_opus                    # g711 is the only codec Callcentric/Google/RT31P2 all share
   #dialplans/mod_dialplan_asterisk    # Use the xml dialplan and you won't need this
   dialplans/mod_dialplan_xml          # CORE: Standard xml dialplan support
-#  endpoints/mod_dingaling             # Google voice/gmail calling support
+  #endpoints/mod_dingaling             # Google voice/gmail calling support
   endpoints/mod_sofia                 # Support for SIP endpoints e.g. Callcentric, Linksys RT31P2
   #endpoints/mod_loopback             # Useful in some dialplans, I haven't ever used it
   #endpoints/mod_rtc                  # Media streaming portion of WebRTC support
@@ -70,7 +70,7 @@ modules=(
   formats/mod_sndfile                 # Provides support for playing sounds
   formats/mod_tone_stream             # Adds ability to play tone streams for number pressing etc..
   #languages/mod_lua                  # Removed: Use python module instead much easier
-# languages/mod_ruby                # Added: Better scripting language that lua
+  languages/mod_ruby                  # Added: Better scripting language that lua
   loggers/mod_console                 # Console logger used for debugging
   loggers/mod_logfile                 # File logger used for debugging
   #loggers/mod_syslog                 # Don't need syslog, no need to centrally collect logs
