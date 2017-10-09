@@ -143,9 +143,17 @@ prepare()
   done
 
   # Configure FreeSWITCH
+  # srtp        // Encryption for rtp, google doesn't support so why bother
+  # libvpx      // Don't need anything but g711/P
+  # libyuv      // Don't need video support
   PKG_CONFIG_PATH=/usr/lib/openssl-1.0/pkgconfig ./configure \
     --prefix=/var/lib/freeswitch \
     --with-python=/usr/bin/python2 \
+    --disable-srtp \
+    --disable-libvpx \
+    --disable-libyuv \
+    --enable-core-odbc-support \
+    --disable-core-pgsql-support \
     --bindir=/usr/bin \
     --sbindir=/usr/sbin \
     --localstatedir=/var \
@@ -154,7 +162,6 @@ prepare()
     --libexecdir=/usr/lib/freeswitch \
     --libdir=/usr/lib/freeswitch \
     --includedir=/usr/include/freeswitch \
-    --enable-core-odbc-support \
     --with-recordingsdir=/var/spool/freeswitch/recordings \
     --with-dbdir=/var/spool/freeswitch/db \
     --with-pkgconfigdir=/usr/lib/pkgconfig \
@@ -195,8 +202,6 @@ prepare()
 #    --with-scriptdir=/usr/share/freeswitch/scripts \
 #    --with-certsdir=/etc/freeswitch/certs \
 #    --with-rundir=/run/freeswitch
-#
-#    patch -Np1 < ../freeswitch-arch.patch  # needed for 1.6.17
 }
 
 build()
