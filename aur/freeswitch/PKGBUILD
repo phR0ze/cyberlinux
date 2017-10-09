@@ -12,7 +12,7 @@ url="http://freeswitch.org/"
 license=('MPL')
 depends=('curl' 'xz' 'python' 'libtheora' 'unixodbc' 'libvorbis' 'speex' 'libjpeg-turbo'
     'postgresql-libs' 'libshout' 'lua' 'openssl-1.0' 'opus' 'freetype2')
-makedepends=('git' 'libjpeg' 'ldns' 'libedit' 'curl' 'python2' 'unixodbc' 'sed' 'make' 'libyuv-git'
+makedepends=('git' 'libjpeg' 'ldns' 'libedit' 'curl' 'python2' 'unixodbc' 'sed' 'make'
     'yasm' 'mpg123' 'lame' 'libsndfile')
 provides=('freeswitch')
 
@@ -31,9 +31,9 @@ install=freeswitch.install
 
 # Minimal modules for a Google/Callcentric/Linksys solution
 modules=(
-  applications/mod_callcenter
+  #applications/mod_callcenter
   applications/mod_commands
-  applications/mod_conference
+  #applications/mod_conference
   applications/mod_db
   applications/mod_dptools
   applications/mod_enum
@@ -45,30 +45,30 @@ modules=(
   applications/mod_httapi
   applications/mod_sms
   applications/mod_spandsp
-  applications/mod_valet_parking
-  applications/mod_voicemail
-  codecs/mod_amr
-  codecs/mod_b64
+  #applications/mod_valet_parking
+  #applications/mod_voicemail
+  #codecs/mod_amr
+  #codecs/mod_b64
   codecs/mod_g723_1
   codecs/mod_g729
-  codecs/mod_h26x
-  codecs/mod_opus
+  #codecs/mod_h26x
+  #codecs/mod_opus
   dialplans/mod_dialplan_xml
-  endpoints/mod_loopback
-  endpoints/mod_rtc
-  endpoints/mod_skinny
+  #endpoints/mod_loopback
+  #endpoints/mod_rtc
+  #endpoints/mod_skinny
   endpoints/mod_sofia
-  endpoints/mod_verto
+  #endpoints/mod_verto
   event_handlers/mod_cdr_csv
   event_handlers/mod_cdr_sqlite
   event_handlers/mod_event_socket
   formats/mod_local_stream
   formats/mod_native_file
   formats/mod_png
-  formats/mod_shout
+  #formats/mod_shout
   formats/mod_sndfile
   formats/mod_tone_stream
-  languages/mod_lua
+  #languages/mod_lua
   loggers/mod_console
   loggers/mod_logfile
   loggers/mod_syslog
@@ -171,37 +171,8 @@ prepare()
     --with-certsdir=/etc/freeswitch/certs \
     --with-rundir=/run/freeswitch
 
-    patch -Np1 < ../freeswitch-arch.patch  # needed for 1.6.17
-
-#  # Configure FreeSWITCH
-#  # srtp        // Encryption for rtp, google doesn't support so why bother
-#  # libvpx      // Don't need anything but g711/P
-#  # libyuv      // Don't need video support
-#  # openssl     // Not required if not supporting encryption
-#  PKG_CONFIG_PATH=/usr/lib/openssl-1.0/pkgconfig ./configure \
-#    --prefix=/var/lib/freeswitch \
-#    --with-python=/usr/bin/python2 \
-#    --disable-srtp \
-#    --disable-libvpx \
-#    --disable-libyuv \
-#    --enable-core-odbc-support \
-#    --disable-core-pgsql-support \
-#    --bindir=/usr/bin \
-#    --sbindir=/usr/sbin \
-#    --localstatedir=/var \
-#    --sysconfdir=/etc \
-#    --datarootdir=/usr/share \
-#    --libexecdir=/usr/lib/freeswitch \
-#    --libdir=/usr/lib/freeswitch \
-#    --includedir=/usr/include/freeswitch \
-#    --with-recordingsdir=/var/spool/freeswitch/recordings \
-#    --with-dbdir=/var/spool/freeswitch/db \
-#    --with-pkgconfigdir=/usr/lib/pkgconfig \
-#    --with-logfiledir=/var/log/freeswitch \
-#    --with-modinstdir=/usr/lib/freeswitch/mod \
-#    --with-scriptdir=/usr/share/freeswitch/scripts \
-#    --with-certsdir=/etc/freeswitch/certs \
-#    --with-rundir=/run/freeswitch
+    # Patch required for 1.6.17
+    patch -Np1 < ../freeswitch-arch.patch
 }
 
 build()
