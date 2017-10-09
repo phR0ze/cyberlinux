@@ -31,109 +31,118 @@ install=freeswitch.install
 
 # Minimal modules for a Google/Callcentric/Linksys solution
 modules=(
-  #applications/mod_callcenter        # Inbound call queueing system
-  applications/mod_commands           # CORE: Handles console commands
-  #applications/mod_conference        # Conference call support
-  #applications/mod_db                # API and dialplan interface to various database backends
-  applications/mod_dptools            # CORE: Dialplan applications for XML dialplans
-  #applications/mod_enum              # Number mapping allowing Freeswitch servers to communicate directly
-  #applications/mod_esf               # Multicast support for SIP
-  applications/mod_expr               # Dialplan support for expressions
-  #applications/mod_fifo              # Callcenter application for queuing
-  #applications/mod_fsv               # Record and play back video
-  #applications/mod_hash              # Limited datastore backend for dialplan
-  applications/mod_httapi             # Needed to read files in dialplan
-  #applications/mod_sms               # Chat protocol for messaging
-  applications/mod_spandsp            # Standard digital processing functions
-  #applications/mod_valet_parking     # Callwaiting and hold type functionalilty
-  #applications/mod_voicemail         # Using Google Voice for voicemail
-  #codecs/mod_amr                     # g711 is the only codec Callcentric/Google/RT31P2 all share
-  #codecs/mod_b64                     # g711 is the only codec Callcentric/Google/RT31P2 all share
-  codecs/mod_g711                     # Common denominator of Callcentric/Google/RT31P2
-  #codecs/mod_g723_1                  # g711 is the only codec Callcentric/Google/RT31P2 all share
-  #codecs/mod_g729                    # g711 is the only codec Callcentric/Google/RT31P2 all share
-  #codecs/mod_h26x                    # g711 is the only codec Callcentric/Google/RT31P2 all share
-  #codecs/mod_opus                    # g711 is the only codec Callcentric/Google/RT31P2 all share
-  #dialplans/mod_dialplan_asterisk    # Use the xml dialplan and you won't need this
-  dialplans/mod_dialplan_xml          # CORE: Standard xml dialplan support
-  endpoints/mod_dingaling             # Google voice/gmail calling support
-  endpoints/mod_sofia                 # Support for SIP endpoints e.g. Callcentric, Linksys RT31P2
-  #endpoints/mod_loopback             # Useful in some dialplans, I haven't ever used it
-  #endpoints/mod_rtc                  # Media streaming portion of WebRTC support
-  #endpoints/mod_skinny               # ToIP protocol used in Cisco IP Phones e.g. 79xx series
-  #endpoints/mod_verto                # Signaling portion of WebRTC support
-  #event_handlers/mod_cdr_csv         # Don't need any call logs as using Google Voice for this
-  #event_handlers/mod_cdr_sqlite      # Don't need any call logs as using Google Voice for this
-  event_handlers/mod_event_socket     # Required fro FS CLI to work correctly
-  formats/mod_local_stream            #
-  formats/mod_native_file             #
-  formats/mod_png                     #
-  formats/mod_sndfile                 # Provides support for playing sounds
-  formats/mod_tone_stream             # Adds ability to play tone streams for number pressing etc..
-  #languages/mod_lua                  # Removed: Use python module instead much easier
-# languages/mod_ruby                # Added: Better scripting language that lua
-  loggers/mod_console                 # Console logger used for debugging
-  loggers/mod_logfile                 # File logger used for debugging
-  #loggers/mod_syslog                 # Don't need syslog, no need to centrally collect logs
-  say/mod_say_en                      # English speech management and voice prompting
-  xml_int/mod_xml_cdr                 #
-  xml_int/mod_xml_rpc                 #
-  xml_int/mod_xml_scgi                #
+  applications/mod_callcenter
+  applications/mod_commands
+  applications/mod_conference
+  applications/mod_db
+  applications/mod_dptools
+  applications/mod_enum
+  applications/mod_esf
+  applications/mod_expr
+  applications/mod_fifo
+  applications/mod_fsv
+  applications/mod_hash
+  applications/mod_httapi
+  applications/mod_sms
+  applications/mod_spandsp
+  applications/mod_valet_parking
+  applications/mod_voicemail
+  codecs/mod_amr
+  codecs/mod_b64
+  codecs/mod_g723_1
+  codecs/mod_g729
+  codecs/mod_h26x
+  codecs/mod_opus
+  dialplans/mod_dialplan_xml
+  endpoints/mod_loopback
+  endpoints/mod_rtc
+  endpoints/mod_skinny
+  endpoints/mod_sofia
+  endpoints/mod_verto
+  event_handlers/mod_cdr_csv
+  event_handlers/mod_cdr_sqlite
+  event_handlers/mod_event_socket
+  formats/mod_local_stream
+  formats/mod_native_file
+  formats/mod_png
+  formats/mod_shout
+  formats/mod_sndfile
+  formats/mod_tone_stream
+  languages/mod_lua
+  loggers/mod_console
+  loggers/mod_logfile
+  loggers/mod_syslog
+  say/mod_say_en
+  xml_int/mod_xml_cdr
+  xml_int/mod_xml_curl
+  xml_int/mod_xml_rpc
+  xml_int/mod_xml_scgi
+#  #applications/mod_callcenter        # Inbound call queueing system
+#  applications/mod_commands           # CORE: Handles console commands
+#  #applications/mod_conference        # Conference call support
+#  #applications/mod_db                # API and dialplan interface to various database backends
+#  applications/mod_dptools            # CORE: Dialplan applications for XML dialplans
+#  #applications/mod_enum              # Number mapping allowing Freeswitch servers to communicate directly
+#  #applications/mod_esf               # Multicast support for SIP
+#  applications/mod_expr               # Dialplan support for expressions
+#  #applications/mod_fifo              # Callcenter application for queuing
+#  #applications/mod_fsv               # Record and play back video
+#  #applications/mod_hash              # Limited datastore backend for dialplan
+#  applications/mod_httapi             # Needed to read files in dialplan
+#  #applications/mod_sms               # Chat protocol for messaging
+#  applications/mod_spandsp            # Standard digital processing functions
+#  #applications/mod_valet_parking     # Callwaiting and hold type functionalilty
+#  #applications/mod_voicemail         # Using Google Voice for voicemail
+#  #codecs/mod_amr                     # g711 is the only codec Callcentric/Google/RT31P2 all share
+#  #codecs/mod_b64                     # g711 is the only codec Callcentric/Google/RT31P2 all share
+#  codecs/mod_g711                     # Common denominator of Callcentric/Google/RT31P2
+#  #codecs/mod_g723_1                  # g711 is the only codec Callcentric/Google/RT31P2 all share
+#  #codecs/mod_g729                    # g711 is the only codec Callcentric/Google/RT31P2 all share
+#  #codecs/mod_h26x                    # g711 is the only codec Callcentric/Google/RT31P2 all share
+#  #codecs/mod_opus                    # g711 is the only codec Callcentric/Google/RT31P2 all share
+#  #dialplans/mod_dialplan_asterisk    # Use the xml dialplan and you won't need this
+#  dialplans/mod_dialplan_xml          # CORE: Standard xml dialplan support
+#  endpoints/mod_dingaling             # Google voice/gmail calling support
+#  endpoints/mod_sofia                 # Support for SIP endpoints e.g. Callcentric, Linksys RT31P2
+#  #endpoints/mod_loopback             # Useful in some dialplans, I haven't ever used it
+#  #endpoints/mod_rtc                  # Media streaming portion of WebRTC support
+#  #endpoints/mod_skinny               # ToIP protocol used in Cisco IP Phones e.g. 79xx series
+#  #endpoints/mod_verto                # Signaling portion of WebRTC support
+#  #event_handlers/mod_cdr_csv         # Don't need any call logs as using Google Voice for this
+#  #event_handlers/mod_cdr_sqlite      # Don't need any call logs as using Google Voice for this
+#  event_handlers/mod_event_socket     # Required fro FS CLI to work correctly
+#  formats/mod_local_stream            #
+#  formats/mod_native_file             #
+#  formats/mod_png                     #
+#  formats/mod_sndfile                 # Provides support for playing sounds
+#  formats/mod_tone_stream             # Adds ability to play tone streams for number pressing etc..
+#  #languages/mod_lua                  # Removed: Use python module instead much easier
+## languages/mod_ruby                # Added: Better scripting language that lua
+#  loggers/mod_console                 # Console logger used for debugging
+#  loggers/mod_logfile                 # File logger used for debugging
+#  #loggers/mod_syslog                 # Don't need syslog, no need to centrally collect logs
+#  say/mod_say_en                      # English speech management and voice prompting
+#  xml_int/mod_xml_cdr                 #
+#  xml_int/mod_xml_rpc                 #
+#  xml_int/mod_xml_scgi                #
 )
-
-_enabled_modules=(xml_int/mod_xml_curl
-                  xml_int/mod_xml_cdr
-                  formats/mod_shout
-                  applications/mod_callcenter
-          languages/mod_lua)
-
-# DISABLED MODULES
-# Remove from _disabled_modules if you want to build these
-#
-# languages/mod_spidermonkey - server-side javascript
-# languages/mod_lua - server-side lua
-# say/mod_say_ru - Russian phrases
-# dialplans/mod_dialplan_asterisk - Legacy dialplan
-_disabled_modules=(languages/mod_spidermonkey
-                   say/mod_say_ru
-                   dialplans/mod_dialplan_asterisk)
-
-enable_module() {
-  _fs_mod=${1}
-  sed -i -e "s|^#${_fs_mod}|${_fs_mod}|" modules.conf
-}
-
-disable_module() {
-  _fs_mod=${1}
-  sed -i -e "s|^${_fs_mod}|#${_fs_mod}|" modules.conf
-}
-
 
 prepare()
 {
- cd ${srcdir}/${pkgname}
+ cd $srcdir/$pkgname
 
-  # BUILD BEGINS
   msg "Bootstrapping..."
   ./bootstrap.sh ${_concurrent} > /dev/null
-  msg "Bootstrap Complete"
+  #./bootstrap.sh
 
-  # MODULE ENABLE/DISABLE
-  for _mod in ${_enabled_modules[@]};do
-    msg "Enabling ${_mod}"
-    enable_module ${_mod}
+  msg "Configuring modules..."
+  echo '#Minimal modules Google/Callcentric solution' > modules.conf
+  for x in ${modules[@]}; do
+    msg2 "Enabling module '$x'"
+    echo $x >> modules.conf
   done
 
-  for _mod in ${_disabled_modules[@]};do
-    msg "Disabling ${_mod}"
-    disable_module ${_mod}
-  done
-
-  msg "Module Configuration Complete, Stop Now with Ctrl-C if the above is not correct"
-  sleep 5
-
-  # CONFIGURE
-  # We need to override some things for the ./configure for 1.6.17
+  # Configure FreeSWITCH
   PKG_CONFIG_PATH=/usr/lib/openssl-1.0/pkgconfig ./configure \
     --prefix=/var/lib/freeswitch \
     --with-python=/usr/bin/python2 \
@@ -157,18 +166,6 @@ prepare()
 
     patch -Np1 < ../freeswitch-arch.patch  # needed for 1.6.17
 
-#  cd $srcdir/$pkgname
-#
-#  msg2 "Bootstrapping..."
-#  ./bootstrap.sh
-#
-#  msg "Configuring modules..."
-#  echo '#Minimal modules Google/Callcentric solution' > modules.conf
-#  for x in ${modules[@]}; do
-#    msg2 "Enabling module '$x'"
-#    echo $x >> modules.conf
-#  done
-#
 #  # Configure FreeSWITCH
 #  # srtp        // Encryption for rtp, google doesn't support so why bother
 #  # libvpx      // Don't need anything but g711/P
