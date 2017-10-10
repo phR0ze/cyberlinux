@@ -1,0 +1,335 @@
+<?xml version="1.0"?>
+<!--
+#MIT License
+#Copyright (c) 2017 phR0ze
+#
+#Permission is hereby granted, free of charge, to any person obtaining a copy
+#of this software and associated documentation files (the "Software"), to deal
+#in the Software without restriction, including without limitation the rights
+#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#copies of the Software, and to permit persons to whom the Software is
+#furnished to do so, subject to the following conditions:
+#
+#The above copyright notice and this permission notice shall be included in all
+#copies or substantial portions of the Software.
+#
+#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+#SOFTWARE.
+-->
+<document type="freeswitch/xml">
+  <X-PRE-PROCESS cmd="include" data="vars.xml"/>
+  
+  <!-- FreeSwitch Configuration
+  // Channel - a single call leg
+  // Call - two channels bridged together
+  // (i.e. dialing one phone from another will yield 2 channels and 1 call)
+  // $${variables} are evaluated once by the pre-procesor when reloadxml is called (i.e. think static globals)
+  // ${variables} are evaluated fresh each time they are executed (i.e. think local vars)
+  -->
+
+  <!-- Configuration section -->
+  <section name="configuration" description="Various Configuration">
+      
+    <!-- Module configuration
+    // for module choice and explanations see
+    // https://github.com/phR0ze/cyberlinux/blob/master/aur/freeswitch/PKGBUILD
+    -->
+    <configuration name="modules.conf" description="Modules">
+      <modules>
+        <load module="mod_commands"/>
+        <load module="mod_dptools"/>
+        <load module="mod_dialplan_xml"/>
+        <load module="mod_dingaling"/>
+        <load module="mod_sofia"/>
+        <load module="mod_event_socket"/>
+        <load module="mod_sndfile"/>
+        <load module="mod_tone_stream"/>
+        <load module="mod_python"/>
+        <load module="mod_console"/>
+        <load module="mod_logfile"/>
+      </modules>
+    </configuration>
+             
+    <!-- Console configuration -->
+    <configuration name="console.conf" description="Console Logger">
+      <mappings>
+        <!-- console=0, alert=1, crit=2, err=3, warning=4, notice=5, info=6, debug=7+ -->
+        <map name="all" value="console,debug,info,notice,warning,err,crit,alert"/>
+      </mappings>
+      <settings>
+        <param name="colorize" value="true"/>
+        <param name="loglevel" value="debug"/>
+      </settings>
+    </configuration>
+
+    <!-- Python configuration -->
+    <configuration name="python.conf" description="Python Configuration" />
+
+    <!-- Event Socket configuration:
+    // Provides the FS CLI with core events to see activity and logging.
+    // Defaults to only allow localhost connections on the default port.
+    -->
+    <configuration name="event_socket.conf" description="Event Socket Client">
+      <settings>
+        <param name="listen-ip" value="127.0.0.1"/>
+        <param name="listen-port" value="8021"/>
+      </settings>
+    </configuration>
+      
+    <!-- Core configuration -->
+    <configuration name="switch.conf" description="Core Configuration">
+      <settings>
+        <param name="colorize-console" value="true"/>
+        <param name="max-sessions" value="1000"/>                                   <!-- Limites the total number of concurrent channels -->
+        <param name="sessions-per-second" value="30"/>                              <!-- Throttles creation of channels per second -->
+        <param name="loglevel" value="debug"/>                                      <!-- Default global log level -->
+        <param name="dump-cores" value="yes"/>                                      <!-- Dumps system core on FreeSWITCH crash -->
+        <param name="rtp-start-port" value="$${rtp_start_port}"/>                   <!-- Limit media ports to forward, default is 16384 -->
+        <param name="rtp-end-port" value="$${rtp_end_port}"/>                       <!-- Limit media ports to forward, default 32768 -->
+        <param name="rtp-enable-zrtp" value="false"/>                               <!-- Encrypt rtp streams, requires enable-zrtp during build -->
+      </settings>
+    </configuration>
+
+    <!-- Logfile configuration -->
+    <configuration name="logfile.conf" description="File Logging">
+      <settings>
+        <param name="rotate-on-hup" value="true"/>
+      </settings>
+      <profiles>
+        <profile name="default">
+          <settings>
+            <param name="rollover" value="10485760"/>
+          </settings>
+          <mappings>
+            <!-- Leave off 'debug' for production 'debug,info,notice,warning,err,crit,alert' -->
+            <map name="all" value="info,notice,warning,err,crit,alert"/>
+          </mappings>
+        </profile>
+      </profiles>
+    </configuration>
+
+    <!-- Directory configuration:
+    // Default configuration pulled from demo for the user directory.
+    -->
+    <configuration name="directory.conf" description="Directory">
+      <profiles>
+        <profile name="default">
+          <param name="max-menu-attempts" value="3"/>
+          <param name="min-search-digits" value="3"/>
+          <param name="terminator-key" value="#"/>
+          <param name="digit-timeout" value="3000"/>
+          <param name="max-result" value="5"/>
+          <param name="next-key" value="6"/>
+          <param name="prev-key" value="4"/>
+          <param name="switch-order-key" value="*"/>
+          <param name="select-name-key" value="1"/>
+          <param name="new-search-key" value="3"/>
+          <param name="search-order" value="last_name"/>
+        </profile>
+      </profiles>
+    </configuration>
+
+    <!-- SIP configuration (Endpoints/Gateways) -->
+    <configuration name="sofia.conf" description="Sofia Endpoint">
+      <global_settings>
+        <param name="log-level" value="0"/>                                         <!-- Set log level for Sofia SIP module 0=All -->
+        <param name="debug-presence" value="0"/>
+      </global_settings>
+      <profiles>
+        <profile name="default">
+          <domains>
+            <domain name="all" alias="false" parse="true"/>                         <!-- Don't parse directories for possible other config files -->
+          </domains>
+          <settings>
+            <param name="context" value="default"/>                                 <!-- Dialplan context to use for calls using this profile -->
+            <param name="debug" value="0"/>                                         <!-- Default '0' -->
+            <param name="sip-trace" value="no"/>                                    <!-- Default 'no' - Enable/Disable SIP tracing -->
+            <param name="sip-capture" value="no"/>                                  <!-- Default 'no' - Enable/Disable SIP capture -->
+            <param name="watchdog-enabled" value="no"/>                             <!-- Default 'no' - Enabled causes FS to shutdown if Sofia stops responding -->
+            <param name="log-auth-failures" value="false"/>                         <!-- Default 'false' - Don't log authentication failures -->
+            <param name="forward-unsolicited-mwi-notify" value="false"/>            <!-- Default 'false' -->
+            <param name="rfc2833-pt" value="101"/>                                  <!-- Default '101' - DTMF type to listen for -->
+            <param name="sip-port" value="$${sip_port}"/>                           <!-- Default '5060' - SIP port to listen on for this profile -->
+            <param name="dialplan" value="XML"/>                                    <!-- Default 'XML' - Specifies the format of teh dialplan to use -->
+            <param name="dtmf-duration" value="2000"/>                              <!-- Default '2000' - Duration of DTMF signals -->
+            <param name="liberal-dtmf" value="true"/>                               <!-- RFC2833 and listen for both RFC2833 and INFO -->
+            <param name="inbound-codec-prefs" value="$${sofia_codec_prefs}"/>       <!-- Set inbound codec preferences to the global preferences -->
+            <param name="outbound-codec-prefs" value="$${sofia_codec_prefs}"/>      <!-- Set outbound codec preferences to the global preferences -->
+            <param name="rtp-timer-name" value="soft"/>                             <!-- Default 'soft' - 'none' disables the rtp timer -->
+            <param name="vad" value="none"/>                                        <!-- Voice Activity Detection "in", "out", "both", "none" -->
+            <param name="rtp-ip" value="$${local_ip_v4}"/>                          <!-- IPv4 adress to listen on for RTP requests from clients -->
+            <param name="sip-ip" value="$${local_ip_v4}"/>                          <!-- IPv4 address to listen on for requests from clients -->
+            <param name="ext-rtp-ip" value="$${external_ip}"/>                      <!-- External IP to use for RTP connections -->
+            <param name="ext-sip-ip" value="$${external_ip}"/>                      <!-- External IP to use for SIP connections -->
+            <param name="apply-nat-acl" value="nat.auto"/>                          <!-- Apply NAT behavior whem matching nat.auto (i.e. all devices except local lan) -->
+            <param name="local-network-acl" value="localnet.auto"/>                 <!-- Simply registers that the local network should be localnet.auto (i.e. local lan) -->
+            <param name="manage-presence" value="false"/>                           <!-- Default 'true' - Don't worry about presence stuff -->
+            <param name="inbound-codec-negotiation" value="generous"/>              <!-- -->
+            <param name="tls" value="false"/>                                       <!-- Default 'false' -->
+            <param name="nonce-ttl" value="60"/>                                    <!-- Default '60' -->
+            <param name="auth-calls" value="false"/>                                <!-- Default 'true' - Don't authenticate calls to share a simple profile -->
+            <param name="auth-all-packets" value="false"/>                          <!-- Default 'false' - Only authenticate invite not all packets -->
+            <param name="rtp-timeout-sec" value="10800"/>                           <!-- Default '300' - Disconnects users on mute/inactive after this time -->
+            <param name="rtp-hold-timeout-sec" value="1800"/>                       <!-- Default '1800' - Disconnects users on hold after this time -->
+            <param name="challenge-realm" value="auto_from"/>                       <!-- Uses the from field as the value for the SIP realm -->
+          </settings>
+
+          <!-- SIP Gateway
+          // Register as a user with SIP Gateway to receive inbound calls
+          -->
+          <gateways>
+            <gateway name="SIP Gateway">
+              <param name="username" value="$${sip_gateway_account}"/>
+              <param name="password" value="$${sip_gateway_password}"/>
+              <param name="realm" value="$${sip_gateway_realm}"/>
+              <param name="proxy" value="$${sip_gateway_realm}"/>
+              <param name="register" value="true"/>
+              <param name="retry-seconds" value="30"/>
+            </gateway>
+          </gateways>
+
+        </profile>
+      </profiles>
+    </configuration>
+            
+    <!-- Google Voice Configuration -->
+    <configuration name="dingaling.conf" description="XMPP Jingle Endpoint">
+      <settings>
+        <param name="debug" value="0"/>                                             <!-- Enable/Disable debug logging for dingaling module -->
+        <param name="codec-prefs" value="$${gvoice_codec_prefs}"/>                  <!-- Preferred codec setting for all dingaling profiles -->
+      </settings>
+      <profile type="client">                                                       <!-- Type of dingaling profile to use (server | client); this is not a name -->
+        <param name="name" value="gvoice"/>                                         <!-- Dingaling profile name used later in dialplan to refer to this client -->
+        <param name="login" value="$${gvoice_username}@gmail.com/talk"/>            <!-- Google Voice account username, not sure directory name is for -->
+        <param name="password" value="$${gvoice_password}"/>                             <!-- Google Voice account password -->
+        <param name="server" value="talk.google.com"/>                              <!-- Google Voice server -->
+        <param name="dialplan" value="XML"/>
+        <param name="context" value="default"/>                                     <!-- Dialplan context to use for calls in this profile in -->
+        <param name="message" value="Gmail"/>                                       <!-- Google Voice default message - required -->
+        <param name="rtp-ip" value="$${local_ip_v4}"/>                              <!-- Internal IP address to use "auto" chooses first NIC with Internet access -->
+        <param name="ext-rtp-ip" value="$${external_ip}"/>                          <!-- External IP address to use for RTP -->
+        <param name="auto-login" value="true"/>
+        <param name="sasl" value="plain"/>
+        <param name="tls" value="true"/>
+        <param name="use-rtp-timer" value="true"/>                                  <!-- Timer used to make sure that audio is coming in at a steady rate -->
+        <param name="rtp-timer-name" value="none"/>                                 <!-- "none" disables the RTP timer which helps with audio lag -->
+        <param name="exten" value="gvoice-in"/>                                     <!-- Default extension to use if once can't be determined -->
+        <param name="vad" value="none"/>                                            <!-- "Enables Voice Activity Detection or "none" - "both" seemed to make the sound choppy -->
+        <param name="apply-nat-acl" value="nat.auto"/>                              <!-- Apply NAT behavior whem matching nat.auto (i.e. all devices except local lan) -->
+        <param name="candidate-acl" value="wan.auto"/>                              <!-- "wan.auto" pick candidates that are not private -->
+        <param name="local-network-acl" value="localnet.auto"/>                     <!-- Simply registers that the local network should be localnet.auto (i.e. local lan) -->
+      </profile>
+
+    </configuration>
+
+    <configuration name="post_load_modules.conf" description="Post-load modules" />
+  </section>
+
+  <!-- Directory configuration:
+  // Handles SIP user accounts and registration.
+  -->
+  <section name="directory" description="User Directory">
+    <domain name="$${domain_name}">                                                 <!-- Domain for user only needed for large deployments -->
+      <groups>
+        <group name="default">                                                      <!-- Default: Default group name -->
+          <users>
+            <user id="201">
+              <params>
+                <param name="password" value="$${sip_endpoints_password}"/>         <!-- User password, which can be a more secure hash if desired -->
+              </params>
+              <variables>
+                <variable name="accountcode" value="201"/>                          <!-- Only used in CDR/logging, just set to username -->
+                <variable name="user_context" value="default"/>                     <!-- Dialplan context used when this user makes a call -->
+                <variable name="effective_caller_id_name" value="Ext: 201"/>        <!-- Caller ID name to set for this user -->
+                <variable name="effective_caller_id_number" value="201"/>           <!-- Caller ID number to set for this user -->
+              </variables>
+            </user>
+            <user id="202">
+              <params>
+                <param name="password" value="$${sip_endpoints_password}"/>         <!-- User password, which can be a more secure hash if desired -->
+              </params>
+              <variables>
+                <variable name="accountcode" value="202"/>                          <!-- Only used in CDR/logging, just set to username -->
+                <variable name="user_context" value="default"/>                     <!-- Dialplan context used when this user makes a call -->
+                <variable name="effective_caller_id_name" value="Ext: 202"/>        <!-- Caller ID name to set for this user -->
+                <variable name="effective_caller_id_number" value="202"/>           <!-- Caller ID number to set for this user -->
+              </variables>
+            </user>
+            <user id="203">
+              <params>
+                <param name="password" value="$${sip_endpoints_password}"/>         <!-- User password, which can be a more secure hash if desired -->
+              </params>
+              <variables>
+                <variable name="accountcode" value="203"/>                          <!-- Only used in CDR/logging, just set to username -->
+                <variable name="user_context" value="default"/>                     <!-- Dialplan context used when this user makes a call -->
+                <variable name="effective_caller_id_name" value="Ext: 203"/>        <!-- Caller ID name to set for this user -->
+                <variable name="effective_caller_id_number" value="203"/>           <!-- Caller ID number to set for this user -->
+              </variables>
+            </user>
+          </users>
+        </group>
+      </groups>
+    </domain>
+  </section>
+
+  <!-- Dialplan configuration:
+  // Contexts - Logical groupings of extensions
+  // Extensions - Destinations for a call, when an extensions is matched the corresponding actions are performed
+  -->
+  <section name="dialplan" description="Regex/XML Dialplan">
+    <context name="default">
+
+      <!-- Redirect SIP Gateway inbound calls to main extension -->
+      <extension name="SIP Gateway">
+        <condition field="destination_number" expression="^($${sip_gateway_account})$">       <!-- Match SIP account number only for security -->
+          <action application="transfer" data="$${main_ext} XML default"/>                    <!-- Transfer the call to the main extension in the default context  -->
+        </condition>
+      </extension>
+
+      <!-- Echo Test (100) -->
+      <extension name="Echo Test">
+        <condition field="destination_number" expression="^100$">                             <!-- Match the destination number 100 -->
+          <action application="answer"/>                                                      <!-- Answer the call made to 100 -->
+          <action application="playback" data="ivr/ivr-echo_your_audio_back.wav"/>            <!-- Play the "we will now echo back your audio" sound byte -->
+          <action application="playback" data="tone_stream://%(250,0,600)"/>                  <!-- Play a tone sound %(duration in ms, interval silence ms, freq -->
+          <action application="echo"/>                                                        <!-- Start the echo function -->
+        </condition>
+      </extension>
+
+      <!-- Internal Extensions (i.e. 201 - 204) -->
+      <extension name="Internal_Extensions">
+        <condition field="destination_number" expression="^(20[1-4])$">                       <!-- Match the destination numbers 201, 202, 203 or 204 -->
+          <action application="set" data="ring_ready"/>                                       <!-- Set the audio to ring on the A leg until the B leg is answered -->
+          <action application="set" data="extension=$1"/>                                     <!-- Export captured regx extension so we know who is calling -->
+          <action application="set" data="call_timeout=30"/>                                  <!-- Controls time (in seconds) to ring B leg when bridging -->
+          <action application="set" data="ringback=$${us_ring}"/>                             <!-- Sets the ring type to be used to standard US Ring -->
+          <action application="set" data="hangup_after_bridge=true"/>                         <!-- Don't execute anything after a successful bridge -->
+          <action application="bridge" data="sofia/default/${extension}%$${domain_name}"/>    <!-- Bridge Sofia to Sofia (using "%" for internal endpoints) -->
+        </condition>
+      </extension>
+
+      <!-- Google voice outbound calls should be last so it isn't matched as a fall through -->
+      <extension name="gvoice-out">
+        <condition field="source" expression="mod_sofia"/>                                    <!-- Match any calls originating from SIP -->
+        <condition field="destination_number" expression="^1\d{10}|\d{10}|\d{7}$">            <!-- Match 1 plus 10, 10, or 7 digit numbers store result in $1 -->
+          <action application="set" data="ext_area_code=$${area_code}"/>                      <!-- Set channel variable for python script to read in -->
+          <action application="set" data="extension=${python(addprefix)}"/>                   <!-- Call out to python to get the extension prefix added -->
+          <action application="set" data="hangup_after_bridge=true"/>                         <!-- Don't execute after bridge if there was a successful connection -->
+          <action application="ring_ready"/>                                                  <!-- Set the audio to ring on the A leg until the B leg is answered -->
+          <action application="bridge" data="dingaling/gvoice/+${extension}@voice.google.com"/> <!-- Bridge Sofia with GVoice (using "@" for external endpoint) -->
+        </condition>
+      </extension>
+
+    </context>
+  </section>
+
+</document>
+
+<!--
+vim: ts=2:sw=2:sts=2
+-->

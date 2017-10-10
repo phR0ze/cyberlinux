@@ -19,22 +19,24 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-[Unit]
-Description=FreeSWITCH Telephony Service
-After=syslog.target network.target local-fs.target
+import os
+import freeswitch
 
-[Service]
-Type=simple
-Restart=always
-UMask=0007
-User=freeswitch
-Group=daemon
-TimeoutSec=45s
-PermissionsStartOnly=true
+def fsapi(session, stream, env, args):
+    """FreeSWITH calls this function via Dialplan API
+    :session: is the main interface to Freeswitch
+    :stream: magic object which has a write method for sending data back to Dialplan
+    :args: any arguments passed after the script name
+    """
+    dialedExt = session.getVariable("destination_number")
+    extAreaCode = session.getVariable("ext_area_code")
+    result = dialedExt
 
-PIDFile=/var/run/freeswitch/freeswitch.pid
-Environment=PYTHONPATH=/opt/freeswitch/scripts
-ExecStart=/usr/bin/freeswitch -nc -nonat
+    if (len(dialedExt) == 10):
+        result = "1" + dialedExt
+    elif (len(dialedExt) == 7):
+        result = "1" + extAreaCode + dialedExt
 
-[Install]
-WantedBy=multi-user.target
+    # Log and return prefixed number
+    freeswitch.consoleLog('info', 'addprefix.py, IN:%s OUT:%s' % (dialedExt, result))
+    stream.write(result)

@@ -1,3 +1,24 @@
+#MIT License
+#Copyright (c) 2017 phR0ze
+#
+#Permission is hereby granted, free of charge, to any person obtaining a copy
+#of this software and associated documentation files (the "Software"), to deal
+#in the Software without restriction, including without limitation the rights
+#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#copies of the Software, and to permit persons to whom the Software is
+#furnished to do so, subject to the following conditions:
+#
+#The above copyright notice and this permission notice shall be included in all
+#copies or substantial portions of the Software.
+#
+#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+#SOFTWARE.
+
 #-------------------------------------------------------------------------------
 # Maintained by phR0ze
 # credit to Brent Saner <r00t (at) square-r00t (dot) net>
@@ -11,19 +32,25 @@ pkgdesc="Cross-Platform Scalable FREE Multi-Protocol Soft Switch"
 arch=('i686' 'x86_64')
 url="http://freeswitch.org/"
 license=('MPL')
-depends=('curl' 'xz' 'python' 'libtheora' 'unixodbc' 'libjpeg-turbo' 'ruby' 'openssl' 'freetype2')
+depends=('curl' 'xz' 'python' 'libtheora' 'unixodbc' 'libjpeg-turbo' 'python2' 'openssl' 'freetype2')
 makedepends=('git' 'libjpeg' 'ldns' 'libedit' 'curl' 'python2' 'unixodbc' 'sed' 'make'
     'yasm' 'mpg123' 'lame' 'libsndfile')
 provides=('freeswitch')
 
 source=("git+https://freeswitch.org/stash/scm/fs/freeswitch.git#commit=${_ver}"
-        'freeswitch.service')
+        'freeswitch.service'
+        'addprefix.py'
+        'freeswitch.xml'
+        'vars.xml')
 md5sums=('SKIP'
+         'SKIP'
+         'SKIP'
+         'SKIP'
          'SKIP')
 
 install=freeswitch.install
 
-# Minimal modules for a Google/Callcentric/Linksys solution
+# Minimal modules for a Google/SIP Provider/Linksys solution
 modules=(
 
   # Required modules
@@ -34,9 +61,9 @@ modules=(
   applications/mod_spandsp          # Standard digital processing functions
   dialplans/mod_dialplan_xml        # Standard xml dialplan support
   event_handlers/mod_event_socket   # Required for CLI to work correctly
-  formats/mod_local_stream          # Playback of local files for sounds and hold music
-  formats/mod_native_file           # Playback of local files for sounds and hold music
-  formats/mod_sndfile               # Playback of local files for sounds and hold music
+  formats/mod_local_stream          # Echo test, playback of local files for sounds and hold music
+  formats/mod_native_file           # Echo test, playback of local files for sounds and hold music
+  formats/mod_sndfile               # Echo test, playback of local files for sounds and hold music
   formats/mod_tone_stream           # Adds ability to play tone streams for number pressing etc..
   loggers/mod_console               # Console logger used for debugging
   loggers/mod_logfile               # File logger used for debugging
@@ -48,13 +75,13 @@ modules=(
   xml_int/mod_xml_scgi              # Simple common gatway interface
 
   # Language/scripting choices
-  languages/mod_ruby                # Added: Better scripting language that lua
+  languages/mod_python              # Added: Better scripting language that lua
   say/mod_say_en                    # English speech management and voice prompting
 
-  # Callcentric/Google/RT31P2
-  codecs/mod_g711                   # Callcentric/Google/RT31P2 common denominator audio codec
+  # SIP Provider/Google/RT31P2
+  codecs/mod_g711                   # SIP Provider/Google/RT31P2 common denominator audio codec
   endpoints/mod_dingaling           # Handle outbound calling over Google gmail
-  endpoints/mod_sofia               # Handle Callcentric, Linksys RT31P2 SIP endpoints
+  endpoints/mod_sofia               # Handle SIP Provider, Linksys RT31P2 SIP endpoints
 
   # Optional modules
   #applications/mod_callcenter      # Inbound call queueing system
@@ -68,12 +95,12 @@ modules=(
   #applications/mod_sms             # Chat protocol for messaging
   #applications/mod_valet_parking   # Callwaiting and hold type functionalilty
   #applications/mod_voicemail       # Using Google Voice for voicemail
-  #codecs/mod_amr                   # g711 is the only codec Callcentric/Google/RT31P2 all share
-  #codecs/mod_b64                   # g711 is the only codec Callcentric/Google/RT31P2 all share
-  #codecs/mod_g723_1                # g711 is the only codec Callcentric/Google/RT31P2 all share
-  #codecs/mod_g729                  # g711 is the only codec Callcentric/Google/RT31P2 all share
-  #codecs/mod_h26x                  # g711 is the only codec Callcentric/Google/RT31P2 all share
-  #codecs/mod_opus                  # g711 is the only codec Callcentric/Google/RT31P2 all share
+  #codecs/mod_amr                   # g711 is the only codec SIP Provider/Google/RT31P2 all share
+  #codecs/mod_b64                   # g711 is the only codec SIP Provider/Google/RT31P2 all share
+  #codecs/mod_g723_1                # g711 is the only codec SIP Provider/Google/RT31P2 all share
+  #codecs/mod_g729                  # g711 is the only codec SIP Provider/Google/RT31P2 all share
+  #codecs/mod_h26x                  # g711 is the only codec SIP Provider/Google/RT31P2 all share
+  #codecs/mod_opus                  # g711 is the only codec SIP Provider/Google/RT31P2 all share
   #dialplans/mod_dialplan_asterisk  # Use the xml dialplan and you won't need this
   #endpoints/mod_loopback           # Useful in some dialplans, I haven't ever used it
   #endpoints/mod_rtc                # Media streaming portion of WebRTC support
@@ -103,7 +130,7 @@ prepare()
   ./bootstrap.sh
 
   msg "Configuring modules..."
-  echo '#Minimal modules Google/Callcentric solution' > modules.conf
+  echo '#Minimal modules for simple Google/SIP Provider solution' > modules.conf
   for x in ${modules[@]}; do
     msg2 "Enabling module '$x'"
     echo $x >> modules.conf
@@ -159,52 +186,25 @@ package()
 {
     cd $srcdir/$pkgname
 
-    # Install the various pieces
+    msg "Installing freeswitch"
     make DESTDIR=$pkgdir install
     make DESTDIR=$pkgdir cd-moh-install
     make DESTDIR=$pkgdir cd-sounds-install
 
-    # Modify the package directory directly
-    cd $pkgdir
+    msg2 "Installing systemd unit file"
+    install -Dm 0644 $srcdir/$pkgname.service $pkgdir/usr/lib/systemd/system/$pkgname.service
 
-#    # Change directory to source directory inside src and install to fakeroot
-#    msg "Installing FreeSWITCH to fakeroot"
-#    cd "${pkgname}"
-#    make DESTDIR=${pkgdir} install
-#    msg "Completed installing FreeSWITCH to fakeroot"
-#
-#    # Clean up
-#    PATH=${_pathorig}
-#    rm -rf /var/tmp/bin
-#    msg "Cleaning up Python 2.x config"
-#
-#    # Removing un-needed or incorrect files
-#    msg2 "Removing uneeded or incorrect files"
-#    rm -rf ${pkgdir}/etc/${pkgname}/*
-#    rm -rf ${pkgdir}/var/run
-#    rm -rf ${pkgdir}${prefix}/include
-#    rm -rf ${pkgdir}${prefix}/lib/pkgconfig
-#
-#    # Create directories and install files manually
-#    msg "Configuring manual install additions"
-#    msg2 "Creating needed directories for install"
-#    mkdir -p ${pkgdir}${prefix}/certs
-#    mkdir -p ${pkgdir}${prefix}/sounds
-#    mkdir -p ${pkgdir}${prefix}/storage
-#
-#    msg2 "Installing FreeSWITCH Sounds"
-#    for x in `ls ${srcdir}/${pkgname}/*.tar.gz`; do
-#        tar xzf "${x}" -C "${pkgdir}${prefix}/sounds"
-#    done
-#    msg2 "Sounds installation complete"
-#
-#    msg2 "Installing configuration files"
-#    install -D -m 0755 ${srcdir}/addprefix.py ${pkgdir}${prefix}/scripts/addprefix.py
-#    install -D -m 0644 ${srcdir}/freeswitch.xml ${pkgdir}/etc/${pkgname}/freeswitch.xml
-#    install -D -m 0644 ${srcdir}/freeswitch.service ${pkgdir}/usr/lib/systemd/system/freeswitch.service
-#
-#    msg2 "Configuration file installation conplete"
-#    msg "Completed manual install additions"
+    msg2 "Relocate config examples to /usr/share/doc/$pkgname/examples"
+    if [ ! -e $pkgdir/usr/share/doc/$pkgname ]; then
+      cp -a $pkgdir/etc/$pkgname $pkgdir/usr/share/doc/$pkgname
+      rm -rf $pkgdir/etc/$pkgname/*
+    fi
+
+    msg2 "Installing configuration files"
+    install -dm 0755 $pkgdir/etc/$pkgname/certs
+    install -Dm 0755 $srcdir/addprefix.py $pkgdir/usr/share/$pkgname/scripts/addprefix.py
+    install -Dm 0644 $srcdir/freeswitch.xml $pkgdir/etc/$pkgname/freeswitch.xml
+    install -Dm 0644 $srcdir/vars.xml $pkgdir/etc/$pkgname/vars.xml
 } 
 
 # vim: ts=2:sw=2:sts=2
