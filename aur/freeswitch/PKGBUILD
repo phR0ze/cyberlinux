@@ -196,6 +196,7 @@ package()
 
     msg2 "Relocate config examples to /usr/share/doc/$pkgname/examples"
     if [ ! -e $pkgdir/usr/share/doc/$pkgname ]; then
+      install -dm 0644 $pkgdir/usr/share/doc/$pkgname
       cp -a $pkgdir/etc/$pkgname $pkgdir/usr/share/doc/$pkgname
       rm -rf $pkgdir/etc/$pkgname/*
     fi
