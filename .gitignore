@@ -11,6 +11,7 @@ aur/*/*.zip
 aur/awf/awf
 aur/delve/delve
 aur/kubernetes/cni
+aur/freeswitch/freeswitch
 aur/kubernetes/kubernetes
 aur/kubernetes/release
 temp
