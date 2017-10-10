@@ -31,6 +31,9 @@ pre_install()
 post_install()
 {
     echo 'FreeSWITCH is installed!'
+    echo '<<<WARNING>>> configuration is required before this deployment will work or be secure'
+    echo 'Edit /etc/freeswitch/vars.xml and substitute your own accounts and passwords'
+    echo 'Additionally reconfiguration may be required leveraging /usr/share/doc/freeswitch/examples'
     post_upgrade
 }
 
