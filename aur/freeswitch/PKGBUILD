@@ -3,8 +3,9 @@
 # credit to Brent Saner <r00t (at) square-r00t (dot) net>
 # for the inspiration here https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=freeswitch-git
 #-------------------------------------------------------------------------------
+_ver=e28abe2929                     # Specific version that seems to work with mod_dingaling
 pkgname=freeswitch
-pkgver=1.7.0
+pkgver=1.7.0.r32734.e28abe2929
 pkgrel=1
 pkgdesc="Cross-Platform Scalable FREE Multi-Protocol Soft Switch"
 arch=('i686' 'x86_64')
@@ -15,7 +16,7 @@ makedepends=('git' 'libjpeg' 'ldns' 'libedit' 'curl' 'python2' 'unixodbc' 'sed' 
     'yasm' 'mpg123' 'lame' 'libsndfile')
 provides=('freeswitch')
 
-source=("git+https://freeswitch.org/stash/scm/fs/freeswitch.git#tag=v${pkgver}"
+source=("git+https://freeswitch.org/stash/scm/fs/freeswitch.git#commit=${_ver}"
         'freeswitch.service')
 md5sums=('SKIP'
          'SKIP')
@@ -84,6 +85,16 @@ modules=(
   #loggers/mod_syslog               # Don't need syslog, no need to centrally collect logs
 )
 
+# Use this to generate a new version
+#pkgver()
+#{
+#  cd $srcdir/$pkgname
+#  pkgver_tag=$(git for-each-ref refs/tags --sort=-taggerdate --format='%(refname)' --count=1 | sed -e 's@refs/tags/v@@')
+#  revcount=$(git rev-list --count HEAD)
+#  lastcommit=$(git rev-parse --short HEAD)
+#  echo "${pkgver_tag}.r${revcount}.${lastcommit}"
+#}
+
 prepare()
 {
  cd $srcdir/$pkgname
@@ -134,25 +145,28 @@ build()
 
   # Not multi-thread capable
   msg "Building FreeSWITCH"
-  make DESTDIR=$pkgdir install
+  make
 
   # Download FreeSWITCH sounds
   msg "Downloading FreeSWITCH sounds"
-  #make DESTDIR=$pkgdir cd-moh-install
-  #make DESTDIR=$pkgdir cd-sounds-install
+  make cd-moh
+  make cd-sounds
 }
 
 # Install files into fakeroot and package
 #-------------------------------------------------------------------------------
 package()
 {
-    cd $srcdir
-#    # Configure use of Python 2.x as FreeSWITCH doesn't work with Python 3.x
-#    msg "Configure Python 2.x"
-#    mkdir -p /var/tmp/bin
-#    ln -s /usr/bin/python2 /var/tmp/bin/python
-#    PATH="/var/tmp/bin:${PATH}"
-#
+    cd $srcdir/$pkgname
+
+    # Install the various pieces
+    make DESTDIR=$pkgdir install
+    make DESTDIR=$pkgdir cd-moh-install
+    make DESTDIR=$pkgdir cd-sounds-install
+
+    # Modify the package directory directly
+    cd $pkgdir
+
 #    # Change directory to source directory inside src and install to fakeroot
 #    msg "Installing FreeSWITCH to fakeroot"
 #    cd "${pkgname}"
