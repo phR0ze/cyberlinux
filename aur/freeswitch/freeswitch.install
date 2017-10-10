@@ -24,7 +24,7 @@ pre_install()
     id freeswitch > /dev/null
     if [ $? -ne 0 ];then
         echo 'Adding user freeswitch'
-        useradd -r -g daemon -s /bin/false -d /opt/freeswitch -c "FreeSWITCH telephony engine" freeswitch
+        useradd -r -g daemon -s /bin/false -d /usr/share/freeswitch -c "FreeSWITCH telephony engine" freeswitch
     fi
 }
 
@@ -37,7 +37,7 @@ post_install()
 post_upgrade()
 {
     mkdir -p /var/{run,spool,log}/freeswitch
-    chown -R freeswitch:daemon /opt/freeswitch
+    chown -R freeswitch:daemon /usr/share/freeswitch
     chown -R freeswitch:daemon /var/{run,spool,log,lib}/freeswitch
 }
 
