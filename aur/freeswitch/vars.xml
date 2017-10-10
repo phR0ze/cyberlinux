@@ -24,24 +24,24 @@
 <include>
   <!-- List curent values with cli: eval $${local_ip_v4} -->
 
-  <!-- Default extension/settings -->
-  <X-PRE-PROCESS cmd="set" data="main_ext=201"/>
+  <!-- *************************************************************************
+  * Accounts/settings that need to be configured
+  ************************************************************************** -->
+  <X-PRE-PROCESS cmd="set" data="area_code=212"/>
+  <X-PRE-PROCESS cmd="set" data="gvoice_username=example_usr"/>
+  <X-PRE-PROCESS cmd="set" data="gvoice_password=example_pwd"/>
   <X-PRE-PROCESS cmd="set" data="sip_endpoints_password=1234"/>
   <X-PRE-PROCESS cmd="set" data="sip_gateway_name=example_voip"/>
   <X-PRE-PROCESS cmd="set" data="sip_gateway_realm=example_voip.com"/>
   <X-PRE-PROCESS cmd="set" data="sip_gateway_account=0123456789"/>
   <X-PRE-PROCESS cmd="set" data="sip_gateway_password=0123456789"/>
 
-  <!-- Google Voice username/password -->
-  <X-PRE-PROCESS cmd="set" data="gvoice_username=example_usr"/>
-  <X-PRE-PROCESS cmd="set" data="gvoice_password=example_pwd"/>
+  <!-- *************************************************************************
+  * Optional settings to configure
+  ************************************************************************** -->
 
-  <!-- Local related configuration -->
-  <X-PRE-PROCESS cmd="set" data="area_code=212"/>
-  <X-PRE-PROCESS cmd="set" data="us_ring=%(2000,4000,440,480)"/>
-  <X-PRE-PROCESS cmd="set" data="sound_prefix=$${sounds_dir}/en/us/callie"/>
-
-  <!-- SIP signaling and RTP media start/end ports -->
+  <!-- SIP settings and signaling/RTP media start/end ports -->
+  <X-PRE-PROCESS cmd="set" data="main_ext=201"/>
   <X-PRE-PROCESS cmd="set" data="sip_port=5060"/>
   <X-PRE-PROCESS cmd="set" data="rtp_start_port=10000"/>
   <X-PRE-PROCESS cmd="set" data="rtp_end_port=20000"/>
@@ -53,6 +53,10 @@
   <!-- Internal/External IP addresses -->
   <X-PRE-PROCESS cmd="set" data="domain_name=$${local_ip_v4}"/>
   <X-PRE-PROCESS cmd="set" data="external_ip=stun:stun.freeswitch.org"/>
+
+  <!-- Local related configuration -->
+  <X-PRE-PROCESS cmd="set" data="us_ring=%(2000,4000,440,480)"/>
+  <X-PRE-PROCESS cmd="set" data="sound_prefix=$${sounds_dir}/en/us/callie"/>
 
 </include>
 
