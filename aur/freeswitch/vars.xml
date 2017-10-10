@@ -31,7 +31,6 @@
   <X-PRE-PROCESS cmd="set" data="gvoice_username=example_usr"/>
   <X-PRE-PROCESS cmd="set" data="gvoice_password=example_pwd"/>
   <X-PRE-PROCESS cmd="set" data="sip_endpoints_password=1234"/>
-  <X-PRE-PROCESS cmd="set" data="sip_gateway_name=example_voip"/>
   <X-PRE-PROCESS cmd="set" data="sip_gateway_realm=example_voip.com"/>
   <X-PRE-PROCESS cmd="set" data="sip_gateway_account=0123456789"/>
   <X-PRE-PROCESS cmd="set" data="sip_gateway_password=0123456789"/>
