@@ -122,7 +122,7 @@ modules=(
 #  echo "${pkgver_tag}.r${revcount}.${lastcommit}"
 #}
 
-prepare()
+build()
 {
  cd $srcdir/$pkgname
 
@@ -164,11 +164,6 @@ prepare()
     --with-scriptdir=/usr/share/freeswitch/scripts \
     --with-certsdir=/etc/freeswitch/certs \
     --with-rundir=/run/freeswitch
-}
-
-build()
-{
-  cd $srcdir/$pkgname
 
   # Not multi-thread capable
   msg "Building FreeSWITCH"
