@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.201
+  release: 0.0.202
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States

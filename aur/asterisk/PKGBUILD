@@ -124,7 +124,7 @@ package()
 {
   cd $srcdir/$pkgname-$pkgver
 
-  msg "Installing asterisk"
+  msg "Packaging asterisk"
   make DESTDIR=$pkgdir install
   make DESTDIR=$pkgdir samples
   
@@ -139,11 +139,11 @@ package()
     rm -rf $pkgdir/etc/$pkgname/*
   fi
   
-  msg2 "Installing configuration files"
+  msg2 "Packaging configuration files"
   install -Dm 0644 $srcdir/$pkgname.service $pkgdir/usr/lib/systemd/system/$pkgname.service
   install -Dm 0644 $srcdir/$pkgname.tmpfile $pkgdir/usr/lib/tmpfiles.d/$pkgname.conf
   for conf in $srcdir/../config/*.conf; do
-    msg2 "Installing $conf"
+    msg2 "Packaging $conf"
     install -Dm 0644 $conf $pkgdir/etc/$pkgname
   done
 }
