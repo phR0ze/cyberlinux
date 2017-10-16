@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.200
+  release: 0.0.201
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1179,6 +1179,7 @@ packages:
     - { install: apache-php }
     - { install: media-pkgs }
     - { install: file-sharing }
+    - { pkg: asterisk,                      desc: Free opensource telephony engine tuned for Google Voice }
     - { pkg: keepass,                       desc: Cross platform password manager }
     - { pkg: file-roller,                   desc: System/Compression integrates well in Thunar }
 
@@ -1202,10 +1203,6 @@ packages:
 
   teamviewer:
     - { pkg: teamviewer,                    desc: Network/Remoting - Better than VNC garbage, type: FOREIGN }
-
-  freeswitch:
-    #- { pkg: freeswitch,                    desc: An opensource telephony system, type: FOREIGN }
-    - { pkg: unixodbc,                      desc: Open spec for accessing Data Sources, depof: freeswitch }
 
   apache-php:
     - { pkg: apache,                        desc: Apache web server, deb: phpBB }

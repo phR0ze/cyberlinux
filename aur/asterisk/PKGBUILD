@@ -25,7 +25,7 @@
 pkgname=asterisk
 pkgver=15.0.0
 pkgrel=1
-pkgdesc="Free and open source communications framework"
+pkgdesc="Free opensource telephony engine tuned for Google Voice"
 arch=('i686' 'x86_64')
 url="http://www.asterisk.org"
 license=('GPL')
