@@ -1,0 +1,151 @@
+#MIT License
+#Copyright (c) 2017 phR0ze
+#
+#Permission is hereby granted, free of charge, to any person obtaining a copy
+#of this software and associated documentation files (the "Software"), to deal
+#in the Software without restriction, including without limitation the rights
+#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#copies of the Software, and to permit persons to whom the Software is
+#furnished to do so, subject to the following conditions:
+#
+#The above copyright notice and this permission notice shall be included in all
+#copies or substantial portions of the Software.
+#
+#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+#SOFTWARE.
+
+#-------------------------------------------------------------------------------
+# Maintained by phR0ze
+#-------------------------------------------------------------------------------
+pkgname=asterisk
+pkgver=15.0.0
+pkgrel=1
+pkgdesc="Free and open source communications framework"
+arch=('i686' 'x86_64')
+url="http://www.asterisk.org"
+license=('GPL')
+depends=('alsa-lib' 'speex' 'popt' 'libvorbis' 'curl' 'libxml2' 'jansson' 'libxslt' 'pjproject' 'opus' 'termcap')
+makedepends=('sqlite3' 'gsm' 'iksemel')
+source=("http://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-${pkgver}.tar.gz"
+	      "asterisk.service"
+        "asterisk.tmpfile")
+md5sums=('SKIP'
+         'SKIP'
+         'SKIP')
+
+install=asterisk.install
+
+# Modules requird for a SIP/Google solution
+enable_modules=(
+  chan_motif          # Google voice channel driver
+  codec_a_mu          # A-law and Mulaw direct 
+  codec_adpcm         # Adaptive Differential PCM Coder/Decoder
+  chan_sip            # Old outdated sip channel driver (simpler)
+  codec_speex         # Speex/PCM16 VBR narrow and wideband
+  codec_alaw          # G.711 audio codec PCMA
+  codec_ulaw          # G.711 audio codec PCMU
+  res_xmpp            # Google talk resource used by chan_motif
+)
+
+# Module not needed for a SIP/Google solution
+disable_modules=(
+
+  # Call Detal Recording modules
+  cdr_csv             # Comma Separated Values CDR Backend
+  cdr_manager         # Call Manager CDR Backend
+  cdr_syslog          # Syslog CDR Backend
+  cdr_sqlite3_custom  # SQLite CDR Backend
+  cdr_custom          # Customizable Comma Separated Values CDR Backend
+
+  # Channel event loggin modules
+  cel_custom          # Custom Comma Separated Values CEL records
+  cel_manager         # Channel Event logging (CEL)
+  cel_sqlite3_custom  # SQLite CEL records
+
+  # Channel modules
+  chan_alsa           # ALSA console channel driver (i.e. dial from Asterisk CLI)
+  chan_console        # PulseAudio console channel driver (i.e. dial from Asterisk CLI)
+  chan_mgcp           # Media Gateway Control Protocol
+  chan_oss            # OSS Console Channel Driver (i.e. dial from Asterisk CLI)
+  chan_phone          # Generic Linux Telephony API Support
+  chan_pjsip          # New modular sip chanel driver (more complicated)
+  chan_skinny         # Skinny Client Control Protocol
+  chan_unistim        # Unified Networks IP Stimulus channel driver for Nortel
+
+  # Codec modules
+  codec_g722          # G.722 codec
+  codec_g726          # G.726 codec
+  codec_gsm           # GSM codec
+  codec_ilbc          # iLBC/PCM16 (signed linear) Codec Translat
+  codec_lpc10         # LPC10 2.4kbps signed linear voice codec
+
+  # PBX modules
+  pbx_ael             # Asterisk extension language compiler
+  pbx_dundi           # Peer to peer phone number lookup
+  pbx_lua             # Lua dialplan syntax
+  pbx_realtime        # Realtime dialplan switch
+)
+
+build()
+{
+  cd $srcdir/$pkgname-$pkgver
+
+  msg "Configuring Asterisk"
+  PKG_CONFIG_PATH=/usr/lib/openssl-1.0/pkgconfig ./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var \
+    --sbindir=/usr/bin
+
+  msg "Selecting Asterisk Modules"
+  msg2 "Items in menuselect.makeopts will not be built"
+  make menuselect.makeopts
+  # menuselect/menuselect --disable-all menuselect.makeopts
+
+  for x in ${enable_modules[@]}; do
+    msg2 "Enabling module '$x'"
+    menuselect/menuselect --enable $x menuselect.makeopts
+  done
+  for x in ${disable_modules[@]}; do
+    msg2 "Disabling module '$x'"
+    menuselect/menuselect --disable $x menuselect.makeopts
+  done
+
+  msg "Building Asterisk"
+  make
+}
+
+package()
+{
+  cd $srcdir/$pkgname-$pkgver
+
+  msg "Installing asterisk"
+  make DESTDIR=$pkgdir install
+  make DESTDIR=$pkgdir samples
+  
+  msg2 "Relocate run to conform with Arch Linux"
+  sed -i -e "s/\/var\/run/\/run/" $pkgdir/etc/$pkgname/$pkgname.conf
+  mv $pkgdir/var/run $pkgdir
+  
+  msg2 "Relocate config examples to /usr/share/doc/$pkgname/examples"
+  if [ ! -e $pkgdir/usr/share/doc/$pkgname/examples ]; then
+    install -dm 0644 $pkgdir/usr/share/doc/$pkgname/examples
+    cp -a $pkgdir/etc/$pkgname/* $pkgdir/usr/share/doc/$pkgname/examples
+    rm -rf $pkgdir/etc/$pkgname/*
+  fi
+  
+  msg2 "Installing configuration files"
+  install -Dm 0644 $srcdir/$pkgname.service $pkgdir/usr/lib/systemd/system/$pkgname.service
+  install -Dm 0644 $srcdir/$pkgname.tmpfile $pkgdir/usr/lib/tmpfiles.d/$pkgname.conf
+  for conf in $srcdir/../config/*.conf; do
+    msg2 "Installing $conf"
+    install -Dm 0644 $conf $pkgdir/etc/$pkgname
+  done
+}
+
+# vim: ts=2:sw=2:sts=2
