@@ -1043,7 +1043,9 @@ packages:
     # xdg_menu --format openbox3 --root-menu /etc/xdg/menus/arch-applications.menu > xdg-menu.xml
     - { pkg: archlinux-xdg-menu,            desc: Automatic OpenBox menu generation from xdg files }
     - { pkg: dconf,                         desc: A low-level configuration system }
+    - { pkg: dconf-editor,                  desc: New configuration manager intended to replace gconf }
     - { pkg: dmenu,                         desc: Super light weight application runner }
+    - { pkg: gconf-editor,                  desc: Old Gnome configuration manager separate dconf-editor db }
     - { pkg: gnome-alsamixer,               desc: Gnome's audio controls not too bad }
     - { pkg: gtk-engines,                   desc: GTK theme engines for cyberlinux theme }
     - { pkg: gtk-engine-murrine,            desc: GTK theme engine for cyberlinux theme }
@@ -1144,11 +1146,9 @@ packages:
 
     # Utility
     - { pkg: catfish,                       desc: System/File Search - File search tool }
-    - { pkg: dconf-editor,                  desc: New configuration manager intended to replace gconf }
     - { pkg: desktop-file-utils,            desc: Command line utilities for working with desktop entries }
     - { pkg: file-roller,                   desc: System/Compression integrates well in Thunar }
     - { pkg: galculator,                    desc: Office/Calculator }
-    - { pkg: gconf-editor,                  desc: Old Gnome configuration manager separate dconf-editor db }
     - { pkg: gparted,                       desc: System/Partitioning - Partition magic type tool }
     - { pkg: tumbler,                       desc: D-Bus thumbnail service for apps (e.g. Thunar) }
 
