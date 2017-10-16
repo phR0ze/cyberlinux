@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.199
+  release: 0.0.200
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1039,14 +1039,12 @@ packages:
     - { pkg: rest-client,                   desc: Simple HTTP and REST client, type: GEM }
 
   lite-pkgs:
-    - { pkg: alsa-utils,                    desc: Alsa utilities including amixer }
     # xdg_menu --format openbox3 --root-menu /etc/xdg/menus/arch-applications.menu > xdg-menu.xml
     - { pkg: archlinux-xdg-menu,            desc: Automatic OpenBox menu generation from xdg files }
     - { pkg: dconf,                         desc: A low-level configuration system }
     - { pkg: dconf-editor,                  desc: New configuration manager intended to replace gconf }
     - { pkg: dmenu,                         desc: Super light weight application runner }
     - { pkg: gconf-editor,                  desc: Old Gnome configuration manager separate dconf-editor db }
-    - { pkg: gnome-alsamixer,               desc: Gnome's audio controls not too bad }
     - { pkg: gtk-engines,                   desc: GTK theme engines for cyberlinux theme }
     - { pkg: gtk-engine-murrine,            desc: GTK theme engine for cyberlinux theme }
     - { pkg: lxappearance-obconf,           desc: Openbox support for lxappearance }
@@ -1061,6 +1059,7 @@ packages:
     - { pkg: mesa-demos,                    desc: Mesa demos and tools e.g glxinfo }
     - { pkg: numix-frost-themes,            desc: Numix frost GTK2, GTK3 and OpenBox themes, type: ANTERGOS }
     - { pkg: paper-icon-theme,              desc: Paper icon theme, type: CYBERLINUX }
+    - { pkg: pavucontrol,                   desc: PulseAudio Volume Control }
     - { pkg: pulseaudio-alsa,               desc: ALSA Configuration for PulseAudio }
     - { pkg: python2-xdg,                   desc: Enable use of .desktop files in /etc/xdg in openbox }
     - { pkg: xcursor-numix-frost,           desc: Numix frost cursor theme, type: CYBERLINUX }
