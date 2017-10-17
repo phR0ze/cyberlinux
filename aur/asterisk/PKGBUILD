@@ -24,7 +24,7 @@
 #-------------------------------------------------------------------------------
 pkgname=asterisk
 pkgver=15.0.0
-pkgrel=1
+pkgrel=2
 pkgdesc="Free opensource telephony engine tuned for Google Voice"
 arch=('i686' 'x86_64')
 url="http://www.asterisk.org"
@@ -46,9 +46,9 @@ enable_modules=(
   codec_a_mu          # A-law and Mulaw direct 
   codec_adpcm         # Adaptive Differential PCM Coder/Decoder
   chan_sip            # Old outdated sip channel driver (simpler)
-  codec_speex         # Speex/PCM16 VBR narrow and wideband
   codec_alaw          # G.711 audio codec PCMA
   codec_ulaw          # G.711 audio codec PCMU
+  codec_gsm           # GSM codec, needed to play back prompts and such
   res_xmpp            # Google talk resource used by chan_motif
 )
 
@@ -80,9 +80,9 @@ disable_modules=(
   # Codec modules
   codec_g722          # G.722 codec
   codec_g726          # G.726 codec
-  codec_gsm           # GSM codec
   codec_ilbc          # iLBC/PCM16 (signed linear) Codec Translat
   codec_lpc10         # LPC10 2.4kbps signed linear voice codec
+  codec_speex         # Speex/PCM16 VBR narrow and wideband
 
   # PBX modules
   pbx_ael             # Asterisk extension language compiler
