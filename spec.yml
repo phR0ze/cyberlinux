@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.206
+  release: 0.0.207
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -396,12 +396,6 @@ changes:
         - 'echo "port=${proxy_port}" >> ${proxyfile}'
         - ''
   docker-config:
-    - edit: /etc/systemd/system/docker.service.d/override.conf
-      append: true
-      values:
-        - '[Service]'
-        - 'ExecStart='
-        - 'ExecStart=/usr/bin/dockerd -H fd:// -s overlay2'
     - edit: /usr/bin/setproxy
       append: before
       regex: 'PROXY_SETTINGS_MARKER'
