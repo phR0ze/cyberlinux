@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.202
+  release: 0.0.203
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1039,6 +1039,7 @@ packages:
     - { pkg: rest-client,                   desc: Simple HTTP and REST client, type: GEM }
 
   lite-pkgs:
+    - { pkg: alsa-utils,                    desc: Amixer for openbox audio controls }
     # xdg_menu --format openbox3 --root-menu /etc/xdg/menus/arch-applications.menu > xdg-menu.xml
     - { pkg: archlinux-xdg-menu,            desc: Automatic OpenBox menu generation from xdg files }
     - { pkg: dconf,                         desc: A low-level configuration system }
