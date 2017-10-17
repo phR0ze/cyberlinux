@@ -860,6 +860,7 @@ class Reduce
       ensure
         # Ensure joined file system is unmounted
         Sys.umount(layer_work, retries:10)
+        rm_rf(File.join(@tmp_dir, '*'))
       end
       changed |= layer_changed
     end
