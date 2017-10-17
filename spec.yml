@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.203
+  release: 0.0.204
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1154,7 +1154,7 @@ packages:
 
   desktop-pkgs:
     - { install: docker }
-    - { pkg: cinnamon-screensaver,          desc: Screensaver for the Cinnamon desktop, type: FOREIGN }
+    - { pkg: cinnamon-screensaver,          desc: Screensaver for the Cinnamon desktop, type: CYBERLINUX }
     - { pkg: gimp,                          desc: Excellent image editor, alt: pinta }
     - { pkg: hunspell-en_US,                desc: US dictionaries for spell checking, deps: libreoffice }
     - { pkg: inkscape,                      desc: Professional vector graphics editor }
@@ -1187,7 +1187,6 @@ packages:
   media-pkgs:
     - { pkg: handbrake,                     desc: Video/Encoding - Video encoding tool for mp4/mkv }
     - { pkg: handbrake-cli,                 desc: Video/Encoding - Video encoding tool for mp4/mkv }
-    - { pkg: makemkv,                       desc: DVD and Blu-ray to MKV converter, type: CYBERLINUX }
 
   theater-pkgs:
     - { pkg: idesk,                         desc: Lightweight desktop icons for X }
@@ -1201,9 +1200,6 @@ packages:
   file-sharing:
     - { pkg: qbittorrent,                   desc: Network/Bittorent, alt: deluge }
     - { pkg: qopenvpn-pia,                  desc: OpenVPN system tray with PIA integration, type: CYBERLINUX }
-
-  teamviewer:
-    - { pkg: teamviewer,                    desc: Network/Remoting - Better than VNC garbage, type: FOREIGN }
 
   apache-php:
     - { pkg: apache,                        desc: Apache web server, deb: phpBB }
@@ -1219,6 +1215,13 @@ packages:
     - { pkg: shadow,                        desc: Account mgmt passwd/usermod/groupadd, depof: util-linux }
     - { pkg: util-linux,                    desc: Utilities blkid/fdisk/rename/cp etc..., depof: php-gd }
     - { pkg: xz,                            desc: Compression util for xz format, depof: php-gd }
+
+  # Packages with license restrictures that can only be used for
+  # non comercial personal purposes or are shareware and require licenses
+  #-----------------------------------------------------------------------------
+  restricted:
+    - { pkg: makemkv,                       desc: DVD and Blu-ray to MKV converter, type: CYBERLINUX }
+    - { pkg: teamviewer,                    desc: Network/Remoting - Better than VNC garbage, type: CYBERLINUX }
 
   # Virtualization packages
   #-----------------------------------------------------------------------------
