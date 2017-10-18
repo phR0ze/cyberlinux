@@ -78,6 +78,7 @@
     </menu>
     <separator/>
     <item label="Run..." icon="/usr/share/icons/Paper/32x32/mimetypes/application-x-executable.png"><action name="Execute"><execute>dmenu_run -fn -misc-fixed-*-*-*-*-20-200-*-*-*-*-*-*  -i -nb '#000000' -nf '#efefef' -sf '#000000' -sb '#3cb0fd'</execute></action></item>
+    <item label="Logout" icon="/usr/share/icons/Paper/32x32/actions/exit.png"><action name="Execute"><execute>openbox --exit</execute></action></item>
     <item label="Reboot" icon="/usr/share/icons/hicolor/32x32/actions/system-reboot.png"><action name="Execute"><execute>sudo reboot</execute></action></item>
     <item label="Shutdown" icon="/usr/share/icons/hicolor/32x32/actions/system-shutdown.png"><action name="Execute"><execute>sudo poweroff</execute></action></item>
   </menu>
