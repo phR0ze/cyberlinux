@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.212
+  release: 0.0.213
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1183,6 +1183,7 @@ packages:
     - { pkg: file-roller,                   desc: System/Compression integrates well in Thunar }
 
   media-pkgs:
+    - { pkg: makemkv,                       desc: DVD and Blu-ray to MKV converter, type: CYBERLINUX }
     - { pkg: handbrake,                     desc: Video/Encoding - Video encoding tool for mp4/mkv }
     - { pkg: handbrake-cli,                 desc: Video/Encoding - Video encoding tool for mp4/mkv }
 
@@ -1218,7 +1219,6 @@ packages:
   # non comercial personal purposes or are shareware and require licenses
   #-----------------------------------------------------------------------------
   restricted:
-    - { pkg: makemkv,                       desc: DVD and Blu-ray to MKV converter, type: CYBERLINUX }
     - { pkg: teamviewer,                    desc: Network/Remoting - Better than VNC garbage, type: CYBERLINUX }
 
   # Virtualization packages
