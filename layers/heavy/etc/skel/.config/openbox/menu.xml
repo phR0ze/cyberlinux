@@ -42,9 +42,9 @@
       <item label="Audacity" icon="/usr/share/icons/hicolor/32x32/apps/audacity.png"><action name="Execute"><execute>env UBUNTU_MENUPROXY=0 audacity</execute></action></item>
       <item label="Brasero" icon="/usr/share/icons/Paper/32x32/apps/brasero.png"><action name="Execute"><execute>brasero</execute></action></item>
       <item label="DeVeDe" icon="/usr/share/devedeng/devedeng.png"><action name="Execute"><execute>devede_ng.py</execute></action></item>
-      <item label="GNOME ALSA Mixer" icon="/usr/share/pixmaps/gnome-alsamixer/gnome-alsamixer-icon.png"><action name="Execute"><execute>gnome-alsamixer</execute></action></item>
       <item label="HandBrake" icon="/usr/share/icons/hicolor/scalable/apps/hb-icon.svg"><action name="Execute"><execute>ghb</execute></action></item>
       <item label="MakeMKV" icon="/usr/share/icons/hicolor/32x32/apps/makemkv.png"><action name="Execute"><execute>makemkv</execute></action></item>
+      <item label="Pulse Audio" icon="/usr/share/icons/Paper/32x32/apps/multimedia-volume-control.png"><action name="Execute"><execute>pavucontrol</execute></action></item>
       <item label="SMPlayer" icon="/usr/share/icons/hicolor/32x32/apps/smplayer.png"><action name="Execute"><execute>smplayer</execute></action></item>
       <item label="VLC" icon="/usr/share/icons/hicolor/32x32/apps/vlc.png"><action name="Execute"><execute>vlc</execute></action></item>
       <item label="WinFF" icon="/usr/share/icons/hicolor/32x32/apps/winff.png"><action name="Execute"><execute>winff</execute></action></item>

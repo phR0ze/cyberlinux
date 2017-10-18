@@ -32,9 +32,9 @@
     <!-- Multimedia -->
     <menu id="Multimedia" icon="/usr/share/icons/Paper/32x32/categories/applications-multimedia.png" label="Multimedia">
       <item label="Audacious" icon="/usr/share/icons/hicolor/32x32/apps/audacious.png"><action name="Execute"><execute>audacious</execute></action></item>
-      <item label="GNOME ALSA Mixer" icon="/usr/share/pixmaps/gnome-alsamixer/gnome-alsamixer-icon.png"><action name="Execute"><execute>gnome-alsamixer</execute></action></item>
       <item label="HandBrake" icon="/usr/share/icons/hicolor/scalable/apps/hb-icon.svg"><action name="Execute"><execute>ghb</execute></action></item>
       <item label="MakeMKV" icon="/usr/share/icons/hicolor/32x32/apps/makemkv.png"><action name="Execute"><execute>makemkv</execute></action></item>
+      <item label="Pulse Audio" icon="/usr/share/icons/Paper/32x32/apps/multimedia-volume-control.png"><action name="Execute"><execute>pavucontrol</execute></action></item>
       <item label="SMPlayer" icon="/usr/share/icons/hicolor/32x32/apps/smplayer.png"><action name="Execute"><execute>smplayer</execute></action></item>
       <item label="VLC" icon="/usr/share/icons/hicolor/32x32/apps/vlc.png"><action name="Execute"><execute>vlc</execute></action></item>
     </menu>
