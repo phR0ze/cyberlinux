@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.215
+  release: 0.0.216
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1002,6 +1002,7 @@ packages:
     - { pkg: fakeroot,                      desc: Tool for simulating supersuer privileges, depof: base-devel }
     - { pkg: file,                          desc: File type identification utility, depof: base-devel }
     - { pkg: flex,                          desc: Generate text-scanning programs, depof: base-devel }
+    - { pkg: gdb,                           desc: The GNU debugger }
     - { pkg: gawk,                          desc: GNU version of awk, depof: base-devel }
     - { pkg: gettext,                       desc: GNU internationalization library, depof: base-devel }
     - { pkg: git,                           desc: Fast distributed version control system }
