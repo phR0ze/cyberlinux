@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.210
+  release: 0.0.211
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1012,6 +1012,7 @@ packages:
     - { pkg: groff,                         desc: GNU trof text-formatting system, depof: base-devel }
     - { pkg: jq,                            desc: Command line JSON processor }
     - { pkg: libtool,                       desc: Generic library support script, depof: base-devel }
+    - { pkg: ltrace,                        desc: Tracks runtime library calls in dynamically linked programs }
     - { pkg: m4,                            desc: GNU macro processor, depof: base-devel }
     - { pkg: make,                          desc: GNU utility to build programs, depof: base-devel }
     - { pkg: patch,                         desc: Utility to apply patches to files, depof: base-devel }
@@ -1020,6 +1021,7 @@ packages:
     - { pkg: python-pip,                    desc: Python package management tool }
     - { pkg: python-yaml,                   desc: YAML support using fast libYAML library }
     - { pkg: ruby,                          desc: Ruby lang quick and easy programming }
+    - { pkg: strace,                        desc: A diagnostic, debugging and instructional userspace tracer }
     - { pkg: texinfo,                       desc: Documentation for online information, depof: base-devel }
     - { pkg: yaourt,                        desc: Pacman wrapper with AUR, type: ANTERGOS }
 
@@ -1028,7 +1030,7 @@ packages:
     - { pkg: ruby-colorize,                 desc: Colorized output }
     - { pkg: ruby-nokogiri,                 desc: HTML parser with XPath and CSS3 selectors, depof: chromium build}
     - { pkg: ruby-mechanize,                desc: Automate interation with websites, depof: chromium build }
-    - { pkg: gtk3,                          desc: Ruby binding of GTK+-3.x, type: GEM }
+      #- { pkg: gtk3,                          desc: Ruby binding of GTK+-3.x, type: GEM }
     - { pkg: filesize,                      desc: Filesize to string maipulations, type: GEM }
     - { pkg: net-ssh,                       desc: Pure Ruby SSH2 implementation, type: GEM }
     - { pkg: net-scp,                       desc: Pure Ruby SCP implementation, type: GEM }
