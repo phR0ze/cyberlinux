@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.209
+  release: 0.0.210
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1028,6 +1028,7 @@ packages:
     - { pkg: ruby-colorize,                 desc: Colorized output }
     - { pkg: ruby-nokogiri,                 desc: HTML parser with XPath and CSS3 selectors, depof: chromium build}
     - { pkg: ruby-mechanize,                desc: Automate interation with websites, depof: chromium build }
+    - { pkg: gtk3,                          desc: Ruby binding of GTK+-3.x, type: GEM }
     - { pkg: filesize,                      desc: Filesize to string maipulations, type: GEM }
     - { pkg: net-ssh,                       desc: Pure Ruby SSH2 implementation, type: GEM }
     - { pkg: net-scp,                       desc: Pure Ruby SCP implementation, type: GEM }
