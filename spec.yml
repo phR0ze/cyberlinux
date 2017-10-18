@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.217
+  release: 0.0.218
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1027,18 +1027,11 @@ packages:
     - { pkg: yaourt,                        desc: Pacman wrapper with AUR, type: ANTERGOS }
 
   reduce-gems:
-    - { pkg: ruby-atk,                      desc: Ruby binding of ATK-1.0.x, depof: ruby-gtk3 }
     - { pkg: ruby-bundler,                  desc: Gem management, depof: reduce }
     - { pkg: ruby-colorize,                 desc: Colorized output, depof: reduce }
+    - { pkg: ruby-gtk2,                     desc: Ruby binding of GTK2, depof: openvpn-pia }
     - { pkg: ruby-nokogiri,                 desc: HTML parser with XPath and CSS3 selectors, depof: chromium build}
-    - { pkg: ruby-cairo,                    desc: Ruby binding for cairo, depof: ruby-gtk3 }
-    - { pkg: ruby-cairo-gobject,            desc: Ruby binding for cairo-gobject, depof: ruby-gtk3 }
-    - { pkg: ruby-gdk_pixbuf2,              desc: Ruby binding of GdkPixbuf-2.x, depof: ruby-gtk3 }
-    - { pkg: ruby-gio2,                     desc: Ruby binding of gio-2.x, depof: ruby-gtk3 }
-    - { pkg: ruby-gobject-introspection,    desc: Ruby binding of GObjectIntrospection, depof: ruby-gtk3 }
     - { pkg: ruby-mechanize,                desc: Automate interation with websites, depof: chromium build }
-    - { pkg: ruby-pango,                    desc: Ruby binding of pango-1.x, depof: ruby-gtk3 }
-    - { pkg: gtk3,                          desc: Ruby binding of GTK+-3.x, type: GEM }
     - { pkg: filesize,                      desc: Filesize to string maipulations, depof: reduce, type: GEM }
     - { pkg: net-ssh,                       desc: Pure Ruby SSH2 implementation, depof: reduce, type: GEM }
     - { pkg: net-scp,                       desc: Pure Ruby SCP implementation, depof: reduce, type: GEM }
