@@ -22,33 +22,29 @@
 #-------------------------------------------------------------------------------
 # Maintained by phR0ze
 #-------------------------------------------------------------------------------
-pkgname=qopenvpn-pia
-pkgver=2.0.1
-pkgrel=5
-pkgdesc="Simple OpenVPN PyQt GUI with PIA VPN profiles included"
+pkgname=openvpn-pia
+pkgver=0.0.1
+pkgrel=1
+pkgdesc="Private Internet Access OpenVPN automation and UI"
 arch=('any')
-url="https://github.com/phR0ze/qopenvpn"
-license=('GPL3')
-depends=('python-pyqt5' 'qt5-svg' 'openvpn' 'systemd')
-makedepends=('python-setuptools')
+url="https://github.com/phR0ze/openvpn-pia"
+license=('MIT')
+depends=('ruby-gtk2' 'openvpn' 'systemd')
 install=$pkgname.install
-conficts=('qopenvpn')
 
-source=("$pkgname-$pkgver.tar.gz::https://github.com/phR0ze/qopenvpn/archive/$pkgver.tar.gz"
+source=("git+https://github.com/phR0ze/$pkgname.git#tag=v${pkgver//_/-}")
         "https://www.privateinternetaccess.com/openvpn/openvpn-ip.zip"
         "https://www.privateinternetaccess.com/openvpn/openvpn-strong.zip"
         "override.conf")
 
-sha256sums=('cdb683040e28bf4c04eed21941132e2ca8f83e4dc72f9af446aeed07f1f04335'
+sha256sums=('SKIP'
             '8d7d75b7cc7b5a40dc26f778eb646c348011657bba90e137a359d18332c4bdad'
             '4897c3a8dd988e87c4c53db2dd1522a0a7112d58a0357425c09d1ce5f9f5a1b5'
             '416f5b2e8237b2c1f60d145943ba9a059cba513e9f97fc230cdc36f08c76cea3')
 
 prepare()
 {
-  # Build QOpenVPN
-  cd $srcdir/qopenvpn-$pkgver
-  python setup.py build
+  cd $srcdir/$pkgname
 
   # Rename PIA configuration files
   # openvpn doesn't do well with spaces
@@ -65,16 +61,15 @@ prepare()
 
 package()
 {
-  # Package QOpenVPN
-  cd $srcdir/qopenvpn-$pkgver
+  cd $srcdir/$pkgname
   python setup.py install --root=$pkgdir
 
   # Modify openvpn configuration to leverage a passwords file
   install -Dm644 $srcdir/override.conf -t $pkgdir/etc/systemd/system/openvpn-client@.service.d
+  rm $srcdir/override.conf
 
-  # Install the qopenvpn icon
-  install -Dm644 $srcdir/qopenvpn-$pkgver/qopenvpn.png -t $pkgdir/usr/share/icons/hicolor/32x32/apps
-  install -Dm644 $srcdir/qopenvpn-$pkgver/qopenvpn.png -t $pkgdir/usr/share/icons/hicolor/48x48/apps
+  # Install the icons
+  install -Dm644 $srcdir/$pkgname/images -t $pkgdir/usr/share/icons/hicolor/32x32/apps
 
   # Package PIA configuration
   cd $srcdir
