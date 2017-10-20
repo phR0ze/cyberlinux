@@ -23,7 +23,7 @@
 # Maintained by phR0ze
 #-------------------------------------------------------------------------------
 pkgname=openvpn-pia
-pkgver=0.0.1
+pkgver=0.0.2
 pkgrel=1
 pkgdesc="Private Internet Access OpenVPN automation and UI"
 arch=('any')
@@ -32,57 +32,64 @@ license=('MIT')
 depends=('ruby-gtk2' 'openvpn' 'systemd')
 install=$pkgname.install
 
-source=("git+https://github.com/phR0ze/$pkgname.git#tag=v${pkgver//_/-}")
-        "https://www.privateinternetaccess.com/openvpn/openvpn-ip.zip"
-        "https://www.privateinternetaccess.com/openvpn/openvpn-strong.zip"
-        "override.conf")
+source=("git+https://github.com/phR0ze/$pkgname.git#tag=${pkgver//_/-}")
+        #"https://www.privateinternetaccess.com/openvpn/openvpn-ip.zip"
+        #"https://www.privateinternetaccess.com/openvpn/openvpn-strong.zip"
+        #"override.conf")
 
-sha256sums=('SKIP'
-            '8d7d75b7cc7b5a40dc26f778eb646c348011657bba90e137a359d18332c4bdad'
-            '4897c3a8dd988e87c4c53db2dd1522a0a7112d58a0357425c09d1ce5f9f5a1b5'
-            '416f5b2e8237b2c1f60d145943ba9a059cba513e9f97fc230cdc36f08c76cea3')
+sha256sums=('SKIP')
+            #'8d7d75b7cc7b5a40dc26f778eb646c348011657bba90e137a359d18332c4bdad'
+            #'4897c3a8dd988e87c4c53db2dd1522a0a7112d58a0357425c09d1ce5f9f5a1b5'
+            #'416f5b2e8237b2c1f60d145943ba9a059cba513e9f97fc230cdc36f08c76cea3')
 
-prepare()
+build()
 {
-  cd $srcdir/$pkgname
+  cd $srcdir
 
-  # Rename PIA configuration files
-  # openvpn doesn't do well with spaces
-  for ovpn in $srcdir/*.ovpn; do
-    dir=$(dirname "$ovpn")
-    base=$(basename "$ovpn")
-    x="${base//ovpn/conf}"
-    x="${x// /-}"
-    x="${x,,}"
-    msg2 "Renaming: $base => $x"
-    mv "$ovpn" "$dir/$x"
+#  # Rename PIA configuration files
+#  # openvpn doesn't do well with spaces
+#  for ovpn in $srcdir/*.ovpn; do
+#    dir=$(dirname "$ovpn")
+#    base=$(basename "$ovpn")
+#    x="${base//ovpn/conf}"
+#    x="${x// /-}"
+#    x="${x,,}"
+#    msg2 "Renaming: $base => $x"
+#    mv "$ovpn" "$dir/$x"
+#  done
+
+  # Generate install icons from scalables
+  for svg in $srcdir/$pkgname/images/*.svg; do
+    base=$(basename "$svg")
+    x="${base//svg/png}"
+    if [ ! -e $srcdir/$x ]; then
+      inkscape $svg --export-png=$srcdir/$x --export-width=32
+    fi
   done
-
-  # Generate install images to use from scalables
-  #inkscape images/openvpn.svg --export-png=test.png --export-width=32
 }
 
 package()
 {
-  cd $srcdir/$pkgname
-  python setup.py install --root=$pkgdir
-
-  # Modify openvpn configuration to leverage a passwords file
-  install -Dm644 $srcdir/override.conf -t $pkgdir/etc/systemd/system/openvpn-client@.service.d
-  rm $srcdir/override.conf
-
-  # Install the icons
-  install -Dm644 $srcdir/$pkgname/images -t $pkgdir/usr/share/icons/hicolor/32x32/apps
-
-  # Package PIA configuration
   cd $srcdir
-  install -dm750 $pkgdir/etc/openvpn/client
 
-  # Install openvpn profiles and certs
-  for x in $srcdir/*.conf $srcdir/*.crt $srcdir/*.pem; do
-    msg2 "Installing: $x"
-    install -Dm600 -t $pkgdir/etc/openvpn/client "$x"
+  # Install generated icons
+  for png in $srcdir/$pkgname*.png; do
+    install -Dm644 $png -t $pkgdir/usr/share/icons/hicolor/32x32/apps
   done
+
+#  # Modify openvpn configuration to leverage a passwords file
+#  install -Dm644 $srcdir/override.conf -t $pkgdir/etc/systemd/system/openvpn-client@.service.d
+#  rm $srcdir/override.conf
+#
+#  # Package PIA configuration
+#  cd $srcdir
+#  install -dm750 $pkgdir/etc/openvpn/client
+#
+#  # Install openvpn profiles and certs
+#  for x in $srcdir/*.conf $srcdir/*.crt $srcdir/*.pem; do
+#    msg2 "Installing: $x"
+#    install -Dm600 -t $pkgdir/etc/openvpn/client "$x"
+#  done
 }
 
 # vim: ts=2:sw=2:sts=2
