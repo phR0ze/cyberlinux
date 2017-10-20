@@ -57,6 +57,9 @@ prepare()
     msg2 "Renaming: $base => $x"
     mv "$ovpn" "$dir/$x"
   done
+
+  # Generate install images to use from scalables
+  #inkscape images/openvpn.svg --export-png=test.png --export-width=32
 }
 
 package()
