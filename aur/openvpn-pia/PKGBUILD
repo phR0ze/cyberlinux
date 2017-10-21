@@ -36,7 +36,7 @@ source=("git+https://github.com/phR0ze/$pkgname.git#tag=${pkgver//_/-}"
         "https://www.privateinternetaccess.com/openvpn/openvpn-ip.zip"
         "https://www.privateinternetaccess.com/openvpn/openvpn-strong.zip")
 
-sha256sums=('SKIP')
+sha256sums=('SKIP'
             '8d7d75b7cc7b5a40dc26f778eb646c348011657bba90e137a359d18332c4bdad'
             '4897c3a8dd988e87c4c53db2dd1522a0a7112d58a0357425c09d1ce5f9f5a1b5')
 
