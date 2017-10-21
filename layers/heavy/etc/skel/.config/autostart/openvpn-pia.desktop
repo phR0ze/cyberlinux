@@ -2,8 +2,8 @@
 Encoding=UTF-8
 Version=1.3.2
 Name=OpenVPN PIA
-GenericName=OpenVPN PIA GUI
-Comment=OpenVPN UI with PIA integration
+GenericName=OpenVPN PIA
+Comment=OpenVPN GUI with PIA integration
 Exec=openvpn-pia
 Icon=openvpn-pia
 StartupNotify=false
