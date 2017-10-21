@@ -32,7 +32,7 @@ license=('MIT')
 depends=('ruby-gtk3' 'openvpn' 'systemd')
 install=$pkgname.install
 
-source=("git+https://github.com/phR0ze/$pkgname.git#tag=${pkgver//_/-}"
+source=("git+https://github.com/phR0ze/$pkgname.git#tag=$pkgver"
         "https://www.privateinternetaccess.com/openvpn/openvpn-ip.zip"
         "https://www.privateinternetaccess.com/openvpn/openvpn-strong.zip")
 

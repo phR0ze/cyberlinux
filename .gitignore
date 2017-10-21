@@ -15,6 +15,7 @@ aur/iksemel/iksemel
 aur/freeswitch/freeswitch
 aur/kubernetes/kubernetes
 aur/kubernetes/release
-aur/openvpn-pia
+aur/openvpn-pia/openvpn-pia
+aur/ruby-cmds/cmds
 temp
 vagrant
