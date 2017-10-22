@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.225
+  release: 0.0.226
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1030,6 +1030,7 @@ packages:
   reduce-gems:
     - { pkg: ruby-bundler,                  desc: Gem management, depof: reduce }
     - { pkg: ruby-colorize,                 desc: Colorized output, depof: reduce }
+    - { pkg: ruby-cmds,                     desc: Command like syntax for parameters, depof: openvpn-pia }
     - { pkg: ruby-gtk3,                     desc: Ruby binding of GTK3, depof: openvpn-pia, type: CYBERLINUX }
     - { pkg: ruby-nokogiri,                 desc: HTML parser with XPath and CSS3 selectors, depof: chromium build}
     - { pkg: ruby-mechanize,                desc: Automate interation with websites, depof: chromium build }

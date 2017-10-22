@@ -24,12 +24,12 @@
 #-------------------------------------------------------------------------------
 pkgname=openvpn-pia
 pkgver=0.0.3
-pkgrel=1
+pkgrel=2
 pkgdesc="Private Internet Access OpenVPN automation and UI"
 arch=('any')
 url="https://github.com/phR0ze/openvpn-pia"
 license=('MIT')
-depends=('ruby-gtk3' 'openvpn' 'systemd')
+depends=('ruby-gtk3' 'ruby-cmds' 'openvpn' 'systemd')
 install=$pkgname.install
 
 source=("git+https://github.com/phR0ze/$pkgname.git#tag=$pkgver"
