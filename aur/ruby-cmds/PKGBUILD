@@ -30,7 +30,7 @@ pkgdesc='Command like syntax for Ruby command line parameters'
 arch=(any)
 url='https://github.com/phR0ze/cmds'
 license=(MIT)
-depends=(ruby)
+depends=('ruby>=2.4.0')
 options=(!emptydirs)
 source=("git+https://github.com/phR0ze/$gem.git#tag=$pkgver")
 sha1sums=('SKIP')
@@ -45,11 +45,13 @@ build()
 
 package()
 {
-  cd $srcdir/$pkgname
+  cd $srcdir/$gem
 
-  #local _gemdir="$(ruby -e'puts Gem.default_dir')"
-  #gem install --ignore-dependencies --no-user-install -i "$pkgdir/$_gemdir" -n "$pkgdir/usr/bin" $_gemname-$pkgver.gem
-  #rm "$pkgdir/$_gemdir/cache/$_gemname-$pkgver.gem"
+  msg "Packaging $pkgname"
+  gem_install_path="$(ruby -e'puts Gem.default_dir')"
+  msg2 $gem_install_path
+  gem install --ignore-dependencies --no-user-install -i "$pkgdir/$gem_install_path" -n "$pkgdir/usr/bin" "$gem-$pkgver.gem"
+  rm "$pkgdir/$gem_install_path/cache/$gem-$pkgver.gem"
 }
 
 # vim: ts=2:sw=2:sts=2
