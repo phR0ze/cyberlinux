@@ -23,7 +23,7 @@
 # Maintained by phR0ze
 #-------------------------------------------------------------------------------
 pkgname=openvpn-pia
-pkgver=0.0.5
+pkgver=0.0.6
 pkgrel=1
 pkgdesc="Private Internet Access OpenVPN automation and UI"
 arch=('any')
@@ -78,6 +78,14 @@ package()
   install -dm750 $pkgdir/usr/share/doc/$pkgname
   install -Dm644 $srcdir/$pkgname/LICENSE -t $pkgdir/usr/share/doc/$pkgname
   install -Dm644 $srcdir/$pkgname/README.md -t $pkgdir/usr/share/doc/$pkgname
+
+  # Package data files
+  msg2 "Packaging data files"
+  install -Dm644 $srcdir/$pkgname/$pkgname-settings.ui -t $pkgdir/usr/share/$pkgname
+  for x in $srcdir/$pkgname/images/*.png; do
+    msg2 "Packaging images: $x"
+    install -Dm644 $x -t $pkgdir/usr/share/$pkgname/images
+  done
 
   # Package executables
   msg2 "Packaging executables"
