@@ -23,8 +23,8 @@
 # Maintained by phR0ze
 #-------------------------------------------------------------------------------
 pkgname=openvpn-pia
-pkgver=0.0.3
-pkgrel=2
+pkgver=0.0.5
+pkgrel=1
 pkgdesc="Private Internet Access OpenVPN automation and UI"
 arch=('any')
 url="https://github.com/phR0ze/openvpn-pia"
@@ -79,10 +79,16 @@ package()
   install -Dm644 $srcdir/$pkgname/LICENSE -t $pkgdir/usr/share/doc/$pkgname
   install -Dm644 $srcdir/$pkgname/README.md -t $pkgdir/usr/share/doc/$pkgname
 
+  # Package executables
+  msg2 "Packaging executables"
+  install -Dm755 $srcdir/$pkgname/$pkgname -t $pkgdir/usr/bin
+  install -Dm755 $srcdir/$pkgname/$pkgname-cli -t $pkgdir/usr/bin
+
   # Package generated icons
   for x in $srcdir/$pkgname*.png; do
     msg2 "Packaging generated icon: $x"
     install -Dm644 $x -t $pkgdir/usr/share/icons/hicolor/32x32/apps
+    rm $x
   done
 
   # Package PIA configuration
