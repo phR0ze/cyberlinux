@@ -17,5 +17,6 @@ aur/kubernetes/kubernetes
 aur/kubernetes/release
 aur/openvpn-pia/openvpn-pia
 aur/ruby-cmds/cmds
+aur/ruby-pry-nav/*.gem
 temp
 vagrant

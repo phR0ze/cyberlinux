@@ -50,8 +50,9 @@ package()
   msg "Packaging $pkgname"
   gem_install_path="$(ruby -e'puts Gem.default_dir')"
   msg2 $gem_install_path
-  gem install --ignore-dependencies --no-user-install -i "$pkgdir/$gem_install_path" -n "$pkgdir/usr/bin" "$gem-$pkgver.gem"
+  gem install --ignore-dependencies --no-user-install -i "$pkgdir/$gem_install_path" -n "$pkgdir/usr/bin" $gem-$pkgver.gem
   rm "$pkgdir/$gem_install_path/cache/$gem-$pkgver.gem"
+  install -D -m644 "$pkgdir/$gem_install_path/gems/$gem-$pkgver/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }
 
 # vim: ts=2:sw=2:sts=2

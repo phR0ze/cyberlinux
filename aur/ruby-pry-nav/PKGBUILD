@@ -34,11 +34,15 @@ depends=(ruby ruby-pry)
 options=(!emptydirs)
 source=(https://rubygems.org/downloads/$gem-$pkgver.gem)
 noextract=($gem-$pkgver.gem)
-#sha512sums=('876e5a9413c412648d7dc04472014858a566f923c58a076c7cbd03a347074b3912a97a7b7ed16b1fdefab00e6f322675b60e816dea574b7abbf635abe7c8946b')
+sha256sums=('2d5f53046ded0e70016cce30e31fec448f6c51125d0beab6a2471b96aeff3b63')
 
 package() {
-  local _gemdir="$(ruby -e'puts Gem.default_dir')"
-  gem install --ignore-dependencies --no-user-install -i "$pkgdir/$_gemdir" -n "$pkgdir/usr/bin" $_gemname-$pkgver.gem
-  rm "$pkgdir/$_gemdir/cache/$_gemname-$pkgver.gem"
-  install -D -m644 "$pkgdir/$_gemdir/gems/$_gemname-$pkgver/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  msg "Packaging $pkgname"
+  gem_install_path="$(ruby -e'puts Gem.default_dir')"
+  msg2 $gem_install_path
+  gem install --ignore-dependencies --no-user-install -i "$pkgdir/$gem_install_path" -n "$pkgdir/usr/bin" $gem-$pkgver.gem
+  rm "$pkgdir/$gem_install_path/cache/$gem-$pkgver.gem"
+  install -D -m644 "$pkgdir/$gem_install_path/gems/$gem-$pkgver/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }
+
+# vim: ts=2:sw=2:sts=2
