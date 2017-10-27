@@ -23,7 +23,7 @@
 # Maintained by phR0ze
 #-------------------------------------------------------------------------------
 pkgname=openvpn-pia
-pkgver=0.0.6
+pkgver=0.0.7
 pkgrel=1
 pkgdesc="Private Internet Access OpenVPN automation and UI"
 arch=('any')
@@ -50,7 +50,7 @@ build()
   for ovpn in $srcdir/*.ovpn; do
     dir=$(dirname "$ovpn")
     base=$(basename "$ovpn")
-    x="${base//ovpn/conf}"
+    x="${base}"
     x="${x// /-}"
     x="${x,,}"
     msg2 "Renaming: $base => $x"
@@ -101,7 +101,7 @@ package()
 
   # Package PIA configuration
   install -dm750 $pkgdir/etc/openvpn/client
-  for x in $srcdir/*.conf $srcdir/*.crt $srcdir/*.pem; do
+  for x in $srcdir/*.ovpn $srcdir/*.crt $srcdir/*.pem; do
     msg2 "Packaging pia config file: $x"
     install -Dm600 -t $pkgdir/etc/openvpn/client "$x"
   done
