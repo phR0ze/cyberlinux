@@ -23,7 +23,7 @@
 # Maintained by phR0ze
 #-------------------------------------------------------------------------------
 pkgname=openvpn-pia
-pkgver=0.0.8
+pkgver=0.0.9
 pkgrel=1
 pkgdesc="Private Internet Access OpenVPN automation and UI"
 arch=('any')
@@ -34,11 +34,13 @@ install=$pkgname.install
 
 source=("git+https://github.com/phR0ze/$pkgname.git#tag=$pkgver"
         "https://www.privateinternetaccess.com/openvpn/openvpn-ip.zip"
-        "https://www.privateinternetaccess.com/openvpn/openvpn-strong.zip")
+        "https://www.privateinternetaccess.com/openvpn/openvpn-strong.zip"
+        "openvpn-pia.desktop")
 
 sha256sums=('SKIP'
             '8d7d75b7cc7b5a40dc26f778eb646c348011657bba90e137a359d18332c4bdad'
-            '4897c3a8dd988e87c4c53db2dd1522a0a7112d58a0357425c09d1ce5f9f5a1b5')
+            '4897c3a8dd988e87c4c53db2dd1522a0a7112d58a0357425c09d1ce5f9f5a1b5'
+            'd8eec410a02854ba4dd392e48a56129764ebd5b7307296d8d3dd968ebdcb0721')
 
 build()
 {
@@ -100,6 +102,10 @@ package()
     install -Dm644 $x -t $pkgdir/usr/share/icons/hicolor/32x32/apps
     rm $x
   done
+
+  # Package launch files
+  msg2 "Packaging desktop launch file"
+  install -Dm644 $pkgname.desktop -t $pkgdir/usr/share/applications
 
   # Package PIA configuration
   install -dm750 $pkgdir/etc/openvpn/client

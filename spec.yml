@@ -22,9 +22,9 @@
 vars:
   arch: x86_64
 <<<<<<< HEAD
-  release: 0.0.231
+  release: 0.0.232
 =======
-  release: 0.0.221
+  release: 0.0.222
 >>>>>>> 0.0.220: Don't rename ovpn files to conf
   distro: cyberlinux
   timezone: US/Mountain
