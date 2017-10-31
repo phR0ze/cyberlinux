@@ -105,7 +105,12 @@ class Reduce
 
     @rootpath = File.dirname(File.expand_path(__FILE__))
     @spec_file = File.join(@rootpath, 'spec.yml')
-    @spec = YAML.load_file(@spec_file)
+    begin
+      @spec = YAML.load_file(@spec_file)
+    rescue Exception => e
+      puts("Error: invalid yaml in '#{@spec_file}'".colorize(:red))
+      puts(e.to_s.colorize(:red))
+    end
     @vars = OpenStruct.new(@spec[@k.vars])
     @user = Process.uid.zero? ? Etc.getpwuid(ENV['SUDO_UID'].to_i).name : ENV['USER']
     @runuser = "runuser #{@user} -c"
