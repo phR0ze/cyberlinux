@@ -23,7 +23,7 @@
 # Maintained by phR0ze
 #-------------------------------------------------------------------------------
 pkgname=openvpn-pia
-pkgver=0.0.7
+pkgver=0.0.8
 pkgrel=1
 pkgdesc="Private Internet Access OpenVPN automation and UI"
 arch=('any')
@@ -53,8 +53,10 @@ build()
     x="${base}"
     x="${x// /-}"
     x="${x,,}"
-    msg2 "Renaming: $base => $x"
-    mv "$ovpn" "$dir/$x"
+    if [ "${x}" != "${base}" ]; then
+      msg2 "Renaming: $base => $x"
+      mv "$ovpn" "$dir/$x"
+    fi
   done
 
   # Generate install icons from scalables
