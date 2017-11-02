@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.237
+  release: 0.0.238
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1085,7 +1085,7 @@ packages:
     - { pkg: gvim,                          desc: Improved version of vi text editor, conflict: vim }
     - { pkg: hardinfo,                      desc: A system information and benchmark tool }
     - { pkg: nitrogen,                      desc: System wallpaper manager }
-    #- { pkg: pepper-flash,                  desc: Chromium flash support, type: ANTERGOS }
+    #- { pkg: pepper-flash,                  desc: Chromium flash support }
     - { pkg: pnmixer,                       desc: Volume controls in system tray, type: CYBERLINUX }
     - { pkg: qt4,                           desc: A cross-platform application and UI framework, deps: vlc }
     - { pkg: smplayer,                      desc: UI wrapper around mplayer with click to pause, alt: vlc }
