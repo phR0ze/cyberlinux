@@ -2,10 +2,11 @@
 #-------------------------------------------------------------------------------
 # Chromium without Google integration and privacy issues
 #-------------------------------------------------------------------------------
-# Inspiration from the great work by:
-# Michael Egger https://github.com/gcarq/inox-patchset
+# Inspiration from the great work called out below:
+# https://github.com/gcarq/inox-patchset
 # https://github.com/Eloston/ungoogled-chromium
-# https://anonscm.debian.org/cgit/pkg-chromium/pkg-chromium.git/
+# https://git.iridiumbrowser.de/cgit.cgi/iridium-browser/
+# https://anonscm.debian.org/cgit/pkg-chromium/pkg-chromium.git/tree/debian
 # https://git.archlinux.org/svntogit/packages.git/tree/repos/extra-x86_64?h=packages/chromium
 #-------------------------------------------------------------------------------
 # Update/Build process:
@@ -79,7 +80,16 @@ _google_default_client_id=413772536636.apps.googleusercontent.com
 _google_default_client_secret=0ZChLK6AxeA3Isu96MkwqDR4
 
 prepare() {
-  cd "$srcdir/$pkgname-$pkgver"
+  cd $srcdir/$pkgname-$pkgver
+
+  # Apply patches from various distributions
+#  for patchset in arch debian; do
+#    msg "Applying $patchset patches..."
+#    for patch in ../../patches/$patchset/*.patch; do
+#      msg2 "Applying patch $patch"
+#      patch -Np1 -i $patch
+#    done
+#  done
 
   # https://crbug.com/710701
   local _chrome_build_hash=$(curl -s https://chromium.googlesource.com/chromium/src.git/+/$pkgver?format=TEXT |
