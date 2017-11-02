@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.236
+  release: 0.0.237
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1217,12 +1217,6 @@ packages:
     - { pkg: shadow,                        desc: Account mgmt passwd/usermod/groupadd, depof: util-linux }
     - { pkg: util-linux,                    desc: Utilities blkid/fdisk/rename/cp etc..., depof: php-gd }
     - { pkg: xz,                            desc: Compression util for xz format, depof: php-gd }
-
-  # Packages with license restrictures that can only be used for
-  # non comercial personal purposes or are shareware and require licenses
-  #-----------------------------------------------------------------------------
-  restricted:
-    - { pkg: teamviewer,                    desc: Network/Remoting - Better than VNC garbage, type: CYBERLINUX }
 
   # Virtualization packages
   #-----------------------------------------------------------------------------
