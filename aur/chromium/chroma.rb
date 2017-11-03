@@ -79,14 +79,15 @@ class Chroma
   # Download the latest patches from supported distributions
   # @param patchset [String] patchset preset string to use
   # @param outdir [String] output parent path to download to
-  def download_patches(patchset, outdir)
+  def downloadPatches(patchset, outdir)
+    patchset_dir = File.join(outdir, patchset)
     !puts("Error: Patchset was not found!".colorize(:red)) and exit unless @patchsets[patchset]
     puts("PatchSet: #{patchset}".colorize(:green))
-    puts("Output: #{outdir}".colorize(:cyan))
+    puts("PatchSet Dir: #{patchset_dir}".colorize(:cyan))
     puts("Request: #{@patchsets[patchset]}".colorize(:cyan))
-    FileUtils.rm_rf(outdir) if File.exist?(outdir)
-    FileUtils.mkdir_p(outdir)
-    FileUtils.mkdir_p(File.join(outdir, 'not-used'))
+    FileUtils.rm_rf(patchset_dir) if File.exist?(patchset_dir)
+    FileUtils.mkdir_p(patchset_dir)
+    FileUtils.mkdir_p(File.join(patchset_dir, 'not-used'))
 
     # Download patches via mechanize
     # Save as offline file: agent.get(@patchsets[patchset]).content
@@ -105,15 +106,15 @@ class Chroma
         dirLinks = links.reject{|x| fileLinks.include?(x)}
 
         # Download root files
-        fileLinks.each{|x| download(agent, File.join(baseUrl, x.href), File.join(outdir, x.text)) }
+        fileLinks.each{|x| download(agent, File.join(baseUrl, x.href), File.join(patchset_dir, x.text)) }
 
         # Gather patches from dir links
         dirLinks.each{|dirlink|
           url = File.join(baseUrl, dirlink.href)
           puts("Scraping patch dir: #{url}")
-          FileUtils.mkdir_p(File.join(outdir, dirlink.text))
+          FileUtils.mkdir_p(File.join(patchset_dir, dirlink.text))
           links = agent.get(url).links.select{|x| x.href =~ /#{dirlink.href}/}
-          links.each{|x| download(agent, File.join(baseUrl, x.href), File.join(outdir, dirlink.text, x.text)) }
+          links.each{|x| download(agent, File.join(baseUrl, x.href), File.join(patchset_dir, dirlink.text, x.text)) }
         }
 
       # Download iridium patches
@@ -124,7 +125,7 @@ class Chroma
         patchLinks.each{|x|
           name = x.text
           link = "#{baseUrl}#{x.href.sub('/tree/', '/plain/')}"
-          download(agent, link, File.join(outdir, name))
+          download(agent, link, File.join(patchset_dir, name))
         }
       end
     }
@@ -133,7 +134,7 @@ class Chroma
 #    #---------------------------------------------------------------------------
 #    # Order patches according to 'series' file
 #    if patchset == @distros.iridium or patchset == @distros.debian
-#      open(File.join(outdir, 'series'), 'r'){|f|
+#      open(File.join(patchset_dir, 'series'), 'r'){|f|
 #        i = 0
 #        f.readlines.each{|x|
 #          name = x.strip
@@ -141,12 +142,12 @@ class Chroma
 #          count = i.to_s.rjust(2, "0")
 #
 #          if patchset == @distros.debian
-#            oldName = File.join(outdir, name)
-#            newName = @not_used[@distros.debian].include?(name) ? File.join(outdir, 'not-used', "#{count}-#{name.sub('/', '-')}") :
-#              File.join(outdir, "#{count}-#{name.sub('/', '-')}")
+#            oldName = File.join(patchset_dir, name)
+#            newName = @not_used[@distros.debian].include?(name) ? File.join(patchset_dir, 'not-used', "#{count}-#{name.sub('/', '-')}") :
+#              File.join(patchset_dir, "#{count}-#{name.sub('/', '-')}")
 #          else
-#            oldName = File.join(outdir, name)
-#            newName = File.join(outdir, "#{count}-#{name}")
+#            oldName = File.join(patchset_dir, name)
+#            newName = File.join(patchset_dir, "#{count}-#{name}")
 #          end
 #
 #          # Order file
@@ -158,7 +159,7 @@ class Chroma
 #    end
 #
 #    # Remove any directories that are not 'not-used'
-#    Dir[File.join(outdir, '*')].each{|x|
+#    Dir[File.join(patchset_dir, '*')].each{|x|
 #      FileUtils.remove_dir(x) if File.directory?(x) and not x.include?('not-used')
 #    }
   end
@@ -178,8 +179,7 @@ class Chroma
   end
 
   # Hit an external site and retrieve what our user agent looks like
-  # @returns [String] user agent
-  def getUserAgent()
+  def getUserAgent
     Mechanize.new{|agent|
       agent.set_proxy(@proxy_uri, @proxy_port)
       agent.user_agent_alias = @user_agent_alias
@@ -198,20 +198,24 @@ if __FILE__ == $0
   app = 'chroma'
   version = '0.0.1'
   examples = "Examples:\n".colorize(:green)
-  examples += "sudo ./#{app}.rb download --patches=debian --outdir=patches\n".colorize(:green)
+  examples += "./#{app}.rb useragent\n".colorize(:green)
+  examples += "./#{app}.rb download --patches=debian --outdir=patches\n".colorize(:green)
 
   cmds = Cmds.new(app, version, examples)
   cmds.add('download', 'Download patches from the given distribution', [
     CmdOpt.new('--patches=DISTRO', 'Distribution to download patches from', type:String, required:true),
     CmdOpt.new('--outdir=OUTDIR', 'Destination parent directory for patches', type:String, required:true)
   ])
+  cmds.add('useragent', 'Check the useragent being seen externally', [])
   cmds.parse!
 
   # Execute
   puts(cmds.banner)
   chroma = Chroma.new
   if cmds[:download]
-    #chroma.download_patches(opts[:patches], opts[:outdir]) if opts[:patches]
+    chroma.downloadPatches(cmds[:patches], cmds[:outdir])
+  elsif cmds[:useragent]
+    chroma.getUserAgent
   end
 end
 
