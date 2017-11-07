@@ -474,17 +474,17 @@
     <!-- Handle audio controls -->
     <keybind key="XF86AudioRaiseVolume">
       <action name="Execute">
-        <command>amixer set Master 10%+</command>
+        <command>pactl set-sink-volume 0 +1dB</command>
       </action>
     </keybind>
     <keybind key="XF86AudioLowerVolume">
       <action name="Execute">
-        <command>amixer set Master 10%-</command>
+        <command>pactl set-sink-volume 0 -1dB</command>
       </action>
     </keybind>
     <keybind key="XF86AudioMute">
       <action name="Execute">
-        <command>amixer set Master toggle</command>
+        <command>pactl set-sink-mute 0 toggle</command>
       </action>
     </keybind>
   </keyboard>

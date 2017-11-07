@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.240
+  release: 0.0.241
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -691,9 +691,6 @@ changes:
         - '[ -x /usr/bin/xdg-user-dirs-update ] && /usr/bin/xdg-user-dirs-update'
         - "\n# Configure X resources"
         - 'xrdb -merge ~/.Xresources'
-        - "\n# Configure volume to 100%"
-        - 'master=$(amixer controls | sed -En "s/numid=([0-9]+).*Master Playback Volume.*/\1/p")'
-        - 'amixer cset numid=$master 100% || true'
     - edit: /etc/skel/.config/openbox/environment
       append: true
       values:
@@ -1041,8 +1038,6 @@ packages:
     - { pkg: rest-client,                   desc: Simple HTTP and REST client, depof: reduce, type: GEM }
 
   lite-pkgs:
-    - { pkg: alsa-utils,                    desc: Amixer for openbox audio controls }
-    # xdg_menu --format openbox3 --root-menu /etc/xdg/menus/arch-applications.menu > xdg-menu.xml
     - { pkg: archlinux-xdg-menu,            desc: Automatic OpenBox menu generation from xdg files }
     - { pkg: dconf,                         desc: A low-level configuration system }
     - { pkg: dconf-editor,                  desc: New configuration manager intended to replace gconf }
