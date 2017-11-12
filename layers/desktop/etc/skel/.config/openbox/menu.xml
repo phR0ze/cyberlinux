@@ -47,7 +47,7 @@
       <item label="Kolour Paint" icon="/usr/share/icons/Paper/32x32/apps/kolourpaint.png"><action name="Execute"><execute>kolourpaint</execute></action></item>
       <item label="LibreOffice Draw" icon="/usr/share/icons/Paper/32x32/apps/libreoffice-draw.png"><action name="Execute"><execute>libreoffice --draw</execute></action></item>
       <item label="Nitrogen" icon="/usr/share/icons/hicolor/32x32/apps/nitrogen.png"><action name="Execute"><execute>nitrogen</execute></action></item>
-      <item label="Shotwell" icon="/usr/share/icons/Paper/32x32/apps/shotwell.png"><action name="Execute"><execute>shotwell</execute></action></item>
+      <item label="XnViewMP" icon="/usr/share/icons/hicolor/32x32/apps/xnviewmp.png"><action name="Execute"><execute>xnviewmp</execute></action></item>
     </menu>
 
     <!-- Multimedia -->
