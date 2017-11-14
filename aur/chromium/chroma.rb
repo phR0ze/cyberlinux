@@ -45,6 +45,8 @@ end
 class Chroma
   def initialize
     @distros = OpenStruct.new({
+      arch: 'arch',
+      inox: 'inox',
       debian: 'debian',
       iridium: 'iridium'
     })
@@ -56,22 +58,79 @@ class Chroma
 
     # Patch sets that are supported
     @patchsets = {
+      @distros.arch => 'https://git.archlinux.org/svntogit/packages.git/tree/trunk?h=packages/chromium',
+      @distros.inox => 'https://raw.githubusercontent.com/gcarq/inox-patchset',
       @distros.debian => 'https://anonscm.debian.org/cgit/pkg-chromium/pkg-chromium.git/plain/debian/patches',
       @distros.iridium => 'https://git.iridiumbrowser.de/cgit.cgi/iridium-browser/commit/?h=patchview'
     }
 
-    # Call out patches that are not used and why
-    @not_used = {
+    # Call out patches used and not used and notes
+    #
+    @used_patches = {
+      @distros.arch => [
+        'breakpad-use-ucontext_t.patch',      # Glibc 2.26 does not expose struct ucontext any longer
+        'chromium-gn-bootstrap-r17.patch',    #
+        'crc32c-string-view-check.patch'      #
+      ],
+      @distros.inox => [
+   https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/chromium-vaapi-r14.patch
+        # Inox patchset
+        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0001-fix-building-without-safebrowsing.patch
+        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0003-disable-autofill-download-manager.patch
+        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0004-disable-google-url-tracker.patch
+        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0005-disable-default-extensions.patch
+        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0006-modify-default-prefs.patch
+        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0007-disable-web-resource-service.patch
+        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0008-restore-classic-ntp.patch
+        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0009-disable-google-ipv6-probes.patch
+        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0010-disable-gcm-status-check.patch
+        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0011-add-duckduckgo-search-engine.patch
+        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0012-branding.patch
+        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0013-disable-missing-key-warning.patch
+        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0014-disable-translation-lang-fetch.patch
+        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0015-disable-update-pings.patch
+        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0016-chromium-sandbox-pie.patch
+        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0017-disable-new-avatar-menu.patch
+        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0018-disable-first-run-behaviour.patch
+        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0019-disable-battery-status-service.patch
+        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0020-launcher-branding.patch
+        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0021-disable-rlz.patch
+        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/9000-disable-metrics.patch
+        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/9001-disable-profiler.patch)
+
+      ],
       @distros.debian => [
-        'manpage.patch',                      # Don't need documentation
-        'fixes/dma.patch',                    # patches/arch has a patch for this
-        'fixes/ps-print.patch',               # I don't care about printing to PostScript
-        'fixes/widevine-revision.patch',      # patches/arch has a patch for this
-        'system/icu.patch',                   # ?
-        'system/vpx.patch',                   # ?
-        'system/event.patch',                 # ?
-        'system/libxml.patch',                # ?
-        'system/ffmpeg.patch'                 # patches/arch has a patch for this
+        'disable/external-components.patch',  # Disable loading: Enhanced bookmarks, HotWord, ZipUnpacker, GoogleNow
+        'disable/fuzzers.patch',              # Disable fuzzers as they aren't built anyway and only used for testing
+        'disable/google-api-warning.patch',   # Disables Google's API key warning when they are removed from the PKGBUILD
+        'disable/promo.patch',                # Disable ad promo system by default
+        'fixes/chromecast.patch',             # Disable chromecast unless flag GOOGLE_CHROME_BUILD set
+        'fixes/chromedriver-revision.patch',  # Set as undefined, Chromedriver allows for automated testing of chromium
+        'fixes/connection-message.patch',     # Update connection message to suggest updating your proxy if you can't get connected.
+        'fixes/crc32.patch',                  # Fix inverted check
+        'fixes/gpu-timeout.patch',            # Increase GPU timeout from 10sec to 20sec
+        'fixes/mojo.patch',                   # Fix mojo layout test build error
+        'fixes/ps-print.patch',               # Add postscript(ps) printing capabiliy
+        'fixes/widevine-revision.patch',      # Set widevine version as undefined
+        'gn/boostrap.patch',                  # Fix errors in gn's bootstrapping script
+        'gn/buildflags.patch',                # Support build flags passed in the --args to gn
+        'gn/narrowing.patch',                 # Silence narrowing warnings when bootstrapping gn
+        'gn/parallel.patch',                  # Respect specified number of parllel jobs when bootstrapping
+        'manpage.patch',                      # Adds simple doc with link to documentation website
+        'master-preferences.patch',           # Configure the master preferences to be in /etc/chromium/master_preferences
+        'system/nspr.patch',                  # Build using the system nspr library
+      ]
+    }
+
+    @not_used_patches = {
+      @distros.arch => [
+        'chromium-widevine.patch',            # Use debian's patch of undefined instead
+      ],
+      @distros.debian => [
+        'disable/third-party-cookies.patch',  # Already covered in inox modify-default-prefs'
+        'system/event.patch',                 # Build using the system libevent library
+        'system/icu.patch',                   # Backwards compatibility for older versions of icu
+        'system/vpx.patch',                   # Remove VP9 support because debian libvpx doesn't support VP9 yet
       ]
     }
   end
@@ -129,7 +188,12 @@ class Chroma
         }
       end
     }
+  end
 
+  # Process the patches from supported distributions
+  # @param patchset [String] patchset preset string to use
+  # @param outdir [String] output parent path to download to
+  def processPatches(patchset, outdir)
 #    # Name and order patches
 #    #---------------------------------------------------------------------------
 #    # Order patches according to 'series' file
@@ -143,7 +207,7 @@ class Chroma
 #
 #          if patchset == @distros.debian
 #            oldName = File.join(patchset_dir, name)
-#            newName = @not_used[@distros.debian].include?(name) ? File.join(patchset_dir, 'not-used', "#{count}-#{name.sub('/', '-')}") :
+#            newName = @not_used_patches[@distros.debian].include?(name) ? File.join(patchset_dir, 'not-used', "#{count}-#{name.sub('/', '-')}") :
 #              File.join(patchset_dir, "#{count}-#{name.sub('/', '-')}")
 #          else
 #            oldName = File.join(patchset_dir, name)
@@ -196,7 +260,7 @@ end
 if __FILE__ == $0
   opts = {}
   app = 'chroma'
-  version = '0.0.1'
+  version = '62.0.3202.75'
   examples = "Examples:\n".colorize(:green)
   examples += "./#{app}.rb useragent\n".colorize(:green)
   examples += "./#{app}.rb download --patches=debian --outdir=patches\n".colorize(:green)
@@ -204,6 +268,10 @@ if __FILE__ == $0
   cmds = Cmds.new(app, version, examples)
   cmds.add('download', 'Download patches from the given distribution', [
     CmdOpt.new('--patches=DISTRO', 'Distribution to download patches from', type:String, required:true),
+    CmdOpt.new('--outdir=OUTDIR', 'Destination parent directory for patches', type:String, required:true)
+  ])
+  cmds.add('process', 'Mark un-used, order and clean up paches', [
+    CmdOpt.new('--patches=DISTRO', 'Distribution to process patches for', type:String, required:true),
     CmdOpt.new('--outdir=OUTDIR', 'Destination parent directory for patches', type:String, required:true)
   ])
   cmds.add('useragent', 'Check the useragent being seen externally', [])
@@ -214,6 +282,8 @@ if __FILE__ == $0
   chroma = Chroma.new
   if cmds[:download]
     chroma.downloadPatches(cmds[:patches], cmds[:outdir])
+  elsif cmds[:process]
+    chroma.processPatches(cmds[:patches], cmds[:outdir])
   elsif cmds[:useragent]
     chroma.getUserAgent
   end

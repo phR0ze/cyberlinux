@@ -1,8 +1,29 @@
+#MIT License
+#Copyright (c) 2017 phR0ze
+#
+#Permission is hereby granted, free of charge, to any person obtaining a copy
+#of this software and associated documentation files (the "Software"), to deal
+#in the Software without restriction, including without limitation the rights
+#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#copies of the Software, and to permit persons to whom the Software is
+#furnished to do so, subject to the following conditions:
+#
+#The above copyright notice and this permission notice shall be included in all
+#copies or substantial portions of the Software.
+#
+#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+#SOFTWARE.
+
 # Maintainer: phR0ze
 #-------------------------------------------------------------------------------
 # Chromium without Google integration and privacy issues
 #-------------------------------------------------------------------------------
-# Inspiration from the great work called out below:
+# Inspiration/patches from the great work called out below:
 # https://github.com/gcarq/inox-patchset
 # https://github.com/Eloston/ungoogled-chromium
 # https://git.iridiumbrowser.de/cgit.cgi/iridium-browser/
@@ -30,24 +51,16 @@ depends=('gtk3' 'nss' 'alsa-lib' 'xdg-utils' 'libxss' 'libcups' 'libgcrypt'
          'desktop-file-utils' 'hicolor-icon-theme')
 makedepends=('python2' 'gperf' 'yasm' 'mesa' 'ninja' 'nodejs' 'git')
 optdepends=('pepper-flash: support for Flash content'
-            'kdialog: needed for file dialogs in KDE'
-            'gnome-keyring: for storing passwords in GNOME keyring'
-            'kwallet: for storing passwords in KWallet')
+            'libva-intel-driver: for hardware video acceleration with Intel GPUs'
+            'libva-mesa-driver: for hardware video acceleration with AMD/ATI GPUs'
+            'libva-vdpau-driver: for hardware video acceleration with NVIDIA GPUs')
 install=chromium.install
 source=(https://commondatastorage.googleapis.com/chromium-browser-official/$pkgname-$pkgver.tar.xz
         chromium-launcher-$_launcher_ver.tar.gz::https://github.com/foutrelis/chromium-launcher/archive/v$_launcher_ver.tar.gz
-        chromium.desktop
-        breakpad-use-ucontext_t.patch
-        crc32c-string-view-check.patch
-        chromium-gn-bootstrap-r17.patch
-        chromium-widevine.patch)
+        chromium.desktop)
 sha256sums=('49cdfe457bcb941b56c13a75bbe2ff394fcb5baa8a49c9b470835fad60dd904c'
             '4dc3428f2c927955d9ae117f2fb24d098cc6dd67adb760ac9c82b522ec8b0587'
-            '028a748a5c275de9b8f776f97909f999a8583a4b77fd1cd600b4fc5c0c3e91e9'
-            '6e9a345f810d36068ee74ebba4708c70ab30421dad3571b6be5e9db635078ea8'
-            '35435e8dae76737baafecdc76d74a1c97281c4179e416556e033a06a31468e6d'
-            'd81319f168dad0e411c8e810f73daa2f56ff579578771bd9c9bb1aa2d7c09a8b'
-            'd6fdcb922e5a7fbe15759d39ccc8ea4225821c44d98054ce0f23f9d1f00c9808')
+            '028a748a5c275de9b8f776f97909f999a8583a4b77fd1cd600b4fc5c0c3e91e9')
 
 # Possible replacements are listed in build/linux/unbundle/replace_gn_files.py
 # Keys are the names in the above script; values are the dependencies in Arch
@@ -72,24 +85,18 @@ declare -rgA _system_libs=(
 )
 depends+=(${_system_libs[@]})
 
-# Google API keys (see https://www.chromium.org/developers/how-tos/api-keys)
-# Note: These are for Arch Linux use ONLY. For your own distribution, please
-# get your own set of keys.
-_google_api_key=AIzaSyDwr302FpOSkGRpLlUpPThNTDPbXcIn_FM
-_google_default_client_id=413772536636.apps.googleusercontent.com
-_google_default_client_secret=0ZChLK6AxeA3Isu96MkwqDR4
-
 prepare() {
   cd $srcdir/$pkgname-$pkgver
 
   # Apply patches from various distributions
-#  for patchset in arch debian; do
-#    msg "Applying $patchset patches..."
-#    for patch in ../../patches/$patchset/*.patch; do
-#      msg2 "Applying patch $patch"
-#      patch -Np1 -i $patch
-#    done
-#  done
+  #for patchset in arch debian; do
+  for patchset in arch; do
+    msg "Applying $patchset patches..."
+    for patch in ../../patches/$patchset/*.patch; do
+      msg2 "Applying patch $patch"
+      patch -Np1 -i $patch
+    done
+  done
 
   # https://crbug.com/710701
   local _chrome_build_hash=$(curl -s https://chromium.googlesource.com/chromium/src.git/+/$pkgver?format=TEXT |
@@ -100,20 +107,8 @@ prepare() {
   fi
   echo "LASTCHANGE=$_chrome_build_hash-" >build/util/LASTCHANGE
 
-  # Enable support for the Widevine CDM plugin
-  # libwidevinecdm.so is not included, but can be copied over from Chrome
-  # (Version string doesn't seem to matter so let's go with "Pinkie Pie")
-  sed "s/@WIDEVINE_VERSION@/Pinkie Pie/" ../chromium-widevine.patch |
-    patch -Np1
-
-  # Fix build with glibc 2.26
-  patch -Np1 -i ../breakpad-use-ucontext_t.patch
-
   # Fix incorrect inclusion of <string_view> in modes other than >= C++17
   patch -Np1 -d third_party/crc32c/src <../crc32c-string-view-check.patch
-
-  # Fixes from Gentoo
-  patch -Np1 -i ../chromium-gn-bootstrap-r17.patch
 
   # Use Python 2
   find . -name '*.py' -exec sed -i -r 's|/usr/bin/python$|&2|g' {} +
