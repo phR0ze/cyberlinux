@@ -43,7 +43,14 @@ rescue Exception => e
 end
 
 class Chroma
-  def initialize
+  # Initialize
+  # @param outdir [String] output parent path to download to
+  def initialize(outdir)
+    @outdir = outdir || File.join(File.dirname(File.expand_path(__FILE__)), 'patches')
+    @k = OpenStruct.new({
+      notused: 'not-used'
+    })
+
     @distros = OpenStruct.new({
       arch: 'arch',
       inox: 'inox',
@@ -65,40 +72,40 @@ class Chroma
     }
 
     # Call out patches used and not used and notes
-    #
+    # Order is significant
     @used_patches = {
       @distros.arch => [
         'breakpad-use-ucontext_t.patch',      # Glibc 2.26 does not expose struct ucontext any longer
+        'crc32c-string-view-check.patch',     #
         'chromium-gn-bootstrap-r17.patch',    #
-        'crc32c-string-view-check.patch'      #
       ],
-      @distros.inox => [
-   https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/chromium-vaapi-r14.patch
-        # Inox patchset
-        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0001-fix-building-without-safebrowsing.patch
-        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0003-disable-autofill-download-manager.patch
-        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0004-disable-google-url-tracker.patch
-        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0005-disable-default-extensions.patch
-        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0006-modify-default-prefs.patch
-        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0007-disable-web-resource-service.patch
-        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0008-restore-classic-ntp.patch
-        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0009-disable-google-ipv6-probes.patch
-        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0010-disable-gcm-status-check.patch
-        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0011-add-duckduckgo-search-engine.patch
-        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0012-branding.patch
-        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0013-disable-missing-key-warning.patch
-        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0014-disable-translation-lang-fetch.patch
-        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0015-disable-update-pings.patch
-        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0016-chromium-sandbox-pie.patch
-        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0017-disable-new-avatar-menu.patch
-        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0018-disable-first-run-behaviour.patch
-        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0019-disable-battery-status-service.patch
-        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0020-launcher-branding.patch
-        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0021-disable-rlz.patch
-        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/9000-disable-metrics.patch
-        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/9001-disable-profiler.patch)
-
-      ],
+#      @distros.inox => [
+#   https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/chromium-vaapi-r14.patch
+#        # Inox patchset
+#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0001-fix-building-without-safebrowsing.patch
+#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0003-disable-autofill-download-manager.patch
+#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0004-disable-google-url-tracker.patch
+#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0005-disable-default-extensions.patch
+#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0006-modify-default-prefs.patch
+#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0007-disable-web-resource-service.patch
+#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0008-restore-classic-ntp.patch
+#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0009-disable-google-ipv6-probes.patch
+#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0010-disable-gcm-status-check.patch
+#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0011-add-duckduckgo-search-engine.patch
+#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0012-branding.patch
+#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0013-disable-missing-key-warning.patch
+#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0014-disable-translation-lang-fetch.patch
+#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0015-disable-update-pings.patch
+#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0016-chromium-sandbox-pie.patch
+#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0017-disable-new-avatar-menu.patch
+#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0018-disable-first-run-behaviour.patch
+#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0019-disable-battery-status-service.patch
+#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0020-launcher-branding.patch
+#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0021-disable-rlz.patch
+#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/9000-disable-metrics.patch
+#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/9001-disable-profiler.patch)
+#
+#      ],
       @distros.debian => [
         'disable/external-components.patch',  # Disable loading: Enhanced bookmarks, HotWord, ZipUnpacker, GoogleNow
         'disable/fuzzers.patch',              # Disable fuzzers as they aren't built anyway and only used for testing
@@ -124,7 +131,7 @@ class Chroma
 
     @not_used_patches = {
       @distros.arch => [
-        'chromium-widevine.patch',            # Use debian's patch of undefined instead
+        'chromium-widevine.patch',            # Using debian as this one uses a variable
       ],
       @distros.debian => [
         'disable/third-party-cookies.patch',  # Already covered in inox modify-default-prefs'
@@ -137,27 +144,35 @@ class Chroma
 
   # Download the latest patches from supported distributions
   # @param patchset [String] patchset preset string to use
-  # @param outdir [String] output parent path to download to
-  def downloadPatches(patchset, outdir)
-    patchset_dir = File.join(outdir, patchset)
+  def downloadPatches(patchset)
+    patchset_dir = File.join(@outdir, patchset)
     !puts("Error: Patchset was not found!".colorize(:red)) and exit unless @patchsets[patchset]
-    puts("PatchSet: #{patchset}".colorize(:green))
+    puts("Downloading patchset '#{patchset}'".colorize(:green))
     puts("PatchSet Dir: #{patchset_dir}".colorize(:cyan))
-    puts("Request: #{@patchsets[patchset]}".colorize(:cyan))
     FileUtils.rm_rf(patchset_dir) if File.exist?(patchset_dir)
     FileUtils.mkdir_p(patchset_dir)
-    FileUtils.mkdir_p(File.join(patchset_dir, 'not-used'))
+    FileUtils.mkdir_p(File.join(patchset_dir, @k.notused))
 
     # Download patches via mechanize
     # Save as offline file: agent.get(@patchsets[patchset]).content
     # Read from offline file: page = agent.get("file:///.../test.html"))}")
-    #---------------------------------------------------------------------------
     Mechanize.new{|agent|
       agent.set_proxy(@proxy_uri, @proxy_port)
       agent.user_agent_alias = @user_agent_alias
 
+      # Download arch patches
+      #-------------------------------------------------------------------------
+      if patchset == @distros.arch
+        page = agent.get(@patchsets[patchset])
+        patchLinks = page.links.select{|x| x.href =~ /packages\.git\/plain\/trunk\/.*\.patch/}.map{|x| x.href}
+        patchLinks.each{|link|
+          name = link[/plain\/trunk\/(.*\.patch)/, 1]
+          download(agent, link, File.join(patchset_dir, name))
+        }
+
       # Download debian patches
-      if patchset == @distros.debian
+      #-------------------------------------------------------------------------
+      elsif patchset == @distros.debian
         baseUrl = "https://anonscm.debian.org"
         page = agent.get(@patchsets[patchset])
         links = page.links.select{|x| x.href =~ /cgit\/pkg-chromium\/pkg-chromium.git\/plain\/debian\/patches\// }
@@ -177,6 +192,7 @@ class Chroma
         }
 
       # Download iridium patches
+      #-------------------------------------------------------------------------
       elsif patchset == @distros.iridium
         page = agent.get(@patchsets[patchset])
         baseUrl = "https://git.iridiumbrowser.de"
@@ -192,40 +208,53 @@ class Chroma
 
   # Process the patches from supported distributions
   # @param patchset [String] patchset preset string to use
-  # @param outdir [String] output parent path to download to
-  def processPatches(patchset, outdir)
-#    # Name and order patches
-#    #---------------------------------------------------------------------------
-#    # Order patches according to 'series' file
-#    if patchset == @distros.iridium or patchset == @distros.debian
-#      open(File.join(patchset_dir, 'series'), 'r'){|f|
-#        i = 0
-#        f.readlines.each{|x|
-#          name = x.strip
-#          next if name == ""
-#          count = i.to_s.rjust(2, "0")
-#
-#          if patchset == @distros.debian
-#            oldName = File.join(patchset_dir, name)
-#            newName = @not_used_patches[@distros.debian].include?(name) ? File.join(patchset_dir, 'not-used', "#{count}-#{name.sub('/', '-')}") :
-#              File.join(patchset_dir, "#{count}-#{name.sub('/', '-')}")
-#          else
-#            oldName = File.join(patchset_dir, name)
-#            newName = File.join(patchset_dir, "#{count}-#{name}")
-#          end
-#
-#          # Order file
-#          puts("Ordering as #{newName}")
-#          File.rename(oldName, newName)
-#          i += 1
-#        }
-#      }
-#    end
-#
-#    # Remove any directories that are not 'not-used'
-#    Dir[File.join(patchset_dir, '*')].each{|x|
-#      FileUtils.remove_dir(x) if File.directory?(x) and not x.include?('not-used')
-#    }
+  def processPatches(patchset)
+    patchset_dir = File.join(@outdir, patchset)
+    puts("Processing patchset '#{patchset}'".colorize(:green))
+    puts("PatchSet Dir: #{patchset_dir}".colorize(:cyan))
+
+    # Use static ordering
+    if patchset == @distros.arch
+      @not_used_patches[@distros.arch].each{|x|
+        puts("Moving '#{x}' to '#{@k.notused}'")
+        File.rename(File.join(patchset_dir, x), File.join(patchset_dir, @k.notused, x))
+      }
+      @used_patches[@distros.arch].each_with_index{|x, i|
+        new_name = "#{i.to_s.rjust(2, '0')}-#{x}"
+        puts("Renaming '#{x}' to '#{new_name}'")
+        File.rename(File.join(patchset_dir, x), File.join(patchset_dir, new_name))
+      }
+
+    # Order patches according to 'series' file
+    elsif patchset == @distros.iridium or patchset == @distros.debian
+      open(File.join(patchset_dir, 'series'), 'r'){|f|
+        i = 0
+        f.readlines.each{|x|
+          name = x.strip
+          next if name == ""
+          count = i.to_s.rjust(2, "0")
+
+          if patchset == @distros.debian
+            oldName = File.join(patchset_dir, name)
+            newName = @not_used_patches[@distros.debian].include?(name) ? File.join(patchset_dir, @k.notused, "#{count}-#{name.sub('/', '-')}") :
+              File.join(patchset_dir, "#{count}-#{name.sub('/', '-')}")
+          else
+            oldName = File.join(patchset_dir, name)
+            newName = File.join(patchset_dir, "#{count}-#{name}")
+          end
+
+          # Order file
+          puts("Ordering as #{newName}")
+          File.rename(oldName, newName)
+          i += 1
+        }
+      }
+    end
+
+    # Remove any directories that are not 'not-used'
+    Dir[File.join(patchset_dir, '*')].each{|x|
+      FileUtils.remove_dir(x) if File.directory?(x) and not x.include?('not-used')
+    }
   end
 
   # Download the given url to the given filepath
@@ -263,28 +292,34 @@ if __FILE__ == $0
   version = '62.0.3202.75'
   examples = "Examples:\n".colorize(:green)
   examples += "./#{app}.rb useragent\n".colorize(:green)
-  examples += "./#{app}.rb download --patches=debian --outdir=patches\n".colorize(:green)
+  examples += "1) ./#{app}.rb download process --patches=arch\n".colorize(:green)
+  examples += "2) ./#{app}.rb download --patches=debian\n".colorize(:green)
 
   cmds = Cmds.new(app, version, examples)
   cmds.add('download', 'Download patches from the given distribution', [
     CmdOpt.new('--patches=DISTRO', 'Distribution to download patches from', type:String, required:true),
-    CmdOpt.new('--outdir=OUTDIR', 'Destination parent directory for patches', type:String, required:true)
+    CmdOpt.new('--outdir=OUTDIR', 'Destination parent directory for patches', type:String)
   ])
   cmds.add('process', 'Mark un-used, order and clean up paches', [
     CmdOpt.new('--patches=DISTRO', 'Distribution to process patches for', type:String, required:true),
-    CmdOpt.new('--outdir=OUTDIR', 'Destination parent directory for patches', type:String, required:true)
+    CmdOpt.new('--outdir=OUTDIR', 'Destination parent directory for patches', type:String)
   ])
   cmds.add('useragent', 'Check the useragent being seen externally', [])
   cmds.parse!
 
   # Execute
   puts(cmds.banner)
-  chroma = Chroma.new
+  chroma = Chroma.new(cmds[:outdir])
+
   if cmds[:download]
-    chroma.downloadPatches(cmds[:patches], cmds[:outdir])
-  elsif cmds[:process]
-    chroma.processPatches(cmds[:patches], cmds[:outdir])
-  elsif cmds[:useragent]
+    chroma.downloadPatches(cmds[:patches])
+  end
+
+  if cmds[:process]
+    chroma.processPatches(cmds[:patches])
+  end 
+
+  if cmds[:useragent]
     chroma.getUserAgent
   end
 end
