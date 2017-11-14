@@ -53,6 +53,7 @@ class Chroma
 
     @distros = OpenStruct.new({
       arch: 'arch',
+      cyber: 'cyber',
       inox: 'inox',
       debian: 'debian',
       iridium: 'iridium'
@@ -106,26 +107,31 @@ class Chroma
 #        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/9001-disable-profiler.patch)
 #
 #      ],
+      @distros.cyber => [
+        'master-preferences.patch',           # Configure the master preferences to be in /etc/chromium/master_preferences
+      ],
       @distros.debian => [
-        'disable/external-components.patch',  # Disable loading: Enhanced bookmarks, HotWord, ZipUnpacker, GoogleNow
+        'manpage.patch',                      # Adds simple doc with link to documentation website
+
+        'gn/parallel.patch',                  # Respect specified number of parllel jobs when bootstrapping
+        'gn/boostrap.patch',                  # Fix errors in gn's bootstrapping script
+        'gn/narrowing.patch',                 # Silence narrowing warnings when bootstrapping gn
+        'gn/buildflags.patch',                # Support build flags passed in the --args to gn
+
+        'disable/promo.patch',                # Disable ad promo system by default
         'disable/fuzzers.patch',              # Disable fuzzers as they aren't built anyway and only used for testing
         'disable/google-api-warning.patch',   # Disables Google's API key warning when they are removed from the PKGBUILD
-        'disable/promo.patch',                # Disable ad promo system by default
-        'fixes/chromecast.patch',             # Disable chromecast unless flag GOOGLE_CHROME_BUILD set
-        'fixes/chromedriver-revision.patch',  # Set as undefined, Chromedriver allows for automated testing of chromium
-        'fixes/connection-message.patch',     # Update connection message to suggest updating your proxy if you can't get connected.
-        'fixes/crc32.patch',                  # Fix inverted check
-        'fixes/gpu-timeout.patch',            # Increase GPU timeout from 10sec to 20sec
+        'disable/external-components.patch',  # Disable loading: Enhanced bookmarks, HotWord, ZipUnpacker, GoogleNow
+        'disable/device-notifications.patch', # Disable device discovery notifications
+
         'fixes/mojo.patch',                   # Fix mojo layout test build error
+        'fixes/crc32.patch',                  # Fix inverted check
+        'fixes/chromecast.patch',             # Disable chromecast unless flag GOOGLE_CHROME_BUILD set
         'fixes/ps-print.patch',               # Add postscript(ps) printing capabiliy
+        'fixes/gpu-timeout.patch',            # Increase GPU timeout from 10sec to 20sec
         'fixes/widevine-revision.patch',      # Set widevine version as undefined
-        'gn/boostrap.patch',                  # Fix errors in gn's bootstrapping script
-        'gn/buildflags.patch',                # Support build flags passed in the --args to gn
-        'gn/narrowing.patch',                 # Silence narrowing warnings when bootstrapping gn
-        'gn/parallel.patch',                  # Respect specified number of parllel jobs when bootstrapping
-        'manpage.patch',                      # Adds simple doc with link to documentation website
-        'master-preferences.patch',           # Configure the master preferences to be in /etc/chromium/master_preferences
-        'system/nspr.patch',                  # Build using the system nspr library
+        'fixes/connection-message.patch',     # Update connection message to suggest updating your proxy if you can't get connected.
+        'fixes/chromedriver-revision.patch',  # Set as undefined, Chromedriver allows for automated testing of chromium
       ]
     }
 
@@ -134,10 +140,15 @@ class Chroma
         'chromium-widevine.patch',            # Using debian as this one uses a variable
       ],
       @distros.debian => [
-        'disable/third-party-cookies.patch',  # Already covered in inox modify-default-prefs'
-        'system/event.patch',                 # Build using the system libevent library
+        'master-preferences.patch',           # Use custom cyber patch instead
+        'disable/third-party-cookies.patch',  # Already covered in inox/modify-default-prefs'
+
+        'system/nspr.patch',                  # Build using the system nspr library
         'system/icu.patch',                   # Backwards compatibility for older versions of icu
         'system/vpx.patch',                   # Remove VP9 support because debian libvpx doesn't support VP9 yet
+        'system/gtk2.patch',                  # 
+        'system/lcms2.patch',                 # 
+        'system/event.patch',                 # Build using the system libevent library
       ]
     }
   end
@@ -213,13 +224,12 @@ class Chroma
     puts("Processing patchset '#{patchset}'".colorize(:green))
     puts("PatchSet Dir: #{patchset_dir}".colorize(:cyan))
 
-    # Use static ordering
     if patchset == @distros.arch
-      @not_used_patches[@distros.arch].each{|x|
+      @not_used_patches[patchset].each{|x|
         puts("Moving '#{x}' to '#{@k.notused}'")
         File.rename(File.join(patchset_dir, x), File.join(patchset_dir, @k.notused, x))
       }
-      @used_patches[@distros.arch].each_with_index{|x, i|
+      @used_patches[patchset].each_with_index{|x, i|
         new_name = "#{i.to_s.rjust(2, '0')}-#{x}"
         puts("Renaming '#{x}' to '#{new_name}'")
         File.rename(File.join(patchset_dir, x), File.join(patchset_dir, new_name))
@@ -289,11 +299,11 @@ end
 if __FILE__ == $0
   opts = {}
   app = 'chroma'
-  version = '62.0.3202.75'
+  version = '62.0.3202.89'
   examples = "Examples:\n".colorize(:green)
   examples += "./#{app}.rb useragent\n".colorize(:green)
   examples += "1) ./#{app}.rb download process --patches=arch\n".colorize(:green)
-  examples += "2) ./#{app}.rb download --patches=debian\n".colorize(:green)
+  examples += "2) ./#{app}.rb download process --patches=debian\n".colorize(:green)
 
   cmds = Cmds.new(app, version, examples)
   cmds.add('download', 'Download patches from the given distribution', [

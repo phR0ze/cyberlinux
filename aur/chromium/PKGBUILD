@@ -39,7 +39,7 @@
 # 4. Update patches/debian
 #-------------------------------------------------------------------------------
 pkgname=chromium
-pkgver=62.0.3202.75
+pkgver=62.0.3202.89
 pkgrel=1
 _launcher_ver=5
 pkgdesc="A web browser built for speed, simplicity, and security"
@@ -58,7 +58,7 @@ install=chromium.install
 source=(https://commondatastorage.googleapis.com/chromium-browser-official/$pkgname-$pkgver.tar.xz
         chromium-launcher-$_launcher_ver.tar.gz::https://github.com/foutrelis/chromium-launcher/archive/v$_launcher_ver.tar.gz
         chromium.desktop)
-sha256sums=('49cdfe457bcb941b56c13a75bbe2ff394fcb5baa8a49c9b470835fad60dd904c'
+sha256sums=('9f79760dc22f7183602a07af3d37d2226bd63ab0ca7163d88ac0d81982de9469'
             '4dc3428f2c927955d9ae117f2fb24d098cc6dd67adb760ac9c82b522ec8b0587'
             '028a748a5c275de9b8f776f97909f999a8583a4b77fd1cd600b4fc5c0c3e91e9')
 
@@ -69,7 +69,7 @@ declare -rgA _system_libs=(
   [flac]=flac
   #[freetype]=freetype2      # https://crbug.com/pdfium/733
   [harfbuzz-ng]=harfbuzz-icu
-  [icu]=icu
+  #[icu]=icu                 # https://crbug.com/772655
   [libdrm]=
   [libjpeg]=libjpeg
   #[libpng]=libpng           # https://crbug.com/752403#c10
@@ -89,23 +89,13 @@ prepare() {
   cd $srcdir/$pkgname-$pkgver
 
   # Apply patches from various distributions
-  #for patchset in arch debian; do
-  for patchset in arch; do
+  for patchset in arch cyber debian; do
     msg "Applying $patchset patches..."
     for patch in ../../patches/$patchset/*.patch; do
       msg2 "Applying patch $patch"
       patch -Np1 -i $patch
     done
   done
-
-  # https://crbug.com/710701
-  local _chrome_build_hash=$(curl -s https://chromium.googlesource.com/chromium/src.git/+/$pkgver?format=TEXT |
-    base64 -d | grep -Po '^parent \K[0-9a-f]{40}$')
-  if [[ -z $_chrome_build_hash ]]; then
-    error "Unable to fetch Chrome build hash."
-    return 1
-  fi
-  echo "LASTCHANGE=$_chrome_build_hash-" >build/util/LASTCHANGE
 
   # Fix incorrect inclusion of <string_view> in modes other than >= C++17
   patch -Np1 -d third_party/crc32c/src <../crc32c-string-view-check.patch
@@ -150,7 +140,6 @@ build() {
     'is_clang=false'
     'clang_use_chrome_plugins=false'
     'is_debug=false'
-    'exclude_unwind_tables=true'
     'fatal_linker_warnings=false'
     'treat_warnings_as_errors=false'
     'fieldtrial_testing_like_official_build=true'
