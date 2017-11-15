@@ -43,7 +43,7 @@ pkgver=62.0.3202.89
 pkgrel=1
 _launcher_ver=5
 pkgdesc="A web browser built for speed, simplicity, and security"
-arch=('i686' 'x86_64')
+arch=('x86_64')
 url="https://www.chromium.org/Home"
 license=('BSD')
 depends=('gtk3' 'nss' 'alsa-lib' 'xdg-utils' 'libxss' 'libcups' 'libgcrypt'
@@ -88,6 +88,10 @@ depends+=(${_system_libs[@]})
 prepare() {
   cd $srcdir/$pkgname-$pkgver
 
+  # Fix incorrect inclusion of <string_view> in modes other than >= C++17
+  msg2 "Applying patch ../../patches/arch/one-off/crc32c-string-view-check.patch"
+  patch -Np1 -d third_party/crc32c/src <../../patches/arch/one-off/crc32c-string-view-check.patch
+
   # Apply patches from various distributions
   for patchset in arch cyber debian; do
     msg "Applying $patchset patches..."
@@ -96,9 +100,6 @@ prepare() {
       patch -Np1 -i $patch
     done
   done
-
-  # Fix incorrect inclusion of <string_view> in modes other than >= C++17
-  patch -Np1 -d third_party/crc32c/src <../../patches/arch/one-off/crc32c-string-view-check.patch
 
   # Use Python 2
   find . -name '*.py' -exec sed -i -r 's|/usr/bin/python$|&2|g' {} +
@@ -210,4 +211,4 @@ package() {
   install -Dm644 LICENSE "$pkgdir/usr/share/licenses/chromium/LICENSE"
 }
 
-# vim:set ts=2 sw=2 et:
+# vim:set ts=2 sts=2 sw=2 et:

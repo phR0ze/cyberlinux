@@ -124,7 +124,6 @@ class Chroma
         'disable/device-notifications.patch', # Disable device discovery notifications
 
         'fixes/mojo.patch',                   # Fix mojo layout test build error
-        'fixes/crc32.patch',                  # Fix inverted check
         'fixes/chromecast.patch',             # Disable chromecast unless flag GOOGLE_CHROME_BUILD set
         'fixes/ps-print.patch',               # Add postscript(ps) printing capabiliy
         'fixes/gpu-timeout.patch',            # Increase GPU timeout from 10sec to 20sec
@@ -148,9 +147,8 @@ class Chroma
       @distros.debian => [
         'master-preferences.patch',           # Use custom cyber patch instead
         'disable/third-party-cookies.patch',  # Already covered in inox/modify-default-prefs'
-
         'gn/bootstrap.patch',                 # Fix errors in gn's bootstrapping script, using arch bootstrap instead
-
+        'fixes/crc32.patch',                  # Fix inverted check, using arch crc32c-string-view-check.patch instead
         'system/nspr.patch',                  # Build using the system nspr library
         'system/icu.patch',                   # Backwards compatibility for older versions of icu
         'system/vpx.patch',                   # Remove VP9 support because debian libvpx doesn't support VP9 yet
