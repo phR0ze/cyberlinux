@@ -25,7 +25,7 @@
 # 1. Download all iridium patches
 # 2. Update current patches with new patches
 #-------------------------------------------------------------------------------
-version = '62.0.3202.89'
+$version = '62.0.3202.89'
 
 require 'fileutils'             # advanced file utils: FileUtils
 require 'json'                  # JSON support
@@ -130,9 +130,9 @@ class Chroma
                                                         # BuiltInDnsClientEnabled                         	false
                                                         # SignInPromoUserSkipped 	                          true
                                                         # SignInPromoShowOnFirstRunAllowed 	                false
-                                                        # ShowAppsShortcutInBookmarkBar 	false
-                                                        # ShowBookmarkBar 	true
-                                                        # PromptForDownload 	true
+                                                        # ShowAppsShortcutInBookmarkBar 	                  false
+                                                        # ShowBookmarkBar 	                                true
+                                                        # PromptForDownload 	                              true
                                                         # SafeBrowsingEnabled 	false
                                                         # EnableTranslate 	false
                                                         # LocalDiscoveryNotificationsEnabled 	false
@@ -147,16 +147,9 @@ class Chroma
         '0017-disable-new-avatar-menu.patch',           # Disable Google Avatar signin menu
         '0018-disable-first-run-behaviour.patch',       # Modifies first run to prevent data leakage
         '0019-disable-battery-status-service.patch',    # Disable battry status service as it can be used for tracking
-        '0020-launcher-branding.patch',                 #
-        '0021-disable-rlz.patch',                       #
-        '9000-disable-metrics.patch',                   #
-        '9001-disable-profiler.patch',                  #
-        'breakpad-use-ucontext_t.patch',                #
-        'chromium-gn-bootstrap-r17.patch',              #
-        'chromium-libva-version.patch',                 #
-        'chromium-vaapi-r14.patch',                     #
-        'chromium-widevine.patch',                      #
-        'crc32c-string-view-check.patch'                #
+        '0021-disable-rlz.patch',                       # Disable RLZ
+        '9000-disable-metrics.patch',                   # Disable metrics
+        '9001-disable-profiler.patch',                  # Disable profiler
       ]
     }
 
@@ -185,7 +178,14 @@ class Chroma
       ],
       @distros.inox => [
         '0012-branding.patch',                          # Want to keep the original Chromium branding
-        '0013-disable-missing-key-warning.patch'        # Disables warning, using debian patch instead
+        '0013-disable-missing-key-warning.patch',       # Disables warning, using debian patch instead
+        '0020-launcher-branding.patch',                 # Want to keep the original Chromium branding
+        'breakpad-use-ucontext_t.patch',                # Already included by Arch Linux
+        'chromium-gn-bootstrap-r17.patch',              # Already included by Arch Linux
+        'chromium-widevine.patch',                      # Already included by Arch Linux
+        'crc32c-string-view-check.patch',               # Already included by Arch Linux
+        'chromium-libva-version.patch',                 # Arch doesn't use it
+        'chromium-vaapi-r14.patch',                     # Arch doesn't use it
       ]
     }
   end
@@ -243,10 +243,14 @@ class Chroma
       # Download inox patches
       #-------------------------------------------------------------------------
       elsif patchset == @distros.inox
+        baseurl = "https://raw.githubusercontent.com/gcarq/inox-patchset/#{$version}/"
         page = agent.get(@patchsets[patchset])
-#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/9001-disable-profiler.patch)
         patchLinks = page.links.select{|x| x.href =~ /inox-patchset\/blob\/master\/.*\.patch/}
-        patchLinks.each{|x| puts(x)}
+        patchLinks.each{|x|
+          name = x.text
+          link = baseurl + name
+          download(agent, link, File.join(patchset_dir, name))
+        }
 
       # Download iridium patches
       #-------------------------------------------------------------------------
@@ -270,20 +274,33 @@ class Chroma
     puts("Processing patchset '#{patchset}'".colorize(:green))
     puts("PatchSet Dir: #{patchset_dir}".colorize(:cyan))
 
-    if patchset == @distros.arch
-      @oneoff_patches[patchset].each{|x|
-        puts("Moving '#{x}' to '#{@k.oneoff}'")
-        File.rename(File.join(patchset_dir, x), File.join(patchset_dir, @k.oneoff, x))
-      }
-      @not_used_patches[patchset].each{|x|
-        puts("Moving '#{x}' to '#{@k.notused}'")
-        File.rename(File.join(patchset_dir, x), File.join(patchset_dir, @k.notused, x))
-      }
-      @used_patches[patchset].each_with_index{|x, i|
-        new_name = "#{i.to_s.rjust(2, '0')}-#{x}"
-        puts("Renaming '#{x}' to '#{new_name}'")
-        File.rename(File.join(patchset_dir, x), File.join(patchset_dir, new_name))
-      }
+    # Use static ordering and matching
+    if patchset == @distros.arch || patchset == @distros.inox
+
+      # Sort and rename oneoffs
+      if @oneoff_patches[patchset]
+        @oneoff_patches[patchset].each{|x|
+          puts("Moving '#{x}' to '#{@k.oneoff}'")
+          File.rename(File.join(patchset_dir, x), File.join(patchset_dir, @k.oneoff, x))
+        }
+      end
+
+      # Sort and rename not-used
+      if @not_used_patches[patchset]
+        @not_used_patches[patchset].each{|x|
+          puts("Moving '#{x}' to '#{@k.notused}'")
+          File.rename(File.join(patchset_dir, x), File.join(patchset_dir, @k.notused, x))
+        }
+      end
+
+      # Sort and rename used
+      if @used_patches[patchset]
+        @used_patches[patchset].each_with_index{|x, i|
+          new_name = "#{i.to_s.rjust(2, '0')}-#{x}"
+          puts("Renaming '#{x}' to '#{new_name}'")
+          File.rename(File.join(patchset_dir, x), File.join(patchset_dir, new_name))
+        }
+      end
 
     # Order patches according to 'series' file
     elsif patchset == @distros.iridium or patchset == @distros.debian
@@ -355,7 +372,7 @@ if __FILE__ == $0
   examples += "2) ./#{app}.rb download process --patches=debian\n".colorize(:green)
   examples += "2) ./#{app}.rb download process --patches=inox\n".colorize(:green)
 
-  cmds = Cmds.new(app, version, examples)
+  cmds = Cmds.new(app, $version, examples)
   cmds.add('download', 'Download patches from the given distribution', [
     CmdOpt.new('--patches=DISTRO', 'Distribution to download patches from', type:String, required:true),
     CmdOpt.new('--outdir=OUTDIR', 'Destination parent directory for patches', type:String)
