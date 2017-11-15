@@ -48,6 +48,7 @@ class Chroma
   def initialize(outdir)
     @outdir = outdir || File.join(File.dirname(File.expand_path(__FILE__)), 'patches')
     @k = OpenStruct.new({
+      oneoff: 'one-off',
       notused: 'not-used'
     })
 
@@ -77,7 +78,6 @@ class Chroma
     @used_patches = {
       @distros.arch => [
         'breakpad-use-ucontext_t.patch',      # Glibc 2.26 does not expose struct ucontext any longer
-        'crc32c-string-view-check.patch',     #
         'chromium-gn-bootstrap-r17.patch',    #
       ],
 #      @distros.inox => [
@@ -135,6 +135,13 @@ class Chroma
       ]
     }
 
+    # Patches handled in PKGBUILD differently
+    @oneoff_patches = {
+      @distros.arch => [
+        'crc32c-string-view-check.patch',     #
+      ],
+    }
+
     @not_used_patches = {
       @distros.arch => [
         'chromium-widevine.patch',            # Using debian as this one uses a variable
@@ -163,6 +170,7 @@ class Chroma
     FileUtils.rm_rf(patchset_dir) if File.exist?(patchset_dir)
     FileUtils.mkdir_p(patchset_dir)
     FileUtils.mkdir_p(File.join(patchset_dir, @k.notused))
+    FileUtils.mkdir_p(File.join(patchset_dir, @k.oneoff))
 
     # Download patches via mechanize
     # Save as offline file: agent.get(@patchsets[patchset]).content
@@ -225,6 +233,10 @@ class Chroma
     puts("PatchSet Dir: #{patchset_dir}".colorize(:cyan))
 
     if patchset == @distros.arch
+      @oneoff_patches[patchset].each{|x|
+        puts("Moving '#{x}' to '#{@k.oneoff}'")
+        File.rename(File.join(patchset_dir, x), File.join(patchset_dir, @k.oneoff, x))
+      }
       @not_used_patches[patchset].each{|x|
         puts("Moving '#{x}' to '#{@k.notused}'")
         File.rename(File.join(patchset_dir, x), File.join(patchset_dir, @k.notused, x))
@@ -261,9 +273,9 @@ class Chroma
       }
     end
 
-    # Remove any directories that are not 'not-used'
+    # Remove any directories that are not needed
     Dir[File.join(patchset_dir, '*')].each{|x|
-      FileUtils.remove_dir(x) if File.directory?(x) and not x.include?('not-used')
+      FileUtils.remove_dir(x) if File.directory?(x) and not (x.include?(@k.notused) || x.include?(@k.oneoff))
     }
   end
 

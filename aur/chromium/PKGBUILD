@@ -49,7 +49,7 @@ license=('BSD')
 depends=('gtk3' 'nss' 'alsa-lib' 'xdg-utils' 'libxss' 'libcups' 'libgcrypt'
          'ttf-font' 'systemd' 'dbus' 'libpulse' 'pciutils' 'json-glib'
          'desktop-file-utils' 'hicolor-icon-theme')
-makedepends=('python2' 'gperf' 'yasm' 'mesa' 'ninja' 'nodejs' 'git')
+makedepends=('python2' 'gperf' 'yasm' 'mesa' 'ninja' 'nodejs' 'git' 'libva')
 optdepends=('pepper-flash: support for Flash content'
             'libva-intel-driver: for hardware video acceleration with Intel GPUs'
             'libva-mesa-driver: for hardware video acceleration with AMD/ATI GPUs'
@@ -98,7 +98,7 @@ prepare() {
   done
 
   # Fix incorrect inclusion of <string_view> in modes other than >= C++17
-  patch -Np1 -d third_party/crc32c/src <../crc32c-string-view-check.patch
+  patch -Np1 -d third_party/crc32c/src <../../patches/arch/one-off/crc32c-string-view-check.patch
 
   # Use Python 2
   find . -name '*.py' -exec sed -i -r 's|/usr/bin/python$|&2|g' {} +
@@ -107,6 +107,7 @@ prepare() {
   mkdir "$srcdir/python2-path"
   ln -s /usr/bin/python2 "$srcdir/python2-path/python"
 
+  # Setup nodejs dependency
   mkdir -p third_party/node/linux/node-linux-x64/bin
   ln -s /usr/bin/node third_party/node/linux/node-linux-x64/bin/
 
@@ -137,30 +138,28 @@ build() {
   mkdir -p "$TMPDIR"
 
   local _flags=(
-    'is_clang=false'
-    'clang_use_chrome_plugins=false'
-    'is_debug=false'
-    'fatal_linker_warnings=false'
-    'treat_warnings_as_errors=false'
-    'fieldtrial_testing_like_official_build=true'
-    'remove_webcore_debug_symbols=true'
-    'ffmpeg_branding="Chrome"'
-    'proprietary_codecs=true'
-    'link_pulseaudio=true'
-    'use_gtk3=true'
-    'use_gconf=false'
-    'use_gnome_keyring=false'
-    'use_gold=false'
-    'use_sysroot=false'
-    'linux_use_bundled_binutils=false'
-    'use_custom_libcxx=false'
-    'enable_hangout_services_extension=true'
-    'enable_widevine=true'
-    'enable_nacl=false'
-    'enable_swiftshader=false'
-    "google_api_key=\"${_google_api_key}\""
-    "google_default_client_id=\"${_google_default_client_id}\""
-    "google_default_client_secret=\"${_google_default_client_secret}\""
+    'symbol_level=0'                                # Will speed up build but make debugging impossible
+    'is_clang=false'                                # Not using the clang compiler
+    'clang_use_chrome_plugins=false'                # Not using the clang compiler
+    'is_debug=false'                                # Want a clean release version not debug
+    'fatal_linker_warnings=false'                   #
+    'treat_warnings_as_errors=false'                #
+    'fieldtrial_testing_like_official_build=true'   #
+    'remove_webcore_debug_symbols=true'             # 
+    'ffmpeg_branding="Chrome"'                      # 
+    'proprietary_codecs=true'                       #
+    'link_pulseaudio=true'                          #
+    'use_gtk3=true'                                 # 
+    'use_gconf=false'                               # 
+    'use_gnome_keyring=false'                       #
+    'use_gold=false'                                #
+    'use_sysroot=false'                             #
+    'linux_use_bundled_binutils=false'              #
+    'use_custom_libcxx=false'                       #
+    'enable_hangout_services_extension=true'        #
+    'enable_widevine=true'                          # Enable multi platform DRM support for media
+    'enable_nacl=false'                             #
+    'enable_swiftshader=false'                      #
   )
 
   python2 tools/gn/bootstrap/bootstrap.py --gn-gen-args "${_flags[*]}"
