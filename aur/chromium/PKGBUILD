@@ -144,24 +144,30 @@ build() {
     'is_clang=false'                                # Not using the clang compiler
     'clang_use_chrome_plugins=false'                # Not using the clang compiler
     'is_debug=false'                                # Want a clean release version not debug
+    'exclude_unwind_tables=true'                    #
     'fatal_linker_warnings=false'                   #
     'treat_warnings_as_errors=false'                #
     'fieldtrial_testing_like_official_build=true'   #
     'remove_webcore_debug_symbols=true'             # 
     'ffmpeg_branding="Chrome"'                      # 
     'proprietary_codecs=true'                       #
-    'link_pulseaudio=true'                          #
-    'use_gtk3=true'                                 # 
+    'link_pulseaudio=true'                          # Use PulseAudio for sound
+    'use_gtk3=true'                                 # Build with GTK3 rather than GTK2 support
     'use_gconf=false'                               # 
     'use_gnome_keyring=false'                       #
     'use_gold=false'                                #
     'use_sysroot=false'                             #
     'linux_use_bundled_binutils=false'              #
     'use_custom_libcxx=false'                       #
-    'enable_hangout_services_extension=true'        #
+    'enable_hangout_services_extension=false'       # Turn of Hangout services
     'enable_widevine=true'                          # Enable multi platform DRM support for media
     'enable_nacl=false'                             #
     'enable_swiftshader=false'                      #
+    'enable_nacl_nonsfi=false'                      #
+    'enable_remoting=false'                         # Disable Remoting
+    'enable_google_now=false'                       # Disable google now
+    'safe_browsing_mode=0'                          # Disable Safe browsing, requires patch to work
+    'enable_hotwording=false'                       # Disable hotwording
   )
 
   python2 tools/gn/bootstrap/bootstrap.py --gn-gen-args "${_flags[*]}"

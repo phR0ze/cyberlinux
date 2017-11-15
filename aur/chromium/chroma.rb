@@ -85,6 +85,8 @@ class Chroma
       @distros.cyber => [
         'master-preferences.patch',           # Configure the master preferences to be in /etc/chromium/master_preferences
       ],
+
+      # Credit to Michael Gilber
       @distros.debian => [
         'manpage.patch',                      # Adds simple doc with link to documentation website
 
@@ -106,34 +108,54 @@ class Chroma
         'fixes/connection-message.patch',     # Update connection message to suggest updating your proxy if you can't get connected.
         'fixes/chromedriver-revision.patch',  # Set as undefined, Chromedriver allows for automated testing of chromium
       ],
+
+      # Credit to Michael Egger -> patches/inox/LICENSE
+      # https://github.com/gcarq/inox-patchset
       @distros.inox => [
-        '0001-fix-building-without-safebrowsing.patch'  #
-        '0003-disable-autofill-download-manager.patch'  #
-        '0004-disable-google-url-tracker.patch'         #
-        '0005-disable-default-extensions.patch'         #
-        '0006-modify-default-prefs.patch'               #
-        '0007-disable-web-resource-service.patch'       #
-        '0008-restore-classic-ntp.patch'                #
-        '0009-disable-google-ipv6-probes.patch'         #
-        '0010-disable-gcm-status-check.patch'           #
-        '0011-add-duckduckgo-search-engine.patch'       #
-        '0012-branding.patch'                           #
-        '0013-disable-missing-key-warning.patch'        #
-        '0014-disable-translation-lang-fetch.patch'     #
-        '0015-disable-update-pings.patch'               #
-        '0016-chromium-sandbox-pie.patch'               #
-        '0017-disable-new-avatar-menu.patch'            #
-        '0018-disable-first-run-behaviour.patch'        #
-        '0019-disable-battery-status-service.patch'     #
-        '0020-launcher-branding.patch'                  #
-        '0021-disable-rlz.patch'                        #
-        '9000-disable-metrics.patch'                    #
-        '9001-disable-profiler.patch'                   #
-        'breakpad-use-ucontext_t.patch'                 #
-        'chromium-gn-bootstrap-r17.patch'               #
-        'chromium-libva-version.patch'                  #
-        'chromium-vaapi-r14.patch'                      #
-        'chromium-widevine.patch'                       #
+        '0001-fix-building-without-safebrowsing.patch', #
+        '0003-disable-autofill-download-manager.patch', # Disables HTML AutoFill data transmission to Google
+        '0004-disable-google-url-tracker.patch',        # Disable URL tracking which transmits your location to Google
+        '0005-disable-default-extensions.patch',        # Disable Hotword, Google Now, Google Feedback, Cloud Print, Google Webstore, Network Speech synthesis, Google Hangout
+        '0006-modify-default-prefs.patch',              # Set default settings:
+                                                        # DefaultCookiesSettings                            CONTENT_SETTING_DEFAULT
+                                                        # EnableHyperLinkAuditing 	                        false
+                                                        # CloudPrintSubmitEnabled 	                        false
+                                                        # NetworkPredictionEnabled 	                        false
+                                                        # BackgroundModeEnabled 	                          false
+                                                        # BlockThirdPartyCookies 	                          true
+                                                        # AlternateErrorPagesEnabled 	                      false
+                                                        # SearchSuggestEnabled 	                            false
+                                                        # AutofillEnabled 	                                false
+                                                        # Send feedback to Google if preferences are reset 	false
+                                                        # BuiltInDnsClientEnabled                         	false
+                                                        # SignInPromoUserSkipped 	                          true
+                                                        # SignInPromoShowOnFirstRunAllowed 	                false
+                                                        # ShowAppsShortcutInBookmarkBar 	false
+                                                        # ShowBookmarkBar 	true
+                                                        # PromptForDownload 	true
+                                                        # SafeBrowsingEnabled 	false
+                                                        # EnableTranslate 	false
+                                                        # LocalDiscoveryNotificationsEnabled 	false
+        '0007-disable-web-resource-service.patch',      #
+        '0008-restore-classic-ntp.patch',               # The new NTP (New Tag Page) pulls from Google including tracking identifier
+        '0009-disable-google-ipv6-probes.patch',        # Change IPv6 DNS probes to Google over to k.root-servers.net
+        '0010-disable-gcm-status-check.patch',          # Disable Google Cloud-Messaging status probes, GCM allows direct msg to device
+        '0011-add-duckduckgo-search-engine.patch',      # Adds DuckDuckGo as default search engine, still changeable in settings
+        '0014-disable-translation-lang-fetch.patch',    # Disable language fetching from Google when settings are opened the first time
+        '0015-disable-update-pings.patch',              # Disable update pings to Google
+        '0016-chromium-sandbox-pie.patch',              # Hardening sandbox with Position Independent code, originally from openSUSE
+        '0017-disable-new-avatar-menu.patch',           # Disable Google Avatar signin menu
+        '0018-disable-first-run-behaviour.patch',       # Modifies first run to prevent data leakage
+        '0019-disable-battery-status-service.patch',    # Disable battry status service as it can be used for tracking
+        '0020-launcher-branding.patch',                 #
+        '0021-disable-rlz.patch',                       #
+        '9000-disable-metrics.patch',                   #
+        '9001-disable-profiler.patch',                  #
+        'breakpad-use-ucontext_t.patch',                #
+        'chromium-gn-bootstrap-r17.patch',              #
+        'chromium-libva-version.patch',                 #
+        'chromium-vaapi-r14.patch',                     #
+        'chromium-widevine.patch',                      #
         'crc32c-string-view-check.patch'                #
       ]
     }
@@ -141,25 +163,29 @@ class Chroma
     # Patches handled in PKGBUILD differently
     @oneoff_patches = {
       @distros.arch => [
-        'crc32c-string-view-check.patch',     #
+        'crc32c-string-view-check.patch',               #
       ],
     }
 
     @not_used_patches = {
       @distros.arch => [
-        'chromium-widevine.patch',            # Using debian as this one uses a variable
+        'chromium-widevine.patch',                      # Using debian as this one uses a variable
       ],
       @distros.debian => [
-        'master-preferences.patch',           # Use custom cyber patch instead
-        'disable/third-party-cookies.patch',  # Already covered in inox/modify-default-prefs'
-        'gn/bootstrap.patch',                 # Fix errors in gn's bootstrapping script, using arch bootstrap instead
-        'fixes/crc32.patch',                  # Fix inverted check, using arch crc32c-string-view-check.patch instead
-        'system/nspr.patch',                  # Build using the system nspr library
-        'system/icu.patch',                   # Backwards compatibility for older versions of icu
-        'system/vpx.patch',                   # Remove VP9 support because debian libvpx doesn't support VP9 yet
-        'system/gtk2.patch',                  # 
-        'system/lcms2.patch',                 # 
-        'system/event.patch',                 # Build using the system libevent library
+        'master-preferences.patch',                     # Use custom cyber patch instead
+        'disable/third-party-cookies.patch',            # Already covered in inox/0006-modify-default-prefs'
+        'gn/bootstrap.patch',                           # Fix errors in gn's bootstrapping script, using arch bootstrap instead
+        'fixes/crc32.patch',                            # Fix inverted check, using arch crc32c-string-view-check.patch instead
+        'system/nspr.patch',                            # Build using the system nspr library
+        'system/icu.patch',                             # Backwards compatibility for older versions of icu
+        'system/vpx.patch',                             # Remove VP9 support because debian libvpx doesn't support VP9 yet
+        'system/gtk2.patch',                            # 
+        'system/lcms2.patch',                           # 
+        'system/event.patch',                           # Build using the system libevent library
+      ],
+      @distros.inox => [
+        '0012-branding.patch',                          # Want to keep the original Chromium branding
+        '0013-disable-missing-key-warning.patch'        # Disables warning, using debian patch instead
       ]
     }
   end
