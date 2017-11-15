@@ -114,7 +114,6 @@ class Chroma
         'manpage.patch',                      # Adds simple doc with link to documentation website
 
         'gn/parallel.patch',                  # Respect specified number of parllel jobs when bootstrapping
-        'gn/boostrap.patch',                  # Fix errors in gn's bootstrapping script
         'gn/narrowing.patch',                 # Silence narrowing warnings when bootstrapping gn
         'gn/buildflags.patch',                # Support build flags passed in the --args to gn
 
@@ -149,6 +148,8 @@ class Chroma
       @distros.debian => [
         'master-preferences.patch',           # Use custom cyber patch instead
         'disable/third-party-cookies.patch',  # Already covered in inox/modify-default-prefs'
+
+        'gn/bootstrap.patch',                 # Fix errors in gn's bootstrapping script, using arch bootstrap instead
 
         'system/nspr.patch',                  # Build using the system nspr library
         'system/icu.patch',                   # Backwards compatibility for older versions of icu
