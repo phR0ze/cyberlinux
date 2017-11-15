@@ -25,6 +25,8 @@
 # 1. Download all iridium patches
 # 2. Update current patches with new patches
 #-------------------------------------------------------------------------------
+version = '62.0.3202.89'
+
 require 'fileutils'             # advanced file utils: FileUtils
 require 'json'                  # JSON support
 require 'ostruct'               # OpenStruct
@@ -68,8 +70,8 @@ class Chroma
     # Patch sets that are supported
     @patchsets = {
       @distros.arch => 'https://git.archlinux.org/svntogit/packages.git/tree/trunk?h=packages/chromium',
-      @distros.inox => 'https://raw.githubusercontent.com/gcarq/inox-patchset',
       @distros.debian => 'https://anonscm.debian.org/cgit/pkg-chromium/pkg-chromium.git/plain/debian/patches',
+      @distros.inox => 'https://github.com/gcarq/inox-patchset',
       @distros.iridium => 'https://git.iridiumbrowser.de/cgit.cgi/iridium-browser/commit/?h=patchview'
     }
 
@@ -80,33 +82,6 @@ class Chroma
         'breakpad-use-ucontext_t.patch',      # Glibc 2.26 does not expose struct ucontext any longer
         'chromium-gn-bootstrap-r17.patch',    #
       ],
-#      @distros.inox => [
-#   https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/chromium-vaapi-r14.patch
-#        # Inox patchset
-#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0001-fix-building-without-safebrowsing.patch
-#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0003-disable-autofill-download-manager.patch
-#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0004-disable-google-url-tracker.patch
-#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0005-disable-default-extensions.patch
-#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0006-modify-default-prefs.patch
-#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0007-disable-web-resource-service.patch
-#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0008-restore-classic-ntp.patch
-#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0009-disable-google-ipv6-probes.patch
-#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0010-disable-gcm-status-check.patch
-#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0011-add-duckduckgo-search-engine.patch
-#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0012-branding.patch
-#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0013-disable-missing-key-warning.patch
-#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0014-disable-translation-lang-fetch.patch
-#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0015-disable-update-pings.patch
-#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0016-chromium-sandbox-pie.patch
-#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0017-disable-new-avatar-menu.patch
-#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0018-disable-first-run-behaviour.patch
-#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0019-disable-battery-status-service.patch
-#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0020-launcher-branding.patch
-#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/0021-disable-rlz.patch
-#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/9000-disable-metrics.patch
-#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/9001-disable-profiler.patch)
-#
-#      ],
       @distros.cyber => [
         'master-preferences.patch',           # Configure the master preferences to be in /etc/chromium/master_preferences
       ],
@@ -130,6 +105,36 @@ class Chroma
         'fixes/widevine-revision.patch',      # Set widevine version as undefined
         'fixes/connection-message.patch',     # Update connection message to suggest updating your proxy if you can't get connected.
         'fixes/chromedriver-revision.patch',  # Set as undefined, Chromedriver allows for automated testing of chromium
+      ],
+      @distros.inox => [
+        '0001-fix-building-without-safebrowsing.patch'  #
+        '0003-disable-autofill-download-manager.patch'  #
+        '0004-disable-google-url-tracker.patch'         #
+        '0005-disable-default-extensions.patch'         #
+        '0006-modify-default-prefs.patch'               #
+        '0007-disable-web-resource-service.patch'       #
+        '0008-restore-classic-ntp.patch'                #
+        '0009-disable-google-ipv6-probes.patch'         #
+        '0010-disable-gcm-status-check.patch'           #
+        '0011-add-duckduckgo-search-engine.patch'       #
+        '0012-branding.patch'                           #
+        '0013-disable-missing-key-warning.patch'        #
+        '0014-disable-translation-lang-fetch.patch'     #
+        '0015-disable-update-pings.patch'               #
+        '0016-chromium-sandbox-pie.patch'               #
+        '0017-disable-new-avatar-menu.patch'            #
+        '0018-disable-first-run-behaviour.patch'        #
+        '0019-disable-battery-status-service.patch'     #
+        '0020-launcher-branding.patch'                  #
+        '0021-disable-rlz.patch'                        #
+        '9000-disable-metrics.patch'                    #
+        '9001-disable-profiler.patch'                   #
+        'breakpad-use-ucontext_t.patch'                 #
+        'chromium-gn-bootstrap-r17.patch'               #
+        'chromium-libva-version.patch'                  #
+        'chromium-vaapi-r14.patch'                      #
+        'chromium-widevine.patch'                       #
+        'crc32c-string-view-check.patch'                #
       ]
     }
 
@@ -208,6 +213,14 @@ class Chroma
           links = agent.get(url).links.select{|x| x.href =~ /#{dirlink.href}/}
           links.each{|x| download(agent, File.join(baseUrl, x.href), File.join(patchset_dir, dirlink.text, x.text)) }
         }
+
+      # Download inox patches
+      #-------------------------------------------------------------------------
+      elsif patchset == @distros.inox
+        page = agent.get(@patchsets[patchset])
+#        https://raw.githubusercontent.com/gcarq/inox-patchset/$pkgver-$pkgrel/9001-disable-profiler.patch)
+        patchLinks = page.links.select{|x| x.href =~ /inox-patchset\/blob\/master\/.*\.patch/}
+        patchLinks.each{|x| puts(x)}
 
       # Download iridium patches
       #-------------------------------------------------------------------------
@@ -310,11 +323,11 @@ end
 if __FILE__ == $0
   opts = {}
   app = 'chroma'
-  version = '62.0.3202.89'
   examples = "Examples:\n".colorize(:green)
   examples += "./#{app}.rb useragent\n".colorize(:green)
   examples += "1) ./#{app}.rb download process --patches=arch\n".colorize(:green)
   examples += "2) ./#{app}.rb download process --patches=debian\n".colorize(:green)
+  examples += "2) ./#{app}.rb download process --patches=inox\n".colorize(:green)
 
   cmds = Cmds.new(app, version, examples)
   cmds.add('download', 'Download patches from the given distribution', [
