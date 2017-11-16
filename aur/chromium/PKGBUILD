@@ -94,7 +94,7 @@ prepare() {
   patch -Np1 -d third_party/crc32c/src <../../patches/arch/one-off/crc32c-string-view-check.patch
 
   # Apply patches from various distributions
-  for patchset in arch cyber debian; do
+  for patchset in arch cyber debian inox; do
     msg "Applying $patchset patches..."
     for patch in ../../patches/$patchset/*.patch; do
       msg2 "Applying patch $patch"
