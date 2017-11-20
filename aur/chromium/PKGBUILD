@@ -257,6 +257,9 @@ package() {
 #  find . -type f -exec install -Dm644 "{}" "${pkgdir}/usr/share/chromium/extensions/{}" \;
 
   # Install Custom configuration 
+  # http://www.chromium.org/administrators/configuring-other-preferences
+  # - master_preferences acts as a template for the first run then user can edit them
+  # - some 
   #-----------------------------------------------------------------------------
   install -Dm644 $srcdir/../config/master_preferences "${pkgdir}/etc/chromium/master_preferences"
 }
