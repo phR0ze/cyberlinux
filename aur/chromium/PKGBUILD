@@ -233,6 +233,32 @@ package() {
   done
 
   install -Dm644 LICENSE "$pkgdir/usr/share/licenses/chromium/LICENSE"
+
+  # Install Chromium Extensions
+  #-----------------------------------------------------------------------------
+  extensions=(
+    'https-everywhere'            # Automatically use HTTPS security where possible
+    'smartup-gestures'            # Better mouse gestures for Chromium
+    'tampermonkey'                # World's most popular userscript manager
+    'ublock-origin'               # An efficient ad-blocker for Chromium
+    'ublock-origin-extra'         # Foil early hostile anti-user mechanisms
+    'videodownload-helper'        # Video download helper for Chromium
+  )
+
+#  # Download extensions
+#  ifs=$IFS
+#  cd $srcdir/..
+#  exts=$(IFS=,; echo "${extensions[*]}")
+#  ruby chroma.rb download --extensions=$exts --chromium=$pkgver --outdir=$srcdir/extensions
+#  IFS=$ifs
+#
+#  # Install extensions
+#  cd $srcdir/extensions
+#  find . -type f -exec install -Dm644 "{}" "${pkgdir}/usr/share/chromium/extensions/{}" \;
+
+  # Install Custom configuration 
+  #-----------------------------------------------------------------------------
+  install -Dm644 $srcdir/../config/master_preferences "${pkgdir}/etc/chromium/master_preferences"
 }
 
 # vim: ts=2:sw=2:sts=2
