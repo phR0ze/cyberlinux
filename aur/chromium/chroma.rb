@@ -77,9 +77,6 @@ class Chroma
         'breakpad-use-ucontext_t.patch',      # Glibc 2.26 does not expose struct ucontext any longer
         'chromium-gn-bootstrap-r17.patch',    #
       ],
-      @distros.cyber => [
-        'master-preferences.patch',           # Configure the master preferences to be in /etc/chromium/master_preferences
-      ],
 
       # Credit to Michael Gilber
       @distros.debian => [
@@ -102,6 +99,10 @@ class Chroma
         'fixes/widevine-revision.patch',      # Set widevine version as undefined
         'fixes/connection-message.patch',     # Update connection message to suggest updating your proxy if you can't get connected.
         'fixes/chromedriver-revision.patch',  # Set as undefined, Chromedriver allows for automated testing of chromium
+      ],
+
+      @distros.cyber => [
+        'master-preferences.patch',           # Configure the master preferences to be in /etc/chromium/master_preferences
       ],
 
       # Credit to Michael Egger -> patches/inox/LICENSE
