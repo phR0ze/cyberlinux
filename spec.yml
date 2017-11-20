@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.254
+  release: 0.0.255
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -992,6 +992,7 @@ packages:
     - { pkg: automake,                      desc: Automatically create Makefiles, depof: base-devel }
     - { pkg: binutils,                      desc: Manipulate binary and object files, depof: base-devel }
     - { pkg: bison,                         desc: General purpose parser generator, depof: base-devel }
+    - { pkg: clang,                         desc: C language family frontend for LLVM, depof: chromium }
     - { pkg: delve,                         desc: A debugger for the Go Programming Language, type: CYBERLINUX }
     - { pkg: devtools,                      desc: Misc development tools including makepkg conf, depof: reduce }
     - { pkg: diffutils,                     desc: Patch file utility programs }
@@ -1011,6 +1012,8 @@ packages:
     - { pkg: groff,                         desc: GNU trof text-formatting system, depof: base-devel }
     - { pkg: jq,                            desc: Command line JSON processor }
     - { pkg: libtool,                       desc: Generic library support script, depof: base-devel }
+    - { pkg: lld,                           desc: Linker from the LLVM project, depof: chromium }
+    - { pkg: llvm,                          desc: Low Level compiler infrastructure, depof: chromium }
     - { pkg: ltrace,                        desc: Tracks runtime library calls in dynamically linked programs }
     - { pkg: m4,                            desc: GNU macro processor, depof: base-devel }
     - { pkg: make,                          desc: GNU utility to build programs, depof: base-devel }

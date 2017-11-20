@@ -39,7 +39,7 @@
 # 4. Update patches/debian
 #-------------------------------------------------------------------------------
 pkgname=chromium
-pkgver=62.0.3202.89
+pkgver=62.0.3202.94
 pkgrel=1
 _launcher_ver=5
 pkgdesc="A web browser built for speed, simplicity, and security"
@@ -49,7 +49,7 @@ license=('BSD')
 depends=('gtk3' 'nss' 'alsa-lib' 'xdg-utils' 'libxss' 'libcups' 'libgcrypt'
          'ttf-font' 'systemd' 'dbus' 'libpulse' 'pciutils' 'json-glib'
          'desktop-file-utils' 'hicolor-icon-theme')
-makedepends=('python2' 'gperf' 'yasm' 'mesa' 'ninja' 'nodejs' 'git' 'libva')
+makedepends=('python2' 'gperf' 'yasm' 'mesa' 'ninja' 'nodejs' 'git' 'libva' 'clang' 'lld' 'llvm')
 optdepends=('pepper-flash: support for Flash content'
             'libva-intel-driver: for hardware video acceleration with Intel GPUs'
             'libva-mesa-driver: for hardware video acceleration with AMD/ATI GPUs'
@@ -58,7 +58,7 @@ install=chromium.install
 source=(https://commondatastorage.googleapis.com/chromium-browser-official/$pkgname-$pkgver.tar.xz
         chromium-launcher-$_launcher_ver.tar.gz::https://github.com/foutrelis/chromium-launcher/archive/v$_launcher_ver.tar.gz
         chromium.desktop)
-sha256sums=('9f79760dc22f7183602a07af3d37d2226bd63ab0ca7163d88ac0d81982de9469'
+sha256sums=('cabc4d267bf08aabe11c5739048c43dde18c61acf595223a1c3aa1d3499558d4'
             '4dc3428f2c927955d9ae117f2fb24d098cc6dd67adb760ac9c82b522ec8b0587'
             '028a748a5c275de9b8f776f97909f999a8583a4b77fd1cd600b4fc5c0c3e91e9')
 
@@ -139,12 +139,25 @@ build() {
   export TMPDIR="$srcdir/temp"
   mkdir -p "$TMPDIR"
 
+  # Configure clang
+  export CC=clang
+  export CXX=clang++
+  export AR=llvm-ar
+  export NM=llvm-nm
+
+  # Remove '-fno-plt' as it isn't supported by the Arch system clang
+  export CFLAGS="${CFLAGS//-fno-plt/} -Wno-unknown-warning-option"
+  export CXXFLAGS="${CXXFLAGS//-fno-plt/} -Wno-unknown-warning-option"
+
   local _flags=(
+    'custom_toolchain="//build/toolchain/linux/unbundle:default"'
+    'host_toolchain="//build/toolchain/linux/unbundle:default"'
+    'clang_use_chrome_plugins=false'                # Don't use chrome clang plugins
+    'is_clang=true'                                 # Use the clang compiler, produces better code
+    'use_lld=true'                                  # Use LLVM's lld linker instead of Google's Clang plugins
     'symbol_level=0'                                # Will speed up build but make debugging impossible
-    'is_clang=false'                                # Not using the clang compiler
-    'clang_use_chrome_plugins=false'                # Not using the clang compiler
     'is_debug=false'                                # Want a clean release version not debug
-    'exclude_unwind_tables=true'                    #
+    'exclude_unwind_tables=true'                    # Exclude tables to save on disk space
     'fatal_linker_warnings=false'                   #
     'treat_warnings_as_errors=false'                #
     'fieldtrial_testing_like_official_build=true'   #
@@ -159,7 +172,7 @@ build() {
     'use_sysroot=false'                             #
     'linux_use_bundled_binutils=false'              #
     'use_custom_libcxx=false'                       #
-    'enable_hangout_services_extension=false'       # Turn of Hangout services
+    'enable_hangout_services_extension=true'        # Enable Hangout service
     'enable_widevine=true'                          # Enable multi platform DRM support for media
     'enable_nacl=false'                             #
     'enable_swiftshader=false'                      #
@@ -170,10 +183,14 @@ build() {
     'enable_hotwording=false'                       # Disable hotwording
   )
 
+  msg2 'Building GN'
   python2 tools/gn/bootstrap/bootstrap.py --gn-gen-args "${_flags[*]}"
+
+  msg2 'Configuring Chromium'
   out/Release/gn gen out/Release --args="${_flags[*]}" \
     --script-executable=/usr/bin/python2
 
+  msg2 'Building Chromium'
   ninja -C out/Release chrome chrome_sandbox chromedriver widevinecdmadapter
 }
 

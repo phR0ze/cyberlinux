@@ -20,12 +20,7 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-#-------------------------------------------------------------------------------
-# Chromium build tool
-# 1. Download all iridium patches
-# 2. Update current patches with new patches
-#-------------------------------------------------------------------------------
-$version = '62.0.3202.89'
+$version = '62.0.3202.94'
 
 require 'fileutils'             # advanced file utils: FileUtils
 require 'json'                  # JSON support
@@ -111,31 +106,33 @@ class Chroma
 
       # Credit to Michael Egger -> patches/inox/LICENSE
       # https://github.com/gcarq/inox-patchset
+      #
+      # Default Settings
+      # ------------------------------------------------------------------------------------
+      # DefaultCookiesSettings                            CONTENT_SETTING_DEFAULT
+      # EnableHyperLinkAuditing 	                        false
+      # CloudPrintSubmitEnabled 	                        false
+      # NetworkPredictionEnabled 	                        false
+      # BackgroundModeEnabled 	                          false
+      # BlockThirdPartyCookies 	                          true
+      # AlternateErrorPagesEnabled 	                      false
+      # SearchSuggestEnabled 	                            false
+      # AutofillEnabled 	                                false
+      # Send feedback to Google if preferences are reset 	false
+      # BuiltInDnsClientEnabled                         	false
+      # SignInPromoUserSkipped 	                          true
+      # SignInPromoShowOnFirstRunAllowed 	                false
+      # ShowAppsShortcutInBookmarkBar 	                  false
+      # ShowBookmarkBar 	                                true
+      # PromptForDownload 	                              true
+      # SafeBrowsingEnabled 	                            false
+      # EnableTranslate 	                                false
+      # LocalDiscoveryNotificationsEnabled 	              false
       @distros.inox => [
-        '0001-fix-building-without-safebrowsing.patch', #
+        '0001-fix-building-without-safebrowsing.patch', # Required when the PGKBUILD has safebrowing disabled
         '0003-disable-autofill-download-manager.patch', # Disables HTML AutoFill data transmission to Google
         '0004-disable-google-url-tracker.patch',        # Disable URL tracking which transmits your location to Google
-        '0005-disable-default-extensions.patch',        # Disable Hotword, Google Now, Google Feedback, Cloud Print, Google Webstore, Network Speech synthesis, Google Hangout
-        '0006-modify-default-prefs.patch',              # Set default settings:
-                                                        # DefaultCookiesSettings                            CONTENT_SETTING_DEFAULT
-                                                        # EnableHyperLinkAuditing 	                        false
-                                                        # CloudPrintSubmitEnabled 	                        false
-                                                        # NetworkPredictionEnabled 	                        false
-                                                        # BackgroundModeEnabled 	                          false
-                                                        # BlockThirdPartyCookies 	                          true
-                                                        # AlternateErrorPagesEnabled 	                      false
-                                                        # SearchSuggestEnabled 	                            false
-                                                        # AutofillEnabled 	                                false
-                                                        # Send feedback to Google if preferences are reset 	false
-                                                        # BuiltInDnsClientEnabled                         	false
-                                                        # SignInPromoUserSkipped 	                          true
-                                                        # SignInPromoShowOnFirstRunAllowed 	                false
-                                                        # ShowAppsShortcutInBookmarkBar 	                  false
-                                                        # ShowBookmarkBar 	                                true
-                                                        # PromptForDownload 	                              true
-                                                        # SafeBrowsingEnabled 	false
-                                                        # EnableTranslate 	false
-                                                        # LocalDiscoveryNotificationsEnabled 	false
+        '0006-modify-default-prefs.patch',              # Set default settings as described in header
         '0007-disable-web-resource-service.patch',      #
         '0008-restore-classic-ntp.patch',               # The new NTP (New Tag Page) pulls from Google including tracking identifier
         '0009-disable-google-ipv6-probes.patch',        # Change IPv6 DNS probes to Google over to k.root-servers.net
@@ -177,6 +174,9 @@ class Chroma
         'system/event.patch',                           # Build using the system libevent library
       ],
       @distros.inox => [
+        # Disables Hotword, Google Now/Feedback/Webstore/Hangout, Cloud Print, Speech synthesis
+        # I like keeping the Webstore and Hangout features so will roll my own patch in cyberlinux
+        '0005-disable-default-extensions.patch',        # see above
         '0012-branding.patch',                          # Want to keep the original Chromium branding
         '0013-disable-missing-key-warning.patch',       # Disables warning, using debian patch instead
         '0020-launcher-branding.patch',                 # Want to keep the original Chromium branding
