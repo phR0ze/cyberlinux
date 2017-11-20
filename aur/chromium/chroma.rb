@@ -74,35 +74,36 @@ class Chroma
     # Order is significant
     @used_patches = {
       @distros.arch => [
-        'breakpad-use-ucontext_t.patch',      # Glibc 2.26 does not expose struct ucontext any longer
-        'chromium-gn-bootstrap-r17.patch',    #
+        'breakpad-use-ucontext_t.patch',                # Glibc 2.26 does not expose struct ucontext any longer
+        'chromium-gn-bootstrap-r17.patch',              #
       ],
 
       # Credit to Michael Gilber
       @distros.debian => [
-        'manpage.patch',                      # Adds simple doc with link to documentation website
+        'manpage.patch',                                # Adds simple doc with link to documentation website
 
-        'gn/parallel.patch',                  # Respect specified number of parllel jobs when bootstrapping
-        'gn/narrowing.patch',                 # Silence narrowing warnings when bootstrapping gn
-        'gn/buildflags.patch',                # Support build flags passed in the --args to gn
+        'gn/parallel.patch',                            # Respect specified number of parllel jobs when bootstrapping
+        'gn/narrowing.patch',                           # Silence narrowing warnings when bootstrapping gn
+        'gn/buildflags.patch',                          # Support build flags passed in the --args to gn
 
-        'disable/promo.patch',                # Disable ad promo system by default
-        'disable/fuzzers.patch',              # Disable fuzzers as they aren't built anyway and only used for testing
-        'disable/google-api-warning.patch',   # Disables Google's API key warning when they are removed from the PKGBUILD
-        'disable/external-components.patch',  # Disable loading: Enhanced bookmarks, HotWord, ZipUnpacker, GoogleNow
-        'disable/device-notifications.patch', # Disable device discovery notifications
+        'disable/promo.patch',                          # Disable ad promo system by default
+        'disable/fuzzers.patch',                        # Disable fuzzers as they aren't built anyway and only used for testing
+        'disable/google-api-warning.patch',             # Disables Google's API key warning when they are removed from the PKGBUILD
+        'disable/external-components.patch',            # Disable loading: Enhanced bookmarks, HotWord, ZipUnpacker, GoogleNow
+        'disable/device-notifications.patch',           # Disable device discovery notifications
 
-        'fixes/mojo.patch',                   # Fix mojo layout test build error
-        'fixes/chromecast.patch',             # Disable chromecast unless flag GOOGLE_CHROME_BUILD set
-        'fixes/ps-print.patch',               # Add postscript(ps) printing capabiliy
-        'fixes/gpu-timeout.patch',            # Increase GPU timeout from 10sec to 20sec
-        'fixes/widevine-revision.patch',      # Set widevine version as undefined
-        'fixes/connection-message.patch',     # Update connection message to suggest updating your proxy if you can't get connected.
-        'fixes/chromedriver-revision.patch',  # Set as undefined, Chromedriver allows for automated testing of chromium
+        'fixes/mojo.patch',                             # Fix mojo layout test build error
+        'fixes/chromecast.patch',                       # Disable chromecast unless flag GOOGLE_CHROME_BUILD set
+        'fixes/ps-print.patch',                         # Add postscript(ps) printing capabiliy
+        'fixes/gpu-timeout.patch',                      # Increase GPU timeout from 10sec to 20sec
+        'fixes/widevine-revision.patch',                # Set widevine version as undefined
+        'fixes/connection-message.patch',               # Update connection message to suggest updating your proxy if you can't get connected.
+        'fixes/chromedriver-revision.patch',            # Set as undefined, Chromedriver allows for automated testing of chromium
       ],
 
       @distros.cyber => [
-        'master-preferences.patch',           # Configure the master preferences to be in /etc/chromium/master_preferences
+        '00-master-preferences.patch',                  # Configure the master preferences to be in /etc/chromium/master_preferences
+        '01-disable-default-extensions.patch',          # Apply on top of debian patches, disables cloud print and feedback
       ],
 
       # Credit to Michael Egger -> patches/inox/LICENSE
