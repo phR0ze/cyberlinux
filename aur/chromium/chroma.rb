@@ -139,7 +139,6 @@ class Chroma
         '0008-restore-classic-ntp.patch',               # The new NTP (New Tag Page) pulls from Google including tracking identifier
         '0009-disable-google-ipv6-probes.patch',        # Change IPv6 DNS probes to Google over to k.root-servers.net
         '0010-disable-gcm-status-check.patch',          # Disable Google Cloud-Messaging status probes, GCM allows direct msg to device
-        '0011-add-duckduckgo-search-engine.patch',      # Adds DuckDuckGo as default search engine, still changeable in settings
         '0014-disable-translation-lang-fetch.patch',    # Disable language fetching from Google when settings are opened the first time
         '0015-disable-update-pings.patch',              # Disable update pings to Google
         '0016-chromium-sandbox-pie.patch',              # Hardening sandbox with Position Independent code, originally from openSUSE
@@ -179,6 +178,7 @@ class Chroma
         # Disables Hotword, Google Now/Feedback/Webstore/Hangout, Cloud Print, Speech synthesis
         # I like keeping the Webstore and Hangout features so will roll my own patch in cyberlinux
         '0005-disable-default-extensions.patch',        # see above
+        '0011-add-duckduckgo-search-engine.patch',      # Adds DuckDuckGo as default search engine, still changeable in settings
         '0012-branding.patch',                          # Want to keep the original Chromium branding
         '0013-disable-missing-key-warning.patch',       # Disables warning, using debian patch instead
         '0020-launcher-branding.patch',                 # Want to keep the original Chromium branding
