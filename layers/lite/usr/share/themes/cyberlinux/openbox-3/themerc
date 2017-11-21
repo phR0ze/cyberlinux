@@ -1,101 +1,97 @@
-!!MIT License
-!!Copyright (c) 2017 phR0ze
-!!
-!!Permission is hereby granted, free of charge, to any person obtaining a copy
-!!of this software and associated documentation files (the "Software"), to deal
-!!in the Software without restriction, including without limitation the rights
-!!to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-!!copies of the Software, and to permit persons to whom the Software is
-!!furnished to do so, subject to the following conditions:
-!!
-!!The above copyright notice and this permission notice shall be included in all
-!!copies or substantial portions of the Software.
-!!
-!!THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-!!IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-!!FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-!!AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-!!LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-!!OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-!!SOFTWARE.
+# cyberlinux by phR0ze 
+#-------------------------------------------------------------------------------
+# Highlight:    Active #39AEF4  Inactive: #216A94
+# Dark:         Active #202020  Inactive: #191919
+#-------------------------------------------------------------------------------
 
-!! cyberlinux by phR0ze 
-!!---------------------------------------------------------------------------------------
-
-!! Menu Background
-menu.items.bg: flat gradient vertical
-menu.items.bg.color: #080808
-menu.items.bg.colorTo: #080808
-
-!! Menu Text
-menu.items.text.color: #FFFFFF
-menu.items.justify: left
-menu.items.disabled.text.color: #606060
-
-!! Menu Headers
-menu.title.bg: raised splitvertical gradient
-menu.title.bg.color: #202020
-menu.title.bg.colorTo: #202020
-menu.title.text.color: #39aef4
-menu.title.text.justify: center
-
-!! Selected Menu Item
-menu.items.active.bg: flat 
-menu.items.active.bg.color: #51B4DB
-menu.items.active.bg.colorTo: #51B4DB
-menu.items.active.text.color: #000000
-
-!! Titlebar
-window.active.title.bg: raised splitvertical gradient
-window.active.title.bg.color: #202020
-window.active.title.bg.colorTo: #202020
-window.inactive.title.bg: gradient splitvertical gradient flat
-window.inactive.title.bg.color: #191919
-window.inactive.title.bg.colorTo: #191919
-
-!! Titlebar Text
-window.label.text.justify: center
-window.active.label.bg: parentrelative
-window.active.label.text.color: #FFFFFF
-window.inactive.label.bg: parentrelative
-window.inactive.label.text.color: #747474
-
-!! Window Buttons
-window.*.button.*.bg: parentrelative
-window.active.button.*.hover.bg: flat splitvertical gradient border
-window.inactive.button.*.hover.bg: parentrelative
-window.*.button.*.pressed.bg: flat splitvertical gradient border
-
-window.active.button.*.hover.bg.color: #51B4DB
-window.active.button.*.hover.bg.colorTo: #528EE9
-window.active.button.*.hover.bg.border.color: #51B4DB
-
-window.active.button.*.pressed.bg.color: #4187A2
-window.active.button.*.pressed.bg.colorTo: #4B70A8
-window.active.button.*.pressed.image.color: #000000
-window.active.button.*.pressed.bg.border.color: #4187A2
-
-window.inactive.button.*.pressed.bg.color: #4ab5ff
-window.inactive.button.*.pressed.bg.colorTo: #38b3d6
-window.inactive.button.*.pressed.image.color: #b7fdef
-window.inactive.button.*.pressed.bg.border.color: #38b3d6
-
-window.active.button.*.image.color: #e0e0e0
-window.active.button.disabled.image.color: #707070
-window.inactive.button.*.image.color: #747474
-window.inactive.button.disabled.image.color: #c0c0c0
-
-!! Borders
-window.active.border.color: #39aef4
-window.inactive.border.color: #39aef4
-window.active.title.separator.color: #39aef4
-window.inactive.title.separator.color: #39aef4
+# Borders
+#-------------------------------------------------------------------------------
 border.width: 1
-padding.width: 0
+
+# Spacing b/w window buttons
+padding.width: 10 
+padding.height: 2
+
+# Window external border color
+window.*.border.color: #39AEF4
+
+# Color of separator b/w title and client
+window.*.title.separator.color: #39AEF4
+
 window.handle.width: 0
+
+# Size of the inner border around content
 window.client.padding.width: 0
 window.client.padding.height: 0
+
+# Titlebar
+#-------------------------------------------------------------------------------
+window.active.title.bg: Flat
+window.active.title.bg.color: #202020
+window.inactive.title.bg.color: #191919
+
+# Title Text
+window.label.text.justify: center
+window.*.label.bg: Parentrelative
+window.active.label.text.color: #FFFFFF
+window.inactive.label.text.color: #909090
+
+# Window Buttons
+#-------------------------------------------------------------------------------
+window.*.button.unpressed.bg: Flat
+window.active.button.unpressed.bg.color: #202020
+window.inactive.button.unpressed.bg.color: #000000
+window.active.button.unpressed.image.color: #39AEF4
+window.inactive.button.unpressed.image.color: #216A94
+
+window.*.button.hover.bg: Flat
+window.active.button.hover.bg.color: #39AEF4
+window.active.button.hover.image.color: #000000
+
+window.*.button.toggled.unpressed.bg: Flat
+window.active.button.toggled.unpressed.bg.color: #202020
+window.active.button.toggled.unpressed.image.color: #39AEF4
+
+window.*.button.toggled.hover.bg: Flat
+window.active.button.toggled.hover.bg.color: #39AEF4
+window.active.button.toggled.hover.image.color: #000000
+
+# Menu
+#-------------------------------------------------------------------------------
 menu.overlap: 0
 
-!! Font Shadows
+# Font Shadows
 menu.items.font:shadow=n:shadowtint=30
+
+# Menu Background
+menu.items.bg: Flat
+menu.items.bg.color: #080808
+
+# Menu Headers
+menu.title.bg: Flat
+menu.title.bg.color: #202020
+menu.title.text.color: #39AEF4
+menu.title.text.justify: center
+
+# Menu Text
+menu.items.justify: left
+menu.items.text.color: #FFFFFF
+menu.items.disabled.text.color: #606060
+
+# Selected Menu Item
+menu.items.active.bg: Flat 
+menu.items.active.bg.color: #39AEF4
+menu.items.active.text.color: #000000
+
+# On-screen Dialogs, e.g. Alt-Tab
+#-------------------------------------------------------------------------------
+osd.bg: Flat
+osd.bg.color: #303030
+osd.label.bg: Parentrelative
+osd.label.bg.color: #efefef
+osd.label.bg.border.color: #616161
+osd.label.text.color: #FFFFFF
+osd.hilight.bg: Flat
+osd.hilight.bg.color: #51B4DB
+osd.unhilight.bg: Flat
+osd.unhilight.bg.color: #616161

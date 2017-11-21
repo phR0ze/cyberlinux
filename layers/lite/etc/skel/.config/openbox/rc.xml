@@ -38,37 +38,37 @@
     <animateIconify>no</animateIconify>
     <font place="ActiveWindow">
       <name>sans</name>
-      <size>8</size>                        <!-- font size in points -->
+      <size>10</size>                       <!-- font size in points -->
       <weight>bold</weight>                 <!-- 'bold' or 'normal' -->
       <slant>normal</slant>                 <!-- 'italic' or 'normal' -->
     </font>
     <font place="InactiveWindow">
       <name>sans</name>
-      <size>8</size>                        <!-- font size in points -->
+      <size>10</size>                       <!-- font size in points -->
       <weight>bold</weight>                 <!-- 'bold' or 'normal' -->
       <slant>normal</slant>                 <!-- 'italic' or 'normal' -->
     </font>
     <font place="MenuHeader">
       <name>sans</name>
-      <size>9</size>                        <!-- font size in points -->
+      <size>10</size>                       <!-- font size in points -->
       <weight>normal</weight>               <!-- 'bold' or 'normal' -->
       <slant>normal</slant>                 <!-- 'italic' or 'normal' -->
     </font>
     <font place="MenuItem">
       <name>sans</name>
-      <size>9</size>                        <!-- font size in points -->
+      <size>10</size>                       <!-- font size in points -->
       <weight>normal</weight>               <!-- 'bold' or 'normal' -->
       <slant>normal</slant>                 <!-- 'italic' or 'normal' -->
     </font>
     <font place="ActiveOnScreenDisplay">
       <name>sans</name>
-      <size>9</size>                        <!-- font size in points -->
+      <size>10</size>                       <!-- font size in points -->
       <weight>bold</weight>                 <!-- 'bold' or 'normal' -->
       <slant>normal</slant>                 <!-- 'italic' or 'normal' -->
     </font>
     <font place="InactiveOnScreenDisplay">
       <name>sans</name>
-      <size>9</size>                        <!-- font size in points -->
+      <size>10</size>                       <!-- font size in points -->
       <weight>bold</weight>                 <!-- 'bold' or 'normal' -->
       <slant>normal</slant>                 <!-- 'italic' or 'normal' -->
     </font>
