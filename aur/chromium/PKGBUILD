@@ -21,28 +21,18 @@
 
 # Maintainer: phR0ze
 #-------------------------------------------------------------------------------
-# Chromium without Google integration and privacy issues
-#-------------------------------------------------------------------------------
-# Inspiration/patches from the great work called out below:
+# Inspiration and patches from the great work called out below:
 # https://github.com/gcarq/inox-patchset
 # https://github.com/Eloston/ungoogled-chromium
 # https://git.iridiumbrowser.de/cgit.cgi/iridium-browser/
 # https://anonscm.debian.org/cgit/pkg-chromium/pkg-chromium.git/tree/debian
 # https://git.archlinux.org/svntogit/packages.git/tree/repos/extra-x86_64?h=packages/chromium
 #-------------------------------------------------------------------------------
-# Update/Build process:
-# 1. Update against arch abs PKGBUILD
-#    a. yaourt -G chromium
-#    b. manually sync any changes
-# 2. Update patches/arch by hand
-# 3. Build against arch patches only
-# 4. Update patches/debian
-#-------------------------------------------------------------------------------
 pkgname=chromium
 pkgver=62.0.3202.94
 pkgrel=1
 _launcher_ver=5
-pkgdesc="A web browser built for speed, simplicity, and security"
+pkgdesc="Chromium without Google big brother monitoring plus a few settings/UI tweaks to enhance privacy"
 arch=('x86_64')
 url="https://www.chromium.org/Home"
 license=('BSD')

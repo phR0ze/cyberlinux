@@ -1,0 +1,38 @@
+diff '--color=auto' -ruN a/content/browser/fileapi/browser_file_system_helper.cc b/content/browser/fileapi/browser_file_system_helper.cc
+--- a/content/browser/fileapi/browser_file_system_helper.cc	2017-11-13 13:09:20.000000000 -0700
++++ b/content/browser/fileapi/browser_file_system_helper.cc	2017-11-22 10:20:02.980380929 -0700
+@@ -51,9 +51,7 @@
+                          base::TaskShutdownBehavior::SKIP_ON_SHUTDOWN));
+ 
+ FileSystemOptions CreateBrowserFileSystemOptions(bool is_incognito) {
+-  FileSystemOptions::ProfileMode profile_mode =
+-      is_incognito ? FileSystemOptions::PROFILE_MODE_INCOGNITO
+-                   : FileSystemOptions::PROFILE_MODE_NORMAL;
++  FileSystemOptions::ProfileMode profile_mode = FileSystemOptions::PROFILE_MODE_INCOGNITO;
+   std::vector<std::string> additional_allowed_schemes;
+   GetContentClient()->browser()->GetAdditionalAllowedSchemesForFileSystem(
+       &additional_allowed_schemes);
+diff '--color=auto' -ruN a/ui/views/window/frame_background.cc b/ui/views/window/frame_background.cc
+--- a/ui/views/window/frame_background.cc	2017-11-13 13:09:58.000000000 -0700
++++ b/ui/views/window/frame_background.cc	2017-11-22 09:52:17.753779934 -0700
+@@ -17,7 +17,7 @@
+     : frame_color_(0),
+       use_custom_frame_(true),
+       is_active_(true),
+-      incognito_(false),
++      incognito_(true),
+       top_area_height_(0),
+       left_edge_(nullptr),
+       top_edge_(nullptr),
+diff '--color=auto' -ruN a/ui/views/window/frame_background.h b/ui/views/window/frame_background.h
+--- a/ui/views/window/frame_background.h	2017-11-13 13:09:58.000000000 -0700
++++ b/ui/views/window/frame_background.h	2017-11-22 09:51:15.283782398 -0700
+@@ -37,7 +37,7 @@
+   void set_is_active(bool is_active) { is_active_ = is_active; }
+ 
+   // Sets whether the frame to be drawn is in incognito mode.
+-  void set_incognito(bool incognito) { incognito_ = incognito; }
++  void set_incognito(bool incognito) { incognito_ = true; }
+ 
+   // Sets the theme image for the top of the window.  May be null (empty).
+   // Memory is owned by the caller.
