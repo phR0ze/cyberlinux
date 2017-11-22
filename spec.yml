@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.266
+  release: 0.0.267
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1194,6 +1194,7 @@ packages:
 
   remote-desktop:
     - { pkg: freerdp,                       desc: RDP client plugin for remmina }
+    - { pkg: lib32-dbus,                    desc: Freedesktop message bus, depof: teamviewer }
     - { pkg: remmina,                       desc: Network/Remoting - Nice remoting UI for RDP }
 
   file-sharing:
