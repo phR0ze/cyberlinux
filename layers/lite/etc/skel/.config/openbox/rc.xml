@@ -398,9 +398,9 @@
       <action name="Execute">
         <startupnotify>
           <enabled>true</enabled>
-          <name>firefox</name>
+          <name>chromium</name>
         </startupnotify>
-        <command>firefox</command>
+        <command>chromium</command>
       </action>
     </keybind>       
 
