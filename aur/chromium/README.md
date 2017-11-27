@@ -57,6 +57,10 @@ everyday browsing by default:
 * Extensions opens a new window to use
 * Settings opens a new window to use
 
+### Incognito Patch
+```
+grep -r incognito --exclude-dir={docs,ios}
+```
+
 ## Backlog: 
-* Google omni bar search isn't working
 * Doesn't remember pinned sites across restarts
