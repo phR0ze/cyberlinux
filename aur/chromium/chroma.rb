@@ -133,7 +133,6 @@ class Chroma
       @distros.inox => [
         '0001-fix-building-without-safebrowsing.patch', # Required when the PGKBUILD has safebrowing disabled
         '0003-disable-autofill-download-manager.patch', # Disables HTML AutoFill data transmission to Google
-        '0004-disable-google-url-tracker.patch',        # Disable URL tracking which transmits your location to Google
         '0006-modify-default-prefs.patch',              # Set default settings as described in header
         '0007-disable-web-resource-service.patch',      #
         '0008-restore-classic-ntp.patch',               # The new NTP (New Tag Page) pulls from Google including tracking identifier
@@ -177,6 +176,7 @@ class Chroma
       @distros.inox => [
         # Disables Hotword, Google Now/Feedback/Webstore/Hangout, Cloud Print, Speech synthesis
         # I like keeping the Webstore and Hangout features so will roll my own patch in cyberlinux
+        '0004-disable-google-url-tracker.patch',        # No URL tracking (Google saves your location) also breaks omnibar search
         '0005-disable-default-extensions.patch',        # see above
         '0011-add-duckduckgo-search-engine.patch',      # Adds DuckDuckGo as default search engine, still changeable in settings
         '0012-branding.patch',                          # Want to keep the original Chromium branding
