@@ -31,7 +31,7 @@
 pkgname=chromium
 pkgver=62.0.3202.94
 pkgrel=2
-_launcher_ver=5
+_launcher_ver=0.0.6
 pkgdesc="Chromium without Google big brother monitoring plus a few settings/UI tweaks to enhance privacy"
 arch=('x86_64')
 url="https://www.chromium.org/Home"
@@ -46,10 +46,10 @@ optdepends=('pepper-flash: support for Flash content'
             'libva-vdpau-driver: for hardware video acceleration with NVIDIA GPUs')
 install=chromium.install
 source=(https://commondatastorage.googleapis.com/chromium-browser-official/$pkgname-$pkgver.tar.xz
-        chromium-launcher-$_launcher_ver.tar.gz::https://github.com/foutrelis/chromium-launcher/archive/v$_launcher_ver.tar.gz
+        chromium-launcher-$_launcher_ver.tar.gz::https://github.com/phR0ze/chromium-launcher/archive/$_launcher_ver.tar.gz
         chromium.desktop)
 sha256sums=('cabc4d267bf08aabe11c5739048c43dde18c61acf595223a1c3aa1d3499558d4'
-            '4dc3428f2c927955d9ae117f2fb24d098cc6dd67adb760ac9c82b522ec8b0587'
+            '0575020841f8246f020179e854a074ba0944bfc24197b84feaaf5c0f13e5fb06'
             '028a748a5c275de9b8f776f97909f999a8583a4b77fd1cd600b4fc5c0c3e91e9')
 
 # Possible replacements are listed in build/linux/unbundle/replace_gn_files.py
@@ -185,11 +185,12 @@ build() {
 }
 
 package() {
+  msg 'Build/Package launcher'
   cd chromium-launcher-$_launcher_ver
   make PREFIX=/usr DESTDIR="$pkgdir" install
-  install -Dm644 LICENSE \
-    "$pkgdir/usr/share/licenses/chromium/LICENSE.launcher"
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/chromium/LICENSE.launcher"
 
+  msg 'Package chromium'
   cd "$srcdir/$pkgname-$pkgver"
 
   install -D out/Release/chrome "$pkgdir/usr/lib/chromium/chromium"
@@ -247,11 +248,13 @@ package() {
 #  find . -type f -exec install -Dm644 "{}" "${pkgdir}/usr/share/chromium/extensions/{}" \;
 
   # Install Custom configuration 
-  # http://www.chromium.org/administrators/configuring-other-preferences
-  # - master_preferences acts as a template for the first run then user can edit them
-  # - some 
+  # - chromium.conf: list of command line options to give to chromium when starting
+  #   https://peter.sh/experiments/chromium-command-line-switches/
+  # - master_preferences: acts as a template for the first run then user can edit them
+  #   http://www.chromium.org/administrators/configuring-other-preferences
   #-----------------------------------------------------------------------------
-  install -Dm644 $srcdir/../config/master_preferences "${pkgdir}/etc/chromium/master_preferences"
+  install -Dm644 $srcdir/../config/chromium.conf -t $pkgdir/etc/chromium
+  install -Dm644 $srcdir/../config/master_preferences -t $pkgdir/etc/chromium
 }
 
 # vim: ts=2:sw=2:sts=2
