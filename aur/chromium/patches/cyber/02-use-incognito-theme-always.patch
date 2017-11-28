@@ -1,8 +1,95 @@
-description: always use the icognito dark theme
-author: phR0ze
-
+diff '--color=auto' -ruN a/chrome/browser/themes/theme_service.cc b/chrome/browser/themes/theme_service.cc
+--- a/chrome/browser/themes/theme_service.cc	2017-11-13 13:09:14.000000000 -0700
++++ b/chrome/browser/themes/theme_service.cc	2017-11-28 16:11:13.588546194 -0700
+@@ -122,7 +122,7 @@
+ ThemeService::BrowserThemeProvider::BrowserThemeProvider(
+     const ThemeService& theme_service,
+     bool incognito)
+-    : theme_service_(theme_service), incognito_(incognito) {}
++    : theme_service_(theme_service), incognito_(true) {}
+ 
+ ThemeService::BrowserThemeProvider::~BrowserThemeProvider() {}
+ 
+@@ -240,7 +240,7 @@
+       profile_(nullptr),
+       installed_pending_load_id_(kDefaultThemeID),
+       number_of_infobars_(0),
+-      original_theme_provider_(*this, false),
++      original_theme_provider_(*this, true),
+       incognito_theme_provider_(*this, true),
+       weak_ptr_factory_(this) {}
+ 
+@@ -400,9 +400,7 @@
+ const ui::ThemeProvider& ThemeService::GetThemeProviderForProfile(
+     Profile* profile) {
+   ThemeService* service = ThemeServiceFactory::GetForProfile(profile);
+-  bool incognito = profile->GetProfileType() == Profile::INCOGNITO_PROFILE;
+-  return incognito ? service->incognito_theme_provider_
+-                   : service->original_theme_provider_;
++  return service->incognito_theme_provider_;
+ }
+ 
+ void ThemeService::SetCustomDefaultTheme(
+@@ -417,6 +415,8 @@
+ }
+ 
+ SkColor ThemeService::GetDefaultColor(int id, bool incognito) const {
++  incognito = true
++
+   // For backward compat with older themes, some newer colors are generated from
+   // older ones if they are missing.
+   const int kNtpText = ThemeProperties::COLOR_NTP_TEXT;
+@@ -517,6 +517,8 @@
+ }
+ 
+ color_utils::HSL ThemeService::GetTint(int id, bool incognito) const {
++  incognito = true
++
+   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+ 
+   color_utils::HSL hsl;
+@@ -691,6 +693,8 @@
+ }
+ 
+ gfx::ImageSkia* ThemeService::GetImageSkiaNamed(int id, bool incognito) const {
++  incognito = true
++
+   gfx::Image image = GetImageNamed(id, incognito);
+   if (image.IsEmpty())
+     return nullptr;
+@@ -700,6 +704,8 @@
+ }
+ 
+ SkColor ThemeService::GetColor(int id, bool incognito) const {
++  incognito = true
++
+   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+ 
+   // For legacy reasons, |theme_supplier_| requires the incognito variants
+@@ -764,6 +770,8 @@
+ }
+ 
+ gfx::Image ThemeService::GetImageNamed(int id, bool incognito) const {
++  incognito = true
++
+   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+ 
+   int adjusted_id = id;
+diff '--color=auto' -ruN a/ui/views/window/custom_frame_view.cc b/ui/views/window/custom_frame_view.cc
+--- a/ui/views/window/custom_frame_view.cc	2017-11-13 13:09:58.000000000 -0700
++++ b/ui/views/window/custom_frame_view.cc	2017-11-28 10:19:08.759379295 -0700
+@@ -223,7 +223,7 @@
+   frame_background_->set_frame_color(GetFrameColor());
+   frame_background_->set_use_custom_frame(true);
+   frame_background_->set_is_active(ShouldPaintAsActive());
+-  frame_background_->set_incognito(false);
++  frame_background_->set_incognito(true);
+   const gfx::ImageSkia frame_image = GetFrameImage();
+   frame_background_->set_theme_image(frame_image);
+   frame_background_->set_top_area_height(frame_image.height());
+diff '--color=auto' -ruN a/ui/views/window/frame_background.cc b/ui/views/window/frame_background.cc
 --- a/ui/views/window/frame_background.cc	2017-11-13 13:09:58.000000000 -0700
-+++ b/ui/views/window/frame_background.cc	2017-11-22 12:31:23.229510581 -0700
++++ b/ui/views/window/frame_background.cc	2017-11-28 10:17:58.886048718 -0700
 @@ -17,7 +17,7 @@
      : frame_color_(0),
        use_custom_frame_(true),
@@ -12,8 +99,18 @@ author: phR0ze
        top_area_height_(0),
        left_edge_(nullptr),
        top_edge_(nullptr),
+@@ -178,7 +178,7 @@
+   ui::NativeTheme::ExtraParams params;
+   params.frame_top_area.use_custom_frame = use_custom_frame_;
+   params.frame_top_area.is_active = is_active_;
+-  params.frame_top_area.incognito = incognito_;
++  params.frame_top_area.incognito = true;
+   params.frame_top_area.default_background_color = frame_color_;
+   native_theme->Paint(canvas->sk_canvas(), ui::NativeTheme::kFrameTopArea,
+                       ui::NativeTheme::kNormal,
+diff '--color=auto' -ruN a/ui/views/window/frame_background.h b/ui/views/window/frame_background.h
 --- a/ui/views/window/frame_background.h	2017-11-13 13:09:58.000000000 -0700
-+++ b/ui/views/window/frame_background.h	2017-11-22 12:31:10.069511100 -0700
++++ b/ui/views/window/frame_background.h	2017-11-28 10:18:25.446047670 -0700
 @@ -37,7 +37,7 @@
    void set_is_active(bool is_active) { is_active_ = is_active; }
  

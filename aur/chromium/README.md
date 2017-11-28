@@ -38,6 +38,17 @@ These command line switches can be set in ***/etc/chromium/chromium.conf***
 
 Note: these can be validated by navigating to chrome://version
 
+## Chromium Plugins
+Chromium has a host of plugins available in the market for install a handful of which are essential
+for safe performant operations and are included by default in this distribution of chromium:
+
+* **https-everywhere** - automatically use HTTPS security where possible
+* **smartup-gestures** - an acceptable mouse gestures plugin
+* **tampermonkey** - World's most popular userscript manager
+* **ublock-origin** - ad blocking is essential and origin adblock is one of the best
+* **ublock-origin-extra** - foil early hostile anti-user mechanisms
+* **videodownload-helper** - excellent clean plugin for downloading online videos
+
 ## Semi-Incognito
 Incognito mode is an awesome feature and I'd like to leverage many of its features to be used in
 everyday browsing by default:
@@ -61,6 +72,30 @@ everyday browsing by default:
 ```
 grep -r incognito --exclude-dir={docs,ios}
 ```
+Terms:  
+* is_incognito()
+* set_incognito(true/false)
+* IsOffTheRecord
+* NativeThemeDarkAura
+* InIncognitoMode
+* UsingSystemTheme
+
+* chrome/browser/themes/theme_service.cc
+    * ThemeService
+    * incognito_theme_provider
+    * kDefaultThemeID
+    * GetThemeProviderForProfile => incognito
+
+* chrome/browser/ui/libgtkui/native_theme_gtk3.cc
+    * kDefaultTintFrameIncognito
+    * kDefaultTintFrameIncognitoInactive
+* chrome/browser/ui/libgtkui/chrome_gtk_frame.cc
+    * frame tints
+* chrome/browser/ui/libgtkui/gtk_ui.cc
+    * kDefaultTintFrameIncognito
+    * kDefaultTintFrameIncognitoInactive
+
 
 ## Backlog: 
 * Doesn't remember pinned sites across restarts
+
