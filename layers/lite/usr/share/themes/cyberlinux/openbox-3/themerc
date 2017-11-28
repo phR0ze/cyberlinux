@@ -38,20 +38,48 @@ window.inactive.label.text.color: #909090
 
 # Window Buttons
 #-------------------------------------------------------------------------------
+
+# Pressed
+window.*.button.pressed.bg: Flat
+window.active.button.pressed.bg.color: #202020
+window.active.button.pressed.image.color: #39AEF4
+window.inactive.button.pressed.bg.color: #000000
+window.inactive.button.pressed.image.color: #216A94
+
+# Disabled
+window.*.button.disabled.bg: Flat
+window.active.button.disabled.bg.color: #202020
+window.active.button.disabled.image.color: #39AEF4
+window.inactive.button.disabled.bg.color: #000000
+window.inactive.button.disabled.image.color: #216A94
+
+# Unpressed
 window.*.button.unpressed.bg: Flat
 window.active.button.unpressed.bg.color: #202020
-window.inactive.button.unpressed.bg.color: #000000
 window.active.button.unpressed.image.color: #39AEF4
+window.inactive.button.unpressed.bg.color: #000000
 window.inactive.button.unpressed.image.color: #216A94
 
+# Toggled Pressed
+window.*.button.toggled.pressed.bg: Flat
+window.active.button.toggled.pressed.bg.color: #202020
+window.active.button.toggled.pressed.image.color: #39AEF4
+window.inactive.button.toggled.pressed.bg.color: #000000
+window.inactive.button.toggled.pressed.image.color: #216A94
+
+# Toggled Unpressed
+window.*.button.toggled.unpressed.bg: Flat
+window.active.button.toggled.unpressed.bg.color: #202020
+window.active.button.toggled.unpressed.image.color: #39AEF4
+window.inactive.button.toggled.unpressed.bg.color: #000000
+window.inactive.button.toggled.unpressed.image.color: #216A94
+
+# Hover
 window.*.button.hover.bg: Flat
 window.active.button.hover.bg.color: #39AEF4
 window.active.button.hover.image.color: #000000
 
-window.*.button.toggled.unpressed.bg: Flat
-window.active.button.toggled.unpressed.bg.color: #202020
-window.active.button.toggled.unpressed.image.color: #39AEF4
-
+# Toggled Hover
 window.*.button.toggled.hover.bg: Flat
 window.active.button.toggled.hover.bg.color: #39AEF4
 window.active.button.toggled.hover.image.color: #000000
