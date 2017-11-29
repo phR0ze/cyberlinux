@@ -25,6 +25,33 @@ The chromium code base is separated into three main parts:
 2. **Renderer** - per-tab subprocess that is driven by the browser
 3. **Webkit** - embedded in renderer to do layout and rendering
 
+## Chromium Patches
+I really like the ingonito theme and some of the incognito features offered in Chromium but not all.
+To make this more alacarte I've created some patches to enable specific incognito features while
+ignoring ones I don't like.
+
+* **Always Incognito Theme** - patching code to always use the incognito theme
+
+Other Possibilities:  
+* **No User Management Icon** - in incognito mode there is no user management options or icon in bar
+* **No Payments** - payments are disabled by default in incognito mode
+* **No Browsing History** - browsing history is not saved 
+* **No Download History** - download history is not saved
+* **No Cookies Shared/Stored** - new clean cookie jar created and no cookies saved or shared
+* **No Form Data Stored** - no information entered into web site forms is saved
+* **No WebSite Data** - no website data of any kind is saved
+* Webstore doesn't show up on new tab page
+* Extensions opens a new window to use
+* Settings opens a new window to use
+
+
+### Other patches
+I'm leveraging some of the patches from each of these projects see ***chroma.rb*** for details:
+
+* **Arch Linux** - https://git.archlinux.org/svntogit/packages.git/tree/repos/extra-x86_64?h=packages/chromium
+* **Debian** - https://anonscm.debian.org/cgit/pkg-chromium/pkg-chromium.git/tree/debian
+* **INOX** - https://github.com/gcarq/inox-patchset
+
 ## Command line switches
 Chromium has a number of command line switches that are convenient to always have set:
 
@@ -48,53 +75,6 @@ for safe performant operations and are included by default in this distribution 
 * **ublock-origin** - ad blocking is essential and origin adblock is one of the best
 * **ublock-origin-extra** - foil early hostile anti-user mechanisms
 * **videodownload-helper** - excellent clean plugin for downloading online videos
-
-## Semi-Incognito
-Incognito mode is an awesome feature and I'd like to leverage many of its features to be used in
-everyday browsing by default:
-
-### Icognito Pros
-* **Incognito Theme** - the dark theme provided by incognito mode is way better than the standard theme
-* **No User Management Icon** - in incognito mode there is no user management options or icon in bar
-* **No Payments** - payments are disabled by default in incognito mode
-* **No Browsing History** - browsing history is not saved 
-* **No Download History** - download history is not saved
-* **No Cookies Shared/Stored** - new clean cookie jar created and no cookies saved or shared
-* **No Form Data Stored** - no information entered into web site forms is saved
-* **No WebSite Data** - no website data of any kind is saved
-
-### Incognito Negatives
-* Webstore doesn't show up on new tab page
-* Extensions opens a new window to use
-* Settings opens a new window to use
-
-### Incognito Patch
-```
-grep -r incognito --exclude-dir={docs,ios}
-```
-Terms:  
-* is_incognito()
-* set_incognito(true/false)
-* IsOffTheRecord
-* NativeThemeDarkAura
-* InIncognitoMode
-* UsingSystemTheme
-
-* chrome/browser/themes/theme_service.cc
-    * ThemeService
-    * incognito_theme_provider
-    * kDefaultThemeID
-    * GetThemeProviderForProfile => incognito
-
-* chrome/browser/ui/libgtkui/native_theme_gtk3.cc
-    * kDefaultTintFrameIncognito
-    * kDefaultTintFrameIncognitoInactive
-* chrome/browser/ui/libgtkui/chrome_gtk_frame.cc
-    * frame tints
-* chrome/browser/ui/libgtkui/gtk_ui.cc
-    * kDefaultTintFrameIncognito
-    * kDefaultTintFrameIncognitoInactive
-
 
 ## Backlog: 
 * Doesn't remember pinned sites across restarts
