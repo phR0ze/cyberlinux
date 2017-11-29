@@ -30,7 +30,7 @@
 #-------------------------------------------------------------------------------
 pkgname=chromium
 pkgver=62.0.3202.94
-pkgrel=2
+pkgrel=3
 _launcher_ver=0.0.6
 pkgdesc="Chromium without Google big brother monitoring plus a few settings/UI tweaks to enhance privacy"
 arch=('x86_64')

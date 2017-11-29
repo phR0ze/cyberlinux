@@ -34,7 +34,7 @@ diff '--color=auto' -ruN a/chrome/browser/themes/theme_service.cc b/chrome/brows
  }
  
  SkColor ThemeService::GetDefaultColor(int id, bool incognito) const {
-+  incognito = true
++  incognito = true;
 +
    // For backward compat with older themes, some newer colors are generated from
    // older ones if they are missing.
@@ -43,7 +43,7 @@ diff '--color=auto' -ruN a/chrome/browser/themes/theme_service.cc b/chrome/brows
  }
  
  color_utils::HSL ThemeService::GetTint(int id, bool incognito) const {
-+  incognito = true
++  incognito = true;
 +
    DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
  
@@ -52,7 +52,7 @@ diff '--color=auto' -ruN a/chrome/browser/themes/theme_service.cc b/chrome/brows
  }
  
  gfx::ImageSkia* ThemeService::GetImageSkiaNamed(int id, bool incognito) const {
-+  incognito = true
++  incognito = true;
 +
    gfx::Image image = GetImageNamed(id, incognito);
    if (image.IsEmpty())
@@ -61,7 +61,7 @@ diff '--color=auto' -ruN a/chrome/browser/themes/theme_service.cc b/chrome/brows
  }
  
  SkColor ThemeService::GetColor(int id, bool incognito) const {
-+  incognito = true
++  incognito = true;
 +
    DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
  
@@ -70,7 +70,7 @@ diff '--color=auto' -ruN a/chrome/browser/themes/theme_service.cc b/chrome/brows
  }
  
  gfx::Image ThemeService::GetImageNamed(int id, bool incognito) const {
-+  incognito = true
++  incognito = true;
 +
    DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
  
