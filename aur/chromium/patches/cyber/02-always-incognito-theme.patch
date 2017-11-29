@@ -1,0 +1,21 @@
+diff '--color=auto' -ruN a/chrome/browser/themes/theme_service.cc b/chrome/browser/themes/theme_service.cc
+--- a/chrome/browser/themes/theme_service.cc	2017-11-13 13:09:14.000000000 -0700
++++ b/chrome/browser/themes/theme_service.cc	2017-11-29 12:13:06.055702286 -0700
+@@ -122,7 +122,7 @@
+ ThemeService::BrowserThemeProvider::BrowserThemeProvider(
+     const ThemeService& theme_service,
+     bool incognito)
+-    : theme_service_(theme_service), incognito_(incognito) {}
++    : theme_service_(theme_service), incognito_(true) {}
+ 
+ ThemeService::BrowserThemeProvider::~BrowserThemeProvider() {}
+ 
+@@ -240,7 +240,7 @@
+       profile_(nullptr),
+       installed_pending_load_id_(kDefaultThemeID),
+       number_of_infobars_(0),
+-      original_theme_provider_(*this, false),
++      original_theme_provider_(*this, true),
+       incognito_theme_provider_(*this, true),
+       weak_ptr_factory_(this) {}
+ 
