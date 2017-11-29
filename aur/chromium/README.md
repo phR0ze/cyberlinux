@@ -26,14 +26,19 @@ The chromium code base is separated into three main parts:
 3. **Webkit** - embedded in renderer to do layout and rendering
 
 ## Chromium Patches
-I really like the ingonito theme and some of the incognito features offered in Chromium but not all.
-To make this more alacarte I've created some patches to enable specific incognito features while
-ignoring ones I don't like.
+Despite probably being the best browser out there Chromium has some glaring issues, in my opionion,
+that need to be fixed before it useful as a daily runner.  I've focused on three major categories
+for improvements in the code (***Arch Linux compatiblity***, ***Privacy/Security***, ***Aesthetic
+compatibility with cyberlinux***. So I'm leveraging patches from others and creating my own to make
+chromium fit with the ideals of the ***cyberlinux*** project as follows:
 
-* **Always Incognito Theme** - patching code to always use the incognito theme
+* **Always Incognito Theme** - patching code to always use the incognito theme (dark themes are better)
 
 Other Possibilities:  
-* **No User Management Icon** - in incognito mode there is no user management options or icon in bar
+* Disable guest mode completely and remove from settings
+* **No User Management Icon** - removing the user management icon as Linux is already multli-user
+* Remove people in settings
+* Remove multi user settings
 * **No Payments** - payments are disabled by default in incognito mode
 * **No Browsing History** - browsing history is not saved 
 * **No Download History** - download history is not saved
@@ -43,7 +48,6 @@ Other Possibilities:
 * Webstore doesn't show up on new tab page
 * Extensions opens a new window to use
 * Settings opens a new window to use
-
 
 ### Other patches
 I'm leveraging some of the patches from each of these projects see ***chroma.rb*** for details:
@@ -79,3 +83,22 @@ for safe performant operations and are included by default in this distribution 
 ## Backlog: 
 * Doesn't remember pinned sites across restarts
 
+## Notes
+* SigninManager
+* AvatarButton
+* AvatarMenu
+* ShowAvatarBubbleFromAvatarButton
+* IsOffTheRecord
+* IsGuestSession
+* SignIn
+* Profiles
+* LoginSession
+* ChromeSessionManager
+* chrome/browser/ui/views/profiles/profile_chooser_view.cc
+    According to chrome/browser/ui/views/bookmarks/bookmark_bubble_sign_in_delegate_browsertest.cc
+    comments line 100, ProfileChooserView::IsShowing() should be false
+    * ProfileChooserView
+    * IDS_PROFILES_MANAGE_USERS_BUTTON
+    * account_button
+    * guest_profile_button
+* 
