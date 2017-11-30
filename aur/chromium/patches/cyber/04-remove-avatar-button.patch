@@ -1,0 +1,27 @@
+diff '--color=auto' -ruN a/chrome/browser/ui/views/frame/browser_frame.cc b/chrome/browser/ui/views/frame/browser_frame.cc
+--- a/chrome/browser/ui/views/frame/browser_frame.cc	2017-11-13 13:09:14.000000000 -0700
++++ b/chrome/browser/ui/views/frame/browser_frame.cc	2017-11-30 14:59:19.521901595 -0700
+@@ -263,7 +263,7 @@
+ }
+ 
+ views::View* BrowserFrame::GetNewAvatarMenuButton() {
+-  return browser_frame_view_->GetProfileSwitcherView();
++  return nullptr
+ }
+ 
+ void BrowserFrame::OnMenuClosed() {
+diff '--color=auto' -ruN a/chrome/browser/ui/views/frame/browser_non_client_frame_view_mus.cc b/chrome/browser/ui/views/frame/browser_non_client_frame_view_mus.cc
+--- a/chrome/browser/ui/views/frame/browser_non_client_frame_view_mus.cc	2017-11-13 13:09:14.000000000 -0700
++++ b/chrome/browser/ui/views/frame/browser_non_client_frame_view_mus.cc	2017-11-30 14:58:26.398570357 -0700
+@@ -167,11 +167,7 @@
+ }
+ 
+ views::View* BrowserNonClientFrameViewMus::GetProfileSwitcherView() const {
+-#if defined(FRAME_AVATAR_BUTTON)
+-  return profile_switcher_.view();
+-#else
+   return nullptr;
+-#endif
+ }
+ 
+ void BrowserNonClientFrameViewMus::UpdateClientArea() {

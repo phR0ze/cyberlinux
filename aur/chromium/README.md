@@ -36,6 +36,9 @@ related code.
   * BrowserFrame::GetNewAvatarMenuButton => browser_frame_view->GetProfileSwitcherView
     * chrome/browser/ui/views/frame/browser_non_client_frame_view.cc
       * BrowserNonClientFrameView::UpdateProfileIndicatorIcon
+* chrome/browser/ui/views/browser_view.cc
+
+FRAME_AVATAR_BUTTON
 
 * chrome/browser/ui/views/browser_frame_view.cc - main frame control for display
 * chrome/browser/ui/views/native_browser_frame.cc - main frame control for display
