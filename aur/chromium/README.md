@@ -25,6 +25,21 @@ The chromium code base is separated into three main parts:
 2. **Renderer** - per-tab subprocess that is driven by the browser
 3. **Webkit** - embedded in renderer to do layout and rendering
 
+### Browser Code (UI)
+***chrome/browser*** is the location for all browser code including UI feature dirs like
+***themes***. ***chrome/browser/ui/views/browser_frame.cc*** is the main entry point for UI
+related code.
+
+* chrome/browser/ui/views/browser_frame.cc
+  * BrowserFrame::GetThemeProvider => ThemeService::GetThemeProviderForProfile
+    * chrome/browser/themes/theme_service.cc    // Patch to always use incognito theme
+  * BrowserFrame::GetNewAvatarMenuButton => browser_frame_view->GetProfileSwitcherView
+    * chrome/browser/ui/views/frame/browser_non_client_frame_view.cc
+      * BrowserNonClientFrameView::UpdateProfileIndicatorIcon
+
+* chrome/browser/ui/views/browser_frame_view.cc - main frame control for display
+* chrome/browser/ui/views/native_browser_frame.cc - main frame control for display
+
 ## Chromium Patches
 Despite probably being the best browser out there Chromium has some glaring issues, in my opionion,
 that need to be fixed before it useful as a daily runner.  I've focused on three major categories
@@ -36,6 +51,7 @@ chromium fit with the ideals of the ***cyberlinux*** project as follows:
 
 Other Possibilities:  
 * Disable guest mode completely and remove from settings
+
 * **No User Management Icon** - removing the user management icon as Linux is already multli-user
 * Remove people in settings
 * Remove multi user settings
@@ -82,10 +98,20 @@ for safe performant operations and are included by default in this distribution 
 
 ## Backlog: 
 * Doesn't remember pinned sites across restarts
+* Fix spellchecking with https://github.com/gcarq/inox-patchset/issues/83
 
 ## Notes
+* 
+profile switcher
+ProfileSwitcher
+glass_browser_frame_view.cc
+AvatarIconPadding
+incognito_bounds
+
+* OFF_THE_RECORD
 * SigninManager
 * AvatarButton
+* AvatarBubble
 * AvatarMenu
 * ShowAvatarBubbleFromAvatarButton
 * IsOffTheRecord
@@ -101,4 +127,6 @@ for safe performant operations and are included by default in this distribution 
     * IDS_PROFILES_MANAGE_USERS_BUTTON
     * account_button
     * guest_profile_button
-* 
+* HandleManageOtherPeople 
+* chrome_signin_helper.cc
+    * NewIncognitoWindow
