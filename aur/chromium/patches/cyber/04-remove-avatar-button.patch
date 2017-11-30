@@ -6,7 +6,7 @@ diff '--color=auto' -ruN a/chrome/browser/ui/views/frame/browser_frame.cc b/chro
  
  views::View* BrowserFrame::GetNewAvatarMenuButton() {
 -  return browser_frame_view_->GetProfileSwitcherView();
-+  return nullptr
++  return nullptr;
  }
  
  void BrowserFrame::OnMenuClosed() {
