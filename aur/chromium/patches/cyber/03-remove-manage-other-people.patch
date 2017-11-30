@@ -1,0 +1,24 @@
+diff '--color=auto' -ruN a/chrome/app/settings_chromium_strings.grdp b/chrome/app/settings_chromium_strings.grdp
+--- a/chrome/app/settings_chromium_strings.grdp	2017-11-13 13:09:12.000000000 -0700
++++ b/chrome/app/settings_chromium_strings.grdp	2017-11-30 08:48:48.839444976 -0700
+@@ -59,7 +59,7 @@
+ 
+   <!-- People Page -->
+   <message name="IDS_SETTINGS_SYNC_DISABLED_BY_ADMINISTRATOR" desc="The text to display when sync is disabled by administrator policy.">
+-    Sign in to Chromium is disabled by the administrator of this device.
++    Sign in to Chromium is disabled by the administrator of this machine.
+   </message>
+   <message name="IDS_SETTINGS_SYNC_DISCONNECT_DELETE_PROFILE_WARNING_WITH_COUNTS_SINGULAR" desc="Warning message displayed in the Sign out of Chrome dialog that indicates profile browsing data will be removed from the device.">
+     This will delete 1 item from this device. To retrieve your data later, sign in to Chromium as <ph name="USER_EMAIL">$1<ex>foo@example.com</ex></ph>.
+diff '--color=auto' -ruN a/chrome/app/settings_strings.grdp b/chrome/app/settings_strings.grdp
+--- a/chrome/app/settings_strings.grdp	2017-11-13 13:09:12.000000000 -0700
++++ b/chrome/app/settings_strings.grdp	2017-11-30 08:49:34.066109859 -0700
+@@ -2590,7 +2590,7 @@
+     People
+   </message>
+   <message name="IDS_SETTINGS_PEOPLE_MANAGE_OTHER_PEOPLE" desc="Label for the button that opens the multi-profile user manager.">
+-    Manage other people
++    Manage other people is disabled by the administrator of this machine.
+   </message>
+   <message name="IDS_SETTINGS_PEOPLE_MANAGE_SUPERVISED_USERS" desc="Label for the button that opens the supervised users dashboard.">
+     Manage supervised users
