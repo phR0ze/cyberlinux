@@ -31,14 +31,14 @@ The chromium code base is separated into three main parts:
 related code.
 
 * ***chrome/browser/ui/browser.cc***
-  * 
+  * Top level window in the application (i.e. main entry point)  
 * ***chrome/browser/ui/views/browser_frame.cc***
   * BrowserFrame::GetThemeProvider => ThemeService::GetThemeProviderForProfile
-    * chrome/browser/themes/theme_service.cc    // Patch to always use incognito theme
   * BrowserFrame::GetNewAvatarMenuButton => browser_frame_view->GetProfileSwitcherView
-      * BrowserNonClientFrameView::UpdateProfileIndicatorIcon
+* ***chrome/browser/themes/theme_service.cc***
+  * Patch to always use incognito theme
 * ***chrome/browser/ui/views/browser_view.cc***
-
+  * BrowserView implementation
 * ***chrome/browser/ui/profiles/profile_chooser_view.cc***
   * The dialog that is opened when you click Manage People from the Avatar Menu
 * ***chrome/browser/ui/profiles/avatar_button.cc***
@@ -51,12 +51,6 @@ related code.
 * ***chrome/browser/ui/views/frame/opaque_browser_frame_view.cc***
   * ?
 
-
-FRAME_AVATAR_BUTTON
-
-* chrome/browser/ui/views/browser_frame_view.cc - main frame control for display
-* chrome/browser/ui/views/native_browser_frame.cc - main frame control for display
-
 ## Chromium Patches
 Despite probably being the best browser out there Chromium has some glaring issues, in my opionion,
 that need to be fixed before it useful as a daily runner.  I've focused on three major categories
@@ -64,7 +58,11 @@ for improvements in the code (***Arch Linux compatiblity***, ***Privacy/Security
 compatibility with cyberlinux***. So I'm leveraging patches from others and creating my own to make
 chromium fit with the ideals of the ***cyberlinux*** project as follows:
 
-* **Always Incognito Theme** - patching code to always use the incognito theme (dark themes are better)
+* **00-master-preferences.patch** - patching to set /etc/chromium/master_preferenes path to use
+* **01-disable-default-extensions.patch** - patching to disble CloudPrint, HotWording, Feedback, InAppPayments
+* **02-always-incognito-theme.patch** - patching code to always use the incognito theme (dark themes are better)
+* **03-remove-manage-other-people.patch** - patching to remove the profile chooser in settings
+* **04-remove-avatar-button.patch** - patching to remove the avatar button in the window title bar
 
 Other Possibilities:  
 * Disable guest mode completely and remove from settings
