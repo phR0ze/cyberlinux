@@ -6,13 +6,22 @@ diff '--color=auto' -ruN a/chrome/browser/ui/views/frame/browser_frame.cc b/chro
  
  views::View* BrowserFrame::GetNewAvatarMenuButton() {
 -  return browser_frame_view_->GetProfileSwitcherView();
-+  return nullptr;
++  return nullptr
  }
  
  void BrowserFrame::OnMenuClosed() {
 diff '--color=auto' -ruN a/chrome/browser/ui/views/frame/browser_non_client_frame_view_mus.cc b/chrome/browser/ui/views/frame/browser_non_client_frame_view_mus.cc
 --- a/chrome/browser/ui/views/frame/browser_non_client_frame_view_mus.cc	2017-11-13 13:09:14.000000000 -0700
-+++ b/chrome/browser/ui/views/frame/browser_non_client_frame_view_mus.cc	2017-11-30 14:58:26.398570357 -0700
++++ b/chrome/browser/ui/views/frame/browser_non_client_frame_view_mus.cc	2017-12-01 11:50:19.792274768 -0700
+@@ -42,7 +42,7 @@
+ #endif
+ 
+ #if !defined(OS_CHROMEOS)
+-#define FRAME_AVATAR_BUTTON
++//#define FRAME_AVATAR_BUTTON
+ #endif
+ 
+ namespace {
 @@ -167,11 +167,7 @@
  }
  
@@ -25,3 +34,26 @@ diff '--color=auto' -ruN a/chrome/browser/ui/views/frame/browser_non_client_fram
  }
  
  void BrowserNonClientFrameViewMus::UpdateClientArea() {
+diff '--color=auto' -ruN a/chrome/browser/ui/views/frame/browser_view.cc b/chrome/browser/ui/views/frame/browser_view.cc
+--- a/chrome/browser/ui/views/frame/browser_view.cc	2017-11-13 13:09:14.000000000 -0700
++++ b/chrome/browser/ui/views/frame/browser_view.cc	2017-12-01 09:38:41.175919601 -0700
+@@ -524,7 +524,7 @@
+ }
+ 
+ bool BrowserView::IsIncognito() const {
+-  return browser_->profile()->IsOffTheRecord();
++  return true;
+ }
+ 
+ bool BrowserView::IsGuestSession() const {
+@@ -2511,8 +2511,8 @@
+ void BrowserView::ShowAvatarBubbleFromAvatarButton(
+     AvatarBubbleMode mode,
+     const signin::ManageAccountsParams& manage_accounts_params,
+-    signin_metrics::AccessPoint access_point,
+-    bool focus_first_profile_button) {
++    signin_metrics::AccessPoint access_point, bool focus_first_profile_button) {
++  return;
+ #if !defined(OS_CHROMEOS)
+   // Do not show avatar bubble if there is no avatar menu button.
+   if (!frame_->GetNewAvatarMenuButton())

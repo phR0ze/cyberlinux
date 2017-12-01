@@ -30,13 +30,27 @@ The chromium code base is separated into three main parts:
 ***themes***. ***chrome/browser/ui/views/browser_frame.cc*** is the main entry point for UI
 related code.
 
-* chrome/browser/ui/views/browser_frame.cc
+* ***chrome/browser/ui/browser.cc***
+  * 
+* ***chrome/browser/ui/views/browser_frame.cc***
   * BrowserFrame::GetThemeProvider => ThemeService::GetThemeProviderForProfile
     * chrome/browser/themes/theme_service.cc    // Patch to always use incognito theme
   * BrowserFrame::GetNewAvatarMenuButton => browser_frame_view->GetProfileSwitcherView
-    * chrome/browser/ui/views/frame/browser_non_client_frame_view.cc
       * BrowserNonClientFrameView::UpdateProfileIndicatorIcon
-* chrome/browser/ui/views/browser_view.cc
+* ***chrome/browser/ui/views/browser_view.cc***
+
+* ***chrome/browser/ui/profiles/profile_chooser_view.cc***
+  * The dialog that is opened when you click Manage People from the Avatar Menu
+* ***chrome/browser/ui/profiles/avatar_button.cc***
+  * Actual Avatar button but we need the caller of this **AvatarButtonManager**
+* ***chrome/browser/ui/views/frame/avatar_button_manager.cc***
+  * Handle button presses for the Avatar menu
+* ***chrome/browser/ui/views/frame/browser_non_client_frame_view.cc***
+  * Has reference to avatar_button_manager **profile_switcher_**  
+  * Has **#define FRAME_AVATAR_BUTTON** bingo!!!
+* ***chrome/browser/ui/views/frame/opaque_browser_frame_view.cc***
+  * ?
+
 
 FRAME_AVATAR_BUTTON
 
