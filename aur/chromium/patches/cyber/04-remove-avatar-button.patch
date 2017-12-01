@@ -1,3 +1,14 @@
+diff '--color=auto' -ruN a/chrome/browser/ui/views/frame/browser_non_client_frame_view.cc b/chrome/browser/ui/views/frame/browser_non_client_frame_view.cc
+--- a/chrome/browser/ui/views/frame/browser_non_client_frame_view.cc	2017-11-13 13:09:14.000000000 -0700
++++ b/chrome/browser/ui/views/frame/browser_non_client_frame_view.cc	2017-12-01 15:09:50.235136022 -0700
+@@ -149,6 +149,7 @@
+ }
+ 
+ void BrowserNonClientFrameView::UpdateProfileIndicatorIcon() {
++  return;
+   if (!profile_indicator_icon_) {
+     profile_indicator_icon_ = new ProfileIndicatorIcon();
+     profile_indicator_icon_->set_id(VIEW_ID_PROFILE_INDICATOR_ICON);
 diff '--color=auto' -ruN a/chrome/browser/ui/views/frame/browser_non_client_frame_view_mus.cc b/chrome/browser/ui/views/frame/browser_non_client_frame_view_mus.cc
 --- a/chrome/browser/ui/views/frame/browser_non_client_frame_view_mus.cc	2017-11-13 13:09:14.000000000 -0700
 +++ b/chrome/browser/ui/views/frame/browser_non_client_frame_view_mus.cc	2017-12-01 13:18:48.465398742 -0700
@@ -31,3 +42,83 @@ diff '--color=auto' -ruN a/chrome/browser/ui/views/frame/browser_non_client_fram
  #endif
  
    TabStrip* tab_strip_;
+diff '--color=auto' -ruN a/chrome/browser/ui/views/frame/opaque_browser_frame_view.cc b/chrome/browser/ui/views/frame/opaque_browser_frame_view.cc
+--- a/chrome/browser/ui/views/frame/opaque_browser_frame_view.cc	2017-11-13 13:09:14.000000000 -0700
++++ b/chrome/browser/ui/views/frame/opaque_browser_frame_view.cc	2017-12-01 15:19:27.335113262 -0700
+@@ -14,7 +14,7 @@
+ #include "chrome/browser/ui/views/frame/browser_view.h"
+ #include "chrome/browser/ui/views/frame/opaque_browser_frame_view_layout.h"
+ #include "chrome/browser/ui/views/frame/opaque_browser_frame_view_platform_specific.h"
+-#include "chrome/browser/ui/views/profiles/profile_indicator_icon.h"
++//#include "chrome/browser/ui/views/profiles/profile_indicator_icon.h"
+ #include "chrome/browser/ui/views/tab_icon_view.h"
+ #include "chrome/browser/ui/views/tabs/tab_strip.h"
+ #include "chrome/browser/ui/views/toolbar/toolbar_view.h"
+@@ -73,7 +73,7 @@
+       close_button_(nullptr),
+       window_icon_(nullptr),
+       window_title_(nullptr),
+-      profile_switcher_(this),
++      // profile_switcher_(this),
+       frame_background_(new views::FrameBackground()) {
+   SetLayoutManager(layout_);
+ 
+@@ -177,7 +177,7 @@
+ }
+ 
+ views::View* OpaqueBrowserFrameView::GetProfileSwitcherView() const {
+-  return profile_switcher_.view();
++  return nullptr;
+ }
+ 
+ ///////////////////////////////////////////////////////////////////////////////
+@@ -194,14 +194,14 @@
+ 
+ bool OpaqueBrowserFrameView::IsWithinAvatarMenuButtons(
+     const gfx::Point& point) const {
+-  if (profile_indicator_icon() &&
+-      profile_indicator_icon()->GetMirroredBounds().Contains(point)) {
+-    return true;
+-  }
+-  if (profile_switcher_.view() &&
+-      profile_switcher_.view()->GetMirroredBounds().Contains(point)) {
+-    return true;
+-  }
++  // if (profile_indicator_icon() &&
++  //     profile_indicator_icon()->GetMirroredBounds().Contains(point)) {
++  //   return true;
++  // }
++  // if (profile_switcher_.view() &&
++  //     profile_switcher_.view()->GetMirroredBounds().Contains(point)) {
++  //   return true;
++  // }
+ 
+   return false;
+ }
+@@ -505,10 +505,10 @@
+ }
+ 
+ void OpaqueBrowserFrameView::UpdateProfileIcons() {
+-  if (browser_view()->IsRegularOrGuestSession())
+-    profile_switcher_.Update(AvatarButtonStyle::THEMED);
+-  else
+-    UpdateProfileIndicatorIcon();
++  // if (browser_view()->IsRegularOrGuestSession())
++  //   profile_switcher_.Update(AvatarButtonStyle::THEMED);
++  // else
++  //   UpdateProfileIndicatorIcon();
+ }
+ 
+ ///////////////////////////////////////////////////////////////////////////////
+diff '--color=auto' -ruN a/chrome/browser/ui/views/frame/opaque_browser_frame_view.h b/chrome/browser/ui/views/frame/opaque_browser_frame_view.h
+--- a/chrome/browser/ui/views/frame/opaque_browser_frame_view.h	2017-11-13 13:09:14.000000000 -0700
++++ b/chrome/browser/ui/views/frame/opaque_browser_frame_view.h	2017-12-01 15:15:51.778455097 -0700
+@@ -182,7 +182,7 @@
+   views::Label* window_title_;
+ 
+   // Wrapper around the in-frame avatar switcher.
+-  AvatarButtonManager profile_switcher_;
++  //AvatarButtonManager profile_switcher_;
+ 
+   // Background painter for the window frame.
+   std::unique_ptr<views::FrameBackground> frame_background_;

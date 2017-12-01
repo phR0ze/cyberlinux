@@ -51,6 +51,9 @@ related code.
 * ***chrome/browser/ui/views/frame/opaque_browser_frame_view.cc***
   * ?
 
+* profile_indicator_icon
+* profile_switcher
+
 ## Chromium Patches
 Despite probably being the best browser out there Chromium has some glaring issues, in my opionion,
 that need to be fixed before it useful as a daily runner.  I've focused on three major categories
