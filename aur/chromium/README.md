@@ -26,6 +26,8 @@ The chromium code base is separated into three main parts:
 3. **Webkit** - embedded in renderer to do layout and rendering
 
 ### Browser Code (UI)
+https://www.chromium.org/developers/design-documents/browser-window
+
 ***chrome/browser*** is the location for all browser code including UI feature dirs like
 ***themes***. ***chrome/browser/ui/views/browser_frame.cc*** is the main entry point for UI
 related code.
@@ -44,15 +46,18 @@ related code.
 * ***chrome/browser/ui/profiles/avatar_button.cc***
   * Actual Avatar button but we need the caller of this **AvatarButtonManager**
 * ***chrome/browser/ui/views/frame/avatar_button_manager.cc***
-  * Handle button presses for the Avatar menu
+  * Where the AvatarButton is actually created and added to the frame view
 * ***chrome/browser/ui/views/frame/browser_non_client_frame_view.cc***
-  * Has reference to avatar_button_manager **profile_switcher_**  
-  * Has **#define FRAME_AVATAR_BUTTON** bingo!!!
+  * Looked promising but seems not used on linux and instead use ***opaque_browser_frame_view.cc***
+  * Has reference to avatar_button_manager i.e. **profile_switcher_**
 * ***chrome/browser/ui/views/frame/opaque_browser_frame_view.cc***
-  * ?
+  * Where the AvatarButtonManager is created and used to add the AvatarButton to the frame view
+  * Has reference to avatar_button_manager i.e. **profile_switcher_**
 
 * profile_indicator_icon
 * profile_switcher
+* new_avatar_button_
+* VIEW_ID_AVATAR_BUTTON
 
 ## Chromium Patches
 Despite probably being the best browser out there Chromium has some glaring issues, in my opionion,
