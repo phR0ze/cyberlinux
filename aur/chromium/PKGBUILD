@@ -31,7 +31,7 @@
 pkgname=chromium
 pkgver=62.0.3202.94
 pkgrel=3
-_launcher_ver=0.0.6
+_launcher_ver=0.0.7
 pkgdesc="Chromium without Google big brother monitoring plus a few settings/UI tweaks to enhance privacy"
 arch=('x86_64')
 url="https://www.chromium.org/Home"
@@ -248,12 +248,12 @@ package() {
 #  find . -type f -exec install -Dm644 "{}" "${pkgdir}/usr/share/chromium/extensions/{}" \;
 
   # Install Custom configuration 
-  # - chromium.conf: list of command line options to give to chromium when starting
+  # - launcher.conf: list of command line options to give to chromium when starting
   #   https://peter.sh/experiments/chromium-command-line-switches/
   # - master_preferences: acts as a template for the first run then user can edit them
   #   http://www.chromium.org/administrators/configuring-other-preferences
   #-----------------------------------------------------------------------------
-  install -Dm644 $srcdir/../config/chromium.conf -t $pkgdir/etc/chromium
+  install -Dm644 $srcdir/../config/launcher.conf -t $pkgdir/etc/chromium
   install -Dm644 $srcdir/../config/master_preferences -t $pkgdir/etc/chromium
 }
 
