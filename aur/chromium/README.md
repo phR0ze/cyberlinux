@@ -87,26 +87,11 @@ chromium fit with the ideals of the ***cyberlinux*** project as follows:
 Note: built in extensions can be validated by navigating to ***chrome://net-internals/#modules***
 
 Other Possibilities:  
-* Accidently removed the ingonito icon at the same time as the avatar icon
-* Disable guest mode completely and remove from settings
 * ***chrome://settings/content/cookies*** **Keep local data only until you quit your browser** is
 false by default
 * ***chrome://settings/content/automaticDownloads/ set to **Do not allow any site to download
 multiple files automatically**
 * ***chrome://settings/languages*** Spell check off by deafult?
-
-* **No User Management Icon** - removing the user management icon as Linux is already multli-user
-* Remove people in settings
-* Remove multi user settings
-* **No Payments** - payments are disabled by default in incognito mode
-* **No Browsing History** - browsing history is not saved 
-* **No Download History** - download history is not saved
-* **No Cookies Shared/Stored** - new clean cookie jar created and no cookies saved or shared
-* **No Form Data Stored** - no information entered into web site forms is saved
-* **No WebSite Data** - no website data of any kind is saved
-* Webstore doesn't show up on new tab page
-* Extensions opens a new window to use
-* Settings opens a new window to use
 
 ### Other patches
 I'm leveraging some of the patches from each of these projects see ***chroma.rb*** for details:

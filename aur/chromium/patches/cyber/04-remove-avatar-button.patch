@@ -1,6 +1,6 @@
 diff '--color=auto' -ruN a/chrome/browser/ui/views/frame/opaque_browser_frame_view.cc b/chrome/browser/ui/views/frame/opaque_browser_frame_view.cc
 --- a/chrome/browser/ui/views/frame/opaque_browser_frame_view.cc	2017-11-13 13:09:14.000000000 -0700
-+++ b/chrome/browser/ui/views/frame/opaque_browser_frame_view.cc	2017-12-04 11:20:57.155455516 -0700
++++ b/chrome/browser/ui/views/frame/opaque_browser_frame_view.cc	2017-12-04 12:08:08.148677203 -0700
 @@ -73,7 +73,7 @@
        close_button_(nullptr),
        window_icon_(nullptr),
@@ -34,15 +34,17 @@ diff '--color=auto' -ruN a/chrome/browser/ui/views/frame/opaque_browser_frame_vi
  
    return false;
  }
-@@ -506,7 +506,7 @@
+@@ -505,9 +505,7 @@
+ }
  
  void OpaqueBrowserFrameView::UpdateProfileIcons() {
-   if (browser_view()->IsRegularOrGuestSession())
+-  if (browser_view()->IsRegularOrGuestSession())
 -    profile_switcher_.Update(AvatarButtonStyle::THEMED);
-+    // profile_switcher_.Update(AvatarButtonStyle::THEMED);
-   else
+-  else
++  if (!browser_view()->IsRegularOrGuestSession())
      UpdateProfileIndicatorIcon();
  }
+ 
 diff '--color=auto' -ruN a/chrome/browser/ui/views/frame/opaque_browser_frame_view.h b/chrome/browser/ui/views/frame/opaque_browser_frame_view.h
 --- a/chrome/browser/ui/views/frame/opaque_browser_frame_view.h	2017-11-13 13:09:14.000000000 -0700
 +++ b/chrome/browser/ui/views/frame/opaque_browser_frame_view.h	2017-12-04 11:21:12.595454907 -0700
