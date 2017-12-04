@@ -252,9 +252,11 @@ package() {
   #   https://peter.sh/experiments/chromium-command-line-switches/
   # - master_preferences: acts as a template for the first run then user can edit them
   #   http://www.chromium.org/administrators/configuring-other-preferences
+  # - policy.json: is a set of policies to configure chromium with
   #-----------------------------------------------------------------------------
   install -Dm644 $srcdir/../config/launcher.conf -t $pkgdir/etc/chromium
   install -Dm644 $srcdir/../config/master_preferences -t $pkgdir/etc/chromium
+  install -Dm644 $srcdir/../config/policy.json -t $pkgdir/etc/chromium/policies/recommended
 }
 
 # vim: ts=2:sw=2:sts=2
