@@ -49,7 +49,7 @@ source=(https://commondatastorage.googleapis.com/chromium-browser-official/$pkgn
         chromium-launcher-$_launcher_ver.tar.gz::https://github.com/phR0ze/chromium-launcher/archive/$_launcher_ver.tar.gz
         chromium.desktop)
 sha256sums=('cabc4d267bf08aabe11c5739048c43dde18c61acf595223a1c3aa1d3499558d4'
-            '0575020841f8246f020179e854a074ba0944bfc24197b84feaaf5c0f13e5fb06'
+            '9a2da2ab1c3fc24ad47c72925a9f748e4f758ea65183d4fdc2a8000487f2d49a'
             '028a748a5c275de9b8f776f97909f999a8583a4b77fd1cd600b4fc5c0c3e91e9')
 
 # Possible replacements are listed in build/linux/unbundle/replace_gn_files.py
