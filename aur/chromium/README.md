@@ -1,6 +1,6 @@
 # chromium
-Chromium without Google big brother montoring plus a few settings and UI tweaks to enhance privacy
-and aesthetics.
+Chromium ***without*** Google's Orwellian type tracking, plus a few settings and UI tweaks to
+enhance privacy and aesthetics to support ***cyberlinux***.
 
 https://github.com/gcarq/inox-patchset
 https://github.com/Eloston/ungoogled-chromium
@@ -22,6 +22,7 @@ https://www.chromium.org/developers/how-tos/getting-around-the-chrome-source-cod
 The chromium code base is separated into three main parts: 
 
 1. **Browser** - the main process and represents the UI and I/O
+   a. **WebUI** - the webui directory contains UI elements for settings etc...
 2. **Renderer** - per-tab subprocess that is driven by the browser
 3. **Webkit** - embedded in renderer to do layout and rendering
 
@@ -31,6 +32,9 @@ https://www.chromium.org/developers/design-documents/browser-window
 ***chrome/browser*** is the location for all browser code including UI feature dirs like
 ***themes***. ***chrome/browser/ui/views/browser_frame.cc*** is the main entry point for UI
 related code.
+
+#### Frame UI Code
+Views and frames are the GTK wrappers for the window
 
 * ***chrome/browser/ui/browser.cc***
   * Top level window in the application (i.e. main entry point)  
@@ -49,19 +53,27 @@ related code.
   * Where the AvatarButton is actually created and added to the frame view
 * ***chrome/browser/ui/views/frame/browser_non_client_frame_view.cc***
   * Looked promising but seems not used on linux and instead use ***opaque_browser_frame_view.cc***
-  * Has reference to avatar_button_manager i.e. **profile_switcher_**
 * ***chrome/browser/ui/views/frame/opaque_browser_frame_view.cc***
   * Where the AvatarButtonManager is created and used to add the AvatarButton to the frame view
   * Has reference to avatar_button_manager i.e. **profile_switcher_**
 
-* profile_indicator_icon
-* profile_switcher
-* new_avatar_button_
-* VIEW_ID_AVATAR_BUTTON
+#### WebUI Code
+WebUI is responsible for content UI like extensions, settings, etc...
+
+* ***chrome/browser/ui/toolbar/app_menu_model.cc***
+  * Construction of the menu for the UI
+* ***chrome/app/settings_strings.grdp***
+  * UI settings menu strings **IDS_SETTINGS_PEOPLE_MANAGE_OTHER_PEOPLE**
+* ***chrome/app/settings_chromium_strings.grdp***
+  * Ui settings menu strings **IDS_SETTINGS_SYNC_DISABLED_BY_ADMINISTRATOR**
+* ***chrome/browser/ui/webui/settings/md_settings_localized_strings.provider.cc***
+  * Links IDS_SETTINGS_PEOPLE_MANAGE_OTHER_PEOPLE to manageOtherPeople
+* ***chrome/browser/resources/settings/people_page/people_page.html***
+  * Actual html layout code for people settings UI widgets
 
 ## Chromium Patches
 Despite probably being the best browser out there Chromium has some glaring issues, in my opionion,
-that need to be fixed before it useful as a daily runner.  I've focused on three major categories
+that need to be fixed before its useful as a daily runner.  I've focused on three major categories
 for improvements in the code (***Arch Linux compatiblity***, ***Privacy/Security***, ***Aesthetic
 compatibility with cyberlinux***. So I'm leveraging patches from others and creating my own to make
 chromium fit with the ideals of the ***cyberlinux*** project as follows:
@@ -69,11 +81,19 @@ chromium fit with the ideals of the ***cyberlinux*** project as follows:
 * **00-master-preferences.patch** - patching to set /etc/chromium/master_preferenes path to use
 * **01-disable-default-extensions.patch** - patching to disble CloudPrint, HotWording, Feedback, InAppPayments
 * **02-always-incognito-theme.patch** - patching code to always use the incognito theme (dark themes are better)
-* **03-remove-manage-other-people.patch** - patching to remove the profile chooser in settings
+* **03-remove-profile-management.patch** - patching to remove profile managment from settings
 * **04-remove-avatar-button.patch** - patching to remove the avatar button in the window title bar
 
+Note: built in extensions can be validated by navigating to ***chrome://net-internals/#modules***
+
 Other Possibilities:  
+* Accidently removed the ingonito icon at the same time as the avatar icon
 * Disable guest mode completely and remove from settings
+* ***chrome://settings/content/cookies*** **Keep local data only until you quit your browser** is
+false by default
+* ***chrome://settings/content/automaticDownloads/ set to **Do not allow any site to download
+multiple files automatically**
+* ***chrome://settings/languages*** Spell check off by deafult?
 
 * **No User Management Icon** - removing the user management icon as Linux is already multli-user
 * Remove people in settings
@@ -98,7 +118,7 @@ I'm leveraging some of the patches from each of these projects see ***chroma.rb*
 ## Command line switches
 Chromium has a number of command line switches that are convenient to always have set:
 
-These command line switches can be set in ***/etc/chromium/chromium.conf***
+These command line switches can be set in ***/etc/chromium/launcher.conf***
 
 * **--disable-background-networking** Disable Google location tracking for omnibar searches
 * **--disable-cloud-import** Disable importing cloud data
@@ -106,7 +126,7 @@ These command line switches can be set in ***/etc/chromium/chromium.conf***
 * **--disable-sync** Disable syncing browser data to Google Account
 * **--process-per-site** Default is to use a separate process per tab, this reduces memory by using a process per site
 
-Note: these can be validated by navigating to chrome://version
+Note: these can be validated by navigating to ***chrome://version***
 
 ## Chromium Plugins
 Chromium has a host of plugins available in the market for install a handful of which are essential
@@ -122,34 +142,3 @@ for safe performant operations and are included by default in this distribution 
 ## Backlog: 
 * Doesn't remember pinned sites across restarts
 * Fix spellchecking with https://github.com/gcarq/inox-patchset/issues/83
-
-## Notes
-* 
-profile switcher
-ProfileSwitcher
-glass_browser_frame_view.cc
-AvatarIconPadding
-incognito_bounds
-
-* OFF_THE_RECORD
-* SigninManager
-* AvatarButton
-* AvatarBubble
-* AvatarMenu
-* ShowAvatarBubbleFromAvatarButton
-* IsOffTheRecord
-* IsGuestSession
-* SignIn
-* Profiles
-* LoginSession
-* ChromeSessionManager
-* chrome/browser/ui/views/profiles/profile_chooser_view.cc
-    According to chrome/browser/ui/views/bookmarks/bookmark_bubble_sign_in_delegate_browsertest.cc
-    comments line 100, ProfileChooserView::IsShowing() should be false
-    * ProfileChooserView
-    * IDS_PROFILES_MANAGE_USERS_BUTTON
-    * account_button
-    * guest_profile_button
-* HandleManageOtherPeople 
-* chrome_signin_helper.cc
-    * NewIncognitoWindow
