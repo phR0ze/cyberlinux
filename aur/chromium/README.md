@@ -56,11 +56,15 @@ These command line switches can be set in ***/etc/chromium/launcher.conf***
 Note: these can be validated by navigating to ***chrome://version***
 
 ## Chromium Policies
-http://dev.chromium.org/administrators/policy-list-3
+References for policy and extension settings
+* http://dev.chromium.org/administrators/policy-list-3
+* https://www.chromium.org/administrators/linux-quick-start
+* https://www.chromium.org/administrators/configuring-policy-for-extensions
 
-https://www.chromium.org/administrators/linux-quick-start
-
-Chromium has the ability to set policy read from ***/etc/chromium/policies/recommended***
+Chromium has the ability to set policy read from ***/etc/chromium/policies/recommended*** also
+policies can also be configured for extensions that support policy management via the managed
+storage API. Extensions that support policy management are listed in ***chrome://policy*** along
+with the policies they support.
 
 
 
