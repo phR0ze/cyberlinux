@@ -66,8 +66,6 @@ policies can also be configured for extensions that support policy management vi
 storage API. Extensions that support policy management are listed in ***chrome://policy*** along
 with the policies they support.
 
-
-
 ## Chromium Plugins
 Chromium has a host of plugins available in the market for install a handful of which are essential
 for safe performant operations and are included by default in this distribution of chromium:

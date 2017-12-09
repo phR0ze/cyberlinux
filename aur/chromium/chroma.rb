@@ -20,10 +20,9 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-$version = '62.0.3202.94'
-
 require 'fileutils'             # advanced file utils: FileUtils
 require 'json'                  # JSON support
+require 'open3'                 # Better exec
 require 'ostruct'               # OpenStruct
 require 'net/http'              # standard Ruby HTTP gem
 require 'uri'                   # URI support
@@ -40,10 +39,20 @@ rescue Exception => e
 end
 
 class Chroma
-  # Initialize
-  # @param outdir [String] output parent path to download to
-  def initialize(outdir)
-    @outdir = outdir || File.join(File.dirname(File.expand_path(__FILE__)), 'patches')
+  def initialize
+    @rootDir = File.dirname(File.expand_path(__FILE__))
+    @patchesDir = File.join(@rootDir, 'patches')
+    @extensionsDir = File.join(@rootDir, 'src')
+
+    # Parse the PKGBUILD file for the chromium version
+    @version = nil
+    File.readlines(File.join(@rootDir, 'PKGBUILD')).each{|line|
+        if ver = line[/^pkgver=(.*)$/, 1]
+          @version = ver
+          break
+        end
+    }
+
     @k = OpenStruct.new({
       oneoff: 'one-off',
       notused: 'not-used'
@@ -56,14 +65,28 @@ class Chroma
       debian: 'debian',
       iridium: 'iridium'
     })
-    @user_agent_alias = 'Mac Safari'
+    @userAgentAlias = 'Mac Safari'
 
     @proxy = ENV['http_proxy']
-    @proxy_uri = @proxy ? @proxy.split(':')[1][2..-1] : nil
-    @proxy_port = @proxy ? @proxy.split(':').last : nil
+    @proxyUri = @proxy ? @proxy.split(':')[1][2..-1] : nil
+    @proxyPort = @proxy ? @proxy.split(':').last : nil
+
+    # Extensions
+    # --------------------------------------------------------------------------
+    @extensions = {
+      'https-everywhere' => 'gcbommkclmclpchllfjekcdonpmejbdp',
+      'scriptsafe' => 'oiigbmnaadbkfbmpbfijlflahbdbdgdf',
+      'smartup-gestures' => 'bgjfekefhjemchdeigphccilhncnjldn',
+      'tampermonkey' => 'dhdgffkkebhmkfjojejmpbldmpobfkfo',
+      'ublock-origin' => 'cjpalhdlnbpafiamejdnhcphjbkeiagm',
+      'ublock-origin-extra' => 'pgdnlhfefecpicbbihgmbmffkjpaplco',
+      'umatrix' => 'ogfcmafjalglgifnmanfmnieipoejdcf',
+      'videodownload-helper' => 'lmjnegcaeklhafolokijcfjliaokphfk'
+    }
 
     # Patch sets that are supported
-    @patchsets = {
+    # --------------------------------------------------------------------------
+    @patchSets = {
       @distros.arch => 'https://git.archlinux.org/svntogit/packages.git/tree/trunk?h=packages/chromium',
       @distros.debian => 'https://anonscm.debian.org/cgit/pkg-chromium/pkg-chromium.git/plain/debian/patches',
       @distros.inox => 'https://github.com/gcarq/inox-patchset',
@@ -72,7 +95,8 @@ class Chroma
 
     # Call out patches used and not used and notes
     # Order is significant
-    @used_patches = {
+    # --------------------------------------------------------------------------
+    @usedPatches = {
       @distros.arch => [
         'breakpad-use-ucontext_t.patch',                # Glibc 2.26 does not expose struct ucontext any longer
         'chromium-gn-bootstrap-r17.patch',              #
@@ -110,7 +134,7 @@ class Chroma
       # https://github.com/gcarq/inox-patchset
       #
       # Default Settings
-      # ------------------------------------------------------------------------------------
+      # ------------------------------------------------------------------------
       # DefaultCookiesSettings                            CONTENT_SETTING_DEFAULT
       # EnableHyperLinkAuditing 	                        false
       # CloudPrintSubmitEnabled 	                        false
@@ -151,13 +175,16 @@ class Chroma
     }
 
     # Patches handled in PKGBUILD differently
-    @oneoff_patches = {
+    # --------------------------------------------------------------------------
+    @oneoffPatches = {
       @distros.arch => [
         'crc32c-string-view-check.patch',               #
       ],
     }
 
-    @not_used_patches = {
+    # Not used patches
+    # --------------------------------------------------------------------------
+    @notUsedPatches = {
       @distros.arch => [
         'chromium-widevine.patch',                      # Using debian as this one uses a variable
       ],
@@ -195,118 +222,118 @@ class Chroma
   # Download the latest patches from supported distributions
   # @param patchset [String] patchset preset string to use
   def downloadPatches(patchset)
-    patchset_dir = File.join(@outdir, patchset)
-    !puts("Error: Patchset was not found!".colorize(:red)) and exit unless @patchsets[patchset]
+    patchSetDir = File.join(@patchesDir, patchset)
+    !puts("Error: Patchset was not found!".colorize(:red)) and exit unless @patchSets[patchset]
     puts("Downloading patchset '#{patchset}'".colorize(:green))
-    puts("PatchSet Dir: #{patchset_dir}".colorize(:cyan))
-    FileUtils.rm_rf(patchset_dir) if File.exist?(patchset_dir)
-    FileUtils.mkdir_p(patchset_dir)
-    FileUtils.mkdir_p(File.join(patchset_dir, @k.notused))
-    FileUtils.mkdir_p(File.join(patchset_dir, @k.oneoff))
+    puts("PatchSet Dir: #{patchSetDir}".colorize(:cyan))
+    FileUtils.rm_rf(patchSetDir) if File.exist?(patchSetDir)
+    FileUtils.mkdir_p(patchSetDir)
+    FileUtils.mkdir_p(File.join(patchSetDir, @k.notused))
+    FileUtils.mkdir_p(File.join(patchSetDir, @k.oneoff))
 
     # Download patches via mechanize
-    # Save as offline file: agent.get(@patchsets[patchset]).content
+    # Save as offline file: agent.get(@patchSets[patchset]).content
     # Read from offline file: page = agent.get("file:///.../test.html"))}")
     Mechanize.new{|agent|
-      agent.set_proxy(@proxy_uri, @proxy_port)
-      agent.user_agent_alias = @user_agent_alias
+      agent.set_proxy(@proxyUri, @proxyPort)
+      agent.user_agent_alias = @userAgentAlias
 
       # Download arch patches
       #-------------------------------------------------------------------------
       if patchset == @distros.arch
-        page = agent.get(@patchsets[patchset])
+        page = agent.get(@patchSets[patchset])
         patchLinks = page.links.select{|x| x.href =~ /packages\.git\/plain\/trunk\/.*\.patch/}.map{|x| x.href}
         patchLinks.each{|link|
           name = link[/plain\/trunk\/(.*\.patch)/, 1]
-          download(agent, link, File.join(patchset_dir, name))
+          download(agent, link, File.join(patchSetDir, name))
         }
 
       # Download debian patches
       #-------------------------------------------------------------------------
       elsif patchset == @distros.debian
         baseUrl = "https://anonscm.debian.org"
-        page = agent.get(@patchsets[patchset])
+        page = agent.get(@patchSets[patchset])
         links = page.links.select{|x| x.href =~ /cgit\/pkg-chromium\/pkg-chromium.git\/plain\/debian\/patches\// }
         fileLinks = links.select{|x| x.href !~ /.*\/$/}
         dirLinks = links.reject{|x| fileLinks.include?(x)}
 
         # Download root files
-        fileLinks.each{|x| download(agent, File.join(baseUrl, x.href), File.join(patchset_dir, x.text)) }
+        fileLinks.each{|x| download(agent, File.join(baseUrl, x.href), File.join(patchSetDir, x.text)) }
 
         # Gather patches from dir links
         dirLinks.each{|dirlink|
           url = File.join(baseUrl, dirlink.href)
           puts("Scraping patch dir: #{url}")
-          FileUtils.mkdir_p(File.join(patchset_dir, dirlink.text))
+          FileUtils.mkdir_p(File.join(patchSetDir, dirlink.text))
           links = agent.get(url).links.select{|x| x.href =~ /#{dirlink.href}/}
-          links.each{|x| download(agent, File.join(baseUrl, x.href), File.join(patchset_dir, dirlink.text, x.text)) }
+          links.each{|x| download(agent, File.join(baseUrl, x.href), File.join(patchSetDir, dirlink.text, x.text)) }
         }
 
       # Download inox patches
       #-------------------------------------------------------------------------
       elsif patchset == @distros.inox
         baseurl = "https://raw.githubusercontent.com/gcarq/inox-patchset/#{$version}/"
-        page = agent.get(@patchsets[patchset])
+        page = agent.get(@patchSets[patchset])
         patchLinks = page.links.select{|x| x.href =~ /inox-patchset\/blob\/master\/.*\.patch/}
         patchLinks.each{|x|
           name = x.text
           link = baseurl + name
-          download(agent, link, File.join(patchset_dir, name))
+          download(agent, link, File.join(patchSetDir, name))
         }
 
       # Download iridium patches
       #-------------------------------------------------------------------------
       elsif patchset == @distros.iridium
-        page = agent.get(@patchsets[patchset])
+        page = agent.get(@patchSets[patchset])
         baseUrl = "https://git.iridiumbrowser.de"
         patchLinks = page.links.select{|x| x.href =~ /iridium-browser\/tree.*patchview&id=/ }
         patchLinks.each{|x|
           name = x.text
           link = "#{baseUrl}#{x.href.sub('/tree/', '/plain/')}"
-          download(agent, link, File.join(patchset_dir, name))
+          download(agent, link, File.join(patchSetDir, name))
         }
       end
     }
   end
 
-  # Process the patches from supported distributions
+  # Install the patches from supported distributions
   # @param patchset [String] patchset preset string to use
-  def processPatches(patchset)
-    patchset_dir = File.join(@outdir, patchset)
-    puts("Processing patchset '#{patchset}'".colorize(:green))
-    puts("PatchSet Dir: #{patchset_dir}".colorize(:cyan))
+  def installPatches(patchset)
+    patchSetDir = File.join(@patchesDir, patchset)
+    puts("Instaling patchset '#{patchset}'".colorize(:green))
+    puts("PatchSet Dir: #{patchSetDir}".colorize(:cyan))
 
     # Use static ordering and matching
     if patchset == @distros.arch || patchset == @distros.inox
 
       # Sort and rename oneoffs
-      if @oneoff_patches[patchset]
-        @oneoff_patches[patchset].each{|x|
+      if @oneoffPatches[patchset]
+        @oneoffPatches[patchset].each{|x|
           puts("Moving '#{x}' to '#{@k.oneoff}'")
-          File.rename(File.join(patchset_dir, x), File.join(patchset_dir, @k.oneoff, x))
+          File.rename(File.join(patchSetDir, x), File.join(patchSetDir, @k.oneoff, x))
         }
       end
 
       # Sort and rename not-used
-      if @not_used_patches[patchset]
-        @not_used_patches[patchset].each{|x|
+      if @notUsedPatches[patchset]
+        @notUsedPatches[patchset].each{|x|
           puts("Moving '#{x}' to '#{@k.notused}'")
-          File.rename(File.join(patchset_dir, x), File.join(patchset_dir, @k.notused, x))
+          File.rename(File.join(patchSetDir, x), File.join(patchSetDir, @k.notused, x))
         }
       end
 
       # Sort and rename used
-      if @used_patches[patchset]
-        @used_patches[patchset].each_with_index{|x, i|
+      if @usedPatches[patchset]
+        @usedPatches[patchset].each_with_index{|x, i|
           new_name = "#{i.to_s.rjust(2, '0')}-#{x}"
           puts("Renaming '#{x}' to '#{new_name}'")
-          File.rename(File.join(patchset_dir, x), File.join(patchset_dir, new_name))
+          File.rename(File.join(patchSetDir, x), File.join(patchSetDir, new_name))
         }
       end
 
     # Order patches according to 'series' file
     elsif patchset == @distros.iridium or patchset == @distros.debian
-      open(File.join(patchset_dir, 'series'), 'r'){|f|
+      open(File.join(patchSetDir, 'series'), 'r'){|f|
         i = 0
         f.readlines.each{|x|
           name = x.strip
@@ -314,12 +341,12 @@ class Chroma
           count = i.to_s.rjust(2, "0")
 
           if patchset == @distros.debian
-            oldName = File.join(patchset_dir, name)
-            newName = @not_used_patches[@distros.debian].include?(name) ? File.join(patchset_dir, @k.notused, "#{count}-#{name.sub('/', '-')}") :
-              File.join(patchset_dir, "#{count}-#{name.sub('/', '-')}")
+            oldName = File.join(patchSetDir, name)
+            newName = @notUsedPatches[@distros.debian].include?(name) ? File.join(patchSetDir, @k.notused, "#{count}-#{name.sub('/', '-')}") :
+              File.join(patchSetDir, "#{count}-#{name.sub('/', '-')}")
           else
-            oldName = File.join(patchset_dir, name)
-            newName = File.join(patchset_dir, "#{count}-#{name}")
+            oldName = File.join(patchSetDir, name)
+            newName = File.join(patchSetDir, "#{count}-#{name}")
           end
 
           # Order file
@@ -331,9 +358,83 @@ class Chroma
     end
 
     # Remove any directories that are not needed
-    Dir[File.join(patchset_dir, '*')].each{|x|
+    Dir[File.join(patchSetDir, '*')].each{|x|
       FileUtils.remove_dir(x) if File.directory?(x) and not (x.include?(@k.notused) || x.include?(@k.oneoff))
     }
+  end
+
+  # Download the given extension
+  # @param ext [String] extension by name to download
+  def downloadExtension(ext)
+    puts("%s: %s" % ["Downloading".colorize(:light_yellow), "#{ext}".colorize(:cyan)])
+    puts("  %s: %s" % ["Chromium".colorize(:light_yellow), "#{@version}".colorize(:cyan)])
+
+    # Lookup the extension id
+    extID = @extensions[ext]
+    extPath = File.join(@extensionsDir, "#{ext}.crx")
+    !puts("Error: No extension id for '#{ext}' was found!".colorize(:red)) and exit unless extID
+    puts("  %s: %s" % ["Extension ID".colorize(:light_yellow), "#{extID}".colorize(:cyan)])
+    puts("  %s: %s" % ["Extension Dest".colorize(:light_yellow), "#{extPath}".colorize(:cyan)])
+
+    # Construct request uri
+    if !File.exist?(extPath)
+      uri = URI.parse("https://clients2.google.com/service/update2/crx")
+      uri.query = URI.encode_www_form({
+        'response' => 'redirect',
+        'os' => 'linux',
+        'prodversion' => @version,
+        'x' => "id=#{extID}&installsource=ondemand&uc"
+      })
+      puts("  %s: %s" % ["Request".colorize(:light_yellow), "#{uri}".colorize(:cyan)])
+
+      # net/http call to stream down extension
+      Net::HTTP.start(uri.host, nil, @proxyUri, @proxyPort){|http|
+        res = http.request_head(uri) 
+        extUri = URI.parse(res['location'])
+        !puts("Error: extension is an unknown format!") and exit unless extUri.to_s.split('.').last == "crx"
+        #puts(res.to_hash)
+
+        # Stream download into local file
+        http.request(Net::HTTP::Get.new(extUri)){|res|
+          puts("  %s: %s" % ["URI".colorize(:light_yellow), "#{extUri}".colorize(:cyan)])
+          puts("  %s: %s" % ["FILE".colorize(:light_yellow), "#{extPath}".colorize(:cyan)])
+          print("  PROGRESS: ".colorize(:light_yellow))
+          cnt = 0
+          open(extPath, 'wb'){|f|
+            res.read_body{|chunk|
+              print('.') if (cnt += 1) % 2 == 0
+              f << chunk
+            }
+          }
+          puts("success!".colorize(:green))
+        }
+      }
+    else
+      puts("  %s: %s" % ["Already Exists".colorize(:light_yellow), "#{extPath}".colorize(:cyan)])
+    end
+
+    # Unzip the extension to a temp dir
+    tmpDir = File.join(@extensionsDir, '_tmp')
+    FileUtils.rm_rf(tmpDir) if File.exist?(tmpDir)
+    Open3.popen2e("unzip #{extPath} -d #{tmpDir}") {|i, o, t| t.value }
+
+    # Generate preferences file
+    manifest = File.join(tmpDir, 'manifest.json')
+    json = JSON.parse(File.read(manifest))
+    extVer = json['version']
+    puts("  %s: %s" % ["Extension Ver".colorize(:light_yellow), "#{extVer}".colorize(:cyan)])
+    pref = {
+      "external_crx" => File.join("/usr/share/chromium/extensions", File.basename(ext)),
+      "external_version" => extVer
+    }
+    prefPath= File.join(@extensionsDir, "#{extID}.json")
+    puts("  %s: %s" % ["Creating Prefs".colorize(:light_yellow), "#{prefPath}".colorize(:cyan)])
+    open(prefPath, 'w'){|f| f << JSON.pretty_generate(pref)}
+
+    # Clean up
+    FileUtils.rm_rf(tmpDir) if File.exist?(tmpDir)
+
+    puts("Done".colorize(:light_yellow))
   end
 
   # Download the given url to the given filepath
@@ -353,51 +454,63 @@ class Chroma
   # Hit an external site and retrieve what our user agent looks like
   def getUserAgent
     Mechanize.new{|agent|
-      agent.set_proxy(@proxy_uri, @proxy_port)
-      agent.user_agent_alias = @user_agent_alias
+      agent.set_proxy(@proxyUri, @proxyPort)
+      agent.user_agent_alias = @userAgentAlias
       page = agent.get("http://www.whoishostingthis.com/tools/user-agent/")
       puts(page.css('.info-box').first.content)
     }
   end
-  
+
+  # Accessor method for version
+  def getChromiumVersion
+    return @version
+  end
 end
 
 #-------------------------------------------------------------------------------
 # Main entry point
 #-------------------------------------------------------------------------------
 if __FILE__ == $0
-  opts = {}
+  chroma = Chroma.new
+
   app = 'chroma'
+  version = chroma.getChromiumVersion
   examples = "Examples:\n".colorize(:green)
   examples += "./#{app}.rb useragent\n".colorize(:green)
-  examples += "1) ./#{app}.rb download process --patches=arch\n".colorize(:green)
-  examples += "2) ./#{app}.rb download process --patches=debian\n".colorize(:green)
-  examples += "2) ./#{app}.rb download process --patches=inox\n".colorize(:green)
+  examples += "1) ./#{app}.rb download install --patches=arch\n".colorize(:green)
+  examples += "2) ./#{app}.rb download install --patches=debian\n".colorize(:green)
+  examples += "3) ./#{app}.rb download install --patches=inox\n".colorize(:green)
+  examples += "4) ./#{app}.rb download install --extension=https-everywhere\n".colorize(:green)
 
-  cmds = Cmds.new(app, $version, examples)
+  cmds = Cmds.new(app, version, examples)
   cmds.add('download', 'Download patches from the given distribution', [
-    CmdOpt.new('--patches=DISTRO', 'Distribution to download patches from', type:String, required:true),
-    CmdOpt.new('--outdir=OUTDIR', 'Destination parent directory for patches', type:String)
+    CmdOpt.new('--patches=DISTRO', 'Distribution to download patches from', type:String),
+    CmdOpt.new('--extension=EXTENSION', 'Extension to download from Google Market', type:String),
   ])
-  cmds.add('process', 'Mark un-used, order and clean up paches', [
-    CmdOpt.new('--patches=DISTRO', 'Distribution to process patches for', type:String, required:true),
-    CmdOpt.new('--outdir=OUTDIR', 'Destination parent directory for patches', type:String)
+  cmds.add('install', 'Mark un-used, order and clean up paches', [
+    CmdOpt.new('--patches=DISTRO', 'Distribution to install patches for', type:String),
+    CmdOpt.new('--extension=EXTENSION', 'Extension to install from Google Market', type:String),
   ])
   cmds.add('useragent', 'Check the useragent being seen externally', [])
   cmds.parse!
-
-  # Execute
   puts(cmds.banner)
-  chroma = Chroma.new(cmds[:outdir])
 
+  # Handle downloads
+  #-----------------------------------------------------------------------------
   if cmds[:download]
-    chroma.downloadPatches(cmds[:patches])
+    chroma.downloadPatches(cmds[:patches]) if cmds[:patches]
+    chroma.downloadExtension(cmds[:extension]) if cmds[:extension]
   end
 
-  if cmds[:process]
-    chroma.processPatches(cmds[:patches])
+  # Handle installs
+  #-----------------------------------------------------------------------------
+  if cmds[:install]
+    chroma.installPatches(cmds[:patches]) if cmds[:patches]
+    chroma.installExtension(cmds[:extension]) if cmds[:extension]
   end 
 
+  # Test user agent
+  #-----------------------------------------------------------------------------
   if cmds[:useragent]
     chroma.getUserAgent
   end
