@@ -66,8 +66,8 @@ policies can also be configured for extensions that support policy management vi
 storage API. Extensions that support policy management are listed in ***chrome://policy*** along
 with the policies they support.
 
-## Chromium Plugins
-Chromium has a host of plugins available in the market for install a handful of which are essential
+## Chromium Extensions
+Chromium has a host of extensions available in the market for install a handful of which are essential
 for safe performant operations and are included by default in this distribution of chromium:
 
 * **https-everywhere** - automatically use HTTPS security where possible
@@ -134,5 +134,6 @@ WebUI is responsible for content UI like extensions, settings, etc...
   * Actual html layout code for people settings UI widgets
 
 ## Backlog: 
+* Loading extensions from update URLs donsn't work
 * Doesn't remember pinned sites across restarts
 * Fix spellchecking with https://github.com/gcarq/inox-patchset/issues/83
