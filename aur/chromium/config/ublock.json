@@ -1,0 +1,9 @@
+{
+  "3rdparty": {
+    "extensions": {
+      "cjpalhdlnbpafiamejdnhcphjbkeiagm": {
+        "adminSettings": "{\"userSettings\":{\"advancedUserEnabled\":true,\"webrtcIPAddressHidden\":true},\"selectedFilterLists\":[\"plowe-0\",\"fanboy-annoyance\",\"spam404-0\",\"malware-1\",\"malware-0\",\"disconnect-malvertising\",\"fanboy-enhanced\",\"easyprivacy\",\"disconnect-tracking\",\"easylist\",\"reek-0\",\"awrl-0\",\"ublock-unbreak\",\"ublock-privacy\",\"ublock-badware\",\"ublock-filters\",\"user-filters\"]}"
+      }
+    }
+  }
+}
