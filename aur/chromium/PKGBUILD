@@ -227,8 +227,10 @@ package() {
 
   # Install Chromium Extensions
   #-----------------------------------------------------------------------------
+  msg "Installing Chromium Extensions"
   extensions=(
     'https-everywhere'            # Automatically use HTTPS security where possible
+    'scriptsafe'
     'smartup-gestures'            # Better mouse gestures for Chromium
     'tampermonkey'                # World's most popular userscript manager
     'ublock-origin'               # An efficient ad-blocker for Chromium
@@ -236,16 +238,15 @@ package() {
     'videodownload-helper'        # Video download helper for Chromium
   )
 
-#  # Download extensions
-#  ifs=$IFS
-#  cd $srcdir/..
-#  exts=$(IFS=,; echo "${extensions[*]}")
-#  ruby chroma.rb download --extensions=$exts --chromium=$pkgver --outdir=$srcdir/extensions
-#  IFS=$ifs
-#
-#  # Install extensions
-#  cd $srcdir/extensions
-#  find . -type f -exec install -Dm644 "{}" "${pkgdir}/usr/share/chromium/extensions/{}" \;
+  # Download extensions
+  for ext in ${extensions[@]}; do
+    msg2 "Downloading extension: $ext"
+    $srcdir/../chroma.rb download --extension=$ext
+  done
+
+  # Install extensions
+  cd $srcdir/extensions
+  find . -type f -exec install -Dm644 "{}" "${pkgdir}/usr/share/chromium/extensions/{}" \;
 
   # Install Custom configuration 
   # - launcher.conf: list of command line options to give to chromium when starting

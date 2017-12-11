@@ -42,7 +42,7 @@ class Chroma
   def initialize
     @rootDir = File.dirname(File.expand_path(__FILE__))
     @patchesDir = File.join(@rootDir, 'patches')
-    @extensionsDir = File.join(@rootDir, 'src')
+    @extensionsDir = File.join(@rootDir, 'src', 'extensions')
 
     # Parse the PKGBUILD file for the chromium version
     @version = nil
@@ -74,14 +74,14 @@ class Chroma
     # Extensions
     # --------------------------------------------------------------------------
     @extensions = {
-      'https-everywhere' => 'gcbommkclmclpchllfjekcdonpmejbdp',
+      'https-everywhere' => 'gcbommkclmclpchllfjekcdonpmejbdp',     # Automatically use HTTPS security where possible
       'scriptsafe' => 'oiigbmnaadbkfbmpbfijlflahbdbdgdf',
-      'smartup-gestures' => 'bgjfekefhjemchdeigphccilhncnjldn',
-      'tampermonkey' => 'dhdgffkkebhmkfjojejmpbldmpobfkfo',
-      'ublock-origin' => 'cjpalhdlnbpafiamejdnhcphjbkeiagm',
-      'ublock-origin-extra' => 'pgdnlhfefecpicbbihgmbmffkjpaplco',
+      'smartup-gestures' => 'bgjfekefhjemchdeigphccilhncnjldn',     # Better mouse gestures for Chromium
+      'tampermonkey' => 'dhdgffkkebhmkfjojejmpbldmpobfkfo',         # World's most popular userscript manager
+      'ublock-origin' => 'cjpalhdlnbpafiamejdnhcphjbkeiagm',        # An efficient ad-blocker for Chromium
+      'ublock-origin-extra' => 'pgdnlhfefecpicbbihgmbmffkjpaplco',  # Foil early hostile anti-user mechanisms
       'umatrix' => 'ogfcmafjalglgifnmanfmnieipoejdcf',
-      'videodownload-helper' => 'lmjnegcaeklhafolokijcfjliaokphfk'
+      'videodownload-helper' => 'lmjnegcaeklhafolokijcfjliaokphfk'  # Video download helper for Chromium
     }
 
     # Patch sets that are supported
@@ -376,6 +376,9 @@ class Chroma
     puts("  %s: %s" % ["Extension ID".colorize(:light_yellow), "#{extID}".colorize(:cyan)])
     puts("  %s: %s" % ["Extension Dest".colorize(:light_yellow), "#{extPath}".colorize(:cyan)])
 
+    # Create extensions directory
+    FileUtils.mkdir_p(@extensionsDir) if !File.exist?(@extensionsDir)
+
     # Construct request uri
     if !File.exist?(extPath)
       uri = URI.parse("https://clients2.google.com/service/update2/crx")
@@ -410,29 +413,35 @@ class Chroma
         }
       }
     else
-      puts("  %s: %s" % ["Already Exists".colorize(:light_yellow), "#{extPath}".colorize(:cyan)])
+      puts("  %s: %s" % ["Extension Already Exists".colorize(:light_yellow), "#{extPath}".colorize(:cyan)])
     end
 
-    # Unzip the extension to a temp dir
-    tmpDir = File.join(@extensionsDir, '_tmp')
-    FileUtils.rm_rf(tmpDir) if File.exist?(tmpDir)
-    Open3.popen2e("unzip #{extPath} -d #{tmpDir}") {|i, o, t| t.value }
-
-    # Generate preferences file
-    manifest = File.join(tmpDir, 'manifest.json')
-    json = JSON.parse(File.read(manifest))
-    extVer = json['version']
-    puts("  %s: %s" % ["Extension Ver".colorize(:light_yellow), "#{extVer}".colorize(:cyan)])
-    pref = {
-      "external_crx" => File.join("/usr/share/chromium/extensions", File.basename(ext)),
-      "external_version" => extVer
-    }
+    # Generate the preferences file
     prefPath= File.join(@extensionsDir, "#{extID}.json")
-    puts("  %s: %s" % ["Creating Prefs".colorize(:light_yellow), "#{prefPath}".colorize(:cyan)])
-    open(prefPath, 'w'){|f| f << JSON.pretty_generate(pref)}
+    if !File.exist?(prefPath)
 
-    # Clean up
-    FileUtils.rm_rf(tmpDir) if File.exist?(tmpDir)
+      # Unzip the extension
+      tmpDir = File.join(@extensionsDir, '_tmp')
+      FileUtils.rm_rf(tmpDir) if File.exist?(tmpDir)
+      Open3.popen2e("unzip #{extPath} -d #{tmpDir}") {|i, o, t| t.value }
+
+      # Generate the JSON preferences file
+      manifest = File.join(tmpDir, 'manifest.json')
+      json = JSON.parse(File.read(manifest))
+      extVer = json['version']
+      puts("  %s: %s" % ["Extension Ver".colorize(:light_yellow), "#{extVer}".colorize(:cyan)])
+      pref = {
+        "external_crx" => File.join("/usr/share/chromium/extensions", File.basename(ext)),
+        "external_version" => extVer
+      }
+      puts("  %s: %s" % ["Creating Prefs".colorize(:light_yellow), "#{prefPath}".colorize(:cyan)])
+      open(prefPath, 'w'){|f| f << JSON.pretty_generate(pref)}
+
+      # Clean up
+      FileUtils.rm_rf(tmpDir) if File.exist?(tmpDir)
+    else
+      puts("  %s: %s" % ["Preference File Already Exists".colorize(:light_yellow), "#{extPath}".colorize(:cyan)])
+    end
 
     puts("Done".colorize(:light_yellow))
   end
