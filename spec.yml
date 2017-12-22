@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.296
+  release: 0.0.297
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1025,7 +1025,7 @@ packages:
     - { pkg: ruby,                          desc: Ruby lang quick and easy programming }
     - { pkg: strace,                        desc: A diagnostic, debugging and instructional userspace tracer }
     - { pkg: texinfo,                       desc: Documentation for online information, depof: base-devel }
-    - { pkg: yaourt,                        desc: Pacman wrapper with AUR, type: ANTERGOS }
+    - { pkg: yaourt,                        desc: Pacman wrapper with support for AUR, type: ANTERGOS }
 
   reduce-gems:
     - { pkg: ruby-bundler,                  desc: Gem management, depof: reduce }
@@ -1190,7 +1190,7 @@ packages:
   theater-pkgs:
     - { pkg: idesk,                         desc: Lightweight desktop icons for X }
     - { pkg: kodi,                          desc: Software media player and entertainment hub }
-    - { pkg: tiny-media-manager,            desc: Cross platform media manager, type: AUR }
+    - { pkg: tiny-media-manager,            desc: Cross platform media manager, type: CYBERLINUX }
 
   remote-desktop:
     - { pkg: freerdp,                       desc: RDP client plugin for remmina }
