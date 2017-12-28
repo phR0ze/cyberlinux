@@ -17,8 +17,11 @@ aur/kubernetes/kubernetes
 aur/kubernetes/release
 aur/openvpn-pia/openvpn-pia
 aur/ruby-cmds/cmds
+aur/ruby-filesize/*.gem
 aur/ruby-pry-nav/*.gem
-aur/ruby-net-ssh/*.gem
+aur/ruby-net-scp/*.gem
 aur/ruby-net-sftp/*.gem
+aur/ruby-net-ssh/*.gem
+aur/ruby-rest-client/*.gem
 temp
 vagrant

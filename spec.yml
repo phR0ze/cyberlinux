@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.298
+  release: 0.0.299
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -938,7 +938,7 @@ packages:
 
   shell-pkgs:
     - { install: dev-pkgs }
-    - { install: reduce-gems }
+    - { install: ruby-gems }
     - { pkg: cronie,                        desc: Daemon for scheduling programs to run }
     - { pkg: htop,                          desc: Interactive process viewer, alt: top }
     - { pkg: iftop,                         desc: Display bandwidth usage on an interface }
@@ -1027,18 +1027,20 @@ packages:
     - { pkg: texinfo,                       desc: Documentation for online information, depof: base-devel }
     - { pkg: yaourt,                        desc: Pacman wrapper with support for AUR, type: ANTERGOS }
 
-  reduce-gems:
+  ruby-gems:
     - { pkg: ruby-bundler,                  desc: Gem management, depof: reduce }
     - { pkg: ruby-colorize,                 desc: Colorized output, depof: reduce }
-    - { pkg: ruby-cmds,                     desc: Command like syntax for parameters, depof: openvpn-pia }
+    - { pkg: ruby-cmds,                     desc: Command like syntax for parameters, depof: openvpn-pia, type: CYBERLINUX }
+    - { pkg: ruby-filesize,                 desc: Filesize to string maipulations, depof: reduce, type: CYBERLINUX }
     - { pkg: ruby-gtk3,                     desc: Ruby binding of GTK3, depof: openvpn-pia, type: CYBERLINUX }
+    - { pkg: ruby-net-scp,                  desc: Pure Ruby implementation of SCP client protocol, depof: reduce, type: CYBERLINUX }
+    - { pkg: ruby-net-sftp,                 desc: Pure Ruby implementation of SFTP client protocol, depof: reduce, type: CYBERLINUX }
+    - { pkg: ruby-net-ssh,                  desc: Pure Ruby implementation of SSH2 client protocol, depof: reduce, type: CYBERLINUX }
     - { pkg: ruby-nokogiri,                 desc: HTML parser with XPath and CSS3 selectors, depof: chromium build}
     - { pkg: ruby-mechanize,                desc: Automate interation with websites, depof: chromium build }
-    - { pkg: filesize,                      desc: Filesize to string maipulations, depof: reduce, type: GEM }
-    - { pkg: net-ssh,                       desc: Pure Ruby SSH2 implementation, depof: reduce, type: GEM }
-    - { pkg: net-scp,                       desc: Pure Ruby SCP implementation, depof: reduce, type: GEM }
-    - { pkg: pry,                           desc: Ruby debugger, type: GEM }
-    - { pkg: rest-client,                   desc: Simple HTTP and REST client, depof: reduce, type: GEM }
+    - { pkg: ruby-pry,                      desc: Ruby debugger, type: CYBERLINUX }
+    - { pkg: ruby-pry-nav,                  desc: Primitive debugging step and next commands for pry, type: CYBERLINUX }
+    - { pkg: ruby-rest-client,              desc: Simple HTTP and REST client, depof: reduce, type: CYBERLINUX }
 
   lite-pkgs:
     - { pkg: archlinux-xdg-menu,            desc: Automatic OpenBox menu generation from xdg files }
