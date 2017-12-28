@@ -24,7 +24,7 @@
 #-------------------------------------------------------------------------------
 gem=cmds
 pkgname=ruby-$gem
-pkgver=0.0.1
+pkgver=0.0.2
 pkgrel=1
 pkgdesc='Command like syntax for Ruby command line parameters'
 arch=(any)
