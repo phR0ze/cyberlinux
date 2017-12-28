@@ -17,7 +17,6 @@ aur/kubernetes/kubernetes
 aur/kubernetes/release
 aur/openvpn-pia/openvpn-pia
 aur/ruby-cmds/cmds
-aur/ruby-double-bag-ftps/*.gem
 aur/ruby-filesize/*.gem
 aur/ruby-pry-nav/*.gem
 aur/ruby-net-scp/*.gem
