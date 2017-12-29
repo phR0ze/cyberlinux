@@ -18,6 +18,7 @@ aur/kubernetes/release
 aur/openvpn-pia/openvpn-pia
 aur/ruby-cmds/cmds
 aur/ruby-filesize/*.gem
+aur/ruby-fuzzy_match/*.gem
 aur/ruby-pry-nav/*.gem
 aur/ruby-net-scp/*.gem
 aur/ruby-net-sftp/*.gem

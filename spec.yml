@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.304
+  release: 0.0.305
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1032,6 +1032,7 @@ packages:
     - { pkg: ruby-colorize,                 desc: Colorized output, depof: reduce }
     - { pkg: ruby-cmds,                     desc: Command like syntax for parameters, depof: openvpn-pia, type: CYBERLINUX }
     - { pkg: ruby-filesize,                 desc: Filesize to string maipulations, depof: reduce, type: CYBERLINUX }
+    - { pkg: ruby-fuzzy_match,              desc: Fuzzy string matching, depof: watchman, type: CYBERLINUX }
     - { pkg: ruby-gtk3,                     desc: Ruby binding of GTK3, depof: openvpn-pia, type: CYBERLINUX }
     - { pkg: ruby-net-scp,                  desc: Pure Ruby implementation of SCP client protocol, depof: reduce, type: CYBERLINUX }
     - { pkg: ruby-net-sftp,                 desc: Pure Ruby implementation of SFTP client protocol, depof: reduce, type: CYBERLINUX }
