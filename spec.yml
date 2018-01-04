@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.305
+  release: 0.0.306
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -795,7 +795,8 @@ changes:
     - { exec: "echo 'TERM=xterm' > /etc/environment" }
     - { exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /root' }
   sshd-config:
-    - { edit: /etc/ssh/sshd_config, regex: '^#(PermitRootLogin).*', value: '\1 yes' }
+    - { edit: /etc/ssh/sshd_config, regex: '^#(PermitRootLogin).*', value: '\1 no' }
+    - { edit: /etc/ssh/sshd_config, regex: '^#(PermitEmptyPasswords).*', value: '\1 no' }
     - { edit: /etc/ssh/sshd_config, regex: '^#(UsePrivilegeSeparation).*', value: '\1 sandbox' }
   sudo-vars-config:
     - edit: /etc/sudoers
@@ -1186,9 +1187,10 @@ packages:
     - { pkg: file-roller,                   desc: System/Compression integrates well in Thunar }
 
   media-pkgs:
-    - { pkg: makemkv,                       desc: DVD and Blu-ray to MKV converter, type: CYBERLINUX }
     - { pkg: handbrake,                     desc: Video/Encoding - Video encoding tool for mp4/mkv }
     - { pkg: handbrake-cli,                 desc: Video/Encoding - Video encoding tool for mp4/mkv }
+    - { pkg: makemkv,                       desc: DVD and Blu-ray to MKV converter, type: CYBERLINUX }
+    - { pkg: mkvtoolnix-gui,                desc: Set of tools to create, edit and inspect MKV files }
 
   theater-pkgs:
     - { pkg: idesk,                         desc: Lightweight desktop icons for X }
