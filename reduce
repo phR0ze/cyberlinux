@@ -41,7 +41,7 @@ begin
   require 'net/scp'             # scp integration: Net::SCP
 rescue Exception => e
   mod = e.message.split(' ').last.sub('/', '-')
-  !puts("Error: install missing module with 'sudo gem install --no-user-install #{mod}'") and exit
+  !puts("Error: install missing package with 'sudo pacman -S ruby-#{mod}'") and exit
 end
 
 class Reduce
@@ -70,7 +70,6 @@ class Reduce
       docker: 'docker',
       entry: 'entry',
       FOREIGN: 'FOREIGN',
-      GEM: 'GEM',
       gfxboot: 'gfxboot',
       groups: 'groups',
       i686: 'i686',
@@ -134,7 +133,6 @@ class Reduce
     @vagrantpath = File.join(@rootpath, 'vagrant')
 
     @aurcache = File.join(@outpath, 'aur')
-    @gemscache = File.join(@outpath, 'gems')
     @workpath = File.join(@outpath, 'work')
 
     @tmp_dir = File.join(@workpath, 'tmp')
@@ -192,7 +190,6 @@ class Reduce
     puts("Creating directory structure")
     FileUtils.mkdir_p(@workpath)
     FileUtils.mkdir_p(@aurcache)
-    FileUtils.mkdir_p(@gemscache)
     FileUtils.mkdir_p(@tmp_dir)
     FileUtils.mkdir_p(@isopath)
     FileUtils.mkdir_p(@isoimagesdst)
@@ -878,7 +875,7 @@ class Reduce
   # +layer+:: layer name to work with
   # +layer_yml+:: layer yaml to work with
   # +layer_work+:: the directory where to install the layer packages to
-  # +defer+:: defer aur/foreign packages and gems until a second pass
+  # +defer+:: defer aur/foreign packages until a second pass
   # +returns+:: tuple(true if any pkgs were installed, true if pkgs were deferred)
   def installpkgs(layer, layer_yml, layer_work, defer:false)
     msg = "Installing packages for '#{layer}'..."
@@ -891,7 +888,6 @@ class Reduce
       reg: all_pkgs.map{|x| x[@k.pkg] if not [x[@k.ignore], x[@k.offline]].any? and @repos.include?(x[@k.type])}.compact,
       aur: all_pkgs.map{|x| x[@k.pkg] if not [x[@k.ignore], x[@k.offline]].any? and x[@k.type] == @k.AUR}.compact,
       foreign: all_pkgs.map{|x| x[@k.pkg] if not [x[@k.ignore], x[@k.offline]].any? and x[@k.type] == @k.FOREIGN}.compact,
-      gem: all_pkgs.map{|x| "GEM:#{x[@k.pkg]}" if x[@k.type] == @k.GEM}.compact,
       ignore: all_pkgs.map{|x| x[@k.pkg] if x[@k.ignore]}.compact,
       offline: all_pkgs.map{|x| x[@k.pkg] if x[@k.offline]}.compact,
       conflict: all_pkgs.map{|x| "CONFLICT:#{x[@k.conflict]}" if x[@k.conflict]}.compact
@@ -903,7 +899,7 @@ class Reduce
       puts("Filtering out packages that are already installed".colorize(:cyan))
       installed_pkgs = nil
       File.open(pkgfile){|f| installed_pkgs = f.readlines.map{|x| x.strip}}
-      [:reg, :gem, :aur, :foreign, :offline, :conflict].each{|x|
+      [:reg, :aur, :foreign, :offline, :conflict].each{|x|
         pkgs[x] = pkgs[x].select{|y| not installed_pkgs.include?(y)}}
     end
 
@@ -912,7 +908,6 @@ class Reduce
     if pkgs.any?{|k,v| v.any? if k != :conflict and k != :ignore}
       puts("#{msg}".colorize(:cyan))
       puts("Packages: #{pkgs[:reg]}")
-      puts("Gem Pkgs: #{pkgs[:gem]}")
       puts("Aur Pkgs: #{pkgs[:aur]}")
       puts("Foreign Pkgs: #{pkgs[:foreign]}")
       puts("Ignore Pkgs: #{pkgs[:ignore]}")
@@ -981,15 +976,6 @@ class Reduce
         }
       end
 
-      # Install ruby gems
-      if pkgs[:gem].any?
-        puts("Installing ruby gems for '#{layer}'...".colorize(:cyan))
-        gems = pkgs[:gem].map{|x| x.split(':').last}
-        _, deferred = installgems(gems, layer_yml[@k.type], layer_work, defer:defer)
-        pkgs[:deferred] |= deferred
-        pkgs[:gem].clear if deferred and pkgs[:gem].any?
-      end
-
       # Clean up left artifacts from installs to leave prestine layer
       puts("Cleaning up artifacts that may be left over from installs".colorize(:cyan))
       Sys.exec("find #{layer_work} -name *.pacnew -name *.pacsave -name *.pacorig -delete")
@@ -1013,51 +999,13 @@ class Reduce
       rm_rf(File.join(layer_work, 'var/log/journal'))
 
       # Update list of packages that were installed
-      File.open(pkgfile, 'a'){|f| [:reg, :gem, :aur, :foreign, :offline].each{|x| f.puts(pkgs[x])}}
+      File.open(pkgfile, 'a'){|f| [:reg, :aur, :foreign, :offline].each{|x| f.puts(pkgs[x])}}
     else
       puts("#{msg}skipping".colorize(:cyan))
     end
 
     changed = pkgs.any?{|k,v| v.any? if k != :conflict and k != :ignore and k != :deferred}
     return changed, pkgs[:deferred]
-  end
-
-  # Install the indicated gems
-  # Params:
-  # +gem+:: gems to build and install
-  # +layer_type+:: layer type we're working with
-  # +layer_work+:: layer's work directory where files are located
-  # +defer+:: defer building gems packages when true
-  # +returns+:: tuple(true on change, true if gems were deferred)
-  def installgems(gems, layer_type, layer_work, defer:false)
-    changed = false
-    cached = Dir[File.join(@gemscache, '*')].map{|x| File.basename(x)}.sort
-
-    # Filter out cached gems then build non-cached
-    _gems = gems.reject{|x| cached.include?(x)}
-    if _gems.any?
-      puts("Scheduling gems #{gems} for second pass".colorize(:cyan)) if defer
-      return changed, true if defer
-
-      gems.reject{|x| cached.include?(x)}.each{|gem|
-        docker(@k.build, @k.build){|cont, home, cp, exec, execs, runuser|
-          params = "--no-document --install-dir=/ruby/gems --bindir=/ruby/bin"
-          exec["gem install #{gem} --no-user-install #{params}"]
-          cp["#{cont}:/ruby #{File.join(@gemscache, gem)}"]
-        }
-      }
-    end
-
-    # Install gem on the target layer
-    installed = `chroot #{layer_work} gem list`
-    gemdir = `chroot #{layer_work} gem environment gemdir`
-    gems.reject{|gem| installed.include?(gem)}.each{|gem|
-      File.exist?(File.join(@gemscache, gem, 'bin')) and
-        Sys.exec("cp -r #{File.join(@gemscache, gem, 'bin/*')} #{File.join(layer_work, '/usr/bin')}")
-      Sys.exec("cp -r #{File.join(@gemscache, gem, 'gems/*')} #{File.join(layer_work, gemdir)}")
-    }
-
-    return changed
   end
 
   # Build packages
