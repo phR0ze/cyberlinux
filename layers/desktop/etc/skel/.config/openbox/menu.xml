@@ -114,6 +114,7 @@
       <item label="Gconf Editor" icon="/usr/share/icons/Paper/32x32/apps/gconf-editor.png"><action name="Execute"><execute>gconf-editor</execute></action></item>
       <item label="Dconf Editor" icon="/usr/share/icons/Paper/32x32/apps/dconf-editor.png"><action name="Execute"><execute>dconf-editor</execute></action></item>
       <item label="Guake Preferences" icon="/usr/share/icons/Paper/32x32/apps/guake-prefs.png"><action name="Execute"><execute>guake-prefs</execute></action></item>
+      <item label="Printer Preferences" icon="/usr/share/icons/Paper/32x32/devices/preferences-desktop-printer.png"><action name="Execute"><execute>system-config-printer</execute></action></item>
       <item label="LXAppearance" icon="/usr/share/icons/Paper/32x32/apps/preferences-desktop-theme.png"><action name="Execute"><execute>lxappearance</execute></action></item>
       <item label="LXInput" icon="/usr/share/icons/Paper/32x32/apps/preferences-desktop-keyboard.png"><action name="Execute"><execute>lxinput</execute></action></item>
       <item label="LXRandr" icon="/usr/share/icons/Paper/32x32/apps/preferences-desktop-display.png"><action name="Execute"><execute>lxrandr</execute></action></item>

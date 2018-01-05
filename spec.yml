@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.307
+  release: 0.0.308
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1130,6 +1130,7 @@ packages:
     - { pkg: gvfs,                          desc: Support for Trash and USB, depof: thunar-volman }
     - { pkg: id3v2,                         desc: Utility to edit id3v2 tags }
     - { pkg: plank,                         desc: Elegant, simple, clean dock }
+    - { pkg: system-config-printer,         desc: A CUPS printer configuration tool and status applet }
     - { pkg: thunar-archive-plugin,         desc: Thunar integration with file-roller }
     - { pkg: thunar-media-tags-plugin,      desc: Thunar plugin to view media details }
     - { pkg: thunar-volman,                 desc: Thunar plugin to automatically manage removeable devices }
