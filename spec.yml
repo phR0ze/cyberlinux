@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.3
+  release: 0.1.4
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1190,11 +1190,11 @@ packages:
     - { pkg: handbrake-cli,                 desc: Video/Encoding - Video encoding tool for mp4/mkv }
     - { pkg: makemkv,                       desc: DVD and Blu-ray to MKV converter, type: CYBERLINUX }
     - { pkg: mkvtoolnix-gui,                desc: Set of tools to create, edit and inspect MKV files }
+    - { pkg: tiny-media-manager,            desc: Cross platform media manager, type: CYBERLINUX }
 
   theater-pkgs:
     - { pkg: idesk,                         desc: Lightweight desktop icons for X }
     - { pkg: kodi,                          desc: Software media player and entertainment hub }
-    - { pkg: tiny-media-manager,            desc: Cross platform media manager, type: CYBERLINUX }
 
   remote-desktop:
     - { pkg: freerdp,                       desc: RDP client plugin for remmina }

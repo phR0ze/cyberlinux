@@ -156,7 +156,10 @@ Deploy ***cyberlinux*** via a USB directly onto a machine
     a. Install MultiWriter: ```sudo pacman -S gnome-multi-writer```  
     b. Launch MultiWriter: ```gnome-multi-writer```  
     c. Add the ISO and point it at your USB and click start  
-3. Boot from the USB and choose the ***cyberlinux-desktop*** deployment option
+3. Burn the ISO to a DVD via ***Brasero***
+    a. Open a shell to ```~/Projects/cyberlinux/temp
+    b. Burn dvd: ```growisofs -dvd-compat -Z /dev/sr0=images/cyberlinux-0.1.2-4.14.11-1-x86_64.iso```
+4. Boot from the USB and choose the ***cyberlinux-desktop*** deployment option
 
 ### Virtual box deployment <a name="virtual-box-deployment"/></a>
 Deploy ***cyberlinux*** via a VM using Virtual Box
