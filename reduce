@@ -766,44 +766,40 @@ class Reduce
         end
 
         # Install layer specific packages via pacman
-        defer = layer == @k.build ? !File.exist?(layer_image) : false
-        while true do
-          _, deferred = installpkgs(layer, layer_yml, layer_work, defer:defer)
-          layer_changed |= _
+        layer_changed |= installpkgs(layer, layer_yml, layer_work)
 
-          # Copy over all layer data if it exists
-          layer_changed |= syncfiles(layer, layer_src, layer_work, layer_digests)
+        # Copy over all layer data if it exists
+        layer_changed |= syncfiles(layer, layer_src, layer_work, layer_digests)
 
-          # Apply file manipulations
-          puts("Applying changes...".colorize(:cyan))
-          changedfile = File.join(layer_work, 'changed')
-          if layer_changed or not File.exist?(changedfile) or not File.exist?(layer_image)
-            vars = layer_yml[@k.vars] ? @vars.to_h.merge(layer_yml[@k.vars]) : @vars
-            layer_changed |= Change.apply(layer_yml[@k.changes] || [],
-              OpenStruct.new({root: layer_work, vars: vars, changes: @spec[@k.changes]}))
-            File.open(changedfile, 'w'){|f|}
-          end
+        # Apply file manipulations
+        puts("Applying changes...".colorize(:cyan))
+        changedfile = File.join(layer_work, 'changed')
+        if layer_changed or not File.exist?(changedfile) or not File.exist?(layer_image)
+          vars = layer_yml[@k.vars] ? @vars.to_h.merge(layer_yml[@k.vars]) : @vars
+          layer_changed |= Change.apply(layer_yml[@k.changes] || [],
+            OpenStruct.new({root: layer_work, vars: vars, changes: @spec[@k.changes]}))
+          File.open(changedfile, 'w'){|f|}
+        end
 
-          # Build layer image if needed
-          if layer_changed or not File.exist?(layer_image)
-            puts("Creating #{layer_image}...".colorize(:cyan))
-            Sys.umount(layer_work, retries:10) if layer_yml[@k.type] == @k.machine
-            relocate_tracking_files(layer_work)
+        # Build layer image if needed
+        if layer_changed or not File.exist?(layer_image)
+          puts("Creating #{layer_image}...".colorize(:cyan))
+          Sys.umount(layer_work, retries:10) if layer_yml[@k.type] == @k.machine
+          relocate_tracking_files(layer_work)
 
-            # Create squashfs image for machine layers
-            if layer_yml[@k.type] == @k.machine
-              Sys.exec("mksquashfs #{layer_work} #{layer_image} -noappend -comp xz -b 256K -Xbcj x86")
-            else
-              # Create compressed tarball for container layers
-              Sys.exec("tar --numeric-owner --xattrs --acls -C #{layer_work} -czf #{layer_image} .")
-            end
-
-            puts("Successfully built #{layer_image}".colorize(:green))
-            relocate_tracking_files(layer_work, restore:true)
-            layer_changed |= true
+          # Create squashfs image for machine layers
+          if layer_yml[@k.type] == @k.machine
+            Sys.exec("mksquashfs #{layer_work} #{layer_image} -noappend -comp xz -b 256K -Xbcj x86")
           else
-            puts("Image already built #{layer_image}".colorize(:green))
+            # Create compressed tarball for container layers
+            Sys.exec("tar --numeric-owner --xattrs --acls -C #{layer_work} -czf #{layer_image} .")
           end
+
+          puts("Successfully built #{layer_image}".colorize(:green))
+          relocate_tracking_files(layer_work, restore:true)
+          layer_changed |= true
+        else
+          puts("Image already built #{layer_image}".colorize(:green))
         end
 
       ensure
@@ -821,8 +817,8 @@ class Reduce
   # @param layer [string] layer name to work with
   # @param layer_yml [yml] layer yaml to work with
   # @param layer_work [string] the directory where to install the layer packages to
-  # @returns tuple(true if any pkgs were installed, true if pkgs were deferred)
-  def installpkgs(layer, layer_yml, layer_work, defer:false)
+  # @returns true if any pkgs were installed else false
+  def installpkgs(layer, layer_yml, layer_work)
     msg = "Installing packages for '#{layer}'..."
     pkgfile = File.join(layer_work, 'packages')
 
@@ -922,8 +918,7 @@ class Reduce
       puts("#{msg}skipping".colorize(:cyan))
     end
 
-    changed = pkgs.any?{|k,v| v.any? if k != :conflict and k != :ignore and k != :deferred}
-    return changed, pkgs[:deferred]
+    return pkgs.any?{|k,v| v.any? if k != :conflict and k != :ignore }
   end
 
   # Get packages for the given layer
