@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.0.309
+  release: 0.0.310
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -45,7 +45,6 @@ build:
     - { install: machine-core }
     - { install: machine-tools }
     - { install: dev-pkgs }
-    - { install: shell-pkgs }
     - { install: initramfs-pkgs }
     - { install: isolinux-pkgs }
   changes:
@@ -54,7 +53,6 @@ build:
     - { apply: root-user-config }
     - { apply: build-user-config }
     - { apply: pacman-keys-config }
-    - { chroot: systemctl enable cronie.service }
 
 layers:
 

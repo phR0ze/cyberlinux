@@ -56,8 +56,6 @@ class Reduce
     })
     @k = OpenStruct.new({
       all: 'all',
-      AUR: 'AUR',
-      aurpath: 'aurpath',
       base: 'base',
       boot: 'boot',
       build: 'build',
@@ -69,7 +67,6 @@ class Reduce
       desc: 'desc',
       docker: 'docker',
       entry: 'entry',
-      FOREIGN: 'FOREIGN',
       gfxboot: 'gfxboot',
       groups: 'groups',
       i686: 'i686',
@@ -127,12 +124,10 @@ class Reduce
     @proxy_export = @proxy ? (@proxyenv.map{|k,v| "export #{k}=#{v}"} * ';') + ";" : nil
 
     # Set paths
-    @aurpath = File.join(@rootpath, 'aur')
     @outpath = File.join(@rootpath, 'temp')
     @layerspath = File.join(@rootpath, 'layers')
     @vagrantpath = File.join(@rootpath, 'vagrant')
 
-    @aurcache = File.join(@outpath, 'aur')
     @workpath = File.join(@outpath, 'work')
 
     @tmp_dir = File.join(@workpath, 'tmp')
@@ -143,7 +138,6 @@ class Reduce
     @pacman_orig_conf = File.join(@layerspath, 'base', 'etc', 'pacman.conf')
     @makepkg_conf = File.join(@workpath, 'makepkg.conf')
     @makepkg_orig_conf = File.join('/usr/share/devtools', "makepkg-#{@vars.arch}.conf")
-    @pacman_aur_conf = File.join(@aurcache, 'pacman_aur.conf')
 
     @vmlinuz_image = File.join(@isoimagesdst, 'vmlinuz')
     @ucode_image = File.join(@isoimagesdst, 'intel-ucode.img')
@@ -189,7 +183,6 @@ class Reduce
 
     puts("Creating directory structure")
     FileUtils.mkdir_p(@workpath)
-    FileUtils.mkdir_p(@aurcache)
     FileUtils.mkdir_p(@tmp_dir)
     FileUtils.mkdir_p(@isopath)
     FileUtils.mkdir_p(@isoimagesdst)
@@ -206,49 +199,29 @@ class Reduce
   end
 
   # Print out distro information
-  # Params:
-  # +aurpkgs+:: list all aur packages from spec
-  # +foreignpkgs+:: list all foreign packages from spec
-  # +all+:: list all info
-  def info(aurpkgs:nil, foreignpkgs:nil, all:nil)
+  def info
+    # Scrape Arch Linux kernel package
+    opts = { ssl_verify_mode: 0, proxy:@proxy }
+    page = open("https://www.archlinux.org/packages/core/x86_64/linux", opts).read
+    @vars.kernel = page[/<title>(.*?)<\/title>/, 1][/.*linux (.*) \(x86_64\)/, 1]
+    @vars.isofile = File.join(@imagepaths.first,
+      "#{@vars.distro.downcase}-#{@vars.release}-#{@vars.kernel}-#{@vars.arch}.iso")
 
-    if ![aurpkgs, foreignpkgs].any? or all
-      # Scrape Arch Linux kernel package
-      opts = { ssl_verify_mode: 0, proxy:@proxy }
-      page = open("https://www.archlinux.org/packages/core/x86_64/linux", opts).read
-      @vars.kernel = page[/<title>(.*?)<\/title>/, 1][/.*linux (.*) \(x86_64\)/, 1]
-      @vars.isofile = File.join(@imagepaths.first,
-        "#{@vars.distro.downcase}-#{@vars.release}-#{@vars.kernel}-#{@vars.arch}.iso")
-
-      puts("Distro: #{@vars.distro}".colorize(:green))
-      puts("Release: #{@vars.release}".colorize(:green))
-      puts("Arch: #{@vars.arch}".colorize(:green))
-      puts("Kernel: #{@vars.kernel}".colorize(:green))
-      puts("Source path: #{@rootpath}".colorize(:green))
-      puts("Output path: #{@outpath}".colorize(:green))
-      puts("Proxy: #{@proxyenv['http_proxy']}".colorize(:green)) if @proxy
-    end
-
-    if aurpkgs or all
-        puts("AUR Packages being used:".colorize(:cyan))
-        pkgs = getpkgs(nil).values.flatten.map{|x| x[@k.pkg] if x[@k.type] == @k.AUR}.compact.uniq
-        pkgs.each{|x| puts("  #{x}")}
-    end
-
-    if foreignpkgs or all
-        puts("Foreign Packages being used:".colorize(:cyan))
-        pkgs = getpkgs(nil).values.flatten.map{|x| x[@k.pkg] if x[@k.type] == @k.FOREIGN}.compact.uniq
-        pkgs.each{|x| puts("  #{x}")}
-    end
+    puts("Distro: #{@vars.distro}".colorize(:green))
+    puts("Release: #{@vars.release}".colorize(:green))
+    puts("Arch: #{@vars.arch}".colorize(:green))
+    puts("Kernel: #{@vars.kernel}".colorize(:green))
+    puts("Source path: #{@rootpath}".colorize(:green))
+    puts("Output path: #{@outpath}".colorize(:green))
+    puts("Proxy: #{@proxyenv['http_proxy']}".colorize(:green)) if @proxy
   end
 
   # List components as directed
-  # Params:
-  # +boxes+:: list all boxes
-  # +isos+:: list all isos
-  # +images+:: list all docker images
-  # +layer+:: layer to get resolved spec for
-  # +all+:: list all components
+  # @param boxes [bool] list all boxes
+  # @param isos [bool] list all isos
+  # @param images [bool] list all docker images
+  # @param layer [string] layer to get resolved spec for
+  # @param all [bool] list all components
   def list(boxes:nil, isos:nil, images:nil, layer:nil, all:nil)
     all = all || ![boxes, isos, images, layer].any?
 
@@ -276,14 +249,13 @@ class Reduce
   end
 
   # Clean components as directed
-  # Params:
-  # +initramfs+:: clean initramfs component
-  # +isolinux+:: clean isolinux component
-  # +layers+:: clean given layers
-  # +iso+:: clean iso image
-  # +vms+:: clean vms
-  # +all+:: clean all components
-  # +isofull+:: clean iso image including all machine layers
+  # @param initramfs [bool] clean initramfs component
+  # @param isolinux [bool] clean isolinux component
+  # @param layers [bool] clean given layers
+  # @param iso [bool] clean iso image
+  # @param vms [bool] clean vms
+  # @param all [bool] clean all components
+  # @param isofull [bool] clean iso image including all machine layers
   def clean(initramfs:nil, isolinux:nil, layers:nil, iso:nil, vms:nil, all:nil, isofull:nil)
     !puts("Error: no clean options specified".colorize(:red)) and
       exit unless [initramfs, isolinux, layers, iso, vms, all, isofull].any?
@@ -370,15 +342,13 @@ class Reduce
   end
 
   # Build components as directed
-  # Params:
-  # +initramfs+:: build initramfs component
-  # +isolinux+:: build isolinux component
-  # +layers+:: build given layers
-  # +iso+:: build iso image from whatever machine layers exist
-  # +isofull+:: build iso image including all machine layers
-  # +package+:: build the given foreign package or 'all' if specified
-  def build(initramfs:nil, isolinux:nil, layers:nil, iso:nil, isofull:nil, package:nil)
-    opts = [initramfs, isolinux, layers, iso, isofull, package]
+  # @param initramfs [bool]: build initramfs component
+  # @param isolinux [bool] build isolinux component
+  # @param layers [list] build given layers
+  # @param iso [bool] build iso image from whatever machine layers exist
+  # @param isofull [bool] build iso image including all machine layers
+  def build(initramfs:nil, isolinux:nil, layers:nil, iso:nil, isofull:nil)
+    opts = [initramfs, isolinux, layers, iso, isofull]
     !puts("Error: no build options specified".colorize(:red)) and exit unless opts.any?
     changed = false
 
@@ -400,16 +370,6 @@ class Reduce
     changed |= build_layers(@k.build) if not (layers || []).include?(@k.build)
     layers = @spec[@k.layers].select{|x| x[@k.type] == @k.machine}.map{|x| x[@k.name]} if isofull
     layers.each{|layer| changed |= build_layers(layer)} if layers
-
-    # Build aur/foreign packages upfront
-    if package
-      packages = package != @k.all ? {package => nil} : {}
-      if package.downcase == @k.all
-        getpkgs(nil).values.flatten.select{|x| x[@k.type] == @k.AUR or x[@k.type] == @k.FOREIGN}
-          .each{|x| packages[x[@k.pkg]] = x[@k.aurpath]}
-      end
-      buildpkgs(packages)
-    end
 
     # Build early userspace ramdisk for install executed by isolinux
     changed |= build_initramfs if [initramfs, iso, isofull].any?
@@ -450,9 +410,8 @@ class Reduce
 
   # Create the initramfs.img
   # which provides the boot environment we will install from
-  # Params:
-  # +returns+:: true on changed
-  def build_initramfs()
+  # @returns true on changed
+  def build_initramfs
     create_dir_structure
     changed = false
     initramfs_digests = File.join(@initramfs_work, 'digests')
@@ -489,10 +448,8 @@ class Reduce
   end
 
   # Build bootable ISOLinux with USB support
-  # Params:
-  # +clean+:: clean isolinux
-  # +returns+:: true on changed
-  def build_isolinux()
+  # @returns true on changed
+  def build_isolinux
     create_dir_structure
     changed = false
     layers = @spec[@k.layers].select{|x| x[@k.boot]}.reverse
@@ -569,10 +526,9 @@ class Reduce
   end
 
   # Pack the given layer or all layers if no specific layer given
-  # Params:
-  # +layers+:: layers to pack into an image else all
-  # +disksize+:: disk size to use for pack
-  # +force+:: pack even if already exists
+  # @param layers [list] layers to pack into an image else all
+  # @param disksize [int] disk size to use for pack
+  # @param force [bool] pack even if already exists
   def pack(layers, disksize:nil, force:nil)
     _layers = @spec[@k.layers].select{|x| x[@k.boot]}
     layers = layers || _layers.reject{|x| x[@k.name] == 'live' or not x[@k.boot].any?{|y| y[@k.initrd]}}
@@ -640,15 +596,14 @@ class Reduce
   end
 
   # Deploy vagrant node/s
-  # Params:
-  # +layer+:: layer to deploy
-  # +name+:: name to give the specific node/container being created
-  # +run+:: run the container with default run
-  # +exec+:: specific command to run in the container
-  # +nodes+:: list of node ids to deploy
-  # +ipv6+:: enable ipv6 on the node/s being deployed
-  # +vagrantfile+:: export the vagrant file only
-  # +force+:: deploy even if already exists
+  # @param layer [string] layer to deploy
+  # @param name [string] name to give the specific node/container being created
+  # @param run [string] run the container with default run
+  # @param exec [string] specific command to run in the container
+  # @param nodes [list] list of node ids to deploy
+  # @param ipv6 [bool] enable ipv6 on the node/s being deployed
+  # @param vagrantfile [bool] export the vagrant file only
+  # @param force [bool] deploy even if already exists
   def deploy(layer, name:nil, run:nil, exec:nil, nodes:nil, ipv6:nil, vagrantfile:nil, force:nil)
     puts("#{'-' * 80}\nDeploying layer '#{layer}'\n#{'-' * 80}".colorize(:yellow))
     create_dir_structure
@@ -737,8 +692,7 @@ class Reduce
       !puts("Error: must be executed as root".colorize(:red)) and
         exit unless Process.uid.zero?
 
-      # Remove old 'live' images and/or skip if current
-      force = true && @build_deferred = false if layer == @k.build and @build_deferred
+      # Remove old 'live' images or skip if current
       image = evalimages!(@type.tgz, layer:layer, live:true, force:force)
       puts("Image #{image} already exists".colorize(:green)) if image
 
@@ -780,9 +734,8 @@ class Reduce
   end
 
   # Build the implicated layers
-  # Params:
-  # +target_layer+:: specific layer to build
-  # +returns+:: true if changed
+  # @param target_layer [string] specific layer to build
+  # @returns true if changed
   def build_layers(target_layer)
     changed = false
     layers = @spec[@k.layers].map{|x| x[@k.name]}
@@ -851,12 +804,6 @@ class Reduce
           else
             puts("Image already built #{layer_image}".colorize(:green))
           end
-
-          # Only loop if there are aur/foreign packages to build still.
-          # This will only happen in the build case
-          break if not deferred
-          @build_deferred = true
-          defer = false
         end
 
       ensure
@@ -871,12 +818,10 @@ class Reduce
   end
 
   # Install packages for the given layer
-  # Params:
-  # +layer+:: layer name to work with
-  # +layer_yml+:: layer yaml to work with
-  # +layer_work+:: the directory where to install the layer packages to
-  # +defer+:: defer aur/foreign packages until a second pass
-  # +returns+:: tuple(true if any pkgs were installed, true if pkgs were deferred)
+  # @param layer [string] layer name to work with
+  # @param layer_yml [yml] layer yaml to work with
+  # @param layer_work [string] the directory where to install the layer packages to
+  # @returns tuple(true if any pkgs were installed, true if pkgs were deferred)
   def installpkgs(layer, layer_yml, layer_work, defer:false)
     msg = "Installing packages for '#{layer}'..."
     pkgfile = File.join(layer_work, 'packages')
@@ -886,8 +831,6 @@ class Reduce
     all_pkgs = getpkgs(layer_yml)
     pkgs = {
       reg: all_pkgs.map{|x| x[@k.pkg] if not [x[@k.ignore], x[@k.offline]].any? and @repos.include?(x[@k.type])}.compact,
-      aur: all_pkgs.map{|x| x[@k.pkg] if not [x[@k.ignore], x[@k.offline]].any? and x[@k.type] == @k.AUR}.compact,
-      foreign: all_pkgs.map{|x| x[@k.pkg] if not [x[@k.ignore], x[@k.offline]].any? and x[@k.type] == @k.FOREIGN}.compact,
       ignore: all_pkgs.map{|x| x[@k.pkg] if x[@k.ignore]}.compact,
       offline: all_pkgs.map{|x| x[@k.pkg] if x[@k.offline]}.compact,
       conflict: all_pkgs.map{|x| "CONFLICT:#{x[@k.conflict]}" if x[@k.conflict]}.compact
@@ -899,7 +842,7 @@ class Reduce
       puts("Filtering out packages that are already installed".colorize(:cyan))
       installed_pkgs = nil
       File.open(pkgfile){|f| installed_pkgs = f.readlines.map{|x| x.strip}}
-      [:reg, :aur, :foreign, :offline, :conflict].each{|x|
+      [:reg, :offline, :conflict].each{|x|
         pkgs[x] = pkgs[x].select{|y| not installed_pkgs.include?(y)}}
     end
 
@@ -908,8 +851,6 @@ class Reduce
     if pkgs.any?{|k,v| v.any? if k != :conflict and k != :ignore}
       puts("#{msg}".colorize(:cyan))
       puts("Packages: #{pkgs[:reg]}")
-      puts("Aur Pkgs: #{pkgs[:aur]}")
-      puts("Foreign Pkgs: #{pkgs[:foreign]}")
       puts("Ignore Pkgs: #{pkgs[:ignore]}")
       puts("Offline Pkgs: #{pkgs[:offline]}")
       puts("Conflict Pkgs: #{pkgs[:conflict]}")
@@ -953,29 +894,6 @@ class Reduce
             '--cachedir', offline_dir, *pkgs[:offline]], env:@proxyenv)}
       end
 
-      # Build cache and install aur packages and/or foreign packages
-      if pkgs[:aur].any? or pkgs[:foreign].any?
-
-        # Include aur paths for foreign packages
-        _pkgs = {}
-        (pkgs[:aur] + pkgs[:foreign]).map{|x|
-          pkg = all_pkgs.find{|y| y[@k.pkg] == x}
-          _pkgs[x] = pkg[@k.aurpath]
-        }
-
-        pacstrap.call("Installing aur/foreign", "Failed to install packages correctly"){
-          _, deferred = buildpkgs(_pkgs, defer:defer)
-          pkgs[:deferred] |= deferred
-          if deferred
-            pkgs[:aur].clear if pkgs[:aur].any?
-            pkgs[:foreign].clear if pkgs[:foreign].any?
-          else
-            next Sys.exec(['pacstrap', '-GMcd', layer_work, '--config', @pacman_aur_conf, '--needed',
-              *(pkgs[:aur] + pkgs[:foreign])], env:@proxyenv)
-          end
-        }
-      end
-
       # Clean up left artifacts from installs to leave prestine layer
       puts("Cleaning up artifacts that may be left over from installs".colorize(:cyan))
       Sys.exec("find #{layer_work} -name *.pacnew -name *.pacsave -name *.pacorig -delete")
@@ -999,7 +917,7 @@ class Reduce
       rm_rf(File.join(layer_work, 'var/log/journal'))
 
       # Update list of packages that were installed
-      File.open(pkgfile, 'a'){|f| [:reg, :aur, :foreign, :offline].each{|x| f.puts(pkgs[x])}}
+      File.open(pkgfile, 'a'){|f| [:reg, :offline].each{|x| f.puts(pkgs[x])}}
     else
       puts("#{msg}skipping".colorize(:cyan))
     end
@@ -1008,93 +926,9 @@ class Reduce
     return changed, pkgs[:deferred]
   end
 
-  # Build packages
-  # Params:
-  # +layer+:: layer name to work with
-  # +pkgs+:: hash of {pkg => aurpath} packages to build
-  # +defer+:: defer building aur/foreign packages when true
-  # +returns+:: tuple(true pkgs were built, true if pkgs were deferred)
-  def buildpkgs(pkgs, defer:false)
-    changed = false
-    aur_database = File.join(@aurcache, 'aur.db.tar.gz')
-
-    # Generate pacman.conf from existing arch specific pacman config
-    FileUtils.cp(@pacman_conf, @pacman_aur_conf)
-    Fedit.replace(@pacman_aur_conf, /(IgnorePkg\s*=.*)/, '#\1')
-    Fedit.replace(@pacman_aur_conf, /#\[custom\]/, '[aur]')
-    Fedit.replace(@pacman_aur_conf, /#(SigLevel = Optional.*)/, '\1')
-    Fedit.replace(@pacman_aur_conf, /#(Server = file).*/, "\\1://#{@aurcache}")
-
-    # Filter out cached packages
-    cached = Dir[File.join(@aurcache, '*.xz')].map{|x| File.basename(x).split('.').first.split('-')[0..-2]}
-      .map{|x| x.select{|y| not y[0] =~ /[0-9]/} * '-'}.sort
-    pkgs.reject!{|k,v| cached.include?(k)}
-
-    # Build AUR/FOREIGN packages in build container
-    if pkgs.any?
-      puts("Scheduling packages #{pkgs.map{|k,v| k}} for second pass".colorize(:cyan)) if defer
-      return changed, true if defer
-
-      docker(@k.build, @k.build){|cont, home, cp, exec, execs, runuser|
-        _pkgs = pkgs.map{|k,v| v || k}.uniq
-        _pkgs.each{|pkg|
-          pkgdir = "#{home}/#{pkg}"
-          foreign = File.exist?(File.join(@aurpath, pkg))
-          puts("Building #{foreign ? 'FOREIGN':'AUR'} package '#{pkg}'...".colorize(:cyan))
-
-          # Erase local build if necessary
-          if Dir[File.join(@aurpath, pkg, '*.pkg.tar.xz')].first
-            puts("Resetting forign package source #{File.join(@aurpath, pkg)}".colorize(:cyan))
-            Sys.exec("#{@runuser} 'rm -rf #{File.join(@aurpath, pkg, '*')}'")
-            Sys.exec("#{@runuser} 'git checkout #{File.join(@aurpath, pkg)}'")
-          end
-
-          # Prepare package specs
-          if foreign
-            cp["#{File.join(@aurpath, pkg)} #{cont}:#{home}"]
-            exec["chown -R #{@k.build}:#{@k.build} #{pkgdir}"]
-          else
-            runuser["cd #{home} && yaourt -G #{pkg}"]
-          end
-
-          # Build package
-          runuser["cd #{pkgdir} && makepkg -s --noconfirm --needed --nocheck"]
-
-          # Extract packages from container
-          `#{execs} ls #{pkgdir}`.split("\n")
-            .select{|x| x.include?(pkg) and x.include?('pkg.tar.xz')}
-            .each{|x| cp["#{cont}:#{pkgdir}/#{x} #{@aurcache}"]}
-        }
-      }
-
-      # Remove old repo database info
-      files = File.join(@aurcache, 'aur*')
-      puts("Delete old aur database files #{files}".colorize(:cyan))
-      rm_rf(files)
-
-      # Remove old cached versions of the package
-      pkgs.each{|pkg,v|
-        files = File.join('/var/cache/pacman/pkg', "#{pkg}*")
-        puts("Delete old pacman cached files #{files}".colorize(:cyan))
-        rm_rf(files)
-      }
-    else
-      puts("All AUR/FOREIGN packages are already built and cached".colorize(:cyan))
-    end
-
-    # Create cached package repo
-    if Dir[File.join(@aurcache, '*.xz')].any? and not File.exist?(aur_database)
-      puts("Building cached aur repository database".colorize(:cyan))
-      Sys.exec("repo-add #{aur_database} #{@aurcache}/*.xz")
-    end
-
-    return changed, false
-  end
-
   # Get packages for the given layer
-  # Params:
-  # +layer_yml+:: layer yaml to work with or all if nil
-  # +returns+:: list of packages for the given layer or all packages
+  # @param layer_yml [yml] layer yaml to work with or all if nil
+  # @returns list of packages for the given layer or all packages
   def getpkgs(layer_yml)
     result = {}
     layers = layer_yml ? [layer_yml] : @spec[@k.layers]
@@ -1133,10 +967,9 @@ class Reduce
 
   # Spins up indicated container and executes the given block
   # in the container then terminates the container.
-  # +layer+:: container to use
-  # +user+:: user to work with
-  # +block+:: block of code to execute
-  # Params:
+  # @param layer [string] container to use
+  # @param user [string] user to work with
+  # @param block [block] block of code to execute
   def docker(layer, user, &block)
 
     # Spin up given container and wait for it to be ready
@@ -1169,12 +1002,11 @@ class Reduce
   end
 
   # Syncs the source and work directories for a given layer
-  # +layer+:: layer to work with
-  # +layer_src+:: layer source directory to work with
-  # +layer_work+:: layer work directory to work with
-  # +layer_digests+:: layer digests file
-  # +block+:: block of code to execute
-  # Params:
+  # @param layer [string] layer to work with
+  # @param layer_src [path] layer source directory to work with
+  # @param layer_work [path] layer work directory to work with
+  # @param layer_digests [path] layer digests file
+  # @param block [block] block of code to execute
   def syncfiles(layer, layer_src, layer_work, layer_digests, &block)
     changed = false
     return changed if not File.exist?(layer_src)
@@ -1226,12 +1058,11 @@ class Reduce
   end
 
   # Evaluate images matching type and layer; removing if stale
-  # Params:
-  # +type+:: image type to get
-  # +layer+:: layer to get image for or all
-  # +live+:: evaluate live(true) vs disk(false)
-  # +force+:: remove images matching conditions
-  # +returns+:: image matching the version
+  # @param type [string] image type to get
+  # @param layer [string] layer to get image for or all
+  # @param live [bool] evaluate live(true) vs disk(false)
+  # @param force [bool] remove images matching conditions
+  # @returns image matching the version
   def evalimages!(type, layer:nil, live:nil, force:nil)
     image_exists = nil
     curver = @vars.release.split('.').map{|x| x.to_i}
@@ -1263,12 +1094,11 @@ class Reduce
   end
 
   # Get all images sorted newest to oldest
-  # Params:
-  # +type+:: image type to get
-  # +layer+:: layer to get image for or all
-  # +live+:: get live(true) vs disk(false)
-  # +die+:: die on error
-  # +returns+:: all images sorted by version and optionally filtered by layer
+  # @param type [string] image type to get
+  # @param layer [string] layer to get image for or all
+  # @param live [bool] get live(true) vs disk(false)
+  # @param die [bool] die on error
+  # @returns all images sorted by version and optionally filtered by layer
   def getimages(type, layer:nil, live:nil, die:false)
     image_maps = {}
 
@@ -1315,10 +1145,9 @@ class Reduce
   end
 
   # Relocate the tracking files
-  # Params:
-  # +layer_work+:: directory to get tracking files from
-  # +restore+:: move the relocated files back to their original location
-  # +returns+:: image matching the version
+  # @param layer_work [path] directory to get tracking files from
+  # @param restore [bool] move the relocated files back to their original location
+  # @returns image matching the version
   def relocate_tracking_files(layer_work, restore:false)
     digests = File.join(layer_work, 'digests')
     packages = File.join(layer_work, 'packages')
@@ -1340,9 +1169,8 @@ class Reduce
   end
 
   # Get layer dependencies
-  # Params:
-  # +layer+:: the layer to get dependencies for
-  # +returns+:: list of layers (e.g. heavy => heavy, lite, shell, base)
+  # @param layer [string] the layer to get dependencies for
+  # @returns list of layers (e.g. heavy => heavy, lite, shell, base)
   def getlayers(layer)
     layers = [layer]
     return layers if layer == @k.build
@@ -1359,9 +1187,8 @@ class Reduce
   end
 
   # Get layer yaml by layer name
-  # Params:
-  # +layer+:: layer name to get yaml for
-  # +returns+:: yaml for the indicated layer
+  # @param layer [string] layer name to get yaml for
+  # @returns yaml for the indicated layer
   def getlayer(layer)
 
     # Get yaml for the given layer
@@ -1394,11 +1221,7 @@ if __FILE__ == $0
   examples += "\n"
 
   opts = Cmds.new(app, version, examples)
-  opts.add('info', 'List build info', [
-    CmdOpt.new('--all', 'List all info'),
-    CmdOpt.new('--aur-pkgs', 'List all aur packages'),
-    CmdOpt.new('--foreign-pkgs', 'List all foreign packages'),
-  ])
+  opts.add('info', 'List build info', [])
   opts.add('list', 'List out components', [
     CmdOpt.new('--all', 'List all components'),
     CmdOpt.new('--boxes', 'List all boxes'),
@@ -1421,8 +1244,7 @@ if __FILE__ == $0
     CmdOpt.new('--isolinux', 'Build isolinux boot'),
     CmdOpt.new('--layers=x,y,z', 'Build given layers', type:Array),
     CmdOpt.new('--iso', 'Build USB bootable ISO with existing layers'),
-    CmdOpt.new('--iso-full', 'Build USB bootable ISO with all machine layers'),
-    CmdOpt.new('--package=PACKAGE', "Build the given aur/foreign package or 'all'", type:String),
+    CmdOpt.new('--iso-full', 'Build USB bootable ISO with all machine layers')
   ])
   opts.add('pack', 'Pack ISO layers into vagrant boxes', [
     CmdOpt.new('--all', 'Pack all layers'),
@@ -1446,8 +1268,7 @@ if __FILE__ == $0
   puts(opts.banner) unless opts[:raw]
 
   # Execute 'info' command
-  reduce.info(aurpkgs: opts[:aurpkgs], foreignpkgs: opts[:foreignpkgs],
-    all: opts[:all]) if opts[:info]
+  reduce.info if opts[:info]
 
   # Execute 'list' command
   reduce.list(boxes: opts[:boxes], isos: opts[:isos], images: opts[:images],
@@ -1460,7 +1281,7 @@ if __FILE__ == $0
 
   # Execute 'build' command
   reduce.build(initramfs: opts[:initramfs], isolinux: opts[:isolinux],
-    layers: opts[:layers], iso: opts[:iso], isofull: opts[:isofull], package: opts[:package]) if opts[:build]
+    layers: opts[:layers], iso: opts[:iso], isofull: opts[:isofull]) if opts[:build]
 
   # Execute 'pack' command
   reduce.pack(opts[:layers], disksize: opts[:disksize], force: opts[:force]) if opts[:pack]
