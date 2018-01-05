@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.5
+  release: 0.1.6
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -270,6 +270,7 @@ changes:
     - { apply: oblogout-config }
     - { apply: mimeapps-config }
     - { apply: wallpaper-config }
+    - { apply: xorg-config }
   heavy-config:
     - { apply: guake-config }
     - { apply: plank-heavy-config }
@@ -861,6 +862,17 @@ changes:
         - 'dirs=/usr/share/wallpaper;'
   remove-docs:
     - { exec: 'rm -rf /usr/share/{man,doc}' }
+  xorg-config:
+    - edit: /etc/X11/xorg.conf.d/30-touchpad.conf
+      append: true
+      values:
+        - 'Section "InputClass"'
+        - '    Identifier "Touchpad"'
+        - '    Driver "libinput"'
+        - '    MatchIsTouchpad "on"'
+        - '    Option "Accel Speed" "1"'
+        - '    Option "NaturalScrolling" "true"'
+        - 'EndSection'
 
 packages:
   container-core:
