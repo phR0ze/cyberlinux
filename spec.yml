@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.6
+  release: 0.1.7
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -702,6 +702,7 @@ changes:
   pacman-config:
     - { exec: 'rm -f /etc/pacman.d/gnupg/dirmngr.conf' }
     - { edit: /etc/pacman.d/gnupg/dirmngr.conf, append: true, value: "honor-http-proxy" }
+    - { edit: /etc/pacman.d/gnupg/gpg.conf, regex: '^(keyserver hkp).*', value: '\1://ipv4.pool.sks-keyservers.net' }
     - { exec: 'rm -f /etc/pacman-mirrors.conf' }
     - edit: /etc/pacman-mirrors.conf
       append: true
