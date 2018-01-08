@@ -47,10 +47,10 @@ ${font Designer Block:bold:size=100}${color1}${time %I}\
 ${offset 3}${voffset -38}${font Designer Block:bold:size=50}${color3}:${time %M}\
 ${font Designer Block:bold:size=14}${time %p}\
 ${offset -110}${voffset 13}${font Designer Block:bold:size=35}${color1}${time %a} ${time %d}\
-${voffset -10}${font Designer Block:bold:size=20}${exec ~/bin/conky_date.py}
+${voffset -10}${font Designer Block:bold:size=20}${exec ~/bin/conky_date.rb}
 # Month/Year
 ${offset 8}${voffset 25}${font Designer Block:normal:size=24}${color1}${time %B}.${time %Y} ${hr 2}
 # Day names
 ${offset 8}${font Liberation Mono:bold:size=14}${color2}${offset -10}  Su  Mo  Tu  We  Th  Fr  Sa
 # Days
-${offset 8}${font Liberation Mono:size=14}${color1}${offset -10}${execp python ~/bin/conky_cal.py 2}
+${offset 8}${font Liberation Mono:size=14}${color1}${offset -10}${execp ~/bin/conky_cal.rb 2}
