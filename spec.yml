@@ -884,8 +884,9 @@ changes:
         - '    Identifier "Touchpad"'
         - '    Driver "libinput"'
         - '    MatchIsTouchpad "on"'
-        - '    Option "Accel Speed" "1"'
-        - '    Option "NaturalScrolling" "true"'
+        - '    Option "Tapping" "on"'
+        - '    Option "AccelSpeed" "1"'
+        - '    Option "NaturalScrolling" "on"'
         - 'EndSection'
 
 packages:
