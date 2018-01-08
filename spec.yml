@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.11
+  release: 0.1.12
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -394,6 +394,8 @@ changes:
         - '  echo "[system/proxy/https]" >> ${proxyfile}'
         - '  echo "host=\"${proxy_host}\"" >> ${proxyfile}'
         - '  echo "port=${proxy_port}" >> ${proxyfile}'
+        - 'else'
+        - "  # dconf write /system/proxy/mode 'none'"
         - 'fi'
   docker-config:
     - edit: /usr/bin/setproxy
