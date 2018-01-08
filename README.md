@@ -29,7 +29,9 @@ fork it and make their own configuration ***spec.yml***
     * [Virtual box deployment](#virtual-box-deployment)
     * [Vagrant box deployment](#vagrant-box-deployment)
     * [Deployment Options](#deployment-options)
-    * [Deployment Next Steps](#deployment-next-steps)
+* [Configure cyberlinux](#configure-cyberlinux)
+    * [Enable Proxy](#enable-proxy)
+    * [Disable Proxy](#disable-proxy)
 * [Roll your own cyberlinux](#build-cyberlinux)
     * [Dependency versions](#dependency-versions)
     * [Linux Dev Envioronment](#linux-dev-environment)
@@ -222,7 +224,15 @@ out to facilitate efficient remote desktop sessions.
 sudo ./reduce deploy --layer=k8snode --nodes=10
 ```
 
-### Deployment Next Steps<a name="deployment-next-steps"/></a>
+## Configure cyberlinux <a name="configure-cyberlinux"/></a>
+### Enable Proxy <a name="enable-proxy"/></a>
+cyberlinux uses the ***/usr/bin/setproxy*** script to configure the proxy given during install for:
+
+1. Shells via ***/etc/profile.d/setproxy.sh***
+2. XWindows apps via ***/etc/dconf/db/local.d/00-proxy***
+3. Docker via ***/etc/systemd/system/docker.service.d/20-proxy.conf***
+
+### Disable Proxy <a name="disable-proxy"/></a>
 
 ## Roll your own cyberlinux <a name="build-cyberlinux"/></a>
 This section covers how to roll your own cyberlinux ISO

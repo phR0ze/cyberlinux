@@ -335,7 +335,7 @@ config_system()
             sed -i -e "s|^\(no_proxy_array\)=.*|\1=\"${no_proxy_array}\"|" "${rootmnt}/usr/bin/setproxy"
             check_status
         fi
-        chroot ${rootmnt} /usr/bin/setproxy &> /dev/null
+        chroot ${rootmnt} /usr/bin/setproxy 1 &> /dev/null
     fi
 
     # Autologin if lxdm exists and parameter is set
