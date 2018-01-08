@@ -25,12 +25,12 @@
 gem=rest-client
 pkgname=ruby-$gem
 pkgver=2.0.2
-pkgrel=1
+pkgrel=2
 pkgdesc='Simple HTTP and REST client for Ruby inspired by the Sinatra framework'
 arch=(any)
 url='https://github.com/rest-client/rest-client'
 license=(MIT)
-depends=(ruby)
+depends=(ruby=2.5.0)
 options=(!emptydirs)
 source=(https://rubygems.org/downloads/$gem-$pkgver.gem)
 noextract=($gem-$pkgver.gem)

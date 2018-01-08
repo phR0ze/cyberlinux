@@ -25,12 +25,12 @@
 gem=filesize
 pkgname=ruby-$gem
 pkgver=0.1.1
-pkgrel=1
+pkgrel=2
 pkgdesc='Handles filesizes with both SI and binary prefixes'
 arch=(any)
 url='http://github.com/dominikh/filesize'
 license=(MIT)
-depends=(ruby)
+depends=(ruby=2.5.0)
 options=(!emptydirs)
 source=(https://rubygems.org/downloads/$gem-$pkgver.gem)
 noextract=($gem-$pkgver.gem)

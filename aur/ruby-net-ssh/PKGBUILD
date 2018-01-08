@@ -25,12 +25,12 @@
 gem=net-ssh
 pkgname=ruby-$gem
 pkgver=4.2.0
-pkgrel=1
+pkgrel=2
 pkgdesc='Pure Ruby implementation of the SSH2 client protocol'
 arch=(any)
 url='https://github.com/net-ssh/net-ssh'
 license=(MIT)
-depends=(ruby)
+depends=(ruby=2.5.0)
 options=(!emptydirs)
 source=(https://rubygems.org/downloads/$gem-$pkgver.gem)
 noextract=($gem-$pkgver.gem)

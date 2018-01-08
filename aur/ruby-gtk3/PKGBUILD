@@ -22,19 +22,21 @@
 #-------------------------------------------------------------------------------
 # Maintained by phR0ze
 #-------------------------------------------------------------------------------
-gem=net-sftp
+gem=gtk3
 pkgname=ruby-$gem
-pkgver=2.1.2
-pkgrel=2
-pkgdesc='Pure Ruby implementation of SFTP client protocol'
+pkgver=3.2.1
+pkgrel=1
+pkgdesc='Ruby/GTK3 is a Ruby binding of GTK+-3.x.'
 arch=(any)
-url='https://github.com/net-ssh/net-sftp'
-license=(MIT)
-depends=(ruby=2.5.0 ruby-net-ssh)
+url='http://ruby-gnome2.sourceforge.jp/'
+license=(LGPL2.1)
+depends=(ruby=2.5.0 ruby-atk=$pkgver ruby-gdk3=$pkgver ruby-gdk_pixbuf2=$pkgver ruby-gio2=$pkgver
+    ruby-glib2=$pkgver ruby-pango=$pkgver gtk3)
+makedepends=(gobject-introspection)
 options=(!emptydirs)
 source=(https://rubygems.org/downloads/$gem-$pkgver.gem)
 noextract=($gem-$pkgver.gem)
-sha256sums=('3e70b8130b1c86039b0847aeb088a2254df49053023546a5923e5763c923c710')
+sha256sums=('c6c3327b5a42ec407dbde7ec456e09aed171b64b2b50d860d1fb460ad0afaa59')
 
 package() {
   msg "Packaging $pkgname"
@@ -42,7 +44,4 @@ package() {
   msg2 $gem_install_path
   gem install --ignore-dependencies --no-user-install -i "$pkgdir/$gem_install_path" -n "$pkgdir/usr/bin" $gem-$pkgver.gem
   rm "$pkgdir/$gem_install_path/cache/$gem-$pkgver.gem"
-  install -D -m644 "$pkgdir/$gem_install_path/gems/$gem-$pkgver/LICENSE.txt" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }
-
-# vim: ts=2:sw=2:sts=2

@@ -22,19 +22,19 @@
 #-------------------------------------------------------------------------------
 # Maintained by phR0ze
 #-------------------------------------------------------------------------------
-gem=net-sftp
+gem=pry
 pkgname=ruby-$gem
-pkgver=2.1.2
+pkgver=0.11.3
 pkgrel=2
-pkgdesc='Pure Ruby implementation of SFTP client protocol'
+pkgdesc='An IRB alternative and runtime developer console'
 arch=(any)
-url='https://github.com/net-ssh/net-sftp'
+url='http://github.com/pry/pry'
 license=(MIT)
-depends=(ruby=2.5.0 ruby-net-ssh)
+depends=(ruby=2.5.0 ruby-coderay ruby-method_source)
 options=(!emptydirs)
 source=(https://rubygems.org/downloads/$gem-$pkgver.gem)
 noextract=($gem-$pkgver.gem)
-sha256sums=('3e70b8130b1c86039b0847aeb088a2254df49053023546a5923e5763c923c710')
+sha256sums=('0f8c7d6073d6f3bd4c2ca0d4fdeb240ee90b54bc1c98102f909a243fa60803d6')
 
 package() {
   msg "Packaging $pkgname"
@@ -42,7 +42,6 @@ package() {
   msg2 $gem_install_path
   gem install --ignore-dependencies --no-user-install -i "$pkgdir/$gem_install_path" -n "$pkgdir/usr/bin" $gem-$pkgver.gem
   rm "$pkgdir/$gem_install_path/cache/$gem-$pkgver.gem"
-  install -D -m644 "$pkgdir/$gem_install_path/gems/$gem-$pkgver/LICENSE.txt" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }
 
 # vim: ts=2:sw=2:sts=2

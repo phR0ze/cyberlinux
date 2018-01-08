@@ -22,19 +22,19 @@
 #-------------------------------------------------------------------------------
 # Maintained by phR0ze
 #-------------------------------------------------------------------------------
-gem=net-sftp
+gem=method_source
 pkgname=ruby-$gem
-pkgver=2.1.2
+pkgver=0.9.0
 pkgrel=2
-pkgdesc='Pure Ruby implementation of SFTP client protocol'
+pkgdesc='retrieve the sourcecode for a method'
 arch=(any)
-url='https://github.com/net-ssh/net-sftp'
+url='https://github.com/banister/method_source'
 license=(MIT)
-depends=(ruby=2.5.0 ruby-net-ssh)
+depends=(ruby=2.5.0)
 options=(!emptydirs)
 source=(https://rubygems.org/downloads/$gem-$pkgver.gem)
 noextract=($gem-$pkgver.gem)
-sha256sums=('3e70b8130b1c86039b0847aeb088a2254df49053023546a5923e5763c923c710')
+sha256sums=('f6fd06ba997de0eb6622545b8623a804352c2c9c4a44a362a304bb3d64101277')
 
 package() {
   msg "Packaging $pkgname"
@@ -42,7 +42,6 @@ package() {
   msg2 $gem_install_path
   gem install --ignore-dependencies --no-user-install -i "$pkgdir/$gem_install_path" -n "$pkgdir/usr/bin" $gem-$pkgver.gem
   rm "$pkgdir/$gem_install_path/cache/$gem-$pkgver.gem"
-  install -D -m644 "$pkgdir/$gem_install_path/gems/$gem-$pkgver/LICENSE.txt" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }
 
 # vim: ts=2:sw=2:sts=2

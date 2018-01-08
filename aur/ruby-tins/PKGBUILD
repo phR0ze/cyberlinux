@@ -25,12 +25,12 @@
 gem=tins
 pkgname=ruby-$gem
 pkgver=1.8.2
-pkgrel=1
+pkgrel=2
 pkgdesc='Misc tools used by amatch library'
 arch=(any)
 url='http://github.com/flori/tins'
 license=(MIT)
-depends=(ruby)
+depends=(ruby=2.5.0)
 options=(!emptydirs)
 source=(https://rubygems.org/downloads/$gem-$pkgver.gem)
 noextract=($gem-$pkgver.gem)

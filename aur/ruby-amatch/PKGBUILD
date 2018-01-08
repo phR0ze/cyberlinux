@@ -25,12 +25,12 @@
 gem=amatch
 pkgname=ruby-$gem
 pkgver=0.3.0
-pkgrel=1
+pkgrel=2
 pkgdesc='Approximate string matching library'
 arch=(any)
 url='http://github.com/flori/amatch'
 license=(Apache 2.0)
-depends=(ruby ruby-tins)
+depends=(ruby=2.5.0 ruby-tins)
 options=(!emptydirs)
 source=(https://rubygems.org/downloads/$gem-$pkgver.gem)
 noextract=($gem-$pkgver.gem)

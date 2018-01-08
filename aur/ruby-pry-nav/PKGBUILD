@@ -25,12 +25,12 @@
 gem=pry-nav
 pkgname=ruby-$gem
 pkgver=0.2.4
-pkgrel=1
+pkgrel=2
 pkgdesc='Primitive debugging step and next commands for pry'
 arch=(any)
 url='https://github.com/nixme/pry-nav'
 license=(MIT)
-depends=(ruby ruby-pry)
+depends=(ruby=2.5.0 ruby-pry)
 options=(!emptydirs)
 source=(https://rubygems.org/downloads/$gem-$pkgver.gem)
 noextract=($gem-$pkgver.gem)

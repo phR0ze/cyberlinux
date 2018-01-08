@@ -25,12 +25,12 @@
 gem=net-scp
 pkgname=ruby-$gem
 pkgver=1.2.1
-pkgrel=1
+pkgrel=2
 pkgdesc='Pure Ruby implementation of SCP client protocol'
 arch=(any)
 url='https://github.com/net-ssh/net-scp'
 license=(MIT)
-depends=(ruby ruby-net-ssh)
+depends=(ruby=2.5.0 ruby-net-ssh)
 options=(!emptydirs)
 source=(https://rubygems.org/downloads/$gem-$pkgver.gem)
 noextract=($gem-$pkgver.gem)
