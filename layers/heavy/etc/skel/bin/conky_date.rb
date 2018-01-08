@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env ruby
 #MIT License
-#Copyright (c) 2017 phR0ze
+#Copyright (c) 2018 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -20,23 +20,18 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-import sys, time, re, calendar
- 
-# Number of spaces to use is the only param passed in
-spaces = int(sys.argv[1])
+def day_suffix(day)
+  if day.between?(11, 13)
+    "th"
+  else
+    case day % 10
+      when 1; "st"
+      when 2; "nd"
+      when 3; "rd"
+      else    "th"
+    end
+  end
+end
+print(day_suffix(Time.now.day))
 
-# Configure calendar
-localtime = time.localtime(time.time())
-calendar.setfirstweekday(calendar.SUNDAY)
-day = str(localtime[2]).rjust(2)
-cal = calendar.month(localtime[0], localtime[1])
-
-# Print out a simple calendar for conky
-cal = "\n".join(["%s%s" % (''.rjust(spaces), x) for x in cal.split("\n")[2:-1]])
-cal = re.sub('(\d\d )', '\g<1> ', cal)
-cal = re.sub('( \d )', '\g<1> ', cal)
-cal = cal.split("\n")
-cal[0] = cal[0].strip().rjust(26 + spaces)
-cal = "\n".join(cal)
-cal = re.sub(day, '${color2}%s${color1}' % day, cal)
-print(cal),
+# vim: ft=ruby:ts=2:sw=2:sts=2
