@@ -232,7 +232,22 @@ cyberlinux uses the ***/usr/bin/setproxy*** script to configure the proxy given 
 2. XWindows apps via ***/etc/dconf/db/local.d/00-proxy***
 3. Docker via ***/etc/systemd/system/docker.service.d/20-proxy.conf***
 
+Update ***/usr/bin/setproxy*** variables as shown below: 
+```bash
+proxy=http://proxy.corp.net:8080
+proxy_host=proxy.corp.net
+proxy_port=8080
+no_proxy=localhost,127.0.0.1
+no_proxy_aray="['localhost', '127.0.0.1']"
+```
+Enable proxy:
+1. Run: `sudo setproxy 1`
+2. Reboot
+
 ### Disable Proxy <a name="disable-proxy"/></a>
+Disable proxy:
+1. Run: `sudo setproxy 0`
+2. Reboot
 
 ## Roll your own cyberlinux <a name="build-cyberlinux"/></a>
 This section covers how to roll your own cyberlinux ISO

@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.10
+  release: 0.1.11
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -797,6 +797,8 @@ changes:
         - '  echo "export https_proxy=${proxy}" >> $proxyfile'
         - '  [ $no_proxy ] && echo "export no_proxy=${no_proxy}" >> $proxyfile'
         - '  chmod +x $proxyfile'
+        - 'else'
+        - '  rm -rf $proxyfile'
         - 'fi'
         - "\n# PROXY_SETTINGS_MARKER"
     - { exec: chmod +x /usr/bin/setproxy }
