@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.17
+  release: 0.1.18
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -261,6 +261,8 @@ changes:
     - { chroot: systemctl enable systemd-resolved.service }
     - { chroot: systemctl enable systemd-timesyncd.service }
   shell-config:
+    - { apply: wpa-config }
+    - { chroot: systemctl enable wpa_supplicant@wlo1.service }
     - { chroot: systemctl enable cronie.service }
   lite-config:
     - { apply: lxdm-config }
@@ -714,7 +716,7 @@ changes:
   pacman-config:
     - { exec: 'rm -f /etc/pacman.d/gnupg/dirmngr.conf' }
     - { edit: /etc/pacman.d/gnupg/dirmngr.conf, append: true, value: "honor-http-proxy" }
-    - { edit: /etc/pacman.d/gnupg/gpg.conf, regex: '^(keyserver hkp).*', value: '\1://ipv4.pool.sks-keyservers.net' }
+    - { edit: /etc/pacman.d/gnupg/gpg.conf, regex: '^keyserver\s.*', value: 'keyserver http://ipv4.pool.sks-keyservers.net' }
     - { exec: 'rm -f /etc/pacman-mirrors.conf' }
     - edit: /etc/pacman-mirrors.conf
       append: true
@@ -806,6 +808,8 @@ changes:
         - 'fi'
         - "\n# PROXY_SETTINGS_MARKER"
     - { exec: chmod +x /usr/bin/setproxy }
+  remove-docs:
+    - { exec: 'rm -rf /usr/share/{man,doc}' }
   resolved-config:
     - { exec: ln -sf //run/systemd/resolve/resolv.conf /etc/resolv.conf }
   root-user-config:
@@ -878,8 +882,14 @@ changes:
         - 'sort=alpha'
         - 'icon_caps=false'
         - 'dirs=/usr/share/wallpaper;'
-  remove-docs:
-    - { exec: 'rm -rf /usr/share/{man,doc}' }
+  wpa-config:
+    - edit: /etc/wpa_supplicant/wpa_supplicant-wlo1.conf
+      append: true
+      values:
+        - 'ctrl_interface=/run/wpa_supplicant'
+        - 'ctrl_interface_group=wheel'
+        - 'update_config=1'
+        - 'ap_scan=1'
   xorg-config:
     - edit: /etc/X11/xorg.conf.d/30-touchpad.conf
       append: true
