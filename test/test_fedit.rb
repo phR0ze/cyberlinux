@@ -86,6 +86,32 @@ class TestReplace < Minitest::Test
     assert(@replace_lam[@mock, @file, /(.*)distro(.*)/, '\1bar2\2'])
   end
 
+  def test_replace_with_regex_multiple
+    data = ["position='top'",
+      "dock-items=['lxterminal.dockitem','filezilla.dockitem','chromium.dockitem']",
+      "pinned-only=true"]
+    _data = data.clone
+    newdata = ",'virtualbox.dockitem','calc.dockitem'"
+    _data[1] = "dock-items=['lxterminal.dockitem','filezilla.dockitem','chromium.dockitem'#{newdata}]"
+    @mock.expect(:read, data * "\n")
+    @mock.expect(:puts, nil){|x| x == _data }
+
+    assert(@replace_lam[@mock, @file, /(dock-items.*)(\].*)/, "\\1#{newdata}\\2"])
+  end
+
+  def test_replace_with_regex_multiple_quotes
+    data = ["position='top'",
+      "dock-items=['lxterminal.dockitem','filezilla.dockitem','chromium.dockitem']",
+      "pinned-only=true"]
+    _data = data.clone
+    newdata = "'virtualbox.dockitem',"
+    _data[1] = "dock-items=['lxterminal.dockitem',#{newdata}'filezilla.dockitem','chromium.dockitem']"
+    @mock.expect(:read, data * "\n")
+    @mock.expect(:puts, nil){|x| x == _data }
+
+    assert(@replace_lam[@mock, @file, /(dock-items.*)('filezilla.*)/, "\\1#{newdata}\\2"])
+  end
+
   def test_replace_with_regex_and_no_change
     data = ['bar1', '<%= distro %>', 'bar3']
     _data = data.clone

@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.21
+  release: 0.1.22
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -751,7 +751,10 @@ changes:
         - 'Server = http://arch.mirror.square-r00t.net/$repo/os/$arch'
         - 'Server = https://mirror.kaminski.io/archlinux/$repo/os/$arch'
   plank-desktop-config:
+    - { edit: /etc/dconf/db/local.d/02-plank, regex: "(dock-items.*)(,'filezilla.*)", value: "\\1,'virtualbox.dockitem'\\2" }
+    - { edit: /etc/dconf/db/local.d/02-plank, regex: '(dock-items.*)(\].*)', value: "\\1,'calc.dockitem','writer.dockitem'\\2" }
     - { edit: /etc/skel/.config/plank/dock1/launchers/calc.dockitem, append: true, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/libreoffice-calc.desktop"]}
+    - { edit: /etc/skel/.config/plank/dock1/launchers/virtualbox.dockitem, append: true, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/virtualbox.desktop"]}
     - { edit: /etc/skel/.config/plank/dock1/launchers/writer.dockitem, append: true, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/libreoffice-writer.desktop"]}
   plank-heavy-config:
     - edit: /etc/dconf/db/local.d/02-plank
