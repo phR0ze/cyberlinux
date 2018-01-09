@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# Launch Tiny Media Manager
+cd /usr/share/tiny-media-manager
+ARGS="-Dsilent=noupdate -Djava.net.preferIPv4Stack=true -Dappbase=http://www.tinymediamanager.org/"
+exec java $ARGS -jar getdown.jar .

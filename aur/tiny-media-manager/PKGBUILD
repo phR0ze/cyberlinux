@@ -1,0 +1,86 @@
+#MIT License
+#Copyright (c) 2017 phR0ze
+#
+#Permission is hereby granted, free of charge, to any person obtaining a copy
+#of this software and associated documentation files (the "Software"), to deal
+#in the Software without restriction, including without limitation the rights
+#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#copies of the Software, and to permit persons to whom the Software is
+#furnished to do so, subject to the following conditions:
+#
+#The above copyright notice and this permission notice shall be included in all
+#copies or substantial portions of the Software.
+#
+#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+#SOFTWARE.
+
+#-------------------------------------------------------------------------------
+# Maintained by phR0ze
+#-------------------------------------------------------------------------------
+pkgname=tiny-media-manager
+pkgver=2.9.7
+pkgrel=1
+pkgdesc="A multi-OS media managment tool"
+arch=('any')
+url="http://www.tinymediamanager.org"
+license=('Apache-2.0')
+depends=(libmediainfo 'java-environment>=8')
+makedepends=(maven imagemagick)
+_gitname="tinyMediaManager"
+
+source=("https://github.com/tinyMediaManager/tinyMediaManager/archive/$_gitname-$pkgver.tar.gz"
+  "$pkgname"
+  "$pkgname.desktop")
+
+sha256sums=('dc4832fabb10fcde753b6a6325786c6f54939a2a5eb2550828ac19ff3019b0ec'
+  '24b5c4dac6c12be7d1ca54fa712bd56bac1a4098d62f2155253a2a6b05e96786'
+  '7c60b8c4b7ac62eaf192f797110155c6ea552348cf5f11d3bc6dc6ef8ea70dd5')
+
+build()
+{
+  msg "Building $pkgname..."
+	cd $srcdir/$_gitname-$_gitname-$pkgver
+
+  msg2 "Building using maven"
+	mvn package
+
+  msg2 "Generating installable low resolution icon"
+  convert AppBundler/tmm.png $srcdir/$pkgname.png
+}
+
+package()
+{
+  cd $srcdir
+  msg "Packaging $pkgname..."
+	cd $srcdir/$_gitname-$_gitname-$pkgver/dist
+
+	msg2 "Extract maven built package"
+	tar -xf tmm_$pkgver_*_linux.tar.gz
+
+	msg2 "Remove uneeded files"
+  rm -rf tmm_$pkgver_*
+
+	msg2 "Install package directories"
+  install -dm777 $pkgdir/usr/share/$pkgname
+  find . -type d -exec install -dm755 $pkgdir/usr/share/$pkgname/{} \;
+
+	msg2 "Install package files"
+  find . -type f -exec install -Dm644 {} $pkgdir/usr/share/$pkgname/{} \;
+
+	msg2 "Install app icons"
+  install -Dm644 $srcdir/$pkgname.png -t $pkgdir/usr/share/icons/hicolor/32x32/apps
+  install -Dm644 $srcdir/$_gitname-$_gitname-$pkgver/AppBundler/tmm.png $pkgdir/usr/share/icons/hicolor/128x128/apps/$pkgname.png
+
+	msg2 "Install desktop launcher"
+  install -Dm644 $srcdir/$pkgname.desktop -t $pkgdir/usr/share/applications
+
+	msg2 "Install launcher"
+	install -Dm755 $srcdir/$pkgname -t $pkgdir/usr/bin
+}
+
+# vim: ts=2:sw=2:sts=2
