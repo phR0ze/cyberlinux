@@ -37,7 +37,7 @@
       <item label="MKVToolNix" icon="/usr/share/icons/hicolor/32x32/apps/mkvtoolnix-gui.png"><action name="Execute"><execute>mkvtoolnix-gui</execute></action></item>
       <item label="Pulse Audio" icon="/usr/share/icons/Paper/32x32/apps/multimedia-volume-control.png"><action name="Execute"><execute>pavucontrol</execute></action></item>
       <item label="SMPlayer" icon="/usr/share/icons/hicolor/32x32/apps/smplayer.png"><action name="Execute"><execute>smplayer</execute></action></item>
-      <item label="Tiny Media Manager" icon="/usr/share/tinyMediaManager/tmm.png"><action name="Execute"><execute>tinymediamanager</execute></action></item>
+      <item label="Tiny Media Manager" icon="/usr/share/icons/hicolor/32x32/apps/tiny-media-manager.png"><action name="Execute"><execute>tiny-media-manager</execute></action></item>
       <item label="VLC" icon="/usr/share/icons/hicolor/32x32/apps/vlc.png"><action name="Execute"><execute>vlc</execute></action></item>
     </menu>
 
