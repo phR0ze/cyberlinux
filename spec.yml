@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.15
+  release: 0.1.16
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1011,6 +1011,8 @@ packages:
     - { pkg: nmap,                          desc: Network discovery and security auditing }
     - { pkg: tcpdump,                       desc: Network monitoring and data acquisition }
     - { pkg: wget,                          desc: Retrieve files from the Web }
+    - { pkg: wpa_supplicant,                desc: A utility providing key negotiation for WPA wireless networks }
+    - { pkg: wpa_supplicant_gui,            desc: Qt4 GUI for WPA Supplicant, type: CYBERLINUX }
 
   systemd:
     - { pkg: systemd,                       desc: System and service manager }
