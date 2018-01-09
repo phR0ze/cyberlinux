@@ -27,7 +27,7 @@ begin
   require 'colorize'        # color output: colorize
 rescue Exception => e
   gem = e.message.split(' ').last.sub('/', '-')
-  !puts("Error: install missing gem with 'sudo gem install --no-user-install #{gem}'") and exit
+  !puts("Error: install missing gem with 'sudo pacman -S ruby-#{gem}'") and exit
 end
 
 class CmdOpt
