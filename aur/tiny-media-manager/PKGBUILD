@@ -24,7 +24,7 @@
 #-------------------------------------------------------------------------------
 pkgname=tiny-media-manager
 pkgver=2.9.7
-pkgrel=2
+pkgrel=3
 pkgdesc="A multi-OS media managment tool"
 arch=('any')
 url="http://www.tinymediamanager.org"
@@ -51,7 +51,7 @@ build()
 	mvn package
 
   msg2 "Generating installable low resolution icon"
-  convert AppBundler/tmm.png $srcdir/$pkgname.png
+  convert -resize x32 AppBundler/tmm.png $srcdir/$pkgname.png
 }
 
 package()

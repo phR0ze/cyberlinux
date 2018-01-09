@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.18
+  release: 0.1.19
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1022,7 +1022,7 @@ packages:
     - { pkg: tcpdump,                       desc: Network monitoring and data acquisition }
     - { pkg: wget,                          desc: Retrieve files from the Web }
     - { pkg: wpa_supplicant,                desc: A utility providing key negotiation for WPA wireless networks }
-    - { pkg: wpa_supplicant_gui,            desc: Qt4 GUI for WPA Supplicant, type: CYBERLINUX }
+    - { pkg: wpa_gui,                       desc: Qt4 GUI for WPA Supplicant, type: CYBERLINUX }
 
   systemd:
     - { pkg: systemd,                       desc: System and service manager }
@@ -1177,7 +1177,7 @@ packages:
     - { pkg: thunar-media-tags-plugin,      desc: Thunar plugin to view media details }
     - { pkg: thunar-volman,                 desc: Thunar plugin to automatically manage removeable devices }
     - { pkg: xfce4-screenshooter,           desc: Plugin that makes screenshots for the Xfce panel }
-    - { pkg: winff,                         desc: GUI for ffmpeg }
+    - { pkg: winff,                         desc: GUI for ffmpeg, type: CYBERLINUX }
     - { pkg: xnviewmp,                      desc: A digital photo organizer, type: CYBERLINUX }
 
     # OpenGL

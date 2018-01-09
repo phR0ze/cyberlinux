@@ -1,0 +1,70 @@
+#MIT License
+#Copyright (c) 2017 phR0ze
+#
+#Permission is hereby granted, free of charge, to any person obtaining a copy
+#of this software and associated documentation files (the "Software"), to deal
+#in the Software without restriction, including without limitation the rights
+#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#copies of the Software, and to permit persons to whom the Software is
+#furnished to do so, subject to the following conditions:
+#
+#The above copyright notice and this permission notice shall be included in all
+#copies or substantial portions of the Software.
+#
+#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+#SOFTWARE.
+
+#-------------------------------------------------------------------------------
+# Maintained by phR0ze
+#-------------------------------------------------------------------------------
+pkgname=wpa_gui
+pkgver=2.6
+pkgrel=1
+pkgdesc="A Qt frontend to wpa_supplicant"
+arch=('x86_64')
+url="http://hostap.epitest.fi/wpa_supplicant"
+license=('GPL')
+depends=('qt5-base' 'wpa_supplicant')
+makedepends=(imagemagick)
+
+source=("http://hostap.epitest.fi/releases/wpa_supplicant-$pkgver.tar.gz")
+sha256sums=('b4936d34c4e6cdd44954beba74296d964bc2c9668ecaa5255e499636fe2b1450')
+
+build()
+{
+  msg "Building $pkgname..."
+  cd $srcdir/wpa_supplicant-${pkgver}/wpa_supplicant/wpa_gui-qt4
+
+  msg2 "Building wpa_gui-qt4"
+  qmake-qt5 QMAKE_CFLAGS_RELEASE="$CPPFLAGS $CFLAGS" QMAKE_CXXFLAGS_RELEASE="$CPPFLAGS $CXXFLAGS" QMAKE_LFLAGS_RELEASE="$LDFLAGS"
+  make
+
+  msg2 "Generating installable icons"
+  convert -density 384 -resize x32 icons/wpa_gui.svg $srcdir/$pkgname.png
+}
+
+package()
+{
+  msg "Packaging $pkgname..."
+  cd $srcdir/wpa_supplicant-${pkgver}/wpa_supplicant
+
+  msg2 "Install wpa_gui"
+  install -Dm755 wpa_gui-qt4/$pkgname -t $pkgdir/usr/bin
+
+  msg2 "Install app icons"
+  install -Dm644 $srcdir/$pkgname.png -t $pkgdir/usr/share/icons/hicolor/32x32/apps
+  install -Dm644 wpa_gui-qt4/icons/$pkgname.svg -t $pkgdir/usr/share/icons/hicolor/scalable/apps
+
+  msg2 "Install desktop entry"
+  install -Dm644 wpa_gui-qt4/$pkgname.desktop -t $pkgdir/usr/share/applications
+
+  msg2 "Install manual entry"
+  install -Dm644 doc/docbook/wpa_gui.8 -t $pkgdir/usr/share/man/man8
+}
+
+# vim: ts=2:sw=2:sts=2
