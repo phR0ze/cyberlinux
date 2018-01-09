@@ -560,10 +560,12 @@ changes:
     - { chroot: locale-gen }
     - { edit: /etc/profile.d/locale.sh, append: true, value: "export LC_COLLATE=C" }
   logind-config:
-    - { edit: /etc/systemd/logind.conf, regex: '^#(HandlePowerKey).*', value: '\1=ignore' }
-    - { edit: /etc/systemd/logind.conf, regex: '^#(HandleSuspendKey).*', value: '\1=ignore' }
-    - { edit: /etc/systemd/logind.conf, regex: '^#(HandleHibernateKey).*', value: '\1=ignore' }
-    - { edit: /etc/systemd/logind.conf, regex: '^#(HandleLidSwitch).*', value: '\1=ignore' }
+    - { edit: /etc/systemd/logind.conf, regex: '^#(KillUserProcesses)=.*', value: '\1=yes' }
+    - { edit: /etc/systemd/logind.conf, regex: '^#(HandlePowerKey)=.*', value: '\1=poweroff' }
+    - { edit: /etc/systemd/logind.conf, regex: '^#(HandleSuspendKey)=.*', value: '\1=suspend' }
+    - { edit: /etc/systemd/logind.conf, regex: '^#(HandleHibernateKey)=.*', value: '\1=hibernate' }
+    - { edit: /etc/systemd/logind.conf, regex: '^#(HandleLidSwitch)=.*', value: '\1=suspend' }
+    - { edit: /etc/systemd/logind.conf, regex: '^#(HandleLidSwitchDocked)=.*', value: '\1=ignore' }
   lsb-release-config:
     - { exec: 'rm -f /etc/lsb-release' }
     - edit: /etc/lsb-release
