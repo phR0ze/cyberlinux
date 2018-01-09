@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.20
+  release: 0.1.21
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1200,6 +1200,7 @@ packages:
 
   desktop-pkgs:
     - { install: docker }
+    - { install: vagrant-pkgs }
     - { pkg: cinnamon-screensaver,          desc: Screensaver for the Cinnamon desktop, type: CYBERLINUX }
     - { pkg: gimp,                          desc: Excellent image editor, alt: pinta }
     - { pkg: hunspell-en_US,                desc: US dictionaries for spell checking, deps: libreoffice }
