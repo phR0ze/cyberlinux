@@ -24,13 +24,14 @@
 #-------------------------------------------------------------------------------
 pkgname=tiny-media-manager
 pkgver=2.9.7
-pkgrel=1
+pkgrel=2
 pkgdesc="A multi-OS media managment tool"
 arch=('any')
 url="http://www.tinymediamanager.org"
 license=('Apache-2.0')
 depends=(libmediainfo 'java-environment>=8')
 makedepends=(maven imagemagick)
+install=$pkgname.install
 _gitname="tinyMediaManager"
 
 source=("https://github.com/tinyMediaManager/tinyMediaManager/archive/$_gitname-$pkgver.tar.gz"
@@ -55,7 +56,6 @@ build()
 
 package()
 {
-  cd $srcdir
   msg "Packaging $pkgname..."
 	cd $srcdir/$_gitname-$_gitname-$pkgver/dist
 
@@ -66,7 +66,6 @@ package()
   rm -rf tmm_$pkgver_*
 
 	msg2 "Install package directories"
-  install -dm777 $pkgdir/usr/share/$pkgname
   find . -type d -exec install -dm755 $pkgdir/usr/share/$pkgname/{} \;
 
 	msg2 "Install package files"
