@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.23
+  release: 0.1.24
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1220,11 +1220,11 @@ packages:
 
     # Develop
     - { pkg: awf-git,                       desc: Widget Factory for developing GTK themes, type: CYBERLINUX }
+    - { pkg: code,                          desc: Editor for modern development, type: CYBERLINUX }
     - { pkg: meld,                          desc: Develop/Diff Tool - Graphical diff tool cross platform }
     - { pkg: vim-fugitive,                  desc: Git wrapper }
     - { pkg: vim-supertab,                  desc: <Tab> for all completion }
     - { pkg: vim-ultisnips,                 desc: TextMate-style snippets for Vim }
-    - { pkg: visual-studio-code,            desc: Editor for modern development, type: CYBERLINUX }
 
   server-pkgs:
     - { install: apache-php }
