@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.22
+  release: 0.1.23
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -765,6 +765,7 @@ changes:
         - 'icon-size=36'
         - "position='top'"
         - "dock-items=['lxterminal.dockitem','thunar.dockitem','xnviewmp.dockitem','smplayer.dockitem','vlc.dockitem','ghb.dockitem','filezilla.dockitem','chromium.dockitem']"
+        - "lock-items=true"
         - "pinned-only=true"
         - "theme='Transparent'"
     - { edit: /etc/skel/.config/plank/dock1/launchers/lxterminal.dockitem, append: true, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/lxterminal.desktop"]}
