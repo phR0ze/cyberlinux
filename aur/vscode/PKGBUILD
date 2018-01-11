@@ -1,0 +1,97 @@
+#MIT License
+#Copyright (c) 2017 phR0ze
+#
+#Permission is hereby granted, free of charge, to any person obtaining a copy
+#of this software and associated documentation files (the "Software"), to deal
+#in the Software without restriction, including without limitation the rights
+#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#copies of the Software, and to permit persons to whom the Software is
+#furnished to do so, subject to the following conditions:
+#
+#The above copyright notice and this permission notice shall be included in all
+#copies or substantial portions of the Software.
+#
+#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+#SOFTWARE.
+
+#-------------------------------------------------------------------------------
+# Maintained by phR0ze
+#-------------------------------------------------------------------------------
+pkgname=vscode
+pkgdesc='Code editor for building modern apps'
+pkgver=1.19.1
+pkgrel=1
+arch=(x86_64)
+url=https://github.com/Microsoft/vscode
+license=(MIT)
+depends=(gtk2 gconf libnotify libxss libxtst libxkbfile nss alsa-lib)
+makedepends=(imagemagick npm nodejs gulp python2 git yarn)
+
+source=("vscode::git+https://github.com/Microsoft/vscode#tag=$pkgver"
+        "$pkgname.desktop"
+        "$pkgname.patch"
+        "$pkgname.svg")
+sha256sums=('SKIP'
+            'ef3720f757a5efdd162ff3c084a56a2442dbb26db4b36759429d63a830f66d4c'
+            '90244586d3dc292527697dc5739d23d92f669bf094ca2b5748ac7f85be99c3f3'
+            '671416ddb8632e647369b1f3376cdaf6b92bf1c0856771f1ad561a62169b809f')
+
+build()
+{
+  cd $srcdir/$pkgname
+  msg "Building $pkgname..."
+
+  msg2 "Determine commit/ISO8601 date git based build"
+  _commit=$(git rev-parse HEAD)
+  _date=$(date -d @$(git log -1 --pretty=format:%at) -Is -u | sed 's/\+00:00/Z/')
+  sed -e "s/{{ COMMIT }}/${_commit}/" -e "s/{{ DATE }}/${_date}/" -i $srcdir/$pkgname.patch
+
+  msg2 "Apply patch to enable marketplace and rename to vscode"
+  patch -Np1 -i $srcdir/$pkgname.patch
+
+  msg2 "Change ridiculous oss icon for anything else"
+  convert -background none -density 1000 -resize 512x512 $srcdir/$pkgname.svg resources/linux/code.png
+  cp $srcdir/$pkgname.svg src/vs/workbench/parts/welcome/code-icon.svg
+  cp $srcdir/$pkgname.svg src/vs/workbench/parts/update/electron-browser/media/code-icon.svg
+
+  msg2 "Install node dependencies for vscode"
+  yarn install --arch=x64
+
+  msg2 "Build with increased memory for node"
+  node --max_old_space_size=2048  /usr/bin/gulp vscode-linux-x64
+}
+
+package()
+{
+  cd $srcdir/VSCode-linux-x64
+  msg "Packaging $pkgname..."
+
+  msg2 "Install launcher script"
+  install -Dm755 bin/$pkgname $pkgdir/usr/bin/code
+
+  msg2 "Install desktop entry"
+  install -Dm644 $srcdir/$pkgname.desktop -t $pkgdir/usr/share/applications
+
+  msg2 "Install desktop entry icons"
+  convert -background none -density 500 -resize 32x32 $srcdir/$pkgname.svg $srcdir/$pkgname.png
+  install -Dm644 $srcdir/$pkgname.png -t $pkgdir/usr/share/icons/hicolor/32x32/apps
+  install -Dm644 $srcdir/$pkgname.svg -t $pkgdir/usr/share/icons/hicolor/scalable/apps
+
+  msg2 "Install vscode application"
+  install -dm755 $pkgdir/usr/share/$pkgname
+  find . -type d -exec install -dm755 $pkgdir/usr/share/$pkgname/{} \;
+  find . -type f -exec install -Dm644 {} $pkgdir/usr/share/$pkgname/{} \;
+
+  # Ensure the app is executable
+  chmod +x $pkgdir/usr/share/$pkgname/$pkgname
+
+  # Install the license the correct linux location
+  install -Dm644 resources/app/LICENSE.txt $pkgdir/usr/share/licenses/$pkgname/LICENSE
+}
+
+# vim: ts=2:sw=2:sts=2

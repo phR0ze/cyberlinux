@@ -51,7 +51,7 @@ build()
 	mvn package
 
   msg2 "Generating installable low resolution icon"
-  convert -resize x32 AppBundler/tmm.png $srcdir/$pkgname.png
+  convert -background none -resize x32 AppBundler/tmm.png $srcdir/$pkgname.png
 }
 
 package()

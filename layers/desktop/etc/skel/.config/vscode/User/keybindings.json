@@ -1,0 +1,25 @@
+// Place your key bindings in this file to overwrite the defaults
+[
+    {
+        "key": "ctrl+shift+s",
+        "command": "workbench.action.files.saveAll"
+    },
+    {
+        "key": "ctrl+shift+enter",
+        "command": "git.push"
+    },
+    {
+        "key": "ctrl+shift+s",
+        "command": "-workbench.action.files.saveAs"
+    },
+    {
+        "key": "ctrl+f12",
+        "command": "editor.action.goToDeclaration",
+        "when": "editorHasDefinitionProvider && editorTextFocus && !isInEmbeddedEditor"
+    },
+    {
+        "key": "f12",
+        "command": "-editor.action.goToDeclaration",
+        "when": "editorHasDefinitionProvider && editorTextFocus && !isInEmbeddedEditor"
+    }
+]

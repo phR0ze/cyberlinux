@@ -30,5 +30,6 @@ aur/ruby-net-sftp/*.gem
 aur/ruby-net-ssh/*.gem
 aur/ruby-rest-client/*.gem
 aur/ruby-tins/*.gem
+aur/vscode/vscode
 temp
 vagrant

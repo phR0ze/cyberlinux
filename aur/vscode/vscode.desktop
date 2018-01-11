@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=VS Code
+Comment=Code editor for building modern apps
+GenericName=Text Editor
+Exec=code
+Icon=vscode
+Terminal=false
+StartupNotify=true
+Type=Application
+Categories=Utility;TextEditor;Development;IDE;

@@ -30,7 +30,7 @@ arch=('any')
 url="https://github.com/phR0ze/openvpn-pia"
 license=('MIT')
 depends=('ruby-gtk3' 'ruby-cmds' 'openvpn' 'systemd')
-makedepends=(inkscape)
+makedepends=(imagemagick)
 install=$pkgname.install
 
 source=("git+https://github.com/phR0ze/$pkgname.git#tag=$pkgver"
@@ -68,7 +68,7 @@ build()
     x="${base//svg/png}"
     if [ ! -e $srcdir/$x ]; then
       msg2 "Generating icon $x"
-      inkscape $svg --export-png=$srcdir/$x --export-width=32
+      convert -background none -density 384 -resize x32 $svg $srcdir/$x
     fi
   done
 }

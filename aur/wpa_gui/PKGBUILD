@@ -45,7 +45,7 @@ build()
   make
 
   msg2 "Generating installable icons"
-  convert -density 384 -resize x32 icons/wpa_gui.svg $srcdir/$pkgname.png
+  convert -background none -density 384 -resize x32 icons/wpa_gui.svg $srcdir/$pkgname.png
 }
 
 package()
