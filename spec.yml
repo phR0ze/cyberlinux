@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.26
+  release: 0.1.27
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -340,7 +340,7 @@ changes:
     - { edit: /etc/php/php.ini, regex: '^;(extension=sqlite3.so.*)', value: '\1' }
     - { chroot: systemctl enable httpd.service }
   cinnamon-screensaver-config:
-    - edit: /etc/dconf/db/local.d/03-cinnamon
+    - edit: /etc/dconf/db/local.d/04-cinnamon
       append: true
       values:
         - "[org/cinnamon/desktop/screensaver]\n"
@@ -477,6 +477,12 @@ changes:
         - '  </match>'
         - '</fontconfig>'
   gtk-config:
+    - edit: /etc/dconf/db/local.d/02-gtk
+      append: true
+      values:
+        - "[org/gtk/settings/file-chooser]\n"
+        - "sort-directories-first=true\n"
+    - { chroot: dconf update }
     - edit: /etc/skel/.gtkrc-2.0
       append: true
       values:
@@ -751,13 +757,13 @@ changes:
         - 'Server = http://arch.mirror.square-r00t.net/$repo/os/$arch'
         - 'Server = https://mirror.kaminski.io/archlinux/$repo/os/$arch'
   plank-desktop-config:
-    - { edit: /etc/dconf/db/local.d/02-plank, regex: "(dock-items.*)(,'filezilla.*)", value: "\\1,'virtualbox.dockitem'\\2" }
-    - { edit: /etc/dconf/db/local.d/02-plank, regex: '(dock-items.*)(\].*)', value: "\\1,'calc.dockitem','writer.dockitem'\\2" }
+    - { edit: /etc/dconf/db/local.d/03-plank, regex: "(dock-items.*)(,'filezilla.*)", value: "\\1,'virtualbox.dockitem'\\2" }
+    - { edit: /etc/dconf/db/local.d/03-plank, regex: '(dock-items.*)(\].*)', value: "\\1,'calc.dockitem','writer.dockitem'\\2" }
     - { edit: /etc/skel/.config/plank/dock1/launchers/calc.dockitem, append: true, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/libreoffice-calc.desktop"]}
     - { edit: /etc/skel/.config/plank/dock1/launchers/virtualbox.dockitem, append: true, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/virtualbox.desktop"]}
     - { edit: /etc/skel/.config/plank/dock1/launchers/writer.dockitem, append: true, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/libreoffice-writer.desktop"]}
   plank-heavy-config:
-    - edit: /etc/dconf/db/local.d/02-plank
+    - edit: /etc/dconf/db/local.d/03-plank
       append: true
       values:
         - '[net/launchpad/plank/docks/dock1]'
