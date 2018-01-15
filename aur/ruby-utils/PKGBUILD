@@ -1,5 +1,5 @@
 #MIT License
-#Copyright (c) 2017 phR0ze
+#Copyright (c) 2018 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -22,22 +22,22 @@
 #-------------------------------------------------------------------------------
 # Maintained by phR0ze
 #-------------------------------------------------------------------------------
-gem=cmds
+gem=utils
 pkgname=ruby-$gem
-pkgver=0.0.2
-pkgrel=2
-pkgdesc='Command like syntax for Ruby command line parameters'
+pkgver=0.0.3
+pkgrel=1
+pkgdesc='Collection of useful Ruby utils'
 arch=(any)
-url='https://github.com/phR0ze/cmds'
+url='https://github.com/phR0ze/ruby-utils'
 license=(MIT)
-depends=(ruby=2.5.0)
+depends=(ruby=2.5.0 ruby-colorize)
 options=(!emptydirs)
-source=("git+https://github.com/phR0ze/$gem.git#tag=$pkgver")
+source=("git+https://github.com/phR0ze/ruby-$gem.git#tag=$pkgver")
 sha1sums=('SKIP')
 
 build()
 {
-  cd $srcdir/$gem
+  cd $srcdir/$pkgname
 
   msg "Building $pkgname"
   gem build $gem.gemspec
@@ -45,14 +45,14 @@ build()
 
 package()
 {
-  cd $srcdir/$gem
+  cd $srcdir/$pkgname
 
   msg "Packaging $pkgname"
   gem_install_path="$(ruby -e'puts Gem.default_dir')"
   msg2 $gem_install_path
   gem install --ignore-dependencies --no-user-install -i "$pkgdir/$gem_install_path" -n "$pkgdir/usr/bin" $gem-$pkgver.gem
   rm "$pkgdir/$gem_install_path/cache/$gem-$pkgver.gem"
-  install -D -m644 $srcdir/$gem/LICENSE $pkgdir/$gem_install_path/gems/$gem-$pkgver/LICENSE
+  install -D -m644 $srcdir/$pkgname/LICENSE $pkgdir/$gem_install_path/gems/$gem-$pkgver/LICENSE
   install -D -m644 "$pkgdir/$gem_install_path/gems/$gem-$pkgver/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }
 
