@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.35
+  release: 0.1.36
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1002,6 +1002,9 @@ packages:
     - { pkg: reptyr,                        desc: Attach running program to a new terminal }
     - { pkg: tmux,                          desc: Terminal multiplexer built off screen }
     - { pkg: usbutils,                      desc: USB device utilities including lsusb }
+
+    # Drivers
+    - { pkg: e1000e-dkms,                   desc: Intel e1000e Ethernet adapter driver, type: CYBERLINUX }
 
     # Packaging
     - { pkg: pkgfile,                       desc: A pacman files and metadata explorer }
