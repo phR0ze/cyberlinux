@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.30
+  release: 0.1.31
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1222,6 +1222,7 @@ packages:
     - { pkg: openvpn-update-systemd-resolved, desc: OpenVPN systemd-resolved updater, type: CYBERLINUX }
     - { pkg: scribus,                       desc: Open Source Desktop Publishing }
     - { pkg: synergy,                       desc: Network/Virtual KVM }
+    - { pkg: veracrypt,                     desc: Disk encryption with strong security based on TrueCrypt }
 
     # Develop
     - { pkg: awf-git,                       desc: Widget Factory for developing GTK themes, type: CYBERLINUX }
