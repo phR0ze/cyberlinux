@@ -1,0 +1,76 @@
+#MIT License
+#Copyright (c) 2018 phR0ze
+#
+#Permission is hereby granted, free of charge, to any person obtaining a copy
+#of this software and associated documentation files (the "Software"), to deal
+#in the Software without restriction, including without limitation the rights
+#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#copies of the Software, and to permit persons to whom the Software is
+#furnished to do so, subject to the following conditions:
+#
+#The above copyright notice and this permission notice shall be included in all
+#copies or substantial portions of the Software.
+#
+#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+#SOFTWARE.
+
+#-------------------------------------------------------------------------------
+# Maintained by phR0ze
+#-------------------------------------------------------------------------------
+pkgname=teamviewer
+pkgver=13.0.6634
+pkgrel=1
+pkgdesc='All-In-One Software for Remote Support and Online Meetings'
+arch=(x86_64)
+url='http://www.teamviewer.com'
+license=('custom')
+options=('!strip')
+depends=('qt5-base' 'qt5-declarative' 'qt5-x11extras' 'qt5-webkit' 'hicolor-icon-theme'
+  'qt5-x11extras' 'qt5-quickcontrols')
+install=teamviewer.install
+
+source=("https://dl.tvcdn.de/download/linux/version_${pkgver%%.*}x/teamviewer_${pkgver}_amd64.deb"
+  $pkgname.desktop
+  $pkgname)
+sha256sums=('92171c89c74764ab0d654093fcc59bb3ffead2d197bd9473bfb5e93f65dc1120'
+  '4897ef7a6d42fe5ef2e41b772b9498c1349f18142906419d8960f9b9824cc90c'
+  'c446ba6f9e3398c09a80ecf02a464370eec2ef485e2855d9eddd18dfa3fb7c48') 
+
+prepare()
+{
+  cd $srcdir
+  msg "Building $pkgname..."
+
+	tar -xf data.tar.xz
+}
+
+package()
+{
+  cd $srcdir
+  msg "Packaging $pkgname..."
+
+  msg2 "Remove cruft"
+  rm -rf opt/teamviewer/tv_bin/xdg-utils/xdg-email
+
+  msg2 "Packaging dirs and files"
+  cp -dr --no-preserve=ownership {etc,opt,usr,var} $pkgdir
+
+  msg2 "Packaging launcher"
+  install -Dm755 $pkgname -t $pkgdir/usr/bin
+
+  msg2 "Packaging desktop entry"
+  install -Dm644 $pkgname.desktop -t $pkgdir/usr/share/applications
+
+  msg2 "Packaging systemd unit"
+  install -Dm644 opt/$pkgname/tv_bin/script/teamviewerd.service -t $pkgdir/usr/lib/systemd/system
+
+  msg2 "Packaging additional files"
+  install -Dm644 opt/teamviewer/doc/License.txt $pkgdir/usr/share/licenses/$pkgname/LICENSE
+}
+
+# vim: ts=2:sw=2:sts=2
