@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.31
+  release: 0.1.32
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1058,7 +1058,6 @@ packages:
     - { pkg: go,                            desc: Compiler and tools for the Go programming lang }
     - { pkg: go-bindata,                    desc: Embed any file as Go code }
     - { pkg: go-tools,                      desc: Developer tools for the Go programming lang }
-    - { pkg: glade,                         desc: User Interface Builder for GTK+ applications }
     - { pkg: glide,                         desc: Package management for the Go programing lang }
     - { pkg: groff,                         desc: GNU trof text-formatting system, depof: base-devel }
     - { pkg: jq,                            desc: Command line JSON processor }
@@ -1226,6 +1225,7 @@ packages:
 
     # Develop
     - { pkg: awf-git,                       desc: Widget Factory for developing GTK themes, type: CYBERLINUX }
+    - { pkg: glade,                         desc: User Interface Builder for GTK+ applications }
     - { pkg: meld,                          desc: Develop/Diff Tool - Graphical diff tool cross platform }
     - { pkg: vim-fugitive,                  desc: Git wrapper }
     - { pkg: vim-supertab,                  desc: <Tab> for all completion }
