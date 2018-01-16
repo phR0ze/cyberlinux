@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.29
+  release: 0.1.30
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -262,7 +262,6 @@ changes:
     - { chroot: systemctl enable systemd-timesyncd.service }
   shell-config:
     - { apply: wpa-config }
-    - { chroot: systemctl enable wpa_supplicant@wlo1.service }
     - { chroot: systemctl enable cronie.service }
   lite-config:
     - { apply: lxdm-config }
