@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.34
+  release: 0.1.35
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -395,7 +395,7 @@ changes:
         - '  echo "[system/proxy/https]" >> ${proxyfile}'
         - '  echo "host=\"${proxy_host}\"" >> ${proxyfile}'
         - '  echo "port=${proxy_port}" >> ${proxyfile}'
-        - 'else'
+        - '#else'
         - "  # dconf write /system/proxy/mode 'none'"
         - 'fi'
   docker-config:
@@ -1009,7 +1009,6 @@ packages:
     # Disk utils
     - { pkg: cdrkit,                        desc: CD/DVD burnig/extration and ISO creation }
     - { pkg: inotify-tools,                 desc: Inotify C library for watching files }
-    - { pkg: iputils,                       desc: Network utils e.g. ping/tftpd }
     - { pkg: libisoburn,                    desc: Libburn/libisofs/xorriso }
     - { pkg: ntfs-3g,                       desc: NTFS filesystem driver and utilities }
     - { pkg: smartmontools,                 desc: Control/monitor S.M.A.R.T. Drives }
@@ -1025,7 +1024,9 @@ packages:
     # Network
     - { pkg: curl,                          desc: Adding curl command to pull in packer scripts }
     - { pkg: dnsutils,                      desc: Network utilities dig/host/nslookup }
+    - { pkg: ethtool,                       desc: Utility for controlling network drivers and hardware }
     - { pkg: gnu-netcat,                    desc: Network piping application }
+    - { pkg: iputils,                       desc: Network utils e.g. ping/tftpd }
     - { pkg: nfs-utils,                     desc: Support programs for Network File Systems }
     - { pkg: nmap,                          desc: Network discovery and security auditing }
     - { pkg: tcpdump,                       desc: Network monitoring and data acquisition }
