@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.32
+  release: 0.1.33
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1070,8 +1070,6 @@ packages:
     - { pkg: patch,                         desc: Utility to apply patches to files, depof: base-devel }
     - { pkg: pkg-config,                    desc: System for managing library flags, depof: base-devel }
     - { pkg: psmisc,                        desc: fuser/killall/pstree }
-    - { pkg: python-pip,                    desc: Python package management tool }
-    - { pkg: python-yaml,                   desc: YAML support using fast libYAML library }
     - { pkg: ruby,                          desc: Ruby lang quick and easy programming }
     - { pkg: strace,                        desc: A diagnostic, debugging and instructional userspace tracer }
     - { pkg: texinfo,                       desc: Documentation for online information, depof: base-devel }
