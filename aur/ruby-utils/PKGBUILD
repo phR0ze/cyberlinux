@@ -24,7 +24,7 @@
 #-------------------------------------------------------------------------------
 gem=utils
 pkgname=ruby-$gem
-pkgver=0.0.9
+pkgver=0.0.13
 pkgrel=1
 pkgdesc='Collection of useful Ruby utils'
 arch=(any)
