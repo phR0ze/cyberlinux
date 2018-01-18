@@ -27,6 +27,7 @@ require 'yaml'
 require_relative 'core'
 
 module Fedit
+  extend self
 
   # Check if any digests have changed based on the given files
   # Params:
@@ -57,7 +58,6 @@ module Fedit
 
     return newfiles, modifiedfiles, deletedfiles
   end
-  module_function(:digests_changed)
 
   # Generate digests for array of files given and save them
   # Params:
@@ -78,7 +78,6 @@ module Fedit
       f.puts({key => digests}.to_yaml)
     }
   end
-  module_function(:update_digests)
 
   # Replace in file
   # Params:
@@ -115,7 +114,6 @@ module Fedit
 
     return changed
   end
-  module_function(:replace)
 
   # Insert into a file
   # Location of insert is determined by the given regex and offset.
@@ -164,7 +162,6 @@ module Fedit
 
     return changed
   end
-  module_function(:insert)
 
   # Resolve template
   # Params:
@@ -200,7 +197,6 @@ module Fedit
 
     return changed
   end
-  module_function(:resolve)
 end
 
 # vim: ft=ruby:ts=2:sw=2:sts=2

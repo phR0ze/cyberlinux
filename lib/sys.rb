@@ -27,10 +27,11 @@ begin
   require 'colorize'        # color output: colorize
 rescue Exception => e
   gem = e.message.split(' ').last.sub('/', '-')
-  !puts("Error: install missing gem with 'sudo pacman -S ruby-#{gem}'") and exit
+  !puts("Error: install missing package with 'sudo pacman -S ruby-#{gem}'") and exit
 end
 
 module Sys
+  extend self
 
   # Update pacman database
   def pacman_update
@@ -46,7 +47,6 @@ module Sys
       end
     end
   end
-  module_function(:pacman_update)
 
   # Run the system command in an exception wrapper
   # Params:
@@ -76,7 +76,6 @@ module Sys
 
     return result
   end
-  module_function(:exec)
 
   # Remove given dir or file
   # Params:
@@ -86,7 +85,6 @@ module Sys
     Sys.exec("rm -rf #{path}")
     return path
   end
-  module_function(:rm_rf)
 
   # Unmount the given mount point
   # Params:
@@ -115,7 +113,6 @@ module Sys
     !puts("Error: Failed to umount #{mount}".colorize(:red)) and
       exit if check[mount]
   end
-  module_function(:umount)
 
   # Drop root privileges to original user
   # Only affects ruby commands not system commands
@@ -133,7 +130,6 @@ module Sys
 
     return uid, gid
   end
-  module_function(:drop_privileges)
 
   # Raise privileges if dropped earlier
   # Only affects ruby commands not system commands
@@ -146,13 +142,11 @@ module Sys
       Process::Sys.setegid(gid)
     end
   end
-  module_function(:raise_privileges)
 
   # Capture stdout for the block given
   # +block+:: block of code to execute
   # +returns+:: string of the captured stdout
   def capture(&block)
-
     begin
       # Capture output
       stdout, stderr = StringIO.new, StringIO.new
@@ -169,7 +163,6 @@ module Sys
     # Return results
     OpenStruct.new(result: result, stdout: stdout.string, stderr: stderr.string)
   end
-  module_function(:capture)
 end
 
 # vim: ft=ruby:ts=2:sw=2:sts=2

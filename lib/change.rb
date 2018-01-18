@@ -27,6 +27,7 @@ require_relative 'core'
 require_relative 'fedit'
 
 module Change
+  extend self
 
   # Get change keys
   # Params:
@@ -46,7 +47,6 @@ module Change
       values: 'values'
     })
   end
-  module_function(:keys)
 
   # Apply the given change
   # This is the only method that can directly deal with changes and is meant to be the entry point
@@ -126,14 +126,12 @@ module Change
 
     return changed
   end
-  module_function(:apply)
 
   # Redirect paths according to the given contex
-  # Params:
-  # +change+:: YAML block to redirect paths for
-  # +ctx+:: OpenStruct context to work with
-  # +k+:: OpenStruct of keys for mapping
-  # +returns+:: redirected string
+  # @param change [yaml] to redirect paths for
+  # @param ctx [OpenStruct] context to work with
+  # @param k [OpenStruct] keys for mapping
+  # @returns [String] redirected string
   def redirect(change, ctx, k)
     all = [change[k.edit], change[k.resolve], change[k.exec]].compact
     raise ArgumentError.new("Invalid change type") if not all.any?
@@ -155,7 +153,6 @@ module Change
 
     return _change
   end
-  module_function(:redirect)
 end
 
 # vim: ft=ruby:ts=2:sw=2:sts=2
