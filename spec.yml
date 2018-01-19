@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.45
+  release: 0.1.46
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1098,6 +1098,7 @@ packages:
     - { pkg: ruby-rest-client,              desc: Simple HTTP and REST client, depof: reduce, type: CYBERLINUX }
 
   lite-pkgs:
+    - { install: virtualbox-guest }
     - { pkg: archlinux-xdg-menu,            desc: Automatic OpenBox menu generation from xdg files }
     - { pkg: dconf,                         desc: A low-level configuration system }
     - { pkg: dconf-editor,                  desc: New configuration manager intended to replace gconf }
@@ -1213,7 +1214,6 @@ packages:
   desktop-pkgs:
     - { install: docker }
     - { install: virtualbox-host }
-    - { install: virtualbox-guest }
     - { pkg: cinnamon-screensaver,          desc: Screensaver for the Cinnamon desktop, type: CYBERLINUX }
     - { pkg: gimp,                          desc: Excellent image editor, alt: pinta }
     - { pkg: hunspell-en_US,                desc: US dictionaries for spell checking, deps: libreoffice }
