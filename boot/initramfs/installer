@@ -303,28 +303,30 @@ config_system()
     # Configure networking
     netmatch='en* eth*'
     if [ "x${netip}" != "xDHCP" ]; then
+        # Static LAN
         local conf="${rootmnt}/etc/systemd/network/10-static.network"
         echo -en ":: Configuring static networking..."
         echo -e "[Match]\nName=${netmatch}\n" > $conf
         echo -e "[Network]\nAddress=${netip}\nIPForward=kernel\n" >> $conf
         check_status
     else
-        # LAN line
+        # DHCP LAN
         local conf="${rootmnt}/etc/systemd/network/20-dhcp.network"
         echo -en ":: Configuring dhcp networking..."
         echo -e "[Match]\nName=${netmatch}\n" > $conf
         echo -e "[Network]\nDHCP=ipv4\nIPForward=kernel\n" >> $conf
         echo -e "[DHCP]\nUseDomains=true\n" >> $conf
         check_status
-
-        # Wireless
-        local conf="${rootmnt}/etc/systemd/network/30-wireless.network"
-        echo -en ":: Configuring dhcp wireless networking..."
-        echo -e "[Match]\nName=wl*\n" > $conf
-        echo -e "[Network]\nDHCP=ipv4\nRouteMetric=20\nIPForward=kernel\n" >> $conf
-        echo -e "[DHCP]\nUseDomains=true\n" >> $conf
-        check_status
     fi
+
+    # DHCP Wireless
+    local conf="${rootmnt}/etc/systemd/network/30-wireless.network"
+    echo -en ":: Configuring dhcp wireless networking..."
+    echo -e "[Match]\nName=wl*\n" > $conf
+    echo -e "[Network]\nDHCP=ipv4\nRouteMetric=20\nIPForward=kernel\n" >> $conf
+    echo -e "[DHCP]\nUseDomains=true\n" >> $conf
+    check_status
+
     if [ $proxy ] && [ "x$proxy" != "xNone" ]; then
         echo -en ":: Set proxy to ${proxy}..."
         proxy_port=${proxy//*:/}
@@ -381,6 +383,7 @@ installer()
     if [ "$target_layer" == 'live' ]; then
        user='vagrant'
        pass='vagrant'
+       netip='DHCP'
        hostname="${distro}-${target_layer}"
     else
         # Collect install destination device
