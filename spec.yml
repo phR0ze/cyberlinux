@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.41
+  release: 0.1.42
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -79,7 +79,7 @@ layers:
     packages:
       - { install: machine-core }
       - { install: machine-tools }
-      - { install: virtualbox-guest }
+      - { install: virtualbox-guest-nox }
 
     changes:
       - { apply: base-config }
@@ -819,6 +819,27 @@ changes:
     - { exec: chmod +x /usr/bin/setproxy }
   remove-docs:
     - { exec: 'rm -rf /usr/share/{man,doc}' }
+  remove-virtualbox-guest:
+    - edit: /usr/bin/remove-virtualbox-guest
+      append: true
+      values:
+        - '#!/bin/bash'
+        - 'if [ $(dmidecode -s system-product-name) != "VirtualBox" ]; then'
+        - '    pacman -Rns virtualbox-guest-utils -d -d --noconfirm'
+        - '    pacman -Rns virtualbox-guest-utils-nox -d -d --noconfirm'
+        - '    pacman -Rns virtualbox-guest-modules-arch -d -d --noconfirm'
+        - 'fi'
+    - { exec: chmod +x /usr/bin/remove-virtualbox-guest }
+    - edit: /etc/systemd/system/remove-virtualbox-guest.service
+      append: true
+      values:
+        - '[Unit]'
+        - 'Description=Remove virtualbox guest'
+        - '[Service]'
+        - 'Type=oneshot'
+        - 'ExecStart=/usr/bin/remove-virtualbox-guest'
+        - '[Install]'
+        - 'WantedBy=multi-user.target'
   resolved-config:
     - { exec: ln -sf //run/systemd/resolve/resolv.conf /etc/resolv.conf }
   root-user-config:
@@ -925,6 +946,7 @@ packages:
 
   machine-core:
     - { install: container-core }
+    - { pkg: dmidecode,                     desc: Desktop Managment Interface table related utilities }
     - { pkg: intel-ucode,                   desc: Microcode update files for Intel CPUs }
     - { pkg: linux,                         desc: Linux kernel and supporting modules }
     - { pkg: lsb-release,                   desc: LSB version query program }
@@ -1066,6 +1088,7 @@ packages:
     - { pkg: groff,                         desc: GNU trof text-formatting system, depof: base-devel }
     - { pkg: jq,                            desc: Command line JSON processor }
     - { pkg: libtool,                       desc: Generic library support script, depof: base-devel }
+    - { pkg: linux-headers,                 desc: Linux kernel headers }
     - { pkg: lld,                           desc: Linker from the LLVM project, depof: chromium }
     - { pkg: llvm,                          desc: Low Level compiler infrastructure, depof: chromium }
     - { pkg: ltrace,                        desc: Tracks runtime library calls in dynamically linked programs }
@@ -1210,7 +1233,8 @@ packages:
 
   desktop-pkgs:
     - { install: docker }
-    - { install: vagrant-pkgs }
+    - { install: virtualbox-host }
+    - { install: virtualbox-guest }
     - { pkg: cinnamon-screensaver,          desc: Screensaver for the Cinnamon desktop, type: CYBERLINUX }
     - { pkg: gimp,                          desc: Excellent image editor, alt: pinta }
     - { pkg: hunspell-en_US,                desc: US dictionaries for spell checking, deps: libreoffice }
@@ -1299,15 +1323,17 @@ packages:
     - { pkg: kubernetes-kubelet,            desc: K8s node control agent, type: CYBERLINUX }
     - { pkg: kubernetes-cni,                desc: K8s networking plugins, type: CYBERLINUX }
 
-  vagrant-pkgs:
+  virtualbox-host:
     - { pkg: packer,                        desc: HashiCorp's vagrant box builder, type: CYBERLINUX }
     - { pkg: vagrant,                       desc: Build and distribute virtualized dev environments }
     - { pkg: virtualbox,                    desc: Cross platform virtualization with UI }
     - { pkg: virtualbox-guest-iso,          desc: VirtualBox Guest Additions ISO image }
-    - { pkg: virtualbox-host-dkms,          desc: VirtualBox host kernel modules }
+    - { pkg: virtualbox-host-modules-arch,  desc: VirtualBox host kernel modules for Arch kernel }
 
   virtualbox-guest:
-    - { pkg: dkms,                          desc: Dynamic kernel modules system, depof: virtualbox }
-    - { pkg: linux-headers,                 desc: Linux kernel headers needed for dkms }
-    - { pkg: virtualbox-guest-utils-nox,    desc: VirtualBox guest drivers and utilities, offline: true }
-    - { pkg: virtualbox-guest-dkms,         desc: VirtualBox guest kernel modules, offline: true }
+    - { pkg: virtualbox-guest-utils,        desc: VirtualBox guest drivers and utilities, conflict: virtualbox-guest-utils-nox }
+
+  virtualbox-guest-nox:
+    - { pkg: virtualbox-guest-utils-nox,    desc: VirtualBox guest drivers and utilities w/out X support }
+    - { pkg: virtualbox-guest-modules-arch, desc: VirtualBox guest kernel modules for Arch kernel }
+
