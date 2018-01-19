@@ -89,7 +89,6 @@ class Reduce
       pgp_key: 'pgp_key',
       pkg: 'pkg',
       ram: 'ram',
-      repos: 'repos',
       type: 'type',
       vagrant: 'vagrant',
       vars: 'vars',
@@ -172,8 +171,6 @@ class Reduce
     @spec[@k.layers].each{|x| @vars["#{x[@k.name]}_src"] = File.join(@layerspath, x[@k.name])}
     @vars.groups = @spec[@k.layers].select{|x| x[@k.type] == @k.machine}
       .map{|x| x[@k.groups] if x[@k.groups]}.compact.uniq * ','
-    @repos = @spec[@k.repos].map{|x| x[@k.name].upcase} << nil
-    @vars.repos = @repos.map{|x| x.downcase if x}.compact * ' '
   end
 
   # Create directory structure for project
@@ -825,7 +822,7 @@ class Reduce
     #---------------------------------------------------------------------------
     all_pkgs = getpkgs(layer_yml)
     pkgs = {
-      reg: all_pkgs.map{|x| x[@k.pkg] if !x[@k.ignore] and @repos.include?(x[@k.type])}.compact,
+      reg: all_pkgs.map{|x| x[@k.pkg] if !x[@k.ignore]}.compact,
       ignore: all_pkgs.map{|x| x[@k.pkg] if x[@k.ignore]}.compact,
       conflict: all_pkgs.map{|x| "CONFLICT:#{x[@k.conflict]}" if x[@k.conflict]}.compact
     }
