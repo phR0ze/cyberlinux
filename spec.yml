@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.42
+  release: 0.1.43
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -819,27 +819,6 @@ changes:
     - { exec: chmod +x /usr/bin/setproxy }
   remove-docs:
     - { exec: 'rm -rf /usr/share/{man,doc}' }
-  remove-virtualbox-guest:
-    - edit: /usr/bin/remove-virtualbox-guest
-      append: true
-      values:
-        - '#!/bin/bash'
-        - 'if [ $(dmidecode -s system-product-name) != "VirtualBox" ]; then'
-        - '    pacman -Rns virtualbox-guest-utils -d -d --noconfirm'
-        - '    pacman -Rns virtualbox-guest-utils-nox -d -d --noconfirm'
-        - '    pacman -Rns virtualbox-guest-modules-arch -d -d --noconfirm'
-        - 'fi'
-    - { exec: chmod +x /usr/bin/remove-virtualbox-guest }
-    - edit: /etc/systemd/system/remove-virtualbox-guest.service
-      append: true
-      values:
-        - '[Unit]'
-        - 'Description=Remove virtualbox guest'
-        - '[Service]'
-        - 'Type=oneshot'
-        - 'ExecStart=/usr/bin/remove-virtualbox-guest'
-        - '[Install]'
-        - 'WantedBy=multi-user.target'
   resolved-config:
     - { exec: ln -sf //run/systemd/resolve/resolv.conf /etc/resolv.conf }
   root-user-config:
@@ -1049,7 +1028,7 @@ packages:
     # Network
     - { pkg: curl,                          desc: Adding curl command to pull in packer scripts }
     - { pkg: dnsutils,                      desc: Network utilities dig/host/nslookup }
-    - { pkg: ethtool,                       desc: Utility for controlling network drivers and hardware }
+    - { pkg: ethtool,                       desc: Network drivers and hardware util, depof: k8s }
     - { pkg: gnu-netcat,                    desc: Network piping application }
     - { pkg: iputils,                       desc: Network utils e.g. ping/tftpd }
     - { pkg: nfs-utils,                     desc: Support programs for Network File Systems }
@@ -1086,7 +1065,7 @@ packages:
     - { pkg: go-tools,                      desc: Developer tools for the Go programming lang }
     - { pkg: glide,                         desc: Package management for the Go programing lang }
     - { pkg: groff,                         desc: GNU trof text-formatting system, depof: base-devel }
-    - { pkg: jq,                            desc: Command line JSON processor }
+    - { pkg: jq,                            desc: Command line JSON processor, depof: kubectl }
     - { pkg: libtool,                       desc: Generic library support script, depof: base-devel }
     - { pkg: linux-headers,                 desc: Linux kernel headers }
     - { pkg: lld,                           desc: Linker from the LLVM project, depof: chromium }
@@ -1306,17 +1285,14 @@ packages:
     - { pkg: docker,                        desc: Run applications as containers, depof: reduce }
 
   k8shost-pkgs:
-    - { install: docker }
     - { pkg: bridge-utils,                  desc: Ethernet bridge config utils, depof: k8s }
     - { pkg: ebtables,                      desc: Ethernet bridge filtering utilities, depof: k8s }
-    - { pkg: ethtool,                       desc: Network drivers and hardware util, depof: k8s }
     - { pkg: helm,                          desc: Kubernetes package manager, type: CYBERLINUX }
     - { pkg: kubernetes-kubectl,            desc: K8s cluster controller, type: CYBERLINUX }
     - { pkg: socat,                         desc: Multipurpose relay, depof: k8s}
 
   k8snode-pkgs:
     - { install: docker }
-    - { pkg: jq,                            desc: Command line JSON processor, depof: kubectl }
     - { pkg: helm,                          desc: Kubernetes package manager, type: CYBERLINUX }
     - { pkg: kubernetes-kubeadm,            desc: K8s cluster bootstrap, type: CYBERLINUX }
     - { pkg: kubernetes-kubectl,            desc: K8s cluster controller, type: CYBERLINUX }
