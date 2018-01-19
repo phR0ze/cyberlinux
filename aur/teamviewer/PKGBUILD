@@ -24,7 +24,7 @@
 #-------------------------------------------------------------------------------
 pkgname=teamviewer
 pkgver=13.0.6634
-pkgrel=1
+pkgrel=2
 pkgdesc='All-In-One Software for Remote Support and Online Meetings'
 arch=(x86_64)
 url='http://www.teamviewer.com'
@@ -36,9 +36,11 @@ install=teamviewer.install
 
 source=("https://dl.tvcdn.de/download/linux/version_${pkgver%%.*}x/teamviewer_${pkgver}_amd64.deb"
   $pkgname.desktop
+  ${pkgname}d.service
   $pkgname)
 sha256sums=('92171c89c74764ab0d654093fcc59bb3ffead2d197bd9473bfb5e93f65dc1120'
   '4897ef7a6d42fe5ef2e41b772b9498c1349f18142906419d8960f9b9824cc90c'
+  'cb7928a9ad04f7abe0f65b6339ff729fd2898bf5030f79a5ea97331348340e8d'
   'c446ba6f9e3398c09a80ecf02a464370eec2ef485e2855d9eddd18dfa3fb7c48') 
 
 prepare()
@@ -67,7 +69,9 @@ package()
   install -Dm644 $pkgname.desktop -t $pkgdir/usr/share/applications
 
   msg2 "Packaging systemd unit"
-  install -Dm644 opt/$pkgname/tv_bin/script/teamviewerd.service -t $pkgdir/usr/lib/systemd/system
+  install -Dm644 ${pkgname}d.service -t $pkgdir/usr/lib/systemd/system
+  install -dm750 $pkgdir/etc/systemd/system/multi-user.target.wants
+  ln -sf /usr/lib/systemd/system/teamviewerd.service $pkgdir/etc/systemd/system/multi-user.target.wants/teamviewerd.service
 
   msg2 "Packaging additional files"
   install -Dm644 opt/teamviewer/doc/License.txt $pkgdir/usr/share/licenses/$pkgname/LICENSE

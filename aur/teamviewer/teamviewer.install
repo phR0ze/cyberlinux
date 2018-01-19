@@ -21,7 +21,7 @@
 
 post_install()
 {
-  echo "Enable via 'sudo systemctl enable teamviewerd'"
+  echo "Start via 'sudo systemctl start teamviewerd'"
 }
 
 post_upgrade() {
