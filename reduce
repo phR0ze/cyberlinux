@@ -84,7 +84,6 @@ class Reduce
       name: 'name',
       noboot: 'noboot',
       off: 'off',
-      offline: 'offline',
       packages: 'packages',
       params: 'params',
       pgp_key: 'pgp_key',
@@ -826,9 +825,8 @@ class Reduce
     #---------------------------------------------------------------------------
     all_pkgs = getpkgs(layer_yml)
     pkgs = {
-      reg: all_pkgs.map{|x| x[@k.pkg] if not [x[@k.ignore], x[@k.offline]].any? and @repos.include?(x[@k.type])}.compact,
+      reg: all_pkgs.map{|x| x[@k.pkg] if !x[@k.ignore] and @repos.include?(x[@k.type])}.compact,
       ignore: all_pkgs.map{|x| x[@k.pkg] if x[@k.ignore]}.compact,
-      offline: all_pkgs.map{|x| x[@k.pkg] if x[@k.offline]}.compact,
       conflict: all_pkgs.map{|x| "CONFLICT:#{x[@k.conflict]}" if x[@k.conflict]}.compact
     }
 
@@ -838,8 +836,7 @@ class Reduce
       puts("Filtering out packages that are already installed".colorize(:cyan))
       installed_pkgs = nil
       File.open(pkgfile){|f| installed_pkgs = f.readlines.map{|x| x.strip}}
-      [:reg, :offline, :conflict].each{|x|
-        pkgs[x] = pkgs[x].select{|y| not installed_pkgs.include?(y)}}
+      [:reg, :conflict].each{|x| pkgs[x] = pkgs[x].select{|y| not installed_pkgs.include?(y)}}
     end
 
     # Install any missing packages
@@ -848,7 +845,6 @@ class Reduce
       puts("#{msg}".colorize(:cyan))
       puts("Packages: #{pkgs[:reg]}")
       puts("Ignore Pkgs: #{pkgs[:ignore]}")
-      puts("Offline Pkgs: #{pkgs[:offline]}")
       puts("Conflict Pkgs: #{pkgs[:conflict]}")
 
       # pacstrap replacement
@@ -882,14 +878,6 @@ class Reduce
           next Sys.exec(cmd, env:@proxyenv)}
       end
 
-      # Download offline packages for later installs
-      if pkgs[:offline].any?
-        pacstrap.call("Downloading offline", "Failed to download the packages correctly"){
-          offline_dir = FileUtils.mkdir_p(File.join(layer_work, 'opt', 'offline')).shift
-          next Sys.exec(['pacstrap', '-GMcd', layer_work, '--config', @pacman_conf, '--downloadonly',
-            '--cachedir', offline_dir, *pkgs[:offline]], env:@proxyenv)}
-      end
-
       # Clean up left artifacts from installs to leave prestine layer
       puts("Cleaning up artifacts that may be left over from installs".colorize(:cyan))
       Sys.exec("find #{layer_work} -name *.pacnew -name *.pacsave -name *.pacorig -delete")
@@ -913,7 +901,7 @@ class Reduce
       rm_rf(File.join(layer_work, 'var/log/journal'))
 
       # Update list of packages that were installed
-      File.open(pkgfile, 'a'){|f| [:reg, :offline].each{|x| f.puts(pkgs[x])}}
+      File.open(pkgfile, 'a'){|f| f.puts(pkgs[:reg])}
     else
       puts("#{msg}skipping".colorize(:cyan))
     end
