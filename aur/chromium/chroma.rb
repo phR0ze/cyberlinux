@@ -27,15 +27,14 @@ require 'ostruct'               # OpenStruct
 require 'net/http'              # standard Ruby HTTP gem
 require 'uri'                   # URI support
 
-# Gems that need to be installed
 begin
-  require 'cmds'                # commands for command line params
+  require 'utils'               # commands for command line params
   require 'colorize'            # color output: colorize
   require 'nokogiri'            # web scraping library
   require 'mechanize'           # web scraping library
 rescue Exception => e
   mod = e.message.split(' ').last.sub('/', '-')
-  !puts("Error: install missing module with 'sudo gem install #{mod} --no-user-install'") and exit
+  !puts("Error: install missing package with 'sudo package -S ruby-#{mod}'") and exit
 end
 
 class Chroma

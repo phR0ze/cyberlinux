@@ -7,6 +7,7 @@ aur/*/pkg/
 aur/*/*.xz
 aur/*/*.gz
 aur/*/*.deb
+aur/*/*.gem
 aur/*/*.zip
 aur/awf/awf
 aur/delve/delve
@@ -16,19 +17,6 @@ aur/freeswitch/freeswitch
 aur/kubernetes/kubernetes
 aur/kubernetes/release
 aur/openvpn-pia/openvpn-pia
-aur/ruby-amatch/*.gem
-aur/ruby-coderay/*.gem
-aur/ruby-filesize/*.gem
-aur/ruby-gdk3/*.gem
-aur/ruby-gtk3/*.gem
-aur/ruby-method_source/*.gem
-aur/ruby-pry/*.gem
-aur/ruby-pry-nav/*.gem
-aur/ruby-net-scp/*.gem
-aur/ruby-net-sftp/*.gem
-aur/ruby-net-ssh/*.gem
-aur/ruby-rest-client/*.gem
-aur/ruby-tins/*.gem
 aur/ruby-utils/ruby-utils
 aur/vscode/vscode
 temp
