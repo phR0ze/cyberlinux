@@ -1,0 +1,48 @@
+#MIT License
+#Copyright (c) 2018 phR0ze
+#
+#Permission is hereby granted, free of charge, to any person obtaining a copy
+#of this software and associated documentation files (the "Software"), to deal
+#in the Software without restriction, including without limitation the rights
+#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#copies of the Software, and to permit persons to whom the Software is
+#furnished to do so, subject to the following conditions:
+#
+#The above copyright notice and this permission notice shall be included in all
+#copies or substantial portions of the Software.
+#
+#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+#SOFTWARE.
+
+#-------------------------------------------------------------------------------
+# Maintained by phR0ze
+#-------------------------------------------------------------------------------
+gem=mechanize
+pkgname=ruby-$gem
+pkgver=2.7.5
+pkgrel=1
+pkgdesc='Mechanize library is used for automating interaction with website'
+arch=(any)
+url='https://github.com/sparklemotion/mechanize'
+license=(MIT)
+depends=('ruby' 'ruby-domain_name' 'ruby-http-cookie' 'ruby-mime-types' 'ruby-net-http-digest_auth' 'ruby-net-http-persistent' 'ruby-nokogiri' 'ruby-ntlm-http' 'ruby-webrobots')
+makedepends=('rubygems')
+options=(!emptydirs)
+source=(https://rubygems.org/downloads/$gem-$pkgver.gem)
+noextract=($gem-$pkgver.gem)
+sha256sums=('de042b0b2b75a53b078c8e71ba6cc24e1d2a8b4e42ec3c81f1efd5294c0f06b9')
+
+package() {
+  msg "Packaging $pkgname"
+  gem_install_path="$(ruby -e'puts Gem.default_dir')"
+  msg2 $gem_install_path
+  gem install --ignore-dependencies --no-user-install -i "$pkgdir/$gem_install_path" -n "$pkgdir/usr/bin" $gem-$pkgver.gem
+  rm "$pkgdir/$gem_install_path/cache/$gem-$pkgver.gem"
+}
+
+# vim: ts=2:sw=2:sts=2
