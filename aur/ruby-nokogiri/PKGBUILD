@@ -22,38 +22,27 @@
 #-------------------------------------------------------------------------------
 # Maintained by phR0ze
 #-------------------------------------------------------------------------------
-gem=utils
+gem=nokogiri
 pkgname=ruby-$gem
-pkgver=0.0.14
+pkgver=1.8.1
 pkgrel=1
-pkgdesc='Collection of useful Ruby utils'
+pkgdesc='HTML, XML, SAX, and Reader parser'
 arch=(any)
-url='https://github.com/phR0ze/ruby-utils'
+url='http://github.com/dominikh/filesize'
 license=(MIT)
-depends=(ruby=2.5.0 ruby-colorize)
+depends=('libxml2' 'libxslt' 'ruby' 'ruby-mini_portile2')
+makedepends=('ruby-pkg-config')
 options=(!emptydirs)
-source=("git+https://github.com/phR0ze/ruby-$gem.git#tag=$pkgver")
-sha1sums=('SKIP')
+source=(https://rubygems.org/downloads/$gem-$pkgver.gem)
+noextract=($gem-$pkgver.gem)
+sha256sums=('4180dd5dfe8ba5479db7c3030012cd79da9b958eea472195f3daa23cbf80bd80')
 
-build()
-{
-  cd $srcdir/$pkgname
-
-  msg "Building $pkgname"
-  gem build $gem.gemspec
-}
-
-package()
-{
-  cd $srcdir/$pkgname
-
+package() {
   msg "Packaging $pkgname"
   gem_install_path="$(ruby -e'puts Gem.default_dir')"
   msg2 $gem_install_path
   gem install --ignore-dependencies --no-user-install -i "$pkgdir/$gem_install_path" -n "$pkgdir/usr/bin" $gem-$pkgver.gem
   rm "$pkgdir/$gem_install_path/cache/$gem-$pkgver.gem"
-  install -D -m644 $srcdir/$pkgname/LICENSE $pkgdir/$gem_install_path/gems/$gem-$pkgver/LICENSE
-  install -D -m644 "$pkgdir/$gem_install_path/gems/$gem-$pkgver/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }
 
 # vim: ts=2:sw=2:sts=2

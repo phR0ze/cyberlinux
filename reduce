@@ -1191,7 +1191,7 @@ if __FILE__ == $0
   app = 'reduce'
   reduce = Reduce.new
   version = reduce.instance_variable_get(:@vars).release
-  examples = "Machine Examples:\n".colorize(:green)
+  examples = "Examples:\n".colorize(:green)
   examples += "Full ISO Build: sudo ./#{app} clean build --iso-full\n".colorize(:green)
   examples += "Rebuild initramfs: sudo ./#{app} clean build --initramfs --iso\n".colorize(:green)
   examples += "Build k8snode layer: sudo ./#{app} clean build --layers=k8snode --iso\n".colorize(:green)
