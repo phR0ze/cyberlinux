@@ -25,7 +25,7 @@
 pkgname=vscode
 pkgdesc='Code editor for building modern apps'
 pkgver=1.19.1
-pkgrel=1
+pkgrel=2
 arch=(x86_64)
 url=https://github.com/Microsoft/vscode
 license=(MIT)
@@ -87,8 +87,9 @@ package()
   find . -type d -exec install -dm755 $pkgdir/usr/share/$pkgname/{} \;
   find . -type f -exec install -Dm644 {} $pkgdir/usr/share/$pkgname/{} \;
 
-  # Ensure the app is executable
+  # Set permissions as required
   chmod +x $pkgdir/usr/share/$pkgname/$pkgname
+  chmod +x $pkgdir/usr/share/$pkgname/resources/app/node_modules/vscode-ripgrep/bin/rg
 
   # Install the license the correct linux location
   install -Dm644 resources/app/LICENSE.txt $pkgdir/usr/share/licenses/$pkgname/LICENSE
