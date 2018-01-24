@@ -2,15 +2,31 @@
 Chromium ***without*** Google's Orwellian type tracking, plus a few settings and UI tweaks to
 enhance privacy and aesthetics to support ***cyberlinux***. Note this is a work in progress...
 
-## Overview
+## Table of Contents
+* [Overview](#overview)
+    * [Chrome build in pages](#chrome-built-in-pages)
+    * [Command line switches](#command-line-switches)
+    * [Chromium Policies](#chromium-policies)
+    * [Chromium Extensions](#chromium-extensions)
+* [cyberlinux Chromium build](#cyberlinux-chromium-build)
+    * [Update/Build process](#update-build-process)
+    * [Chromium Patches](#chromium-patches)
+        * [Other patches - see chroma.rb for details](#other-patches)
+    * [Source Code Navigation](#source-code-navigation)
+        * [Frame UI Code](#frame-ui-code)
+        * [WebUI Code](#webui-code)
+    * [Javascript modal dialogs](#javascript-modal-dialogs)
+* [Backlog](#backlog)
 
-### Chrome built in pages
+## Overview <a name="overview"></a>
+
+### Chrome built in pages <a name="chrome-built-in-pages"></a>
 * **chrome://gpu** - get GPU details
 * **chrome://net-internals/#modules** - validate built in extensions
 * **chrome://sandbox** - get sandbox details
 * **chrome://version** - validate command line flags and see versions
 
-### Command line switches
+### Command line switches <a name="command-line-switches"></a>
 Chromium has a number of command line switches that are convenient to always have set:
 
 These command line switches can be set in ***/etc/chromium/launcher.conf***
@@ -24,7 +40,7 @@ These command line switches can be set in ***/etc/chromium/launcher.conf***
 * **--disable-notifications** Disable the annoying pop up notifications
 * **--disable-ntp-popular-sites** Disable tracking and listing populare sites on your New Tab Page
 
-### Chromium Policies
+### Chromium Policies <a name="chromium-policies"></a>
 References for policy and extension settings
 * http://dev.chromium.org/administrators/policy-list-3
 * https://www.chromium.org/administrators/linux-quick-start
@@ -35,7 +51,7 @@ policies can also be configured for extensions that support policy management vi
 storage API. Extensions that support policy management are listed in ***chrome://policy*** along
 with the policies they support.
 
-### Chromium Extensions
+### Chromium Extensions <a name="chromium-extensions"></a>
 Chromium has a host of extensions available in the market for install. A handful of which are essential
 for safe, performant operations and others useful:
 
@@ -47,9 +63,9 @@ for safe, performant operations and others useful:
 * **ublock-origin-extra** - foil early hostile anti-user mechanisms
 * **videodownload-helper** - excellent clean plugin for downloading online videos
 
-## cyberlinux Chromium build
+## cyberlinux Chromium build <a name="cyberlinux-chromium-build"></a>
 
-### Update/Build process:
+### Update/Build process <a name="update-build-process"></a>
 Notes to myself when re-building this package:
 1. Update against arch abs PKGBUILD  
    https://git.archlinux.org/svntogit/packages.git/tree/repos/extra-x86_64?h=packages/chromium  
@@ -59,7 +75,7 @@ Notes to myself when re-building this package:
 3. Build against arch patches only
 4. Update patches/debian then each of the others
 
-### Chromium Patches
+### Chromium Patches <a name="chromium-patches"></a>
 Despite probably being the best browser out there Chromium has some glaring issues, in my opionion,
 that need to be fixed before its useful as a daily runner.  I've focused on three major categories
 for improvements in the code (***Arch Linux compatiblity***, ***Privacy/Security***, ***Aesthetic
@@ -72,7 +88,7 @@ chromium fit with the ideals of the ***cyberlinux*** project as follows:
 * **03-remove-profile-management.patch** - patching to remove profile managment from settings
 * **04-remove-avatar-button.patch** - patching to remove the avatar button in the window title bar
 
-#### Other patches - see chroma.rb for details
+#### Other patches - see chroma.rb for details <a name="other-patches"></a>
 I'm leveraging some of the patches from some of these projects:
 
 * **Arch Linux** - https://git.archlinux.org/svntogit/packages.git/tree/repos/extra-x86_64?h=packages/chromium
@@ -81,7 +97,7 @@ I'm leveraging some of the patches from some of these projects:
 * **Iridium** - https://git.iridiumbrowser.de/cgit.cgi/iridium-browser/
 * **Ungoogled** - https://github.com/Eloston/ungoogled-chromium
 
-### Source Code Navigation
+### Source Code Navigation <a name="source-code-navigation"></a>
 https://www.chromium.org/developers/how-tos/getting-around-the-chrome-source-code
 
 The chromium code base is separated into three main parts: 
@@ -91,7 +107,7 @@ The chromium code base is separated into three main parts:
 2. **Renderer** - per-tab subprocess that is driven by the browser
 3. **Webkit** - embedded in renderer to do layout and rendering
 
-#### Frame UI Code
+#### Frame UI Code <a name="frame-ui-code"></a>
 https://www.chromium.org/developers/design-documents/browser-window
 
 ***chrome/browser*** is the location for all browser frame code including UI feature dirs like
@@ -123,7 +139,7 @@ related code.
   * Source file paths for all images
   * ui/views/resources/default_100_percent/linux/linux_minimize.png
 
-#### WebUI Code
+#### WebUI Code <a name="webui-code"></a>
 WebUI is responsible for content UI like extensions, settings, etc...
 
 * ***chrome/browser/ui/toolbar/app_menu_model.cc***
@@ -137,7 +153,8 @@ WebUI is responsible for content UI like extensions, settings, etc...
 * ***chrome/browser/resources/settings/people_page/people_page.html***
   * Actual html layout code for people settings UI widgets
 
-### Javascript modal dialogs
+### Javascript modal dialogs <a name="javascript-modal-dialogs"></a>
+http://www.javascripter.net/faq/confirm.htm
 https://googlechrome.github.io/samples/block-modal-dialogs-sandboxed-iframe/
 
 The goal is to have javascript execute but block all modal dialogs such as alert(), confirm(),
@@ -145,7 +162,7 @@ print(), prompt().
 
 The sanbox feature with ***allow-scripts*** and ***allow-modals***
 
-## Backlog: 
+## Backlog  <a name="backlog"></a>
 * ***chrome://settings/content/cookies*** **Keep local data only until you quit your browser** is false by default
 * ***chrome://settings/content/automaticDownloads/ set to **Do not allow any site to download multiple files automatically**
 * ***chrome://settings/languages*** Spell check off by deafult?
