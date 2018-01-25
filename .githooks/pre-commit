@@ -72,7 +72,7 @@ def increment_version(files, regex, override:nil)
 end
 
 # Auto-increment versions
-ver = increment_version('specs/base.yml', /\s*release:\s*(\d+\.\d+\.\d+)/, override:nil)
+ver = increment_version('specs/build.yml', /\s*release:\s*(\d+\.\d+\.\d+)/, override:nil)
 puts("Version: #{ver}")
 
 # vim: ft=ruby:ts=2:sw=2:sts=2

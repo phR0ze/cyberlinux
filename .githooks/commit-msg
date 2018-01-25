@@ -24,7 +24,7 @@
 msgfile = ARGV[0]
 regex1 = /\d+\.\d+\.\d+:\s(.*)/
 regex2 = /\s*release:\s*(\d+\.\d+\.\d+)/
-File.open('specs/base.yml', 'r') do |f|
+File.open('specs/build.yml', 'r') do |f|
   ver = f.readlines.find{|x| x[regex2, 1]}[regex2, 1]
   msg = File.read(msgfile)
   msg = msg[regex1, 1] if msg[regex1, 1]
