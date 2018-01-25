@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 #MIT License
 #Copyright (c) 2018 phR0ze
 #
@@ -20,15 +19,17 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-# Prepend version to every commit message
-msgfile = ARGV[0]
-regex1 = /\d+\.\d+\.\d+:\s(.*)/
-regex2 = /\s*release:\s*(\d+\.\d+\.\d+)/
-File.open('specs/base.yml', 'r') do |f|
-  ver = f.readlines.find{|x| x[regex2, 1]}[regex2, 1]
-  msg = File.read(msgfile)
-  msg = msg[regex1, 1] if msg[regex1, 1]
-  File.write(msgfile, "#{ver}: #{msg}")
-end
+vars:
+  arch: x86_64
+  release: 0.1.56
+  distro: cyberlinux
+  timezone: US/Mountain
+  country: United_States
 
-# vim: ft=ruby:ts=2:sw=2:sts=2
+  # Vagrant networking
+  netname: vboxnet0
+  netip: 192.168.56.1
+  subnet: 255.255.255.0
+
+  # NFS allowed cidr
+  nfscidr: 192.168.56.0/24
