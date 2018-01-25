@@ -103,7 +103,7 @@ class Reduce
     @runuser = "runuser #{@user} -c"
 
     # Load vars from base spec
-    @spec = load_spec("base")
+    @spec = load_spec("build")
     @vars = OpenStruct.new(@spec[@k.vars])
 
     # Set proxy vars
@@ -155,10 +155,11 @@ class Reduce
 
     # Validate spec params
     validate = ->(name, pred){
-      !puts("Error: '#{name}' is invalid in '#{@spec_file}'".colorize(:red)) and exit unless pred }
-    validate['distro', @vars.distro]
-    validate['release', @vars.release]
-    validate['arch', [@k.i686, @k.x86_64].include?(@vars.arch)]
+      !puts("Error: '#{name}' is invalid in '#{@spec_file}'".colorize(:red)) and exit unless pred
+    }
+    validate.call('distro', @vars.distro)
+    validate.call('release', @vars.release)
+    validate.call('arch', [@k.i686, @k.x86_64].include?(@vars.arch))
 
     # Configure variables
     @vars.label = "#{@vars.distro.upcase}_#{@vars.release.gsub('.', '')}"
@@ -236,15 +237,15 @@ class Reduce
         size = v.to_s.count("a-zA-Z").zero? ? Filesize.from("#{v} B").to_s('MiB') : v
         puts("#{k.ljust(85, ' ')}#{size}")
       }
-      puts()
+      puts
     }
 
-    putimages[@type.box, false, 'Boxes:'] if boxes or all
-    putimages[@type.iso, false, 'ISOs:'] if isos or all
-    putimages[@type.img, false, 'Machine Boot Images:'] if isos or all
-    putimages[@type.sqfs, false, 'Machine Layer Images:'] if isos or all
-    putimages[@type.tgz, false, 'Container Layer Images:'] if images or all
-    putimages[@type.tgz, true, 'Container Deployed Images:'] if images or all
+    putimages.call(@type.box, false, 'Boxes:') if boxes or all
+    putimages.call(@type.iso, false, 'ISOs:') if isos or all
+    putimages.call(@type.img, false, 'Machine Boot Images:') if isos or all
+    putimages.call(@type.sqfs, false, 'Machine Layer Images:') if isos or all
+    putimages.call(@type.tgz, false, 'Container Layer Images:') if images or all
+    putimages.call(@type.tgz, true, 'Container Deployed Images:') if images or all
   end
 
   # Clean components as directed
@@ -293,19 +294,18 @@ class Reduce
 
     # Clean given layers
     # layer_src = File.join(@layers_src, layer)
-#    (layers || (all ? @spec[@k.layers].map{|x| x[@k.name]} << @k.build : nil) ||
-#        (isofull ? @spec[@k.layers].select{|x| x[@k.type] == @k.machine}.map{|x| x[@k.name]} << @k.build : [])).each{|layer|
-#      puts("Cleaning layer '#{layer}'...".colorize(:cyan))
-#      path = File.join(@workpath, layer)
-#      puts("Deleting #{path}".colorize(:red)) if File.exist?(path)
-#      Sys.rm_rf(path)
-#      @imagepaths[0..1].each{|path|
-#        Dir[File.join(path, "#{layer}*")].each{|x|
-#          puts("Deleting #{x}".colorize(:red))
-#          File.delete(x)}
-#      }
-#      evalimages!(@type.tgz, layer:layer, live:true, force:true)
-#    }
+    (layers || ((all || isofull) ? Dir.children(@layers_work) : nil)).each{|layer|
+      puts("Cleaning layer '#{layer}'...".colorize(:cyan))
+      path = File.join(@layers_work, layer)
+      puts("Deleting #{path}".colorize(:red)) if File.exist?(path)
+      Sys.rm_rf(path)
+      @imagepaths[0..1].each{|path|
+        Dir[File.join(path, "#{layer}*")].each{|x|
+          puts("Deleting #{x}".colorize(:red))
+          File.delete(x)}
+      }
+      evalimages!(@type.tgz, layer:layer, live:true, force:true)
+    }
 
     # Clean iso path
     if !all and isofull
@@ -938,7 +938,7 @@ class Reduce
             x
           end
         }.flatten}
-      (0..1).each{|i| all_pkgs = resolve_pkgsets[all_pkgs]}
+      (0..1).each{|i| all_pkgs = resolve_pkgsets.call(all_pkgs)}
 
       # Remove duplicates
       all_pkgs.uniq!
