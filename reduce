@@ -358,7 +358,7 @@ class Reduce
     if opts.any?
       !puts("Error: must be executed as root".colorize(:red)) and
         exit unless Process.uid.zero?
-      puts("#{'-' * 80}\nBuilding ISO components...\n#{'-' * 80}".colorize(:yellow))
+      puts("#{'-' * 80}\nBuilding ISO components...\n#{'-' * 80}".colorize(:light_yellow))
 
       # Configure arch specific pacman.conf
       FileUtils.cp(@pacman_orig_conf, @pacman_conf)
@@ -381,7 +381,7 @@ class Reduce
     # Note: the eltorito-boot and eltorito-catalog appear to be paths
     # relative to the construction of the ISO which threw me off for awhile
     if [iso, isofull].any?
-      puts("#{'-' * 80}\nBuilding ISO Hybrid CD/USB bootable image...\n#{'-' * 80}".colorize(:yellow))
+      puts("#{'-' * 80}\nBuilding ISO Hybrid CD/USB bootable image...\n#{'-' * 80}".colorize(:light_yellow))
       if changed or not File.exist?(@vars.isofile)
         cmd = "xorriso -as mkisofs "
         cmd += "-iso-level 3 -rock -joliet "
@@ -416,7 +416,7 @@ class Reduce
     changed = false
     initramfs_digests = File.join(@initramfs_work, 'digests')
 
-    puts("#{'-' * 80}\nBuilding initramfs image...\n#{'-' * 80}".colorize(:yellow))
+    puts("#{'-' * 80}\nBuilding initramfs image...\n#{'-' * 80}".colorize(:light_yellow))
     if syncfiles(File.basename(@initramfs_work), @initramfs_src, @initramfs_work, initramfs_digests) or
         not File.exist?(@initramfs_image)
       changed |= true
@@ -455,7 +455,7 @@ class Reduce
     layers = @spec[@k.layers].select{|x| x[@k.boot]}.reverse
     isolinux_digests = File.join(@isolinux_work, 'digests')
 
-    puts("#{'-' * 80}\nBuilding isolinux with gfxboot ui...\n#{'-' * 80}".colorize(:yellow))
+    puts("#{'-' * 80}\nBuilding isolinux with gfxboot ui...\n#{'-' * 80}".colorize(:light_yellow))
     if syncfiles(File.basename(@k.isolinux), @isolinux_src, @isolinux_work, isolinux_digests) or
         not File.exist?(File.join(@isolinux_dst, 'isohdpfx.bin'))
       changed |= true
@@ -532,7 +532,7 @@ class Reduce
   def pack(layers, disksize:nil, force:nil)
     _layers = @spec[@k.layers].select{|x| x[@k.boot]}
     layers = layers || _layers.reject{|x| x[@k.name] == 'live' or not x[@k.boot].any?{|y| y[@k.initrd]}}
-    puts("#{'-' * 80}\nPacking layers #{layers * ','}\n#{'-' * 80}".colorize(:yellow))
+    puts("#{'-' * 80}\nPacking layers #{layers * ','}\n#{'-' * 80}".colorize(:light_yellow))
     !puts("Error: must be executed as non-root user".colorize(:red)) and
       exit unless not Process.uid.zero?
     create_dir_structure
@@ -605,7 +605,7 @@ class Reduce
   # @param vagrantfile [bool] export the vagrant file only
   # @param force [bool] deploy even if already exists
   def deploy(layer, name:nil, run:nil, exec:nil, nodes:nil, ipv6:nil, vagrantfile:nil, force:nil)
-    puts("#{'-' * 80}\nDeploying layer '#{layer}'\n#{'-' * 80}".colorize(:yellow))
+    puts("#{'-' * 80}\nDeploying layer '#{layer}'\n#{'-' * 80}".colorize(:light_yellow))
     create_dir_structure
     layer_yml = getlayer(layer)
 
@@ -754,7 +754,7 @@ class Reduce
       layer_yml = getlayer(layer)
       layer_image = layer_yml[@k.type] == @k.machine ? File.join(@isoimagesdst, "#{layer}.sqfs") :
         File.join(@imagepaths.first, "#{layer}-#{@vars.release}.tgz")
-      puts("#{'-' * 80}\nBuilding layer '#{layer}'\n#{'-' * 80}".colorize(:yellow))
+      puts("#{'-' * 80}\nBuilding layer '#{layer}'\n#{'-' * 80}".colorize(:light_yellow))
 
       begin
         # Mount all dependent layers starting with base
