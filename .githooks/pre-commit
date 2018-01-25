@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 #MIT License
-#Copyright (c) 2018 phR0ze
+#Copyright (c) 2017-2018 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -33,8 +33,8 @@ def update_copyright(copyright)
           years = year.split("-")
           line.gsub!(year, "#{years.first}-#{curr_year}") if years.last != curr_year
         else
-          year = year.to_i - 1 if year == curr_year.to_s
-          line.gsub!(year.to_s, "#{year}-#{curr_year}")
+          prev_year = year == curr_year.to_s ? year.to_i - 1 : year
+          line.gsub!(year.to_s, "#{prev_year}-#{curr_year}")
         end
       end
     }
