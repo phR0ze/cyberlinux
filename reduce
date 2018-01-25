@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 #MIT License
-#Copyright (c) 2017 phR0ze
+#Copyright (c) 2017-2018 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -176,10 +176,15 @@ class Reduce
     spec_path = File.join(@rootpath, "specs/#{spec}.yml")
 
     begin
-      return YAML.load_file(spec_path)
+      spec = YAML.load_file(spec_path)
+      return spec if !@spec
+
+      # Merge with existing spec
+      spec.each{|k,v| @spec[k] = v}
     rescue Exception => e
       puts("Error: invalid yaml in '#{spec_path}'".colorize(:red))
       puts(e.to_s.colorize(:red))
+      raise
     end
   end
 
@@ -342,15 +347,17 @@ class Reduce
   end
 
   # Build components as directed
-  # @param initramfs [bool]: build initramfs component
+  # @param spec [String] cyberlinux spec to build from
+  # @param initramfs [bool] build initramfs component
   # @param isolinux [bool] build isolinux component
-  # @param layers [list] build given layers
+  # @param layers [Array] build given layers
   # @param iso [bool] build iso image from whatever machine layers exist
   # @param isofull [bool] build iso image including all machine layers
-  def build(initramfs:nil, isolinux:nil, layers:nil, iso:nil, isofull:nil)
+  def build(spec, initramfs:nil, isolinux:nil, layers:nil, iso:nil, isofull:nil)
     opts = [initramfs, isolinux, layers, iso, isofull]
     !puts("Error: no build options specified".colorize(:red)) and exit unless opts.any?
     changed = false
+    load_spec(spec)
 
     info
     create_dir_structure
@@ -1196,7 +1203,7 @@ if __FILE__ == $0
   reduce = Reduce.new
   version = reduce.instance_variable_get(:@vars).release
   examples = "Examples:\n".colorize(:green)
-  examples += "Full ISO Build: sudo ./#{app} clean build --iso-full\n".colorize(:green)
+  examples += "Full ISO Build: sudo ./#{app} clean build --iso-full --spec=personal\n".colorize(:green)
   examples += "Rebuild initramfs: sudo ./#{app} clean build --initramfs --iso\n".colorize(:green)
   examples += "Build k8snode layer: sudo ./#{app} clean build --layers=k8snode --iso\n".colorize(:green)
   examples += "Pack k8snode layer: ./#{app} pack --layers=k8snode\n".colorize(:green)
@@ -1223,6 +1230,7 @@ if __FILE__ == $0
     CmdOpt.new('--vms', 'Clean VMs that are no longer deployed'),
   ])
   opts.add('build', 'Build ISO components', [
+    CmdOpt.new('--spec=SPEC', 'Build from the given spec', type:String, required:true),
     CmdOpt.new('--initramfs', 'Build initramfs image'),
     CmdOpt.new('--isolinux', 'Build isolinux boot'),
     CmdOpt.new('--layers=x,y,z', 'Build given layers', type:Array),
@@ -1262,7 +1270,7 @@ if __FILE__ == $0
     isofull: opts[:isofull]) if opts[:clean]
 
   # Execute 'build' command
-  reduce.build(initramfs: opts[:initramfs], isolinux: opts[:isolinux],
+  reduce.build(opts[:spec], initramfs: opts[:initramfs], isolinux: opts[:isolinux],
     layers: opts[:layers], iso: opts[:iso], isofull: opts[:isofull]) if opts[:build]
 
   # Execute 'pack' command

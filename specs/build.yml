@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.64
+  release: 0.1.65
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1035,7 +1035,6 @@ packages:
   media-pkgs:
     - { pkg: handbrake,                     desc: Video/Encoding - Video encoding tool for mp4/mkv }
     - { pkg: handbrake-cli,                 desc: Video/Encoding - Video encoding tool for mp4/mkv }
-    - { pkg: makemkv,                       desc: DVD and Blu-ray to MKV converter, type: CYBERLINUX }
     - { pkg: mkvtoolnix-gui,                desc: Set of tools to create, edit and inspect MKV files }
     - { pkg: tiny-media-manager,            desc: Cross platform media manager, type: CYBERLINUX }
 
@@ -1065,6 +1064,20 @@ packages:
     - { pkg: shadow,                        desc: Account mgmt passwd/usermod/groupadd, depof: util-linux }
     - { pkg: util-linux,                    desc: Utilities blkid/fdisk/rename/cp etc..., depof: php-gd }
     - { pkg: xz,                            desc: Compression util for xz format, depof: php-gd }
+
+  # Personal Use
+  # packages in this section have various restrictions and can not be used
+  # for commercial purposes.
+  #-----------------------------------------------------------------------------
+  personal-use-pkgs:
+
+    # MakeMKV is free while in beta but is a commercial product required a license normally
+    # https://www.makemkv.com/forum2/viewtopic.php?f=5&t=1053
+    - { pkg: makemkv,                       desc: DVD and Blu-ray to MKV converter, type: CYBERLINUX }
+
+    # Teamviwer is free to use for personal use
+    # https://www.teamviewer.com/en/credentials/free-for-personal-use/
+    - { pkg: teamviewer,                    desc: All-In-One Software for Remote Support and Online Meetings, type: CYBERLINUX }
 
   # Virtualization packages
   #-----------------------------------------------------------------------------

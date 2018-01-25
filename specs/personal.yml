@@ -19,8 +19,6 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-<%= IO.read('build.yml') %>
-
 layers:
 
   # Base
@@ -98,6 +96,7 @@ layers:
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=server_layers%> showopts autologin=1 vga=792
     packages:
       - { install: server-pkgs }
+      - { install: personal-use-pkgs }
     configs:
       - { apply: server-config }
 
@@ -113,24 +112,9 @@ layers:
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=heavy_layers%> showopts vga=792
     packages:
       - { install: heavy-pkgs }
+      - { install: personal-use-pkgs }
     configs:
       - { apply: heavy-config }
-
-  # K8snode
-  # ----------------------------------------------------------------------------
-  - name: k8snode
-    type: machine
-    base: shell
-    groups: [docker]
-    vagrant: { vram: 8, cpus: 2, ram: 2048 }
-    boot:
-      - entry: "Install <%=distro%>-k8snode  -shell + k8s node env."
-        kernel: /<%=distro%>/vmlinuz
-        initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=k8snode_layers%> showopts vga=792
-    packages:
-      - { install: k8snode-pkgs }
-    configs:
-      - { apply: k8snode-config }
 
   # Theater
   # ----------------------------------------------------------------------------
