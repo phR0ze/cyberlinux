@@ -13,11 +13,11 @@ deployment is yours for the taking.
 your own risk.  Any damages, issues, losses or problems caused by the use of ***cyberlinux*** are
 strictly the responsiblity of the user and not the developer/creator of ***cyberlinux***.
 
-Additionally the pre-configured ***spec.yml*** and ***layers*** files that exist in this repo are
+Additionally the pre-configured ***specs*** and ***layers*** that exist in this repo are
 purely for my own personal benefit and pull requests will be evaluated as such. I intend to make the
 defaults generally useful but foremost it needs to be useful for my purposes. Pull requests aligning
 with my desires will be accepted. Typically I would expect those looking to leverage this framework to
-fork it and make their own configuration ***spec.yml***
+fork it and make their own configuration ***specs***
 
 ### Table of Contents
 * [Background](#background)
@@ -299,10 +299,11 @@ To pack a specific deployment for use - e.g. k8snode -  use the following:
 ### Customization <a name="customization"/></a>
 The heart of ***cyberlinux*** is it's ability to provide infinite variations of repeatable
 deployments that can be built together into a bootable/installable ISO.  This is driven through
-the ***spec.yml*** which is the file documenting all of the packages and configuration to use
-when building ***cyberlinux***.
+the use of ***specs*** which are declarative yaml describing all of the packages and configuration
+required when building ***cyberlinux***.
 
 #### Spec Structure <a name="spec-structure"/></a>
+Example:
 ```YAML
 vars:
   distro: cyberlinux
@@ -327,26 +328,36 @@ packages:
     - { install: container-core }
 ```
 
-
 #### Variables <a name="variables"/></a>
 ***vars*** are used for specifying distribution specific values and templating variables.
-***cyberlinux*** leverages Ruby's ERB templating in the spec.yml as well as any configuration files
-that are called out in the ***spec.yml*** with the ***resolve*** change function. The ***vars***
-blocks provide templating variables to use. Variables are evaluated first by pulling in all
-variables in the ***vars*** root section the overriding as needed for the specific ***layer***
+***cyberlinux*** leverages Ruby's ERB templating in the specs as well as any configuration files
+that are called out in the ***spec*** with the ***resolve*** change function. The ***vars***
+block provides templating variables to use. Variables are evaluated first by pulling in all
+variables from the ***vars*** block then overriding as needed for the specific ***layer***
 context that is being evaluated.
 
+The existing set of base vars below are required, but more can be added as desired:
 ```YAML
 vars:
-  release: 0.0.24
+  arch: x86_64
+  release: 0.1.55
   distro: cyberlinux
-  http_proxy: http://web-proxy.example.com:8080
+  timezone: US/Mountain
+  country: United_States
+
+  # Vagrant networking
+  netname: vboxnet0
+  netip: 192.168.56.1
+  subnet: 255.255.255.0
+
+  # NFS allowed cidr
+  nfscidr: 192.168.56.0/24
 ```
 
 #### Build Layer <a name="build-layer"/></a>
 The ***build*** layer is a special purpose layer for building ***cyberlinux*** components in an
-isolated environment to avoid cluttering up the localhost as well as staying independent from it's
-specifics.
+isolated environment to avoid cluttering up the host build machine as well as staying independent
+from it's specifics. It is also required.
 
 #### Layers <a name="layers"/></a>
 ***Layers*** are granular re-buildable parts of the whole that can be layered to form more complex

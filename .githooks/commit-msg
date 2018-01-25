@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 #MIT License
-#Copyright (c) 2017 phR0ze
+#Copyright (c) 2018 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,7 @@
 msgfile = ARGV[0]
 regex1 = /\d+\.\d+\.\d+:\s(.*)/
 regex2 = /\s*release:\s*(\d+\.\d+\.\d+)/
-File.open('spec.yml', 'r') do |f|
+File.open('specs/machine.yml', 'r') do |f|
   ver = f.readlines.find{|x| x[regex2, 1]}[regex2, 1]
   msg = File.read(msgfile)
   msg = msg[regex1, 1] if msg[regex1, 1]

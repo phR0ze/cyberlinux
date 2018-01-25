@@ -98,17 +98,9 @@ class Reduce
     })
 
     @rootpath = File.dirname(File.expand_path(__FILE__))
-    @spec_file = File.join(@rootpath, 'spec.yml')
-    begin
-      @spec = YAML.load_file(@spec_file)
-    rescue Exception => e
-      puts("Error: invalid yaml in '#{@spec_file}'".colorize(:red))
-      puts(e.to_s.colorize(:red))
-    end
-    @vars = OpenStruct.new(@spec[@k.vars])
     @user = Process.uid.zero? ? Etc.getpwuid(ENV['SUDO_UID'].to_i).name : ENV['USER']
-    @runuser = "runuser #{@user} -c"
     @sudoinv = Process.uid.zero? ? "sudo -Hu #{@user} " : ''
+    @runuser = "runuser #{@user} -c"
 
     # Set proxy vars
     @proxyenv = {
@@ -118,7 +110,6 @@ class Reduce
       'no_proxy' => ENV['no_proxy']
     }
     @proxy = ENV['http_proxy']
-    @vars.proxy = @proxy
     @proxy_export = @proxy ? (@proxyenv.map{|k,v| "export #{k}=#{v}"} * ';') + ";" : nil
 
     # Set paths
@@ -130,11 +121,16 @@ class Reduce
 
     @tmp_dir = File.join(@workpath, 'tmp')
     @isopath = File.join(@workpath, '_iso_')
-    @isoimagesdst = File.join(@isopath, @vars.distro.downcase)
 
     @pacman_conf = File.join(@workpath, 'pacman.conf')
     @pacman_orig_conf = File.join(@layerspath, 'base', 'etc', 'pacman.conf')
     @makepkg_conf = File.join(@workpath, 'makepkg.conf')
+
+    # Load spec
+    @spec_file = load_spec("main")
+    @vars = OpenStruct.new(@spec[@k.vars])
+    @vars.proxy = @proxy
+    @isoimagesdst = File.join(@isopath, @vars.distro.downcase)
     @makepkg_orig_conf = File.join('/usr/share/devtools', "makepkg-#{@vars.arch}.conf")
 
     @vmlinuz_image = File.join(@isoimagesdst, 'vmlinuz')
@@ -171,6 +167,19 @@ class Reduce
     @spec[@k.layers].each{|x| @vars["#{x[@k.name]}_src"] = File.join(@layerspath, x[@k.name])}
     @vars.groups = @spec[@k.layers].select{|x| x[@k.type] == @k.machine}
       .map{|x| x[@k.groups] if x[@k.groups]}.compact.uniq * ','
+  end
+
+  # Load and return the given spec
+  # @param spec [String] name of the spec to load
+  def load_spec(spec)
+    spec_path = File.join(@rootpath, "#{spec}.yml")
+
+    begin
+      return YAML.load_file(spec_path)
+    rescue Exception => e
+      puts("Error: invalid yaml in '#{spec_path}'".colorize(:red))
+      puts(e.to_s.colorize(:red))
+    end
   end
 
   # Create directory structure for project
