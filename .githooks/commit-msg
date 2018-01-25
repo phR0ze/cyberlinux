@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 #MIT License
-#Copyright (c) 2017 phR0ze
+#Copyright (c) 2017-2018 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -21,6 +21,7 @@
 #SOFTWARE.
 
 # Prepend version to every commit message
+# Get version from the build.yml spec
 msgfile = ARGV[0]
 regex1 = /\d+\.\d+\.\d+:\s(.*)/
 regex2 = /\s*release:\s*(\d+\.\d+\.\d+)/
