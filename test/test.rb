@@ -22,7 +22,7 @@
 
 require_relative 'test_core'
 require_relative 'test_fedit'
-require_relative 'test_change'
+require_relative 'test_config'
 require_relative 'test_reduce'
 require_relative 'test_sys'
 

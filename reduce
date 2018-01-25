@@ -29,7 +29,7 @@ require 'rubygems/package'      # tar
 require 'yaml'                  # YAML
 
 require_relative 'lib/core'     # ERB Handlers for different types
-require_relative 'lib/change'   # Programatic file editor
+require_relative 'lib/config'   # Programatic file editor and command runner
 require_relative 'lib/cmds'     # optparse wrapper for commands
 require_relative 'lib/sys'      # System helpers
 
@@ -59,7 +59,7 @@ class Reduce
       base: 'base',
       boot: 'boot',
       build: 'build',
-      changes: 'changes',
+      configs: 'configs',
       command: 'command',
       cpus: 'cpus',
       conflict: 'conflict',
@@ -102,6 +102,10 @@ class Reduce
     @sudoinv = Process.uid.zero? ? "sudo -Hu #{@user} " : ''
     @runuser = "runuser #{@user} -c"
 
+    # Load vars from base spec
+    @spec = load_spec("base")
+    @vars = OpenStruct.new(@spec[@k.vars])
+
     # Set proxy vars
     @proxyenv = {
       'ftp_proxy' => ENV['ftp_proxy'],
@@ -111,25 +115,21 @@ class Reduce
     }
     @proxy = ENV['http_proxy']
     @proxy_export = @proxy ? (@proxyenv.map{|k,v| "export #{k}=#{v}"} * ';') + ";" : nil
+    @vars.proxy = @proxy
 
     # Set paths
     @outpath = File.join(@rootpath, 'temp')
-    @layerspath = File.join(@rootpath, 'layers')
-    @vagrantpath = File.join(@rootpath, 'vagrant')
-
     @workpath = File.join(@outpath, 'work')
-
     @tmp_dir = File.join(@workpath, 'tmp')
     @isopath = File.join(@workpath, '_iso_')
+    @layers_src = File.join(@rootpath, 'layers')
+    @layers_work = File.join(@workpath, 'layers')
+    @vagrantpath = File.join(@rootpath, 'vagrant')
 
     @pacman_conf = File.join(@workpath, 'pacman.conf')
-    @pacman_orig_conf = File.join(@layerspath, 'base', 'etc', 'pacman.conf')
+    @pacman_orig_conf = File.join(@layers_src, 'base/etc/pacman.conf')
     @makepkg_conf = File.join(@workpath, 'makepkg.conf')
 
-    # Load spec
-    @spec_file = load_spec("main")
-    @vars = OpenStruct.new(@spec[@k.vars])
-    @vars.proxy = @proxy
     @isoimagesdst = File.join(@isopath, @vars.distro.downcase)
     @makepkg_orig_conf = File.join('/usr/share/devtools', "makepkg-#{@vars.arch}.conf")
 
@@ -162,17 +162,17 @@ class Reduce
 
     # Configure variables
     @vars.label = "#{@vars.distro.upcase}_#{@vars.release.gsub('.', '')}"
-    @spec[@k.layers].select{|x| x[@k.type] == @k.machine}
-      .each{|x| @vars["#{x[@k.name]}_layers"] = getlayers(x[@k.name]) * ','}
-    @spec[@k.layers].each{|x| @vars["#{x[@k.name]}_src"] = File.join(@layerspath, x[@k.name])}
-    @vars.groups = @spec[@k.layers].select{|x| x[@k.type] == @k.machine}
-      .map{|x| x[@k.groups] if x[@k.groups]}.compact.uniq * ','
+    #@spec[@k.layers].select{|x| x[@k.type] == @k.machine}
+    #  .each{|x| @vars["#{x[@k.name]}_layers"] = getlayers(x[@k.name]) * ','}
+    #@spec[@k.layers].each{|x| @vars["#{x[@k.name]}_src"] = File.join(@layers_src, x[@k.name])}
+    #@vars.groups = @spec[@k.layers].select{|x| x[@k.type] == @k.machine}
+    #  .map{|x| x[@k.groups] if x[@k.groups]}.compact.uniq * ','
   end
 
   # Load and return the given spec
   # @param spec [String] name of the spec to load
   def load_spec(spec)
-    spec_path = File.join(@rootpath, "#{spec}.yml")
+    spec_path = File.join(@rootpath, "specs/#{spec}.yml")
 
     begin
       return YAML.load_file(spec_path)
@@ -225,10 +225,9 @@ class Reduce
   # @param boxes [bool] list all boxes
   # @param isos [bool] list all isos
   # @param images [bool] list all docker images
-  # @param layer [string] layer to get resolved spec for
   # @param all [bool] list all components
-  def list(boxes:nil, isos:nil, images:nil, layer:nil, all:nil)
-    all = all || ![boxes, isos, images, layer].any?
+  def list(boxes:nil, isos:nil, images:nil, all:nil)
+    all = all || ![boxes, isos, images].any?
 
     # Formatting block for images
     putimages = ->(type, live, name){
@@ -246,11 +245,6 @@ class Reduce
     putimages[@type.sqfs, false, 'Machine Layer Images:'] if isos or all
     putimages[@type.tgz, false, 'Container Layer Images:'] if images or all
     putimages[@type.tgz, true, 'Container Deployed Images:'] if images or all
-
-    # List out the resolved spec
-    if layer
-      puts(getlayer(layer).to_yaml)
-    end
   end
 
   # Clean components as directed
@@ -267,8 +261,15 @@ class Reduce
     !puts("Error: must be executed as root".colorize(:red)) and
       exit unless Process.uid.zero?
 
+    # Clean all
+    if all
+      puts("Cleaning all...".colorize(:cyan))
+      puts("Deleting #{@workpath}".colorize(:red)) if File.exist?(@workpath)
+      Sys.rm_rf(@workpath)
+    end
+
     # Clean initramfs component
-    if initramfs or all or isofull
+    if !all and (initramfs or isofull)
       puts("Cleaning initamfs...".colorize(:cyan))
       puts("Deleting #{@initramfs_work}".colorize(:red)) if File.exist?(@initramfs_work)
       Sys.rm_rf(@initramfs_work)
@@ -277,7 +278,7 @@ class Reduce
     end
 
     # Clean isolinux component
-    if isolinux or layers or all or isofull
+    if !all and (isolinux or layers or isofull)
       puts("Cleaning isolinux...".colorize(:cyan))
       puts("Deleting #{@isolinux_work}".colorize(:red)) if File.exist?(@isolinux_work)
       Sys.rm_rf(@isolinux_work)
@@ -291,41 +292,35 @@ class Reduce
     end
 
     # Clean given layers
-    (layers || (all ? @spec[@k.layers].map{|x| x[@k.name]} << @k.build : nil) ||
-        (isofull ? @spec[@k.layers].select{|x| x[@k.type] == @k.machine}.map{|x| x[@k.name]} << @k.build : [])).each{|layer|
-      puts("Cleaning layer '#{layer}'...".colorize(:cyan))
-      path = File.join(@workpath, layer)
-      puts("Deleting #{path}".colorize(:red)) if File.exist?(path)
-      Sys.rm_rf(path)
-      @imagepaths[0..1].each{|path|
-        Dir[File.join(path, "#{layer}*")].each{|x|
-          puts("Deleting #{x}".colorize(:red))
-          File.delete(x)}
-      }
-      evalimages!(@type.tgz, layer:layer, live:true, force:true)
-    }
-
-    # Clean iso image
-    if iso or layers or all or isofull
-      puts("Cleaning iso...".colorize(:cyan))
-      Dir[File.join(@imagepaths.first, '*.iso')].each{|x|
-        puts("Deleting #{x}".colorize(:red))
-        File.delete(x)
-      }
-    end
+    # layer_src = File.join(@layers_src, layer)
+#    (layers || (all ? @spec[@k.layers].map{|x| x[@k.name]} << @k.build : nil) ||
+#        (isofull ? @spec[@k.layers].select{|x| x[@k.type] == @k.machine}.map{|x| x[@k.name]} << @k.build : [])).each{|layer|
+#      puts("Cleaning layer '#{layer}'...".colorize(:cyan))
+#      path = File.join(@workpath, layer)
+#      puts("Deleting #{path}".colorize(:red)) if File.exist?(path)
+#      Sys.rm_rf(path)
+#      @imagepaths[0..1].each{|path|
+#        Dir[File.join(path, "#{layer}*")].each{|x|
+#          puts("Deleting #{x}".colorize(:red))
+#          File.delete(x)}
+#      }
+#      evalimages!(@type.tgz, layer:layer, live:true, force:true)
+#    }
 
     # Clean iso path
-    if isofull
+    if !all and isofull
       puts("Cleaning iso path...".colorize(:cyan))
       puts("Deleting #{@isopath}".colorize(:red)) if File.exist?(@isopath)
       Sys.rm_rf(@isopath)
     end
 
-    # Clean all
-    if all
-      puts("Cleaning all...".colorize(:cyan))
-      puts("Deleting #{@workpath}".colorize(:red)) if File.exist?(@workpath)
-      Sys.rm_rf(@workpath)
+    # Clean iso image
+    if iso or layers or all or isofull
+      puts("Cleaning iso image...".colorize(:cyan))
+      Dir[File.join(@imagepaths.first, '*.iso')].each{|x|
+        puts("Deleting #{x}".colorize(:red))
+        File.delete(x)
+      }
     end
 
     # Clean vagrant vms that are no longer deployed
@@ -753,7 +748,7 @@ class Reduce
     layers.each do |layer|
       layer_changed = false
       layer_deps = getlayers(layer)[1..-1]
-      layer_src = File.join(@layerspath, layer)
+      layer_src = File.join(@layers_src, layer)
       layer_work = FileUtils.mkdir_p(File.join(@workpath, layer)).shift
       layer_digests = File.join(layer_work, 'digests')
       layer_yml = getlayer(layer)
@@ -777,12 +772,12 @@ class Reduce
         layer_changed |= syncfiles(layer, layer_src, layer_work, layer_digests)
 
         # Apply file manipulations
-        puts("Applying changes...".colorize(:cyan))
+        puts("Applying configs...".colorize(:cyan))
         changedfile = File.join(layer_work, 'changed')
         if layer_changed or not File.exist?(changedfile) or not File.exist?(layer_image)
           vars = layer_yml[@k.vars] ? @vars.to_h.merge(layer_yml[@k.vars]) : @vars
-          layer_changed |= Change.apply(layer_yml[@k.changes] || [],
-            OpenStruct.new({root: layer_work, vars: vars, changes: @spec[@k.changes]}))
+          layer_changed |= Change.apply(layer_yml[@k.configs] || [],
+            OpenStruct.new({root: layer_work, vars: vars, configs: @spec[@k.configs]}))
           File.open(changedfile, 'w'){|f|}
         end
 
@@ -1216,7 +1211,6 @@ if __FILE__ == $0
     CmdOpt.new('--boxes', 'List all boxes'),
     CmdOpt.new('--isos', 'List all isos'),
     CmdOpt.new('--images', 'List all docker images'),
-    CmdOpt.new('--layer=LAYER', 'List out the resolved spec in context of give layer', type:String),
     CmdOpt.new('--raw', 'Automation suitable output'),
   ])
   opts.add('clean', 'Clean ISO components', [
@@ -1260,8 +1254,7 @@ if __FILE__ == $0
   reduce.info if opts[:info]
 
   # Execute 'list' command
-  reduce.list(boxes: opts[:boxes], isos: opts[:isos], images: opts[:images],
-    layer: opts[:layer], all: opts[:all]) if opts[:list]
+  reduce.list(boxes: opts[:boxes], isos: opts[:isos], images: opts[:images], all: opts[:all]) if opts[:list]
 
   # Execute 'clean' command
   reduce.clean(initramfs: opts[:initramfs], isolinux: opts[:isolinux],
