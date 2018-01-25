@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 #MIT License
-#Copyright (c) 2017 phR0ze
+#Copyright (c) 2017-2018 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -20,56 +20,118 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
+# Check copyright and update to include current year
+# @param copyright [String] copyright match string
+# @param author [String] author to use in copyrigh
+#def update_copyright(copyright, author)
+#  #curr_year = Time.now.year
+#  `git diff --cached --name-only`.each{|file|
+#    begin
+#      lines = nil
+#      File.open(filename, 'r+') do |f|
+#        lines = f.readlines
+#        lines.each{|line|
+#
+#          # Update copyright
+#          if 
+#          if ver = line[regex, 1]
+#            new_ver = nil
+#            if not override
+#              new_ver = ver.strip.split('.')
+#              new_ver[2] = new_ver[2].to_i + 1
+#              new_ver = new_ver * '.'
+#            else
+#              new_ver = override
+#            end
+#
+#            # Modify the original line
+#            line.gsub!(ver, new_ver)
+#            result = new_ver
+#          end
+#        }
+#
+#        # Save the changes back to the file
+#        f.seek(0)
+#        f.truncate(0)
+#        f.puts(lines)
+#      end
+#
+#      # Now add the modified file to the git commit
+#      `git add #{filename}`
+#    rescue
+#      # Revert back to the original incase of failure
+#      File.open(filename, 'w'){|f| f.puts(lines)} if lines
+#      raise
+#    end
+#  }
+#end
+
 # Increment SemVer formatted versions
-# Params:
-# +files+:: files to increment version for
-# +regex+:: capture pattern for version match
-# +override+:: value to use for version if set
+# @param files [String/Array] files to increment version for
+# @param regex [Regex] capture pattern for version match
+# @param override [String] value to use for version if set
 def increment_version(files, regex, override:nil)
   result = nil
   files = [files] if files.is_a?(String)
 
   files.each{|filename|
-    begin
-      lines = nil
-      File.open(filename, 'r+') do |f|
-        lines = f.readlines
-        lines.each{|line|
+    result = modify(filename){|line|
 
-          # Increment version
-          if ver = line[regex, 1]
-            new_ver = nil
-            if not override
-              new_ver = ver.strip.split('.')
-              new_ver[2] = new_ver[2].to_i + 1
-              new_ver = new_ver * '.'
-            else
-              new_ver = override
-            end
+      # Increment version
+      if ver = line[regex, 1]
+        new_ver = nil
+        if not override
+          new_ver = ver.strip.split('.')
+          new_ver[2] = new_ver[2].to_i + 1
+          new_ver = new_ver * '.'
+        else
+          new_ver = override
+        end
 
-            # Modify the original line
-            line.gsub!(ver, new_ver)
-            result = new_ver
-          end
-        }
-
-        # Save the changes back to the file
-        f.seek(0)
-        f.truncate(0)
-        f.puts(lines)
+        # Modify the original line
+        line.gsub!(ver, new_ver)
+        next new_ver
       end
+    }
 
-      # Now add the modified file to the git commit
-      `git add #{filename}`
-    rescue
-      # Revert back to the original incase of failure
-      File.open(filename, 'w'){|f| f.puts(lines)} if lines
-      raise
-    end
+    # Now add the modified file to the git commit
+    `git add #{filename}`
   }
 
   return result
 end
+
+# Modify the file with block, revert on failure.
+# @param filename [String] name of the file to change
+def modify(filename)
+  result = nil
+  block = Proc.new
+
+  begin
+    lines = nil
+    File.open(filename, 'r+') do |f|
+      lines = f.readlines
+      lines.each{|line| 
+        r = block.call(line)
+        result = r if r
+      }
+
+      # Save the changes back to the file
+      f.seek(0)
+      f.truncate(0)
+      f.puts(lines)
+    end
+  rescue
+    # Revert back to the original incase of failure
+    File.open(filename, 'w'){|f| f.puts(lines)} if lines
+    raise
+  end
+
+  return result
+end
+
+# Auto-update copyrights
+#update_copyright("Copyright (c)", "phR0ze")
 
 # Auto-increment versions
 ver = increment_version('specs/build.yml', /\s*release:\s*(\d+\.\d+\.\d+)/, override:nil)
