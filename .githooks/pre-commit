@@ -20,7 +20,7 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-# Check copyright and update to include current year
+# Check copyright and update if required
 # @param copyright [String] copyright match string
 def update_copyright(copyright)
   curr_year = Time.now.year
