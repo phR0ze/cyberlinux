@@ -25,12 +25,10 @@
 # @param author [String] author to use in copyrigh
 def update_copyright(copyright, author)
   #curr_year = Time.now.year
-  puts(`git diff --cached --name-only`)
-  exit
-  `git diff --cached --name-only`.each{|path|
+  `git diff --cached --name-only`.split(' ').each{|path|
     modify(path){|line|
       if line =~ /#{Regexp.quote(copyright)}/
-        year = [/^#{Regexp.quote(copyright)}\s+((\d{4}\s)|(\d{4}-\d{4})).*/, 1]
+        year = [/^#{Regexp.quote(copyright)}\s+((\d{4}\s)|(\d{4}-\d{4})).*/, 1].strip
         puts(year)
         exit
       end
