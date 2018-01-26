@@ -127,6 +127,7 @@ class Reduce
     @layers_work = File.join(@workpath, 'layers')
     @vagrantpath = File.join(@rootpath, 'vagrant')
 
+    @pacman_sync = File.join(@pacman_path, 'sync')
     @pacman_conf = File.join(@pacman_path, 'pacman.conf')
     @pacman_src_conf = File.join(@layers_src, 'base/etc/pacman.conf')
     @pacman_src_mirrors = File.join(@layers_src, 'base/etc/pacman.d/*.mirrorlist')
@@ -195,6 +196,7 @@ class Reduce
 
     puts("Creating directory structure")
     FileUtils.mkdir_p(@pacman_path)
+    FileUtils.mkdir_p(@pacman_sync)
     FileUtils.mkdir_p(@workpath)
     FileUtils.mkdir_p(@tmp_dir)
     FileUtils.mkdir_p(@isopath)
@@ -866,8 +868,6 @@ class Reduce
       # pacstrap replacement
       if pkgs[:conflict].any? or pkgs[:reg].any?
         begin
-          # Clear out installed packages if there are no dependencies
-          rm_rf(File.join(@pacman_path, 'local/*')) if !layer_deps.any?
           rm_rf(File.join(@pacman_path, 'pacman.log')) if !layer_deps.any?
 
           # Prepare pacman for use
@@ -875,7 +875,7 @@ class Reduce
             Sys.exec("cp -a #{@pacman_src_conf} #{@pacman_path}")
             Sys.exec("cp -a #{@pacman_src_mirrors} #{@pacman_path}")
             Fedit.replace(@pacman_conf, /(Architecture = ).*/, "\\1#{@vars.arch}")
-            Fedit.replace(@pacman_conf, /#(DBPath\s+= ).*/, "\\1#{@pacman_path}")
+            # Leaave DBPath set as /var/lib/pacman and copy out sync
             Fedit.replace(@pacman_conf, /#(CacheDir\s+= ).*/, "\\1#{File.join(@pacman_path, 'cache')}")
             Fedit.replace(@pacman_conf, /#(LogFile\s+= ).*/, "\\1#{File.join(@pacman_path, 'pacman.log')}")
             Fedit.replace(@pacman_conf, /#(GPGDir\s+= ).*/, "\\1#{File.join(@pacman_path, 'gnupg')}")
@@ -885,6 +885,11 @@ class Reduce
             repos = Dir[File.join(@pacman_path, "*.mirrorlist")].map{|x| File.basename(x, '.mirrorlist')}
             Sys.exec("pacman-key --config #{@pacman_conf} --init")
             Sys.exec("pacman-key --config #{@pacman_conf} --populate #{repos * ' '}")
+          end
+
+          # Restore syncd databases for reuse to avoid constantly downloading them
+          if Dir[File.join(@pacman_sync, "*")].any?
+            Sys.exec("cp -a #{File.join(@pacman_sync, "*")} #{File.join(layer_work, 'var/lib/pacman/sync')}")
           end
 
           # Remove these packages first
@@ -904,22 +909,12 @@ class Reduce
               exit unless Sys.exec(cmd, env:@proxyenv)
           end
 
-          # Ensure layer's local package database is accurate
-          layer_db_path = File.join(layer_work, 'var/lib/pacman/local')
-          rm_rf(layer_db_path)
-          FileUtils.mkdir_p(layer_db_path)
-          Sys.exec("cp -a #{File.join(@pacman_path, 'local/*')} #{layer_db_path}")
+          # Save off syncd databases for reuse to avoid constantly downloading them
+          Sys.exec("mv #{File.join(layer_work, 'var/lib/pacman/sync/*')} #{@pacman_sync}")
         ensure
           Sys.umount(File.join(layer_work, 'dev'), retries: 10)
         end
       end
-
-      # Remove all temporary files and dirs
-      rm_rf(File.join(layer_work, 'var/tmp/*'))
-      rm_rf(File.join(layer_work, 'tmp/*'))
-
-      # Avoid "Failed to start Create Volatile Files and Directories"
-      rm_rf(File.join(layer_work, 'var/log/journal'))
 
       # Update list of packages that were installed
       File.open(pkgfile, 'a'){|f| f.puts(pkgs[:reg])}

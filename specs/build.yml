@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.75
+  release: 0.1.76
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -441,6 +441,9 @@ configs:
         - '  <entry name="color" mtime="1476881725" type="string"><stringvalue>#D4D4D4D4D4D4</stringvalue></entry>'
         - '</gconf>'
   journald-config:
+    # Avoid "Failed to start Create Volatile Files and Directories"
+    - { exec: 'rm -rf /var/log/journal' }
+    # Restrict journal disk size to avoid hogging the system
     - { edit: /etc/systemd/journald.conf, regex: '^#(SystemMaxUse).*', value: '\1=100M' }
   locale-config:
     - edit: /etc/locale.conf
@@ -713,9 +716,13 @@ configs:
     - { exec: 'find /var/log -type f -delete' }
     - { exec: 'rm -rf /usr/share/{man,doc}' }
     - { exec: 'rm -rf /etc/pacman.d/mirrorlist' }
+    - { exec: 'rm -rf /var/tmp/*' }
+    - { exec: 'rm -rf /tmp/*' }
   remove-machine-waste:
     - { exec: 'find /var/log -type f -delete' }
     - { exec: 'rm -rf /etc/pacman.d/mirrorlist' }
+    - { exec: 'rm -rf /var/tmp/*' }
+    - { exec: 'rm -rf /tmp/*' }
   resolved-config:
     - { exec: ln -sf //run/systemd/resolve/resolv.conf /etc/resolv.conf }
   root-user-config:
