@@ -141,6 +141,8 @@ layers:
       - entry: "Install <%=distro%>-theater    -heavy + media/kodi"
         kernel: /<%=distro%>/vmlinuz
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=theater_layers%> showopts vga=792
+    configs:
+      - { apply: theater-config }
 
   # Desktop
   # ----------------------------------------------------------------------------

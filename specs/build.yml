@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.79
+  release: 0.1.80
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -139,6 +139,8 @@ configs:
     - { apply: thunar-config }
     - { apply: apache-php-config }
     - { apply: server-menu-config }
+  theater-config:
+    - { apply: idesk-config }
   server-menu-config:
     - edit: /etc/skel/.config/openbox/menu.xml
       append: before
@@ -440,6 +442,18 @@ configs:
         - '  <entry name="style" mtime="1476881725" type="string"><stringvalue>Inconsolata-g Medium 11</stringvalue></entry>'
         - '  <entry name="color" mtime="1476881725" type="string"><stringvalue>#D4D4D4D4D4D4</stringvalue></entry>'
         - '</gconf>'
+  idesk-config:
+    - edit: /etc/skel/.config/autostart/idesk.desktop
+      append: true
+      values:
+        - '[Desktop Entry]'
+        - 'Name=idesk'
+        - 'Comment=Desktop icons'
+        - 'Exec=idesk'
+        - 'Icon=idesk'
+        - 'Terminal=false'
+        - 'Type=Application'
+        - 'Categories=Utility;'
   journald-config:
     # Avoid "Failed to start Create Volatile Files and Directories"
     - { exec: 'rm -rf /var/log/journal' }
