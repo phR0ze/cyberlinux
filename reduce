@@ -790,7 +790,7 @@ class Reduce
         changedfile = File.join(layer_work, 'changed')
         if layer_changed or not File.exist?(changedfile) or not File.exist?(layer_image)
           vars = layer_yml[@k.vars] ? @vars.to_h.merge(layer_yml[@k.vars]) : @vars
-          layer_changed |= Change.apply(layer_yml[@k.configs] || [],
+          layer_changed |= Config.apply(layer_yml[@k.configs] || [],
             OpenStruct.new({root: layer_work, vars: vars, configs: @spec[@k.configs]}))
           File.open(changedfile, 'w'){|f|}
         end
@@ -825,37 +825,6 @@ class Reduce
     end
 
     return changed
-  end
-
-  # Update pacman for use separate from the host
-  # Creates configuration, seeds keys and updates databases
-  def update_pacman
-
-    # Prepare pacman for use
-    if !File.exist?(@pacman_conf)
-
-      # Configure pacmaan
-      Sys.exec("cp -a #{@pacman_src_conf} #{@pacman_path}")
-      Sys.exec("cp -a #{@pacman_src_mirrors} #{@pacman_path}")
-      Fedit.replace(@pacman_conf, /(Architecture = ).*/, "\\1#{@vars.arch}")
-      Fedit.replace(@pacman_conf, /#(DBPath\s+= ).*/, "\\1#{@pacman_path}")
-      Fedit.replace(@pacman_conf, /#(CacheDir\s+= ).*/, "\\1#{File.join(@pacman_path, 'cache')}")
-      Fedit.replace(@pacman_conf, /#(LogFile\s+= ).*/, "\\1#{File.join(@pacman_path, 'pacman.log')}")
-      Fedit.replace(@pacman_conf, /#(GPGDir\s+= ).*/, "\\1#{File.join(@pacman_path, 'gnupg')}")
-      Fedit.replace(@pacman_conf, /#(HookDir\s+= ).*/, "\\1#{File.join(@pacman_path, 'hooks')}")
-      Fedit.replace(@pacman_conf, /.*(\/.*mirrorlist).*/, "Include = #{@pacman_path}\\1")
-
-      # Populate pacman keys
-      repos = Dir[File.join(@pacman_path, "*.mirrorlist")].map{|x| File.basename(x, '.mirrorlist')}
-      Sys.exec("pacman-key --config #{@pacman_conf} --init")
-      Sys.exec("pacman-key --config #{@pacman_conf} --populate #{repos * ' '}")
-    end
-
-    # Update pacman databases
-    #Sys.exec("pacman --config #{@pacman_conf} -Sy")
-    exit
-    #rm_rf(File.join(@pacman_path, 'var/lib/pacman/sync/*.sig'))
-
   end
 
   # Install packages for the given layer
@@ -896,7 +865,23 @@ class Reduce
       # pacstrap replacement
       if pkgs[:conflict].any? or pkgs[:reg].any?
         begin
-          update_pacman
+
+          # Prepare pacman for use
+          if !File.exist?(@pacman_conf)
+            Sys.exec("cp -a #{@pacman_src_conf} #{@pacman_path}")
+            Sys.exec("cp -a #{@pacman_src_mirrors} #{@pacman_path}")
+            Fedit.replace(@pacman_conf, /(Architecture = ).*/, "\\1#{@vars.arch}")
+            Fedit.replace(@pacman_conf, /#(DBPath\s+= ).*/, "\\1#{@pacman_path}")
+            Fedit.replace(@pacman_conf, /#(CacheDir\s+= ).*/, "\\1#{File.join(@pacman_path, 'cache')}")
+            Fedit.replace(@pacman_conf, /#(LogFile\s+= ).*/, "\\1#{File.join(@pacman_path, 'pacman.log')}")
+            Fedit.replace(@pacman_conf, /#(GPGDir\s+= ).*/, "\\1#{File.join(@pacman_path, 'gnupg')}")
+            Fedit.replace(@pacman_conf, /#(HookDir\s+= ).*/, "\\1#{File.join(@pacman_path, 'hooks')}")
+            Fedit.replace(@pacman_conf, /.*(\/.*mirrorlist).*/, "Include = #{@pacman_path}\\1")
+
+            repos = Dir[File.join(@pacman_path, "*.mirrorlist")].map{|x| File.basename(x, '.mirrorlist')}
+            Sys.exec("pacman-key --config #{@pacman_conf} --init")
+            Sys.exec("pacman-key --config #{@pacman_conf} --populate #{repos * ' '}")
+          end
 
           # Remove these packages first
           if pkgs[:conflict].any?
@@ -908,33 +893,21 @@ class Reduce
 
           # Install normal packages
           if pkgs[:reg].any?
-            puts("Installing regular packages for '#{layer}'...".colorize(:cyan))
-            cmd = ['pacstrap', '-GMcd', layer_work, '--config', pacman_conf, '--needed', *pkgs[:reg]]
+            puts("Pacstrap package installs for '#{layer}'...".colorize(:cyan))
+            cmd = ['pacstrap', '-GMcd', layer_work, '--config', @pacman_conf, '--needed', *pkgs[:reg]]
             cmd += ['--ignore', pkgs[:ignore] * ','] if pkgs[:ignore].any?
             !puts("Error: Failed to install packages correctly".colorize(:red)) and
               exit unless Sys.exec(cmd, env:@proxyenv)
           end
-
         ensure
           Sys.umount(File.join(layer_work, 'dev'), retries: 10)
+
+          # Clean up pacman
+          rm_rf(File.join(@pacman_path, 'local'))
+          rm_rf(File.join(@pacman_path, 'pacman.log'))
         end
       end
 
-#      # Clean up left artifacts from installs to leave prestine layer
-#      puts("Cleaning up artifacts that may be left over from installs".colorize(:cyan))
-#      Sys.exec("find #{layer_work} -name *.pacnew -name *.pacsave -name *.pacorig -delete")
-#
-#      # Remove pacman transient data
-#      Sys.exec("find #{File.join(layer_work, 'var/lib/pacman')} -maxdepth 1 -type f -delete")
-#      rm_rf(File.join(layer_work, 'var/lib/pacman/sync/*'))
-#
-#      # Remove all files from logging or packaging but leave empty dirs
-#      Sys.exec("find #{File.join(layer_work, 'var/log')} -type f -delete")
-#      Sys.exec("find #{File.join(layer_work, 'var/cache/pacman/pkg')} -type f -delete")
-#
-#      # Remove pacman GnuPG keys for a fresh start
-#      rm_rf(File.join(layer_work, 'etc/pacman.d/gnupg'))
-#
       # Remove all temporary files and dirs
       rm_rf(File.join(layer_work, 'var/tmp/*'))
       rm_rf(File.join(layer_work, 'tmp/*'))

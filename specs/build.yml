@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.73
+  release: 0.1.74
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -48,16 +48,45 @@ build:
     - { install: initramfs-pkgs }
     - { install: isolinux-pkgs }
   configs:
-    - { apply: base-config }
-    - { apply: remove-docs }
+
+    # Create and configure new build user
+    - { chroot: 'useradd -m -G lp,wheel,network,storage,users -s /bin/bash build || true' }
+    - { exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /home/build' }
+    - { edit: /etc/sudoers, append: true, value: "build ALL=(ALL) NOPASSWD: ALL" }
+
+    # Install pacman configuration files
+    - { exec: 'cp /<%=base_src%>/etc/pacman.conf /etc' }
+    - { exec: 'mkdir -p /etc/pacman.d' }
+    - { exec: 'cp /<%=base_src%>/etc/pacman.d/* /etc/pacman.d' }
+
+    - { apply: container-core-config }
+    - { apply: mkinitcpio-config }
+    - { apply: makepkg-config }
     - { apply: root-user-config }
-    - { apply: build-user-config }
     - { apply: pacman-config }
 
 configs:
-  base-config:
+
+  # Core configuration for any container
+  #-----------------------------------------------------------------------------
+  container-core-config:
     - { apply: hosts-config }
-    - { apply: fonts-config }
+    - { apply: locale-config }
+    - { apply: lsb-release-config }
+    - { apply: journald-config }
+    - { apply: os-release-config }
+    - { apply: proxy-config }
+    - { apply: resolved-config }
+    - { apply: sudo-vars-config }
+    - { apply: sysctld-config }
+    - { apply: user-dirs-config }
+    - { apply: vconsole-config }
+    - { apply: remove-container-waste }
+
+  # Core configuration for any machine
+  #-----------------------------------------------------------------------------
+  machine-core-config:
+    - { apply: hosts-config }
     - { apply: locale-config }
     - { apply: logind-config }
     - { apply: lsb-release-config }
@@ -76,6 +105,7 @@ configs:
     - { apply: timesyncd-config }
     - { apply: user-dirs-config }
     - { apply: vconsole-config }
+    - { apply: remove-machine-waste }
     - { chroot: systemctl enable sshd.service }
     - { chroot: systemctl enable systemd-networkd.service }
     - { chroot: systemctl enable systemd-networkd-wait-online.service }
@@ -86,6 +116,7 @@ configs:
     - { chroot: systemctl enable cronie.service }
   lite-config:
     - { apply: lxdm-config }
+    - { apply: fonts-config }
     - { apply: dconf-config }
     - { apply: gtk-config }
     - { apply: openbox-config }
@@ -144,10 +175,6 @@ configs:
       regex: 'OpenVPN PIA'
       values:
         - '      <item label="qBittorrent" icon="/usr/share/icons/hicolor/32x32/apps/qbittorrent.png"><action name="Execute"><execute>qbittorrent </execute></action></item>'
-  build-user-config:
-    - { chroot: 'useradd -m -G lp,wheel,network,storage,users -s /bin/bash build || true' }
-    - { exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /home/build' }
-    - { edit: /etc/sudoers, append: true, value: "build ALL=(ALL) NOPASSWD: ALL" }
   apache-php-config:
     - { edit: /etc/httpd/conf/httpd.conf, regex: '^(Listen).*', value: '\1 80' }
     - { edit: /etc/httpd/conf/httpd.conf, regex: '^(DocumentRoot).*', value: '\1 /srv/http' }
@@ -682,8 +709,13 @@ configs:
         - 'fi'
         - "\n# PROXY_SETTINGS_MARKER"
     - { exec: chmod +x /usr/bin/setproxy }
-  remove-docs:
+  remove-container-waste:
+    - { exec: 'find /var/log -type f -delete' }
     - { exec: 'rm -rf /usr/share/{man,doc}' }
+    - { exec: 'rm -rf /etc/pacman.d/mirrorlist' }
+  remove-machine-waste:
+    - { exec: 'find /var/log -type f -delete' }
+    - { exec: 'rm -rf /etc/pacman.d/mirrorlist' }
   resolved-config:
     - { exec: ln -sf //run/systemd/resolve/resolv.conf /etc/resolv.conf }
   root-user-config:
@@ -884,7 +916,7 @@ packages:
     - { pkg: usbutils,                      desc: USB device utilities including lsusb }
 
     # Drivers
-    - { pkg: e1000e-dkms,                   desc: Intel e1000e Ethernet adapter driver, type: CYBERLINUX }
+    #- { pkg: e1000e-dkms,                   desc: Intel e1000e Ethernet adapter driver, type: CYBERLINUX }
 
     # Packaging
     - { pkg: pkgfile,                       desc: A pacman files and metadata explorer }
