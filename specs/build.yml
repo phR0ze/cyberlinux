@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.80
+  release: 0.1.81
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -454,6 +454,36 @@ configs:
         - 'Terminal=false'
         - 'Type=Application'
         - 'Categories=Utility;'
+    - edit: /etc/skel/.idesktop/audio-player.lnk
+      append: true
+      values:
+        - "table Icon\n  Icon: /usr/share/icons/hicolor/72x72/apps/audacious.png"
+        - "  X: 500\n  Y: 616\n  Command[0]: audacious\nend"
+    - edit: /etc/skel/.idesktop/browser.lnk
+      append: true
+      values:
+        - "table Icon\n  Icon: /usr/share/icons/hicolor/64x64/apps/chromium.png"
+        - "  X: 330\n  Y: 615\n  Command[0]: chromium\nend"
+    - edit: /etc/skel/.idesktop/pandora.lnk
+      append: true
+      values:
+        - "table Icon\n  Icon: /usr/share/icons/hicolor/72x72/apps/pandora.png"
+        - "  X: 330\n  Y: 615\n  Command[0]: chromium pandora.com\nend"
+    - edit: /etc/skel/.idesktop/reboot.lnk
+      append: true
+      values:
+        - "table Icon\n  Icon: /usr/share/icons/hicolor/72x72/actions/system-reboot.png"
+        - "  X: 88\n  Y: 615\n  Command[0]: sudo reboot\nend"
+    - edit: /etc/skel/.idesktop/shutdown.lnk
+      append: true
+      values:
+        - "table Icon\n  Icon: /usr/share/icons/hicolor/72x72/actions/system-shutdown.png"
+        - "  X: 8\n  Y: 615\n  Command[0]: sudo poweroff\nend"
+    - edit: /etc/skel/.idesktop/video-player.lnk
+      append: true
+      values:
+        - "table Icon\n  Icon: /usr/share/icons/hicolor/64x64/apps/smplayer.png"
+        - "  X: 88\n  Y: 615\n  Command[0]: smplayer\nend"
   journald-config:
     # Avoid "Failed to start Create Volatile Files and Directories"
     - { exec: 'rm -rf /var/log/journal' }
