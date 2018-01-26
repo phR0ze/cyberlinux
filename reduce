@@ -889,6 +889,7 @@ class Reduce
 
           # Restore syncd databases for reuse to avoid constantly downloading them
           if Dir[File.join(@pacman_sync, "*")].any?
+            FileUtils.mkdir_p(File.join(layer_work, 'var/lib/pacman/sync'))
             Sys.exec("cp -a #{File.join(@pacman_sync, "*")} #{File.join(layer_work, 'var/lib/pacman/sync')}")
           end
 
