@@ -120,18 +120,16 @@ class Reduce
     # Set paths
     @outpath = File.join(@rootpath, 'temp')
     @workpath = File.join(@outpath, 'work')
+    @pacman_path = File.join(@outpath, 'pacman')
     @tmp_dir = File.join(@workpath, 'tmp')
     @isopath = File.join(@workpath, '_iso_')
     @layers_src = File.join(@rootpath, 'layers')
     @layers_work = File.join(@workpath, 'layers')
     @vagrantpath = File.join(@rootpath, 'vagrant')
 
-    @pacman_conf = File.join(@workpath, 'pacman.conf')
-    @pacman_orig_conf = File.join(@layers_src, 'base/etc/pacman.conf')
-    @makepkg_conf = File.join(@workpath, 'makepkg.conf')
-
+    @pacman_src_conf = File.join(@layers_src, 'base/etc/pacman.conf')
+    @pacman_src_mirrors = File.join(@layers_src, 'base/etc/pacman.d/*.mirrorlist')
     @isoimagesdst = File.join(@isopath, @vars.distro.downcase)
-    @makepkg_orig_conf = File.join('/usr/share/devtools', "makepkg-#{@vars.arch}.conf")
 
     @vmlinuz_image = File.join(@isoimagesdst, 'vmlinuz')
     @ucode_image = File.join(@isoimagesdst, 'intel-ucode.img')
@@ -195,6 +193,7 @@ class Reduce
     uid, gid = Sys.drop_privileges
 
     puts("Creating directory structure")
+    FileUtils.mkdir_p(@pacman_path)
     FileUtils.mkdir_p(@workpath)
     FileUtils.mkdir_p(@tmp_dir)
     FileUtils.mkdir_p(@isopath)
@@ -301,19 +300,20 @@ class Reduce
     end
 
     # Clean given layers
-    # layer_src = File.join(@layers_src, layer)
-    (layers || ((all || isofull) ? Dir.children(@layers_work) : nil)).each{|layer|
-      puts("Cleaning layer '#{layer}'...".colorize(:cyan))
-      path = File.join(@layers_work, layer)
-      puts("Deleting #{path}".colorize(:red)) if File.exist?(path)
-      Sys.rm_rf(path)
-      @imagepaths[0..1].each{|path|
-        Dir[File.join(path, "#{layer}*")].each{|x|
-          puts("Deleting #{x}".colorize(:red))
-          File.delete(x)}
+    if !all and Dir.exist?(@layers_work) and (layers || isofull)
+      (layers || ((all || isofull) ? Dir.children(@layers_work) : nil)).each{|layer|
+        puts("Cleaning layer '#{layer}'...".colorize(:cyan))
+        path = File.join(@layers_work, layer)
+        puts("Deleting #{path}".colorize(:red)) if File.exist?(path)
+        Sys.rm_rf(path)
+        @imagepaths[0..1].each{|path|
+          Dir[File.join(path, "#{layer}*")].each{|x|
+            puts("Deleting #{x}".colorize(:red))
+            File.delete(x)}
+        }
+        evalimages!(@type.tgz, layer:layer, live:true, force:true)
       }
-      evalimages!(@type.tgz, layer:layer, live:true, force:true)
-    }
+    end
 
     # Clean iso path
     if !all and isofull
@@ -369,11 +369,6 @@ class Reduce
       !puts("Error: must be executed as root".colorize(:red)) and
         exit unless Process.uid.zero?
       puts("#{'-' * 80}\nBuilding ISO components...\n#{'-' * 80}".colorize(:light_yellow))
-
-      # Configure arch specific pacman.conf
-      FileUtils.cp(@pacman_orig_conf, @pacman_conf)
-      FileUtils.cp(@makepkg_orig_conf, @makepkg_conf)
-      Fedit.replace(@pacman_conf, /(Architecture = ).*/, "\\1#{@vars.arch}")
     end
 
     # Build implicated layers
@@ -859,34 +854,46 @@ class Reduce
       puts("Conflict Pkgs: #{pkgs[:conflict]}")
 
       # pacstrap replacement
-      pacstrap = ->(msg, diemsg, &block){
+      if pkgs[:conflict].any? or pkgs[:reg].any?
         begin
+
+          # Prepare pacman configs
+          pacman_conf = File.join(@pacman_path, 'pacman.conf')
+          Sys.exec("cp -a #{@pacman_src_conf} #{@pacman_path}")
+          Sys.exec("cp -a #{@pacman_src_mirrors} #{@pacman_path}")
+          Fedit.replace(pacman_conf, /(Architecture = ).*/, "\\1#{@vars.arch}")
+          Fedit.replace(pacman_conf, /#(CacheDir\s+= ).*/, "\\1#{File.join(@pacman_path, 'pkg')}")
+          Fedit.replace(pacman_conf, /#(LogFile\s+= ).*/, "\\1#{File.join(@pacman_path, 'pacman.log')}")
+          Fedit.replace(pacman_conf, /#(GPGDir\s+= ).*/, "\\1#{File.join(@pacman_path, 'gnupg')}")
+          Fedit.replace(pacman_conf, /#(HookDir\s+= ).*/, "\\1#{File.join(@pacman_path, 'hooks')}")
+          Fedit.replace(pacman_conf, /.*(\/.*mirrorlist).*/, "Include = #{@pacman_path}\\1")
+          exit
+
           # Copy over pacman databases from host system to avoid constant updates
           Sys.exec("pacman -Sy")
           Sys.exec("mkdir -m 0755 -p #{File.join(layer_work, 'var/lib/pacman')}")
           Sys.exec("cp -a /var/lib/pacman/sync #{File.join(layer_work, 'var/lib/pacman')}")
+          rm_rf(File.join(layer_work, 'var/lib/pacman/sync/*.sig'))
 
-          # Install/download/remove packages as directed
-          puts("#{msg} packages for '#{layer}'...".colorize(:cyan))
-          !puts("Error: #{diemsg}".colorize(:red)) and exit unless block.call
+          # Remove these packages first
+          if pkgs[:conflict].any?
+            puts("Removing conflicting packages for '#{layer}'...".colorize(:cyan))
+            conflicts = pkgs[:conflict].map{|x| x.split(':').last} * ' '
+            !puts("Error: Failed to remove packages".colorize(:red)) and
+              exit unless Sys.exec("pacman -Rn -r #{layer_work} -d -d --noconfirm #{conflicts}", die:false)
+          end
+
+          # Install normal packages
+          if pkgs[:reg].any?
+            puts("Installing regular packages for '#{layer}'...".colorize(:cyan))
+            cmd = ['pacstrap', '-GMcd', layer_work, '--config', @pacman_conf, '--needed', *pkgs[:reg]]
+            cmd += ['--ignore', pkgs[:ignore] * ','] if pkgs[:ignore].any?
+            !puts("Error: Failed to install packages correctly".colorize(:red)) and
+              exit unless Sys.exec(cmd, env:@proxyenv)
+          end
         ensure
           Sys.umount(File.join(layer_work, 'dev'), retries: 10)
         end
-      }
-
-      # Remove these packages first
-      if pkgs[:conflict].any?
-        pacstrap.call("Removing conflicting", "Failed to remove packages"){
-          conflicts = pkgs[:conflict].map{|x| x.split(':').last} * ' '
-          next Sys.exec("pacman -Rn -r #{layer_work} -d -d --noconfirm #{conflicts}", die:false) || true}
-      end
-
-      # Install normal packages
-      if pkgs[:reg].any?
-        cmd = ['pacstrap', '-GMcd', layer_work, '--config', @pacman_conf, '--needed', *pkgs[:reg]]
-        cmd += ['--ignore', pkgs[:ignore] * ','] if pkgs[:ignore].any?
-        pacstrap.call("Installing regular", "Failed to install packages correctly"){
-          next Sys.exec(cmd, env:@proxyenv)}
       end
 
       # Clean up left artifacts from installs to leave prestine layer
