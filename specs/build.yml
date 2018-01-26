@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.78
+  release: 0.1.79
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1205,6 +1205,10 @@ packages:
     # Teamviwer is free to use for personal use
     # https://www.teamviewer.com/en/credentials/free-for-personal-use/
     - { pkg: teamviewer,                    desc: All-In-One Software for Remote Support and Online Meetings, type: CYBERLINUX }
+
+    # The Extension Pack binaries are released under the VirtualBox Personal Use and Evaluation License (PUEL).
+    # https://www.virtualbox.org/wiki/Downloads
+    - { pkg: virtualbox-ext-oracle,         desc: Oracle VM VirtualBox Extension Pack, type: CYBERLINUX }
 
   # Virtualization packages
   #-----------------------------------------------------------------------------
