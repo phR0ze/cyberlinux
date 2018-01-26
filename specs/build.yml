@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.72
+  release: 0.1.73
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -970,8 +970,8 @@ packages:
     - { pkg: ruby-net-scp,                  desc: Pure Ruby implementation of SCP client protocol, depof: reduce, type: CYBERLINUX }
     - { pkg: ruby-net-sftp,                 desc: Pure Ruby implementation of SFTP client protocol, depof: reduce, type: CYBERLINUX }
     - { pkg: ruby-net-ssh,                  desc: Pure Ruby implementation of SSH2 client protocol, depof: reduce, type: CYBERLINUX }
-    - { pkg: ruby-nokogiri,                 desc: HTML parser with XPath and CSS3 selectors, depof: chromium build}
-    - { pkg: ruby-mechanize,                desc: Automate interation with websites, depof: chromium build }
+    - { pkg: ruby-nokogiri,                 desc: HTML parser with XPath and CSS3 selectors, depof: chromium build, type: CYBERLINUX }
+    - { pkg: ruby-mechanize,                desc: Automate interation with websites, depof: chromium build, type: CYBERLINUX }
     - { pkg: ruby-pry,                      desc: Ruby debugger, type: CYBERLINUX }
     - { pkg: ruby-pry-nav,                  desc: Primitive debugging step and next commands for pry, type: CYBERLINUX }
     - { pkg: ruby-rest-client,              desc: Simple HTTP and REST client, depof: reduce, type: CYBERLINUX }

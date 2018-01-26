@@ -2,16 +2,11 @@
 # http://pgp.mit.edu:11371/pks/lookup?op=get&search=0x63EC0ADBEA87E4E3
 # https://www.blackarch.org/downloads.html#mirror-list
 # ------------------------------------------------------------------------------
-Server = http://www.mirrorservice.org/sites/blackarch.org/blackarch/$repo/os/$arch
-Server = http://blackarch.pr0s3c.nl/blackarch/$repo/os/$arch
 Server = https://blackarch.pr0s3c.nl/blackarch/$repo/os/$arch
-Server = https://mirrors.tuxns.net/blackarch/$repo/os/$arch
-Server = http://mirrors.tuxns.net/blackarch/$repo/os/$arch
-Server = http://mirror.math.princeton.edu/pub/blackarch/$repo/os/$arch
-Server = https://mirror.math.princeton.edu/pub/blackarch/$repo/os/$arch
-Server = http://distro.ibiblio.org/blackarch/$repo/os/$arch
 Server = https://deadbeef.ninja/blackarch/$repo/os/$arch
 Server = http://mirror.team-cymru.org/blackarch/$repo/os/$arch
-Server = http://mirror.oss.maxcdn.com/blackarch/$repo/os/$arch
-Server = http://arch.localmsp.org/blackarch/$repo/os/$arch
+Server = http://mirror.math.princeton.edu/pub/blackarch/$repo/os/$arch
+Server = https://mirror.math.princeton.edu/pub/blackarch/$repo/os/$arch
+Server = http://blackarch.pr0s3c.nl/blackarch/$repo/os/$arch
 Server = http://mirror.jmu.edu/blackarch/$repo/os/$arch
+Server = http://distro.ibiblio.org/blackarch/$repo/os/$arch
