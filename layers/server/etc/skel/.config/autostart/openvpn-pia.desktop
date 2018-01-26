@@ -1,9 +1,0 @@
-[Desktop Entry]
-Name=OpenVPN PIA
-Comment=Private Internet Access OpenVPN automation and UI
-Exec=sudo openvpn-pia
-Icon=openvpn-pia
-Terminal=false
-StartupNotify=true
-Type=Application
-Categories=Network;

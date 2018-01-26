@@ -1,6 +1,0 @@
-table Icon
-  Icon: /usr/share/icons/hicolor/64x64/apps/smplayer.png
-  X: 88
-  Y: 615
-  Command[0]: smplayer
-end

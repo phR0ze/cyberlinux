@@ -1,5 +1,5 @@
 #MIT License
-#Copyright (c) 2018 phR0ze
+#Copyright (c) 2017-2018 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -71,7 +71,6 @@ package()
   msg2 "Packaging systemd unit"
   install -Dm644 ${pkgname}d.service -t $pkgdir/usr/lib/systemd/system
   install -dm750 $pkgdir/etc/systemd/system/multi-user.target.wants
-  ln -sf /usr/lib/systemd/system/teamviewerd.service $pkgdir/etc/systemd/system/multi-user.target.wants/teamviewerd.service
 
   msg2 "Packaging additional files"
   install -Dm644 opt/teamviewer/doc/License.txt $pkgdir/usr/share/licenses/$pkgname/LICENSE

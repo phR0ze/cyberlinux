@@ -90,7 +90,7 @@ class Cmds
 
   # Returns banner string
   def banner
-    banner = "#{@app}_v#{@version}\n#{'-' * 80}".colorize(:yellow)
+    banner = "#{@app}_v#{@version}\n#{'-' * 80}".colorize(:light_yellow)
     return banner
   end
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 #MIT License
-#Copyright (c) 2017 phR0ze
+#Copyright (c) 2018 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -26,12 +26,12 @@ require 'ostruct'
 require_relative 'core'
 require_relative 'fedit'
 
-module Change
+module Config
   extend self
 
-  # Get change keys
+  # Get config keys
   # Params:
-  # +returns+:: OpenStruct of all the string keys being used for changes
+  # +returns+:: OpenStruct of all the string keys being used for configs
   def keys
     return OpenStruct.new({
       after: 'after',
@@ -48,78 +48,75 @@ module Change
     })
   end
 
-  # Apply the given change
-  # This is the only method that can directly deal with changes and is meant to be the entry point
-  # for all changes. Other methods surfaced in this module are only exposed for simplicity.
-  # +changes+:: list of yaml blocks describing the changes
-  # +ctx+:: OpenStruct containing the following
-  #   root: root directory of the filesystem being built
-  #   vars: hash of variables for templating
-  #   changes: re-usable change blocks in context
-  # +returns+:: true on change
-  def apply(changes, ctx)
+  # Apply the given config
+  # This is the only method that can directly deal with configs and is meant to be the entry point
+  # for all configs. Other methods surfaced in this module are only exposed for simplicity.
+  # @param config [list] of yaml blocks describing the configs
+  # @param ctx [OpenStruct] containing 'root' directory, 'vars', configs
+  # @param returns true on change
+  def apply(configs, ctx)
     changed = false
-    changes = [changes] if not changes.is_a?(Array)
-    k = Change.keys
-    changes.each{|change|
+    configs = [configs] if not configs.is_a?(Array)
+    k = Config.keys
+    configs.each{|config|
 
-      # Recurse on change references
-      if change[k.apply]
-        puts("Applying '#{change[k.apply]}'")
+      # Recurse on config references
+      if config[k.apply]
+        puts("Applying '#{config[k.apply]}'")
         begin
-          changed |= apply(ctx.changes[change[k.apply]], ctx)
+          changed |= apply(ctx.configs[config[k.apply]], ctx)
         rescue
-          puts("Failed to find the change referenced by '#{change[k.apply]}'")
+          puts("Failed to find the config referenced by '#{config[k.apply]}'")
           raise
         end
 
-      # Apply the change
+      # Apply the config
       else
 
-        # Resolve templating in the actual change
-        change = change.erb(ctx.vars)
+        # Resolve templating in the actual config
+        config = config.erb(ctx.vars)
 
         # Redirect paths as required
-        change = Change.redirect(change, ctx, k) if not change[k.chroot]
+        config = Config.redirect(config, ctx, k) if not config[k.chroot]
 
         # Apply bash scripts
-        if change[k.chroot]
-          Sys.exec("arch-chroot #{ctx.root} #{change[k.chroot]}")
+        if config[k.chroot]
+          Sys.exec("arch-chroot #{ctx.root} #{config[k.chroot]}")
 
         # Apply file edits
-        elsif change[k.edit]
-          file = change[k.edit]
+        elsif config[k.edit]
+          file = config[k.edit]
           puts("Editing: #{file}")
-          values = change[k.value] ? [change[k.value]] : change[k.values]
+          values = config[k.value] ? [config[k.value]] : config[k.values]
           FileUtils.mkdir_p(File.dirname(file)) if not File.exist?(File.dirname(file))
 
           if not File.exist?(file)
             changed |= Fedit.insert(file, values)
           else
-            append = change[k.append]
+            append = config[k.append]
 
-            # Check if the changes have already been made
+            # Check if the configs have already been made
             data = File.binread(file)
             already = values.all?{|y| data =~ Regexp.new(Regexp.quote(y))}
 
             # Regex replacements
             if not append
-              changed |= Fedit.replace(file, change[k.regex], values.first)
+              changed |= Fedit.replace(file, config[k.regex], values.first)
 
             # File insert/appends
             elsif not already
               offset = append == true ? nil : append == k.after ? 1 : 0
-              changed |= Fedit.insert(file, values, regex:change[k.regex], offset:offset)
+              changed |= Fedit.insert(file, values, regex:config[k.regex], offset:offset)
             end
           end
 
         # Apply bash scripts
-        elsif change[k.exec]
-          Sys.exec(change[k.exec])
+        elsif config[k.exec]
+          Sys.exec(config[k.exec])
 
         # Resolve template
-        elsif change[k.resolve]
-          changed |= Fedit.resolve(change[k.resolve], ctx.vars)
+        elsif config[k.resolve]
+          changed |= Fedit.resolve(config[k.resolve], ctx.vars)
         end
       end
     }
@@ -128,30 +125,30 @@ module Change
   end
 
   # Redirect paths according to the given contex
-  # @param change [yaml] to redirect paths for
+  # @param config [yaml] to redirect paths for
   # @param ctx [OpenStruct] context to work with
   # @param k [OpenStruct] keys for mapping
   # @returns [String] redirected string
-  def redirect(change, ctx, k)
-    all = [change[k.edit], change[k.resolve], change[k.exec]].compact
-    raise ArgumentError.new("Invalid change type") if not all.any?
-    return change if all.any?{|x| x.include?(ctx.root)}
-    _change = change.clone
+  def redirect(config, ctx, k)
+    all = [config[k.edit], config[k.resolve], config[k.exec]].compact
+    raise ArgumentError.new("Invalid config type") if not all.any?
+    return config if all.any?{|x| x.include?(ctx.root)}
+    _config = config.clone
 
     # Handle edits and resolves
-    if (file = _change[k.edit] || _change[k.resolve])
+    if (file = _config[k.edit] || _config[k.resolve])
       raise ArgumentError.new("Paths must be absolute") if not file.start_with?('/')
       file = file.start_with?('//') ? file[1..-1] : File.join(ctx.root, file)
-      _change[k.edit] = file if _change[k.edit]
-      _change[k.resolve] = file if _change[k.resolve]
+      _config[k.edit] = file if _config[k.edit]
+      _config[k.resolve] = file if _config[k.resolve]
 
     # Handle bash scripts
-    elsif _change[k.exec]
-      _change[k.exec].gsub!(/ \/([^\/])/, ' ' + ctx.root + '/' + '\1')
-      _change[k.exec].gsub!(/ \/\//, ' /')
+    elsif _config[k.exec]
+      _config[k.exec].gsub!(/ \/([^\/])/, ' ' + ctx.root + '/' + '\1')
+      _config[k.exec].gsub!(/ \/\//, ' /')
     end
 
-    return _change
+    return _config
   end
 end
 

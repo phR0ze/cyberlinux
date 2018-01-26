@@ -23,7 +23,7 @@
 require 'minitest/autorun'
 require 'ostruct'
 
-require_relative '../lib/change'
+require_relative '../lib/config'
 require_relative '../lib/fedit'
 require_relative '../lib/sys'
 
@@ -37,7 +37,7 @@ class TestApply < Minitest::Test
         var1: 'var1',
         file_var: '/foo'
       },
-      changes: {
+      configs: {
         'config-foobar1' => [
           { 'edit' => '/foo', 'append' => 'after', 'value' => 'bar', 'regex' => '/bob/' }
         ],
@@ -52,25 +52,25 @@ class TestApply < Minitest::Test
     ctx = OpenStruct.new({ root: '.', vars: { var1: 'var1', file_var: '/foo' } })
 
     Sys.stub(:puts, nil){
-      refute(Change.apply({'exec' => 'touch /foo'}, ctx))
+      refute(Config.apply({'exec' => 'touch /foo'}, ctx))
       assert(File.exist?('foo'))
-      refute(Change.apply({'exec' => 'rm /foo'}, ctx))
+      refute(Config.apply({'exec' => 'rm /foo'}, ctx))
       refute(File.exist?('foo'))
     }
   end
 
   def test_apply_with_templating_reference
-    change = { 'apply' => 'config-foobar2'}
-    change_insert_helper(change, 1)
+    config = { 'apply' => 'config-foobar2'}
+    config_insert_helper(config, 1)
   end
 
   def test_apply_with_templating
-    change = { 'edit' => '<%= file_var %>', 'append' => 'after', 'value' => 'bar', 'regex' => '/bob/' }
-    change_insert_helper(change, 1)
+    config = { 'edit' => '<%= file_var %>', 'append' => 'after', 'value' => 'bar', 'regex' => '/bob/' }
+    config_insert_helper(config, 1)
   end
 
   def test_apply_with_resolve
-    change = { 'resolve' => '/foo' }
+    config = { 'resolve' => '/foo' }
 
     assert_args = ->(file, vars){
       assert_equal(File.join(@ctx.root, @file), file)
@@ -79,28 +79,28 @@ class TestApply < Minitest::Test
     }
 
     Fedit.stub(:resolve, assert_args){
-      assert(Change.apply(change, @ctx))
+      assert(Config.apply(config, @ctx))
     }
   end
 
   def test_apply_with_apply_reference_fail
-    change = { 'apply' => 'config-bar' }
-    assert_raises(NoMethodError){change_insert_helper(change, 1)}
+    config = { 'apply' => 'config-bar' }
+    assert_raises(NoMethodError){config_insert_helper(config, 1)}
   end
 
   def test_apply_with_apply_reference_success
-    change = { 'apply' => 'config-foobar1' }
-    change_insert_helper(change, 1)
+    config = { 'apply' => 'config-foobar1' }
+    config_insert_helper(config, 1)
   end
 
   def test_apply_file_doesnt_exist
-    change = { 'edit' => '/foo', 'value' => 'bar' }
+    config = { 'edit' => '/foo', 'value' => 'bar' }
 
-    Change.stub(:puts, nil){
+    Config.stub(:puts, nil){
       FileUtils.stub(:mkdir_p, true, @file){
         File.stub(:exist?, false, @file){
           Fedit.stub(:insert, true, @file){
-            assert(Change.apply(change, @ctx))
+            assert(Config.apply(config, @ctx))
           }
         }
       }
@@ -108,7 +108,7 @@ class TestApply < Minitest::Test
   end
 
   def test_apply_replace
-    change = { 'edit' => '/foo', 'regex' => '/bob/', 'value' => 'bar' }
+    config = { 'edit' => '/foo', 'regex' => '/bob/', 'value' => 'bar' }
 
     mock = Minitest::Mock.new
     mock.expect(:=~, false, [Regexp.new(Regexp.quote('bar'))])
@@ -120,11 +120,11 @@ class TestApply < Minitest::Test
       true
     }
 
-    Change.stub(:puts, nil){
+    Config.stub(:puts, nil){
       File.stub(:exist?, true, @file){
         File.stub(:binread, mock, @file){
           Fedit.stub(:replace, assert_args){
-            assert(Change.apply(change, @ctx))
+            assert(Config.apply(config, @ctx))
           }
         }
       }
@@ -133,7 +133,7 @@ class TestApply < Minitest::Test
     assert_mock(mock)
   end
 
-  def change_insert_helper(change, offset)
+  def config_insert_helper(config, offset)
     mock = Minitest::Mock.new
     mock.expect(:=~, false, [Regexp.new(Regexp.quote('bar'))])
 
@@ -145,11 +145,11 @@ class TestApply < Minitest::Test
       true
     }
 
-    Change.stub(:puts, nil){
+    Config.stub(:puts, nil){
       File.stub(:exist?, true, @file){
         File.stub(:binread, mock, @file){
           Fedit.stub(:insert, assert_args){
-            assert(Change.apply(change, @ctx))
+            assert(Config.apply(config, @ctx))
           }
         }
       }
@@ -159,16 +159,16 @@ class TestApply < Minitest::Test
   end
 
   def test_apply_insert
-    change = { 'edit' => '/foo', 'append' => 'after', 'value' => 'bar', 'regex' => '/bob/' }
-    change_insert_helper(change, 1)
-    change['append'] = 'before'
-    change_insert_helper(change, 0)
-    change['append'] = true
-    change_insert_helper(change, nil)
+    config = { 'edit' => '/foo', 'append' => 'after', 'value' => 'bar', 'regex' => '/bob/' }
+    config_insert_helper(config, 1)
+    config['append'] = 'before'
+    config_insert_helper(config, 0)
+    config['append'] = true
+    config_insert_helper(config, nil)
   end
 
   def test_apply_append
-    change = { 'edit' => '/foo', 'append' => true, 'value' => 'bar' }
+    config = { 'edit' => '/foo', 'append' => true, 'value' => 'bar' }
 
     mock = Minitest::Mock.new
     mock.expect(:=~, false, [Regexp.new(Regexp.quote('bar'))])
@@ -181,11 +181,11 @@ class TestApply < Minitest::Test
       true
     }
 
-    Change.stub(:puts, nil){
+    Config.stub(:puts, nil){
       File.stub(:exist?, true, @file){
         File.stub(:binread, mock, @file){
           Fedit.stub(:insert, assert_args){
-            assert(Change.apply(change, @ctx))
+            assert(Config.apply(config, @ctx))
           }
         }
       }
@@ -201,64 +201,64 @@ class TestRedirect < Minitest::Test
     @ctx = OpenStruct.new({ root: '/de' })
   end
 
-  def test_reusing_change_multiple_times
-    change = {'exec' => "touch /foo"}
+  def test_reusing_config_multiple_times
+    config = {'exec' => "touch /foo"}
     ctx = OpenStruct.new({ root: '/build' })
-    assert_equal({'exec' => "touch /build/foo"}, Change.redirect(change, ctx, Change.keys))
+    assert_equal({'exec' => "touch /build/foo"}, Config.redirect(config, ctx, Config.keys))
     ctx = OpenStruct.new({ root: '/base' })
-    assert_equal({'exec' => "touch /base/foo"}, Change.redirect(change, ctx, Change.keys))
+    assert_equal({'exec' => "touch /base/foo"}, Config.redirect(config, ctx, Config.keys))
   end
 
   def test_redirect_with_relative_root
-    change = {'exec' => "touch /foo"}
+    config = {'exec' => "touch /foo"}
     ctx = OpenStruct.new({ root: '.' })
-    assert_equal({'exec' => "touch ./foo"}, Change.redirect(change, ctx, Change.keys))
+    assert_equal({'exec' => "touch ./foo"}, Config.redirect(config, ctx, Config.keys))
   end
 
   def test_redirect_with_exec_multi
-    change = {'exec' => "touch //foo && echo '/foo' > /foo; tee /foo2 /foo3"}
+    config = {'exec' => "touch //foo && echo '/foo' > /foo; tee /foo2 /foo3"}
     assert_equal({'exec' => "touch /foo && echo '/foo' > /de/foo; tee /de/foo2 /de/foo3"},
-      Change.redirect(change, @ctx, Change.keys))
+      Config.redirect(config, @ctx, Config.keys))
   end
 
   def test_redirect_with_exec_combo
-    change = {'exec' => "touch //foo && echo '/foo' > /foo"}
-    assert_equal({'exec' => "touch /foo && echo '/foo' > /de/foo"}, Change.redirect(change, @ctx, Change.keys))
+    config = {'exec' => "touch //foo && echo '/foo' > /foo"}
+    assert_equal({'exec' => "touch /foo && echo '/foo' > /de/foo"}, Config.redirect(config, @ctx, Config.keys))
   end
 
   def test_redirect_with_exec_host
-    change = {'exec' => 'touch //foo'}
-    assert_equal({'exec' => 'touch /foo'}, Change.redirect(change, @ctx, Change.keys))
+    config = {'exec' => 'touch //foo'}
+    assert_equal({'exec' => 'touch /foo'}, Config.redirect(config, @ctx, Config.keys))
   end
 
   def test_redirect_with_exec
-    change = {'exec' => 'touch /foo'}
-    assert_equal({'exec' => 'touch /de/foo'}, Change.redirect(change, @ctx, Change.keys))
+    config = {'exec' => 'touch /foo'}
+    assert_equal({'exec' => 'touch /de/foo'}, Config.redirect(config, @ctx, Config.keys))
   end
 
   def test_redirect_with_bogus
-    change = {'bogus' => '/foo'}
-    assert_raises(ArgumentError){Change.redirect(change, @ctx, Change.keys)}
+    config = {'bogus' => '/foo'}
+    assert_raises(ArgumentError){Config.redirect(config, @ctx, Config.keys)}
   end
 
   def test_redirect_with_resolve_host
-    change = {'resolve' => '//foo'}
-    assert_equal({'resolve' => '/foo'}, Change.redirect(change, @ctx, Change.keys))
+    config= {'resolve' => '//foo'}
+    assert_equal({'resolve' => '/foo'}, Config.redirect(config, @ctx, Config.keys))
   end
 
   def test_redirect_with_resolve
-    change = {'resolve' => '/foo'}
-    assert_equal({'resolve' => '/de/foo'}, Change.redirect(change, @ctx, Change.keys))
+    config = {'resolve' => '/foo'}
+    assert_equal({'resolve' => '/de/foo'}, Config.redirect(config, @ctx, Config.keys))
   end
 
   def test_redirect_with_edit_host
-    change = {'edit' => '//foo'}
-    assert_equal({'edit' => '/foo'}, Change.redirect(change, @ctx, Change.keys))
+    config = {'edit' => '//foo'}
+    assert_equal({'edit' => '/foo'}, Config.redirect(config, @ctx, Config.keys))
   end
 
   def test_redirect_with_edit
-    change = {'edit' => '/foo'}
-    assert_equal({'edit' => '/de/foo'}, Change.redirect(change, @ctx, Change.keys))
+    config = {'edit' => '/foo'}
+    assert_equal({'edit' => '/de/foo'}, Config.redirect(config, @ctx, Config.keys))
   end
 end
 

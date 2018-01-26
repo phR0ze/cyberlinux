@@ -1,6 +1,5 @@
-#!/usr/bin/env ruby
 #MIT License
-#Copyright (c) 2017 phR0ze
+#Copyright (c) 2017-2018 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -20,10 +19,30 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-require_relative 'test_core'
-require_relative 'test_fedit'
-require_relative 'test_config'
-require_relative 'test_reduce'
-require_relative 'test_sys'
-
-# vim: ft=ruby:ts=2:sw=2:sts=2
+layers:
+  - name: core
+    type: container
+    docker:
+      params: '-e TERM=xterm -v /var/run/docker.sock:/var/run/docker.sock'
+      command: 'bash -c "while :; do sleep 5; done"'
+    multilib: true
+    vars: { fontsize: 10 }
+    groups: [lp, wheel, network, storage, users]
+    vagrant: { vram: 32, cpus: 2, ram: 2048 }
+    boot:
+      - entry: "Install <%=distro%>-base        -minimal shell env"
+        kernel: /<%=distro%>/vmlinuz
+        initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=base_layers%> showopts vga=792
+      - entry: Hardware Detection Tool
+        label: hdt
+        kernel: hdt.c32
+        noboot: true
+      - entry: memory test
+        label: memtest
+        kernel: memtest
+        noboot: true
+    packages:
+      - { install: machine-core }
+      - { install: machine-tools }
+    configs:
+      - { apply: base-config }

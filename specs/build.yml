@@ -1,5 +1,5 @@
 #MIT License
-#Copyright (c) 2017 phR0ze
+#Copyright (c) 2017-2018 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.55
+  release: 0.1.81
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -47,169 +47,46 @@ build:
     - { install: dev-pkgs }
     - { install: initramfs-pkgs }
     - { install: isolinux-pkgs }
-  changes:
-    - { apply: base-config }
-    - { apply: remove-docs }
+  configs:
+
+    # Create and configure new build user
+    - { chroot: 'useradd -m -G lp,wheel,network,storage,users -s /bin/bash build || true' }
+    - { exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /home/build' }
+    - { edit: /etc/sudoers, append: true, value: "build ALL=(ALL) NOPASSWD: ALL" }
+
+    # Install pacman configuration files
+    - { exec: 'cp /<%=base_src%>/etc/pacman.conf /etc' }
+    - { exec: 'mkdir -p /etc/pacman.d' }
+    - { exec: 'cp /<%=base_src%>/etc/pacman.d/* /etc/pacman.d' }
+
+    - { apply: container-core-config }
+    - { apply: mkinitcpio-config }
+    - { apply: makepkg-config }
     - { apply: root-user-config }
-    - { apply: build-user-config }
     - { apply: pacman-config }
 
-layers:
+configs:
 
-  # Base
-  # ----------------------------------------------------------------------------
-  - name: base
-    type: machine
-    multilib: true
-    vars: { fontsize: 10 }
-    groups: [lp, wheel, network, storage, users]
-    vagrant: { vram: 32, cpus: 2, ram: 2048 }
-    boot:
-      - entry: "Install <%=distro%>-base        -minimal shell env"
-        kernel: /<%=distro%>/vmlinuz
-        initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=base_layers%> showopts vga=792
-      - entry: Hardware Detection Tool
-        label: hdt
-        kernel: hdt.c32
-        noboot: true
-      - entry: memory test
-        label: memtest
-        kernel: memtest
-        noboot: true
-    packages:
-      - { install: machine-core }
-      - { install: machine-tools }
-      - { install: virtualbox-guest-nox }
-
-    changes:
-      - { apply: base-config }
-
-  # Shell
-  # ----------------------------------------------------------------------------
-  - name: shell
-    type: machine
-    base: base
-    vagrant: { vram: 32, cpus: 2, ram: 2048 }
-    boot:
-      - entry: "Install <%=distro%>-shell        -base + full shell dev env"
-        kernel: /<%=distro%>/vmlinuz
-        initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=shell_layers%> showopts vga=792
-    packages:
-      - { install: shell-pkgs }
-    changes:
-      - { apply: shell-config }
-
-  # Lite
-  # ----------------------------------------------------------------------------
-  - name: lite
-    type: machine
-    base: shell
-    vars:
-      wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg
-    groups:
-      - video
-      - audio
-    vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
-    boot:
-      - entry: "Install <%=distro%>-lite           -shell + minimal X11 env"
-        kernel: /<%=distro%>/vmlinuz
-        initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=lite_layers%> showopts vga=792
-    packages:
-      - { install: lite-pkgs }
-    changes:
-      - { apply: lite-config }
-
-  # Server
-  # ----------------------------------------------------------------------------
-  - name: server
-    type: machine
-    base: lite
-    vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
-    boot:
-      - entry: "Install <%=distro%>-server     -lite + LAMP and services"
-        kernel: /<%=distro%>/vmlinuz
-        initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=server_layers%> showopts autologin=1 vga=792
-    packages:
-      - { install: server-pkgs }
-    changes:
-      - { apply: server-config }
-
-  # Heavy
-  # ----------------------------------------------------------------------------
-  - name: heavy
-    type: machine
-    base: lite
-    vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
-    boot:
-      - entry: "Install <%=distro%>-heavy      -lite + more apps"
-        kernel: /<%=distro%>/vmlinuz
-        initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=heavy_layers%> showopts vga=792
-    packages:
-      - { install: heavy-pkgs }
-    changes:
-      - { apply: heavy-config }
-
-  # K8snode
-  # ----------------------------------------------------------------------------
-  - name: k8snode
-    type: machine
-    base: shell
-    groups: [docker]
-    vagrant: { vram: 8, cpus: 2, ram: 2048 }
-    boot:
-      - entry: "Install <%=distro%>-k8snode  -shell + k8s node env."
-        kernel: /<%=distro%>/vmlinuz
-        initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=k8snode_layers%> showopts vga=792
-    packages:
-      - { install: k8snode-pkgs }
-    changes:
-      - { apply: k8snode-config }
-
-  # Theater
-  # ----------------------------------------------------------------------------
-  - name: theater
-    type: machine
-    base: heavy
-    vars: { fontsize: 18 }
-    vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
-    boot:
-      - entry: "Install <%=distro%>-theater    -heavy + media/kodi"
-        kernel: /<%=distro%>/vmlinuz
-        initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=theater_layers%> showopts vga=792
-
-  # Desktop
-  # ----------------------------------------------------------------------------
-  - name: desktop
-    type: machine
-    base: heavy
-    groups: [docker]
-    vars:
-      wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg
-    vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
-    boot:
-      - entry: "Install <%=distro%>-desktop   -heavy + dev/office"
-        kernel: /<%=distro%>/vmlinuz
-        initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=desktop_layers%> showopts vga=792
-    packages:
-      - { install: desktop-pkgs }
-    changes:
-      - { apply: desktop-config }
-
-  # Live
-  # ----------------------------------------------------------------------------
-  - name: live
-    type: machine
-    base: heavy
-    vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
-    boot:
-      - entry: "Start <%=distro%>-live            -live boot env."
-        kernel: /<%=distro%>/vmlinuz
-        initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=live_layers%> showopts vga=792
-
-changes:
-  base-config:
+  # Core configuration for any container
+  #-----------------------------------------------------------------------------
+  container-core-config:
     - { apply: hosts-config }
-    - { apply: fonts-config }
+    - { apply: locale-config }
+    - { apply: lsb-release-config }
+    - { apply: journald-config }
+    - { apply: os-release-config }
+    - { apply: proxy-config }
+    - { apply: resolved-config }
+    - { apply: sudo-vars-config }
+    - { apply: sysctld-config }
+    - { apply: user-dirs-config }
+    - { apply: vconsole-config }
+    - { apply: remove-container-waste }
+
+  # Core configuration for any machine
+  #-----------------------------------------------------------------------------
+  machine-core-config:
+    - { apply: hosts-config }
     - { apply: locale-config }
     - { apply: logind-config }
     - { apply: lsb-release-config }
@@ -228,6 +105,7 @@ changes:
     - { apply: timesyncd-config }
     - { apply: user-dirs-config }
     - { apply: vconsole-config }
+    - { apply: remove-machine-waste }
     - { chroot: systemctl enable sshd.service }
     - { chroot: systemctl enable systemd-networkd.service }
     - { chroot: systemctl enable systemd-networkd-wait-online.service }
@@ -238,6 +116,7 @@ changes:
     - { chroot: systemctl enable cronie.service }
   lite-config:
     - { apply: lxdm-config }
+    - { apply: fonts-config }
     - { apply: dconf-config }
     - { apply: gtk-config }
     - { apply: openbox-config }
@@ -257,11 +136,47 @@ changes:
     - { chroot: systemctl enable kubelet.service }
   server-config:
     - { apply: nfs-config }
+    - { apply: thunar-config }
     - { apply: apache-php-config }
-  build-user-config:
-    - { chroot: 'useradd -m -G lp,wheel,network,storage,users -s /bin/bash build || true' }
-    - { exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /home/build' }
-    - { edit: /etc/sudoers, append: true, value: "build ALL=(ALL) NOPASSWD: ALL" }
+    - { apply: server-menu-config }
+  theater-config:
+    - { apply: idesk-config }
+  server-menu-config:
+    - edit: /etc/skel/.config/openbox/menu.xml
+      append: before
+      regex: 'Bulk Rename'
+      values:
+        - '      <item label="Archive Manager" icon="/usr/share/icons/Paper/32x32/apps/file-roller.png"><action name="Execute"><execute>file-roller</execute></action></item>'
+    - edit: /etc/skel/.config/openbox/menu.xml
+      append: after
+      regex: 'Bulk Rename'
+      values:
+        - '      <item label="KeePass" icon="/usr/share/icons/hicolor/32x32/apps/keepass.png"><action name="Execute"><execute>keepass</execute></action></item>'
+    - edit: /etc/skel/.config/openbox/menu.xml
+      append: after
+      regex: 'Audacious'
+      values:
+        - '      <item label="HandBrake" icon="/usr/share/icons/hicolor/scalable/apps/hb-icon.svg"><action name="Execute"><execute>ghb</execute></action></item>'
+    - edit: /etc/skel/.config/openbox/menu.xml
+      append: after
+      regex: 'HandBrake'
+      values:
+        - '      <item label="MKVToolNix" icon="/usr/share/icons/hicolor/32x32/apps/mkvtoolnix-gui.png"><action name="Execute"><execute>mkvtoolnix-gui</execute></action></item>'
+    - edit: /etc/skel/.config/openbox/menu.xml
+      append: after
+      regex: 'SMPlayer'
+      values:
+        - '      <item label="Tiny Media Manager" icon="/usr/share/icons/hicolor/32x32/apps/tiny-media-manager.png"><action name="Execute"><execute>tiny-media-manager</execute></action></item>'
+    - edit: /etc/skel/.config/openbox/menu.xml
+      append: after
+      regex: 'FileZilla'
+      values:
+        - '      <item label="OpenVPN PIA" icon="/usr/share/icons/hicolor/32x32/apps/openvpn-pia.png"><action name="Execute"><execute>sudo openvpn-pia</execute></action></item>'
+    - edit: /etc/skel/.config/openbox/menu.xml
+      append: after
+      regex: 'OpenVPN PIA'
+      values:
+        - '      <item label="qBittorrent" icon="/usr/share/icons/hicolor/32x32/apps/qbittorrent.png"><action name="Execute"><execute>qbittorrent </execute></action></item>'
   apache-php-config:
     - { edit: /etc/httpd/conf/httpd.conf, regex: '^(Listen).*', value: '\1 80' }
     - { edit: /etc/httpd/conf/httpd.conf, regex: '^(DocumentRoot).*', value: '\1 /srv/http' }
@@ -527,7 +442,52 @@ changes:
         - '  <entry name="style" mtime="1476881725" type="string"><stringvalue>Inconsolata-g Medium 11</stringvalue></entry>'
         - '  <entry name="color" mtime="1476881725" type="string"><stringvalue>#D4D4D4D4D4D4</stringvalue></entry>'
         - '</gconf>'
+  idesk-config:
+    - edit: /etc/skel/.config/autostart/idesk.desktop
+      append: true
+      values:
+        - '[Desktop Entry]'
+        - 'Name=idesk'
+        - 'Comment=Desktop icons'
+        - 'Exec=idesk'
+        - 'Icon=idesk'
+        - 'Terminal=false'
+        - 'Type=Application'
+        - 'Categories=Utility;'
+    - edit: /etc/skel/.idesktop/audio-player.lnk
+      append: true
+      values:
+        - "table Icon\n  Icon: /usr/share/icons/hicolor/72x72/apps/audacious.png"
+        - "  X: 500\n  Y: 616\n  Command[0]: audacious\nend"
+    - edit: /etc/skel/.idesktop/browser.lnk
+      append: true
+      values:
+        - "table Icon\n  Icon: /usr/share/icons/hicolor/64x64/apps/chromium.png"
+        - "  X: 330\n  Y: 615\n  Command[0]: chromium\nend"
+    - edit: /etc/skel/.idesktop/pandora.lnk
+      append: true
+      values:
+        - "table Icon\n  Icon: /usr/share/icons/hicolor/72x72/apps/pandora.png"
+        - "  X: 330\n  Y: 615\n  Command[0]: chromium pandora.com\nend"
+    - edit: /etc/skel/.idesktop/reboot.lnk
+      append: true
+      values:
+        - "table Icon\n  Icon: /usr/share/icons/hicolor/72x72/actions/system-reboot.png"
+        - "  X: 88\n  Y: 615\n  Command[0]: sudo reboot\nend"
+    - edit: /etc/skel/.idesktop/shutdown.lnk
+      append: true
+      values:
+        - "table Icon\n  Icon: /usr/share/icons/hicolor/72x72/actions/system-shutdown.png"
+        - "  X: 8\n  Y: 615\n  Command[0]: sudo poweroff\nend"
+    - edit: /etc/skel/.idesktop/video-player.lnk
+      append: true
+      values:
+        - "table Icon\n  Icon: /usr/share/icons/hicolor/64x64/apps/smplayer.png"
+        - "  X: 88\n  Y: 615\n  Command[0]: smplayer\nend"
   journald-config:
+    # Avoid "Failed to start Create Volatile Files and Directories"
+    - { exec: 'rm -rf /var/log/journal' }
+    # Restrict journal disk size to avoid hogging the system
     - { edit: /etc/systemd/journald.conf, regex: '^#(SystemMaxUse).*', value: '\1=100M' }
   locale-config:
     - edit: /etc/locale.conf
@@ -587,6 +547,33 @@ changes:
         - 'fi'
         - 'xrandr --output $display --mode $resolution'
         - '(sleep 1s && xset s off -dpms) &                # Disable DPMS and prevent screen blanking'
+  makemkv-config:
+    - edit: /etc/skel/.config/openbox/menu.xml
+      append: after
+      regex: 'HandBrake'
+      values:
+        - '#!/bin/sh'
+
+        - '      <item label="MakeMKV" icon="/usr/share/icons/hicolor/32x32/apps/makemkv.png"><action name="Execute"><execute>makemkv</execute></action></item>'
+  teamviewer-config:
+    - edit: /etc/skel/.config/openbox/menu.xml
+      append: before
+      regex: 'Zenmap'
+      values:
+        - '      <item label="Teamviewer" icon="/usr/share/icons/Paper/32x32/apps/teamviewer.png"><action name="Execute"><execute>teamviewer</execute></action></item>'
+    - edit: /etc/skel/.config/autostart/teamviewer.desktop
+      append: true
+      values:
+        - '[Desktop Entry]'
+        - 'Name=Teamviewer'
+        - 'Comment=Remote control and meeting solution'
+        - 'Exec=teamviewer'
+        - 'Icon=teamviewer'
+        - 'Terminal=false'
+        - 'StartupNotify=true'
+        - 'Type=Application'
+        - 'Categories=Network;'
+    - { chroot: systemctl enable teamviewerd.service }
   makepkg-config:
     - { edit: /etc/makepkg.conf, regex: '^#(MAKEFLAGS)=.*', value: '\1="-j8"' }
     - { edit: /etc/makepkg.conf, regex: '^(COMPRESSXZ)=.*', value: '\1=(xz -c -z - --threads=0)' }
@@ -721,6 +708,19 @@ changes:
     - { edit: /etc/skel/.config/plank/dock1/launchers/filezilla.dockitem, append: true, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/filezilla.desktop"]}
     - { edit: /etc/skel/.config/plank/dock1/launchers/chromium.dockitem, append: true, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/chromium.desktop"]}
     - { chroot: dconf update }
+  openvpn-pia-config:
+    - edit: /etc/skel/.config/autostart/openvpn-pia.desktop
+      append: true
+      values:
+        - '[Desktop Entry]'
+        - 'Name=OpenVPN PIA'
+        - 'Comment=Private Internet Access OpenVPN automation and UI'
+        - 'Exec=sudo openvpn-pia'
+        - 'Icon=openvpn-pia'
+        - 'Terminal=false'
+        - 'StartupNotify=true'
+        - 'Type=Application'
+        - 'Categories=Network;'
   os-release-config:
     - { exec: 'rm -f /etc/os-release' }
     - edit: /etc/os-release
@@ -756,8 +756,17 @@ changes:
         - 'fi'
         - "\n# PROXY_SETTINGS_MARKER"
     - { exec: chmod +x /usr/bin/setproxy }
-  remove-docs:
+  remove-container-waste:
+    - { exec: 'find /var/log -type f -delete' }
     - { exec: 'rm -rf /usr/share/{man,doc}' }
+    - { exec: 'rm -rf /etc/pacman.d/mirrorlist' }
+    - { exec: 'rm -rf /var/tmp/*' }
+    - { exec: 'rm -rf /tmp/*' }
+  remove-machine-waste:
+    - { exec: 'find /var/log -type f -delete' }
+    - { exec: 'rm -rf /etc/pacman.d/mirrorlist' }
+    - { exec: 'rm -rf /var/tmp/*' }
+    - { exec: 'rm -rf /tmp/*' }
   resolved-config:
     - { exec: ln -sf //run/systemd/resolve/resolv.conf /etc/resolv.conf }
   root-user-config:
@@ -788,6 +797,20 @@ changes:
         - '    LINUX ../vmlinuz-linux'
         - '    APPEND root=LABEL=root rw ipv6.disable=1 vga=791'
         - '    INITRD ../initramfs-linux.img'
+  thunar-config:
+    - edit: /etc/skel/.config/autostart/thunar.desktop
+      append: true
+      values:
+        - '[Desktop Entry]'
+        - 'Name=Thunar File Manager'
+        - 'Comment=Browse the filesystem with the file manager'
+        - 'GenericName=File Manager'
+        - 'Exec=thunar --daemon'
+        - 'Icon=Thunar'
+        - 'Terminal=false'
+        - 'StartupNotify=true'
+        - 'Type=Application'
+        - 'Categories=System;Utility;Core;GTK;FileTools;FileManager;'
   timesyncd-config:
     - { exec: 'rm -f /etc/systemd/timesyncd.conf' }
     - edit: /etc/systemd/timesyncd.conf
@@ -944,7 +967,7 @@ packages:
     - { pkg: usbutils,                      desc: USB device utilities including lsusb }
 
     # Drivers
-    - { pkg: e1000e-dkms,                   desc: Intel e1000e Ethernet adapter driver, type: CYBERLINUX }
+    #- { pkg: e1000e-dkms,                   desc: Intel e1000e Ethernet adapter driver, type: CYBERLINUX }
 
     # Packaging
     - { pkg: pkgfile,                       desc: A pacman files and metadata explorer }
@@ -1030,8 +1053,8 @@ packages:
     - { pkg: ruby-net-scp,                  desc: Pure Ruby implementation of SCP client protocol, depof: reduce, type: CYBERLINUX }
     - { pkg: ruby-net-sftp,                 desc: Pure Ruby implementation of SFTP client protocol, depof: reduce, type: CYBERLINUX }
     - { pkg: ruby-net-ssh,                  desc: Pure Ruby implementation of SSH2 client protocol, depof: reduce, type: CYBERLINUX }
-    - { pkg: ruby-nokogiri,                 desc: HTML parser with XPath and CSS3 selectors, depof: chromium build}
-    - { pkg: ruby-mechanize,                desc: Automate interation with websites, depof: chromium build }
+    - { pkg: ruby-nokogiri,                 desc: HTML parser with XPath and CSS3 selectors, depof: chromium build, type: CYBERLINUX }
+    - { pkg: ruby-mechanize,                desc: Automate interation with websites, depof: chromium build, type: CYBERLINUX }
     - { pkg: ruby-pry,                      desc: Ruby debugger, type: CYBERLINUX }
     - { pkg: ruby-pry-nav,                  desc: Primitive debugging step and next commands for pry, type: CYBERLINUX }
     - { pkg: ruby-rest-client,              desc: Simple HTTP and REST client, depof: reduce, type: CYBERLINUX }
@@ -1112,7 +1135,6 @@ packages:
 
   heavy-pkgs:
     - { install: media-pkgs }
-    - { install: file-sharing }
     - { install: remote-desktop }
     - { pkg: asunder,                       desc: A lean and friendly audio CD ripper and encoder }
     - { pkg: audacity,                      desc: Audio editor - cross platform, tried and tested }
@@ -1179,15 +1201,15 @@ packages:
   server-pkgs:
     - { install: apache-php }
     - { install: media-pkgs }
-    - { install: file-sharing }
     - { pkg: asterisk,                      desc: Free opensource telephony engine tuned for Google Voice }
     - { pkg: keepass,                       desc: Cross platform password manager }
     - { pkg: file-roller,                   desc: System/Compression integrates well in Thunar }
+    - { pkg: qbittorrent,                   desc: Network/Bittorent, alt: deluge }
+    - { pkg: openvpn-pia,                   desc: OpenVPN system tray with PIA integration, type: CYBERLINUX }
 
   media-pkgs:
     - { pkg: handbrake,                     desc: Video/Encoding - Video encoding tool for mp4/mkv }
     - { pkg: handbrake-cli,                 desc: Video/Encoding - Video encoding tool for mp4/mkv }
-    - { pkg: makemkv,                       desc: DVD and Blu-ray to MKV converter, type: CYBERLINUX }
     - { pkg: mkvtoolnix-gui,                desc: Set of tools to create, edit and inspect MKV files }
     - { pkg: tiny-media-manager,            desc: Cross platform media manager, type: CYBERLINUX }
 
@@ -1198,10 +1220,6 @@ packages:
   remote-desktop:
     - { pkg: freerdp,                       desc: RDP client plugin for remmina }
     - { pkg: remmina,                       desc: Network/Remoting - Nice remoting UI for RDP }
-
-  file-sharing:
-    - { pkg: qbittorrent,                   desc: Network/Bittorent, alt: deluge }
-    - { pkg: openvpn-pia,                   desc: OpenVPN system tray with PIA integration, type: CYBERLINUX }
 
   apache-php:
     - { pkg: apache,                        desc: Apache web server, deb: phpBB }
@@ -1217,6 +1235,24 @@ packages:
     - { pkg: shadow,                        desc: Account mgmt passwd/usermod/groupadd, depof: util-linux }
     - { pkg: util-linux,                    desc: Utilities blkid/fdisk/rename/cp etc..., depof: php-gd }
     - { pkg: xz,                            desc: Compression util for xz format, depof: php-gd }
+
+  # Personal Use
+  # packages in this section have various restrictions and can not be used
+  # for commercial purposes.
+  #-----------------------------------------------------------------------------
+  personal-use-pkgs:
+
+    # MakeMKV is free while in beta but is a commercial product required a license normally
+    # https://www.makemkv.com/forum2/viewtopic.php?f=5&t=1053
+    - { pkg: makemkv,                       desc: DVD and Blu-ray to MKV converter, type: CYBERLINUX }
+
+    # Teamviwer is free to use for personal use
+    # https://www.teamviewer.com/en/credentials/free-for-personal-use/
+    - { pkg: teamviewer,                    desc: All-In-One Software for Remote Support and Online Meetings, type: CYBERLINUX }
+
+    # The Extension Pack binaries are released under the VirtualBox Personal Use and Evaluation License (PUEL).
+    # https://www.virtualbox.org/wiki/Downloads
+    - { pkg: virtualbox-ext-oracle,         desc: Oracle VM VirtualBox Extension Pack, type: CYBERLINUX }
 
   # Virtualization packages
   #-----------------------------------------------------------------------------

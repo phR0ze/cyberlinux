@@ -1,6 +1,0 @@
-table Icon
-  Icon: /usr/share/icons/hicolor/72x72/apps/pandora.png
-  X: 330
-  Y: 615
-  Command[0]: chromium pandora.com
-end
