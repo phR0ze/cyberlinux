@@ -835,6 +835,7 @@ class Reduce
   def installpkgs(layer, layer_yml, layer_work)
     msg = "Installing packages for '#{layer}'..."
     pkgfile = File.join(layer_work, 'packages')
+    layer_deps = getlayers(layer)[1..-1]
 
     # Handle packages differently based on type
     #---------------------------------------------------------------------------
@@ -865,6 +866,9 @@ class Reduce
       # pacstrap replacement
       if pkgs[:conflict].any? or pkgs[:reg].any?
         begin
+          # Clear out installed packages if there are no dependencies
+          rm_rf(File.join(@pacman_path, 'local/*')) if !layer_deps.any?
+          rm_rf(File.join(@pacman_path, 'pacman.log')) if !layer_deps.any?
 
           # Prepare pacman for use
           if !File.exist?(@pacman_conf)
@@ -899,12 +903,14 @@ class Reduce
             !puts("Error: Failed to install packages correctly".colorize(:red)) and
               exit unless Sys.exec(cmd, env:@proxyenv)
           end
+
+          # Ensure layer's local package database is accurate
+          layer_db_path = File.join(layer_work, 'var/lib/pacman/local')
+          rm_rf(layer_db_path)
+          FileUtils.mkdir_p(layer_db_path)
+          Sys.exec("cp -a #{File.join(@pacman_path, 'local/*')} #{layer_db_path}")
         ensure
           Sys.umount(File.join(layer_work, 'dev'), retries: 10)
-
-          # Clean up pacman
-          rm_rf(File.join(@pacman_path, 'local'))
-          rm_rf(File.join(@pacman_path, 'pacman.log'))
         end
       end
 
