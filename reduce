@@ -200,7 +200,7 @@ class Reduce
     FileUtils.mkdir_p(@isopath)
     FileUtils.mkdir_p(@isoimagesdst)
 
-    Fileutils.mkdir_p(@layers_work)
+    FileUtils.mkdir_p(@layers_work)
     FileUtils.mkdir_p(@initramfs_work)
     FileUtils.mkdir_p(@isolinux_work)
     FileUtils.mkdir_p(@isolinux_dst)
