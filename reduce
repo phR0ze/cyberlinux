@@ -127,6 +127,7 @@ class Reduce
     @layers_work = File.join(@workpath, 'layers')
     @vagrantpath = File.join(@rootpath, 'vagrant')
 
+    @pacman_conf = File.join(@pacman_path, 'pacman.conf')
     @pacman_src_conf = File.join(@layers_src, 'base/etc/pacman.conf')
     @pacman_src_mirrors = File.join(@layers_src, 'base/etc/pacman.d/*.mirrorlist')
     @isoimagesdst = File.join(@isopath, @vars.distro.downcase)
@@ -256,6 +257,7 @@ class Reduce
   end
 
   # Clean components as directed
+  # @param pacman [bool] clean pacman component
   # @param initramfs [bool] clean initramfs component
   # @param isolinux [bool] clean isolinux component
   # @param layers [bool] clean given layers
@@ -263,9 +265,9 @@ class Reduce
   # @param vms [bool] clean vms
   # @param all [bool] clean all components
   # @param isofull [bool] clean iso image including all machine layers
-  def clean(initramfs:nil, isolinux:nil, layers:nil, iso:nil, vms:nil, all:nil, isofull:nil)
+  def clean(pacman:nil, initramfs:nil, isolinux:nil, layers:nil, iso:nil, vms:nil, all:nil, isofull:nil)
     !puts("Error: no clean options specified".colorize(:red)) and
-      exit unless [initramfs, isolinux, layers, iso, vms, all, isofull].any?
+      exit unless [pacman, initramfs, isolinux, layers, iso, vms, all, isofull].any?
     !puts("Error: must be executed as root".colorize(:red)) and
       exit unless Process.uid.zero?
 
@@ -313,6 +315,13 @@ class Reduce
         }
         evalimages!(@type.tgz, layer:layer, live:true, force:true)
       }
+    end
+
+    # Clean pacman
+    if pacman or all
+      puts("Cleaning pacman...".colorize(:cyan))
+      puts("Deleting #{@pacman_path}".colorize(:red)) if Dir.exist?(@pacman_path)
+      Sys.rm_rf(@pacman_path)
     end
 
     # Clean iso path
@@ -818,6 +827,37 @@ class Reduce
     return changed
   end
 
+  # Update pacman for use separate from the host
+  # Creates configuration, seeds keys and updates databases
+  def update_pacman
+
+    # Prepare pacman for use
+    if !File.exist?(@pacman_conf)
+
+      # Configure pacmaan
+      Sys.exec("cp -a #{@pacman_src_conf} #{@pacman_path}")
+      Sys.exec("cp -a #{@pacman_src_mirrors} #{@pacman_path}")
+      Fedit.replace(@pacman_conf, /(Architecture = ).*/, "\\1#{@vars.arch}")
+      Fedit.replace(@pacman_conf, /#(DBPath\s+= ).*/, "\\1#{@pacman_path}")
+      Fedit.replace(@pacman_conf, /#(CacheDir\s+= ).*/, "\\1#{File.join(@pacman_path, 'cache')}")
+      Fedit.replace(@pacman_conf, /#(LogFile\s+= ).*/, "\\1#{File.join(@pacman_path, 'pacman.log')}")
+      Fedit.replace(@pacman_conf, /#(GPGDir\s+= ).*/, "\\1#{File.join(@pacman_path, 'gnupg')}")
+      Fedit.replace(@pacman_conf, /#(HookDir\s+= ).*/, "\\1#{File.join(@pacman_path, 'hooks')}")
+      Fedit.replace(@pacman_conf, /.*(\/.*mirrorlist).*/, "Include = #{@pacman_path}\\1")
+
+      # Populate pacman keys
+      repos = Dir[File.join(@pacman_path, "*.mirrorlist")].map{|x| File.basename(x, '.mirrorlist')}
+      Sys.exec("pacman-key --config #{@pacman_conf} --init")
+      Sys.exec("pacman-key --config #{@pacman_conf} --populate #{repos * ' '}")
+    end
+
+    # Update pacman databases
+    #Sys.exec("pacman --config #{@pacman_conf} -Sy")
+    exit
+    #rm_rf(File.join(@pacman_path, 'var/lib/pacman/sync/*.sig'))
+
+  end
+
   # Install packages for the given layer
   # @param layer [string] layer name to work with
   # @param layer_yml [yml] layer yaml to work with
@@ -856,24 +896,7 @@ class Reduce
       # pacstrap replacement
       if pkgs[:conflict].any? or pkgs[:reg].any?
         begin
-
-          # Prepare pacman configs
-          pacman_conf = File.join(@pacman_path, 'pacman.conf')
-          Sys.exec("cp -a #{@pacman_src_conf} #{@pacman_path}")
-          Sys.exec("cp -a #{@pacman_src_mirrors} #{@pacman_path}")
-          Fedit.replace(pacman_conf, /(Architecture = ).*/, "\\1#{@vars.arch}")
-          Fedit.replace(pacman_conf, /#(CacheDir\s+= ).*/, "\\1#{File.join(@pacman_path, 'pkg')}")
-          Fedit.replace(pacman_conf, /#(LogFile\s+= ).*/, "\\1#{File.join(@pacman_path, 'pacman.log')}")
-          Fedit.replace(pacman_conf, /#(GPGDir\s+= ).*/, "\\1#{File.join(@pacman_path, 'gnupg')}")
-          Fedit.replace(pacman_conf, /#(HookDir\s+= ).*/, "\\1#{File.join(@pacman_path, 'hooks')}")
-          Fedit.replace(pacman_conf, /.*(\/.*mirrorlist).*/, "Include = #{@pacman_path}\\1")
-          exit
-
-          # Copy over pacman databases from host system to avoid constant updates
-          Sys.exec("pacman -Sy")
-          Sys.exec("mkdir -m 0755 -p #{File.join(layer_work, 'var/lib/pacman')}")
-          Sys.exec("cp -a /var/lib/pacman/sync #{File.join(layer_work, 'var/lib/pacman')}")
-          rm_rf(File.join(layer_work, 'var/lib/pacman/sync/*.sig'))
+          update_pacman
 
           # Remove these packages first
           if pkgs[:conflict].any?
@@ -886,31 +909,32 @@ class Reduce
           # Install normal packages
           if pkgs[:reg].any?
             puts("Installing regular packages for '#{layer}'...".colorize(:cyan))
-            cmd = ['pacstrap', '-GMcd', layer_work, '--config', @pacman_conf, '--needed', *pkgs[:reg]]
+            cmd = ['pacstrap', '-GMcd', layer_work, '--config', pacman_conf, '--needed', *pkgs[:reg]]
             cmd += ['--ignore', pkgs[:ignore] * ','] if pkgs[:ignore].any?
             !puts("Error: Failed to install packages correctly".colorize(:red)) and
               exit unless Sys.exec(cmd, env:@proxyenv)
           end
+
         ensure
           Sys.umount(File.join(layer_work, 'dev'), retries: 10)
         end
       end
 
-      # Clean up left artifacts from installs to leave prestine layer
-      puts("Cleaning up artifacts that may be left over from installs".colorize(:cyan))
-      Sys.exec("find #{layer_work} -name *.pacnew -name *.pacsave -name *.pacorig -delete")
-
-      # Remove pacman transient data
-      Sys.exec("find #{File.join(layer_work, 'var/lib/pacman')} -maxdepth 1 -type f -delete")
-      rm_rf(File.join(layer_work, 'var/lib/pacman/sync/*'))
-
-      # Remove all files from logging or packaging but leave empty dirs
-      Sys.exec("find #{File.join(layer_work, 'var/log')} -type f -delete")
-      Sys.exec("find #{File.join(layer_work, 'var/cache/pacman/pkg')} -type f -delete")
-
-      # Remove pacman GnuPG keys for a fresh start
-      rm_rf(File.join(layer_work, 'etc/pacman.d/gnupg'))
-
+#      # Clean up left artifacts from installs to leave prestine layer
+#      puts("Cleaning up artifacts that may be left over from installs".colorize(:cyan))
+#      Sys.exec("find #{layer_work} -name *.pacnew -name *.pacsave -name *.pacorig -delete")
+#
+#      # Remove pacman transient data
+#      Sys.exec("find #{File.join(layer_work, 'var/lib/pacman')} -maxdepth 1 -type f -delete")
+#      rm_rf(File.join(layer_work, 'var/lib/pacman/sync/*'))
+#
+#      # Remove all files from logging or packaging but leave empty dirs
+#      Sys.exec("find #{File.join(layer_work, 'var/log')} -type f -delete")
+#      Sys.exec("find #{File.join(layer_work, 'var/cache/pacman/pkg')} -type f -delete")
+#
+#      # Remove pacman GnuPG keys for a fresh start
+#      rm_rf(File.join(layer_work, 'etc/pacman.d/gnupg'))
+#
       # Remove all temporary files and dirs
       rm_rf(File.join(layer_work, 'var/tmp/*'))
       rm_rf(File.join(layer_work, 'tmp/*'))
@@ -1232,6 +1256,7 @@ if __FILE__ == $0
   ])
   opts.add('clean', 'Clean ISO components', [
     CmdOpt.new('--all', 'Clean all components'),
+    CmdOpt.new('--pacman', 'Clean pacman cache'),
     CmdOpt.new('--initramfs', 'Clean initramfs image'),
     CmdOpt.new('--isolinux', 'Clean isolinux boot'),
     CmdOpt.new('--layers=x,y,z', 'Clean given layers', type:Array),
@@ -1275,7 +1300,7 @@ if __FILE__ == $0
   reduce.list(boxes: opts[:boxes], isos: opts[:isos], images: opts[:images], all: opts[:all]) if opts[:list]
 
   # Execute 'clean' command
-  reduce.clean(initramfs: opts[:initramfs], isolinux: opts[:isolinux],
+  reduce.clean(pacman: opts[:pacman], initramfs: opts[:initramfs], isolinux: opts[:isolinux],
     layers: opts[:layers], iso: opts[:iso], vms: opts[:vms], all: opts[:all],
     isofull: opts[:isofull]) if opts[:clean]
 
