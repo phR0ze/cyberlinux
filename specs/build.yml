@@ -1,5 +1,5 @@
 #MIT License
-#Copyright (c) 2018 phR0ze
+#Copyright (c) 2017-2018 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.67
+  release: 0.1.68
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -105,7 +105,45 @@ configs:
     - { chroot: systemctl enable kubelet.service }
   server-config:
     - { apply: nfs-config }
+    - { apply: thunar-config }
     - { apply: apache-php-config }
+    - { apply: server-menu-config }
+  server-menu-config:
+    - edit: /etc/skel/.config/openbox/menu.xml
+      append: before
+      regex: 'Bulk Rename'
+      values:
+        - '      <item label="Archive Manager" icon="/usr/share/icons/Paper/32x32/apps/file-roller.png"><action name="Execute"><execute>file-roller</execute></action></item>'
+    - edit: /etc/skel/.config/openbox/menu.xml
+      append: after
+      regex: 'Bulk Rename'
+      values:
+        - '      <item label="KeePass" icon="/usr/share/icons/hicolor/32x32/apps/keepass.png"><action name="Execute"><execute>keepass</execute></action></item>'
+    - edit: /etc/skel/.config/openbox/menu.xml
+      append: after
+      regex: 'Audacious'
+      values:
+        - '      <item label="HandBrake" icon="/usr/share/icons/hicolor/scalable/apps/hb-icon.svg"><action name="Execute"><execute>ghb</execute></action></item>'
+    - edit: /etc/skel/.config/openbox/menu.xml
+      append: after
+      regex: 'HandBrake'
+      values:
+        - '      <item label="MKVToolNix" icon="/usr/share/icons/hicolor/32x32/apps/mkvtoolnix-gui.png"><action name="Execute"><execute>mkvtoolnix-gui</execute></action></item>'
+    - edit: /etc/skel/.config/openbox/menu.xml
+      append: after
+      regex: 'SMPlayer'
+      values:
+        - '      <item label="Tiny Media Manager" icon="/usr/share/icons/hicolor/32x32/apps/tiny-media-manager.png"><action name="Execute"><execute>tiny-media-manager</execute></action></item>'
+    - edit: /etc/skel/.config/openbox/menu.xml
+      append: after
+      regex: 'FileZilla'
+      values:
+        - '      <item label="OpenVPN PIA" icon="/usr/share/icons/hicolor/32x32/apps/openvpn-pia.png"><action name="Execute"><execute>sudo openvpn-pia</execute></action></item>'
+    - edit: /etc/skel/.config/openbox/menu.xml
+      append: after
+      regex: 'OpenVPN PIA'
+      values:
+        - '      <item label="qBittorrent" icon="/usr/share/icons/hicolor/32x32/apps/qbittorrent.png"><action name="Execute"><execute>qbittorrent </execute></action></item>'
   build-user-config:
     - { chroot: 'useradd -m -G lp,wheel,network,storage,users -s /bin/bash build || true' }
     - { exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /home/build' }
@@ -435,6 +473,33 @@ configs:
         - 'fi'
         - 'xrandr --output $display --mode $resolution'
         - '(sleep 1s && xset s off -dpms) &                # Disable DPMS and prevent screen blanking'
+  makemkv-config:
+    - edit: /etc/skel/.config/openbox/menu.xml
+      append: after
+      regex: 'HandBrake'
+      values:
+        - '#!/bin/sh'
+
+        - '      <item label="MakeMKV" icon="/usr/share/icons/hicolor/32x32/apps/makemkv.png"><action name="Execute"><execute>makemkv</execute></action></item>'
+  teamviewer-config:
+    - edit: /etc/skel/.config/openbox/menu.xml
+      append: before
+      regex: 'Zenmap'
+      values:
+        - '      <item label="Teamviewer" icon="/usr/share/icons/Paper/32x32/apps/teamviewer.png"><action name="Execute"><execute>teamviewer</execute></action></item>'
+    - edit: /etc/skel/.config/autostart/teamviewer.desktop
+      append: true
+      values:
+        - '[Desktop Entry]'
+        - 'Name=Teamviewer'
+        - 'Comment=Remote control and meeting solution'
+        - 'Exec=teamviewer'
+        - 'Icon=teamviewer'
+        - 'Terminal=false'
+        - 'StartupNotify=true'
+        - 'Type=Application'
+        - 'Categories=Network;'
+    - { chroot: systemctl enable teamviewerd.service }
   makepkg-config:
     - { edit: /etc/makepkg.conf, regex: '^#(MAKEFLAGS)=.*', value: '\1="-j8"' }
     - { edit: /etc/makepkg.conf, regex: '^(COMPRESSXZ)=.*', value: '\1=(xz -c -z - --threads=0)' }
@@ -569,6 +634,19 @@ configs:
     - { edit: /etc/skel/.config/plank/dock1/launchers/filezilla.dockitem, append: true, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/filezilla.desktop"]}
     - { edit: /etc/skel/.config/plank/dock1/launchers/chromium.dockitem, append: true, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/chromium.desktop"]}
     - { chroot: dconf update }
+  openvpn-pia-config:
+    - edit: /etc/skel/.config/autostart/openvpn-pia.desktop
+      append: true
+      values:
+        - '[Desktop Entry]'
+        - 'Name=OpenVPN PIA'
+        - 'Comment=Private Internet Access OpenVPN automation and UI'
+        - 'Exec=sudo openvpn-pia'
+        - 'Icon=openvpn-pia'
+        - 'Terminal=false'
+        - 'StartupNotify=true'
+        - 'Type=Application'
+        - 'Categories=Network;'
   os-release-config:
     - { exec: 'rm -f /etc/os-release' }
     - edit: /etc/os-release
@@ -636,6 +714,20 @@ configs:
         - '    LINUX ../vmlinuz-linux'
         - '    APPEND root=LABEL=root rw ipv6.disable=1 vga=791'
         - '    INITRD ../initramfs-linux.img'
+  thunar-config:
+    - edit: /etc/skel/.config/autostart/thunar.desktop
+      append: true
+      values:
+        - '[Desktop Entry]'
+        - 'Name=Thunar File Manager'
+        - 'Comment=Browse the filesystem with the file manager'
+        - 'GenericName=File Manager'
+        - 'Exec=thunar --daemon'
+        - 'Icon=Thunar'
+        - 'Terminal=false'
+        - 'StartupNotify=true'
+        - 'Type=Application'
+        - 'Categories=System;Utility;Core;GTK;FileTools;FileManager;'
   timesyncd-config:
     - { exec: 'rm -f /etc/systemd/timesyncd.conf' }
     - edit: /etc/systemd/timesyncd.conf
@@ -960,7 +1052,6 @@ packages:
 
   heavy-pkgs:
     - { install: media-pkgs }
-    - { install: file-sharing }
     - { install: remote-desktop }
     - { pkg: asunder,                       desc: A lean and friendly audio CD ripper and encoder }
     - { pkg: audacity,                      desc: Audio editor - cross platform, tried and tested }
@@ -1027,10 +1118,11 @@ packages:
   server-pkgs:
     - { install: apache-php }
     - { install: media-pkgs }
-    - { install: file-sharing }
     - { pkg: asterisk,                      desc: Free opensource telephony engine tuned for Google Voice }
     - { pkg: keepass,                       desc: Cross platform password manager }
     - { pkg: file-roller,                   desc: System/Compression integrates well in Thunar }
+    - { pkg: qbittorrent,                   desc: Network/Bittorent, alt: deluge }
+    - { pkg: openvpn-pia,                   desc: OpenVPN system tray with PIA integration, type: CYBERLINUX }
 
   media-pkgs:
     - { pkg: handbrake,                     desc: Video/Encoding - Video encoding tool for mp4/mkv }
@@ -1045,10 +1137,6 @@ packages:
   remote-desktop:
     - { pkg: freerdp,                       desc: RDP client plugin for remmina }
     - { pkg: remmina,                       desc: Network/Remoting - Nice remoting UI for RDP }
-
-  file-sharing:
-    - { pkg: qbittorrent,                   desc: Network/Bittorent, alt: deluge }
-    - { pkg: openvpn-pia,                   desc: OpenVPN system tray with PIA integration, type: CYBERLINUX }
 
   apache-php:
     - { pkg: apache,                        desc: Apache web server, deb: phpBB }
