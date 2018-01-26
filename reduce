@@ -911,7 +911,8 @@ class Reduce
           end
 
           # Save off syncd databases for reuse to avoid constantly downloading them
-          Sys.exec("mv #{File.join(layer_work, 'var/lib/pacman/sync/*')} #{@pacman_sync}")
+          op = layer_deps.any? ? "cp -a" : "mv"
+          Sys.exec("#{op} #{File.join(layer_work, 'var/lib/pacman/sync/*')} #{@pacman_sync}")
         ensure
           Sys.umount(File.join(layer_work, 'dev'), retries: 10)
         end
