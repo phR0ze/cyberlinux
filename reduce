@@ -163,11 +163,6 @@ class Reduce
 
     # Configure variables
     @vars.label = "#{@vars.distro.upcase}_#{@vars.release.gsub('.', '')}"
-    #@spec[@k.layers].select{|x| x[@k.type] == @k.machine}
-    #  .each{|x| @vars["#{x[@k.name]}_layers"] = getlayers(x[@k.name]) * ','}
-    #@spec[@k.layers].each{|x| @vars["#{x[@k.name]}_src"] = File.join(@layers_src, x[@k.name])}
-    #@vars.groups = @spec[@k.layers].select{|x| x[@k.type] == @k.machine}
-    #  .map{|x| x[@k.groups] if x[@k.groups]}.compact.uniq * ','
   end
 
   # Load and return the given spec
@@ -181,6 +176,13 @@ class Reduce
 
       # Merge with existing spec
       spec.each{|k,v| @spec[k] = v}
+
+      # Set layer variables as needed
+      @spec[@k.layers].select{|x| x[@k.type] == @k.machine}
+        .each{|x| @vars["#{x[@k.name]}_layers"] = getlayers(x[@k.name]) * ','}
+      @spec[@k.layers].each{|x| @vars["#{x[@k.name]}_src"] = File.join(@layers_src, x[@k.name])}
+      @vars.groups = @spec[@k.layers].select{|x| x[@k.type] == @k.machine}
+        .map{|x| x[@k.groups] if x[@k.groups]}.compact.uniq * ','
     rescue Exception => e
       puts("Error: invalid yaml in '#{spec_path}'".colorize(:red))
       puts(e.to_s.colorize(:red))
@@ -198,6 +200,7 @@ class Reduce
     FileUtils.mkdir_p(@isopath)
     FileUtils.mkdir_p(@isoimagesdst)
 
+    Fileutils.mkdir_p(@layers_work)
     FileUtils.mkdir_p(@initramfs_work)
     FileUtils.mkdir_p(@isolinux_work)
     FileUtils.mkdir_p(@isolinux_dst)
@@ -756,7 +759,7 @@ class Reduce
       layer_changed = false
       layer_deps = getlayers(layer)[1..-1]
       layer_src = File.join(@layers_src, layer)
-      layer_work = FileUtils.mkdir_p(File.join(@workpath, layer)).shift
+      layer_work = FileUtils.mkdir_p(File.join(@layers_work, layer)).shift
       layer_digests = File.join(layer_work, 'digests')
       layer_yml = getlayer(layer)
       layer_image = layer_yml[@k.type] == @k.machine ? File.join(@isoimagesdst, "#{layer}.sqfs") :
@@ -769,7 +772,7 @@ class Reduce
         if layer_deps.any?
           puts("Mount layer dependencies #{layer_deps} for layer '#{layer}'".colorize(:cyan))
           Sys.exec("mount -t overlay -o lowerdir=%s,upperdir=%s,workdir=%s none %s" %
-            [layer_deps.map{|x| File.join(@workpath, x)} * ':', layer_work, @tmp_dir, layer_work])
+            [layer_deps.map{|x| File.join(@layers_work, x)} * ':', layer_work, @tmp_dir, layer_work])
         end
 
         # Install layer specific packages via pacman
