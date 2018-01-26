@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 #MIT License
-#Copyright (c) 2017 phR0ze
+#Copyright (c) 2017-2018 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -30,6 +30,7 @@ class TestGetLayers < Minitest::Test
   def setup
     @reduce ||= Reduce.new
     @k = @reduce.instance_variable_get(:@k)
+    @reduce.load_spec('personal')
   end
 
   def test_getlayers_with_bad_layer_name
@@ -60,6 +61,7 @@ class TestGetLayer < Minitest::Test
   def setup
     @reduce ||= Reduce.new
     @k = @reduce.instance_variable_get(:@k)
+    @reduce.load_spec('personal')
   end
 
   def test_getlayer_with_bad_layer_name
