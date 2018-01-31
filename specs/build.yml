@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.83
+  release: 0.1.84
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1279,10 +1279,11 @@ packages:
     - { pkg: vagrant,                       desc: Build and distribute virtualized dev environments }
     - { pkg: virtualbox,                    desc: Cross platform virtualization with UI }
     - { pkg: virtualbox-guest-iso,          desc: VirtualBox Guest Additions ISO image }
-    - { pkg: virtualbox-host-modules-arch,  desc: VirtualBox host kernel modules for Arch kernel }
+    - { pkg: virtualbox-host-modules-arch,  desc: VirtualBox host kernel modules for Arch kernel, conflict: virtualbox-host-dkms }
 
   virtualbox-guest:
     - { pkg: virtualbox-guest-utils,        desc: VirtualBox guest drivers and utilities, conflict: virtualbox-guest-utils-nox }
+    - { pkg: virtualbox-guest-modules-arch, desc: VirtualBox guest kernel modules for Arch Kernel, conflict: virtualbox-guest-dkms }
 
   virtualbox-guest-nox:
     - { pkg: virtualbox-guest-utils-nox,    desc: VirtualBox guest drivers and utilities w/out X support }
