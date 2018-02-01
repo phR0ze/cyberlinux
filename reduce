@@ -896,9 +896,10 @@ class Reduce
           # Remove these packages first
           if pkgs[:conflict].any?
             puts("Removing conflicting packages for '#{layer}'...".colorize(:cyan))
-            conflicts = pkgs[:conflict].map{|x| x.split(':').last} * ' '
-            !puts("Error: Failed to remove packages".colorize(:red)) and
-              exit unless Sys.exec("pacman -Rn -r #{layer_work} -d -d --noconfirm #{conflicts}", die:false)
+            pkgs[:conflict].map{|x| x.split(':').last}.each{|conflict|
+              !puts("Error: Failed to remove conflicting package".colorize(:red)) and
+                exit unless Sys.exec("pacman -Rn -r #{layer_work} -d -d --noconfirm #{conflict} || true", die:false)
+            }
           end
 
           # Install normal packages
