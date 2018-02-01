@@ -843,6 +843,7 @@
   </menu>
 
   <!-- Application Settings
+  Note: get window names with 'xwininfo' then click target window
   ************************************************************************** -->
   <applications>
 
@@ -870,11 +871,7 @@
       </position>
     </application>
 
-    <!-- Force teamviewer into iconic mode
-    <application name="teamviewer">
-      <iconic>yes</iconic>
-    </application>
-    -->
+    <!-- Force teamviewer into iconic mode -->
 
     <!-- Position oblogout on second monitor -->
     <!-- 
