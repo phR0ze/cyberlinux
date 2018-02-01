@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.95
+  release: 0.1.96
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -344,7 +344,7 @@ configs:
       values:
         - 'user-db:user'
         - 'system-db:local'
-    - edit: /usr/bin/setproxy
+    - edit: /opt/<%=distro>/setproxy
       append: before
       regex: 'PROXY_SETTINGS_MARKER'
       values:
@@ -380,7 +380,7 @@ configs:
         - "  # dconf write /system/proxy/mode 'none'"
         - 'fi'
   docker-config:
-    - edit: /usr/bin/setproxy
+    - edit: /opt/<%=distro%>/setproxy
       append: before
       regex: 'PROXY_SETTINGS_MARKER'
       values:
@@ -660,30 +660,35 @@ configs:
 
         - '      <item label="MakeMKV" icon="/usr/share/icons/hicolor/32x32/apps/makemkv.png"><action name="Execute"><execute>makemkv</execute></action></item>'
   teamviewer-config:
-    - edit: /etc/skel/.config/openbox/autostart
+    - edit: /opt/<%=distro%>/teamviewer
       append: true
       values:
-        - "\n# Auto close teamviewer"
-        - '(sleep 10 && wmctrl -c Teamviewer)&'
-    - edit: /etc/teamviewer/global.conf
-      append: true
-      values:
+        - '#!/bin/bash'
+        - 'while [ ! -f /etc/teamviewer/global.conf ]; do sleep 1; done'
         # Accept the personal use license
-        - '[int32] EulaAccepted = 1'
-        - '[int32] LicenseType = 10000'
+        - 'echo "[int32] EulaAccepted = 1" >> /etc/teamviewer/global.conf'
+        - 'echo "[int32] LicenseType = 10000" >> /etc/teamviewer/global.conf'
         # Allow direct LAN connections only
-        - '[int32] LanOnly = 1'
-        - '[int32] General_DirectLAN = 1'
+        - 'echo "[int32] LanOnly = 1" >> /etc/teamviewer/global.conf'
+        - 'echo "[int32] General_DirectLAN = 1" >> /etc/teamviewer/global.conf'
         # Disable logging
-        - '[int32] Logging = 0'
-        - '[int32] LogIncomingConnections = 0'
-        - '[int32] LogOutgoingConnections = 0'
+        - 'echo "[int32] Logging = 0" >> /etc/teamviewer/global.conf'
+        - 'echo "[int32] LogIncomingConnections = 0" >> /etc/teamviewer/global.conf'
+        - 'echo "[int32] LogOutgoingConnections = 0" >> /etc/teamviewer/global.conf'
         # Disable shutdown and always run
-        - '[int32] Always_Online = 1'
-        - '[int32] Security_Disableshutdown = 1'
-        - '[int32] ACFullAccessOnLoginScreen = 1'
+        - 'echo "[int32] Always_Online = 1" >> /etc/teamviewer/global.conf'
+        - 'echo "[int32] Security_Disableshutdown = 1" >> /etc/teamviewer/global.conf'
+        - 'echo "[int32] ACFullAccessOnLoginScreen = 1" >> /etc/teamviewer/global.conf'
         # Disable random password (for spontaneous access)
-        - '[int32] Security_PasswordStrength = 3'
+        - 'echo "[int32] Security_PasswordStrength = 3" >> /etc/teamviewer/global.conf'
+        # Launch TeamViewer
+        # Minimize running instance
+        # Create autolauncher
+        # Set openbox to automatically close TeamViewer to tray persistantly
+        - 'echo "" >> /home/$SUDO_USER/.config/openbox/autostart'
+        - 'echo "#Auto close teamviewer" >> /home/$SUDO_USER/.config/openbox/autostart'
+        - 'echo "(sleep 10 && wmctrl -c TeamViewer)&" >> /home/$SUDO_USER/.config/openbox/autostart'
+        - '(sleep 10 && wmctrl -c Teamviewer)&'
     - edit: /etc/skel/.config/openbox/menu.xml
       append: before
       regex: 'Zenmap'
@@ -871,7 +876,7 @@ configs:
         - 'VERSION=<%=release%>'
         - 'PRETTY_NAME=<%=distro%>'
   proxy-config:
-    - edit: /usr/bin/setproxy
+    - edit: /opt/<%=distro%>/setproxy
       append: true
       values:
         - '#!/bin/bash'
@@ -895,7 +900,7 @@ configs:
         - '  rm -rf $proxyfile'
         - 'fi'
         - "\n# PROXY_SETTINGS_MARKER"
-    - { exec: chmod +x /usr/bin/setproxy }
+    - { exec: chmod +x /opt/<%=distro%>/setproxy }
   remove-container-waste:
     - { exec: 'find /var/log -type f -delete' }
     - { exec: 'rm -rf /usr/share/{man,doc}' }
@@ -1387,7 +1392,7 @@ packages:
     # https://www.makemkv.com/forum2/viewtopic.php?f=5&t=1053
     - { pkg: makemkv,                       desc: DVD and Blu-ray to MKV converter, type: CYBERLINUX }
 
-    # Teamviwer is free to use for personal use
+    # Teamviewer is free to use for personal use
     # https://www.teamviewer.com/en/credentials/free-for-personal-use/
     - { pkg: teamviewer,                    desc: All-In-One Software for Remote Support and Online Meetings, type: CYBERLINUX }
 
