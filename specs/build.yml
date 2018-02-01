@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.87
+  release: 0.1.89
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -658,6 +658,11 @@ configs:
 
         - '      <item label="MakeMKV" icon="/usr/share/icons/hicolor/32x32/apps/makemkv.png"><action name="Execute"><execute>makemkv</execute></action></item>'
   teamviewer-config:
+    - edit: /etc/skel/.config/openbox/autostart
+      append: true
+      values:
+        - "\n# Auto close teamviewer"
+        - '(sleep 10 && wmctrl -c Teamviewer)&'
     - edit: /etc/teamviewer/global.conf
       append: true
       values:
@@ -1218,6 +1223,7 @@ packages:
     - { pkg: pavucontrol,                   desc: PulseAudio Volume Control }
     - { pkg: pulseaudio-alsa,               desc: ALSA Configuration for PulseAudio }
     - { pkg: python2-xdg,                   desc: Enable use of .desktop files in /etc/xdg in openbox }
+    - { pkg: wmctrl,                        desc: Control your EWMH compliant window manager from command line }
     - { pkg: xcursor-numix-frost,           desc: Numix frost cursor theme, type: CYBERLINUX }
     - { pkg: xdg-user-dirs,                 desc: Manage user directories like ~/Desktop }
     - { pkg: xdg-utils,                     desc: Desktop integration utilities }
