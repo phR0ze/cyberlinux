@@ -1,9 +1,0 @@
-[Desktop Entry]
-Name=Conky
-Comment=Desktop widgets
-Exec=conky
-Icon=conky
-Terminal=false
-StartupNotify=true
-Type=Application
-Categories=System;Utility
