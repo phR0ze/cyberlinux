@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.89
+  release: 0.1.90
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -667,23 +667,16 @@ configs:
       append: true
       values:
         - '[int32] EulaAccepted = 1'
-        - '[int32] EulaAcceptedRevision = 6'
-        - '[int32] General_DirectLAN = 1'
-        - '[int32] IPC_Port_Service = 5940'
-        - '[int32] LanOnly = 1'
         - '[int32] LicenseType = 10000'
+        - '[int32] LanOnly = 1'
+        - '[int32] General_DirectLAN = 1'
+        - '[int32] Always_Online = 1'
+        - '[int32] ACFullAccessOnLoginScreen = 1'
+        - '[int32] Logging = 0'
         - '[int32] LogIncomingConnections = 0'
         - '[int32] LogOutgoingConnections = 0'
-        - '[int32] Logging = 0'
         - '[int32] Security_Disableshutdown = 1'
         - '[int32] Security_PasswordStrength = 1'
-    - edit: /etc/skel/.config/openbox/rc.xml
-      append: after
-      regex: 'teamviewer'
-      values:
-        - '    <application name="TeamViewer">'
-        - '      <iconic>yes</iconic>'
-        - '    </application>'
     - edit: /etc/skel/.config/openbox/menu.xml
       append: before
       regex: 'Zenmap'

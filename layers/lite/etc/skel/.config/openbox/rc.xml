@@ -872,6 +872,11 @@
     </application>
 
     <!-- Force teamviewer into iconic mode -->
+    <!--
+    <application name="TeamViewer">
+      <iconic>yes</iconic>
+    </application>
+    -->
 
     <!-- Position oblogout on second monitor -->
     <!-- 
