@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.94
+  release: 0.1.95
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -203,7 +203,7 @@ configs:
         - '      <item label="Evince" icon="/usr/share/icons/Paper/32x32/apps/evince.png"><action name="Execute"><execute>evince</execute></action></item>'
         - '    </menu>'
     - edit: /etc/skel/.config/openbox/menu.xml
-      append: after
+      append: before
       regex: 'LXAppearance'
       values:
         - '      <item label="Gconf Editor" icon="/usr/share/icons/Paper/32x32/apps/gconf-editor.png"><action name="Execute"><execute>gconf-editor</execute></action></item>'
