@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.93
+  release: 0.1.94
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -456,6 +456,7 @@ configs:
         - '    <edit mode="assign" name="antialias"><bool>true</bool></edit>'
         - '  </match>'
         - '</fontconfig>'
+    - { chroot: fc-cache }
   gtk-config:
     - edit: /etc/dconf/db/local.d/02-gtk
       append: true
@@ -1378,7 +1379,7 @@ packages:
 
   # Personal Use
   # packages in this section have various restrictions and can not be used
-  # for commercial purposes.
+  # for commercial purposes. Please review and accept an licenses before using these
   #-----------------------------------------------------------------------------
   personal-use-pkgs:
 
@@ -1393,6 +1394,10 @@ packages:
     # The Extension Pack binaries are released under the VirtualBox Personal Use and Evaluation License (PUEL).
     # https://www.virtualbox.org/wiki/Downloads
     - { pkg: virtualbox-ext-oracle,         desc: Oracle VM VirtualBox Extension Pack, type: CYBERLINUX }
+
+    # Adobe fonts from adobe reader
+    # https://aur.archlinux.org/cgit/aur.git/tree/LICENSE?h=ttf-adobe-fonts
+    - { pkg: ttf-adobe-fonts,               desc: Adobe fonts including Myriad Minion and Courier, type: CYBERLINUX }
 
   # Virtualization packages
   #-----------------------------------------------------------------------------
