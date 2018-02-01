@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.96
+  release: 0.1.97
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -344,7 +344,7 @@ configs:
       values:
         - 'user-db:user'
         - 'system-db:local'
-    - edit: /opt/<%=distro>/setproxy
+    - edit: /opt/<%=distro>/bin/setproxy
       append: before
       regex: 'PROXY_SETTINGS_MARKER'
       values:
@@ -380,7 +380,7 @@ configs:
         - "  # dconf write /system/proxy/mode 'none'"
         - 'fi'
   docker-config:
-    - edit: /opt/<%=distro%>/setproxy
+    - edit: /opt/<%=distro%>/bin/setproxy
       append: before
       regex: 'PROXY_SETTINGS_MARKER'
       values:
@@ -660,7 +660,7 @@ configs:
 
         - '      <item label="MakeMKV" icon="/usr/share/icons/hicolor/32x32/apps/makemkv.png"><action name="Execute"><execute>makemkv</execute></action></item>'
   teamviewer-config:
-    - edit: /opt/<%=distro%>/teamviewer
+    - edit: /opt/<%=distro%>/bin/teamviewer
       append: true
       values:
         - '#!/bin/bash'
@@ -876,7 +876,7 @@ configs:
         - 'VERSION=<%=release%>'
         - 'PRETTY_NAME=<%=distro%>'
   proxy-config:
-    - edit: /opt/<%=distro%>/setproxy
+    - edit: /opt/<%=distro%>/bin/setproxy
       append: true
       values:
         - '#!/bin/bash'
@@ -900,7 +900,7 @@ configs:
         - '  rm -rf $proxyfile'
         - 'fi'
         - "\n# PROXY_SETTINGS_MARKER"
-    - { exec: chmod +x /opt/<%=distro%>/setproxy }
+    - { exec: chmod +x /opt/<%=distro%>/bin/setproxy }
   remove-container-waste:
     - { exec: 'find /var/log -type f -delete' }
     - { exec: 'rm -rf /usr/share/{man,doc}' }
