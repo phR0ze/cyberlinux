@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.90
+  release: 0.1.91
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -666,17 +666,22 @@ configs:
     - edit: /etc/teamviewer/global.conf
       append: true
       values:
+        # Accept the personal use license
         - '[int32] EulaAccepted = 1'
         - '[int32] LicenseType = 10000'
+        # Allow direct LAN connections only
         - '[int32] LanOnly = 1'
         - '[int32] General_DirectLAN = 1'
-        - '[int32] Always_Online = 1'
-        - '[int32] ACFullAccessOnLoginScreen = 1'
+        # Disable logging
         - '[int32] Logging = 0'
         - '[int32] LogIncomingConnections = 0'
         - '[int32] LogOutgoingConnections = 0'
+        # Disable shutdown and always run
+        - '[int32] Always_Online = 1'
         - '[int32] Security_Disableshutdown = 1'
-        - '[int32] Security_PasswordStrength = 1'
+        - '[int32] ACFullAccessOnLoginScreen = 1'
+        # Disable random password (for spontaneous access)
+        - '[int32] Security_PasswordStrength = 3'
     - edit: /etc/skel/.config/openbox/menu.xml
       append: before
       regex: 'Zenmap'
