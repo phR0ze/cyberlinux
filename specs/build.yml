@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.111
+  release: 0.1.112
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1135,7 +1135,21 @@ configs:
         - '        Modes "1024x768"'
         - '    EndSubSection'
         - 'EndSection'
-    - edit: /etc/X11/xorg.conf.d/20-mouse.conf
+    - edit: /etc/X11/xorg.conf.d/20-dpms.conf
+      append: true
+      values:
+        - 'Section "Monitor"'
+        - '    Identifier "Monitor0"'
+        - '    Option     "DPMS" "0"'
+        - 'EndSection'
+        - 'Section "ServerLayout"'
+        - '    Identifier "ServerLayout0"'
+        - '    Option     "OffTime" "0"'
+        - '    Option     "BlankTime" "0"'
+        - '    Option     "StandbyTime" "0"'
+        - '    Option     "SuspendTime" "0"'
+        - 'EndSection'
+    - edit: /etc/X11/xorg.conf.d/30-mouse.conf
       append: true
       values:
         - 'Section "InputClass"'
@@ -1144,7 +1158,7 @@ configs:
         - '    MatchIsPointer "on"'
         - '    Option "AccelSpeed" "0.3"'
         - 'EndSection'
-    - edit: /etc/X11/xorg.conf.d/30-touchpad.conf
+    - edit: /etc/X11/xorg.conf.d/40-touchpad.conf
       append: true
       values:
         - 'Section "InputClass"'

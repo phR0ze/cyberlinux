@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openbox_menu xmlns="http://openbox.org/"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://openbox.org/">
+
+  <!-- Root -->
+  <menu id="root-menu" label="Applications">
+    <separator label="--= CYBERLINUX =--"/>
+      <item label="Thunar" icon="/usr/share/icons/Paper/32x32/apps/Thunar.png"><action name="Execute"><execute>thunar</execute></action></item>
+      <item label="LXTerminal" icon="/usr/share/icons/Paper/32x32/apps/lxterminal.png"><action name="Execute"><execute>lxterminal</execute></action></item>
+      <item label="Nitrogen" icon="/usr/share/icons/hicolor/32x32/apps/nitrogen.png"><action name="Execute"><execute>nitrogen</execute></action></item>
+      <item label="Screenshot" icon="/usr/share/icons/Paper/32x32/apps/gnome-screenshot.png"><action name="Execute"><execute>xfce4-screenshooter</execute></action></item>
+    <separator/>
+
+    <!-- Accessories -->
+    <menu id="Accessories" icon="/usr/share/icons/Paper/32x32/categories/applications-utilities.png" label="Accessories">
+      <item label="Archive Manager" icon="/usr/share/icons/Paper/32x32/apps/file-roller.png"><action name="Execute"><execute>file-roller</execute></action></item>
+      <item label="Bulk Rename" icon="/usr/share/icons/Paper/32x32/apps/Thunar.png"><action name="Execute"><execute>/usr/lib/Thunar/ThunarBulkRename</execute></action></item>
+      <item label="Catfish File Search" icon="/usr/share/icons/Paper/32x32/apps/system-search.png"><action name="Execute"><execute>catfish</execute></action></item>
+      <item label="Galculator" icon="/usr/share/icons/Paper/32x32/apps/galculator.png"><action name="Execute"><execute>galculator</execute></action></item>
+      <item label="KeePass" icon="/usr/share/icons/hicolor/32x32/apps/keepass.png"><action name="Execute"><execute>keepass</execute></action></item>
+      <item label="Leafpad" icon="/usr/share/icons/hicolor/32x32/apps/leafpad.png"><action name="Execute"><execute>leafpad</execute></action></item>
+      <item label="Multi Writer" icon="/usr/share/icons/Paper/32x32/devices/drive-harddisk-usb.png"><action name="Execute"><execute>sudo gnome-multi-writer</execute></action></item>
+      <item label="Screenshot" icon="/usr/share/icons/Paper/32x32/apps/applets-screenshooter.png"><action name="Execute"><execute>xfce4-screenshooter</execute></action></item>
+      <item label="Synergy" icon="/usr/share/icons/Paper/32x32/apps/synergy.png"><action name="Execute"><execute>synergy</execute></action></item>
+    </menu>
+
+    <!-- Development -->
+    <menu id="Development" icon="/usr/share/icons/Paper/32x32/categories/applications-development.png" label="Development">
+      <item label="GVim" icon="/usr/share/icons/Paper/32x32/apps/gvim.png"><action name="Execute"><execute>gvim -f</execute></action></item>
+      <item label="Meld" icon="/usr/share/icons/Paper/32x32/apps/meld.png"><action name="Execute"><execute>meld</execute></action></item>
+      <item label="Visual Studio Code" icon="/usr/share/icons/Paper/32x32/apps/visual-studio-code.png"><action name="Execute"><execute>code</execute></action></item>
+    </menu>
+
+    <!-- Games -->
+    <!-- <menu id="Games" icon="/usr/share/icons/Paper/32x32/categories/applications-games.png" label="Games">
+      <item label="Steam (Purge Libraries)" icon="/usr/share/icons/Paper/32x32/apps/steam.png"><action name="Execute"><execute>/usr/bin/steam-clean</execute></action></item>
+      <item label="Steam (Steam Runtime)" icon="/usr/share/icons/Paper/32x32/apps/steam.png"><action name="Execute"><execute>env STEAM_RUNTIME=1 /usr/bin/steam</execute></action></item>
+      <item label="Steam (System Libraries)" icon="/usr/share/icons/Paper/32x32/apps/steam.png"><action name="Execute"><execute>env STEAM_RUNTIME=0 /usr/bin/steam</execute></action></item>
+    </menu> -->
+
+    <!-- Graphics -->
+    <menu id="Graphics" icon="/usr/share/icons/Paper/32x32/categories/applications-graphics.png" label="Graphics">
+      <item label="Gimp" icon="/usr/share/icons/Paper/32x32/apps/gimp.png"><action name="Execute"><execute>gimp-2.8</execute></action></item>
+      <item label="Image Viewer" icon="/usr/share/icons/Paper/32x32/apps/gpicview.png"><action name="Execute"><execute>gpicview </execute></action></item>
+      <item label="Inkscape" icon="/usr/share/icons/Paper/32x32/apps/inkscape.png"><action name="Execute"><execute>inkscape</execute></action></item>
+      <item label="Kolour Paint" icon="/usr/share/icons/Paper/32x32/apps/kolourpaint.png"><action name="Execute"><execute>kolourpaint</execute></action></item>
+      <item label="LibreOffice Draw" icon="/usr/share/icons/Paper/32x32/apps/libreoffice-draw.png"><action name="Execute"><execute>libreoffice --draw</execute></action></item>
+      <item label="Nitrogen" icon="/usr/share/icons/hicolor/32x32/apps/nitrogen.png"><action name="Execute"><execute>nitrogen</execute></action></item>
+      <item label="XnViewMP" icon="/usr/share/icons/hicolor/32x32/apps/xnviewmp.png"><action name="Execute"><execute>xnviewmp</execute></action></item>
+    </menu>
+
+    <!-- Multimedia -->
+    <menu id="Multimedia" icon="/usr/share/icons/Paper/32x32/categories/applications-multimedia.png" label="Multimedia">
+      <item label="Asunder" icon="/usr/share/icons/hicolor/32x32/apps/brasero.png"><action name="Execute"><execute>asunder</execute></action></item>
+      <item label="Audacious" icon="/usr/share/icons/hicolor/32x32/apps/audacious.png"><action name="Execute"><execute>audacious</execute></action></item>
+      <item label="Audacity" icon="/usr/share/icons/hicolor/32x32/apps/audacity.png"><action name="Execute"><execute>env UBUNTU_MENUPROXY=0 audacity</execute></action></item>
+      <item label="Brasero" icon="/usr/share/icons/Paper/32x32/apps/brasero.png"><action name="Execute"><execute>brasero</execute></action></item>
+      <item label="DeVeDe" icon="/usr/share/devedeng/devedeng.png"><action name="Execute"><execute>devede_ng.py</execute></action></item>
+      <item label="HandBrake" icon="/usr/share/icons/hicolor/scalable/apps/hb-icon.svg"><action name="Execute"><execute>ghb</execute></action></item>
+      <item label="MakeMKV" icon="/usr/share/icons/hicolor/32x32/apps/makemkv.png"><action name="Execute"><execute>makemkv</execute></action></item>
+      <item label="OpenShot" icon="/usr/share/icons/Paper/32x32/apps/openshot.png"><action name="Execute"><execute>openshot-qt</execute></action></item>
+      <item label="Pulse Audio" icon="/usr/share/icons/Paper/32x32/apps/multimedia-volume-control.png"><action name="Execute"><execute>pavucontrol</execute></action></item>
+      <item label="SMPlayer" icon="/usr/share/icons/hicolor/32x32/apps/smplayer.png"><action name="Execute"><execute>smplayer</execute></action></item>
+      <item label="VLC" icon="/usr/share/icons/hicolor/32x32/apps/vlc.png"><action name="Execute"><execute>vlc</execute></action></item>
+      <item label="WinFF" icon="/usr/share/icons/hicolor/32x32/apps/winff.png"><action name="Execute"><execute>winff</execute></action></item>
+    </menu>
+
+    <!-- Network -->
+    <menu id="Network" icon="/usr/share/icons/Paper/32x32/categories/applications-internet.png" label="Network">
+      <item label="Chromium" icon="/usr/share/icons/Paper/32x32/apps/chromium.png"><action name="Execute"><execute>chromium</execute></action></item>
+      <item label="FileZilla" icon="/usr/share/icons/Paper/32x32/apps/filezilla.png"><action name="Execute"><execute>filezilla</execute></action></item>
+      <item label="qBittorrent" icon="/usr/share/icons/Paper/32x32/apps/qbittorrent.png"><action name="Execute"><execute>qbittorrent</execute></action></item>
+      <item label="Remmina" icon="/usr/share/icons/Paper/32x32/apps/remmina.png"><action name="Execute"><execute>remmina</execute></action></item>
+      <item label="WPA Gui" icon="/usr/share/icons/hicolor/32x32/apps/wpa_gui.png"><action name="Execute"><execute>sudo wpa_gui</execute></action></item>
+      <item label="Zenmap" icon="/usr/share/zenmap/pixmaps/zenmap.png"><action name="Execute"><execute>sudo zenmap</execute></action></item>
+    </menu>
+
+    <!-- Office -->
+    <menu id="Office" icon="/usr/share/icons/Paper/32x32/categories/applications-office.png" label="Office">
+      <item label="Evince" icon="/usr/share/icons/Paper/32x32/apps/evince.png"><action name="Execute"><execute>evince</execute></action></item>
+      <item label="LibreOffice Base" icon="/usr/share/icons/Paper/32x32/apps/libreoffice-base.png"><action name="Execute"><execute>libreoffice --base</execute></action></item>
+      <item label="LibreOffice Calc" icon="/usr/share/icons/Paper/32x32/apps/libreoffice-calc.png"><action name="Execute"><execute>libreoffice --calc</execute></action></item>
+      <item label="LibreOffice Draw" icon="/usr/share/icons/Paper/32x32/apps/libreoffice-draw.png"><action name="Execute"><execute>libreoffice --draw</execute></action></item>
+      <item label="LibreOffice Impress" icon="/usr/share/icons/Paper/32x32/apps/libreoffice-impress.png"><action name="Execute"><execute>libreoffice --impress</execute></action></item>
+      <item label="LibreOffice Math" icon="/usr/share/icons/Paper/32x32/apps/libreoffice-math.png"><action name="Execute"><execute>libreoffice --math</execute></action></item>
+      <item label="LibreOffice Writer" icon="/usr/share/icons/Paper/32x32/apps/libreoffice-writer.png"><action name="Execute"><execute>libreoffice --writer</execute></action></item>
+      <item label="LibreOffice" icon="/usr/share/icons/Paper/32x32/apps/libreoffice-startcenter.png"><action name="Execute"><execute>libreoffice</execute></action></item>
+      <item label="Scribus" icon="/usr/share/icons/Paper/32x32/apps/scribus.png"><action name="Execute"><execute>scribus</execute></action></item>
+    </menu>
+
+    <!-- Settings -->
+    <menu id="Settings" icon="/usr/share/icons/Paper/32x32/categories/applications-accessories.png" label="Settings">
+
+      <!-- Desktop/Login -->
+      <menu id="Desktop/Login" icon="/usr/share/icons/Paper/32x32/apps/preferences-system-login.png" label="Desktop/Login">
+        <item label="Reconfigure Openbox" icon="/usr/share/icons/Paper/32x32/apps/update-manager.png"><action name="Execute"><execute>openbox --reconfigure</execute></action></item>
+        <item label="Conky RC" icon="/usr/share/icons/Paper/32x32/apps/gvim.png"><action name="Execute"><execute>gvim ~/.conkyrc</execute></action></item>
+        <item label="LXDM Config" icon="/usr/share/icons/Paper/32x32/apps/gvim.png"><action name="Execute"><execute>sudo gvim /etc/lxdm/lxdm.conf</execute></action></item>
+        <item label="LXDM Prelogin" icon="/usr/share/icons/Paper/32x32/apps/gvim.png"><action name="Execute"><execute>sudo gvim /etc/lxdm/PreLogin</execute></action></item>
+        <item label="Openbox Autostart" icon="/usr/share/icons/Paper/32x32/apps/gvim.png"><action name="Execute"><execute>gvim ~/.config/openbox/autostart</execute></action></item>
+        <item label="Openbox RC" icon="/usr/share/icons/Paper/32x32/apps/gvim.png"><action name="Execute"><execute>gvim ~/.config/openbox/rc.xml</execute></action></item>
+        <item label="Openbox Menu" icon="/usr/share/icons/Paper/32x32/apps/gvim.png"><action name="Execute"><execute>gvim ~/.config/openbox/menu.xml</execute></action></item>
+        <item label="Oblogout" icon="/usr/share/icons/Paper/32x32/apps/gvim.png"><action name="Execute"><execute>sudo gvim /etc/oblogout.conf</execute></action></item>
+        <item label="Tint2 Panel" icon="/usr/share/icons/Paper/32x32/apps/gvim.png"><action name="Execute"><execute>gvim ~/.config/tint2/tint2rc</execute></action></item>
+      </menu>
+
+      <!-- Pacman/Servers -->
+      <menu id="Pacman/Servers" icon="/usr/share/icons/Paper/32x32/apps/software-center.png" label="Pacman/Servers">
+        <item label="Pacman Config" icon="/usr/share/icons/Paper/32x32/apps/gvim.png"><action name="Execute"><execute>sudo gvim /etc/pacman.conf</execute></action></item>
+        <item label="Pacman Mirrorlist" icon="/usr/share/icons/Paper/32x32/apps/gvim.png"><action name="Execute"><execute>sudo gvim /etc/pacman.d/mirrorlist</execute></action></item>
+      </menu>
+
+      <item label="Gconf Editor" icon="/usr/share/icons/Paper/32x32/apps/gconf-editor.png"><action name="Execute"><execute>gconf-editor</execute></action></item>
+      <item label="Dconf Editor" icon="/usr/share/icons/Paper/32x32/apps/dconf-editor.png"><action name="Execute"><execute>dconf-editor</execute></action></item>
+      <item label="Guake Preferences" icon="/usr/share/icons/Paper/32x32/apps/guake-prefs.png"><action name="Execute"><execute>guake-prefs</execute></action></item>
+      <item label="Printer Preferences" icon="/usr/share/icons/Paper/32x32/devices/preferences-desktop-printer.png"><action name="Execute"><execute>system-config-printer</execute></action></item>
+      <item label="LXAppearance" icon="/usr/share/icons/Paper/32x32/apps/preferences-desktop-theme.png"><action name="Execute"><execute>lxappearance</execute></action></item>
+      <item label="LXInput" icon="/usr/share/icons/Paper/32x32/apps/preferences-desktop-keyboard.png"><action name="Execute"><execute>lxinput</execute></action></item>
+      <item label="LXRandr" icon="/usr/share/icons/Paper/32x32/apps/preferences-desktop-display.png"><action name="Execute"><execute>lxrandr</execute></action></item>
+      <item label="Thunar Settings" icon="/usr/share/icons/Paper/32x32/apps/system-file-manager.png"><action name="Execute"><execute>thunar-settings</execute></action></item>
+      <item label="Thunar Volman" icon="/usr/share/icons/Paper/32x32/devices/drive-removable-media.png"><action name="Execute"><execute>thunar-volman-settings</execute></action></item>
+      <item label="Tint2 Themes" icon="/usr/share/icons/Paper/32x32/apps/tint2conf.png"><action name="Execute"><execute>tint2conf</execute></action></item>
+    </menu>
+
+    <!-- System -->
+    <menu id="System" icon="/usr/share/icons/Paper/32x32/categories/applications-system.png" label="System">
+      <item label="GParted" icon="/usr/share/icons/Paper/32x32/apps/gparted.png"><action name="Execute"><execute>sudo gparted</execute></action></item>
+      <item label="HardInfo" icon="/usr/share/hardinfo/pixmaps/logo.png"><action name="Execute"><execute>hardinfo</execute></action></item>
+      <item label="Htop" icon="/usr/share/icons/Paper/32x32/apps/htop.png"><action name="Execute"><execute>lxterminal -e 'htop'</execute></action></item>
+      <item label="VirtualBox" icon="/usr/share/icons/Paper/32x32/apps/virtualbox.png"><action name="Execute"><execute>VirtualBox</execute></action></item>
+    </menu>
+    <separator/>
+    <item label="Run..." icon="/usr/share/icons/Paper/32x32/mimetypes/application-x-executable.png"><action name="Execute"><execute>dmenu_run -fn -misc-fixed-*-*-*-*-20-200-*-*-*-*-*-*  -i -nb '#000000' -nf '#efefef' -sf '#000000' -sb '#3cb0fd'</execute></action></item>
+    <item label="Lock" icon="/usr/share/icons/Paper/32x32/actions/lock.png"><action name="Execute"><execute>cinnamon-screensaver-command --lock</execute></action></item>
+    <item label="Logout" icon="/usr/share/icons/Paper/32x32/actions/exit.png"><action name="Execute"><execute>openbox --exit</execute></action></item>
+    <item label="Reboot" icon="/usr/share/icons/hicolor/32x32/actions/system-reboot.png"><action name="Execute"><execute>sudo reboot</execute></action></item>
+    <item label="Shutdown" icon="/usr/share/icons/hicolor/32x32/actions/system-shutdown.png"><action name="Execute"><execute>sudo poweroff</execute></action></item>
+  </menu>
+</openbox_menu>
