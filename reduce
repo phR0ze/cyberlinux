@@ -383,9 +383,11 @@ class Reduce
     end
 
     # Build implicated layers
-    changed |= build_layers(@k.build) if not (layers || []).include?(@k.build)
     layers = @spec[@k.layers].select{|x| x[@k.type] == @k.machine}.map{|x| x[@k.name]} if isofull
     layers.each{|layer| changed |= build_layers(layer)} if layers
+
+    # Build the build container for initramfs/isolinux
+    changed |= build_layers(@k.build) if not (layers || []).include?(@k.build)
 
     # Build early userspace ramdisk for install executed by isolinux
     changed |= build_initramfs if [initramfs, iso, isofull].any?
