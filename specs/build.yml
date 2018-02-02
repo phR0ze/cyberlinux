@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.106
+  release: 0.1.107
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -883,7 +883,7 @@ configs:
         - 'app="setproxy"; ver="0.0.1"'
         - 'cyan="\e[0;36m"; green="\e[0;32m"; red="\e[0;31m"; YELLOW="\e[1;33m"; none="\e[m"'
         - 'banner(){'
-        - "  echo -e \"${YELLOW}${app}_v${ver}\n$(printf '%0.1s' '-'{1..80})${none}\""
+        - "  echo -e \"${YELLOW}${app}_v${ver}\\n$(printf '%0.1s' '-'{1..80})${none}\""
         - '  echo "Usage: $app CMD [PROXY] [NO_PROXY]"'
         - '}'
         - 'usage(){'
@@ -913,7 +913,7 @@ configs:
         - '  echo "export https_proxy=${proxy}" >> $proxyfile'
         - '  echo "export no_proxy=${no_proxy}" >> $proxyfile'
         - '  chmod +x $proxyfile'
-        - "  echo -e \"${green}Enabled proxy '${proxy}'${none}\"'"
+        - "  echo -e \"${green}Enabled proxy '${proxy}'${none}\""
         - 'elif [ "x$cmd" == "xdisable" ]; then'
         - '  rm -rf $proxyfile'
         - "  echo -e \"${red}Removed proxy file '${proxyfile}'${none}\""
