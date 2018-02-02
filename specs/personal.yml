@@ -152,6 +152,9 @@ layers:
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=desktop_layers%> showopts vga=792
     packages:
       - { install: desktop-pkgs }
+      # The Extension Pack binaries are released under the VirtualBox Personal Use and Evaluation License (PUEL).
+      # https://www.virtualbox.org/wiki/Downloads
+      - { pkg: virtualbox-ext-oracle,         desc: Oracle VM VirtualBox Extension Pack, type: CYBERLINUX }
     configs:
       - { apply: desktop-config }
 
