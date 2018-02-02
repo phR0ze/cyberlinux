@@ -329,24 +329,12 @@ config_system()
 
     if [ $proxy ] && [ "x$proxy" != "xNone" ]; then
         echo -en ":: Set proxy to ${proxy}..."
-        proxy_port=${proxy//*:/}
-        proxy_host=$(echo ${proxy//:/ } | awk '{print $1":"$2}')
-        sed -i -e "s|^\(proxy\)=.*|\1=${proxy}|" "${rootmnt}/opt/$distro/bin/setproxy"
-        sed -i -e "s|^\(proxy_host\)=.*|\1=${proxy_host}|" "${rootmnt}/opt/$distro/bin/setproxy"
-        sed -i -e "s|^\(proxy_port\)=.*|\1=${proxy_port}|" "${rootmnt}/opt/$distro/bin/setproxy"
-        check_status
         if [ $no_proxy ] && [ "x$no_proxy" != "xNone" ]; then
-            echo -en ":: Set no_proxy to ${no_proxy}..."
-            no_proxy_array="["
-            ifs=$IFS; IFS=$','
-            for x in $no_proxy; do no_proxy_array="${no_proxy_array}'${x}', "; done
-            IFS=$ifs
-            no_proxy_array="${no_proxy_array%??}]"
-            sed -i -e "s|^\(no_proxy\)=.*|\1=${no_proxy}|" "${rootmnt}/opt/$distro/bin/setproxy"
-            sed -i -e "s|^\(no_proxy_array\)=.*|\1=\"${no_proxy_array}\"|" "${rootmnt}/opt/$distro/bin/setproxy"
-            check_status
+            chroot ${rootmnt} /opt/$distro/bin/setproxy enable $proxy $no_proxy &>/dev/null
+        else
+            chroot ${rootmnt} /opt/$distro/bin/setproxy enable $proxy &>/dev/null
         fi
-        chroot ${rootmnt} /opt/$distro/bin/setproxy 1 &>/dev/null
+        check_status
     fi
 
     # Autologin if lxdm exists and parameter is set
@@ -422,7 +410,7 @@ installer()
         getinput hostname 'hostname' "${distro}-${target_layer}"
         getinput netip 'static IP' 'DHCP'
         getinput proxy 'proxy, url:port format' 'None'
-        [ "x${proxy}" != "xNone" ] && getinput no_proxy 'no_proxy, comma delimited' 'None'
+        [ "x${proxy}" != "xNone" ] && getinput no_proxy 'no_proxy, comma delim' 'localhost,127.0.0.1'
 
         # Configure timezone
         #----------------------------------------------------------------------

@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.105
+  release: 0.1.106
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -351,49 +351,51 @@ configs:
         - 'system-db:local'
     - edit: /opt/<%=distro%>/bin/setproxy
       append: before
-      regex: 'PROXY_SETTINGS_MARKER'
+      regex: 'PROXY_MARKER'
       values:
-        - '# Configure system proxy settings for XWindows'
-        - 'if [ -e /usr/bin/Xorg ] && [ "x$proxy" != "x" ] && [ "x$enable" == "x1" ]; then'
-        - '  mkdir -p /etc/dconf/db/local.d'
-        - '  proxyfile=/etc/dconf/db/local.d/00-proxy'
-        - '  echo "[org/gnome/system/proxy]" >> ${proxyfile}'
-        - '  echo "mode=\"none\"" >> ${proxyfile}'
-        - '  echo -e "ignore-hosts=${no_proxy_array}\n" >> ${proxyfile}'
-        - '  echo "[org/gnome/system/proxy/ftp]" >> ${proxyfile}'
-        - '  echo "host=\"${proxy_host}\"" >> ${proxyfile}'
-        - '  echo -e "port=${proxy_port}\n" >> ${proxyfile}'
-        - '  echo "[org/gnome/system/proxy/http]" >> ${proxyfile}'
-        - '  echo "host=\"${proxy_host}\"" >> ${proxyfile}'
-        - '  echo -e "port=${proxy_port}\n" >> ${proxyfile}'
-        - '  echo "[org/gnome/system/proxy/https]" >> ${proxyfile}'
-        - '  echo "host=\"${proxy_host}\"" >> ${proxyfile}'
-        - '  echo -e "port=${proxy_port}\n" >> ${proxyfile}'
-        - '  echo "[system/proxy]" >> ${proxyfile}'
-        - '  echo "mode=\"none\"" >> ${proxyfile}'
-        - '  echo -e "ignore-hosts=${no_proxy_array}\n" >> ${proxyfile}'
-        - '  echo "[system/proxy/ftp]" >> ${proxyfile}'
-        - '  echo "host=\"${proxy_host}\"" >> ${proxyfile}'
-        - '  echo -e "port=${proxy_port}\n" >> ${proxyfile}'
-        - '  echo "[system/proxy/http]" >> ${proxyfile}'
-        - '  echo "host=\"${proxy_host}\"" >> ${proxyfile}'
-        - '  echo -e "port=${proxy_port}\n" >> ${proxyfile}'
-        - '  echo "[system/proxy/https]" >> ${proxyfile}'
-        - '  echo "host=\"${proxy_host}\"" >> ${proxyfile}'
-        - '  echo "port=${proxy_port}" >> ${proxyfile}'
-        - '#else'
-        - "  # dconf write /system/proxy/mode 'none'"
+        - "\n# Configure XWindows proxy settings"
+        - 'if [ -e /usr/bin/Xorg ]; then'
+        - '  if [ "x$cmd" == "xenable" ]; then'
+        - '    mkdir -p /etc/dconf/db/local.d'
+        - '    proxyfile=/etc/dconf/db/local.d/00-proxy'
+        - '    echo "[org/gnome/system/proxy]" >> ${proxyfile}'
+        - '    echo "mode=\"none\"" >> ${proxyfile}'
+        - '    echo -e "ignore-hosts=${no_proxy_array}\n" >> ${proxyfile}'
+        - '    echo "[org/gnome/system/proxy/ftp]" >> ${proxyfile}'
+        - '    echo "host=\"${proxy_host}\"" >> ${proxyfile}'
+        - '    echo -e "port=${proxy_port}\n" >> ${proxyfile}'
+        - '    echo "[org/gnome/system/proxy/http]" >> ${proxyfile}'
+        - '    echo "host=\"${proxy_host}\"" >> ${proxyfile}'
+        - '    echo -e "port=${proxy_port}\n" >> ${proxyfile}'
+        - '    echo "[org/gnome/system/proxy/https]" >> ${proxyfile}'
+        - '    echo "host=\"${proxy_host}\"" >> ${proxyfile}'
+        - '    echo -e "port=${proxy_port}\n" >> ${proxyfile}'
+        - '    echo "[system/proxy]" >> ${proxyfile}'
+        - '    echo "mode=\"none\"" >> ${proxyfile}'
+        - '    echo -e "ignore-hosts=${no_proxy_array}\n" >> ${proxyfile}'
+        - '    echo "[system/proxy/ftp]" >> ${proxyfile}'
+        - '    echo "host=\"${proxy_host}\"" >> ${proxyfile}'
+        - '    echo -e "port=${proxy_port}\n" >> ${proxyfile}'
+        - '    echo "[system/proxy/http]" >> ${proxyfile}'
+        - '    echo "host=\"${proxy_host}\"" >> ${proxyfile}'
+        - '    echo -e "port=${proxy_port}\n" >> ${proxyfile}'
+        - '    echo "[system/proxy/https]" >> ${proxyfile}'
+        - '    echo "host=\"${proxy_host}\"" >> ${proxyfile}'
+        - '    echo "port=${proxy_port}" >> ${proxyfile}'
+        - '  #else'
+        - "    #dconf write /system/proxy/mode 'none'"
+        - '  fi'
         - 'fi'
   docker-config:
     - edit: /opt/<%=distro%>/bin/setproxy
       append: before
-      regex: 'PROXY_SETTINGS_MARKER'
+      regex: 'PROXY_MARKER'
       values:
         - "\n# Configure docker proxy settings"
         - 'if [ -e /usr/bin/docker ]; then'
         - '  mkdir -p /etc/systemd/system/docker.service.d'
         - '  proxyfile=/etc/systemd/system/docker.service.d/20-proxy.conf'
-        - '  if [ "x$proxy" != "x" ] && [ "x$enable" == "x1" ]; then'
+        - '  if [ "x$cmd" == "xenable" ]; then'
         - '    echo "[Service]" > ${proxyfile}'
         - '    echo "Environment=\"http_proxy=${proxy}\"" >> ${proxyfile}'
         - '    echo "Environment=\"https_proxy=${proxy}\"" >> ${proxyfile}'
@@ -401,6 +403,7 @@ configs:
         - '  else'
         - '    rm -rf $proxyfile'
         - '  fi'
+        - '  systemctl restart docker'
         - 'fi'
         - ''
     - { chroot: systemctl enable docker.service }
@@ -877,26 +880,45 @@ configs:
       append: true
       values:
         - '#!/bin/bash'
-        - "\n# Executed by Vagrantfile for vagrant deployments"
-        - "# Executed by installer for non-vagrant deployments"
-        - 'enable=$1'
-        - 'proxy='
-        - 'proxy_host='
-        - 'proxy_port='
-        - 'no_proxy='
-        - 'no_proxy_array='
+        - 'app="setproxy"; ver="0.0.1"'
+        - 'cyan="\e[0;36m"; green="\e[0;32m"; red="\e[0;31m"; YELLOW="\e[1;33m"; none="\e[m"'
+        - 'banner(){'
+        - "  echo -e \"${YELLOW}${app}_v${ver}\n$(printf '%0.1s' '-'{1..80})${none}\""
+        - '  echo "Usage: $app CMD [PROXY] [NO_PROXY]"'
+        - '}'
+        - 'usage(){'
+        - '  banner; echo -e "${green}Examples:${none}"'
+        - '  echo -e "${green}sudo ${app} disable${none}"'
+        - '  echo -e "${green}sudo ${app} enable http://example.com:8080${none}"'
+        - '  echo -e "${green}sudo ${app} enable http://example.com:8080 localhost,127.0.0.1${none}"; exit'
+        - '}'
+        - "\n# Validate input arguments"
+        - '[ "$EUID" -ne 0 ] && echo -e "${red}Error: please run as root${none}" && usage'
+        - '[ $# -lt 1 ] || [ $# -gt 3 ] && usage'
+        - 'cmd=$1; proxy=$2; no_proxy=$3'
+        - '[ "x$cmd" == "xenable" ] && [ "x$proxy" == "x" ] && echo -e "${red}Error: proxy not given${none}" && usage'
+        - '[ "x$cmd" != "xenable" ] && [ "x$cmd" != "xdisable" ] && usage'
+        - '[ "x$no_proxy" == "x" ] && no_proxy="localhost,127.0.0.1"'
+        - "\n# Process input proxy arguments"
+        - 'proxy_port=${proxy//*:/}'
+        - "proxy_host=$(echo ${proxy//:/ } | awk '{print $1\":\"$2}')"
+        - 'no_proxy_array="["'
+        - "for x in ${no_proxy//,/ }; do no_proxy_array=\"${no_proxy_array}'${x}', \"; done"
+        - 'no_proxy_array="${no_proxy_array%??}]"'
         - "\n# Configure system proxies for shell"
         - 'proxyfile=/etc/profile.d/setproxy.sh'
-        - 'if [ "x$proxy" != "x" ] && [ "x$enable" == "x1" ]; then'
+        - 'if [ "x$cmd" == "xenable" ]; then'
         - '  echo "export ftp_proxy=${proxy}" > $proxyfile'
         - '  echo "export http_proxy=${proxy}" >> $proxyfile'
         - '  echo "export https_proxy=${proxy}" >> $proxyfile'
-        - '  [ $no_proxy ] && echo "export no_proxy=${no_proxy}" >> $proxyfile'
+        - '  echo "export no_proxy=${no_proxy}" >> $proxyfile'
         - '  chmod +x $proxyfile'
-        - 'else'
+        - "  echo -e \"${green}Enabled proxy '${proxy}'${none}\"'"
+        - 'elif [ "x$cmd" == "xdisable" ]; then'
         - '  rm -rf $proxyfile'
+        - "  echo -e \"${red}Removed proxy file '${proxyfile}'${none}\""
         - 'fi'
-        - "\n# PROXY_SETTINGS_MARKER"
+        - "# PROXY_MARKER"
     - { exec: chmod +x /opt/<%=distro%>/bin/setproxy }
   remove-container-waste:
     - { exec: 'find /var/log -type f -delete' }
