@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.109
+  release: 0.1.110
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -130,10 +130,11 @@ configs:
     - { apply: conky-config }
     - { apply: guake-config }
     - { apply: thunar-config }
+    - { apply: menu-heavy-config }
     - { apply: plank-heavy-config }
-    - { apply: heavy-menu-config }
   desktop-config:
     - { apply: docker-config }
+    - { apply: menu-desktop-config }
     - { apply: plank-desktop-config }
     - { apply: cinnamon-screensaver-config }
   k8snode-config:
@@ -143,14 +144,16 @@ configs:
     - { apply: nfs-config }
     - { apply: thunar-config }
     - { apply: apache-php-config }
-    - { apply: server-menu-config }
+    - { apply: menu-server-config }
   theater-config:
     - { apply: idesk-config }
-  heavy-menu-config:
+  menu-heavy-config:
     - { edit: /etc/systemd/journald.conf, regex: '^#(SystemMaxUse).*', value: '\1=100M' }
+    # Quick launch menu
     - edit: /etc/skel/.config/openbox/menu.xml
       regex: '^\s+<!-- Screenshot -->.*'
       value: '      <item label="Screenshot" icon="/usr/share/icons/Paper/32x32/apps/gnome-screenshot.png"><action name="Execute"><execute>xfce4-screenshooter</execute></action></item>'
+    # Accessories menu
     - edit: /etc/skel/.config/openbox/menu.xml
       append: before
       regex: 'Bulk Rename'
@@ -165,9 +168,11 @@ configs:
         - '      <item label="Leafpad" icon="/usr/share/icons/hicolor/32x32/apps/leafpad.png"><action name="Execute"><execute>leafpad</execute></action></item>'
         - '      <item label="Multi Writer" icon="/usr/share/icons/Paper/32x32/devices/drive-harddisk-usb.png"><action name="Execute"><execute>sudo gnome-multi-writer</execute></action></item>'
         - '      <item label="Screenshot" icon="/usr/share/icons/Paper/32x32/apps/applets-screenshooter.png"><action name="Execute"><execute>xfce4-screenshooter</execute></action></item>'
+    # Graphics menu
     - edit: /etc/skel/.config/openbox/menu.xml
       regex: '^\s+<!-- XnViewMP -->.*'
       value: '      <item label="XnViewMP" icon="/opt/xnviewmp/xnview.png"><action name="Execute"><execute>xnviewmp</execute></action></item>'
+    # Multimedia menu
     - edit: /etc/skel/.config/openbox/menu.xml
       append: before
       regex: 'Audacious'
@@ -192,11 +197,13 @@ configs:
       regex: 'VLC'
       values:
         - '      <item label="WinFF" icon="/usr/share/icons/hicolor/32x32/apps/winff.png"><action name="Execute"><execute>winff</execute></action></item>'
+    # Network menu
     - edit: /etc/skel/.config/openbox/menu.xml
       append: after
       regex: 'FileZilla'
       values:
         - '      <item label="Remmina" icon="/usr/share/icons/Paper/32x32/apps/remmina.png"><action name="Execute"><execute>/usr/bin/remmina</execute></action></item>'
+    # Office menu
     - edit: /etc/skel/.config/openbox/menu.xml
       append: after
       regex: '<!-- Office -->'
@@ -204,6 +211,7 @@ configs:
         - '    <menu id="Office" icon="/usr/share/icons/Paper/32x32/categories/applications-office.png" label="Office">'
         - '      <item label="Evince" icon="/usr/share/icons/Paper/32x32/apps/evince.png"><action name="Execute"><execute>evince</execute></action></item>'
         - '    </menu>'
+    # Settings menu
     - edit: /etc/skel/.config/openbox/menu.xml
       append: before
       regex: 'LXAppearance'
@@ -222,7 +230,46 @@ configs:
       regex: 'HardInfo'
       values:
         - '      <item label="GParted" icon="/usr/share/icons/Paper/32x32/apps/gparted.png"><action name="Execute"><execute>sudo gparted</execute></action></item>'
-  server-menu-config:
+  menu-desktop-config:
+    # Accessories menu
+    - edit: /etc/skel/.config/openbox/menu.xml
+      append: before
+      regex: 'Leafpad'
+      values:
+        - '      <item label="KeePass" icon="/usr/share/icons/hicolor/32x32/apps/keepass.png"><action name="Execute"><execute>keepass</execute></action></item>'
+    - edit: /etc/skel/.config/openbox/menu.xml
+      append: after
+      regex: 'Multi Writer'
+      values:
+        - '      <item label="Synergy" icon="/usr/share/icons/Paper/32x32/apps/synergy.png"><action name="Execute"><execute>synergy</execute></action></item>'
+    # Development menu
+    - edit: /etc/skel/.config/openbox/menu.xml
+      append: after
+      regex: 'GVim'
+      values:
+        - '      <item label="Meld" icon="/usr/share/icons/Paper/32x32/apps/meld.png"><action name="Execute"><execute>meld</execute></action></item>'
+        - '      <item label="Visual Studio Code" icon="/usr/share/icons/Paper/32x32/apps/visual-studio-code.png"><action name="Execute"><execute>code</execute></action></item>'
+    # Graphics menu
+    - edit: /etc/skel/.config/openbox/menu.xml
+      append: before
+      regex: 'Image Viewer'
+      values:
+        - '      <item label="Gimp" icon="/usr/share/icons/Paper/32x32/apps/gimp.png"><action name="Execute"><execute>gimp-2.8</execute></action></item>'
+    - edit: /etc/skel/.config/openbox/menu.xml
+      append: after
+      regex: 'Image Viewer'
+      values:
+        - '      <item label="Inkscape" icon="/usr/share/icons/Paper/32x32/apps/inkscape.png"><action name="Execute"><execute>inkscape</execute></action></item>'
+        - '      <item label="Kolour Paint" icon="/usr/share/icons/Paper/32x32/apps/kolourpaint.png"><action name="Execute"><execute>kolourpaint</execute></action></item>'
+        - '      <item label="LibreOffice Draw" icon="/usr/share/icons/Paper/32x32/apps/libreoffice-draw.png"><action name="Execute"><execute>libreoffice --draw</execute></action></item>'
+    # Multimedia menu
+    - edit: /etc/skel/.config/openbox/menu.xml
+      append: after
+      regex: 'MKVToolNix'
+      values:
+        - '      <item label="OpenShot" icon="/usr/share/icons/Paper/32x32/apps/openshot.png"><action name="Execute"><execute>openshot-qt</execute></action></item>'
+  menu-server-config:
+    # Accessories menu
     - edit: /etc/skel/.config/openbox/menu.xml
       append: before
       regex: 'Bulk Rename'
@@ -233,6 +280,7 @@ configs:
       regex: 'Bulk Rename'
       values:
         - '      <item label="KeePass" icon="/usr/share/icons/hicolor/32x32/apps/keepass.png"><action name="Execute"><execute>keepass</execute></action></item>'
+    # Multimedia menu
     - edit: /etc/skel/.config/openbox/menu.xml
       append: after
       regex: 'Audacious'
@@ -244,12 +292,33 @@ configs:
       regex: 'SMPlayer'
       values:
         - '      <item label="Tiny Media Manager" icon="/usr/share/icons/hicolor/32x32/apps/tiny-media-manager.png"><action name="Execute"><execute>tiny-media-manager</execute></action></item>'
+    # Network menu
     - edit: /etc/skel/.config/openbox/menu.xml
       append: after
       regex: 'FileZilla'
       values:
         - '      <item label="OpenVPN PIA" icon="/usr/share/icons/hicolor/32x32/apps/openvpn-pia.png"><action name="Execute"><execute>sudo openvpn-pia</execute></action></item>'
         - '      <item label="qBittorrent" icon="/usr/share/icons/hicolor/32x32/apps/qbittorrent.png"><action name="Execute"><execute>qbittorrent </execute></action></item>'
+        - '      <item label="WPA Gui" icon="/usr/share/icons/hicolor/32x32/apps/wpa_gui.png"><action name="Execute"><execute>sudo wpa_gui</execute></action></item>'
+    # Office menu
+    - edit: /etc/skel/.config/openbox/menu.xml
+      append: after
+      regex: 'Evince'
+      values:
+        - '      <item label="LibreOffice Base" icon="/usr/share/icons/Paper/32x32/apps/libreoffice-base.png"><action name="Execute"><execute>libreoffice --base</execute></action></item>'
+        - '      <item label="LibreOffice Calc" icon="/usr/share/icons/Paper/32x32/apps/libreoffice-calc.png"><action name="Execute"><execute>libreoffice --calc</execute></action></item>'
+        - '      <item label="LibreOffice Draw" icon="/usr/share/icons/Paper/32x32/apps/libreoffice-draw.png"><action name="Execute"><execute>libreoffice --draw</execute></action></item>'
+        - '      <item label="LibreOffice Impress" icon="/usr/share/icons/Paper/32x32/apps/libreoffice-impress.png"><action name="Execute"><execute>libreoffice --impress</execute></action></item>'
+        - '      <item label="LibreOffice Math" icon="/usr/share/icons/Paper/32x32/apps/libreoffice-math.png"><action name="Execute"><execute>libreoffice --math</execute></action></item>'
+        - '      <item label="LibreOffice Writer" icon="/usr/share/icons/Paper/32x32/apps/libreoffice-writer.png"><action name="Execute"><execute>libreoffice --writer</execute></action></item>'
+        - '      <item label="LibreOffice" icon="/usr/share/icons/Paper/32x32/apps/libreoffice-startcenter.png"><action name="Execute"><execute>libreoffice</execute></action></item>'
+        - '      <item label="Scribus" icon="/usr/share/icons/Paper/32x32/apps/scribus.png"><action name="Execute"><execute>scribus</execute></action></item>'
+    # Settings menu
+    - edit: /etc/skel/.config/openbox/menu.xml
+      append: after
+      regex: 'Htop'
+      values:
+        - '      <item label="VirtualBox" icon="/usr/share/icons/Paper/32x32/apps/virtualbox.png"><action name="Execute"><execute>VirtualBox</execute></action></item>'
   apache-php-config:
     - { edit: /etc/httpd/conf/httpd.conf, regex: '^(Listen).*', value: '\1 80' }
     - { edit: /etc/httpd/conf/httpd.conf, regex: '^(DocumentRoot).*', value: '\1 /srv/http' }
@@ -303,6 +372,18 @@ configs:
     - { edit: /root/.bashrc, regex: '^(export PATH.*)', value: '\1:/opt/<%=distro%>/bin' }
     - { edit: /etc/skel/.bashrc, regex: '^(export PATH.*)', value: '\1:/opt/<%=distro%>/bin' }
   cinnamon-screensaver-config:
+    - edit: /etc/skel/.config/autostart/cinnamon-screensaver.desktop
+      append: true
+      values:
+        - '[Desktop Entry]'
+        - 'Name=Cinnamon Screensaver'
+        - 'Comment=Desktop screensaver and lock'
+        - 'Exec=cinnamon-screensaver'
+        - 'Icon=cinnamon-screensaver'
+        - 'Terminal=false'
+        - 'StartupNotify=true'
+        - 'Type=Application'
+        - 'Categories=System;Utility;'
     - edit: /etc/dconf/db/local.d/04-cinnamon
       append: true
       values:

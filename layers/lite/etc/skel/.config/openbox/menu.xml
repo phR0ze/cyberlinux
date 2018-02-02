@@ -22,6 +22,8 @@
       <item label="GVim" icon="/usr/share/icons/Paper/32x32/apps/gvim.png"><action name="Execute"><execute>gvim -f</execute></action></item>
     </menu>
 
+    <!-- Games -->
+
     <!-- Graphics -->
     <menu id="Graphics" icon="/usr/share/icons/Paper/32x32/categories/applications-graphics.png" label="Graphics">
       <item label="Image Viewer" icon="/usr/share/icons/Paper/32x32/apps/gpicview.png"><action name="Execute"><execute>gpicview </execute></action></item>
