@@ -72,4 +72,4 @@ alias egrep='egrep --color=auto'
 none="\[\e[0m\]"
 cyber="\[\e[1;38;5;67m\]"
 export PS1="${cyber}[\u@\h:\w]\$${none} "
-export PATH=$PATH:$HOME/bin:/opt/<%=distro%>/bin
+export PATH=$PATH:$HOME/bin

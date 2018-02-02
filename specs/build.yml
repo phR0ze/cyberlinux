@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.102
+  release: 0.1.103
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -70,6 +70,7 @@ configs:
   # Core configuration for any container
   #-----------------------------------------------------------------------------
   container-core-config:
+    - { apply: bash-config }
     - { apply: hosts-config }
     - { apply: locale-config }
     - { apply: lsb-release-config }
@@ -86,6 +87,7 @@ configs:
   # Core configuration for any machine
   #-----------------------------------------------------------------------------
   machine-core-config:
+    - { apply: bash-config }
     - { apply: hosts-config }
     - { apply: locale-config }
     - { apply: logind-config }
@@ -297,6 +299,9 @@ configs:
     - { edit: /etc/php/php.ini, regex: '^;(extension=pdo_sqlite.so.*)', value: '\1' }
     - { edit: /etc/php/php.ini, regex: '^;(extension=sqlite3.so.*)', value: '\1' }
     - { chroot: systemctl enable httpd.service }
+  bash-config:
+    - { edit: /root/.bashrc, regex: '^(export PATH.*)', value: '\1:/opt/<%=distro%>/bin' }
+    - { edit: /etc/skel/.bashrc, regex: '^(export PATH.*)', value: '\1:/opt/<%=distro%>/bin' }
   cinnamon-screensaver-config:
     - edit: /etc/dconf/db/local.d/04-cinnamon
       append: true
