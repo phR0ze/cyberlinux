@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.100
+  release: 0.1.101
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -667,7 +667,7 @@ configs:
         # Wait for teamviewer service to create the base config
         - 'teamviewer_conf=/etc/teamviewer/global.conf'
         - 'while [ ! -f $teamviewer_conf ]; do sleep 1; done'
-        - 'if [ $(grep EulaAccepted $teamviewer_conf &> /dev/null; echo $?) != 0 ]; then'
+        - 'if [ $(grep EulaAccepted $teamviewer_conf &>/dev/null; echo $?) != 0 ]; then'
         # Accept the personal use license
         - '  echo "[int32] EulaAccepted = 1" >> $teamviewer_conf'
         - '  echo "[int32] LicenseType = 10000" >> $teamviewer_conf'

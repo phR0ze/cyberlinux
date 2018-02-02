@@ -116,7 +116,7 @@ mount_layers()
 
         echo -en ":: Mounting ${img_path} at ${img_mnt}..."
         mkdir -p "${img_mnt}"
-        mount -r -t squashfs ${img_path} ${img_mnt} &> /dev/null
+        mount -r -t squashfs ${img_path} ${img_mnt} &>/dev/null
         check_status
         mounts="${mounts}${img_mnt} "
     done
@@ -144,13 +144,13 @@ mount_iso()
         sleep 0.25 # Sleep for a bit
 
         # Mount iso by label from kernel cmdline
-        isodev=$(blkid -L ${label}) &> /dev/null
+        isodev=$(blkid -L ${label}) &>/dev/null
         if [ "x${isodev}" != "x" ]; then
             check_status
-            local fstype=$(blkid -s TYPE -o value ${isodev}) &> /dev/null
-            local install_type=$(lsblk -nl -o TYPE ${isodev}) &> /dev/null
+            local fstype=$(blkid -s TYPE -o value ${isodev}) &>/dev/null
+            local install_type=$(lsblk -nl -o TYPE ${isodev}) &>/dev/null
             echo -en "   Mounting ${cyan}${install_type}${none} device ${cyan}${isodev}${none} to ${isomnt}..."
-            mount -r -t ${fstype} -o noatime ${isodev} ${isomnt} &> /dev/null
+            mount -r -t ${fstype} -o noatime ${isodev} ${isomnt} &>/dev/null
             check_status && success=1
         fi
 
@@ -170,29 +170,29 @@ partition_and_mount_disk()
     check_status
 
     echo -en ":: Destroy any magic strings and/or signatures on ${install_dev}..."
-    wipefs --all --force ${install_dev} &> /dev/null
+    wipefs --all --force ${install_dev} &>/dev/null
     check_status
 
     echo -en ":: Wiping partition table on ${install_dev}..."
-    sgdisk --zap ${install_dev} &> /dev/null
+    sgdisk --zap ${install_dev} &>/dev/null
     check_status
 
     # Create a GPT boot disk
     if [ "x${install_boot_type}" == "xgpt" ]; then
         echo -en ":: Creating ${install_dev}1 as BIOS boot partition..."
-        sgdisk -n 0:0:+2M -t 0:ef02 -c 0:"BIOS boot" ${install_dev} &> /dev/null
+        sgdisk -n 0:0:+2M -t 0:ef02 -c 0:"BIOS boot" ${install_dev} &>/dev/null
         check_status
 
         echo -en ":: Creating ${install_dev}2 as Linux swap partition..."
-        sgdisk -n 0:0:+4G -t 0:8200 -c 0:"Linux swap" ${install_dev} &> /dev/null
+        sgdisk -n 0:0:+4G -t 0:8200 -c 0:"Linux swap" ${install_dev} &>/dev/null
         check_status
 
         echo -en ":: Creating ${install_dev}3 as Linux filesystem partition..."
-        sgdisk -n 0:0:0 -t 0:8300 -c 0:"Linux filesystem" ${install_dev} &> /dev/null
+        sgdisk -n 0:0:0 -t 0:8300 -c 0:"Linux filesystem" ${install_dev} &>/dev/null
         check_status
 
         echo -en ":: Setting boot flag on ${install_dev}3..."
-        sgdisk ${install_dev} --attributes=3:set:2 &> /dev/null
+        sgdisk ${install_dev} --attributes=3:set:2 &>/dev/null
         check_status
 
     # Create a MBR boot disk
@@ -201,17 +201,17 @@ partition_and_mount_disk()
         echo ',2M,0' > layout
         echo ',4G,82' >> layout
         echo ',+,83,*' >> layout
-        cat layout | sfdisk ${install_dev} &> /dev/null
+        cat layout | sfdisk ${install_dev} &>/dev/null
         check_status
         rm -f layout
     fi
 
     echo -en ":: Formating ${install_dev}2 as (swap)..."
-    mkswap ${install_dev}2 &> /dev/null
+    mkswap ${install_dev}2 &>/dev/null
     check_status
 
     echo -en ":: Starting swap on ${install_dev}2..."
-    swapon ${install_dev}2 &> /dev/null
+    swapon ${install_dev}2 &>/dev/null
     check_status
 
     echo -en ":: Formating ${install_dev}3 as (ext4)..."
@@ -220,12 +220,12 @@ partition_and_mount_disk()
     # -L            set volume name used for /boot/syslinux/syslinux.cfg
     # -m 0          don't reserve blocks for super user daemons
     # -q            run in quiet mode for scripts
-    mkfs.ext4 -O ^64bit -F -m 0 -q -L root ${install_dev}3 &> /dev/null
+    mkfs.ext4 -O ^64bit -F -m 0 -q -L root ${install_dev}3 &>/dev/null
     check_status
 
     echo -en ":: Mounting ${install_dev}3 as ${rootmnt}..."
     # Disable access time writes (speeds things up)
-    mount -o noatime ${install_dev}3 ${rootmnt} &> /dev/null
+    mount -o noatime ${install_dev}3 ${rootmnt} &>/dev/null
     check_status
 }
 
@@ -233,20 +233,20 @@ mount_chroot_dirs()
 {
     # Ensure mount point directories exist
     for x in "sys proc dev dev/pts"; do
-        mkdir -p ${rootmnt}/${x} &> /dev/null
+        mkdir -p ${rootmnt}/${x} &>/dev/null
     done
 
     # Mount current system in newchroot
-    mount -t sysfs sysfs ${rootmnt}/sys &> /dev/null
-    mount -t proc /proc ${rootmnt}/proc &> /dev/null
-    mount -o bind /dev ${rootmnt}/dev &> /dev/null
-    mount -t devpts /dev/pts ${rootmnt}/dev/pts &> /dev/null
+    mount -t sysfs sysfs ${rootmnt}/sys &>/dev/null
+    mount -t proc /proc ${rootmnt}/proc &>/dev/null
+    mount -o bind /dev ${rootmnt}/dev &>/dev/null
+    mount -t devpts /dev/pts ${rootmnt}/dev/pts &>/dev/null
 }
 
 umount_chroot_dirs()
 {
     for x in "sys proc dev/pts dev"; do
-        umount -f ${rootmnt}/${x} &> /dev/null
+        umount -f ${rootmnt}/${x} &>/dev/null
     done
 }
 
@@ -255,7 +255,7 @@ umount_all()
     mounts="${mounts}${isomnt}"
     for x in ${mounts}; do
         echo -en ":: Unmounting ${x}..."
-        umount -f ${x} &> /dev/null
+        umount -f ${x} &>/dev/null
         check_status
     done
 }
@@ -297,7 +297,7 @@ config_system()
 
     # Configure timezone
     echo -en ":: Set timezone to ${timezone}..."
-    chroot ${rootmnt} ln -sf /usr/share/zoneinfo/$timezone /etc/localtime &> /dev/null
+    chroot ${rootmnt} ln -sf /usr/share/zoneinfo/$timezone /etc/localtime &>/dev/null
     check_status
 
     # Configure networking
@@ -346,7 +346,7 @@ config_system()
             sed -i -e "s|^\(no_proxy_array\)=.*|\1=\"${no_proxy_array}\"|" "${rootmnt}/opt/$distro/bin/setproxy"
             check_status
         fi
-        chroot ${rootmnt} /opt/$distro/bin/setproxy 1 &> /dev/null
+        chroot ${rootmnt} /opt/$distro/bin/setproxy 1 &>/dev/null
     fi
 
     # Autologin if lxdm exists and parameter is set
@@ -455,12 +455,12 @@ installer()
     echo -e ":: New Root path '${rootmnt}'"
     if [ $target_layer == "live" ]; then
         echo -en ":: Creating live tmpfs filesystem for writes, size=${rw_ram_size}..."
-        mount -t tmpfs -o "size=${rw_ram_size}",mode=0755 none ${writemnt} &> /dev/null
+        mount -t tmpfs -o "size=${rw_ram_size}",mode=0755 none ${writemnt} &>/dev/null
         check_status
         mount_layers "${isomnt}/${images_path}" ${writemnt}/root ${writemnt}/temp
 
         echo -en ":: Re-bind ${writemnt}/root to new root location ${rootmnt}..."
-        mount -o bind ${writemnt}/root ${rootmnt} &> /dev/null
+        mount -o bind ${writemnt}/root ${rootmnt} &>/dev/null
         check_status
     else
         mount_layers "${isomnt}/${images_path}" ${readmnt}/root ${readmnt}/temp
@@ -474,19 +474,19 @@ installer()
     mount_chroot_dirs
     config_system
     echo -en ":: Set unique machine-id..."
-    chroot ${rootmnt} dbus-uuidgen --ensure=/etc/machine-id &> /dev/null
-    chroot ${rootmnt} ln -sf /etc/machine-id /var/lib/dbus/machine-id &> /dev/null
+    chroot ${rootmnt} dbus-uuidgen --ensure=/etc/machine-id &>/dev/null
+    chroot ${rootmnt} ln -sf /etc/machine-id /var/lib/dbus/machine-id &>/dev/null
     check_status
 
     # Install bootloader
     #---------------------------------------------------------------------------
     if [ $target_layer != "live" ]; then
         echo -en ":: Install syslinux bootloader on ${install_dev}..."
-        chroot ${rootmnt} syslinux-install_update -i -a -m &> /dev/null
+        chroot ${rootmnt} syslinux-install_update -i -a -m &>/dev/null
         check_status
 
         echo -en ":: Generate new initramfs..."
-        chroot ${rootmnt} mkinitcpio -p linux &> /dev/null
+        chroot ${rootmnt} mkinitcpio -p linux &>/dev/null
         check_status
     fi
     umount_chroot_dirs

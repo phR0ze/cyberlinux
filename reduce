@@ -898,7 +898,7 @@ class Reduce
             puts("Removing conflicting packages for '#{layer}'...".colorize(:cyan))
             pkgs[:conflict].map{|x| x.split(':').last}.each{|conflict|
               !puts("Error: Failed to remove conflicting package".colorize(:red)) and
-                exit unless Sys.exec("pacman -Rn -r #{layer_work} -d -d --noconfirm #{conflict} || true", die:false)
+                exit unless Sys.exec("pacman -Rn -r #{layer_work} -d -d --noconfirm #{conflict} &>/dev/null || true", die:false)
             }
           end
 
