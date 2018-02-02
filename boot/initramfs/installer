@@ -1,6 +1,6 @@
 #!/bin/bash
 #MIT License
-#Copyright (c) 2018 phR0ze
+#Copyright (c) 2017-2018 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -331,9 +331,9 @@ config_system()
         echo -en ":: Set proxy to ${proxy}..."
         proxy_port=${proxy//*:/}
         proxy_host=$(echo ${proxy//:/ } | awk '{print $1":"$2}')
-        sed -i -e "s|^\(proxy\)=.*|\1=${proxy}|" "${rootmnt}/usr/bin/setproxy"
-        sed -i -e "s|^\(proxy_host\)=.*|\1=${proxy_host}|" "${rootmnt}/usr/bin/setproxy"
-        sed -i -e "s|^\(proxy_port\)=.*|\1=${proxy_port}|" "${rootmnt}/usr/bin/setproxy"
+        sed -i -e "s|^\(proxy\)=.*|\1=${proxy}|" "${rootmnt}/opt/$distro/bin/setproxy"
+        sed -i -e "s|^\(proxy_host\)=.*|\1=${proxy_host}|" "${rootmnt}/opt/$distro/bin/setproxy"
+        sed -i -e "s|^\(proxy_port\)=.*|\1=${proxy_port}|" "${rootmnt}/opt/$distro/bin/setproxy"
         check_status
         if [ $no_proxy ] && [ "x$no_proxy" != "xNone" ]; then
             echo -en ":: Set no_proxy to ${no_proxy}..."
@@ -342,11 +342,11 @@ config_system()
             for x in $no_proxy; do no_proxy_array="${no_proxy_array}'${x}', "; done
             IFS=$ifs
             no_proxy_array="${no_proxy_array%??}]"
-            sed -i -e "s|^\(no_proxy\)=.*|\1=${no_proxy}|" "${rootmnt}/usr/bin/setproxy"
-            sed -i -e "s|^\(no_proxy_array\)=.*|\1=\"${no_proxy_array}\"|" "${rootmnt}/usr/bin/setproxy"
+            sed -i -e "s|^\(no_proxy\)=.*|\1=${no_proxy}|" "${rootmnt}/opt/$distro/bin/setproxy"
+            sed -i -e "s|^\(no_proxy_array\)=.*|\1=\"${no_proxy_array}\"|" "${rootmnt}/opt/$distro/bin/setproxy"
             check_status
         fi
-        chroot ${rootmnt} /usr/bin/setproxy 1 &> /dev/null
+        chroot ${rootmnt} /opt/$distro/bin/setproxy 1 &> /dev/null
     fi
 
     # Autologin if lxdm exists and parameter is set
