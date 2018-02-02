@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.101
+  release: 0.1.102
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -642,7 +642,6 @@ configs:
       append: true
       values:
         - '#!/bin/sh'
-        - 'xset m 6/1 4                                    # Configure mouse'
         - 'display=$(xrandr | grep connected | sed -e "s/^\([A-Z0-9-]\+\).*/\1/")'
         - 'resolution="1024x768"'
         - 'if [ "$resolution" == "1920x1080" ]; then'
@@ -650,7 +649,6 @@ configs:
         - '    xrandr --addmode $display $resolution'
         - 'fi'
         - 'xrandr --output $display --mode $resolution'
-        - '(sleep 1s && xset s off -dpms) &                # Disable DPMS and prevent screen blanking'
   makemkv-config:
     - edit: /etc/skel/.config/openbox/menu.xml
       append: after
@@ -1001,6 +999,15 @@ configs:
         - 'update_config=1'
         - 'ap_scan=1'
   xorg-config:
+    - edit: /etc/X11/xorg.conf.d/20-mouse.conf
+      append: true
+      values:
+        - 'Section "InputClass"'
+        - '    Identifier "Mouse"'
+        - '    Driver "libinput"'
+        - '    MatchIsPointer "on"'
+        - '    Option "AccelSpeed" "0.3"'
+        - 'EndSection'
     - edit: /etc/X11/xorg.conf.d/30-touchpad.conf
       append: true
       values:
