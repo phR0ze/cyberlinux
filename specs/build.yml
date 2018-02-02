@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.97
+  release: 0.1.98
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -664,31 +664,45 @@ configs:
       append: true
       values:
         - '#!/bin/bash'
-        - 'while [ ! -f /etc/teamviewer/global.conf ]; do sleep 1; done'
+        # Wait for teamviewer service to create the base config
+        - 'teamviewer_conf=/etc/teamviewer/global.conf'
+        - 'while [ ! -f $teamviewer_conf ]; do sleep 1; done'
+        - 'if [ $(grep EulaAccepted $teamviewer_conf &> /dev/null; echo $?) != 0 ]; then'
         # Accept the personal use license
-        - 'echo "[int32] EulaAccepted = 1" >> /etc/teamviewer/global.conf'
-        - 'echo "[int32] LicenseType = 10000" >> /etc/teamviewer/global.conf'
+        - '  echo "[int32] EulaAccepted = 1" >> $teamviewer_conf'
+        - '  echo "[int32] LicenseType = 10000" >> $teamviewer_conf'
         # Allow direct LAN connections only
-        - 'echo "[int32] LanOnly = 1" >> /etc/teamviewer/global.conf'
-        - 'echo "[int32] General_DirectLAN = 1" >> /etc/teamviewer/global.conf'
+        - '  echo "[int32] LanOnly = 1" >> $teamviewer_conf'
+        - '  echo "[int32] General_DirectLAN = 1" >> $teamviewer_conf'
         # Disable logging
-        - 'echo "[int32] Logging = 0" >> /etc/teamviewer/global.conf'
-        - 'echo "[int32] LogIncomingConnections = 0" >> /etc/teamviewer/global.conf'
-        - 'echo "[int32] LogOutgoingConnections = 0" >> /etc/teamviewer/global.conf'
+        - '  echo "[int32] Logging = 0" >> $teamviewer_conf'
+        - '  echo "[int32] LogIncomingConnections = 0" >> $teamviewer_conf'
+        - '  echo "[int32] LogOutgoingConnections = 0" >> $teamviewer_conf'
         # Disable shutdown and always run
-        - 'echo "[int32] Always_Online = 1" >> /etc/teamviewer/global.conf'
-        - 'echo "[int32] Security_Disableshutdown = 1" >> /etc/teamviewer/global.conf'
-        - 'echo "[int32] ACFullAccessOnLoginScreen = 1" >> /etc/teamviewer/global.conf'
+        - '  echo "[int32] Always_Online = 1" >> $teamviewer_conf'
+        - '  echo "[int32] Security_Disableshutdown = 1" >> $teamviewer_conf'
+        - '  echo "[int32] ACFullAccessOnLoginScreen = 1" >> $teamviewer_conf'
         # Disable random password (for spontaneous access)
-        - 'echo "[int32] Security_PasswordStrength = 3" >> /etc/teamviewer/global.conf'
+        - '  echo "[int32] Security_PasswordStrength = 3" >> $teamviewer_conf'
         # Launch TeamViewer
         # Minimize running instance
-        # Create autolauncher
+        - 'fi'
+        # Create desktop entry autostart 
+        - 'HOME=/home/$SUDO_USER'
+        - 'desktop_entry=$HOME/.config/autostart/teamviewer.desktop'
+        - 'echo "[Desktop Entry]" >> $desktop_entry'
+        - 'echo "Name=Teamviewer" >> $desktop_entry'
+        - 'echo "Comment=Remote control and meeting solution" >> $desktop_entry' 
+        - 'echo "Exec=teamviewer" >> $desktop_entry' 
+        - 'echo "Icon=teamviewer" >> $desktop_entry' 
+        - 'echo "Terminal=false" >> $desktop_entry' 
+        - 'echo "StartupNotify=true" >> $desktop_entry' 
+        - 'echo "Type=Application" >> $desktop_entry' 
+        - 'echo "Categories=Network;" >> $desktop_entry' 
         # Set openbox to automatically close TeamViewer to tray persistantly
-        - 'echo "" >> /home/$SUDO_USER/.config/openbox/autostart'
-        - 'echo "#Auto close teamviewer" >> /home/$SUDO_USER/.config/openbox/autostart'
-        - 'echo "(sleep 10 && wmctrl -c TeamViewer)&" >> /home/$SUDO_USER/.config/openbox/autostart'
-        - '(sleep 10 && wmctrl -c Teamviewer)&'
+        - 'echo "" >> $HOME/.config/openbox/autostart'
+        - 'echo "#Auto close teamviewer" >> $HOME/.config/openbox/autostart'
+        - 'echo "(sleep 10 && wmctrl -c TeamViewer)&" >> $HOME/.config/openbox/autostart'
     - edit: /etc/skel/.config/openbox/menu.xml
       append: before
       regex: 'Zenmap'
@@ -698,14 +712,7 @@ configs:
       append: true
       values:
         - '[Desktop Entry]'
-        - 'Name=Teamviewer'
-        - 'Comment=Remote control and meeting solution'
-        - 'Exec=teamviewer'
-        - 'Icon=teamviewer'
-        - 'Terminal=false'
-        - 'StartupNotify=true'
-        - 'Type=Application'
-        - 'Categories=Network;'
+        - 'Exec=sudo /opt/<%=distro%>/bin/teamviewer'
     - { chroot: systemctl enable teamviewerd.service }
   makepkg-config:
     - { edit: /etc/makepkg.conf, regex: '^#(MAKEFLAGS)=.*', value: '\1="-j8"' }
