@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.98
+  release: 0.1.99
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -660,7 +660,7 @@ configs:
 
         - '      <item label="MakeMKV" icon="/usr/share/icons/hicolor/32x32/apps/makemkv.png"><action name="Execute"><execute>makemkv</execute></action></item>'
   teamviewer-config:
-    - edit: /opt/<%=distro%>/bin/teamviewer
+    - edit: /opt/<%=distro%>/bin/config-teamviewer
       append: true
       values:
         - '#!/bin/bash'
@@ -684,25 +684,11 @@ configs:
         - '  echo "[int32] ACFullAccessOnLoginScreen = 1" >> $teamviewer_conf'
         # Disable random password (for spontaneous access)
         - '  echo "[int32] Security_PasswordStrength = 3" >> $teamviewer_conf'
-        # Launch TeamViewer
-        # Minimize running instance
+        # Restart teamviewer service so that it picks up changes and autostarts tray
+        - '  systemctl restart teamviewerd'
         - 'fi'
-        # Create desktop entry autostart 
-        - 'HOME=/home/$SUDO_USER'
-        - 'desktop_entry=$HOME/.config/autostart/teamviewer.desktop'
-        - 'echo "[Desktop Entry]" >> $desktop_entry'
-        - 'echo "Name=Teamviewer" >> $desktop_entry'
-        - 'echo "Comment=Remote control and meeting solution" >> $desktop_entry' 
-        - 'echo "Exec=teamviewer" >> $desktop_entry' 
-        - 'echo "Icon=teamviewer" >> $desktop_entry' 
-        - 'echo "Terminal=false" >> $desktop_entry' 
-        - 'echo "StartupNotify=true" >> $desktop_entry' 
-        - 'echo "Type=Application" >> $desktop_entry' 
-        - 'echo "Categories=Network;" >> $desktop_entry' 
-        # Set openbox to automatically close TeamViewer to tray persistantly
-        - 'echo "" >> $HOME/.config/openbox/autostart'
-        - 'echo "#Auto close teamviewer" >> $HOME/.config/openbox/autostart'
-        - 'echo "(sleep 10 && wmctrl -c TeamViewer)&" >> $HOME/.config/openbox/autostart'
+        # Clean up auto launch of teamviewer config script
+        - 'rm -f /home/$SUDO_USER/.config/autostart/teamviewer.desktop'
     - edit: /etc/skel/.config/openbox/menu.xml
       append: before
       regex: 'Zenmap'
@@ -712,7 +698,8 @@ configs:
       append: true
       values:
         - '[Desktop Entry]'
-        - 'Exec=sudo /opt/<%=distro%>/bin/teamviewer'
+        - 'Exec=sudo /opt/<%=distro%>/bin/config-teamviewer'
+    - { exec: chmod +x /opt/<%=distro%>/bin/config-teamviewer }
     - { chroot: systemctl enable teamviewerd.service }
   makepkg-config:
     - { edit: /etc/makepkg.conf, regex: '^#(MAKEFLAGS)=.*', value: '\1="-j8"' }
