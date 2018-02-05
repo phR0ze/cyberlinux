@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.117
+  release: 0.1.118
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -408,6 +408,10 @@ configs:
         - "    <key type=\"u\" name=\"logout-delay\"><default>7200</default></key>\n"
     - { chroot: glib-compile-schemas /usr/share/glib-2.0/schemas }
   conky-config:
+    - edit: /etc/lxdm/PostLogout
+      append: true
+      values:
+        - 'killall conky'
     - edit: /etc/skel/.config/autostart/conky.desktop
       append: true
       values:
@@ -425,10 +429,6 @@ configs:
       regex: 'Reconfigure Openbox'
       values:
         - '        <item label="Conky RC" icon="/usr/share/icons/Paper/32x32/apps/gvim.png"><action name="Execute"><execute>gvim ~/.conkyrc</execute></action></item>'
-    - edit: /etc/lxdm/PostLogout
-      append: true
-      values:
-        - 'killall conky'
   dconf-config:
     - edit: /etc/dconf/profile/user
       append: true
