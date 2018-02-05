@@ -26,18 +26,20 @@ def update_copyright(copyright)
   curr_year = Time.now.year
 
   `git diff --cached --name-only --diff-filter=d`.split(' ').each{|path|
-    modify(path){|line|
-      if line =~ /##{Regexp.quote(copyright)}/
-        year = line[/##{Regexp.quote(copyright)}\s+((\d{4}\s)|(\d{4}-\d{4})).*/, 1].strip
-        if year.include?("-")
-          years = year.split("-")
-          line.gsub!(year, "#{years.first}-#{curr_year}") if years.last != curr_year
-        else
-          prev_year = year == curr_year.to_s ? year.to_i - 1 : year
-          line.gsub!(year.to_s, "#{prev_year}-#{curr_year}")
+    if `file #{path}`.include?("ASCII text")
+      modify(path){|line|
+        if line =~ /##{Regexp.quote(copyright)}/
+          year = line[/##{Regexp.quote(copyright)}\s+((\d{4}\s)|(\d{4}-\d{4})).*/, 1].strip
+          if year.include?("-")
+            years = year.split("-")
+            line.gsub!(year, "#{years.first}-#{curr_year}") if years.last != curr_year
+          else
+            prev_year = year == curr_year.to_s ? year.to_i - 1 : year
+            line.gsub!(year.to_s, "#{prev_year}-#{curr_year}")
+          end
         end
-      end
-    }
+      }
+    end
   }
 end
 
