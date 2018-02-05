@@ -2,10 +2,10 @@
 <img align="left" width="48" height="48" src="https://raw.githubusercontent.com/phR0ze/cyberlinux/master/art/cyberlinux.png">
 <b><i>cyberlinux</i></b> was designed to provide the unobtrusive beauty and power of Arch Linux as a fully
 customized automated offline multi-deployment ISO. Using a clean declarative yaml specification,
-processed by <b><i>reduce</i></b>, cyberlinux is able to completely customize and automate the building of
-Arch Linux filesystems which are bundled as a bootable ISO. Many common use cases are available as 
-deployment options right out of the box, but the option to build your own infinitely flexible
-deployment is yours for the taking.
+cyberlinux is able to completely customize and automate the building of Arch Linux filesystems
+which are bundled as a bootable ISO. Many common use cases are available as deployment options
+right out of the box, but the option to build your own infinitely flexible deployment is yours
+for the taking.
 
 [![Build Status](https://travis-ci.org/phR0ze/cyberlinux.svg)](https://travis-ci.org/phR0ze/cyberlinux)
 
