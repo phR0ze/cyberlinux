@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.118
+  release: 0.1.119
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -147,6 +147,7 @@ configs:
     - { apply: menu-server-config }
   theater-config:
     - { apply: idesk-config }
+    - { apply: resolution-theater }
   menu-heavy-config:
     - { edit: /etc/systemd/journald.conf, regex: '^#(SystemMaxUse).*', value: '\1=100M' }
     # Quick launch menu
@@ -731,18 +732,11 @@ configs:
       values:
         - '#!/bin/sh'
         - "ps --user $USER | awk 'NR > 1 {print $1}' | xargs -t kill"
-    - { exec: rm -f /etc/lxdm/PreLogin }
-    - edit: /etc/lxdm/PreLogin
-      append: true
+    - edit: /usr/sbin/lxdm
+      append: before
+      regex: 'exec'
       values:
-        - '#!/bin/sh'
-        - 'display=$(xrandr | grep connected | sed -e "s/^\([A-Z0-9-]\+\).*/\1/")'
-        - 'resolution="1024x768"'
-        - 'if [ "$resolution" == "1920x1080" ]; then'
-        - '    xrandr --newmode $resolution $(cvt 1920 1080 | tail -1 | sed "s/Modeline.*\"  \(.*\)/\1/g")'
-        - '    xrandr --addmode $display $resolution'
-        - 'fi'
-        - 'xrandr --output $display --mode $resolution'
+        - '/opt/<%=distro%>/bin/pre-xorg'
   makemkv-config:
     - edit: /etc/skel/.config/openbox/menu.xml
       append: after
@@ -1015,6 +1009,17 @@ configs:
     - { exec: 'rm -rf /etc/pacman.d/mirrorlist' }
     - { exec: 'rm -rf /var/tmp/*' }
     - { exec: 'rm -rf /tmp/*' }
+  resolution-theater:
+    - edit: /etc/X11/xorg.conf.d/10-display.conf
+      append: true
+      values:
+        - 'Section "Screen"'
+        - '    Identifier "Screen"'
+        - '    SubSection "Display"'
+        - '        Depth 24'
+        - '        Modes "1920x1080"'
+        - '    EndSubSection'
+        - 'EndSection'
   resolved-config:
     - { exec: ln -sf //run/systemd/resolve/resolv.conf /etc/resolv.conf }
   root-user-config:
@@ -1110,16 +1115,21 @@ configs:
         - 'update_config=1'
         - 'ap_scan=1'
   xorg-config:
-    - edit: /opt/<%=distro%>/conf/xorg/vbox-display.conf
+    - edit: /opt/<%=distro%>/bin/pre-xorg
       append: true
       values:
-        - 'Section "Screen"'
-        - '    Identifier "Screen0"'
-        - '    SubSection "Display"'
-        - '        Depth 24'
-        - '        Modes "1280x1024"'
-        - '    EndSubSection'
-        - 'EndSection'
+        - '#!/bin/bash'
+        - '# Set resolution for virtuabox deployment'
+        - 'display_conf=/etc/X11/xorg.conf.d/10-display.conf'
+        - 'if [ $(lsmod | grep "vboxvideo" &>/dev/null; echo $?) == 0 ]; then'
+        - "    echo 'Section \"Screen\"' > $display_conf"
+        - "    echo '    Identifier \"Screen\"' >> $display_conf"
+        - "    echo '    SubSection \"Display\"' >> $display_conf"
+        - "    echo '        Depth 24' >> $display_conf"
+        - "    echo '        Modes \"1024x768\"' >> $display_conf"
+        - "    echo '    EndSubSection' >> $display_conf"
+        - "    echo 'EndSection' >> $display_conf"
+        - 'fi'
     - edit: /etc/X11/xorg.conf.d/20-dpms.conf
       append: true
       values:
