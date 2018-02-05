@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.122
+  release: 0.1.123
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -658,7 +658,7 @@ configs:
       append: true
       values:
         - "table Icon\n  Icon: /usr/share/icons/hicolor/72x72/apps/audacious.png"
-        - "  X: 500\n  Y: 616\n  Command[0]: audacious\nend"
+        - "  X: 84\n  Y: 99\n  Command[0]: audacious\nend"
     - edit: /etc/skel/.idesktop/browser.lnk
       append: true
       values:
@@ -1126,10 +1126,11 @@ configs:
         - "    echo '    Identifier \"Screen\"' >> $display_conf"
         - "    echo '    SubSection \"Display\"' >> $display_conf"
         - "    echo '        Depth 24' >> $display_conf"
-        - "    echo '        Modes \"1024x768\"' >> $display_conf"
+        - "    echo '        Modes \"1280x1024\"' >> $display_conf"
         - "    echo '    EndSubSection' >> $display_conf"
         - "    echo 'EndSection' >> $display_conf"
         - 'fi'
+    - { exec: chmod +x /opt/<%=distro%>/bin/pre-xorg }
     - edit: /etc/X11/xorg.conf.d/20-dpms.conf
       append: true
       values:
