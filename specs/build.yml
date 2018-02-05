@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.121
+  release: 0.1.122
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1505,7 +1505,7 @@ packages:
     - { pkg: tiny-media-manager,            desc: Cross platform media manager, type: CYBERLINUX }
 
   theater-pkgs:
-    - { pkg: idesk,                         desc: Lightweight desktop icons for X }
+    - { pkg: idesk,                         desc: Lightweight desktop icons for X, type: CYBERLINUX }
     - { pkg: kodi,                          desc: Software media player and entertainment hub }
 
   remote-desktop:
