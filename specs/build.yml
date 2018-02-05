@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.123
+  release: 0.1.124
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -654,36 +654,41 @@ configs:
         - 'Terminal=false'
         - 'Type=Application'
         - 'Categories=Utility;'
+    - { exec: mkdir -p /usr/share/icons/hicolor/196x196/apps }
+    - { exec: convert /usr/share/icons/hicolor/256x256/apps/kodi.png -resize 196x196 /usr/share/icons/hicolor/196x196/apps/kodi.png }
+    - { exec: convert /usr/share/icons/hicolor/256x256/apps/chromium.png -resize 96x96 /usr/share/icons/hicolor/96x96/apps/chromium.png }
+    - { exec: convert /usr/share/icons/hicolor/256x256/apps/smplayer.png -resize 96x96 /usr/share/icons/hicolor/96x96/apps/smplayer.png }
+    - { exec: convert /usr/share/icons/hicolor/72x72/apps/audacious.png -resize 96x96 /usr/share/icons/hicolor/96x96/apps/audacious.png }
     - edit: /etc/skel/.idesktop/audio-player.lnk
       append: true
       values:
-        - "table Icon\n  Icon: /usr/share/icons/hicolor/72x72/apps/audacious.png"
-        - "  X: 84\n  Y: 99\n  Command[0]: audacious\nend"
+        - "table Icon\n  Icon: /usr/share/icons/hicolor/96x96/apps/audacious.png"
+        - "  X: 18\n  Y: 226\n  Command[0]: audacious\nend"
     - edit: /etc/skel/.idesktop/browser.lnk
       append: true
       values:
-        - "table Icon\n  Icon: /usr/share/icons/hicolor/64x64/apps/chromium.png"
-        - "  X: 330\n  Y: 615\n  Command[0]: chromium\nend"
+        - "table Icon\n  Icon: /usr/share/icons/hicolor/96x96/apps/chromium.png"
+        - "  X: 186\n  Y: 105\n  Command[0]: chromium\nend"
     - edit: /etc/skel/.idesktop/pandora.lnk
       append: true
       values:
-        - "table Icon\n  Icon: /usr/share/icons/hicolor/72x72/apps/pandora.png"
-        - "  X: 330\n  Y: 615\n  Command[0]: chromium pandora.com\nend"
+        - "table Icon\n  Icon: /usr/share/icons/hicolor/96x96/apps/pandora.png"
+        - "  X: 217\n  Y: 4\n  Command[0]: chromium pandora.com\nend"
     - edit: /etc/skel/.idesktop/reboot.lnk
       append: true
       values:
-        - "table Icon\n  Icon: /usr/share/icons/hicolor/72x72/actions/system-reboot.png"
-        - "  X: 88\n  Y: 615\n  Command[0]: sudo reboot\nend"
+        - "table Icon\n  Icon: /usr/share/icons/hicolor/96x96/actions/system-reboot.png"
+        - "  X: 112\n  Y: 946\n  Command[0]: sudo reboot\nend"
     - edit: /etc/skel/.idesktop/shutdown.lnk
       append: true
       values:
-        - "table Icon\n  Icon: /usr/share/icons/hicolor/72x72/actions/system-shutdown.png"
-        - "  X: 8\n  Y: 615\n  Command[0]: sudo poweroff\nend"
+        - "table Icon\n  Icon: /usr/share/icons/hicolor/96x96/actions/system-shutdown.png"
+        - "  X: 10\n  Y: 946\n  Command[0]: sudo poweroff\nend"
     - edit: /etc/skel/.idesktop/video-player.lnk
       append: true
       values:
-        - "table Icon\n  Icon: /usr/share/icons/hicolor/64x64/apps/smplayer.png"
-        - "  X: 88\n  Y: 615\n  Command[0]: smplayer\nend"
+        - "table Icon\n  Icon: /usr/share/icons/hicolor/96x96/apps/smplayer.png"
+        - "  X: 110\n  Y: 193\n  Command[0]: smplayer\nend"
   journald-config:
     # Avoid "Failed to start Create Volatile Files and Directories"
     - { exec: 'rm -rf /var/log/journal' }
