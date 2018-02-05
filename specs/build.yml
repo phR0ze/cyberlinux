@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.116
+  release: 0.1.117
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1353,7 +1353,6 @@ packages:
     - { pkg: lxdm-gtk3,                     desc: Lightweight X11 Display Manager }
     - { pkg: lxinput,                       desc: Keyboard and mouse config for LXDE }
     - { pkg: lxrandr,                       desc: Monitor configuration tool for LXDE }
-    - { pkg: lxsession,                     desc: Lightweight X11 session manager for LXDE }
     - { pkg: lxterminal,                    desc: Terminal for LXDE, alt: terminator }
     - { pkg: oblogout,                      desc: Openbox logout script }
     - { pkg: openbox,                       desc: Lightweight X11 window manager }
