@@ -265,23 +265,45 @@ end
 
 class TestMenu < Minitest::Test
   def setup
-    @file = 'foo'
-    @ctx = OpenStruct.new({
-      root: '/de',
-      vars: {
-        var1: 'var1',
-        distro: 'foobar',
-        file_var: '/foo'
-      },
-    })
+    @file = '/tmp/etc/skel/.config/openbox/menu.xml'
+    @ctx = OpenStruct.new({ root: '/tmp', vars: { distro: 'foobar' } })
   end
 
-  def test_add_menu_root_entry
-    config = { 'menu' => 'Header', 'insert' => 'append', 'entry' => 'Screenshot', 'icon' => 'screenshot.png', 'exec' => 'screenshoot' }
-    Config.add_menu_entry(config, @ctx, Config.keys)
+  def test_add_menu_root_entry_single
+    config = { 'menu' => 'Root', 'insert' => 'append', 'entry' => 'Beta', 'icon' => 'beta.png', 'exec' => 'beta' }
+    mock = Minitest::Mock.new
+    mock.expect(:puts, nil){|x| x.any?{|y| y.include?("Beta")} }
 
-   # config = { 'menu' => 'Root', 'entry' => 'Screenshot', 'icon' => 'screenshot.png', 'exec' => 'screenshoot' }
+    Config.stub(:puts, nil){
+      File.stub(:exist?, false, @file){
+        File.stub(:open, true, mock){
+          assert(Config.apply(config, @ctx))
+        }
+      }
+    }
+
+    assert_mock(mock)
   end
+
+#  def test_add_menu_root_entry_single
+#    configs = [{ 'menu' => 'Root', 'insert' => 'append', 'entry' => 'Beta', 'icon' => 'beta.png', 'exec' => 'beta' },
+#      { 'menu' => 'Root', 'insert' => 'append', 'entry' => 'Alpha', 'icon' => 'alpha.png', 'exec' => 'alpha' }]
+#
+#    mock = Minitest::Mock.new
+#    mock.expect(:puts, nil){|x| puts(x); x.any?{|y| y.include?("Beta")} }
+#    mock.expect(:puts, nil){|x| puts(x); x.any?{|y| y.include?("Alpha")} }
+#
+#    Config.stub(:puts, nil){
+#      File.stub(:exist?, false, @file){
+#        File.stub(:open, true, mock){
+#          assert(Config.apply(configs, @ctx))
+#        }
+#      }
+#    }
+#
+#    assert_mock(mock)
+#  end
+
 end
 
 # vim: ft=ruby:ts=2:sw=2:sts=2

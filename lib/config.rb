@@ -58,7 +58,7 @@ module Config
   # for all configs. Other methods surfaced in this module are only exposed for simplicity.
   # @param config [list] of yaml blocks describing the configs
   # @param ctx [OpenStruct] containing 'root' directory, 'vars', configs
-  # @param returns true on change
+  # @returns true on change
   def apply(configs, ctx)
     changed = false
     configs = [configs] if not configs.is_a?(Array)
@@ -117,7 +117,7 @@ module Config
 
         # Apply menu entries
         elsif config[k.menu]
-          add_menu_entry(config, ctx, k)
+          changed |= add_menu_entry(config, ctx, k)
 
         # Apply bash scripts
         elsif config[k.exec]
@@ -137,42 +137,71 @@ module Config
   # @param config [yaml] menu entry to work with
   # @param ctx [OpenStruct] context to work with
   # @param k [OpenStruct] keys for mapping
+  # @returns true on change
   def add_menu_entry(config, ctx, k)
-    menu_xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-    menu_xml += "<openbox_menu xmlns=\"http://openbox.org/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://openbox.org/\">\n"
-    menu_xml += '  <menu id="root-menu" label="Applications">' + "\n"
-    menu_xml += "    <separator label=\"--= #{'<%=distro%>'.erb(ctx.vars).upcase} =--\"/>" + "\n"
-    menu_xml += '    <separator/>' + "\n"
-    menu_xml += '    <separator/>' + "\n"
-    menu_xml += '  </menu>' + "\n"
-    menu_xml += '</openbo_menu>'
 
+    # Create menu or read existing menu
+    #---------------------------------------------------------------------------
     menu_path = File.join(ctx.root, 'etc/skel/.config/openbox/menu.xml')
-    puts("menu path: #{menu_path}")
+    raw = ['<?xml version="1.0" encoding="utf-8"?>',
+      '<openbox_menu xmlns="http://openbox.org/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://openbox.org/">',
+      '  <menu id="root-menu" label="Applications">',
+      '    <separator label="--= ' + '<%=distro%>'.erb(ctx.vars).upcase + ' =--"/>',
+      '    <separator/>',
+      '    <separator/>',
+      '  </menu>',
+      '</openbox_menu>'
+    ]
+    raw = File.readlines(menu_path) if File.exist?(menu_path)
+    menu = raw.dup
+
+    # Extract header/footer
+    header = menu.take(4)
+    menu= menu.drop(header.size)
+    footer = menu.pop(2)
+
+    # Extract root menu entries
+    root = menu.take_while{|x| not x =~ /<separator\/>/}
+    menu = menu.drop(root.size)
+    menu.pop(1)
+
+    # Extract app menu entries
+    apps = menu.take_while{|x| not x =~ /<separator\/>/}
+    menu = menu.drop(apps.size)
+    menu.pop(1)
+
+    # Extract session entries
+    session = menu
+
+    # Adding new entry to the given category
+    #---------------------------------------------------------------------------
     puts("Adding menu entry: #{config[k.entry]}")
-
-    # Create/read menu
-    if File.exist?(menu_path)
-      puts("reading in file")
-    end
-
-    # Quick launch
-    #---------------------------------------------------------------------------
-    if config[k.menu] == 'Header'
-      puts('header')
-
-    # Session controls
-    #---------------------------------------------------------------------------
-    elsif config[k.menu] == 'Footer'
-      puts('footer')
-
-    # Application menus
-    #---------------------------------------------------------------------------
+    app_template = "      <item label=\"%s\" icon=\"%s\"><action name=\"Execute\"><execute>%s</execute></action></item>"
+    app_entry = app_template % [config[k.entry], config[k.icon], config[k.exec]]
+    if config[k.menu] == 'Root'
+      if !root.include?(app_entry)
+        if not config[k.insert]
+          i = root.index{|x| x[/label="(.*)" /, 1] > config[k.entry]}
+          if not i or (i - 1 < 0)
+            root << app_entry
+          else
+            root.insert(i - 1)
+          end
+        else
+          root << app_entry
+        end
+      end
+    elsif config[k.menu] == 'Session'
     else
       puts('apps')
     end
 
-    puts(menu_xml)
+    # Construct updated menu and write to disk
+    #---------------------------------------------------------------------------
+    menu = header + root + ['    <separator/>'] + apps + ['    <separator/>'] + session + footer
+    File.open(menu_path, 'w'){|f| f.puts(menu)}
+
+    return raw != menu
   end
 
   # Redirect paths according to the given contex
