@@ -193,23 +193,22 @@ module Config
     # Extract session entries
     session = menu_xml
 
-    # Adding new entry to the given category
+    # Adding new entry to the given menu
     #---------------------------------------------------------------------------
+    menu_names = config[k.menu].split(":")
+    get_parent_menu = ->(parent, name, others) {
+      raise ArgumentError.new("Menu '#{name}' doesn't exist") and
+        exit if !parent['menu'].any?{|x| x['name'] == name } and others.any?
+      return get_parent_menu.call(parent['menu'].find{|x| x['name'] == name}, others.first, others.drop(1)) if others.any?
+      return parent['menu']
+    }
     if !config[k.entry]
       menu_template = "    <menu id=\"%s\" icon=\"%s\" label=\"%s\">"
-      names = config[k.menu].split(":")
-      puts("Adding menu: #{names.last}")
-      menu_entry = menu_template % [names.last, config[k.icon], config[k.menu]]
-      menu = {'name' => names.last, 'detail' => menu_entry.gsub(config[k.menu], names.last), 'entries' => [], 'menu' => []}
-
-      get_menu = ->(parent, name, others) {
-        raise ArgumentError.new("Menu '#{name}' doesn't exist") and
-          exit if !parent['menu'].any?{|x| x['name'] == name } and others.any?
-        return get_menu.call(parent['menu'].find{|x| x['name'] == name}, others.first, others.drop(1)) if others.any?
-        return parent
-      }
-      app_menu = get_menu.call(apps, names.first, names.drop(1))
-      app_menu['menu'] << menu if !app_menu['menu'].any?{|x| x['name'] == names.last }
+      puts("Adding menu: #{menu_names.last}")
+      menu_entry = menu_template % [menu_names.last, config[k.icon], config[k.menu]]
+      menu = {'name' => menu_names.last, 'detail' => menu_entry.gsub(config[k.menu], menu_names.last), 'entries' => [], 'menu' => []}
+      app_menu = get_parent_menu.call(apps, menu_names.first, menu_names.drop(1))
+      app_menu << menu if !app_menu.any?{|x| x['name'] == menu_names.last }
 
     # Adding new entry to the given category
     #---------------------------------------------------------------------------
@@ -223,7 +222,8 @@ module Config
         app_entry = (app_template % [config[k.entry], config[k.icon], config[k.exec]])[2..-1]
         menu = config[k.menu] == 'Root' ? root : session
       else
-        menu = apps[config[k.menu]]['entries']
+        menu = get_parent_menu.call(apps, menu_names.first, menu_names.drop(1))
+          .find{|x| x['name'] == menu_names.last }['entries']
       end
 
       # Add entry to identified menu
