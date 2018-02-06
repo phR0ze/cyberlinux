@@ -285,24 +285,57 @@ class TestMenu < Minitest::Test
     assert_mock(mock)
   end
 
-#  def test_add_menu_root_entry_single
-#    configs = [{ 'menu' => 'Root', 'insert' => 'append', 'entry' => 'Beta', 'icon' => 'beta.png', 'exec' => 'beta' },
-#      { 'menu' => 'Root', 'insert' => 'append', 'entry' => 'Alpha', 'icon' => 'alpha.png', 'exec' => 'alpha' }]
-#
-#    mock = Minitest::Mock.new
-#    mock.expect(:puts, nil){|x| puts(x); x.any?{|y| y.include?("Beta")} }
-#    mock.expect(:puts, nil){|x| puts(x); x.any?{|y| y.include?("Alpha")} }
-#
-#    Config.stub(:puts, nil){
-#      File.stub(:exist?, false, @file){
-#        File.stub(:open, true, mock){
-#          assert(Config.apply(configs, @ctx))
-#        }
-#      }
-#    }
-#
-#    assert_mock(mock)
-#  end
+  def test_add_menu_root_entry_multiple_sort
+    data = ["<?xml version=\"1.0\" encoding=\"utf-8\"?>", "<openbox_menu xmlns=\"http://openbox.org/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://openbox.org/\">", "  <menu id=\"root-menu\" label=\"Applications\">", "    <separator label=\"--= FOOBAR =--\"/>", "      <item label=\"Beta\" icon=\"beta.png\"><action name=\"Execute\"><execute>beta</execute></action></item>", "    <separator/>", "    <separator/>", "  </menu>", "</openbox_menu>"]
+
+    config = { 'menu' => 'Root', 'entry' => 'Alpha', 'icon' => 'alpha.png', 'exec' => 'alpha' }
+
+    mock = Minitest::Mock.new
+    mock.expect(:puts, nil){|x|
+      entries = x.select{|y| y.include?("item")}
+      assert(entries.size == 2)
+      assert(entries.last.include?("Alpha"))
+      assert(entries.first.include?("Beta"))
+    }
+
+    Config.stub(:puts, nil){
+      File.stub(:exist?, true, @file){
+        File.stub(:readlines, data){
+          File.stub(:open, true, mock){
+            assert(Config.add_menu_entry(config, @ctx, Config.keys))
+          }
+        }
+      }
+    }
+
+    assert_mock(mock)
+  end
+
+  def test_add_menu_root_entry_multiple_append
+    data = ["<?xml version=\"1.0\" encoding=\"utf-8\"?>", "<openbox_menu xmlns=\"http://openbox.org/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://openbox.org/\">", "  <menu id=\"root-menu\" label=\"Applications\">", "    <separator label=\"--= FOOBAR =--\"/>", "      <item label=\"Beta\" icon=\"beta.png\"><action name=\"Execute\"><execute>beta</execute></action></item>", "    <separator/>", "    <separator/>", "  </menu>", "</openbox_menu>"]
+
+    config = { 'menu' => 'Root', 'insert' => 'append', 'entry' => 'Alpha', 'icon' => 'alpha.png', 'exec' => 'alpha' }
+
+    mock = Minitest::Mock.new
+    mock.expect(:puts, nil){|x|
+      entries = x.select{|y| y.include?("item")}
+      assert(entries.size == 2)
+      assert(entries.first.include?("Beta"))
+      assert(entries.last.include?("Alpha"))
+    }
+
+    Config.stub(:puts, nil){
+      File.stub(:exist?, true, @file){
+        File.stub(:readlines, data){
+          File.stub(:open, true, mock){
+            assert(Config.add_menu_entry(config, @ctx, Config.keys))
+          }
+        }
+      }
+    }
+
+    assert_mock(mock)
+  end
 
 end
 
