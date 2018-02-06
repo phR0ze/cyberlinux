@@ -163,12 +163,12 @@ class TestApply < Minitest::Test
     config_insert_helper(config, 1)
     config['insert'] = 'before'
     config_insert_helper(config, 0)
-    config['insert'] = true
+    config['insert'] = 'append'
     config_insert_helper(config, nil)
   end
 
   def test_apply_insert_append
-    config = { 'edit' => '/foo', 'insert' => true, 'value' => 'bar' }
+    config = { 'edit' => '/foo', 'insert' => 'append', 'value' => 'bar' }
 
     mock = Minitest::Mock.new
     mock.expect(:=~, false, [Regexp.new(Regexp.quote('bar'))])
@@ -263,7 +263,7 @@ class TestRedirect < Minitest::Test
 
   def test_add_menu_entry
    # config = { 'menu' => 'root-menu', 'icon' => 'screenshot.png' }
-   # config = { 'menu' => 'Root', 'insert' => true, 'entry' => 'Screenshot', 'icon' => 'screenshot.png', 'exec' => 'screenshoot' }
+   # config = { 'menu' => 'Root', 'insert' => 'append', 'entry' => 'Screenshot', 'icon' => 'screenshot.png', 'exec' => 'screenshoot' }
    # config = { 'menu' => 'Root', 'entry' => 'Screenshot', 'icon' => 'screenshot.png', 'exec' => 'screenshoot' }
    # Config.add_menu_entry(config, Config.keys)
   end
