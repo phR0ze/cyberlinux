@@ -35,6 +35,7 @@ class TestApply < Minitest::Test
       root: '/de',
       vars: {
         var1: 'var1',
+        distro: 'foobar',
         file_var: '/foo'
       },
       configs: {
@@ -261,11 +262,11 @@ class TestRedirect < Minitest::Test
     assert_equal({'edit' => '/de/foo'}, Config.redirect(config, @ctx, Config.keys))
   end
 
-  def test_add_menu_entry
-   # config = { 'menu' => 'root-menu', 'icon' => 'screenshot.png' }
-   # config = { 'menu' => 'Root', 'insert' => 'append', 'entry' => 'Screenshot', 'icon' => 'screenshot.png', 'exec' => 'screenshoot' }
+  def test_add_menu_root_entry
+    config = { 'menu' => 'Header', 'insert' => 'append', 'entry' => 'Screenshot', 'icon' => 'screenshot.png', 'exec' => 'screenshoot' }
+    Config.add_menu_entry(config, @ctx, Config.keys)
+
    # config = { 'menu' => 'Root', 'entry' => 'Screenshot', 'icon' => 'screenshot.png', 'exec' => 'screenshoot' }
-   # Config.add_menu_entry(config, Config.keys)
   end
 end
 

@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.131
+  release: 0.1.132
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -658,7 +658,7 @@ configs:
     - { exec: convert /usr/share/icons/hicolor/256x256/apps/kodi.png -resize 196x196 /usr/share/icons/hicolor/196x196/apps/kodi.png }
     - { exec: convert /usr/share/icons/hicolor/256x256/apps/chromium.png -resize 96x96 /usr/share/icons/hicolor/96x96/apps/chromium.png }
     - { exec: convert /usr/share/icons/hicolor/256x256/apps/smplayer.png -resize 96x96 /usr/share/icons/hicolor/96x96/apps/smplayer.png }
-    - { exec: convert /usr/share/icons/hicolor/72x72/apps/audacious.png -resize 96x96 /usr/share/icons/hicolor/96x96/apps/audacious.png }
+      #- { exec: convert /usr/share/icons/hicolor/72x72/apps/audacious.png -resize 96x96 /usr/share/icons/hicolor/96x96/apps/audacious.png }
     - edit: /etc/skel/.idesktop/kodi.lnk
       insert: append
       values:

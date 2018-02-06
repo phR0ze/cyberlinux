@@ -42,6 +42,7 @@ module Config
       edit: 'edit',
       entry: 'entry',
       exec: 'exec',
+      icon: 'icon',
       insert: 'insert',
       label: 'label',
       menu: 'menu',
@@ -49,7 +50,6 @@ module Config
       resolve: 'resolve',
       value: 'value',
       values: 'values'
-
     })
   end
 
@@ -110,7 +110,7 @@ module Config
 
             # File insert/appends
             elsif not already
-              offset = insert == true ? nil : insert == k.after ? 1 : 0
+              offset = insert == k.append ? nil : insert == k.after ? 1 : 0
               changed |= Fedit.insert(file, values, regex:config[k.regex], offset:offset)
             end
           end
@@ -138,27 +138,43 @@ module Config
   # @param ctx [OpenStruct] context to work with
   # @param k [OpenStruct] keys for mapping
   def add_menu_entry(config, ctx, k)
+    puts(ctx.vars)
+    exit
     menu_xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
     menu_xml += "<openbox_menu xmlns=\"http://openbox.org/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://openbox.org/\">\n"
     menu_xml += '  <menu id="root-menu" label="Applications">'
     menu_xml += "    <separator label=\"--= #{'<%=distro=>'.erb(ctx.vars).upcase} =--\"/>"
     menu_xml += '    <separator/>'
     menu_xml += '    <separator/>'
-    footer = "  </menu>\n</openbo_menu>"
+    menu_xml += '  </menu>'
+    menu_xml += '</openbo_menu>'
 
     menu_path = File.join(ctx.root, 'etc/skel/.config/openbox/menu.xml')
-    puts("Adding menu entry: #{config[k.label]}")
+    puts("menu path: #{menu_path}")
+    puts("Adding menu entry: #{config[k.entry]}")
+
+    # Create/read menu
+    if File.exist?(menu_path)
+      puts("reading in file")
+    end
 
     # Quick launch
     #---------------------------------------------------------------------------
-    menu_xml += quick_launch
-
-    # Application menus
-    #---------------------------------------------------------------------------
+    if config[k.menu] == 'Header'
+      puts('header')
 
     # Session controls
     #---------------------------------------------------------------------------
-    menu_xml += session
+    elsif config[k.menu] == 'Footer'
+      puts('footer')
+
+    # Application menus
+    #---------------------------------------------------------------------------
+    else
+      puts('apps')
+    end
+
+    puts(menu_xml)
   end
 
   # Redirect paths according to the given contex
