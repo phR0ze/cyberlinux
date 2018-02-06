@@ -137,29 +137,27 @@ module Config
   # @param ctx [OpenStruct] context to work with
   # @param k [OpenStruct] keys for mapping
   def add_menu_entry(config, ctx, k)
-    menu_path = File.join(ctx.root, 'etc/skel/.config/openbox/menu.xml')
     menu_xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
     menu_xml += "<openbox_menu xmlns=\"http://openbox.org/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://openbox.org/\">\n"
+    menu_xml += '  <menu id="root-menu" label="Applications">'
+    menu_xml += "    <separator label=\"--= #{'<%=distro=>'.erb(ctx.vars).upcase} =--\"/>"
+    menu_xml += '    <separator/>'
+    menu_xml += '    <separator/>'
+    footer = "  </menu>\n</openbo_menu>"
+
+    menu_path = File.join(ctx.root, 'etc/skel/.config/openbox/menu.xml')
+    puts("Adding menu entry: #{config[k.label]}")
 
     # Quick launch
     #---------------------------------------------------------------------------
-    quick_launch = '  <menu id="root-menu" label="Applications">'
-    quick_launch += "    <separator label=\"--= #{'<%=distro=>'.erb(ctx.vars).upcase} =--\"/>"
     menu_xml += quick_launch
 
     # Application menus
     #---------------------------------------------------------------------------
-    puts("Adding menu entry: #{config[k.label]}")
 
     # Session controls
     #---------------------------------------------------------------------------
-    session = '    <separator/>'
     menu_xml += session
-
-    # Footer
-    #---------------------------------------------------------------------------
-    footer = "  </menu>\n</openbo_menu>"
-    menu_xml += footer
   end
 
   # Redirect paths according to the given contex

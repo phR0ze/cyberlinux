@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 #MIT License
-#Copyright (c) 2017 phR0ze
+#Copyright (c) 2017-2018 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -30,11 +30,10 @@ module Fedit
   extend self
 
   # Check if any digests have changed based on the given files
-  # Params:
-  # +key+:: yalm section heading to give digests
-  # +digestfile+:: digest file to check against
-  # +files+:: files to get digests for
-  # +returns+:: (newfiles, modifiedfiles, deletedfiles)
+  # @param key [yaml] yalm section heading to give digests
+  # @param digestfile [string] digest file to check against
+  # @param files [array] files to get digests for
+  # @returns (newfiles, modifiedfiles, deletedfiles)
   def digests_changed(key, digestfile, files)
     files = [files] if files.is_a?(String)
     newfiles, modifiedfiles, deletedfiles = [], [], []
@@ -60,10 +59,9 @@ module Fedit
   end
 
   # Generate digests for array of files given and save them
-  # Params:
-  # +key+:: yalm section heading to give digests
-  # +digestfile+:: digest file to update
-  # +files+:: files to get digests for
+  # @param key [yaml] yalm section heading to give digests
+  # @param digestfile [string] digest file to update
+  # @param files [array] files to get digests for
   def update_digests(key, digestfile, files)
     files = [files] if files.is_a?(String)
 
@@ -80,11 +78,10 @@ module Fedit
   end
 
   # Replace in file
-  # Params:
-  # +file+:: file to modify
-  # +regex+:: regular expression match on
-  # +value+:: regular expression string replacement
-  # +returns+:: true on change
+  # @param file [string] file to modify
+  # @param regex [string] regular expression match on
+  # @param value [string] regular expression string replacement
+  # @returns true on change
   def replace(file, regex, value)
     changed = false
     begin
@@ -118,12 +115,11 @@ module Fedit
   # Insert into a file
   # Location of insert is determined by the given regex and offset.
   # Append is used if no regex is given.
-  # Params:
-  # +file+:: path of file to modify
-  # +values+:: string or list of string values to insert
-  # +regex+:: regular expression for location, not used if offset is nil
-  # +offset+:: offset insert location by this amount for regexs
-  # +returns+:: true if a change was made to the file
+  # @param file [string] path of file to modify
+  # @param values [array] string or list of string values to insert
+  # @param regex [string] regular expression for location, not used if offset is nil
+  # @param offset [int] offset insert location by this amount for regexs
+  # @returns true if a change was made to the file
   def insert(file, values, regex:nil, offset:1)
     return false if not values or values.empty?
 
@@ -164,10 +160,9 @@ module Fedit
   end
 
   # Resolve template
-  # Params:
-  # +file+:: file to resolve templates for
-  # +vars+:: hash or ostruct templating variables to use while resolving
-  # +returns+:: true on change
+  # @param file [string] file to resolve templates for
+  # @param vars [hash/ostruct] templating variables to use while resolving
+  # @returns true on change
   def resolve(file, vars)
     changed = false
 
