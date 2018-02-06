@@ -143,7 +143,7 @@ module Config
     # Create menu or read existing menu
     #---------------------------------------------------------------------------
     menu_path = File.join(ctx.root, 'etc/skel/.config/openbox/menu.xml')
-    raw = ['<?xml version="1.0" encoding="utf-8"?>',
+    raw_xml = ['<?xml version="1.0" encoding="utf-8"?>',
       '<openbox_menu xmlns="http://openbox.org/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://openbox.org/">',
       '  <menu id="root-menu" label="Applications">',
       '    <separator label="--= ' + '<%=distro%>'.erb(ctx.vars).upcase + ' =--"/>',
@@ -152,47 +152,64 @@ module Config
       '  </menu>',
       '</openbox_menu>'
     ]
-    raw = File.readlines(menu_path) if File.exist?(menu_path)
-    menu = raw.dup
+    raw_xml = File.readlines(menu_path) if File.exist?(menu_path)
+    menu_xml = raw_xml.dup
 
     # Extract header/footer
-    header = menu.take(4)
-    menu= menu.drop(header.size)
-    footer = menu.pop(2)
+    header = menu_xml.take(4)
+    menu_xml = menu_xml.drop(header.size)
+    footer = menu_xml.pop(2)
 
     # Extract root menu entries
-    root = menu.take_while{|x| not x =~ /<separator\/>/}
-    menu = menu.drop(root.size + 1)
+    root = menu_xml.take_while{|x| not x =~ /<separator\/>/}
+    menu_xml = menu_xml.drop(root.size + 1)
 
     # Extract app menu entries and process
-    # key = menu name, value = {menu: entries: sub:}
-    apps = {}
-    raw_apps = menu.take_while{|x| not x =~ /<separator\/>/}
-    menu = menu.drop(raw_apps.size + 1)
-    i = 0
-    category = nil
-    while i < raw_apps.size do
-      x = raw_apps[i]
-      if x.include?("<menu")
-        category = x[/id="(.*?)"/, 1]
-        apps[category] = {'menu' => x, 'entries' => [], 'sub' => {}}
-      elsif x.include?("<item")
-        apps[category]['entries'] << x
+    apps_xml = menu_xml.take_while{|x| not x =~ /<separator\/>/}
+    menu_xml = menu_xml.drop(apps_xml.size + 1)
+
+    # {menu: [{name: "", detail: "", entries: [], menu: []}]}
+    apps = {'menu' => []}
+    add_app_menus = ->(menu, raw, i) {
+      while i < raw.size do
+        line = raw[i]
+        if line.include?("<menu")
+          name = line[/id="(.*?)"/, 1]
+          if !menu['menu'].any?{|x| x['name'] == name}
+            sub = {'name' => name, 'detail' => line, 'entries' => [], 'menu' => []}
+            menu['menu'] << sub
+            i = add_app_menus.call(sub, raw, i + 1)
+          end
+        elsif line.include?("<item")
+          menu['entries'] << line
+        elsif line.include?("</menu>")
+          return i
+        end
+        i += 1
       end
-      i += 1
-    end
+    }
+    add_app_menus.call(apps, apps_xml, 0)
 
     # Extract session entries
-    session = menu
+    session = menu_xml
 
     # Adding new entry to the given category
     #---------------------------------------------------------------------------
     if !config[k.entry]
-      puts("Adding menu: #{config[k.menu]}")
       menu_template = "    <menu id=\"%s\" icon=\"%s\" label=\"%s\">"
+      names = config[k.menu].split(":")
+      puts("Adding menu: #{names.last}")
+      menu_entry = menu_template % [names.last, config[k.icon], config[k.menu]]
+      menu = {'name' => names.last, 'detail' => menu_entry.gsub(config[k.menu], names.last), 'entries' => [], 'menu' => []}
 
-      menu_entry = menu_template % [config[k.menu], config[k.icon], config[k.menu]]
-      apps[config[k.menu]] = {'menu' => menu_entry, 'entries' => [], 'sub' => {}} if !apps[config[k.menu]]
+      get_menu = ->(parent, name, others) {
+        raise ArgumentError.new("Menu '#{name}' doesn't exist") and
+          exit if !parent['menu'].any?{|x| x['name'] == name } and others.any?
+        return get_menu.call(parent['menu'].find{|x| x['name'] == name}, others.first, others.drop(1)) if others.any?
+        return parent
+      }
+      app_menu = get_menu.call(apps, names.first, names.drop(1))
+      app_menu['menu'] << menu if !app_menu['menu'].any?{|x| x['name'] == names.last }
 
     # Adding new entry to the given category
     #---------------------------------------------------------------------------
@@ -223,16 +240,18 @@ module Config
 
     # Construct updated menu and write to disk
     #---------------------------------------------------------------------------
-    menu = header + root + ['    <separator/>']
-    apps.each{|k,v|
-      menu << v['menu']
-      v['entries'].each{|x| menu << x}
-      menu << "    </menu>"
+    menu_xml = header + root + ['    <separator/>']
+    gen_menu = ->(app_menu, depth) {
+      menu_xml << ' ' * depth * 2 + app_menu['detail']
+      app_menu['menu'].each{|x| gen_menu.call(x, depth + 1)}
+      app_menu['entries'].each{|x| menu_xml << ' ' * depth * 2 + x}
+      menu_xml << ' ' * depth * 2 + "    </menu>"
     }
-    menu += ['    <separator/>'] + session + footer
-    File.open(menu_path, 'w'){|f| f.puts(menu)}
+    apps['menu'].each{|x| gen_menu.call(x, 0)}
+    menu_xml += ['    <separator/>'] + session + footer
+    File.open(menu_path, 'w'){|f| f.puts(menu_xml)}
 
-    return raw != menu
+    return raw_xml != menu_xml
   end
 
   # Redirect paths according to the given contex
