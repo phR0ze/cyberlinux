@@ -39,10 +39,10 @@ class TestApply < Minitest::Test
       },
       configs: {
         'config-foobar1' => [
-          { 'edit' => '/foo', 'append' => 'after', 'value' => 'bar', 'regex' => '/bob/' },
+          { 'edit' => '/foo', 'insert' => 'after', 'value' => 'bar', 'regex' => '/bob/' },
         ],
         'config-foobar2' => [
-          { 'edit' => '<%= file_var %>', 'append' => 'after', 'value' => 'bar', 'regex' => '/bob/' }
+          { 'edit' => '<%= file_var %>', 'insert' => 'after', 'value' => 'bar', 'regex' => '/bob/' }
         ]
       }
     })
@@ -65,7 +65,7 @@ class TestApply < Minitest::Test
   end
 
   def test_apply_with_templating
-    config = { 'edit' => '<%= file_var %>', 'append' => 'after', 'value' => 'bar', 'regex' => '/bob/' }
+    config = { 'edit' => '<%= file_var %>', 'insert' => 'after', 'value' => 'bar', 'regex' => '/bob/' }
     config_insert_helper(config, 1)
   end
 
@@ -159,16 +159,16 @@ class TestApply < Minitest::Test
   end
 
   def test_apply_insert
-    config = { 'edit' => '/foo', 'append' => 'after', 'value' => 'bar', 'regex' => '/bob/' }
+    config = { 'edit' => '/foo', 'insert' => 'after', 'value' => 'bar', 'regex' => '/bob/' }
     config_insert_helper(config, 1)
-    config['append'] = 'before'
+    config['insert'] = 'before'
     config_insert_helper(config, 0)
-    config['append'] = true
+    config['insert'] = true
     config_insert_helper(config, nil)
   end
 
-  def test_apply_append
-    config = { 'edit' => '/foo', 'append' => true, 'value' => 'bar' }
+  def test_apply_insert_append
+    config = { 'edit' => '/foo', 'insert' => true, 'value' => 'bar' }
 
     mock = Minitest::Mock.new
     mock.expect(:=~, false, [Regexp.new(Regexp.quote('bar'))])
@@ -263,7 +263,7 @@ class TestRedirect < Minitest::Test
 
   def test_add_menu_entry
    # config = { 'menu' => 'root-menu', 'icon' => 'screenshot.png' }
-   # config = { 'menu' => 'Root', 'append' => true, 'entry' => 'Screenshot', 'icon' => 'screenshot.png', 'exec' => 'screenshoot' }
+   # config = { 'menu' => 'Root', 'insert' => true, 'entry' => 'Screenshot', 'icon' => 'screenshot.png', 'exec' => 'screenshoot' }
    # config = { 'menu' => 'Root', 'entry' => 'Screenshot', 'icon' => 'screenshot.png', 'exec' => 'screenshoot' }
    # Config.add_menu_entry(config, Config.keys)
   end

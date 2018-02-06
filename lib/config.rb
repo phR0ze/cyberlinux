@@ -42,6 +42,7 @@ module Config
       edit: 'edit',
       entry: 'entry',
       exec: 'exec',
+      insert: 'insert',
       label: 'label',
       menu: 'menu',
       regex: 'regex',
@@ -97,19 +98,19 @@ module Config
           if not File.exist?(file)
             changed |= Fedit.insert(file, values)
           else
-            append = config[k.append]
+            insert = config[k.insert]
 
             # Check if the configs have already been made
             data = File.binread(file)
             already = values.all?{|y| data =~ Regexp.new(Regexp.quote(y))}
 
             # Regex replacements
-            if not append
+            if not insert
               changed |= Fedit.replace(file, config[k.regex], values.first)
 
             # File insert/appends
             elsif not already
-              offset = append == true ? nil : append == k.after ? 1 : 0
+              offset = insert == true ? nil : insert == k.after ? 1 : 0
               changed |= Fedit.insert(file, values, regex:config[k.regex], offset:offset)
             end
           end
