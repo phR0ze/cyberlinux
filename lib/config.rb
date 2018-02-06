@@ -138,15 +138,13 @@ module Config
   # @param ctx [OpenStruct] context to work with
   # @param k [OpenStruct] keys for mapping
   def add_menu_entry(config, ctx, k)
-    puts(ctx.vars)
-    exit
-    menu_xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+    menu_xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
     menu_xml += "<openbox_menu xmlns=\"http://openbox.org/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://openbox.org/\">\n"
-    menu_xml += '  <menu id="root-menu" label="Applications">'
-    menu_xml += "    <separator label=\"--= #{'<%=distro=>'.erb(ctx.vars).upcase} =--\"/>"
-    menu_xml += '    <separator/>'
-    menu_xml += '    <separator/>'
-    menu_xml += '  </menu>'
+    menu_xml += '  <menu id="root-menu" label="Applications">' + "\n"
+    menu_xml += "    <separator label=\"--= #{'<%=distro%>'.erb(ctx.vars).upcase} =--\"/>" + "\n"
+    menu_xml += '    <separator/>' + "\n"
+    menu_xml += '    <separator/>' + "\n"
+    menu_xml += '  </menu>' + "\n"
     menu_xml += '</openbo_menu>'
 
     menu_path = File.join(ctx.root, 'etc/skel/.config/openbox/menu.xml')
