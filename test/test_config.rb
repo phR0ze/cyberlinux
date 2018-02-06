@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 #MIT License
-#Copyright (c) 2017 phR0ze
+#Copyright (c) 2017-2018 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -39,7 +39,7 @@ class TestApply < Minitest::Test
       },
       configs: {
         'config-foobar1' => [
-          { 'edit' => '/foo', 'append' => 'after', 'value' => 'bar', 'regex' => '/bob/' }
+          { 'edit' => '/foo', 'append' => 'after', 'value' => 'bar', 'regex' => '/bob/' },
         ],
         'config-foobar2' => [
           { 'edit' => '<%= file_var %>', 'append' => 'after', 'value' => 'bar', 'regex' => '/bob/' }
@@ -259,6 +259,13 @@ class TestRedirect < Minitest::Test
   def test_redirect_with_edit
     config = {'edit' => '/foo'}
     assert_equal({'edit' => '/de/foo'}, Config.redirect(config, @ctx, Config.keys))
+  end
+
+  def test_add_menu_entry
+   # config = { 'menu' => 'root-menu', 'icon' => 'screenshot.png' }
+   # config = { 'menu' => 'Root', 'append' => true, 'entry' => 'Screenshot', 'icon' => 'screenshot.png', 'exec' => 'screenshoot' }
+   # config = { 'menu' => 'Root', 'entry' => 'Screenshot', 'icon' => 'screenshot.png', 'exec' => 'screenshoot' }
+   # Config.add_menu_entry(config, Config.keys)
   end
 end
 

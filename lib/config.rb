@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 #MIT License
-#Copyright (c) 2018 phR0ze
+#Copyright (c) 2017-2018 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -40,11 +40,15 @@ module Config
       before: 'before',
       chroot: 'chroot',
       edit: 'edit',
+      entry: 'entry',
       exec: 'exec',
+      label: 'label',
+      menu: 'menu',
       regex: 'regex',
       resolve: 'resolve',
       value: 'value',
       values: 'values'
+
     })
   end
 
@@ -110,6 +114,10 @@ module Config
             end
           end
 
+        # Apply menu entries
+        elsif config[k.menu]
+          add_menu_entry(config, ctx, k)
+
         # Apply bash scripts
         elsif config[k.exec]
           Sys.exec(config[k.exec])
@@ -122,6 +130,36 @@ module Config
     }
 
     return changed
+  end
+
+  # Add a menu entry for openbox
+  # @param config [yaml] menu entry to work with
+  # @param ctx [OpenStruct] context to work with
+  # @param k [OpenStruct] keys for mapping
+  def add_menu_entry(config, ctx, k)
+    menu_path = File.join(ctx.root, 'etc/skel/.config/openbox/menu.xml')
+    menu_xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+    menu_xml += "<openbox_menu xmlns=\"http://openbox.org/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://openbox.org/\">\n"
+
+    # Quick launch
+    #---------------------------------------------------------------------------
+    quick_launch = '  <menu id="root-menu" label="Applications">'
+    quick_launch += "    <separator label=\"--= #{'<%=distro=>'.erb(ctx.vars).upcase} =--\"/>"
+    menu_xml += quick_launch
+
+    # Application menus
+    #---------------------------------------------------------------------------
+    puts("Adding menu entry: #{config[k.label]}")
+
+    # Session controls
+    #---------------------------------------------------------------------------
+    session = '    <separator/>'
+    menu_xml += session
+
+    # Footer
+    #---------------------------------------------------------------------------
+    footer = "  </menu>\n</openbo_menu>"
+    menu_xml += footer
   end
 
   # Redirect paths according to the given contex
