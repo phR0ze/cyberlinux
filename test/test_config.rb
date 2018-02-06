@@ -261,6 +261,20 @@ class TestRedirect < Minitest::Test
     config = {'edit' => '/foo'}
     assert_equal({'edit' => '/de/foo'}, Config.redirect(config, @ctx, Config.keys))
   end
+end
+
+class TestMenu < Minitest::Test
+  def setup
+    @file = 'foo'
+    @ctx = OpenStruct.new({
+      root: '/de',
+      vars: {
+        var1: 'var1',
+        distro: 'foobar',
+        file_var: '/foo'
+      },
+    })
+  end
 
   def test_add_menu_root_entry
     config = { 'menu' => 'Header', 'insert' => 'append', 'entry' => 'Screenshot', 'icon' => 'screenshot.png', 'exec' => 'screenshoot' }
