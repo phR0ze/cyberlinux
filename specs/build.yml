@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.125
+  release: 0.1.126
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -659,6 +659,11 @@ configs:
     - { exec: convert /usr/share/icons/hicolor/256x256/apps/chromium.png -resize 96x96 /usr/share/icons/hicolor/96x96/apps/chromium.png }
     - { exec: convert /usr/share/icons/hicolor/256x256/apps/smplayer.png -resize 96x96 /usr/share/icons/hicolor/96x96/apps/smplayer.png }
     - { exec: convert /usr/share/icons/hicolor/72x72/apps/audacious.png -resize 96x96 /usr/share/icons/hicolor/96x96/apps/audacious.png }
+    - edit: /etc/skel/.idesktop/kodi.lnk
+      append: true
+      values:
+        - "table Icon\n  Icon: /usr/share/icons/hicolor/196x196/apps/kodi.png"
+        - "  X: 1\n  Y: 1\n  Command[0]: kodi\nend"
     - edit: /etc/skel/.idesktop/audio-player.lnk
       append: true
       values:
