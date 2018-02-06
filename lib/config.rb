@@ -164,39 +164,72 @@ module Config
     root = menu.take_while{|x| not x =~ /<separator\/>/}
     menu = menu.drop(root.size + 1)
 
-    # Extract app menu entries
-    apps = menu.take_while{|x| not x =~ /<separator\/>/}
-    menu = menu.drop(apps.size + 1)
+    # Extract app menu entries and process
+    # key = menu name, value = {menu: entries: sub:}
+    apps = {}
+    raw_apps = menu.take_while{|x| not x =~ /<separator\/>/}
+    menu = menu.drop(raw_apps.size + 1)
+    i = 0
+    category = nil
+    while i < raw_apps.size do
+      x = raw_apps[i]
+      if x.include?("<menu")
+        category = x[/id="(.*?)"/, 1]
+        apps[category] = {'menu' => x, 'entries' => [], 'sub' => {}}
+      elsif x.include?("<item")
+        apps[category]['entries'] << x
+      end
+      i += 1
+    end
 
     # Extract session entries
     session = menu
 
     # Adding new entry to the given category
     #---------------------------------------------------------------------------
-    puts("Adding menu entry: #{config[k.entry]}")
-    app_template = "      <item label=\"%s\" icon=\"%s\"><action name=\"Execute\"><execute>%s</execute></action></item>"
-    app_entry = app_template % [config[k.entry], config[k.icon], config[k.exec]]
-    if config[k.menu] == 'Root' || config[k.menu] == 'Session'
-      menu = config[k.menu] == 'Root' ? root : session
+    if !config[k.entry]
+      puts("Adding menu: #{config[k.menu]}")
+      menu_template = "    <menu id=\"%s\" icon=\"%s\" label=\"%s\">"
+
+      menu_entry = menu_template % [config[k.menu], config[k.icon], config[k.menu]]
+      apps[config[k.menu]] = {'menu' => menu_entry, 'entries' => [], 'sub' => {}} if !apps[config[k.menu]]
+
+    # Adding new entry to the given category
+    #---------------------------------------------------------------------------
+    else
+      puts("Adding menu entry: #{config[k.entry]} => #{config[k.menu]}")
+      app_template = "      <item label=\"%s\" icon=\"%s\"><action name=\"Execute\"><execute>%s</execute></action></item>"
+
+      menu = nil
+      app_entry = app_template % [config[k.entry], config[k.icon], config[k.exec]]
+      if config[k.menu] == 'Root' || config[k.menu] == 'Session'
+        app_entry = (app_template % [config[k.entry], config[k.icon], config[k.exec]])[2..-1]
+        menu = config[k.menu] == 'Root' ? root : session
+      else
+        menu = apps[config[k.menu]]['entries']
+      end
+
+      # Add entry to identified menu
       if !menu.include?(app_entry)
-        if not config[k.insert]
-          i = menu.index{|x| x[/label="(.*)" /, 1] > config[k.entry]}
-          if not i or (i - 1 < 0)
-            menu << app_entry
-          else
-            menu.insert(i - 1)
-          end
-        else
+        i = nil
+        i = menu.index{|x| x[/label="(.*)"/, 1] > config[k.entry]} if not config[k.insert]
+        if not i or (i - 1 < 0)
           menu << app_entry
+        else
+          menu.insert(i - 1)
         end
       end
-    else
-      puts('apps')
     end
 
     # Construct updated menu and write to disk
     #---------------------------------------------------------------------------
-    menu = header + root + ['    <separator/>'] + apps + ['    <separator/>'] + session + footer
+    menu = header + root + ['    <separator/>']
+    apps.each{|k,v|
+      menu << v['menu']
+      v['entries'].each{|x| menu << x}
+      menu << "    </menu>"
+    }
+    menu += ['    <separator/>'] + session + footer
     File.open(menu_path, 'w'){|f| f.puts(menu)}
 
     return raw != menu
@@ -208,6 +241,8 @@ module Config
   # @param k [OpenStruct] keys for mapping
   # @returns [String] redirected string
   def redirect(config, ctx, k)
+    return config if config[k.menu]
+
     all = [config[k.edit], config[k.resolve], config[k.exec]].compact
     raise ArgumentError.new("Invalid config type") if not all.any?
     return config if all.any?{|x| x.include?(ctx.root)}

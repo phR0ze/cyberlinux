@@ -427,6 +427,32 @@ class TestMenu < Minitest::Test
     assert_mock(mock)
   end
 
+  def test_add_menu_apps_category_with_single_entry
+    data = ["<?xml version=\"1.0\" encoding=\"utf-8\"?>", "<openbox_menu xmlns=\"http://openbox.org/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://openbox.org/\">", "  <menu id=\"root-menu\" label=\"Applications\">", "    <separator label=\"--= FOOBAR =--\"/>", "    <separator/>", "    <menu id=\"Accessories\" icon=\"accessories.png\" label=\"Accessories\">", "    </menu>", "    <separator/>", "  </menu>", "</openbox_menu>"]
+
+    config = { 'menu' => 'Accessories', 'insert' => 'append', 'entry' => 'Beta', 'icon' => 'beta.png', 'exec' => 'beta' }
+
+    mock = Minitest::Mock.new
+    mock.expect(:puts, nil){|x|
+      entries = x.select{|y| y.include?("item")}
+      assert(entries.size == 1)
+      assert(entries.first.include?("Beta"))
+    }
+
+    Config.stub(:puts, nil){
+      File.stub(:exist?, true, @file){
+        File.stub(:readlines, data){
+          File.stub(:open, true, mock){
+            assert(Config.apply(config, @ctx))
+          }
+        }
+      }
+    }
+
+    assert_mock(mock)
+
+  end
+
 end
 
 # vim: ft=ruby:ts=2:sw=2:sts=2
