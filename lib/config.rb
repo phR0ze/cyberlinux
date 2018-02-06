@@ -162,13 +162,11 @@ module Config
 
     # Extract root menu entries
     root = menu.take_while{|x| not x =~ /<separator\/>/}
-    menu = menu.drop(root.size)
-    menu.pop(1)
+    menu = menu.drop(root.size + 1)
 
     # Extract app menu entries
     apps = menu.take_while{|x| not x =~ /<separator\/>/}
-    menu = menu.drop(apps.size)
-    menu.pop(1)
+    menu = menu.drop(apps.size + 1)
 
     # Extract session entries
     session = menu
@@ -178,20 +176,20 @@ module Config
     puts("Adding menu entry: #{config[k.entry]}")
     app_template = "      <item label=\"%s\" icon=\"%s\"><action name=\"Execute\"><execute>%s</execute></action></item>"
     app_entry = app_template % [config[k.entry], config[k.icon], config[k.exec]]
-    if config[k.menu] == 'Root'
-      if !root.include?(app_entry)
+    if config[k.menu] == 'Root' || config[k.menu] == 'Session'
+      menu = config[k.menu] == 'Root' ? root : session
+      if !menu.include?(app_entry)
         if not config[k.insert]
-          i = root.index{|x| x[/label="(.*)" /, 1] > config[k.entry]}
+          i = menu.index{|x| x[/label="(.*)" /, 1] > config[k.entry]}
           if not i or (i - 1 < 0)
-            root << app_entry
+            menu << app_entry
           else
-            root.insert(i - 1)
+            menu.insert(i - 1)
           end
         else
-          root << app_entry
+          menu << app_entry
         end
       end
-    elsif config[k.menu] == 'Session'
     else
       puts('apps')
     end
