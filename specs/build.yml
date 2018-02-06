@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.124
+  release: 0.1.125
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -149,8 +149,8 @@ configs:
     - { apply: idesk-config }
     - { apply: resolution-theater }
   menu-heavy-config:
-    - { edit: /etc/systemd/journald.conf, regex: '^#(SystemMaxUse).*', value: '\1=100M' }
     # Quick launch menu
+    #- { menu: QuickLaunch, label: Screenshot, icon: /usr/share/icons/Paper/32x32/apps/gnome-screenshot.png, exec: xfce4-screenshooter }
     - edit: /etc/skel/.config/openbox/menu.xml
       regex: '^\s+<!-- Screenshot -->.*'
       value: '      <item label="Screenshot" icon="/usr/share/icons/Paper/32x32/apps/gnome-screenshot.png"><action name="Execute"><execute>xfce4-screenshooter</execute></action></item>'
@@ -1126,7 +1126,8 @@ configs:
         - '#!/bin/bash'
         - '# Set resolution for virtuabox deployment'
         - 'display_conf=/etc/X11/xorg.conf.d/10-display.conf'
-        - 'if [ $(lsmod | grep "vboxvideo" &>/dev/null; echo $?) == 0 ]; then'
+        - 'if [ ! -f $display_conf ]; then'
+        - '  if [ $(lsmod | grep "vboxvideo" &>/dev/null; echo $?) == 0 ]; then'
         - "    echo 'Section \"Screen\"' > $display_conf"
         - "    echo '    Identifier \"Screen\"' >> $display_conf"
         - "    echo '    SubSection \"Display\"' >> $display_conf"
@@ -1134,6 +1135,7 @@ configs:
         - "    echo '        Modes \"1280x1024\"' >> $display_conf"
         - "    echo '    EndSubSection' >> $display_conf"
         - "    echo 'EndSection' >> $display_conf"
+        - '  fi'
         - 'fi'
     - { exec: chmod +x /opt/<%=distro%>/bin/pre-xorg }
     - edit: /etc/X11/xorg.conf.d/20-dpms.conf

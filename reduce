@@ -789,7 +789,7 @@ class Reduce
         # Copy over all layer data if it exists
         layer_changed |= syncfiles(layer, layer_src, layer_work, layer_digests)
 
-        # Apply file manipulations
+        # Apply configuration changes
         puts("Applying configs...".colorize(:cyan))
         changedfile = File.join(layer_work, 'changed')
         if layer_changed or not File.exist?(changedfile) or not File.exist?(layer_image)
