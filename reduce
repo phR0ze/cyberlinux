@@ -259,7 +259,8 @@ class Reduce
   end
 
   # Clean components as directed
-  # @param pacman [bool] clean pacman component
+  # @param pacman [bool] clean pacman repos
+  # @param pacman_all [bool] clean pacman repos and cache
   # @param initramfs [bool] clean initramfs component
   # @param isolinux [bool] clean isolinux component
   # @param layers [bool] clean given layers
@@ -267,9 +268,9 @@ class Reduce
   # @param vms [bool] clean vms
   # @param all [bool] clean all components
   # @param isofull [bool] clean iso image including all machine layers
-  def clean(pacman:nil, initramfs:nil, isolinux:nil, layers:nil, iso:nil, vms:nil, all:nil, isofull:nil)
+  def clean(pacman:nil, pacman_all:nil, initramfs:nil, isolinux:nil, layers:nil, iso:nil, vms:nil, all:nil, isofull:nil)
     !puts("Error: no clean options specified".colorize(:red)) and
-      exit unless [pacman, initramfs, isolinux, layers, iso, vms, all, isofull].any?
+      exit unless [pacman, pacman_all, initramfs, isolinux, layers, iso, vms, all, isofull].any?
     !puts("Error: must be executed as root".colorize(:red)) and
       exit unless Process.uid.zero?
 
@@ -320,10 +321,20 @@ class Reduce
     end
 
     # Clean pacman
-    if pacman or all
-      puts("Cleaning pacman...".colorize(:cyan))
-      puts("Deleting #{@pacman_path}".colorize(:red)) if Dir.exist?(@pacman_path)
-      Sys.rm_rf(@pacman_path)
+    if pacman or pacman_all or all
+      puts("Cleaning pacman repos...".colorize(:cyan))
+      puts("Cleaning pacman cache...".colorize(:cyan)) if pacman_all
+      if pacman_all
+        puts("Deleting #{@pacman_path}".colorize(:red)) if Dir.exist?(@pacman_path)
+        Sys.rm_rf(@pacman_path)
+      elsif pacman
+        puts("Deleting repo files".colorize(:red))
+        Sys.rm_rf(File.join(@pacman_path, 'sync'))
+        Sys.rm_rf(File.join(@pacman_path, 'gnupg'))
+        Dir[File.join(@pacman_path, '*.mirrorlist')].each{|f| File.delete(f) }
+        Dir[File.join(@pacman_path, '*.conf')].each{|f| File.delete(f) }
+        Dir[File.join(@pacman_path, '*.log')].each{|f| File.delete(f) }
+      end
     end
 
     # Clean iso path
@@ -1235,7 +1246,8 @@ if __FILE__ == $0
   ])
   opts.add('clean', 'Clean ISO components', [
     CmdOpt.new('--all', 'Clean all components'),
-    CmdOpt.new('--pacman', 'Clean pacman cache'),
+    CmdOpt.new('--pacman', 'Clean pacman repos'),
+    CmdOpt.new('--pacman-all', 'Clean pacman repos and cache'),
     CmdOpt.new('--initramfs', 'Clean initramfs image'),
     CmdOpt.new('--isolinux', 'Clean isolinux boot'),
     CmdOpt.new('--layers=x,y,z', 'Clean given layers', type:Array),
@@ -1279,8 +1291,8 @@ if __FILE__ == $0
   reduce.list(boxes: opts[:boxes], isos: opts[:isos], images: opts[:images], all: opts[:all]) if opts[:list]
 
   # Execute 'clean' command
-  reduce.clean(pacman: opts[:pacman], initramfs: opts[:initramfs], isolinux: opts[:isolinux],
-    layers: opts[:layers], iso: opts[:iso], vms: opts[:vms], all: opts[:all],
+  reduce.clean(pacman: opts[:pacman], pacman_all: opts[:pacman_all], initramfs: opts[:initramfs],
+    isolinux: opts[:isolinux], layers: opts[:layers], iso: opts[:iso], vms: opts[:vms], all: opts[:all],
     isofull: opts[:isofull]) if opts[:clean]
 
   # Execute 'build' command
