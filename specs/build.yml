@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.151
+  release: 0.1.152
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -674,7 +674,6 @@ configs:
       values:
         - '#!/bin/bash'
         # Wait for teamviewer service to create the base config
-        - 'systemctl start teamviewerd'
         - 'teamviewer_conf=/etc/teamviewer/global.conf'
         - 'while [ ! -f $teamviewer_conf ]; do sleep 1; done'
         - 'if [ $(grep EulaAccepted $teamviewer_conf &>/dev/null; echo $?) != 0 ]; then'
@@ -688,29 +687,25 @@ configs:
         - '  echo "[int32] Logging = 0" >> $teamviewer_conf'
         - '  echo "[int32] LogIncomingConnections = 0" >> $teamviewer_conf'
         - '  echo "[int32] LogOutgoingConnections = 0" >> $teamviewer_conf'
+        # Disable shutdown and always run
+        - '  echo "[int32] Always_Online = 1" >> $teamviewer_conf'
+        - '  echo "[int32] Security_Disableshutdown = 1" >> $teamviewer_conf'
+        - '  echo "[int32] ACFullAccessOnLoginScreen = 1" >> $teamviewer_conf'
         # Disable random password (for spontaneous access)
         - '  echo "[int32] Security_PasswordStrength = 3" >> $teamviewer_conf'
+        # Clean up
+        - '  (systemctl restart teamviewerd && sleep 2)'
+        - '  systemctl disable teamviewerd'
         - '  systemctl stop teamviewerd'
         - 'fi'
         # Clean up auto launch of teamviewer config script
         - 'rm -f /home/$SUDO_USER/.config/autostart/teamviewer.desktop'
     - { exec: chmod +x /opt/<%=distro%>/bin/config-teamviewer }
+    - { chroot: systemctl enable teamviewerd.service }
   teamviewer-host-config:
     - { apply: teamviewer-client-config }
-    - edit: /opt/<%=distro%>/bin/config-teamviewer
-      insert: before
-      regex: 'systemctl stop'
-      values:
-        # Disable shutdown and always run
-        - '  echo "[int32] Always_Online = 1" >> $teamviewer_conf'
-        - '  echo "[int32] Security_Disableshutdown = 1" >> $teamviewer_conf'
-        - '  echo "[int32] ACFullAccessOnLoginScreen = 1" >> $teamviewer_conf'
-        # Restart teamviewer service so that it picks up changes and autostarts tray
-        - '  systemctl restart teamviewerd'
-    - edit: /opt/<%=distro%>/bin/config-teamviewer
-      regex: '  systemctl stop teamviewerd'
-      value: '  systemctl restart teamviewerd'
-    - { chroot: systemctl enable teamviewerd.service }
+    - { edit: /opt/<%=distro%>/bin/config-teamviewer, regex: 'systemctl disable teamviewerd', value: '  :' }
+    - { edit: /opt/<%=distro%>/bin/config-teamviewer, regex: 'systemctl stop teamviewerd', value: '  :' }
   makepkg-config:
     - { edit: /etc/makepkg.conf, regex: '^#(MAKEFLAGS)=.*', value: '\1="-j8"' }
     - { edit: /etc/makepkg.conf, regex: '^(COMPRESSXZ)=.*', value: '\1=(xz -c -z - --threads=0)' }

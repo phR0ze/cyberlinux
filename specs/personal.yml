@@ -91,24 +91,24 @@ layers:
     configs:
       - { apply: lite-config }
 
-  # Chromebook
+  # Chrome
   # ----------------------------------------------------------------------------
-  - name: chromebook
+  - name: chrome
     type: machine
     base: lite
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     boot:
-      - entry: "Install <%=distro%>-chromebook  -lite + "
+      - entry: "Install <%=distro%>-chrome  -lite + chromebook"
         kernel: /<%=distro%>/vmlinuz
-        initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=chromebook_layers%> showopts vga=792
+        initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=chrome_layers%> showopts vga=792
     packages:
-      #- { install: chromebook-pkgs }
+      #- { install: chrome-pkgs }
 
       # Teamviewer is free to use for personal use
       # https://www.teamviewer.com/en/credentials/free-for-personal-use/
       - { pkg: teamviewer,                    desc: All-In-One Software for Remote Support and Online Meetings, type: CYBERLINUX }
     configs:
-      #- { apply: chromebook-config }
+      #- { apply: chrome-config }
       - { apply: teamviewer-client-config }
 
   # Server
