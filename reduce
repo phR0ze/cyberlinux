@@ -131,7 +131,7 @@ class Reduce
     @pacman_conf = File.join(@pacman_path, 'pacman.conf')
     @pacman_src_conf = File.join(@layers_src, 'base/etc/pacman.conf')
     @pacman_src_mirrors = File.join(@layers_src, 'base/etc/pacman.d/*.mirrorlist')
-    @isoimagesdst = File.join(@isopath, @vars.distro.downcase)
+    @isoimagesdst = File.join(@isopath, 'images')
 
     @memtest_image = File.join(@isoimagesdst, 'memtest')
     @vmlinuz_image = File.join(@isoimagesdst, 'vmlinuz')
