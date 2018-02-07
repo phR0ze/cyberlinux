@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.153
+  release: 0.1.154
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1208,7 +1208,6 @@ packages:
     - { pkg: tcpdump,                       desc: Network monitoring and data acquisition }
     - { pkg: wget,                          desc: Retrieve files from the Web }
     - { pkg: wpa_supplicant,                desc: A utility providing key negotiation for WPA wireless networks }
-    - { pkg: wpa_gui,                       desc: Qt4 GUI for WPA Supplicant, type: CYBERLINUX }
 
   systemd:
     - { pkg: systemd,                       desc: System and service manager }
@@ -1293,6 +1292,7 @@ packages:
     - { pkg: pulseaudio-alsa,               desc: ALSA Configuration for PulseAudio }
     - { pkg: python2-xdg,                   desc: Enable use of .desktop files in /etc/xdg in openbox }
     - { pkg: wmctrl,                        desc: Control your EWMH compliant window manager from command line }
+    - { pkg: wpa_gui,                       desc: Qt4 GUI for WPA Supplicant, type: CYBERLINUX }
     - { pkg: xcursor-numix-frost,           desc: Numix frost cursor theme, type: CYBERLINUX }
     - { pkg: xdg-user-dirs,                 desc: Manage user directories like ~/Desktop }
     - { pkg: xdg-utils,                     desc: Desktop integration utilities }
@@ -1412,6 +1412,7 @@ packages:
     - { pkg: pnmixer,                       desc: Volume controls in system tray, type: CYBERLINUX }
     - { pkg: qt4,                           desc: A cross-platform application and UI framework, deps: vlc }
     - { pkg: qt5-base,                      desc: A cross-platform application and UI framework, deps: mkvtoolnix-gui }
+    - { pkg: rubberband,                    desc: Time-stretching and pitch-shifting audio library and utility, depof: smplayer }
     - { pkg: smplayer,                      desc: UI wrapper around mplayer with click to pause, alt: vlc }
     - { pkg: smplayer-skins,                desc: Skins for SMPlayer }
     - { pkg: smplayer-themes,               desc: Themes for SMPlayer }
