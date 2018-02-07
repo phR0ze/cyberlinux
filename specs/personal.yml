@@ -34,10 +34,10 @@ layers:
     vagrant: { vram: 32, cpus: 2, ram: 2048 }
     boot:
       - entry: "Install <%=distro%>-base        -minimal shell env"
-        kernel: /<%=distro%>/vmlinuz
-        initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=base_layers%> showopts vga=792
+        kernel: /images/vmlinuz
+        initrd: /images/intel-ucode.img,/images/initramfs.img ipv6.disable=1 layers=<%=base_layers%> showopts vga=792
       - { entry: Hardware Detection Tool, label: hdt, kernel: hdt.c32, noboot: true }
-      - { entry: memory test,  label: memtest, kernel: /<%=distro%>/memtest, noboot: true }
+      - { entry: memory test,  label: memtest, kernel: /images/memtest, noboot: true }
       - { entry: Reboot, label: reboot, kernel: reboot.c32, noboot: true }
       - { entry: Poweroff, label: poweroff, kernel: poweroff.c32, noboot: true }
     packages:
@@ -56,8 +56,8 @@ layers:
     vagrant: { vram: 32, cpus: 2, ram: 2048 }
     boot:
       - entry: "Install <%=distro%>-shell        -base + full shell dev env"
-        kernel: /<%=distro%>/vmlinuz
-        initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=shell_layers%> showopts vga=792
+        kernel: /images/vmlinuz
+        initrd: /images/intel-ucode.img,/images/initramfs.img ipv6.disable=1 layers=<%=shell_layers%> showopts vga=792
     packages:
       - { install: shell-pkgs }
     configs:
@@ -76,8 +76,8 @@ layers:
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     boot:
       - entry: "Install <%=distro%>-lite           -shell + minimal X11 env"
-        kernel: /<%=distro%>/vmlinuz
-        initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=lite_layers%> showopts vga=792
+        kernel: /images/vmlinuz
+        initrd: /images/intel-ucode.img,/images/initramfs.img ipv6.disable=1 layers=<%=lite_layers%> showopts vga=792
     packages:
       - { install: lite-pkgs }
 
@@ -95,8 +95,8 @@ layers:
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     boot:
       - entry: "Install <%=distro%>-chrome  -lite + chromebook"
-        kernel: /<%=distro%>/vmlinuz
-        initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=chrome_layers%> showopts vga=792
+        kernel: /images/vmlinuz
+        initrd: /images/intel-ucode.img,/images/initramfs.img ipv6.disable=1 layers=<%=chrome_layers%> showopts vga=792
     packages:
       #- { install: chrome-pkgs }
 
@@ -115,8 +115,8 @@ layers:
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     boot:
       - entry: "Install <%=distro%>-server     -lite + LAMP and services"
-        kernel: /<%=distro%>/vmlinuz
-        initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=server_layers%> showopts autologin=1 vga=792
+        kernel: /images/vmlinuz
+        initrd: /images/intel-ucode.img,/images/initramfs.img ipv6.disable=1 layers=<%=server_layers%> showopts autologin=1 vga=792
     packages:
       - { install: server-pkgs }
 
@@ -140,8 +140,8 @@ layers:
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     boot:
       - entry: "Install <%=distro%>-heavy      -lite + more apps"
-        kernel: /<%=distro%>/vmlinuz
-        initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=heavy_layers%> showopts vga=792
+        kernel: /images/vmlinuz
+        initrd: /images/intel-ucode.img,/images/initramfs.img ipv6.disable=1 layers=<%=heavy_layers%> showopts vga=792
     packages:
       - { install: heavy-pkgs }
 
@@ -166,8 +166,8 @@ layers:
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     boot:
       - entry: "Install <%=distro%>-theater    -heavy + media/kodi"
-        kernel: /<%=distro%>/vmlinuz
-        initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=theater_layers%> showopts vga=792
+        kernel: /images/vmlinuz
+        initrd: /images/intel-ucode.img,/images/initramfs.img ipv6.disable=1 layers=<%=theater_layers%> showopts vga=792
     packages:
       - { install: theater-pkgs }
     configs:
@@ -184,8 +184,8 @@ layers:
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     boot:
       - entry: "Install <%=distro%>-desktop   -heavy + dev/office"
-        kernel: /<%=distro%>/vmlinuz
-        initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=desktop_layers%> showopts vga=792
+        kernel: /images/vmlinuz
+        initrd: /images/intel-ucode.img,/images/initramfs.img ipv6.disable=1 layers=<%=desktop_layers%> showopts vga=792
     packages:
       - { install: desktop-pkgs }
 
@@ -203,5 +203,5 @@ layers:
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     boot:
       - entry: "Start <%=distro%>-live            -live boot env."
-        kernel: /<%=distro%>/vmlinuz
-        initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=live_layers%> showopts vga=792
+        kernel: /images/vmlinuz
+        initrd: /images/intel-ucode.img,/images/initramfs.img ipv6.disable=1 layers=<%=live_layers%> showopts vga=792

@@ -102,7 +102,7 @@ getsel()
 
 mount_layers()
 {
-    local images_path=$1                            # e.g. ${isomnt}/cyberlinux
+    local images_path=$1                            # e.g. ${isomnt}/images
     local layered_mnt=$2                            # e.g. ${writemnt}/root
     local layered_tmp=$3                            # e.g. ${writemnt}/temp
 
@@ -111,7 +111,7 @@ mount_layers()
     echo -e ":: Mounting implicated layers for install"
     for x in ${layers//,/ }; do
         local img_mnt="${readmnt}/${x}"             # i.e. ${readmnt}/{base,devel,lite, etc...}
-        local img_path="${images_path}/${x}.sqfs"   # e.g. ${isomnt}/cyberlinux/base.sqfs
+        local img_path="${images_path}/${x}.sqfs"   # e.g. ${isomnt}/images/base.sqfs
         layer_dirs="${layer_dirs}${img_mnt}:"
 
         echo -en ":: Mounting ${img_path} at ${img_mnt}..."
@@ -445,13 +445,13 @@ installer()
         echo -en ":: Creating live tmpfs filesystem for writes, size=${rw_ram_size}..."
         mount -t tmpfs -o "size=${rw_ram_size}",mode=0755 none ${writemnt} &>/dev/null
         check_status
-        mount_layers "${isomnt}/${images_path}" ${writemnt}/root ${writemnt}/temp
+        mount_layers "${isomnt}/images" ${writemnt}/root ${writemnt}/temp
 
         echo -en ":: Re-bind ${writemnt}/root to new root location ${rootmnt}..."
         mount -o bind ${writemnt}/root ${rootmnt} &>/dev/null
         check_status
     else
-        mount_layers "${isomnt}/${images_path}" ${readmnt}/root ${readmnt}/temp
+        mount_layers "${isomnt}/images" ${readmnt}/root ${readmnt}/temp
         partition_and_mount_disk
         echo -e ":: Copying ${readmnt}/root to ${rootmnt}"
         rsync -ah --info=progress2 ${readmnt}/root/* ${rootmnt}
@@ -510,7 +510,6 @@ run_hook()
     distro="<%= distro %>"
     timezone="<%= timezone %>"
     all_groups="<%= groups %>"
-    images_path=$distro
 
     target_layer=$(echo $layers | awk -F, '{print $1}')
     [ "x$vagrant" == "x1" ] && autologin=1
