@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.152
+  release: 0.1.153
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1179,9 +1179,6 @@ packages:
     - { pkg: tmux,                          desc: Terminal multiplexer built off screen }
     - { pkg: usbutils,                      desc: USB device utilities including lsusb }
 
-    # Drivers
-    #- { pkg: e1000e-dkms,                   desc: Intel e1000e Ethernet adapter driver, type: CYBERLINUX }
-
     # Packaging
     - { pkg: pkgfile,                       desc: A pacman files and metadata explorer }
 
@@ -1299,7 +1296,102 @@ packages:
     - { pkg: xcursor-numix-frost,           desc: Numix frost cursor theme, type: CYBERLINUX }
     - { pkg: xdg-user-dirs,                 desc: Manage user directories like ~/Desktop }
     - { pkg: xdg-utils,                     desc: Desktop integration utilities }
-    - { pkg: xorg,                          desc: X.org X11 xorg-drivers and others }
+
+    - { pkg: xorg,           desc: Stop gap until get a better break down }
+    - { pkg: xf86-input-libinput,           desc: X.Org generic input driver, group: xorg-drivers }
+#    - { pkg: xf86-input-evdev,              desc: X.org evdev input driver, group: xorg-drivers }
+#    - { pkg: xf86-input-keyboard,           desc: X.Org keyboard input driver, group: xorg-drivers }
+#    - { pkg: xf86-input-mouse,              desc: X.org mouse input driver, group: xorg-drivers }
+#    - { pkg: xf86-input-synaptics,          desc: Synaptics driver for notebook touchpads, group: xorg-drivers }
+#    - { pkg: xf86-input-vmmouse,            desc: X.org VMWare Mouse input driver, group: xorg-drivers }
+#    - { pkg: xf86-input-void,               desc: X.org void input driver, group: xorg-drivers }
+#    - { pkg: xf86-video-amdgpu,             desc: X.org amdgpu video driver, group: xorg-drivers }
+#    - { pkg: xf86-video-ati,                desc: X.org ati video driver, group: xorg-drivers }
+#    - { pkg: xf86-video-dummy,              desc: X.org dummy video driver, group: xorg-drivers }
+#    - { pkg: xf86-video-fbdev,              desc: X.org framebuffer video driver, group: xorg-drivers }
+#    - { pkg: xf86-video-intel,              desc: X.org Intel video drivers, group: xorg-drivers }
+#    - { pkg: xf86-video-nouveau,            desc: X.org nVidia Open Source 2D drivers, group: xorg-drivers }
+#    - { pkg: xf86-video-openchrome,         desc: X.Org Openchrome drivers, group: xorg-drivers }
+#    - { pkg: xf86-video-vmware,             desc: X.org vmware video driver, group: xorg-drivers }
+#    - { pkg: xf86-video-voodoo,             desc: X.org 3dfx Voodoo1/Voodoo2 2D video driver, group: xorg-drivers }
+#    - { pkg: xf86-video-qxl,                desc: Xorg X11 qxl video driver, group: xorg-drivers }
+    - { pkg: xf86-video-vesa,               desc: X.org vesa video driver, group: xorg-drivers xorg }
+
+#    - { pkg: xorg-bdftopcf,     desc: Convert X font from Bitmap Distribution Format to Portable Compiled Format, group: xorg-apps }
+#    - { pkg: xorg-iceauth,     desc: ICE authority file utility, group: xorg-apps }
+#    - { pkg: xorg-luit,     desc: Filter that can be run between an arbitrary application and a UTF-8 terminal emulator, group: xorg-apps }
+#    - { pkg: xorg-mkfontdir,     desc: Create an index of X font files in a directory, group: xorg-apps }
+#    - { pkg: xorg-mkfontscale,     desc: Create an index of scalable font files for X, group: xorg-apps }
+#    - { pkg: xorg-sessreg,     desc: Register X sessions in system utmp/utmpx databases, group: xorg-apps }
+#    - { pkg: xorg-setxkbmap,     desc: Set the keyboard using the X Keyboard Extension, group: xorg-apps }
+#    - { pkg: xorg-smproxy,     desc: Allows X applications that do not support X11R6 session management to participate in an X11R6 session, group: xorg-apps }
+#    - { pkg: xorg-x11perf,     desc: Simple X server performance benchmarker, group: xorg-apps }
+#    - { pkg: xorg-xauth,     desc: X.Org authorization settings program, group: xorg-apps }
+#    - { pkg: xorg-xbacklight,     desc: RandR-based backlight control application, group: xorg-apps }
+#    - { pkg: xorg-xcmsdb,     desc: Device Color Characterization utility for X Color Management System, group: xorg-apps }
+#    - { pkg: xorg-xcursorgen,     desc: Create an X cursor file from PNG images, group: xorg-apps }
+#    - { pkg: xorg-xdpyinfo,     desc: Display information utility for X, group: xorg-apps }
+#    - { pkg: xorg-xdriinfo,     desc: Query configuration information of DRI drivers, group: xorg-apps }
+#    - { pkg: xorg-xev,     desc: Print contents of X events, group: xorg-apps }
+#    - { pkg: xorg-xgamma,     desc: Alter a monitor's gamma correction, group: xorg-apps }
+#    - { pkg: xorg-xhost,     desc: Server access control program for X, group: xorg-apps }
+#    - { pkg: xorg-xinput,     desc: Small commandline tool to configure devices, group: xorg-apps }
+#    - { pkg: xorg-xkbcomp,     desc: X Keyboard description compiler, group: xorg-apps }
+#    - { pkg: xorg-xkbevd,     desc: XKB event daemon, group: xorg-apps }
+#    - { pkg: xorg-xkbutils,     desc: XKB utility demos, group: xorg-apps }
+#    - { pkg: xorg-xkill,     desc: Kill a client by its X resource, group: xorg-apps }
+#    - { pkg: xorg-xlsatoms,     desc: List interned atoms defined on server, group: xorg-apps }
+#    - { pkg: xorg-xlsclients,     desc: List client applications running on a display, group: xorg-apps }
+#    - { pkg: xorg-xmodmap,     desc: Utility for modifying keymaps and button mappings, group: xorg-apps }
+#    - { pkg: xorg-xpr,     desc: Print an X window dump from xwd, group: xorg-apps }
+#    - { pkg: xorg-xprop,     desc: Property displayer for X, group: xorg-apps }
+#    - { pkg: xorg-xrandr,     desc: Primitive command line interface to RandR extension, group: xorg-apps }
+#    - { pkg: xorg-xrdb,     desc: X server resource database utility, group: xorg-apps }
+#    - { pkg: xorg-xrefresh,     desc: Refresh all or part of an X screen, group: xorg-apps }
+#    - { pkg: xorg-xset,     desc: User preference utility for X, group: xorg-apps }
+#    - { pkg: xorg-xsetroot,     desc: Classic X utility to set your root window background to a given pattern or color, group: xorg-apps }
+#    - { pkg: xorg-xvinfo,     desc: Prints out the capabilities of any video adaptors associated with the display that are accessible through the X-Video extension, group: xorg-apps }
+#    - { pkg: xorg-xwd,     desc: X Window System image dumping utility, group: xorg-apps }
+#    - { pkg: xorg-xwininfo,     desc: Command-line utility to print information about windows on an X server, group: xorg-apps }
+#    - { pkg: xorg-xwud,     desc: X Window System image undumping utility, group: xorg-apps }
+# }
+#    - { pkg: xorg-bdftopcf,                 desc: , group: xorg }
+#    - { pkg: xorg-docs,                     desc: , group: xorg }
+#    - { pkg: xorg-font-util,                desc: , group: xorg }
+#    - { pkg: xorg-fonts-75,                 desc: , group: xorg }
+#    - { pkg: xorg-fonts-100dpi,             desc: , group: xorg }
+#    - { pkg: xorg-fonts-encodings,          desc: , group: xorg }
+#    - { pkg: xorg-iceauth,                  desc: , group: xorg }
+#    - { pkg: xorg-luit,                     desc: , group: xorg }
+#    - { pkg: xorg-mkfontdir,                desc: , group: xorg }
+#    - { pkg: xorg-mkfontscale,              desc: , group: xorg }
+#    - { pkg: xorg-sever,                    desc: , group: xorg }
+#    - { pkg: xorg-server-devel,             desc: , group: xorg }
+#    - { pkg: xorg-server-xdmx,              desc: , group: xorg }
+#    - { pkg: xorg-server-xephyr,            desc: , group: xorg }
+#    - { pkg: xorg-server-xnest,             desc: , group: xorg }
+#    - { pkg: xorg-server-xvfb,              desc: , group: xorg }
+#    - { pkg: xorg-server-xwayland,          desc: , group: xorg }
+#    - { pkg: xorg-sessreg,                  desc: , group: xorg }
+#    - { pkg: xorg-setxkbmap,                desc: , group: xorg }
+#    - { pkg: xorg-smproxy,                  desc: , group: xorg }
+#    - { pkg: xorg-x11perf,                  desc: , group: xorg }
+#    - { pkg: xorg-xauth,                    desc: , group: xorg }
+#    - { pkg: ,               desc: , group: xorg }
+#    - { pkg: ,               desc: , group: xorg }
+#    - { pkg: ,               desc: , group: xorg }
+#    - { pkg: ,               desc: , group: xorg }
+#    - { pkg: ,               desc: , group: xorg }
+#    - { pkg: ,               desc: , group: xorg }
+#    - { pkg: ,               desc: , group: xorg }
+#    - { pkg: ,               desc: , group: xorg }
+#    - { pkg: ,               desc: , group: xorg }
+#    - { pkg: ,               desc: , group: xorg }
+#    - { pkg: ,               desc: , group: xorg }
+#    - { pkg: ,               desc: , group: xorg }
+#    - { pkg: ,               desc: , group: xorg }
+#    - { pkg: ,               desc: , group: xorg }
+
     - { pkg: xorg-xdpyinfo,                 desc: Xorg display info utility }
     - { pkg: xsel,                          desc: Tool for getting/setting X selection }
     - { pkg: xterm,                         desc: X terminal emulator }
@@ -1314,6 +1406,7 @@ packages:
     - { pkg: gsimplecal,                    desc: Simple calendar like windows systray calendar }
     - { pkg: gvim,                          desc: Improved version of vi text editor, conflict: vim }
     - { pkg: hardinfo,                      desc: A system information and benchmark tool }
+    - { pkg: libx264-10bit,                 desc: Library for encoding H264/AVC video streams, depof: smplayer }
     - { pkg: nitrogen,                      desc: System wallpaper manager }
     - { pkg: pepper-flash,                  desc: Chromium flash support }
     - { pkg: pnmixer,                       desc: Volume controls in system tray, type: CYBERLINUX }
