@@ -140,7 +140,7 @@ module Config
   # @returns true on change
   def add_menu_entry(config, ctx, k)
 
-    # Create menu or read existing menu
+    # Create menu if it doesn't exist
     #---------------------------------------------------------------------------
     menu_path = File.join(ctx.root, 'etc/skel/.config/openbox/menu.xml')
     raw_xml = ['<?xml version="1.0" encoding="utf-8"?>',
@@ -154,6 +154,9 @@ module Config
     ]
     raw_xml = File.readlines(menu_path) if File.exist?(menu_path)
     menu_xml = raw_xml.dup
+
+    # Parse menu into something we can work with
+    #---------------------------------------------------------------------------
 
     # Extract header/footer
     header = menu_xml.take(4)
@@ -195,7 +198,7 @@ module Config
 
     # Adding new entry to the given menu
     #---------------------------------------------------------------------------
-    menu_names = config[k.menu].split(":")
+    menu_names = config[k.menu].split(">")
     get_parent_menu = ->(parent, name, others) {
       raise ArgumentError.new("Menu '#{name}' doesn't exist") and
         exit if !parent['menu'].any?{|x| x['name'] == name } and others.any?

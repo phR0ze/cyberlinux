@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.145
+  release: 0.1.146
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -169,6 +169,32 @@ configs:
     - { menu: Network, entry: Chromium, icon: /usr/share/icons/Paper/32x32/apps/chromium.png, exec: chromium }
     - { menu: Network, entry: FileZilla, icon: /usr/share/icons/Paper/32x32/apps/filezilla.png, exec: filezilla }
     - { menu: Network, entry: Zenmap, icon: /usr/share/zenmap/pixmaps/zenmap.png, exec: sudo zenmap }
+    - { menu: Office, icon: /usr/share/icons/Paper/32x32/categories/applications-office.png }
+    - { menu: Office, entry: Evince, icon: /usr/share/icons/Paper/32x32/apps/evince.png, exec: evince }
+    - { menu: Settings, icon: /usr/share/icons/Paper/32x32/categories/applications-accessories.png }
+    - { menu: Settings>Desktop/Login, icon: /usr/share/icons/Paper/32x32/apps/preferences-system-login.png }
+    - { menu: Settings>Desktop/Login, entry: Reconfigure Openbox, icon: /usr/share/icons/Paper/32x32/apps/update-manager.png, exec: openbox --reconfigure }
+    - { menu: Settings>Desktop/Login, entry: LXDM Config, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: sudo gvim /etc/lxdm/lxdm.conf }
+    - { menu: Settings>Desktop/Login, entry: Openbox Autostart, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.config/openbox/autostart }
+    - { menu: Settings>Desktop/Login, entry: Openbox RC, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.config/openbox/rc.xml }
+    - { menu: Settings>Desktop/Login, entry: Openbox Menu, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.config/openbox/menu.xml }
+    - { menu: Settings>Desktop/Login, entry: Oblogout, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: sudo gvim /etc/oblogout.conf }
+    - { menu: Settings>Desktop/Login, entry: Tint2 Panel, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.config/tint2/tint2rc }
+    - { menu: Settings>Pacman/Servers, icon: /usr/share/icons/Paper/32x32/apps/software-center.png }
+    - { menu: Settings>Pacman/Servers, entry: Pacman Config, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: sudo gvim /etc/pacman.conf }
+    - { menu: Settings>Pacman/Servers, entry: Pacman Mirrorlist, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: sudo gvim /etc/pacman.d/mirrorlist }
+    - { menu: Settings, entry: LXAppearance, icon: /usr/share/icons/Paper/32x32/apps/preferences-desktop-theme.png, exec: lxappearance }
+    - { menu: Settings, entry: LXInput, icon: /usr/share/icons/Paper/32x32/apps/preferences-desktop-keyboard.png, exec: lxinput }
+    - { menu: Settings, entry: LXRandR, icon: /usr/share/icons/Paper/32x32/apps/preferences-desktop-display.png, exec: lxrandr }
+    - { menu: Settings, entry: Thunar Settings, icon: /usr/share/icons/Paper/32x32/apps/system-file-manager.png, exec: thunar-settings }
+    - { menu: Settings, entry: Tint2 Themes, icon: /usr/share/icons/Paper/32x32/apps/tint2conf.png, exec: tint2conf }
+    - { menu: System, icon: /usr/share/icons/Paper/32x32/categories/applications-system.png }
+    - { menu: System, entry: HardInfo, icon: /usr/share/hardinfo/pixmaps/logo.png, exec: hardinfo }
+    - { menu: System, entry: Htop, icon: /usr/share/icons/Paper/32x32/apps/htop.png, exec: lxterminal -e htop }
+    - { menu: Session, insert: append, entry: Run..., icon: /usr/share/icons/Paper/32x32/mimetypes/application-x-executable.png, exec: "dmenu_run -fn -misc-fixed-*-*-*-*-20-200-*-*-*-*-*-*  -i -nb '#000000' -nf '#efefef' -sf '#000000' -sb '#3cb0fd'" }
+    - { menu: Session, insert: append, entry: Logout, icon: /usr/share/icons/Paper/32x32/actions/exit.png, exec: openbox --exit }
+    - { menu: Session, insert: append, entry: Reboot, icon: /usr/share/icons/hicolor/32x32/actions/system-reboot.png, exec: sudo reboot }
+    - { menu: Session, insert: append, entry: Shutdown, icon: /usr/share/icons/hicolor/32x32/actions/system-shutdown.png, exec: sudo poweroff }
 
   menu-heavy-config:
     # Quick launch menu
