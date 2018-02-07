@@ -33,14 +33,10 @@ layers:
       - entry: "Install <%=distro%>-base        -minimal shell env"
         kernel: /<%=distro%>/vmlinuz
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=base_layers%> showopts vga=792
-      - entry: Hardware Detection Tool
-        label: hdt
-        kernel: hdt.c32
-        noboot: true
-      - entry: memory test
-        label: memtest
-        kernel: memtest
-        noboot: true
+      - { entry: Hardware Detection Tool, label: hdt, kernel: hdt.c32, noboot: true }
+      - { entry: memory test,  label: memtest, kernel: /<%=distro%>/memtest, noboot: true }
+      - { entry: Reboot, label: reboot, kernel: reboot.c32, noboot: true }
+      - { entry: Poweroff, label: poweroff, kernel: poweroff.c32, noboot: true }
     packages:
       - { install: machine-pkgs }
       - { install: machine-tools }

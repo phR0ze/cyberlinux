@@ -133,6 +133,7 @@ class Reduce
     @pacman_src_mirrors = File.join(@layers_src, 'base/etc/pacman.d/*.mirrorlist')
     @isoimagesdst = File.join(@isopath, @vars.distro.downcase)
 
+    @memtest_image = File.join(@isoimagesdst, 'memtest')
     @vmlinuz_image = File.join(@isoimagesdst, 'vmlinuz')
     @ucode_image = File.join(@isoimagesdst, 'intel-ucode.img')
 
@@ -306,11 +307,10 @@ class Reduce
         puts("Deleting #{x}".colorize(:red)) if File.exist?(x)
         Sys.rm_rf(x)
       }
-
-      puts("Deleting #{@ucode_image}".colorize(:red)) if File.exist?(@ucode_image)
-      File.delete(@ucode_image) if File.exist?(@ucode_image)
-      puts("Deleting #{@vmlinuz_image}".colorize(:red)) if File.exist?(@vmlinuz_image)
-      File.delete(@vmlinuz_image) if File.exist?(@vmlinuz_image)
+      [@ucode_image, @memtest_image, @vmlinuz_image].each{|x|
+        puts("Deleting #{x}".colorize(:red)) if File.exist?(x)
+        File.delete(x) if File.exist?(x)
+      }
     end
 
     # Clean given layers
@@ -546,8 +546,10 @@ class Reduce
         cp["#{cont}:/usr/lib/syslinux/bios/libmenu.c32 #{@isolinux_bios_work}"]   # Hardware Detection Tool dep
         cp["#{cont}:/usr/lib/syslinux/bios/libutil.c32 #{@isolinux_bios_work}"]   # Hardware Detection Tool dep
         cp["#{cont}:/usr/lib/syslinux/bios/libgpl.c32 #{@isolinux_bios_work}"]    # Hardware Detection Tool dep
+        cp["#{cont}:/usr/lib/syslinux/bios/poweroff.c32 #{@isolinux_bios_work}"]  # Power off system
+        cp["#{cont}:/usr/lib/syslinux/bios/reboot.c32 #{@isolinux_bios_work}"]    # Reboot system
         cp["#{cont}:/usr/share/hwdata/pci.ids #{@isolinux_bios_work}"]            # Hardware Detection Tool dep
-        cp["#{cont}:/boot/memtest86+/memtest.bin #{@isolinux_bios_work}/memtest"] # Memory test
+        cp["#{cont}:/boot/memtest86+/memtest.bin #{@memtest_image}"]              # Memory test boot image
         cp["#{cont}:/boot/intel-ucode.img #{@ucode_image}"]                       # Intel microcode updates
         cp["#{cont}:/boot/vmlinuz-linux #{@vmlinuz_image}"]                       # Linux kernel
 
@@ -566,6 +568,8 @@ class Reduce
         cp["#{cont}:/usr/lib/syslinux/efi64/libmenu.c32 #{@isolinux_uefi_work}"]  # Hardware Detection Tool dep
         cp["#{cont}:/usr/lib/syslinux/efi64/libutil.c32 #{@isolinux_uefi_work}"]  # Hardware Detection Tool dep
         cp["#{cont}:/usr/lib/syslinux/efi64/libgpl.c32 #{@isolinux_uefi_work}"]   # Hardware Detection Tool dep
+        cp["#{cont}:/usr/lib/syslinux/efi64/poweroff.c32 #{@isolinux_uefi_work}"] # Power off system
+        cp["#{cont}:/usr/lib/syslinux/efi64/reboot.c32 #{@isolinux_uefi_work}"]   # Reboot system
         cp["#{cont}:/usr/share/hwdata/pci.ids #{@isolinux_uefi_work}"]            # Hardware Detection Tool dep
       }
 
