@@ -161,7 +161,7 @@ module Config
     footer = menu_xml.pop(2)
 
     # Extract root menu entries
-    root = menu_xml.take_while{|x| not x =~ /<separator\/>/}
+    root = menu_xml.take_while{|x| not x =~ /<separator\/>/}.map{|x| x.strip}
     menu_xml = menu_xml.drop(root.size + 1)
 
     # Extract app menu entries and process
@@ -172,7 +172,7 @@ module Config
     apps = {'menu' => []}
     add_app_menus = ->(menu, raw, i) {
       while i < raw.size do
-        line = raw[i]
+        line = raw[i].strip
         if line.include?("<menu")
           name = line[/id="(.*?)"/, 1]
           if !menu['menu'].any?{|x| x['name'] == name}
@@ -191,7 +191,7 @@ module Config
     add_app_menus.call(apps, apps_xml, 0)
 
     # Extract session entries
-    session = menu_xml
+    session = menu_xml.map{|x| x.strip}
 
     # Adding new entry to the given menu
     #---------------------------------------------------------------------------
@@ -203,7 +203,7 @@ module Config
       return parent['menu']
     }
     if !config[k.entry]
-      menu_template = "    <menu id=\"%s\" icon=\"%s\" label=\"%s\">"
+      menu_template = "<menu id=\"%s\" icon=\"%s\" label=\"%s\">"
       puts("Adding menu: #{menu_names.last}")
       menu_entry = menu_template % [menu_names.last, config[k.icon], config[k.menu]]
       menu = {'name' => menu_names.last, 'detail' => menu_entry.gsub(config[k.menu], menu_names.last), 'entries' => [], 'menu' => []}
@@ -214,12 +214,12 @@ module Config
     #---------------------------------------------------------------------------
     else
       puts("Adding menu entry: #{config[k.entry]} => #{config[k.menu]}")
-      app_template = "      <item label=\"%s\" icon=\"%s\"><action name=\"Execute\"><execute>%s</execute></action></item>"
+      app_template = "<item label=\"%s\" icon=\"%s\"><action name=\"Execute\"><execute>%s</execute></action></item>"
 
       menu = nil
       app_entry = app_template % [config[k.entry], config[k.icon], config[k.exec]]
       if config[k.menu] == 'Root' || config[k.menu] == 'Session'
-        app_entry = (app_template % [config[k.entry], config[k.icon], config[k.exec]])[2..-1]
+        app_entry = (app_template % [config[k.entry], config[k.icon], config[k.exec]])
         menu = config[k.menu] == 'Root' ? root : session
       else
         menu = get_parent_menu.call(apps, menu_names.first, menu_names.drop(1))
@@ -240,15 +240,19 @@ module Config
 
     # Construct updated menu and write to disk
     #---------------------------------------------------------------------------
-    menu_xml = header + root + ['    <separator/>']
+    menu_xml = header
+    menu_xml += root.map{|x| ' ' * 4 + x}
+    menu_xml += [' ' * 4 + '<separator/>']
     gen_menu = ->(app_menu, depth) {
       menu_xml << ' ' * depth * 2 + app_menu['detail']
       app_menu['menu'].each{|x| gen_menu.call(x, depth + 1)}
-      app_menu['entries'].each{|x| menu_xml << ' ' * depth * 2 + x}
-      menu_xml << ' ' * depth * 2 + "    </menu>"
+      app_menu['entries'].each{|x| menu_xml << ' ' * depth * 3 + x}
+      menu_xml << ' ' * depth * 2 + "</menu>"
     }
-    apps['menu'].each{|x| gen_menu.call(x, 0)}
-    menu_xml += ['    <separator/>'] + session + footer
+    apps['menu'].each{|x| gen_menu.call(x, 2)}
+    menu_xml += [' ' * 4 + '<separator/>']
+    menu_xml += session.map{|x| ' ' * 4 + x}
+    menu_xml += footer
     File.open(menu_path, 'w'){|f| f.puts(menu_xml)}
 
     return raw_xml != menu_xml

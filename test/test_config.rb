@@ -459,8 +459,8 @@ class TestMenu < Minitest::Test
 
     mock = Minitest::Mock.new
     mock.expect(:puts, nil){|x|
-      assert(x.any?{|y| y.include?("Settings")})
-      assert(x.any?{|y| y.include?("System")})
+      assert_equal(x.find{|y| y.include?('label="Settings"')}, '    <menu id="Settings" icon="settings.png" label="Settings">')
+      assert_equal(x.find{|y| y.include?('label="System"')}, '      <menu id="System" icon="system.png" label="System">')
       assert(!x.any?{|y| y.include?("Settings:System")})
     }
 
@@ -476,6 +476,60 @@ class TestMenu < Minitest::Test
 
     assert_mock(mock)
   end
+
+  def test_add_menu_apps_category_sub_entry
+    data = ["<?xml version=\"1.0\" encoding=\"utf-8\"?>", "<openbox_menu xmlns=\"http://openbox.org/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://openbox.org/\">", "  <menu id=\"root-menu\" label=\"Applications\">", "    <separator label=\"--= FOOBAR =--\"/>", "    <separator/>", "    <menu id=\"Settings\" icon=\"settings.png\" label=\"Settings\">", "      <menu id=\"System\" icon=\"system.png\" label=\"System\">", "      </menu>", "    </menu>", "    <separator/>", "  </menu>", "</openbox_menu>"]
+
+    config = { 'menu' => 'Settings:System', 'entry' => 'Beta', 'icon' => 'beta.png', 'exec' => 'beta' }
+
+    mock = Minitest::Mock.new
+    mock.expect(:puts, nil){|x|
+      #puts(x)
+      assert_equal(x.find{|y| y.include?('label="Settings"')}, '    <menu id="Settings" icon="settings.png" label="Settings">')
+      assert_equal(x.find{|y| y.include?('label="System"')}, '      <menu id="System" icon="system.png" label="System">')
+      assert_equal(x.find{|y| y.include?('label="Beta"')}, "         <item label=\"Beta\" icon=\"beta.png\"><action name=\"Execute\"><execute>beta</execute></action></item>")
+      assert(!x.any?{|y| y.include?("Settings:System")})
+    }
+
+    Config.stub(:puts, nil){
+      File.stub(:exist?, true, @file){
+        File.stub(:readlines, data){
+          File.stub(:open, true, mock){
+            assert(Config.apply(config, @ctx))
+          }
+        }
+      }
+    }
+
+    assert_mock(mock)
+  end
+
+  def test_add_menu_apps_subs_root_entry
+    data = ["<?xml version=\"1.0\" encoding=\"utf-8\"?>", "<openbox_menu xmlns=\"http://openbox.org/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://openbox.org/\">", "  <menu id=\"root-menu\" label=\"Applications\">", "    <separator label=\"--= FOOBAR =--\"/>", "    <separator/>", "    <menu id=\"Settings\" icon=\"settings.png\" label=\"Settings\">", "      <menu id=\"System\" icon=\"system.png\" label=\"System\">", "      </menu>", "    </menu>", "    <separator/>", "  </menu>", "</openbox_menu>"]
+
+    config = { 'menu' => 'Root', 'entry' => 'Beta', 'icon' => 'beta.png', 'exec' => 'beta' }
+
+    mock = Minitest::Mock.new
+    mock.expect(:puts, nil){|x|
+      assert_equal(x.find{|y| y.include?('label="Settings"')}, '    <menu id="Settings" icon="settings.png" label="Settings">')
+      assert_equal(x.find{|y| y.include?('label="System"')}, '      <menu id="System" icon="system.png" label="System">')
+      assert_equal(x.find{|y| y.include?('label="Beta"')}, "    <item label=\"Beta\" icon=\"beta.png\"><action name=\"Execute\"><execute>beta</execute></action></item>")
+      assert(!x.any?{|y| y.include?("Settings:System")})
+    }
+
+    Config.stub(:puts, nil){
+      File.stub(:exist?, true, @file){
+        File.stub(:readlines, data){
+          File.stub(:open, true, mock){
+            assert(Config.apply(config, @ctx))
+          }
+        }
+      }
+    }
+
+    assert_mock(mock)
+  end
+
 end
 
 # vim: ft=ruby:ts=2:sw=2:sts=2
