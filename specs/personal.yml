@@ -91,9 +91,9 @@ layers:
     configs:
       - { apply: lite-config }
 
-  # Chomebook
+  # Chromebook
   # ----------------------------------------------------------------------------
-  - name: chomebook
+  - name: chromebook
     type: machine
     base: lite
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
