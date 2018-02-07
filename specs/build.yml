@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.147
+  release: 0.1.148
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -220,56 +220,33 @@ configs:
     - { menu: Settings, entry: Thunar Volman, icon: /usr/share/icons/Paper/32x32/devices/drive-removable-media.png, exec: thunar-volman-settings }
     - { menu: System, entry: GParted, icon: /usr/share/icons/Paper/32x32/apps/gparted.png, exec: sudo gparted }
   menu-desktop-config:
-    - { menu: Accessories, entry: KeePass, icon: /usr/share/icons/hicolor/32x32/apps/keepass.png"><action name="Execute"><execute>keepass</execute></action></item>'
-    - { menu: Development, entry: Meld, icon: /usr/share/icons/Paper/32x32/apps/meld.png"><action name="Execute"><execute>meld</execute></action></item>'
-    - { menu: Development, entry: Visual Studio Code, icon: /usr/share/icons/Paper/32x32/apps/visual-studio-code.png"><action name="Execute"><execute>code</execute></action></item>'
-    - { menu: Graphics, entry: Gimp, icon: /usr/share/icons/Paper/32x32/apps/gimp.png"><action name="Execute"><execute>gimp-2.8</execute></action></item>'
-    - { menu: Graphics, entry: Inkscape, icon: /usr/share/icons/Paper/32x32/apps/inkscape.png"><action name="Execute"><execute>inkscape</execute></action></item>'
-    - { menu: Graphics, entry: Kolour, icon: /usr/share/icons/Paper/32x32/apps/kolourpaint.png"><action name="Execute"><execute>kolourpaint</execute></action></item>'
-    - { menu: Graphics, entry: LibreOffice Draw, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-draw.png"><action name="Execute"><execute>libreoffice --draw</execute></action></item>'
-    - { menu: Multimedia, entry: OpenShot, icon: /usr/share/icons/Paper/32x32/apps/openshot.png"><action name="Execute"><execute>openshot-qt</execute></action></item>'
-    - { menu: Network, entry: Synergy, icon: /usr/share/icons/Paper/32x32/apps/synergy.png"><action name="Execute"><execute>synergy</execute></action></item>'
-    - { menu: Network, entry: WPA Gui, icon: /usr/share/icons/hicolor/32x32/apps/wpa_gui.png"><action name="Execute"><execute>sudo wpa_gui</execute></action></item>'
-    - { menu: Office, entry: LibreOffice Base, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-base.png"><action name="Execute"><execute>libreoffice --base</execute></action></item>'
-    - { menu: Office, entry: LibreOffice Calc, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-calc.png"><action name="Execute"><execute>libreoffice --calc</execute></action></item>'
-    - { menu: Office, entry: LibreOffice Draw, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-draw.png"><action name="Execute"><execute>libreoffice --draw</execute></action></item>'
-    - { menu: Office, entry: LibreOffice Impress, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-impress.png"><action name="Execute"><execute>libreoffice --impress</execute></action></item>'
-    - { menu: Office, entry: LibreOffice Math, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-math.png"><action name="Execute"><execute>libreoffice --math</execute></action></item>'
-    - { menu: Office, entry: LibreOffice Writer, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-writer.png"><action name="Execute"><execute>libreoffice --writer</execute></action></item>'
-    - { menu: Office, entry: LibreOffice, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-startcenter.png"><action name="Execute"><execute>libreoffice</execute></action></item>'
-    - { menu: Office, entry: Scribus, icon: /usr/share/icons/Paper/32x32/apps/scribus.png"><action name="Execute"><execute>scribus</execute></action></item>'
-    - { menu: Settings, entry: VirtualBox, icon: /usr/share/icons/Paper/32x32/apps/virtualbox.png"><action name="Execute"><execute>VirtualBox</execute></action></item>'
+    - { menu: Accessories, entry: KeePass, icon: /usr/share/icons/hicolor/32x32/apps/keepass.png, exec: keepass }
+    - { menu: Development, entry: Meld, icon: /usr/share/icons/Paper/32x32/apps/meld.png, exec: meld }
+    - { menu: Development, entry: Visual Studio Code, icon: /usr/share/icons/Paper/32x32/apps/visual-studio-code.png, exec: code }
+    - { menu: Graphics, entry: Gimp, icon: /usr/share/icons/Paper/32x32/apps/gimp.png, exec: gimp }
+    - { menu: Graphics, entry: Inkscape, icon: /usr/share/icons/Paper/32x32/apps/inkscape.png, exec: inkscape }
+    - { menu: Graphics, entry: Kolour, icon: /usr/share/icons/Paper/32x32/apps/kolourpaint.png, exec: kolourpaint }
+    - { menu: Graphics, entry: LibreOffice Draw, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-draw.png, exec: libreoffice --draw }
+    - { menu: Multimedia, entry: OpenShot, icon: /usr/share/icons/Paper/32x32/apps/openshot.png, exec: openshot-qt }
+    - { menu: Network, entry: Synergy, icon: /usr/share/icons/Paper/32x32/apps/synergy.png, exec: synergy }
+    - { menu: Network, entry: WPA Gui, icon: /usr/share/icons/hicolor/32x32/apps/wpa_gui.png, exec: sudo wpa_gui }
+    - { menu: Office, entry: LibreOffice Base, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-base.png, exec: libreoffice --base }
+    - { menu: Office, entry: LibreOffice Calc, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-calc.png, exec: libreoffice --calc }
+    - { menu: Office, entry: LibreOffice Draw, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-draw.png, exec: libreoffice --draw }
+    - { menu: Office, entry: LibreOffice Impress, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-impress.png, exec: libreoffice --impress }
+    - { menu: Office, entry: LibreOffice Math, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-math.png, exec: libreoffice --math }
+    - { menu: Office, entry: LibreOffice Writer, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-writer.png, exec: libreoffice --writer }
+    - { menu: Office, entry: LibreOffice, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-startcenter.png, exec: libreoffice }
+    - { menu: Office, entry: Scribus, icon: /usr/share/icons/Paper/32x32/apps/scribus.png, exec: scribus }
+    - { menu: Settings, entry: VirtualBox, icon: /usr/share/icons/Paper/32x32/apps/virtualbox.png, exec: VirtualBox }
   menu-server-config:
-    # Accessories menu
-    - edit: /etc/skel/.config/openbox/menu.xml
-      insert: before
-      regex: 'Bulk Rename'
-      values:
-        - '      <item label="Archive Manager" icon="/usr/share/icons/Paper/32x32/apps/file-roller.png"><action name="Execute"><execute>file-roller</execute></action></item>'
-    - edit: /etc/skel/.config/openbox/menu.xml
-      insert: after
-      regex: 'Bulk Rename'
-      values:
-        - '      <item label="KeePass" icon="/usr/share/icons/hicolor/32x32/apps/keepass.png"><action name="Execute"><execute>keepass</execute></action></item>'
-    # Multimedia menu
-    - edit: /etc/skel/.config/openbox/menu.xml
-      insert: after
-      regex: 'Audacious'
-      values:
-        - '      <item label="HandBrake" icon="/usr/share/icons/hicolor/scalable/apps/hb-icon.svg"><action name="Execute"><execute>ghb</execute></action></item>'
-        - '      <item label="MKVToolNix" icon="/usr/share/icons/hicolor/32x32/apps/mkvtoolnix-gui.png"><action name="Execute"><execute>mkvtoolnix-gui</execute></action></item>'
-    - edit: /etc/skel/.config/openbox/menu.xml
-      insert: after
-      regex: 'SMPlayer'
-      values:
-        - '      <item label="Tiny Media Manager" icon="/usr/share/icons/hicolor/32x32/apps/tiny-media-manager.png"><action name="Execute"><execute>tiny-media-manager</execute></action></item>'
-    # Network menu
-    - edit: /etc/skel/.config/openbox/menu.xml
-      insert: after
-      regex: 'FileZilla'
-      values:
-        - '      <item label="OpenVPN PIA" icon="/usr/share/icons/hicolor/32x32/apps/openvpn-pia.png"><action name="Execute"><execute>sudo openvpn-pia</execute></action></item>'
-        - '      <item label="qBittorrent" icon="/usr/share/icons/hicolor/32x32/apps/qbittorrent.png"><action name="Execute"><execute>qbittorrent </execute></action></item>'
+    - { menu: Accessories, entry: Archive Manager, icon: /usr/share/icons/Paper/32x32/apps/file-roller.png, exec: file-roller }
+    - { menu: Accessories, entry: KeePass, icon: /usr/share/icons/hicolor/32x32/apps/keepass.png, exec: keepass }
+    - { menu: Multimedia, entry: HandBrake, icon: /usr/share/icons/hicolor/scalable/apps/hb-icon.svg, exec: ghb }
+    - { menu: Multimedia, entry: MKVToolNix, icon: /usr/share/icons/hicolor/32x32/apps/mkvtoolnix-gui.png, exec: mkvtoolnix-gui }
+    - { menu: Multimedia, entry: Tiny Media Manager, icon: /usr/share/icons/hicolor/32x32/apps/tiny-media-manager.png, exec: tiny-media-manager }
+    - { menu: Network, entry: OpenVPN PIA, icon: /usr/share/icons/hicolor/32x32/apps/openvpn-pia.png, exec: sudo openvpn-pia }
+    - { menu: Network, entry: qBittorrent, icon: /usr/share/icons/hicolor/32x32/apps/qbittorrent.png, exec: qbittorrent }
   apache-php-config:
     - { edit: /etc/httpd/conf/httpd.conf, regex: '^(Listen).*', value: '\1 80' }
     - { edit: /etc/httpd/conf/httpd.conf, regex: '^(DocumentRoot).*', value: '\1 /srv/http' }
@@ -354,6 +331,7 @@ configs:
         - "    <key type=\"u\" name=\"logout-delay\"><default>7200</default></key>\n"
     - { chroot: glib-compile-schemas /usr/share/glib-2.0/schemas }
   conky-config:
+    - { menu: Settings, entry: Conky RC, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.conkyrc }
     - edit: /etc/lxdm/PostLogout
       insert: append
       values:
@@ -370,11 +348,6 @@ configs:
         - 'StartupNotify=true'
         - 'Type=Application'
         - 'Categories=System;Utility;'
-    - edit: /etc/skel/.config/openbox/menu.xml
-      insert: after
-      regex: 'Reconfigure Openbox'
-      values:
-        - '        <item label="Conky RC" icon="/usr/share/icons/Paper/32x32/apps/gvim.png"><action name="Execute"><execute>gvim ~/.conkyrc</execute></action></item>'
   dconf-config:
     - edit: /etc/dconf/profile/user
       insert: append
@@ -603,6 +576,8 @@ configs:
     - { exec: convert /usr/share/icons/hicolor/256x256/apps/kodi.png -resize 196x196 /usr/share/icons/hicolor/196x196/apps/kodi.png }
     - { exec: convert /usr/share/icons/hicolor/256x256/apps/chromium.png -resize 96x96 /usr/share/icons/hicolor/96x96/apps/chromium.png }
     - { exec: convert /usr/share/icons/hicolor/256x256/apps/smplayer.png -resize 96x96 /usr/share/icons/hicolor/96x96/apps/smplayer.png }
+    - { exec: convert /usr/share/icons/hicolor/72x72/actions/system-reboot.png -resize 96x96 /usr/share/icons/hicolor/96x96/actions/system-reboot.png }
+    - { exec: convert /usr/share/icons/hicolor/72x72/actions/system-shutdown.png -resize 96x96 /usr/share/icons/hicolor/96x96/actions/system-shutdown.png }
     - { exec: convert -background none -density 384 -resize x96 /usr/share/icons/hicolor/scalable/apps/audacious.svg /usr/share/icons/hicolor/96x96/apps/audacious.png }
     - edit: /etc/skel/.idesktop/kodi.lnk
       insert: append
@@ -693,12 +668,9 @@ configs:
       values:
         - '/opt/<%=distro%>/bin/pre-xorg'
   makemkv-config:
-    - edit: /etc/skel/.config/openbox/menu.xml
-      insert: after
-      regex: 'HandBrake'
-      values:
-        - '      <item label="MakeMKV" icon="/usr/share/icons/hicolor/32x32/apps/makemkv.png"><action name="Execute"><execute>makemkv</execute></action></item>'
+    - { menu: Multimedia, entry: MakeMKV, icon: /usr/share/icons/hicolor/32x32/apps/makemkv.png, exec: makemkv }
   teamviewer-config:
+    - { menu: Network, entry: Teamviewer, icon: /usr/share/icons/Paper/32x32/apps/teamviewer.png, exec: teamviewer }
     - edit: /opt/<%=distro%>/bin/config-teamviewer
       insert: append
       values:
@@ -728,11 +700,6 @@ configs:
         - 'fi'
         # Clean up auto launch of teamviewer config script
         - 'rm -f /home/$SUDO_USER/.config/autostart/teamviewer.desktop'
-    - edit: /etc/skel/.config/openbox/menu.xml
-      insert: before
-      regex: 'Zenmap'
-      values:
-        - '      <item label="Teamviewer" icon="/usr/share/icons/Paper/32x32/apps/teamviewer.png"><action name="Execute"><execute>teamviewer</execute></action></item>'
     - edit: /etc/skel/.config/autostart/teamviewer.desktop
       insert: append
       values:
