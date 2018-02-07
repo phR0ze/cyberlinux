@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.146
+  release: 0.1.147
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -195,153 +195,50 @@ configs:
     - { menu: Session, insert: append, entry: Logout, icon: /usr/share/icons/Paper/32x32/actions/exit.png, exec: openbox --exit }
     - { menu: Session, insert: append, entry: Reboot, icon: /usr/share/icons/hicolor/32x32/actions/system-reboot.png, exec: sudo reboot }
     - { menu: Session, insert: append, entry: Shutdown, icon: /usr/share/icons/hicolor/32x32/actions/system-shutdown.png, exec: sudo poweroff }
-
   menu-heavy-config:
-    # Quick launch menu
-    #- { menu: QuickLaunch, label: Screenshot, icon: /usr/share/icons/Paper/32x32/apps/gnome-screenshot.png, exec: xfce4-screenshooter }
-    - edit: /etc/skel/.config/openbox/menu.xml
-      regex: '^\s+<!-- Screenshot -->.*'
-      value: '      <item label="Screenshot" icon="/usr/share/icons/Paper/32x32/apps/gnome-screenshot.png"><action name="Execute"><execute>xfce4-screenshooter</execute></action></item>'
-    # Accessories menu
-    - edit: /etc/skel/.config/openbox/menu.xml
-      insert: before
-      regex: 'Bulk Rename'
-      values:
-        - '      <item label="Archive Manager" icon="/usr/share/icons/Paper/32x32/apps/file-roller.png"><action name="Execute"><execute>file-roller</execute></action></item>'
-    - edit: /etc/skel/.config/openbox/menu.xml
-      insert: after
-      regex: 'Bulk Rename'
-      values:
-        - '      <item label="Catfish File Search" icon="/usr/share/icons/Paper/32x32/apps/system-search.png"><action name="Execute"><execute>catfish</execute></action></item>'
-        - '      <item label="Galculator" icon="/usr/share/icons/Paper/32x32/apps/galculator.png"><action name="Execute"><execute>galculator</execute></action></item>'
-        - '      <item label="Leafpad" icon="/usr/share/icons/hicolor/32x32/apps/leafpad.png"><action name="Execute"><execute>leafpad</execute></action></item>'
-        - '      <item label="Multi Writer" icon="/usr/share/icons/Paper/32x32/devices/drive-harddisk-usb.png"><action name="Execute"><execute>sudo gnome-multi-writer</execute></action></item>'
-        - '      <item label="Screenshot" icon="/usr/share/icons/Paper/32x32/apps/applets-screenshooter.png"><action name="Execute"><execute>xfce4-screenshooter</execute></action></item>'
-    # Graphics menu
-    - edit: /etc/skel/.config/openbox/menu.xml
-      regex: '^\s+<!-- XnViewMP -->.*'
-      value: '      <item label="XnViewMP" icon="/opt/xnviewmp/xnview.png"><action name="Execute"><execute>xnviewmp</execute></action></item>'
-    # Multimedia menu
-    - edit: /etc/skel/.config/openbox/menu.xml
-      insert: before
-      regex: 'Audacious'
-      values:
-        - '      <item label="Asunder" icon="/usr/share/icons/hicolor/32x32/apps/brasero.png"><action name="Execute"><execute>asunder</execute></action></item>'
-    - edit: /etc/skel/.config/openbox/menu.xml
-      insert: after
-      regex: 'Audacious'
-      values:
-        - '      <item label="Audacity" icon="/usr/share/icons/hicolor/32x32/apps/audacity.png"><action name="Execute"><execute>env UBUNTU_MENUPROXY=0 audacity</execute></action></item>'
-        - '      <item label="Brasero" icon="/usr/share/icons/Paper/32x32/apps/brasero.png"><action name="Execute"><execute>brasero</execute></action></item>'
-        - '      <item label="DeVeDe" icon="/usr/share/devedeng/devedeng.png"><action name="Execute"><execute>devede_ng.py</execute></action></item>'
-        - '      <item label="HandBrake" icon="/usr/share/icons/hicolor/scalable/apps/hb-icon.svg"><action name="Execute"><execute>ghb</execute></action></item>'
-        - '      <item label="MKVToolNix" icon="/usr/share/icons/hicolor/32x32/apps/mkvtoolnix-gui.png"><action name="Execute"><execute>mkvtoolnix-gui</execute></action></item>'
-    - edit: /etc/skel/.config/openbox/menu.xml
-      insert: after
-      regex: 'SMPlayer'
-      values:
-        - '      <item label="Tiny Media Manager" icon="/usr/share/icons/hicolor/32x32/apps/tiny-media-manager.png"><action name="Execute"><execute>tiny-media-manager</execute></action></item>'
-    - edit: /etc/skel/.config/openbox/menu.xml
-      insert: after
-      regex: 'VLC'
-      values:
-        - '      <item label="WinFF" icon="/usr/share/icons/hicolor/32x32/apps/winff.png"><action name="Execute"><execute>winff</execute></action></item>'
-    # Network menu
-    - edit: /etc/skel/.config/openbox/menu.xml
-      insert: after
-      regex: 'FileZilla'
-      values:
-        - '      <item label="Remmina" icon="/usr/share/icons/Paper/32x32/apps/remmina.png"><action name="Execute"><execute>/usr/bin/remmina</execute></action></item>'
-    # Office menu
-    - edit: /etc/skel/.config/openbox/menu.xml
-      insert: after
-      regex: '<!-- Office -->'
-      values:
-        - '    <menu id="Office" icon="/usr/share/icons/Paper/32x32/categories/applications-office.png" label="Office">'
-        - '      <item label="Evince" icon="/usr/share/icons/Paper/32x32/apps/evince.png"><action name="Execute"><execute>evince</execute></action></item>'
-        - '    </menu>'
-    # Settings menu
-    - edit: /etc/skel/.config/openbox/menu.xml
-      insert: before
-      regex: 'LXAppearance'
-      values:
-        - '      <item label="Gconf Editor" icon="/usr/share/icons/Paper/32x32/apps/gconf-editor.png"><action name="Execute"><execute>gconf-editor</execute></action></item>'
-        - '      <item label="Dconf Editor" icon="/usr/share/icons/Paper/32x32/apps/dconf-editor.png"><action name="Execute"><execute>dconf-editor</execute></action></item>'
-        - '      <item label="Guake Preferences" icon="/usr/share/icons/Paper/32x32/apps/guake-prefs.png"><action name="Execute"><execute>guake-prefs</execute></action></item>'
-        - '      <item label="Printer Preferences" icon="/usr/share/icons/Paper/32x32/devices/preferences-desktop-printer.png"><action name="Execute"><execute>system-config-printer</execute></action></item>'
-    - edit: /etc/skel/.config/openbox/menu.xml
-      insert: after
-      regex: 'Thunar Settings'
-      values:
-        - '      <item label="Thunar Volman" icon="/usr/share/icons/Paper/32x32/devices/drive-removable-media.png"><action name="Execute"><execute>thunar-volman-settings</execute></action></item>'
-    - edit: /etc/skel/.config/openbox/menu.xml
-      insert: before
-      regex: 'HardInfo'
-      values:
-        - '      <item label="GParted" icon="/usr/share/icons/Paper/32x32/apps/gparted.png"><action name="Execute"><execute>sudo gparted</execute></action></item>'
+    - { menu: Root, insert: append, entry: Screenshot, icon: /usr/share/icons/Paper/32x32/apps/gnome-screenshot.png, exec: xfce4-screenshooter }
+    - { menu: Accessories, entry: Archive Manager, icon: /usr/share/icons/Paper/32x32/apps/file-roller.png, exec: file-roller }
+    - { menu: Accessories, entry: Catfish File Search, icon: /usr/share/icons/Paper/32x32/apps/system-search.png, exec: catfish }
+    - { menu: Accessories, entry: Galculator, icon: /usr/share/icons/Paper/32x32/apps/galculator.png, exec: galculator }
+    - { menu: Accessories, entry: Leafpad, icon: /usr/share/icons/hicolor/32x32/apps/leafpad.png, exec: leafpad }
+    - { menu: Accessories, entry: Multi Writer, icon: /usr/share/icons/Paper/32x32/devices/drive-harddisk-usb.png, exec: sudo gnome-multi-writer}
+    - { menu: Accessories, entry: Screenshot, icon: /usr/share/icons/Paper/32x32/apps/applets-screenshooter.png, exec: xfce4-screenshooter }
+    - { menu: Graphics, entry: XnViewMP, icon: /opt/xnviewmp/xnview.png, exec: xnviewmp }
+    - { menu: Multimedia, entry: Asunder, icon: /usr/share/icons/hicolor/32x32/apps/brasero.png, exec: asunder }
+    - { menu: Multimedia, entry: Audacity, icon: /usr/share/icons/hicolor/32x32/apps/audacity.png, exec: env UBUNTU_MENUPROXY=0 audacity }
+    - { menu: Multimedia, entry: Brasero, icon: /usr/share/icons/Paper/32x32/apps/brasero.png, exec: brasero }
+    - { menu: Multimedia, entry: DeVeDe, icon: /usr/share/devedeng/devedeng.png, exec: devede_ng.py }
+    - { menu: Multimedia, entry: HandBrake, icon: /usr/share/icons/hicolor/scalable/apps/hb-icon.svg, exec: ghb }
+    - { menu: Multimedia, entry: MKVToolNix, icon: /usr/share/icons/hicolor/32x32/apps/mkvtoolnix-gui.png, exec: mkvtoolnix-gui }
+    - { menu: Multimedia, entry: Tiny Media Manager, icon: /usr/share/icons/hicolor/32x32/apps/tiny-media-manager.png, exec: tiny-media-manager }
+    - { menu: Multimedia, entry: WinFF, icon: /usr/share/icons/hicolor/32x32/apps/winff.png, exec: winff }
+    - { menu: Network, entry: Remmina, icon: /usr/share/icons/Paper/32x32/apps/remmina.png, exec: remmina }
+    - { menu: Settings, entry: Dconf Editor, icon: /usr/share/icons/Paper/32x32/apps/dconf-editor.png, exec: dconf-editor }
+    - { menu: Settings, entry: Gconf Editor, icon: /usr/share/icons/Paper/32x32/apps/gconf-editor.png, exec: gconf-editor }
+    - { menu: Settings, entry: Guake Preferences, icon: /usr/share/icons/Paper/32x32/apps/guake-prefs.png, exec: guake-prefs }
+    - { menu: Settings, entry: Printer Preferences, icon: /usr/share/icons/Paper/32x32/devices/preferences-desktop-printer.png, exec: system-config-printer }
+    - { menu: Settings, entry: Thunar Volman, icon: /usr/share/icons/Paper/32x32/devices/drive-removable-media.png, exec: thunar-volman-settings }
+    - { menu: System, entry: GParted, icon: /usr/share/icons/Paper/32x32/apps/gparted.png, exec: sudo gparted }
   menu-desktop-config:
-    # Accessories menu
-    - edit: /etc/skel/.config/openbox/menu.xml
-      insert: before
-      regex: 'Leafpad'
-      values:
-        - '      <item label="KeePass" icon="/usr/share/icons/hicolor/32x32/apps/keepass.png"><action name="Execute"><execute>keepass</execute></action></item>'
-    - edit: /etc/skel/.config/openbox/menu.xml
-      insert: after
-      regex: 'Multi Writer'
-      values:
-        - '      <item label="Synergy" icon="/usr/share/icons/Paper/32x32/apps/synergy.png"><action name="Execute"><execute>synergy</execute></action></item>'
-    # Development menu
-    - edit: /etc/skel/.config/openbox/menu.xml
-      insert: after
-      regex: 'GVim'
-      values:
-        - '      <item label="Meld" icon="/usr/share/icons/Paper/32x32/apps/meld.png"><action name="Execute"><execute>meld</execute></action></item>'
-        - '      <item label="Visual Studio Code" icon="/usr/share/icons/Paper/32x32/apps/visual-studio-code.png"><action name="Execute"><execute>code</execute></action></item>'
-    # Graphics menu
-    - edit: /etc/skel/.config/openbox/menu.xml
-      insert: before
-      regex: 'Image Viewer'
-      values:
-        - '      <item label="Gimp" icon="/usr/share/icons/Paper/32x32/apps/gimp.png"><action name="Execute"><execute>gimp-2.8</execute></action></item>'
-    - edit: /etc/skel/.config/openbox/menu.xml
-      insert: after
-      regex: 'Image Viewer'
-      values:
-        - '      <item label="Inkscape" icon="/usr/share/icons/Paper/32x32/apps/inkscape.png"><action name="Execute"><execute>inkscape</execute></action></item>'
-        - '      <item label="Kolour Paint" icon="/usr/share/icons/Paper/32x32/apps/kolourpaint.png"><action name="Execute"><execute>kolourpaint</execute></action></item>'
-        - '      <item label="LibreOffice Draw" icon="/usr/share/icons/Paper/32x32/apps/libreoffice-draw.png"><action name="Execute"><execute>libreoffice --draw</execute></action></item>'
-    # Multimedia menu
-    - edit: /etc/skel/.config/openbox/menu.xml
-      insert: after
-      regex: 'MKVToolNix'
-      values:
-        - '      <item label="OpenShot" icon="/usr/share/icons/Paper/32x32/apps/openshot.png"><action name="Execute"><execute>openshot-qt</execute></action></item>'
-    # Network menu
-    - edit: /etc/skel/.config/openbox/menu.xml
-      insert: before
-      regex: 'Zenmap'
-      values:
-        - '      <item label="WPA Gui" icon="/usr/share/icons/hicolor/32x32/apps/wpa_gui.png"><action name="Execute"><execute>sudo wpa_gui</execute></action></item>'
-    # Office menu
-    - edit: /etc/skel/.config/openbox/menu.xml
-      insert: after
-      regex: 'Evince'
-      values:
-        - '      <item label="LibreOffice Base" icon="/usr/share/icons/Paper/32x32/apps/libreoffice-base.png"><action name="Execute"><execute>libreoffice --base</execute></action></item>'
-        - '      <item label="LibreOffice Calc" icon="/usr/share/icons/Paper/32x32/apps/libreoffice-calc.png"><action name="Execute"><execute>libreoffice --calc</execute></action></item>'
-        - '      <item label="LibreOffice Draw" icon="/usr/share/icons/Paper/32x32/apps/libreoffice-draw.png"><action name="Execute"><execute>libreoffice --draw</execute></action></item>'
-        - '      <item label="LibreOffice Impress" icon="/usr/share/icons/Paper/32x32/apps/libreoffice-impress.png"><action name="Execute"><execute>libreoffice --impress</execute></action></item>'
-        - '      <item label="LibreOffice Math" icon="/usr/share/icons/Paper/32x32/apps/libreoffice-math.png"><action name="Execute"><execute>libreoffice --math</execute></action></item>'
-        - '      <item label="LibreOffice Writer" icon="/usr/share/icons/Paper/32x32/apps/libreoffice-writer.png"><action name="Execute"><execute>libreoffice --writer</execute></action></item>'
-        - '      <item label="LibreOffice" icon="/usr/share/icons/Paper/32x32/apps/libreoffice-startcenter.png"><action name="Execute"><execute>libreoffice</execute></action></item>'
-        - '      <item label="Scribus" icon="/usr/share/icons/Paper/32x32/apps/scribus.png"><action name="Execute"><execute>scribus</execute></action></item>'
-    # Settings menu
-    - edit: /etc/skel/.config/openbox/menu.xml
-      insert: after
-      regex: 'Htop'
-      values:
-        - '      <item label="VirtualBox" icon="/usr/share/icons/Paper/32x32/apps/virtualbox.png"><action name="Execute"><execute>VirtualBox</execute></action></item>'
+    - { menu: Accessories, entry: KeePass, icon: /usr/share/icons/hicolor/32x32/apps/keepass.png"><action name="Execute"><execute>keepass</execute></action></item>'
+    - { menu: Development, entry: Meld, icon: /usr/share/icons/Paper/32x32/apps/meld.png"><action name="Execute"><execute>meld</execute></action></item>'
+    - { menu: Development, entry: Visual Studio Code, icon: /usr/share/icons/Paper/32x32/apps/visual-studio-code.png"><action name="Execute"><execute>code</execute></action></item>'
+    - { menu: Graphics, entry: Gimp, icon: /usr/share/icons/Paper/32x32/apps/gimp.png"><action name="Execute"><execute>gimp-2.8</execute></action></item>'
+    - { menu: Graphics, entry: Inkscape, icon: /usr/share/icons/Paper/32x32/apps/inkscape.png"><action name="Execute"><execute>inkscape</execute></action></item>'
+    - { menu: Graphics, entry: Kolour, icon: /usr/share/icons/Paper/32x32/apps/kolourpaint.png"><action name="Execute"><execute>kolourpaint</execute></action></item>'
+    - { menu: Graphics, entry: LibreOffice Draw, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-draw.png"><action name="Execute"><execute>libreoffice --draw</execute></action></item>'
+    - { menu: Multimedia, entry: OpenShot, icon: /usr/share/icons/Paper/32x32/apps/openshot.png"><action name="Execute"><execute>openshot-qt</execute></action></item>'
+    - { menu: Network, entry: Synergy, icon: /usr/share/icons/Paper/32x32/apps/synergy.png"><action name="Execute"><execute>synergy</execute></action></item>'
+    - { menu: Network, entry: WPA Gui, icon: /usr/share/icons/hicolor/32x32/apps/wpa_gui.png"><action name="Execute"><execute>sudo wpa_gui</execute></action></item>'
+    - { menu: Office, entry: LibreOffice Base, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-base.png"><action name="Execute"><execute>libreoffice --base</execute></action></item>'
+    - { menu: Office, entry: LibreOffice Calc, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-calc.png"><action name="Execute"><execute>libreoffice --calc</execute></action></item>'
+    - { menu: Office, entry: LibreOffice Draw, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-draw.png"><action name="Execute"><execute>libreoffice --draw</execute></action></item>'
+    - { menu: Office, entry: LibreOffice Impress, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-impress.png"><action name="Execute"><execute>libreoffice --impress</execute></action></item>'
+    - { menu: Office, entry: LibreOffice Math, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-math.png"><action name="Execute"><execute>libreoffice --math</execute></action></item>'
+    - { menu: Office, entry: LibreOffice Writer, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-writer.png"><action name="Execute"><execute>libreoffice --writer</execute></action></item>'
+    - { menu: Office, entry: LibreOffice, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-startcenter.png"><action name="Execute"><execute>libreoffice</execute></action></item>'
+    - { menu: Office, entry: Scribus, icon: /usr/share/icons/Paper/32x32/apps/scribus.png"><action name="Execute"><execute>scribus</execute></action></item>'
+    - { menu: Settings, entry: VirtualBox, icon: /usr/share/icons/Paper/32x32/apps/virtualbox.png"><action name="Execute"><execute>VirtualBox</execute></action></item>'
   menu-server-config:
     # Accessories menu
     - edit: /etc/skel/.config/openbox/menu.xml
@@ -706,7 +603,7 @@ configs:
     - { exec: convert /usr/share/icons/hicolor/256x256/apps/kodi.png -resize 196x196 /usr/share/icons/hicolor/196x196/apps/kodi.png }
     - { exec: convert /usr/share/icons/hicolor/256x256/apps/chromium.png -resize 96x96 /usr/share/icons/hicolor/96x96/apps/chromium.png }
     - { exec: convert /usr/share/icons/hicolor/256x256/apps/smplayer.png -resize 96x96 /usr/share/icons/hicolor/96x96/apps/smplayer.png }
-      #- { exec: convert /usr/share/icons/hicolor/72x72/apps/audacious.png -resize 96x96 /usr/share/icons/hicolor/96x96/apps/audacious.png }
+    - { exec: convert -background none -density 384 -resize x96 /usr/share/icons/hicolor/scalable/apps/audacious.svg /usr/share/icons/hicolor/96x96/apps/audacious.png }
     - edit: /etc/skel/.idesktop/kodi.lnk
       insert: append
       values:

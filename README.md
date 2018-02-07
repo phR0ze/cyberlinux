@@ -34,7 +34,7 @@ fork it and make their own configuration ***specs***
     * [Enable Proxy](#enable-proxy)
     * [Disable Proxy](#disable-proxy)
 * [Roll your own cyberlinux](#build-cyberlinux)
-    * [Dependency versions](#dependency-versions)
+    * [Dependencies](#dependencies)
     * [Linux Dev Envioronment](#linux-dev-environment)
     * [Full cyberlinux build](#full-cyberlinux-build)
     * [Pack cyberlinux](#pack-cyberlinux)
@@ -253,12 +253,11 @@ Disable proxy:
 ## Roll your own cyberlinux <a name="build-cyberlinux"/></a>
 This section covers how to roll your own cyberlinux ISO
 
-### Dependency versions <a name="dependency-versions"/></a>
-**Working combinations:**  
-* ***Kernel=4.11.3-1, Vagrant=1.9.5, Packer=1.0.0, VirtualBox=5.1.22***
-
-**Notes**:  
-* Virtual box and packer interation has been iffy as versions have revved.
+### Dependencies <a name="dependencies"/></a>
+You'll need to install the following packages:
+```bash
+sudo pacman -S ruby docker
+```
 
 ### Linux dev environment <a name="linux-dev-environment"/></a>
 There are three different ways you can get a development environment up and running.
