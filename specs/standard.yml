@@ -42,12 +42,12 @@ layers:
         kernel: memtest
         noboot: true
     packages:
-      - { install: machine-core }
+      - { install: machine-pkgs }
       - { install: machine-tools }
       - { install: virtualbox-guest-nox }
 
     configs:
-      - { apply: machine-core-config }
+      - { apply: machine-config }
 
   # Shell
   # ----------------------------------------------------------------------------

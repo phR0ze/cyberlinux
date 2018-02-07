@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.148
+  release: 0.1.149
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -42,34 +42,27 @@ build:
     params: '-e TERM=xterm -v /var/run/docker.sock:/var/run/docker.sock'
     command: 'bash -c "while :; do sleep 5; done"'
   packages:
-    - { install: machine-core }
-    - { install: machine-tools }
-    - { install: dev-pkgs }
+    - { install: core-pkgs }
+    - { install: core-tools }
     - { install: initramfs-pkgs }
     - { install: isolinux-pkgs }
   configs:
 
-    # Create and configure new build user
+    # Create and configure new build user and root user
     - { chroot: 'useradd -m -G lp,wheel,network,storage,users -s /bin/bash build || true' }
-    - { exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /home/build' }
+      #- { exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /home/build' }
+    - { exec: "echo 'TERM=xterm' > /etc/environment" }
+    - { exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /root' }
     - { edit: /etc/sudoers, insert: append, value: "build ALL=(ALL) NOPASSWD: ALL" }
 
-    # Install pacman configuration files
-    - { exec: 'cp /<%=base_src%>/etc/pacman.conf /etc' }
-    - { exec: 'mkdir -p /etc/pacman.d' }
-    - { exec: 'cp /<%=base_src%>/etc/pacman.d/* /etc/pacman.d' }
-
-    - { apply: container-core-config }
+    - { apply: core-config }
     - { apply: mkinitcpio-config }
-    - { apply: makepkg-config }
-    - { apply: root-user-config }
-    - { apply: pacman-config }
 
 configs:
 
   # Core configuration for any container
   #-----------------------------------------------------------------------------
-  container-core-config:
+  core-config:
     - { apply: bash-config }
     - { apply: hosts-config }
     - { apply: locale-config }
@@ -82,11 +75,11 @@ configs:
     - { apply: sysctld-config }
     - { apply: user-dirs-config }
     - { apply: vconsole-config }
-    - { apply: remove-container-waste }
+    - { apply: remove-core-waste }
 
   # Core configuration for any machine
   #-----------------------------------------------------------------------------
-  machine-core-config:
+  machine-config:
     - { apply: bash-config }
     - { apply: hosts-config }
     - { apply: locale-config }
@@ -920,7 +913,7 @@ configs:
         - 'fi'
         - "# PROXY_MARKER"
     - { exec: chmod +x /opt/<%=distro%>/bin/setproxy }
-  remove-container-waste:
+  remove-core-waste:
     - { exec: 'find /var/log -type f -delete' }
     - { exec: 'rm -rf /usr/share/{man,doc}' }
     - { exec: 'rm -rf /etc/pacman.d/mirrorlist' }
@@ -944,9 +937,6 @@ configs:
         - 'EndSection'
   resolved-config:
     - { exec: ln -sf //run/systemd/resolve/resolv.conf /etc/resolv.conf }
-  root-user-config:
-    - { exec: "echo 'TERM=xterm' > /etc/environment" }
-    - { exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /root' }
   sshd-config:
     - { edit: /etc/ssh/sshd_config, regex: '^#(PermitRootLogin).*', value: '\1 no' }
     - { edit: /etc/ssh/sshd_config, regex: '^#(PermitEmptyPasswords).*', value: '\1 no' }
@@ -1091,7 +1081,7 @@ configs:
         - 'EndSection'
 
 packages:
-  container-core:
+  core-pkgs:
     - { pkg: bash,                          desc: GNU Bourne Again shell }
     - { pkg: gcc-libs,                      desc: GCC runtime libraries, multilib: false, depof: ncurses }
     - { pkg: gcc-libs-multilib,             desc: GCC runtime libraries, multilib: true, depof: ncurses }
@@ -1101,8 +1091,8 @@ packages:
     - { pkg: ncurses,                       desc: System V curses emulation library, depof: bash }
     - { pkg: tzdata,                        desc: Time zone data, depof: glibc }
 
-  machine-core:
-    - { install: container-core }
+  machine-pkgs:
+    - { install: core-pkgs }
     - { pkg: dmidecode,                     desc: Desktop Managment Interface table related utilities }
     - { pkg: intel-ucode,                   desc: Microcode update files for Intel CPUs }
     - { pkg: linux,                         desc: Linux kernel and supporting modules }
@@ -1113,38 +1103,38 @@ packages:
     - { pkg: systemd,                       desc: System and service manager }
     - { pkg: systemd-sysvcompat,            desc: Sysinit compat for systemd }
 
-  container-tools:
+  core-tools:
     - { pkg: coreutils,                     desc: Basic linux utils e.g. cat/chown/chmod/cp/df/echo/ls/mv/ln }
-    - { pkg: gzip,                          desc: GNU compression utility, depof: locale-gen build-devel }
+    - { pkg: gzip,                          desc: GNU compression utility, depof: locale-gen, group: build-devel }
     - { pkg: inetutils,                     desc: hostname, ftp, telnet }
     - { pkg: iproute2,                      desc: ifcfg/ip other networking tools }
     - { pkg: net-tools,                     desc: arp/ifconfig/iptunnel/netstat }
     - { pkg: openssl,                       desc: Secure sockets layer and TLS, depof: coreutils }
     - { pkg: perl,                          desc: Perl language, depof: openssl }
     - { pkg: procps-ng,                     desc: pidof/pkill/ps/top/uptime etc..., size: 1MB }
-    - { pkg: sed,                           desc: GNU stream editor, depof: locale-gen build-devel, size: 1MB }
+    - { pkg: sed,                           desc: GNU stream editor, depof: locale-gen, group: build-devel, size: 1MB }
     - { pkg: tar,                           desc: File store backup and transport utility, depof: k8s cp }
     - { pkg: vim,                           desc: Improved version of vi text editor, size: 28MB }
     - { pkg: vim-systemd,                   desc: Vim syntax highlighting for systemd }
 
   machine-tools:
-    - { install: container-tools }
+    - { install: core-tools }
     - { pkg: bash-completion,               desc: Bash tab completion }
     - { pkg: e2fsprogs,                     desc: Ext2/3/4 filesystem utilities }
-    - { pkg: findutils,                     desc: find/xargs, depof: curl build-devel }
-    - { pkg: gcc,                           desc: GNU Compiler Collection, multilib: false, depof: base-devel }
-    - { pkg: gcc-multilib,                  desc: GNU Compiler Collection, multilib: true, depof: base-devel }
-    - { pkg: grep,                          desc: search text util, depof: build-devel }
+    - { pkg: findutils,                     desc: find/xargs, depof: curl, group: build-devel }
+    - { pkg: gcc,                           desc: GNU Compiler Collection, multilib: false, group: base-devel }
+    - { pkg: gcc-multilib,                  desc: GNU Compiler Collection, multilib: true, group: base-devel }
+    - { pkg: grep,                          desc: search text util, group: build-devel }
     - { pkg: gptfdisk,                      desc: Text-mode paritioning tools e.g. sgdisk }
     - { pkg: haveged,                       desc: Entropy harvesting, depof: pacman-key --init }
     - { pkg: logrotate,                     desc: Rotates system logs automatically }
     - { pkg: openssh,                       desc: Open source SSH implementation }
-    - { pkg: pacman,                        desc: Package manager with dependency support, depof: build-devel }
+    - { pkg: pacman,                        desc: Package manager with dependency support, group: build-devel }
     - { pkg: rsync,                         desc: Remote file transfer sync utility }
     - { pkg: shadow,                        desc: Account mgmt e.g. passwd/useradd/usermod/groupadd }
-    - { pkg: sudo,                          desc: Elevate some user commands to root, depof: build-devel }
-    - { pkg: util-linux,                    desc: blkid/fdisk/rename/cp etc..., depof: php-gd build-devel }
-    - { pkg: which,                         desc: Show the full path of commnds, depof: .bashrc build-devel }
+    - { pkg: sudo,                          desc: Elevate some user commands to root, group: build-devel }
+    - { pkg: util-linux,                    desc: blkid/fdisk/rename/cp etc..., depof: php-gd, group: build-devel }
+    - { pkg: which,                         desc: Show the full path of commnds, depof: .bashrc, group: build-devel }
     - { pkg: archlinux-keyring,             desc: Arch Linux GPG keys }
     - { pkg: antergos-keyring,              desc: Antergos GPG keyring, type: ANTERGOS }
     - { pkg: blackarch-keyring,             desc: Blackarch GPG keyring, type: BLACKARCH }
@@ -1161,6 +1151,7 @@ packages:
   isolinux-pkgs:
     - { pkg: gfxboot,                       desc: Graphical boot user interface }
     - { pkg: intel-ucode,                   desc: Microcode update files for Intel CPUs }
+    - { pkg: make,                          desc: GNU utility to build programs, group: base-devel }
     - { pkg: memtest86+,                    desc: memtest is used in the ISO creation as menu option }
     - { pkg: syslinux,                      desc: Boot loaders for ext2/3/4 USB and CD }
 
@@ -1222,41 +1213,41 @@ packages:
 
   dev-pkgs:
     - { pkg: arch-install-scripts,          desc: arch-chroot/genfstab/pacstrap }
-    - { pkg: autoconf,                      desc: Automatically configure source code, depof: base-devel }
-    - { pkg: automake,                      desc: Automatically create Makefiles, depof: base-devel }
-    - { pkg: binutils,                      desc: Manipulate binary and object files, depof: base-devel }
-    - { pkg: bison,                         desc: General purpose parser generator, depof: base-devel }
+    - { pkg: autoconf,                      desc: Automatically configure source code, group: base-devel }
+    - { pkg: automake,                      desc: Automatically create Makefiles, group: base-devel }
+    - { pkg: binutils,                      desc: Manipulate binary and object files, group: base-devel }
+    - { pkg: bison,                         desc: General purpose parser generator, group: base-devel }
     - { pkg: clang,                         desc: C language family frontend for LLVM, depof: chromium }
     - { pkg: delve,                         desc: A debugger for the Go Programming Language, type: CYBERLINUX }
     - { pkg: devtools,                      desc: Misc development tools including makepkg conf, depof: reduce }
     - { pkg: diffutils,                     desc: Patch file utility programs }
     - { pkg: dos2unix,                      desc: Text file format converter }
-    - { pkg: fakeroot,                      desc: Tool for simulating supersuer privileges, depof: base-devel }
-    - { pkg: file,                          desc: File type identification utility, depof: base-devel }
-    - { pkg: flex,                          desc: Generate text-scanning programs, depof: base-devel }
+    - { pkg: fakeroot,                      desc: Tool for simulating supersuer privileges, group: base-devel }
+    - { pkg: file,                          desc: File type identification utility, group: base-devel }
+    - { pkg: flex,                          desc: Generate text-scanning programs, group: base-devel }
     - { pkg: gdb,                           desc: The GNU debugger }
-    - { pkg: gawk,                          desc: GNU version of awk, depof: base-devel }
-    - { pkg: gettext,                       desc: GNU internationalization library, depof: base-devel }
+    - { pkg: gawk,                          desc: GNU version of awk, group: base-devel }
+    - { pkg: gettext,                       desc: GNU internationalization library, group: base-devel }
     - { pkg: git,                           desc: Fast distributed version control system }
     - { pkg: go,                            desc: Compiler and tools for the Go programming lang }
     - { pkg: go-bindata,                    desc: Embed any file as Go code }
     - { pkg: go-tools,                      desc: Developer tools for the Go programming lang }
     - { pkg: glide,                         desc: Package management for the Go programing lang }
-    - { pkg: groff,                         desc: GNU trof text-formatting system, depof: base-devel }
+    - { pkg: groff,                         desc: GNU trof text-formatting system, group: base-devel }
     - { pkg: jq,                            desc: Command line JSON processor, depof: kubectl }
-    - { pkg: libtool,                       desc: Generic library support script, depof: base-devel }
+    - { pkg: libtool,                       desc: Generic library support script, group: base-devel }
     - { pkg: linux-headers,                 desc: Linux kernel headers }
     - { pkg: lld,                           desc: Linker from the LLVM project, depof: chromium }
     - { pkg: llvm,                          desc: Low Level compiler infrastructure, depof: chromium }
     - { pkg: ltrace,                        desc: Tracks runtime library calls in dynamically linked programs }
-    - { pkg: m4,                            desc: GNU macro processor, depof: base-devel }
-    - { pkg: make,                          desc: GNU utility to build programs, depof: base-devel }
-    - { pkg: patch,                         desc: Utility to apply patches to files, depof: base-devel }
-    - { pkg: pkg-config,                    desc: System for managing library flags, depof: base-devel }
+    - { pkg: m4,                            desc: GNU macro processor, group: base-devel }
+    - { pkg: make,                          desc: GNU utility to build programs, group: base-devel }
+    - { pkg: patch,                         desc: Utility to apply patches to files, group: base-devel }
+    - { pkg: pkg-config,                    desc: System for managing library flags, group: base-devel }
     - { pkg: psmisc,                        desc: fuser/killall/pstree }
     - { pkg: ruby,                          desc: Ruby lang quick and easy programming }
     - { pkg: strace,                        desc: A diagnostic, debugging and instructional userspace tracer }
-    - { pkg: texinfo,                       desc: Documentation for online information, depof: base-devel }
+    - { pkg: texinfo,                       desc: Documentation for online information, group: base-devel }
     - { pkg: yaourt,                        desc: Pacman wrapper with support for AUR, type: ANTERGOS }
 
   ruby-gems:
@@ -1371,9 +1362,9 @@ packages:
     - { pkg: xnviewmp,                      desc: A digital photo organizer, type: CYBERLINUX }
 
     # OpenGL
-    - { pkg: lib32-mesa,                    desc: OpenGL opensource implementation, depof: kodi/steam }
-    - { pkg: lib32-mesa-vdpau,              desc: Mesa vdpau drivers, depof: kodi/steam }
-    - { pkg: mesa-vdpau,                    desc: Mesa vdpau drivers, depof: kodi/steam }
+    - { pkg: lib32-mesa,                    desc: OpenGL opensource implementation, depof: kodi steam }
+    - { pkg: lib32-mesa-vdpau,              desc: Mesa vdpau drivers, depof: kodi steam }
+    - { pkg: mesa-vdpau,                    desc: Mesa vdpau drivers, depof: kodi steam }
 
     # Office
     - { pkg: cups-pdf,                      desc: System/Printer Driver - PDF printer driver }
