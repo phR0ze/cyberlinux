@@ -84,8 +84,32 @@ layers:
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=lite_layers%> showopts vga=792
     packages:
       - { install: lite-pkgs }
+
+      # Adobe fonts from adobe reader
+      # https://aur.archlinux.org/cgit/aur.git/tree/LICENSE?h=ttf-adobe-fonts
+      - { pkg: ttf-adobe-fonts,               desc: Adobe fonts including Myriad Minion and Courier, type: CYBERLINUX }
     configs:
       - { apply: lite-config }
+
+  # Chomebook
+  # ----------------------------------------------------------------------------
+  - name: chomebook
+    type: machine
+    base: lite
+    vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
+    boot:
+      - entry: "Install <%=distro%>-chromebook  -lite + "
+        kernel: /<%=distro%>/vmlinuz
+        initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=chromebook_layers%> showopts vga=792
+    packages:
+      #- { install: chromebook-pkgs }
+
+      # Teamviewer is free to use for personal use
+      # https://www.teamviewer.com/en/credentials/free-for-personal-use/
+      - { pkg: teamviewer,                    desc: All-In-One Software for Remote Support and Online Meetings, type: CYBERLINUX }
+    configs:
+      #- { apply: chromebook-config }
+      - { apply: teamviewer-client-config }
 
   # Server
   # ----------------------------------------------------------------------------
@@ -99,11 +123,18 @@ layers:
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=server_layers%> showopts autologin=1 vga=792
     packages:
       - { install: server-pkgs }
-      - { install: personal-use-pkgs }
+
+      # MakeMKV is free while in beta but is a commercial product required a license normally
+      # https://www.makemkv.com/forum2/viewtopic.php?f=5&t=1053
+      - { pkg: makemkv,                       desc: DVD and Blu-ray to MKV converter, type: CYBERLINUX }
+
+      # Teamviewer is free to use for personal use
+      # https://www.teamviewer.com/en/credentials/free-for-personal-use/
+      - { pkg: teamviewer,                    desc: All-In-One Software for Remote Support and Online Meetings, type: CYBERLINUX }
     configs:
       - { apply: server-config }
       - { apply: makemkv-config }
-      - { apply: teamviewer-config }
+      - { apply: teamviewer-host-config }
 
   # Heavy
   # ----------------------------------------------------------------------------
@@ -117,11 +148,18 @@ layers:
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=heavy_layers%> showopts vga=792
     packages:
       - { install: heavy-pkgs }
-      - { install: personal-use-pkgs }
+
+      # MakeMKV is free while in beta but is a commercial product required a license normally
+      # https://www.makemkv.com/forum2/viewtopic.php?f=5&t=1053
+      - { pkg: makemkv,                       desc: DVD and Blu-ray to MKV converter, type: CYBERLINUX }
+
+      # Teamviewer is free to use for personal use
+      # https://www.teamviewer.com/en/credentials/free-for-personal-use/
+      - { pkg: teamviewer,                    desc: All-In-One Software for Remote Support and Online Meetings, type: CYBERLINUX }
     configs:
       - { apply: heavy-config }
       - { apply: makemkv-config }
-      - { apply: teamviewer-config }
+      - { apply: teamviewer-host-config }
 
   # Theater
   # ----------------------------------------------------------------------------
@@ -154,6 +192,7 @@ layers:
         initrd: /<%=distro%>/intel-ucode.img,/<%=distro%>/initramfs.img ipv6.disable=1 layers=<%=desktop_layers%> showopts vga=792
     packages:
       - { install: desktop-pkgs }
+
       # The Extension Pack binaries are released under the VirtualBox Personal Use and Evaluation License (PUEL).
       # https://www.virtualbox.org/wiki/Downloads
       - { pkg: virtualbox-ext-oracle,         desc: Oracle VM VirtualBox Extension Pack, type: CYBERLINUX }

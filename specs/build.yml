@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.149
+  release: 0.1.150
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -662,13 +662,19 @@ configs:
         - '/opt/<%=distro%>/bin/pre-xorg'
   makemkv-config:
     - { menu: Multimedia, entry: MakeMKV, icon: /usr/share/icons/hicolor/32x32/apps/makemkv.png, exec: makemkv }
-  teamviewer-config:
+  teamviewer-client-config:
     - { menu: Network, entry: Teamviewer, icon: /usr/share/icons/Paper/32x32/apps/teamviewer.png, exec: teamviewer }
+    - edit: /etc/skel/.config/autostart/teamviewer.desktop
+      insert: append
+      values:
+        - '[Desktop Entry]'
+        - 'Exec=sudo /opt/<%=distro%>/bin/config-teamviewer client'
     - edit: /opt/<%=distro%>/bin/config-teamviewer
       insert: append
       values:
         - '#!/bin/bash'
         # Wait for teamviewer service to create the base config
+        - 'systemctl start teamviewerd'
         - 'teamviewer_conf=/etc/teamviewer/global.conf'
         - 'while [ ! -f $teamviewer_conf ]; do sleep 1; done'
         - 'if [ $(grep EulaAccepted $teamviewer_conf &>/dev/null; echo $?) != 0 ]; then'
@@ -682,23 +688,28 @@ configs:
         - '  echo "[int32] Logging = 0" >> $teamviewer_conf'
         - '  echo "[int32] LogIncomingConnections = 0" >> $teamviewer_conf'
         - '  echo "[int32] LogOutgoingConnections = 0" >> $teamviewer_conf'
+        # Disable random password (for spontaneous access)
+        - '  echo "[int32] Security_PasswordStrength = 3" >> $teamviewer_conf'
+        - '  systemctl stop teamviewerd'
+        - 'fi'
+        # Clean up auto launch of teamviewer config script
+        - 'rm -f /home/$SUDO_USER/.config/autostart/teamviewer.desktop'
+    - { exec: chmod +x /opt/<%=distro%>/bin/config-teamviewer }
+  teamviewer-host-config:
+    - { apply: teamviewer-client-config }
+    - edit: /opt/<%=distro%>/bin/config-teamviewer
+      insert: before
+      regex: 'systemctl stop'
+      values:
         # Disable shutdown and always run
         - '  echo "[int32] Always_Online = 1" >> $teamviewer_conf'
         - '  echo "[int32] Security_Disableshutdown = 1" >> $teamviewer_conf'
         - '  echo "[int32] ACFullAccessOnLoginScreen = 1" >> $teamviewer_conf'
-        # Disable random password (for spontaneous access)
-        - '  echo "[int32] Security_PasswordStrength = 3" >> $teamviewer_conf'
         # Restart teamviewer service so that it picks up changes and autostarts tray
         - '  systemctl restart teamviewerd'
-        - 'fi'
-        # Clean up auto launch of teamviewer config script
-        - 'rm -f /home/$SUDO_USER/.config/autostart/teamviewer.desktop'
-    - edit: /etc/skel/.config/autostart/teamviewer.desktop
-      insert: append
-      values:
-        - '[Desktop Entry]'
-        - 'Exec=sudo /opt/<%=distro%>/bin/config-teamviewer'
-    - { exec: chmod +x /opt/<%=distro%>/bin/config-teamviewer }
+    - edit: /opt/<%=distro%>/bin/config-teamviewer
+      regex: '  systemctl stop teamviewerd'
+      value: '  systemctl restart teamviewerd'
     - { chroot: systemctl enable teamviewerd.service }
   makepkg-config:
     - { edit: /etc/makepkg.conf, regex: '^#(MAKEFLAGS)=.*', value: '\1="-j8"' }
@@ -1442,24 +1453,6 @@ packages:
     - { pkg: shadow,                        desc: Account mgmt passwd/usermod/groupadd, depof: util-linux }
     - { pkg: util-linux,                    desc: Utilities blkid/fdisk/rename/cp etc..., depof: php-gd }
     - { pkg: xz,                            desc: Compression util for xz format, depof: php-gd }
-
-  # Personal Use
-  # packages in this section have various restrictions and can not be used
-  # for commercial purposes. Please review and accept an licenses before using these
-  #-----------------------------------------------------------------------------
-  personal-use-pkgs:
-
-    # MakeMKV is free while in beta but is a commercial product required a license normally
-    # https://www.makemkv.com/forum2/viewtopic.php?f=5&t=1053
-    - { pkg: makemkv,                       desc: DVD and Blu-ray to MKV converter, type: CYBERLINUX }
-
-    # Teamviewer is free to use for personal use
-    # https://www.teamviewer.com/en/credentials/free-for-personal-use/
-    - { pkg: teamviewer,                    desc: All-In-One Software for Remote Support and Online Meetings, type: CYBERLINUX }
-
-    # Adobe fonts from adobe reader
-    # https://aur.archlinux.org/cgit/aur.git/tree/LICENSE?h=ttf-adobe-fonts
-    - { pkg: ttf-adobe-fonts,               desc: Adobe fonts including Myriad Minion and Courier, type: CYBERLINUX }
 
   # Virtualization packages
   #-----------------------------------------------------------------------------
