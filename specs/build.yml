@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.154
+  release: 0.1.155
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1377,20 +1377,6 @@ packages:
 #    - { pkg: xorg-smproxy,                  desc: , group: xorg }
 #    - { pkg: xorg-x11perf,                  desc: , group: xorg }
 #    - { pkg: xorg-xauth,                    desc: , group: xorg }
-#    - { pkg: ,               desc: , group: xorg }
-#    - { pkg: ,               desc: , group: xorg }
-#    - { pkg: ,               desc: , group: xorg }
-#    - { pkg: ,               desc: , group: xorg }
-#    - { pkg: ,               desc: , group: xorg }
-#    - { pkg: ,               desc: , group: xorg }
-#    - { pkg: ,               desc: , group: xorg }
-#    - { pkg: ,               desc: , group: xorg }
-#    - { pkg: ,               desc: , group: xorg }
-#    - { pkg: ,               desc: , group: xorg }
-#    - { pkg: ,               desc: , group: xorg }
-#    - { pkg: ,               desc: , group: xorg }
-#    - { pkg: ,               desc: , group: xorg }
-#    - { pkg: ,               desc: , group: xorg }
 
     - { pkg: xorg-xdpyinfo,                 desc: Xorg display info utility }
     - { pkg: xsel,                          desc: Tool for getting/setting X selection }
@@ -1412,7 +1398,6 @@ packages:
     - { pkg: pnmixer,                       desc: Volume controls in system tray, type: CYBERLINUX }
     - { pkg: qt4,                           desc: A cross-platform application and UI framework, deps: vlc }
     - { pkg: qt5-base,                      desc: A cross-platform application and UI framework, deps: mkvtoolnix-gui }
-    - { pkg: rubberband,                    desc: Time-stretching and pitch-shifting audio library and utility, depof: smplayer }
     - { pkg: smplayer,                      desc: UI wrapper around mplayer with click to pause, alt: vlc }
     - { pkg: smplayer-skins,                desc: Skins for SMPlayer }
     - { pkg: smplayer-themes,               desc: Themes for SMPlayer }
