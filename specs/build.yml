@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.144
+  release: 0.1.145
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -126,6 +126,7 @@ configs:
     - { apply: mimeapps-config }
     - { apply: wallpaper-config }
     - { apply: xorg-config }
+    - { apply: menu-lite-config }
   heavy-config:
     - { apply: conky-config }
     - { apply: guake-config }
@@ -148,6 +149,27 @@ configs:
   theater-config:
     - { apply: idesk-config }
     - { apply: resolution-theater }
+  menu-lite-config:
+    - { menu: Root, insert: append, entry: Thunar, icon: /usr/share/icons/Paper/32x32/apps/Thunar.png, exec: thunar }
+    - { menu: Root, insert: append, entry: LXTerminal, icon: /usr/share/icons/Paper/32x32/apps/lxterminal.png, exec: lxterminal }
+    - { menu: Root, insert: append, entry: Nitrogen, icon: /usr/share/icons/hicolor/32x32/apps/nitrogen.png, exec: nitrogen }
+    - { menu: Accessories, icon: /usr/share/icons/Paper/32x32/categories/applications-utilities.png }
+    - { menu: Accessories, entry: Bulk Rename, icon: /usr/share/icons/Paper/32x32/apps/Thunar.png, exec: /usr/lib/Thunar/ThunarBulkRename }
+    - { menu: Development, icon: /usr/share/icons/Paper/32x32/categories/applications-development.png }
+    - { menu: Development, entry: GVim, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim -f }
+    - { menu: Graphics, icon: /usr/share/icons/Paper/32x32/categories/applications-graphics.png }
+    - { menu: Graphics, entry: Image Viewer, icon: /usr/share/icons/Paper/32x32/apps/gpicview.png, exec: gpicview }
+    - { menu: Graphics, entry: Nitrogen, icon: /usr/share/icons/hicolor/32x32/apps/nitrogen.png, exec: nitrogen }
+    - { menu: Multimedia, icon: /usr/share/icons/Paper/32x32/categories/applications-multimedia.png }
+    - { menu: Multimedia, entry: Audacious, icon: /usr/share/icons/hicolor/32x32/apps/audacious.png, exec: audacious }
+    - { menu: Multimedia, entry: Pulse Audio, icon: /usr/share/icons/Paper/32x32/apps/multimedia-volume-control.png, exec: pavucontrol }
+    - { menu: Multimedia, entry: SMPlayer, icon: /usr/share/icons/hicolor/32x32/apps/smplayer.png, exec: smplayer }
+    - { menu: Multimedia, entry: VLC, icon: /usr/share/icons/hicolor/32x32/apps/vlc.png, exec: vlc }
+    - { menu: Network, icon: /usr/share/icons/Paper/32x32/categories/applications-internet.png }
+    - { menu: Network, entry: Chromium, icon: /usr/share/icons/Paper/32x32/apps/chromium.png, exec: chromium }
+    - { menu: Network, entry: FileZilla, icon: /usr/share/icons/Paper/32x32/apps/filezilla.png, exec: filezilla }
+    - { menu: Network, entry: Zenmap, icon: /usr/share/zenmap/pixmaps/zenmap.png, exec: sudo zenmap }
+
   menu-heavy-config:
     # Quick launch menu
     #- { menu: QuickLaunch, label: Screenshot, icon: /usr/share/icons/Paper/32x32/apps/gnome-screenshot.png, exec: xfce4-screenshooter }
