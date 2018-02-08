@@ -415,6 +415,14 @@ class Reduce
     # Build GFXBoot UI that boots initramfs installer and in turn the real kernel
     changed |= build_isolinux if [isolinux, iso, isofull].any?
 
+    # Create EFI FAT boot image
+    # truncate -s 4M efi.img
+    # mkfs.fat -n ARCH_EFI efi.img &>/dev/null
+    # mount efi.img /mnt
+    # mkdir -p /mnt/efi/boot
+    # grub-mkimage -d /boot/grub/i386-pc -o /mnt/efi/boot/bootx64.efi -O i386-pc -p /boot/grub iso9660
+    # umount /mnt
+
     # Create ISO Hybrid CD/USB bootable image to launch isolinux via xorriso
     # Note: the eltorito-boot and eltorito-catalog appear to be paths
     # relative to the construction of the ISO which threw me off for awhile
@@ -422,17 +430,18 @@ class Reduce
       puts("#{'-' * 80}\nBuilding ISO Hybrid CD/USB bootable image...\n#{'-' * 80}".colorize(:light_yellow))
       if changed or not File.exist?(@vars.isofile)
         cmd = "xorriso -as mkisofs "
+        cmd += "-volid #{@vars.label} "
+        cmd += "-appid '#{@vars.distro} Install/Live Media' "
         cmd += "-iso-level 3 -rock -joliet "
         cmd += "-max-iso9660-filenames -omit-period "
         cmd += "-omit-version-number "
         cmd += "-relaxed-filenames -allow-lowercase "
         cmd += "-no-emul-boot -boot-load-size 4 -boot-info-table "
-        cmd += "-volid #{@vars.label} "
-        cmd += "-appid '#{@vars.distro} Install/Live Media' "
         cmd += "-eltorito-boot isolinux/isolinux.bin "
         #cmd += "-eltorito-alt-boot -e EFI/boot/bootx64.efi "
         #cmd += "-eltorito-catalog \"%s\" " % 'isolinux/boot.cat'
         cmd += "-isohybrid-mbr #{File.join(@isolinux_bios_dst, 'isohdpfx.bin')} "
+        # -append_partition 2 0xef efi.img
         cmd += "-output #{@vars.isofile} #{@isopath}"
         msg = "ISO Hybrid CD/USB bootable image:\n#{@vars.isofile}"
         if Sys.exec(cmd)
