@@ -418,15 +418,6 @@ class Reduce
     # Build GFXBoot UI that boots initramfs installer and in turn the real kernel
     changed |= build_isolinux if [isolinux, iso, isofull].any?
 
-    # https://blog.heckel.xyz/2017/05/28/creating-a-bios-gpt-and-uefi-gpt-grub-bootable-linux-system/
-    # Create EFI FAT boot image
-    # truncate -s 4M efi.img
-    # mkfs.fat -n ARCH_EFI efi.img &>/dev/null
-    # mount efi.img /mnt
-    # mkdir -p /mnt/efi/boot
-    # grub-mkimage -d /boot/grub/i386-pc -o /mnt/efi/boot/bootx64.efi -O i386-pc -p /boot/grub iso9660
-    # umount /mnt
-
     # Create ISO Hybrid CD/USB bootable image to launch isolinux via xorriso
     # Note: the eltorito-boot and eltorito-catalog appear to be paths
     # relative to the construction of the ISO which threw me off for awhile
@@ -503,6 +494,16 @@ class Reduce
     create_dir_structure
     changed = false
     layers = @spec[@k.layers].select{|x| x[@k.boot]}.reverse
+
+    # https://blog.heckel.xyz/2017/05/28/creating-a-bios-gpt-and-uefi-gpt-grub-bootable-linux-system/
+    # Create EFI FAT boot image
+    # truncate -s 4M efi.img
+    # mkfs.fat -n ARCH_EFI efi.img &>/dev/null
+    # mount efi.img /mnt
+    # mkdir -p /mnt/efi/boot
+    # grub-mkimage -d /boot/grub/i386-pc -o /mnt/efi/boot/bootx64.efi -O i386-pc -p /boot/grub iso9660
+    # umount /mnt
+
     isolinux_bios_digests = File.join(@isolinux_bios_work, 'digests')
     isolinux_uefi_digests = File.join(@isolinux_uefi_work, 'digests')
     isolinux_gfxboot_digests = File.join(@isolinux_gfxboot_work, 'digests')
