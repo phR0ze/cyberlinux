@@ -131,16 +131,17 @@ class Reduce
     @pacman_conf = File.join(@pacman_path, 'pacman.conf')
     @pacman_src_conf = File.join(@layers_src, 'base/etc/pacman.conf')
     @pacman_src_mirrors = File.join(@layers_src, 'base/etc/pacman.d/*.mirrorlist')
-    @isoimagesdst = File.join(@isopath, 'images')
-    @bootimagesdst = File.join(@isopath, 'boot')
 
-    @memtest_image = File.join(@bootimagesdst, 'memtest')
-    @vmlinuz_image = File.join(@bootimagesdst, 'vmlinuz')
-    @ucode_image = File.join(@bootimagesdst, 'intel-ucode')
+    @boot_images_dst = File.join(@isopath, 'boot')
+    @layer_images_dst = File.join(@isopath, 'images')
+    @memtest_image = File.join(@boot_images_dst, 'memtest')
+    @vmlinuz_image = File.join(@boot_images_dst, 'vmlinuz')
+    @ucode_image = File.join(@boot_images_dst, 'intel-ucode')
+    @grub_uefi_image = File.join(@isopath, 'efi.img')
 
     @initramfs_src = File.join(@rootpath, 'boot/initramfs')
-    @initramfs_work = File.join(@workpath, 'initramfs')
-    @initramfs_image = File.join(@bootimagesdst, 'initramfs.img')
+    @initramfs_work = File.join(@workpath, 'boot/initramfs')
+    @initramfs_image = File.join(@boot_images_dst, 'initramfs.img')
 
     @isolinux_cfg_src = File.join(@rootpath, 'boot/isolinux')
     @isolinux_gfxboot_src = File.join(@rootpath, 'boot/gfxboot')
@@ -156,7 +157,7 @@ class Reduce
 
     @imagepaths = [
       File.join(@outpath, 'images'),
-      @isoimagesdst,
+      @layer_images_dst,
       File.expand_path('~').include?('root') ? "/home/#{@user}/Downloads/images" :
         File.join(File.expand_path('~'), 'Downloads', 'images')]
 
@@ -207,11 +208,12 @@ class Reduce
     FileUtils.mkdir_p(@workpath)
     FileUtils.mkdir_p(@tmp_dir)
     FileUtils.mkdir_p(@isopath)
-    FileUtils.mkdir_p(@isoimagesdst)
-    FileUtils.mkdir_p(@bootimagesdst)
+    FileUtils.mkdir_p(@layer_images_dst)
+    FileUtils.mkdir_p(@boot_images_dst)
 
     FileUtils.mkdir_p(@layers_work)
     FileUtils.mkdir_p(@initramfs_work)
+
     FileUtils.mkdir_p(@isolinux_bios_work)
     FileUtils.mkdir_p(@isolinux_uefi_work)
     FileUtils.mkdir_p(@isolinux_gfxboot_work)
@@ -310,7 +312,7 @@ class Reduce
         Sys.rm_rf(x)
       }
       ["#{@ucode_image}.img", "#{@ucode_image}.LICENSE", @memtest_image,
-       "#{@memtest_image}.LICENSE", @vmlinuz_image].each{|x|
+       "#{@memtest_image}.LICENSE", @vmlinuz_image, @grub_uefi_image].each{|x|
         puts("Deleting #{x}".colorize(:red)) if File.exist?(x)
         File.delete(x) if File.exist?(x)
       }
@@ -413,7 +415,7 @@ class Reduce
     changed |= build_layers(@k.build) if not (layers || []).include?(@k.build)
 
     # Build early userspace ramdisk for install executed by isolinux
-    changed |= build_initramfs if [initramfs, iso, isofull].any?
+    changed |= build_initramfs_installer if [initramfs, iso, isofull].any?
 
     # Build GFXBoot UI that boots initramfs installer and in turn the real kernel
     changed |= build_isolinux if [isolinux, iso, isofull].any?
@@ -451,7 +453,7 @@ class Reduce
   # Create the initramfs.img
   # which provides the boot environment we will install from
   # @returns true on changed
-  def build_initramfs
+  def build_initramfs_installer
     create_dir_structure
     changed = false
     initramfs_digests = File.join(@initramfs_work, 'digests')
@@ -487,23 +489,13 @@ class Reduce
     return changed
   end
 
-  # Build bootable ISOLinux with USB support
-  # Bootable on both BIOS and UEFI systems
+  # Build bootable GRUB image with both BIOS and UEFI support
+  # https://wiki.archlinux.org/index.php/GRUB
   # @returns true on changed
   def build_isolinux
     create_dir_structure
     changed = false
     layers = @spec[@k.layers].select{|x| x[@k.boot]}.reverse
-
-    # https://blog.heckel.xyz/2017/05/28/creating-a-bios-gpt-and-uefi-gpt-grub-bootable-linux-system/
-    # Create EFI FAT boot image
-    # truncate -s 4M efi.img
-    # mkfs.fat -n ARCH_EFI efi.img &>/dev/null
-    # mount efi.img /mnt
-    # mkdir -p /mnt/efi/boot
-    # grub-mkimage -d /boot/grub/i386-pc -o /mnt/efi/boot/bootx64.efi -O i386-pc -p /boot/grub iso9660
-    # umount /mnt
-
     isolinux_bios_digests = File.join(@isolinux_bios_work, 'digests')
     isolinux_uefi_digests = File.join(@isolinux_uefi_work, 'digests')
     isolinux_gfxboot_digests = File.join(@isolinux_gfxboot_work, 'digests')
@@ -536,7 +528,34 @@ class Reduce
       }
       Fedit.resolve(File.join(@isolinux_gfxboot_work, 'data/gfxboot.cfg'), @vars)
 
+      # Build grub components inside build container to ensure isolation
       docker(@k.build, @k.build){|cont, home, cp, exec, execs, runuser|
+
+        # EFISTUB (EFI BOOT STUB) allows EFI firmware to load the kernel as an EFI executable
+        # directly by a UEFI motherboard or indirectly using a boot loader.
+        #
+        # BIOS/UEFI will boot the the boot loader which then boots initramfs to install
+        # or in the case where the system is already installed boots to initramfs/kernel
+        # https://wiki.archlinux.org/index.php/Category:Boot_loaders
+
+        # Packages
+        # efibootmgr
+        
+        # Create GRUB BIOS boot image
+        puts("Create GRUB BIOS boot image...".colorize(:cyan))
+
+        # Create GRUB EFI boot image
+        puts("Create GRUB EFI boot image...".colorize(:cyan))
+        uefi_mnt = File.join(home, 'grub/mnt')
+        uefi_image = File.join(home, 'grub/efi.img')
+        runuser["mkdir -p #{uefi_mnt}"]
+        runuser["truncate -s 4M #{uefi_image}"]
+        runuser["mkfs.fat -n GRUB_EFI #{uefi_image} &>/dev/null"]
+        runuser["mount #{uefi_image} #{uefi_mnt}"]
+        runuser["mkdir -p #{uefi_mnt}/efi/boot"]
+        runuser["grub-mkimage -d /usr/lib/grub/x86_64-efi -o #{uefi_mnt}/efi/boot/bootx64.efi -O x86_64-efi -p /boot/grub iso9660"]
+        runuser["umount #{uefi_mnt}"]
+        cp["#{cont}:#{uefi_image} #{@grub_uefi_image}"]
 
         # Compile and extract GFXboot (i.e. isolinux UI)
         puts("Compile and extract GFXboot...".colorize(:cyan))
@@ -837,7 +856,7 @@ class Reduce
       layer_work = FileUtils.mkdir_p(File.join(@layers_work, layer)).shift
       layer_digests = File.join(layer_work, 'digests')
       layer_yml = getlayer(layer)
-      layer_image = layer_yml[@k.type] == @k.machine ? File.join(@isoimagesdst, "#{layer}.sqfs") :
+      layer_image = layer_yml[@k.type] == @k.machine ? File.join(@layer_images_dst, "#{layer}.sqfs") :
         File.join(@imagepaths.first, "#{layer}-#{@vars.release}.tgz")
       puts("#{'-' * 80}\nBuilding layer '#{layer}'\n#{'-' * 80}".colorize(:light_yellow))
 

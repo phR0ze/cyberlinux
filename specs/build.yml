@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.167
+  release: 0.1.168
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -1148,6 +1148,7 @@ packages:
     - { pkg: cyberlinux-keyring,            desc: Blackarch GPG keyring, type: CYBERLINUX }
 
   grub-pkgs:
+    - { pkg: dosfstools,                    desc: DOS filesystem utilities e.g. mkfs.fat }
     - { pkg: grub,                          desc: GNU GRand Unified Booloader 2 }
     - { pkg: intel-ucode,                   desc: Microcode update files for Intel CPUs }
     - { pkg: licenses,                      desc: Standard licenses distribution package }
