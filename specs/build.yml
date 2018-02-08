@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.165
+  release: 0.1.166
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -46,6 +46,7 @@ build:
     - { install: core-tools }
     - { install: initramfs-pkgs }
     - { install: isolinux-pkgs }
+    - { pkg: licenses, desc: Standard licenses distribution package }
   configs:
 
     # Create and configure new build user and root user
