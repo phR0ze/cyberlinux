@@ -1,5 +1,5 @@
 # cyberlinux
-<img align="left" width="48" height="48" src="https://raw.githubusercontent.com/phR0ze/cyberlinux/master/art/cyberlinux.png">
+<img align="left" width="48" height="48" src="https://raw.githubusercontent.com/phR0ze/cyberlinux/master/art/logo_256x256.png">
 <b><i>cyberlinux</i></b> was designed to provide the unobtrusive beauty and power of Arch Linux as a fully
 customized automated offline multi-deployment ISO. Using a clean declarative yaml specification,
 cyberlinux is able to completely customize and automate the building of Arch Linux filesystems
