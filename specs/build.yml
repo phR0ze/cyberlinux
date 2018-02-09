@@ -21,10 +21,12 @@
 
 vars:
   arch: x86_64
-  release: 0.1.174
+  release: 0.1.175
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
+  color_light: '#39AEF4'
+  color_dark: '#216A94'
 
   # Vagrant networking
   netname: vboxnet0
@@ -1431,6 +1433,7 @@ packages:
     - { pkg: ttf-dejavu,                    desc: Bitstream Vera Fonts w/more characters }
     - { pkg: ttf-droid,                     desc: Google Android general purpose fonts }
     - { pkg: ttf-google-fonts-typewolf,     desc: Typewolf's 40 best fonts from the Google Fonts project, type: ANTERGOS }
+    - { pkg: ttf-hack,                      desc: Hand groomed/optically balanced typeface based on Bitstream Vera Mono }
     - { pkg: ttf-inconsolata-g,             desc: Best monospace terminal font, type: CYBERLINUX }
     - { pkg: ttf-indic-otf,                 desc: Indic Opentype Fonts collection }
     - { pkg: ttf-liberation,                desc: Red Hats Liberation fonts.  }

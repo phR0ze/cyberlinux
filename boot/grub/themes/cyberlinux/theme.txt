@@ -1,0 +1,130 @@
+# Grub2 <%=distro%> theme
+# http://wiki.rosalab.ru/en/index.php/Grub2_theme_tutorial
+# Components: images, labels, styled boxes, progress indicators and containers
+# Generate fonts: grub-mkfont -o hack-10.pf2 -s 10 /usr/share/fonts/TTF/Hack-Regular.ttf
+# Get font name: fc-fonts | grep hack
+
+# Global options
+# http://wiki.rosalab.ru/en/index.php/Grub2_theme_/_reference#Global_options
+message-color: "#7f8c8d"
+message-bg-color: "#4d4d4d"
+desktop-image: "background.png"
+terminal-left: "0"
+terminal-top: "0"
+terminal-width: "100%"
+terminal-height: "100%"
+terminal-border: "0"
+
+# Boot menu options
+# http://wiki.rosalab.ru/en/index.php/Grub2_theme_/_reference#Boot_menu_.28boot_menu.29
++ boot_menu {
+    left = 17%
+    width = 70%
+    top = 28%
+    height = 50%
+    item_height = 30
+    item_padding = 5
+    icon_width = 32
+    icon_height = 32
+    item_icon_space = 20
+    item_spacing = 5
+    item_color = "#DDDDDD"
+    selected_item_color = "<%=color_light%>"
+    selected_item_pixmap_style = "select_*.png"
+    menu_pixmap_style = "menu_*.png"
+}
+
+# Features
++ vbox {
+    top = 21%
+    left = 20
+    + label { color = "#ffffff" height = "30" align = "right" font = "Terminus Bold 18" text = "automated deploy" }
+    + label { color = "#ffffff" height = "30" align = "right" font = "Terminus Bold 18" text = "simple installer" }
+    + label { color = "#ffffff" height = "30" align = "right" font = "Terminus Bold 18" text = "rolling release" }
+    + label { color = "#ffffff" height = "30" align = "right" font = "Terminus Bold 18" text = "multi-flavor" }
+    + label { color = "#ffffff" height = "30" align = "right" font = "Terminus Bold 18" text = "AUR access" }
+    + label { color = "#ffffff" height = "30" align = "right" font = "Terminus Bold 18" text = "efficiency" }
+    + label { color = "#ffffff" height = "30" align = "right" font = "Terminus Bold 18" text = "power" }
+    + label { color = "#ffffff" height = "30" align = "right" font = "Terminus Bold 18" text = "speed" }
+}
+
+# Description
++ vbox {
+    top = 21%
+    left = 17%
+    + label {
+        color = "#ffffff"
+        font = "Terminus Regular 18"
+        text = "<%=distro%> is a hacker friendly distribution derived from Arch main stream giving you the"
+    }
+    + label {
+        color = "#ffffff"
+        font = "Terminus Regular 18"
+        text = "full power of the AUR at your finger tips and the harolded speed and efficiency of the"
+    }
+    + label {
+        color = "#ffffff"
+        font = "Terminus Regular 18"
+        text = "upstream bits."
+    }
+}
+
+# Disclaimer
++ vbox {
+    top = 80%
+    left = 17%
+    + label {
+        color = "#ffffff"
+        font = "Terminus Regular 16"
+        text = "Disclaimer"
+    }
+    + label {
+        color = "#ffffff"
+        font = "Terminus Regular 12"
+        text = "your use of this and any other <%=distro%> product is at your own risk.  <%=distro%> disclaims all warranties, express or implied, including without"
+    }
+    + label {
+        color = "#ffffff"
+        font = "Terminus Regular 12"
+        text = "limitation, warranties of disclaims all warranties, express or implied, including without limitation, warranties of merchantability and fitness for"
+    }
+    + label {
+        color = "#ffffff"
+        font = "Terminus Regular 12"
+        text = "a particular purpose.  <%=distro%> disclaims liability for any direct, indirect, or incidental, special, consequential, exemplary, punitive or other"
+    }
+    + label {
+        color = "#ffffff"
+        font = "Terminus Regular 12"
+        text = "damages, or lost profits that may result directly or indirectly from the use of this and any other <%=distro%> product.  this includes, without"
+    }
+    + label {
+        color = "#ffffff"
+        font = "Terminus Regular 12"
+        text = "limitation, any damage to computer any other <%=distro%> product.  this includes, without limitation, any damage to computer systems, hardware or"
+    }
+    + label {
+        color = "#ffffff"
+        font = "Terminus Regular 12"
+        text = "software, loss of data, or any other performance failures, any errors, bugs, viruses or other defects that result from, or are associated with the"
+    }
+    + label {
+        color = "#ffffff"
+        font = "Terminus Regular 12"
+        text = "use of this and any other <%=distro%> product. we accept no liability for any damage or loss arising from your use or reliance on this product and"
+    }
+    + label {
+        color = "#ffffff"
+        font = "Terminus Regular 12"
+        text = "expressly disclaim any implied warranties to the fullest extent permissible by law."
+    }
+}
+
+# Help at bottom
++ vbox {
+    top = 95%
+    left = 40%
+    + label { align = "center" color = "#ffffff" text = "[↑ and ↓ Key] Navigation" }
+    + label { align = "center" color = "#ffffff" text = "[↵] Activate selected option" }
+}
+

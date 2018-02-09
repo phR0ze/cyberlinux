@@ -494,9 +494,12 @@ class Reduce
     FileUtils.mkdir_p(boot_grub)
     puts("#{'-' * 80}\nBuilding grub multiboot...\n#{'-' * 80}".colorize(:light_yellow))
     if syncfiles(File.basename(@grub_work), @grub_src, boot_grub, grub_digests) or
-        not File.exist?(@grub_efi_image)
+        not File.exist?(@grub_efi_image) or not File.exist?(@vmlinuz_image)
       changed |= true
-      installer = File.join(@initramfs_work, 'installer')
+
+      # Resolve templates
+      Fedit.resolve(File.join(boot_grub, 'variable.cfg'), @vars)
+      Fedit.resolve(File.join(boot_grub, 'themes', @vars.distro.downcase, 'theme.txt'), @vars)
 
 #      # Inject boot menu items from layers
 #      [@isolinux_bios_work, @isolinux_uefi_work].each{|configs|
@@ -576,6 +579,13 @@ class Reduce
         cp.call("#{cont}:#{iso_path}/boot #{@grub_work}")
         cp.call("#{cont}:#{iso_path}/efi #{@grub_work}")
         cp.call("#{cont}:#{uefi_image} #{@grub_work}")
+
+        # Extract kernel, memtest and intel-ucode as well as licenses
+        cp.call("#{cont}:/boot/vmlinuz-linux #{@vmlinuz_image}")
+        cp.call("#{cont}:/boot/intel-ucode.img #{@ucode_image}.img")
+        cp.call("#{cont}:/usr/share/licenses/intel-ucode/LICENSE #{@ucode_image}.LICENSE")
+        cp.call("#{cont}:/boot/memtest86+/memtest.bin #{@memtest_image}")
+        cp.call("#{cont}:/usr/share/licenses/common/GPL2/license.txt #{@memtest_image}.LICENSE")
       }
 
       puts("Copying grub multiboot to destination...".colorize(:cyan))
