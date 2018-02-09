@@ -137,7 +137,7 @@ class Reduce
     @grub_src = File.join(@rootpath, 'boot/grub')
     @grub_work = File.join(@workpath, 'boot/grub')
     @grub_efi_dst = File.join(@isopath, 'efi')
-    @grub_uefi_image = File.join(@isopath, 'efi.img')
+    @grub_efi_image = File.join(@isopath, 'efi.img')
 
     @memtest_image = File.join(@boot_dst, 'memtest')
     @vmlinuz_image = File.join(@boot_dst, 'vmlinuz')
@@ -303,7 +303,7 @@ class Reduce
         Sys.rm_rf(x)
       }
       ["#{@ucode_image}.img", "#{@ucode_image}.LICENSE", @memtest_image,
-       "#{@memtest_image}.LICENSE", @vmlinuz_image, @grub_uefi_image].each{|x|
+       "#{@memtest_image}.LICENSE", @vmlinuz_image, @grub_efi_image].each{|x|
         puts("Deleting #{x}".colorize(:red)) if File.exist?(x)
         File.delete(x) if File.exist?(x)
       }
@@ -414,22 +414,24 @@ class Reduce
     # Create ISO Hybrid CD/USB bootable image to launch grub via xorriso
     # Note: the eltorito-boot and eltorito-catalog appear to be paths
     # relative to the construction of the ISO which threw me off for awhile
+    # https://wiki.archlinux.org/index.php/Remastering_the_Install_ISO#Modifying_the_EFI_boot_image
     if [iso, isofull].any?
       puts("#{'-' * 80}\nBuilding ISO Hybrid CD/USB bootable image...\n#{'-' * 80}".colorize(:light_yellow))
       if changed or not File.exist?(@vars.isofile)
         cmd = "xorriso -as mkisofs "
+        cmd += "-iso-level 3 "
         cmd += "-volid #{@vars.label} "
         cmd += "-appid '#{@vars.distro} Install/Live Media' "
-        cmd += "-iso-level 3 -rock -joliet "
-        cmd += "-max-iso9660-filenames -omit-period "
-        cmd += "-omit-version-number "
         cmd += "-relaxed-filenames -allow-lowercase "
-        cmd += "-no-emul-boot -boot-load-size 4 -boot-info-table "
-        cmd += "-eltorito-boot isolinux/isolinux.bin "
-        #cmd += "-eltorito-alt-boot -e EFI/boot/bootx64.efi "
-        #cmd += "-eltorito-catalog \"%s\" " % 'isolinux/boot.cat'
-        cmd += "-isohybrid-mbr #{File.join(@isolinux_bios_dst, 'isohdpfx.bin')} "
-        # -append_partition 2 0xef efi.img
+        # Add BIOS boot support
+        cmd += "-r -graft-points -no-pad --sort-weight 0 / --sort-weight 1 /boot "
+        cmd += "--grub2-mbr #{@isopath}/boot/grub/i386-pc/boot_hybrid.img "
+        cmd += "-partition_offset 16 -b boot/grub/i386-pc/eltorito.img \ -c boot.catalog "
+        cmd += "-no-emul-boot -boot-load-size 4 -boot-info-table --grub2-boot-info "
+        # Add EFI boot support
+        cmd += "-eltorito-alt-boot -append_partition 2 0xef #{@grub_efi_image} "
+        cmd += "-e --interval:appended_partition_2:all:: -no-emul-boot "
+        # Create the ISO
         cmd += "-output #{@vars.isofile} #{@isopath}"
         msg = "ISO Hybrid CD/USB bootable image:\n#{@vars.isofile}"
         if Sys.exec(cmd)
@@ -488,9 +490,11 @@ class Reduce
     changed = false
     grub_digests = File.join(@grub_work, 'digests')
 
+    boot_grub = File.join(@grub_work, 'boot/grub')
+    FileUtils.mkdir_p(boot_grub)
     puts("#{'-' * 80}\nBuilding grub multiboot...\n#{'-' * 80}".colorize(:light_yellow))
-    if syncfiles(File.basename(@grub_work), @grub_src, @grub_work, grub_digests) or
-        not File.exist?(@grub_uefi_image)
+    if syncfiles(File.basename(@grub_work), @grub_src, boot_grub, grub_digests) or
+        not File.exist?(@grub_efi_image)
       changed |= true
       installer = File.join(@initramfs_work, 'installer')
 
@@ -534,7 +538,6 @@ class Reduce
         bios_platform_image = File.join(bios_platform_path, 'core.img')
         runuser.call("mkdir -p #{bios_platform_path}")
         runuser.call("cp /usr/lib/grub/#{bios_platform}/* #{bios_platform_path}")
-        #runuser.call("while :; do sleep 5; done")
         runuser.call("grub-mkimage -d #{bios_platform_path} -o #{bios_platform_image} -O #{bios_platform} -p /boot/grub biosdisk iso9660")
 
         # Create Eltorito removable media BIOS/USB boot image
@@ -544,6 +547,8 @@ class Reduce
         runuser.call("cat #{cdboot_image} #{bios_platform_image} > #{eltorito_image}")
 
         # Create GRUB EFI bootloader
+        # 1st method for EFI support use fallback /efi/boot/bootx64.efi directly
+        # which then points to /boot/grub/grub.cfg
         puts("Create GRUB EFI bootloader...".colorize(:cyan))
         uefi_platform = 'x86_64-efi'
         uefi_platform_path = File.join(grub_path, uefi_platform)          # ~/work/iso/boot/grub/x86_64-efi
@@ -554,39 +559,34 @@ class Reduce
         runuser.call("grub-mkimage -d #{uefi_platform_path} -o #{uefi_bootloader} -O #{uefi_platform} -p /boot/grub iso9660")
 
         # Create GRUB EFI boot image - EFI System Partition (ESP)
-        # https://wiki.archlinux.org/index.php/GRUB/Tips_and_tricks#Visual_configuration
-        # ----------------------------------------------------------------------
-        # (i.e. FAT32 fs which contains a binary efi boot loader /efi/boot/bootx64.efi)
-        # Use fallback location /efi/boot/bootx64.efi to make removable media bootable.
-        # bootx64.efi can then read a configuration file on the ESP e.g. /boot/grub/grub.cfg
+        # 2nd method for EFI support create a FAT fs which contains the fallback
+        # /efi/boot/bootx64.efi bootloader which points to /boot/grub/grub.cfg
         puts("Create GRUB EFI boot image...".colorize(:cyan))
         uefi_mnt_path = File.join(work_path, 'mnt')              # ~/work/mnt
         uefi_image = File.join(iso_path, 'efi.img')              # ~/work/iso/efi.img
         runuser.call("mkdir -p #{uefi_mnt_path}")
         runuser.call("truncate -s 4M #{uefi_image}")
         runuser.call("mkfs.fat -n GRUB_EFI #{uefi_image} &>/dev/null")
-        runuser.call("mount #{uefi_image} #{uefi_mnt_path}")
+        #runuser.call("while :; do sleep 5; done")
+        runuser.call("sudo mount #{uefi_image} #{uefi_mnt_path}")
         runuser.call("grub-mkimage -d #{uefi_platform_path} -o #{uefi_image} -O #{uefi_platform} -p /boot/grub iso9660")
-        runuser.call("umount #{uefi_mnt}")
+        runuser.call("sudo umount #{uefi_mnt_path}")
 
         # Extract grub boot files
-        cp.call("#{cont}:#{grub_path} #{@grub_dst}")
-        cp.call("#{cont}:#{iso_path}/efi #{@grub_efi_dst}")
-        cp.call("#{cont}:#{uefi_imge} #{@grub_uefi_image}")
+        cp.call("#{cont}:#{iso_path}/boot #{@grub_work}")
+        cp.call("#{cont}:#{iso_path}/efi #{@grub_work}")
+        cp.call("#{cont}:#{uefi_image} #{@grub_work}")
       }
 
-#      puts("Copying isolinux destination files...".colorize(:cyan))
-#      [{'src' => @isolinux_bios_work, 'dst' => @isolinux_bios_dst},
-#       {'src' => @isolinux_uefi_work, 'dst' => @isolinux_uefi_dst}].each{|path|
-#        Dir.glob(File.join(path['src'], '**/*'), File::FNM_DOTMATCH).each{|x|
-#          if File.basename(x) != 'digests' and File.file?(x)
-#            dst = x.sub(path['src'], path['dst'])
-#            puts("Copying to #{dst}")
-#            FileUtils.mkdir_p(File.dirname(dst))
-#            FileUtils.cp(x, dst)
-#          end
-#        }
-#      }
+      puts("Copying grub multiboot to destination...".colorize(:cyan))
+      Dir.glob(File.join(@grub_work, '**/*'), File::FNM_DOTMATCH).each{|x|
+        if File.basename(x) != 'digests' and File.file?(x)
+          dst = x.sub(@grub_work, @isopath)
+          puts("Copying to #{dst}")
+          FileUtils.mkdir_p(File.dirname(dst))
+          FileUtils.cp(x, dst)
+        end
+      }
 
       puts("Successfully built grub multiboot".colorize(:green))
     end
