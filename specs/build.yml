@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.171
+  release: 0.1.172
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -47,6 +47,7 @@ build:
     - { install: grub-pkgs }
     - { install: initramfs-pkgs }
     - { install: isolinux-pkgs }
+    - { pkg: sudo, desc: Elevate some user commands to root, group: build-devel }
   configs:
 
     # Create and configure new build user and root user
