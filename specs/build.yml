@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.170
+  release: 0.1.171
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
@@ -51,7 +51,7 @@ build:
 
     # Create and configure new build user and root user
     - { chroot: 'useradd -m -G lp,wheel,network,storage,users -s /bin/bash build || true' }
-      #- { exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /home/build' }
+    - { exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /home/build' }
     - { exec: "echo 'TERM=xterm' > /etc/environment" }
     - { exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /root' }
     - { edit: /etc/sudoers, insert: append, value: "build ALL=(ALL) NOPASSWD: ALL" }

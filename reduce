@@ -73,7 +73,6 @@ class Reduce
       ignore: 'ignore',
       initrd: 'initrd',
       install: 'install',
-      isolinux: 'isolinux',
       kernel: 'kernel',
       label: 'label',
       layer: 'layer',
@@ -135,6 +134,8 @@ class Reduce
     @boot_dst = File.join(@isopath, 'boot')
     @layer_images_dst = File.join(@isopath, 'images')
     @grub_dst = File.join(@boot_dst, 'grub')
+    @grub_src = File.join(@rootpath, 'boot/grub')
+    @grub_work = File.join(@workpath, 'boot/grub')
     @grub_efi_dst = File.join(@isopath, 'efi')
     @grub_uefi_image = File.join(@isopath, 'efi.img')
 
@@ -145,15 +146,6 @@ class Reduce
     @initramfs_src = File.join(@rootpath, 'boot/initramfs')
     @initramfs_work = File.join(@workpath, 'boot/initramfs')
     @initramfs_image = File.join(@boot_dst, 'initramfs.img')
-
-    @isolinux_cfg_src = File.join(@rootpath, 'boot/isolinux')
-    @isolinux_gfxboot_src = File.join(@rootpath, 'boot/gfxboot')
-    @isolinux_bios_work = File.join(@workpath, 'isolinux/bios')
-    @isolinux_uefi_work = File.join(@workpath, 'isolinux/efi')
-    @isolinux_gfxboot_work = File.join(@workpath, 'isolinux/gfxboot')
-    @isolinux_bios_dst = File.join(@isopath, 'isolinux')
-    @isolinux_uefi_dst = File.join(@isopath, 'EFI/boot')
-    @isolinux_gfxboot_dst = @isolinux_bios_dst
 
     @packer_src = File.join(@rootpath, 'packer')
     @packer_work = File.join(@workpath, 'packer')
@@ -213,17 +205,12 @@ class Reduce
     FileUtils.mkdir_p(@isopath)
     FileUtils.mkdir_p(@layer_images_dst)
     FileUtils.mkdir_p(@boot_dst)
-    FileUtils.mkdir_p(@grub_dst)
-    FileUtils.mkdir_p(@grub_efi_dst)
 
+    FileUtils.mkdir_p(@grub_dst)
+    FileUtils.mkdir_p(@grub_work)
+    FileUtils.mkdir_p(@grub_efi_dst)
     FileUtils.mkdir_p(@layers_work)
     FileUtils.mkdir_p(@initramfs_work)
-
-    FileUtils.mkdir_p(@isolinux_bios_work)
-    FileUtils.mkdir_p(@isolinux_uefi_work)
-    FileUtils.mkdir_p(@isolinux_gfxboot_work)
-    FileUtils.mkdir_p(@isolinux_bios_dst)
-    FileUtils.mkdir_p(@isolinux_uefi_dst)
 
     FileUtils.mkdir_p(@imagepaths.first)
     FileUtils.mkdir_p(@packer_work)
@@ -280,15 +267,15 @@ class Reduce
   # @param pacman [bool] clean pacman repos
   # @param pacman_all [bool] clean pacman repos and cache
   # @param initramfs [bool] clean initramfs component
-  # @param isolinux [bool] clean isolinux component
+  # @param multiboot [bool] clean multiboot components
   # @param layers [bool] clean given layers
   # @param iso [bool] clean iso image
   # @param vms [bool] clean vms
   # @param all [bool] clean all components
   # @param isofull [bool] clean iso image including all machine layers
-  def clean(pacman:nil, pacman_all:nil, initramfs:nil, isolinux:nil, layers:nil, iso:nil, vms:nil, all:nil, isofull:nil)
+  def clean(pacman:nil, pacman_all:nil, initramfs:nil, multiboot:nil, layers:nil, iso:nil, vms:nil, all:nil, isofull:nil)
     !puts("Error: no clean options specified".colorize(:red)) and
-      exit unless [pacman, pacman_all, initramfs, isolinux, layers, iso, vms, all, isofull].any?
+      exit unless [pacman, pacman_all, initramfs, multiboot, layers, iso, vms, all, isofull].any?
     !puts("Error: must be executed as root".colorize(:red)) and
       exit unless Process.uid.zero?
 
@@ -309,10 +296,9 @@ class Reduce
     end
 
     # Clean grub components
-    if !all and (isolinux or layers or isofull)
-      puts("Cleaning isolinux...".colorize(:cyan))
-      [@isolinux_bios_work, @isolinux_uefi_work, @isolinux_gfxboot_work,
-       @isolinux_bios_dst, @isolinux_uefi_dst, @isolinux_gfxboot_dst, @grub_dst, @grub_efi_dst].each{|x|
+    if !all and (multiboot or layers or isofull)
+      puts("Cleaning multiboot...".colorize(:cyan))
+      [@grub_work, @grub_dst, @grub_efi_dst].each{|x|
         puts("Deleting #{x}".colorize(:red)) if File.exist?(x)
         Sys.rm_rf(x)
       }
@@ -393,12 +379,12 @@ class Reduce
   # Build components as directed
   # @param spec [String] cyberlinux spec to build from
   # @param initramfs [bool] build initramfs component
-  # @param isolinux [bool] build isolinux component
+  # @param multiboot [bool] build multiboot component
   # @param layers [Array] build given layers
   # @param iso [bool] build iso image from whatever machine layers exist
   # @param isofull [bool] build iso image including all machine layers
-  def build(spec, initramfs:nil, isolinux:nil, layers:nil, iso:nil, isofull:nil)
-    opts = [initramfs, isolinux, layers, iso, isofull]
+  def build(spec, initramfs:nil, multiboot:nil, layers:nil, iso:nil, isofull:nil)
+    opts = [initramfs, multiboot, layers, iso, isofull]
     !puts("Error: no build options specified".colorize(:red)) and exit unless opts.any?
     changed = false
     load_spec(spec)
@@ -416,16 +402,16 @@ class Reduce
     layers = @spec[@k.layers].select{|x| x[@k.type] == @k.machine}.map{|x| x[@k.name]} if isofull
     layers.each{|layer| changed |= build_layers(layer)} if layers
 
-    # Build the build container for initramfs/isolinux
+    # Build the build container for initramfs/multiboot
     changed |= build_layers(@k.build) if not (layers || []).include?(@k.build)
 
-    # Build early userspace ramdisk for install executed by isolinux
+    # Build early userspace ramdisk for install executed by grub
     changed |= build_initramfs_installer if [initramfs, iso, isofull].any?
 
     # Build GFXBoot UI that boots initramfs installer and in turn the real kernel
-    changed |= build_grub_multiboot if [isolinux, iso, isofull].any?
+    changed |= build_grub_multiboot if [multiboot, iso, isofull].any?
 
-    # Create ISO Hybrid CD/USB bootable image to launch isolinux via xorriso
+    # Create ISO Hybrid CD/USB bootable image to launch grub via xorriso
     # Note: the eltorito-boot and eltorito-catalog appear to be paths
     # relative to the construction of the ISO which threw me off for awhile
     if [iso, isofull].any?
@@ -500,39 +486,36 @@ class Reduce
   def build_grub_multiboot
     create_dir_structure
     changed = false
-    layers = @spec[@k.layers].select{|x| x[@k.boot]}.reverse
-    isolinux_bios_digests = File.join(@isolinux_bios_work, 'digests')
-    isolinux_uefi_digests = File.join(@isolinux_uefi_work, 'digests')
-    isolinux_gfxboot_digests = File.join(@isolinux_gfxboot_work, 'digests')
+    grub_digests = File.join(@grub_work, 'digests')
 
-    puts("#{'-' * 80}\nBuilding isolinux with gfxboot ui...\n#{'-' * 80}".colorize(:light_yellow))
-    if [syncfiles(@k.isolinux, @isolinux_cfg_src, @isolinux_bios_work, isolinux_bios_digests),
-       syncfiles(@k.isolinux, @isolinux_gfxboot_src, @isolinux_gfxboot_work, isolinux_gfxboot_digests),
-       !File.exist?(File.join(@isolinux_bios_dst, 'isohdpfx.bin'))].any?
+    puts("#{'-' * 80}\nBuilding grub multiboot...\n#{'-' * 80}".colorize(:light_yellow))
+    if syncfiles(File.basename(@grub_work), @grub_src, @grub_work, grub_digests) or
+        not File.exist?(@grub_uefi_image)
       changed |= true
+      installer = File.join(@initramfs_work, 'installer')
 
-      # Inject boot menu items from layers
-      [@isolinux_bios_work, @isolinux_uefi_work].each{|configs|
-        File.open(File.join(configs, 'isolinux.msg'), 'a'){|f|
-          layers.each{|layer| layer[@k.boot].each{|x|
-            f << "#{(x[@k.label] || layer[@k.name]).ljust(21)}- #{x[@k.entry]}\n"}}}
-        Fedit.resolve(File.join(configs, 'isolinux.msg'), @vars)
-        File.open(File.join(configs, 'isolinux.cfg'), 'a'){|f|
-          layers.each{|layer| layer[@k.boot].each{|x|
-            f << "label #{x[@k.label] || layer[@k.name]}\n"
-            f << "  kernel #{x[@k.kernel]}\n"
-            f << "  append initrd=#{x[@k.initrd]}\n" if x[@k.initrd]}}}
-        Fedit.resolve(File.join(configs, 'isolinux.cfg'), @vars)
-      }
-
-      # Inject gfxboot configuration
-      File.open(File.join(@isolinux_gfxboot_work, 'data/gfxboot.cfg'), 'a'){|f|
-        f << "isolinux.labels=%s\n" % (layers.map{|x| x[@k.boot].map{|y| y[@k.label] || x[@k.name]}}.flatten * ',')
-        f << "gfxboot.menu.names=%s\n" % (layers.map{|x| x[@k.boot].map{|y| y[@k.entry]}}.flatten * ',')
-        f << "gfx.noboot=%s\n" % (layers.map{|x| x[@k.boot].map{|y| (y[@k.label] || x[@k.name]) if y[@k.noboot]}}.flatten.compact * ',')
-      }
-      Fedit.resolve(File.join(@isolinux_gfxboot_work, 'data/gfxboot.cfg'), @vars)
-
+#      # Inject boot menu items from layers
+#      [@isolinux_bios_work, @isolinux_uefi_work].each{|configs|
+#        File.open(File.join(configs, 'isolinux.msg'), 'a'){|f|
+#          layers.each{|layer| layer[@k.boot].each{|x|
+#            f << "#{(x[@k.label] || layer[@k.name]).ljust(21)}- #{x[@k.entry]}\n"}}}
+#        Fedit.resolve(File.join(configs, 'isolinux.msg'), @vars)
+#        File.open(File.join(configs, 'isolinux.cfg'), 'a'){|f|
+#          layers.each{|layer| layer[@k.boot].each{|x|
+#            f << "label #{x[@k.label] || layer[@k.name]}\n"
+#            f << "  kernel #{x[@k.kernel]}\n"
+#            f << "  append initrd=#{x[@k.initrd]}\n" if x[@k.initrd]}}}
+#        Fedit.resolve(File.join(configs, 'isolinux.cfg'), @vars)
+#      }
+#
+#      # Inject gfxboot configuration
+#      File.open(File.join(@isolinux_gfxboot_work, 'data/gfxboot.cfg'), 'a'){|f|
+#        f << "isolinux.labels=%s\n" % (layers.map{|x| x[@k.boot].map{|y| y[@k.label] || x[@k.name]}}.flatten * ',')
+#        f << "gfxboot.menu.names=%s\n" % (layers.map{|x| x[@k.boot].map{|y| y[@k.entry]}}.flatten * ',')
+#        f << "gfx.noboot=%s\n" % (layers.map{|x| x[@k.boot].map{|y| (y[@k.label] || x[@k.name]) if y[@k.noboot]}}.flatten.compact * ',')
+#      }
+#      Fedit.resolve(File.join(@isolinux_gfxboot_work, 'data/gfxboot.cfg'), @vars)
+#
       # Build grub components inside build container to ensure isolation
       docker(@k.build, @k.build){|cont, home, cp, exec, execs, runuser|
         work_path = File.join(home, 'work')
@@ -542,11 +525,7 @@ class Reduce
         # Prepare GRUB boot location
         puts("Prepare GRUB boot location...".colorize(:cyan))
         runuser.call("mkdir -p #{grub_path}")
-        runuser.call("cp /usr/share/grub/cfg/*.cfg #{grub_path}")
-        runuser.call("mkdir -p #{grub_path}/themes")
-        runuser.call("cp -r /usr/share/grub/themes #{grub_path}")
         runuser.call("cp /usr/share/grub/unicode.pf2 #{grub_path}")
-        runuser.call("cp -r /usr/share/grub/{locales,tz} #{grub_path}")
 
         # Create GRUB BIOS boot image
         puts("Create GRUB BIOS boot image...".colorize(:cyan))
@@ -555,7 +534,8 @@ class Reduce
         bios_platform_image = File.join(bios_platform_path, 'core.img')
         runuser.call("mkdir -p #{bios_platform_path}")
         runuser.call("cp /usr/lib/grub/#{bios_platform}/* #{bios_platform_path}")
-        runuser.call("grub-mkimage -d #{bios_platform_path} -o #{bios_platform_image} -O #{bios_platform} biosdisk iso9660")
+        #runuser.call("while :; do sleep 5; done")
+        runuser.call("grub-mkimage -d #{bios_platform_path} -o #{bios_platform_image} -O #{bios_platform} -p /boot/grub biosdisk iso9660")
 
         # Create Eltorito removable media BIOS/USB boot image
         puts("Create Eltorito boot image...".colorize(:cyan))
@@ -571,9 +551,10 @@ class Reduce
         uefi_bootloader = File.join(uefi_bootloader_path, 'bootx64.efi')  # ~/work/iso/efi/boot/bootx64.efi
         runuser.call("mkdir -p #{uefi_platform_path} #{uefi_bootloader_path}")
         runuser.call("cp /usr/lib/grub/#{uefi_platform}/* #{uefi_platform_path}")
-        runuser.call("grub-mkimage -d #{uefi_platform_path} -o #{uefi_bootloader} -O #{uefi_platform} iso9660")
+        runuser.call("grub-mkimage -d #{uefi_platform_path} -o #{uefi_bootloader} -O #{uefi_platform} -p /boot/grub iso9660")
 
         # Create GRUB EFI boot image - EFI System Partition (ESP)
+        # https://wiki.archlinux.org/index.php/GRUB/Tips_and_tricks#Visual_configuration
         # ----------------------------------------------------------------------
         # (i.e. FAT32 fs which contains a binary efi boot loader /efi/boot/bootx64.efi)
         # Use fallback location /efi/boot/bootx64.efi to make removable media bootable.
@@ -585,85 +566,29 @@ class Reduce
         runuser.call("truncate -s 4M #{uefi_image}")
         runuser.call("mkfs.fat -n GRUB_EFI #{uefi_image} &>/dev/null")
         runuser.call("mount #{uefi_image} #{uefi_mnt_path}")
-        runuser.call("grub-mkimage -d #{uefi_platform_path} -o #{uefi_image} -O #{uefi_platform} iso9660")
+        runuser.call("grub-mkimage -d #{uefi_platform_path} -o #{uefi_image} -O #{uefi_platform} -p /boot/grub iso9660")
         runuser.call("umount #{uefi_mnt}")
 
         # Extract grub boot files
         cp.call("#{cont}:#{grub_path} #{@grub_dst}")
         cp.call("#{cont}:#{iso_path}/efi #{@grub_efi_dst}")
         cp.call("#{cont}:#{uefi_imge} #{@grub_uefi_image}")
-
-
-
-
-
-        # Compile and extract GFXboot (i.e. isolinux UI)
-        puts("Compile and extract GFXboot...".colorize(:cyan))
-        cp["#{@isolinux_gfxboot_work} #{cont}:#{home}"]
-        exec["chown -R #{@k.build}:#{@k.build} #{home}"]
-        runuser["cd #{home}/gfxboot && make clean && make"]
-        cp["#{cont}:#{home}/gfxboot/build/gfxboot.ui #{@isolinux_bios_work}"]
-
-        # Extract BIOS support
-        # https://wiki.archlinux.org/index.php/syslinux#BIOS_Systems
-        puts("Extracting BIOS isolinux binaries/modules...".colorize(:cyan))
-        cp["#{cont}:/usr/lib/syslinux/bios/isolinux.bin #{@isolinux_bios_work}"]  # El Torito Boot loader
-        cp["#{cont}:/usr/lib/syslinux/bios/isohdpfx.bin #{@isolinux_bios_work}"]  # USB support
-        cp["#{cont}:/usr/lib/syslinux/bios/ldlinux.c32 #{@isolinux_bios_work}"]   # BIOS support
-        cp["#{cont}:/usr/lib/syslinux/bios/gfxboot.c32 #{@isolinux_bios_work}"]   # High-graphics menu support
-        cp["#{cont}:/usr/lib/syslinux/bios/mboot.c32 #{@isolinux_bios_work}"]     # Layer image loading support
-        cp["#{cont}:/usr/lib/syslinux/bios/chain.c32 #{@isolinux_bios_work}"]     # Chain load HDT and Memory Test
-        cp["#{cont}:/usr/lib/syslinux/bios/whichsys.c32 #{@isolinux_bios_work}"]  # Chain load HDT and Memory Test
-        cp["#{cont}:/usr/lib/syslinux/bios/libcom32.c32 #{@isolinux_bios_work}"]  # Chain load HDT and Memory Test
-        cp["#{cont}:/usr/lib/syslinux/bios/hdt.c32 #{@isolinux_bios_work}"]       # Hardware Detection Tool dep
-        cp["#{cont}:/usr/lib/syslinux/bios/libmenu.c32 #{@isolinux_bios_work}"]   # Hardware Detection Tool dep
-        cp["#{cont}:/usr/lib/syslinux/bios/libutil.c32 #{@isolinux_bios_work}"]   # Hardware Detection Tool dep
-        cp["#{cont}:/usr/lib/syslinux/bios/libgpl.c32 #{@isolinux_bios_work}"]    # Hardware Detection Tool dep
-        cp["#{cont}:/usr/lib/syslinux/bios/poweroff.c32 #{@isolinux_bios_work}"]  # Power off system
-        cp["#{cont}:/usr/lib/syslinux/bios/reboot.c32 #{@isolinux_bios_work}"]    # Reboot system
-        cp["#{cont}:/usr/share/hwdata/pci.ids #{@isolinux_bios_work}"]            # Hardware Detection Tool dep
-
-        # Extract kernel, memtest and intel-ucode as well as licenses
-        cp["#{cont}:/boot/vmlinuz-linux #{@vmlinuz_image}"]
-        cp["#{cont}:/boot/intel-ucode.img #{@ucode_image}.img"]
-        cp["#{cont}:/usr/share/licenses/intel-ucode/LICENSE #{@ucode_image}.LICENSE"]
-        cp["#{cont}:/boot/memtest86+/memtest.bin #{@memtest_image}"]
-        cp["#{cont}:/usr/share/licenses/common/GPL2/license.txt #{@memtest_image}.LICENSE"]
-
-        # Extract EFI support
-        # https://wiki.archlinux.org/index.php/syslinux#UEFI_Systems
-        puts("Extracting EFI64 isolinux binaries/modules...".colorize(:cyan))
-        syslinux_bin = File.join(@isolinux_uefi_work, 'bootx64.efi')
-        cp["#{cont}:/usr/lib/syslinux/efi64/syslinux.efi #{syslinux_bin}"]        # Syslinux EFI64 bootloader
-        cp["#{cont}:/usr/lib/syslinux/efi64/ldlinux.e64 #{@isolinux_uefi_work}"]  # efi64 support
-        cp["#{cont}:/usr/lib/syslinux/efi64/gfxboot.c32 #{@isolinux_uefi_work}"]  # High-graphics menu support
-        cp["#{cont}:/usr/lib/syslinux/efi64/mboot.c32 #{@isolinux_uefi_work}"]    # Layer image loading support
-        cp["#{cont}:/usr/lib/syslinux/efi64/chain.c32 #{@isolinux_uefi_work}"]    # Chain load HDT and Memory Test
-        cp["#{cont}:/usr/lib/syslinux/efi64/whichsys.c32 #{@isolinux_uefi_work}"] # Chain load HDT and Memory Test
-        cp["#{cont}:/usr/lib/syslinux/efi64/libcom32.c32 #{@isolinux_uefi_work}"] # Chain load HDT and Memory Test
-        cp["#{cont}:/usr/lib/syslinux/efi64/hdt.c32 #{@isolinux_uefi_work}"]      # Hardware Detection Tool dep
-        cp["#{cont}:/usr/lib/syslinux/efi64/libmenu.c32 #{@isolinux_uefi_work}"]  # Hardware Detection Tool dep
-        cp["#{cont}:/usr/lib/syslinux/efi64/libutil.c32 #{@isolinux_uefi_work}"]  # Hardware Detection Tool dep
-        cp["#{cont}:/usr/lib/syslinux/efi64/libgpl.c32 #{@isolinux_uefi_work}"]   # Hardware Detection Tool dep
-        cp["#{cont}:/usr/lib/syslinux/efi64/poweroff.c32 #{@isolinux_uefi_work}"] # Power off system
-        cp["#{cont}:/usr/lib/syslinux/efi64/reboot.c32 #{@isolinux_uefi_work}"]   # Reboot system
-        cp["#{cont}:/usr/share/hwdata/pci.ids #{@isolinux_uefi_work}"]            # Hardware Detection Tool dep
       }
 
-      puts("Copying isolinux destination files...".colorize(:cyan))
-      [{'src' => @isolinux_bios_work, 'dst' => @isolinux_bios_dst},
-       {'src' => @isolinux_uefi_work, 'dst' => @isolinux_uefi_dst}].each{|path|
-        Dir.glob(File.join(path['src'], '**/*'), File::FNM_DOTMATCH).each{|x|
-          if File.basename(x) != 'digests' and File.file?(x)
-            dst = x.sub(path['src'], path['dst'])
-            puts("Copying to #{dst}")
-            FileUtils.mkdir_p(File.dirname(dst))
-            FileUtils.cp(x, dst)
-          end
-        }
-      }
+#      puts("Copying isolinux destination files...".colorize(:cyan))
+#      [{'src' => @isolinux_bios_work, 'dst' => @isolinux_bios_dst},
+#       {'src' => @isolinux_uefi_work, 'dst' => @isolinux_uefi_dst}].each{|path|
+#        Dir.glob(File.join(path['src'], '**/*'), File::FNM_DOTMATCH).each{|x|
+#          if File.basename(x) != 'digests' and File.file?(x)
+#            dst = x.sub(path['src'], path['dst'])
+#            puts("Copying to #{dst}")
+#            FileUtils.mkdir_p(File.dirname(dst))
+#            FileUtils.cp(x, dst)
+#          end
+#        }
+#      }
 
-      puts("Successfully built isolinux".colorize(:green))
+      puts("Successfully built grub multiboot".colorize(:green))
     end
 
     return changed
@@ -1364,7 +1289,7 @@ if __FILE__ == $0
     CmdOpt.new('--pacman', 'Clean pacman repos'),
     CmdOpt.new('--pacman-all', 'Clean pacman repos and cache'),
     CmdOpt.new('--initramfs', 'Clean initramfs image'),
-    CmdOpt.new('--isolinux', 'Clean isolinux boot'),
+    CmdOpt.new('--multiboot', 'Clean grub multiboot'),
     CmdOpt.new('--layers=x,y,z', 'Clean given layers', type:Array),
     CmdOpt.new('--iso', 'Clean bootable ISO'),
     CmdOpt.new('--iso-full', 'Clean bootable ISO and all machine layers'),
@@ -1373,7 +1298,7 @@ if __FILE__ == $0
   opts.add('build', 'Build ISO components', [
     CmdOpt.new('--spec=SPEC', 'Build from the given spec', type:String, required:true),
     CmdOpt.new('--initramfs', 'Build initramfs image'),
-    CmdOpt.new('--isolinux', 'Build isolinux boot'),
+    CmdOpt.new('--multiboot', 'Build grub multiboot'),
     CmdOpt.new('--layers=x,y,z', 'Build given layers', type:Array),
     CmdOpt.new('--iso', 'Build USB bootable ISO with existing layers'),
     CmdOpt.new('--iso-full', 'Build USB bootable ISO with all machine layers')
@@ -1407,11 +1332,11 @@ if __FILE__ == $0
 
   # Execute 'clean' command
   reduce.clean(pacman: opts[:pacman], pacman_all: opts[:pacman_all], initramfs: opts[:initramfs],
-    isolinux: opts[:isolinux], layers: opts[:layers], iso: opts[:iso], vms: opts[:vms], all: opts[:all],
+    multiboot: opts[:multiboot], layers: opts[:layers], iso: opts[:iso], vms: opts[:vms], all: opts[:all],
     isofull: opts[:isofull]) if opts[:clean]
 
   # Execute 'build' command
-  reduce.build(opts[:spec], initramfs: opts[:initramfs], isolinux: opts[:isolinux],
+  reduce.build(opts[:spec], initramfs: opts[:initramfs], multiboot: opts[:multiboot],
     layers: opts[:layers], iso: opts[:iso], isofull: opts[:isofull]) if opts[:build]
 
   # Execute 'pack' command
