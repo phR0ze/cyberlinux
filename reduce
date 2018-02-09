@@ -132,16 +132,19 @@ class Reduce
     @pacman_src_conf = File.join(@layers_src, 'base/etc/pacman.conf')
     @pacman_src_mirrors = File.join(@layers_src, 'base/etc/pacman.d/*.mirrorlist')
 
-    @boot_images_dst = File.join(@isopath, 'boot')
+    @boot_dst = File.join(@isopath, 'boot')
     @layer_images_dst = File.join(@isopath, 'images')
-    @memtest_image = File.join(@boot_images_dst, 'memtest')
-    @vmlinuz_image = File.join(@boot_images_dst, 'vmlinuz')
-    @ucode_image = File.join(@boot_images_dst, 'intel-ucode')
+    @grub_dst = File.join(@boot_dst, 'grub')
+    @grub_efi_dst = File.join(@isopath, 'efi')
     @grub_uefi_image = File.join(@isopath, 'efi.img')
+
+    @memtest_image = File.join(@boot_dst, 'memtest')
+    @vmlinuz_image = File.join(@boot_dst, 'vmlinuz')
+    @ucode_image = File.join(@boot_dst, 'intel-ucode')
 
     @initramfs_src = File.join(@rootpath, 'boot/initramfs')
     @initramfs_work = File.join(@workpath, 'boot/initramfs')
-    @initramfs_image = File.join(@boot_images_dst, 'initramfs.img')
+    @initramfs_image = File.join(@boot_dst, 'initramfs.img')
 
     @isolinux_cfg_src = File.join(@rootpath, 'boot/isolinux')
     @isolinux_gfxboot_src = File.join(@rootpath, 'boot/gfxboot')
@@ -209,7 +212,9 @@ class Reduce
     FileUtils.mkdir_p(@tmp_dir)
     FileUtils.mkdir_p(@isopath)
     FileUtils.mkdir_p(@layer_images_dst)
-    FileUtils.mkdir_p(@boot_images_dst)
+    FileUtils.mkdir_p(@boot_dst)
+    FileUtils.mkdir_p(@grub_dst)
+    FileUtils.mkdir_p(@grub_efi_dst)
 
     FileUtils.mkdir_p(@layers_work)
     FileUtils.mkdir_p(@initramfs_work)
@@ -303,11 +308,11 @@ class Reduce
       Sys.rm_rf(@initramfs_image)
     end
 
-    # Clean isolinux component
+    # Clean grub components
     if !all and (isolinux or layers or isofull)
       puts("Cleaning isolinux...".colorize(:cyan))
       [@isolinux_bios_work, @isolinux_uefi_work, @isolinux_gfxboot_work,
-       @isolinux_bios_dst, @isolinux_uefi_dst, @isolinux_gfxboot_dst].each{|x|
+       @isolinux_bios_dst, @isolinux_uefi_dst, @isolinux_gfxboot_dst, @grub_dst, @grub_efi_dst].each{|x|
         puts("Deleting #{x}".colorize(:red)) if File.exist?(x)
         Sys.rm_rf(x)
       }
@@ -530,30 +535,43 @@ class Reduce
 
       # Build grub components inside build container to ensure isolation
       docker(@k.build, @k.build){|cont, home, cp, exec, execs, runuser|
+        work_path = File.join(home, 'work')
+        iso_path = File.join(work_path, 'iso')                          # ~/work/iso
+        grub_path = File.join(iso_path, 'boot/grub')                    # ~/work/iso/boot/grub
 
-        # EFISTUB (EFI BOOT STUB) allows EFI firmware to load the kernel as an EFI executable
-        # directly by a UEFI motherboard or indirectly using a boot loader.
-        #
-        # BIOS/UEFI will boot the the boot loader which then boots initramfs to install
-        # or in the case where the system is already installed boots to initramfs/kernel
-        # https://wiki.archlinux.org/index.php/Category:Boot_loaders
+        # Prepare GRUB boot location
+        puts("Prepare GRUB boot location...".colorize(:cyan))
+        runuser.call("mkdir -p #{grub_path}")
+        runuser.call("cp /usr/share/grub/cfg/*.cfg #{grub_path}")
+        runuser.call("mkdir -p #{grub_path}/themes")
+        runuser.call("cp -r /usr/share/grub/themes #{grub_path}")
+        runuser.call("cp /usr/share/grub/unicode.pf2 #{grub_path}")
+        runuser.call("cp -r /usr/share/grub/{locales,tz} #{grub_path}")
 
-        # Packages
-        # efibootmgr
-        
         # Create GRUB BIOS boot image
-        # MBR is the first 512 bytes of data on the disk
         puts("Create GRUB BIOS boot image...".colorize(:cyan))
+        bios_platform = 'i386-pc'
+        bios_platform_path = File.join(grub_path, bios_platform)  # ~/work/iso/boot/grub/i386-pc
+        bios_platform_image = File.join(bios_platform_path, 'core.img')
+        runuser.call("mkdir -p #{bios_platform_path}")
+        runuser.call("cp /usr/lib/grub/#{bios_platform}/* #{bios_platform_path}")
+        runuser.call("grub-mkimage -d #{bios_platform_path} -o #{bios_platform_image} -O #{bios_platform} biosdisk iso9660")
 
-        # UEFI overview
-        # ----------------------------------------------------------------------
-        # UEFI i.e. EFI 2.0 firmware loads the boot laoder specified by the built-in boot manager.
-        # The boot manager maintains a list of boot options in the NVRAM which will be tried in
-        # order until one is found that works until you override this. /EFI/BOOT/bootx64.efi is used
-        # as a fall back location if no other boot loaders are found. The boot loader launched by
-        # the firmwware can either boot the OS directly or present a menu of options.
-        # EFI runs best on GPT disks, the ESP on GPT is EF00 and on MBR is 0xEF
-        # EFI boots from files rather than special bytes at special locations like BIOS
+        # Create Eltorito removable media BIOS/USB boot image
+        puts("Create Eltorito boot image...".colorize(:cyan))
+        cdboot_image = File.join(bios_platform_path, "cdboot.img")
+        eltorito_image = File.join(bios_platform_path, "eltorito.img")
+        runuser.call("cat #{cdboot_image} #{bios_platform_image} > #{eltorito_image}")
+
+        # Create GRUB EFI bootloader
+        puts("Create GRUB EFI bootloader...".colorize(:cyan))
+        uefi_platform = 'x86_64-efi'
+        uefi_platform_path = File.join(grub_path, uefi_platform)          # ~/work/iso/boot/grub/x86_64-efi
+        uefi_bootloader_path = File.join(iso_path, 'efi/boot')            # ~/work/iso/efi/boot
+        uefi_bootloader = File.join(uefi_bootloader_path, 'bootx64.efi')  # ~/work/iso/efi/boot/bootx64.efi
+        runuser.call("mkdir -p #{uefi_platform_path} #{uefi_bootloader_path}")
+        runuser.call("cp /usr/lib/grub/#{uefi_platform}/* #{uefi_platform_path}")
+        runuser.call("grub-mkimage -d #{uefi_platform_path} -o #{uefi_bootloader} -O #{uefi_platform} iso9660")
 
         # Create GRUB EFI boot image - EFI System Partition (ESP)
         # ----------------------------------------------------------------------
@@ -561,16 +579,23 @@ class Reduce
         # Use fallback location /efi/boot/bootx64.efi to make removable media bootable.
         # bootx64.efi can then read a configuration file on the ESP e.g. /boot/grub/grub.cfg
         puts("Create GRUB EFI boot image...".colorize(:cyan))
-        uefi_mnt = File.join(home, 'grub/mnt')
-        uefi_image = File.join(home, 'grub/efi.img')
-        runuser.call("mkdir -p #{uefi_mnt}")
+        uefi_mnt_path = File.join(work_path, 'mnt')              # ~/work/mnt
+        uefi_image = File.join(iso_path, 'efi.img')              # ~/work/iso/efi.img
+        runuser.call("mkdir -p #{uefi_mnt_path}")
         runuser.call("truncate -s 4M #{uefi_image}")
         runuser.call("mkfs.fat -n GRUB_EFI #{uefi_image} &>/dev/null")
-        runuser.call("mount #{uefi_image} #{uefi_mnt}")
-        runuser.call("mkdir -p #{uefi_mnt}/efi/boot")
-        runuser.call("grub-mkimage -d /usr/lib/grub/x86_64-efi -o #{uefi_mnt}/efi/boot/bootx64.efi -O x86_64-efi iso9660")
+        runuser.call("mount #{uefi_image} #{uefi_mnt_path}")
+        runuser.call("grub-mkimage -d #{uefi_platform_path} -o #{uefi_image} -O #{uefi_platform} iso9660")
         runuser.call("umount #{uefi_mnt}")
-        cp.call("#{cont}:#{uefi_image} #{@grub_uefi_image}")
+
+        # Extract grub boot files
+        cp.call("#{cont}:#{grub_path} #{@grub_dst}")
+        cp.call("#{cont}:#{iso_path}/efi #{@grub_efi_dst}")
+        cp.call("#{cont}:#{uefi_imge} #{@grub_uefi_image}")
+
+
+
+
 
         # Compile and extract GFXboot (i.e. isolinux UI)
         puts("Compile and extract GFXboot...".colorize(:cyan))
