@@ -38,14 +38,14 @@ terminal-border: "0"
 + vbox {
     top = 21%
     left = 20
-    + label { color = "#ffffff" height = "30" align = "right" font = "Terminus Bold 18" text = "automated deploy" }
-    + label { color = "#ffffff" height = "30" align = "right" font = "Terminus Bold 18" text = "simple installer" }
-    + label { color = "#ffffff" height = "30" align = "right" font = "Terminus Bold 18" text = "rolling release" }
-    + label { color = "#ffffff" height = "30" align = "right" font = "Terminus Bold 18" text = "multi-flavor" }
-    + label { color = "#ffffff" height = "30" align = "right" font = "Terminus Bold 18" text = "AUR access" }
-    + label { color = "#ffffff" height = "30" align = "right" font = "Terminus Bold 18" text = "efficiency" }
-    + label { color = "#ffffff" height = "30" align = "right" font = "Terminus Bold 18" text = "power" }
-    + label { color = "#ffffff" height = "30" align = "right" font = "Terminus Bold 18" text = "speed" }
+    + label { color = "#cccccc" height = "30" align = "right" font = "Terminus Bold 18" text = "automated deploy" }
+    + label { color = "#cccccc" height = "30" align = "right" font = "Terminus Bold 18" text = "simple installer" }
+    + label { color = "#cccccc" height = "30" align = "right" font = "Terminus Bold 18" text = "rolling release" }
+    + label { color = "#cccccc" height = "30" align = "right" font = "Terminus Bold 18" text = "multi-flavor" }
+    + label { color = "#cccccc" height = "30" align = "right" font = "Terminus Bold 18" text = "AUR access" }
+    + label { color = "#cccccc" height = "30" align = "right" font = "Terminus Bold 18" text = "efficiency" }
+    + label { color = "#cccccc" height = "30" align = "right" font = "Terminus Bold 18" text = "power" }
+    + label { color = "#cccccc" height = "30" align = "right" font = "Terminus Bold 18" text = "speed" }
 }
 
 # Description
@@ -121,10 +121,13 @@ terminal-border: "0"
 }
 
 # Help at bottom
-+ vbox {
-    top = 95%
-    left = 40%
-    + label { align = "center" color = "#ffffff" text = "[↑ and ↓ Key] Navigation" }
-    + label { align = "center" color = "#ffffff" text = "[↵] Activate selected option" }
++ hbox {
+    top = 100%-40
+    left = 10%
+    + label { color = "<%=color_light%>" text = "[↑ ↓] " }
+    + label { color = "#cccccc" text = "Navigation          " }
+    + label { color = "<%=color_light%>" text = "[↵] " }
+    + label { color = "#cccccc" text = "Activate selected option          " }
+    + label { color = "<%=color_light%>" text = "[Esc] " }
+    + label { color = "#cccccc" text = "Cancel or return from menu          " }
 }
-

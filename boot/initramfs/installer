@@ -518,3 +518,5 @@ run_hook()
     # Custom handler defined above.
     mount_handler="installer"
 }
+
+# vim: ft=sh:ts=4:sw=4:sts=4
