@@ -21,13 +21,15 @@
 
 vars:
   arch: x86_64
-  release: 0.1.177
+  release: 0.1.178
   distro: cyberlinux
+  language: en_US
+  character_set: UTF-8
   timezone: US/Mountain
   country: United_States
   color_light: '#39AEF4'
   color_dark: '#216A94'
-  grub_theme: /boot/grub/themes/cyberlinux/theme.txt
+  grub_theme: /boot/grub/themes/cyberlinux
 
   # Vagrant networking
   netname: vboxnet0
@@ -622,10 +624,10 @@ configs:
     - edit: /etc/locale.conf
       insert: append
       values:
-        - 'LANG=en_US.UTF-8'
-        - 'LANGUAGE=en_US.UTF-8'
-        - 'LC_ALL=en_US.UTF-8'
-    - { edit: /etc/locale.gen, regex: '^#(en_US\..*)', value: '\1' }
+        - 'LANG=<%=language%>.<%=character_set%>'
+        - 'LANGUAGE=<%=language%>.<%=character_set%>'
+        - 'LC_ALL=<%=language%>.<%=character_set%>'
+    - { edit: /etc/locale.gen, regex: '^#(<%=language%>\..*)', value: '\1' }
     - { chroot: locale-gen }
     - { edit: /etc/profile.d/locale.sh, insert: append, value: "export LC_COLLATE=C" }
   logind-config:
