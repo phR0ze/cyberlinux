@@ -6,6 +6,7 @@
 
 # Global options
 # http://wiki.rosalab.ru/en/index.php/Grub2_theme_/_reference#Global_options
+title-text: ""
 message-color: "#7f8c8d"
 message-bg-color: "#4d4d4d"
 desktop-image: "background.png"

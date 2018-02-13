@@ -1279,6 +1279,7 @@ if __FILE__ == $0
   examples = "Examples:\n".colorize(:green)
   examples += "Full ISO Build: sudo ./#{app} clean build --iso-full --spec=personal\n".colorize(:green)
   examples += "Rebuild initramfs: sudo ./#{app} clean build --initramfs --iso --spec=personal\n".colorize(:green)
+  examples += "Rebuild multiboot: sudo ./#{app} clean build --multiboot --iso --spec=personal\n".colorize(:green)
   examples += "Build k8snode layer: sudo ./#{app} clean build --layers=k8snode --iso --spec=personal\n".colorize(:green)
   examples += "Pack k8snode layer: ./#{app} pack --layers=k8snode\n".colorize(:green)
   examples += "Deploy nodes: sudo ./#{app} deploy --layer=k8snode --nodes=10,11,12\n".colorize(:green)
