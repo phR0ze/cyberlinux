@@ -124,7 +124,7 @@ terminal-border: "0"
 # Help at bottom
 + hbox {
     top = 100%-40
-    left = 10%
+    left = 13%
     + label { color = "<%=color_light%>" text = "[↑ ↓] " }
     + label { color = "#cccccc" text = "Navigation          " }
     + label { color = "<%=color_light%>" text = "[↵] " }

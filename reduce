@@ -71,17 +71,13 @@ class Reduce
       groups: 'groups',
       i686: 'i686',
       ignore: 'ignore',
-      initrd: 'initrd',
       install: 'install',
-      kernel: 'kernel',
-      label: 'label',
       layer: 'layer',
       layers: 'layers',
       machine: 'machine',
       mirrors: 'mirrors',
       multilib: 'multilib',
       name: 'name',
-      noboot: 'noboot',
       off: 'off',
       packages: 'packages',
       params: 'params',
@@ -501,28 +497,17 @@ class Reduce
       Fedit.resolve(File.join(boot_grub, 'grub.cfg'), @vars)
       Fedit.resolve(File.join(boot_grub, 'themes', @vars.distro.downcase, 'theme.txt'), @vars)
 
-#      # Inject boot menu items from layers
-#      [@isolinux_bios_work, @isolinux_uefi_work].each{|configs|
-#        File.open(File.join(configs, 'isolinux.msg'), 'a'){|f|
-#          layers.each{|layer| layer[@k.boot].each{|x|
-#            f << "#{(x[@k.label] || layer[@k.name]).ljust(21)}- #{x[@k.entry]}\n"}}}
-#        Fedit.resolve(File.join(configs, 'isolinux.msg'), @vars)
-#        File.open(File.join(configs, 'isolinux.cfg'), 'a'){|f|
-#          layers.each{|layer| layer[@k.boot].each{|x|
-#            f << "label #{x[@k.label] || layer[@k.name]}\n"
-#            f << "  kernel #{x[@k.kernel]}\n"
-#            f << "  append initrd=#{x[@k.initrd]}\n" if x[@k.initrd]}}}
-#        Fedit.resolve(File.join(configs, 'isolinux.cfg'), @vars)
-#      }
-#
-#      # Inject gfxboot configuration
-#      File.open(File.join(@isolinux_gfxboot_work, 'data/gfxboot.cfg'), 'a'){|f|
-#        f << "isolinux.labels=%s\n" % (layers.map{|x| x[@k.boot].map{|y| y[@k.label] || x[@k.name]}}.flatten * ',')
-#        f << "gfxboot.menu.names=%s\n" % (layers.map{|x| x[@k.boot].map{|y| y[@k.entry]}}.flatten * ',')
-#        f << "gfx.noboot=%s\n" % (layers.map{|x| x[@k.boot].map{|y| (y[@k.label] || x[@k.name]) if y[@k.noboot]}}.flatten.compact * ',')
-#      }
-#      Fedit.resolve(File.join(@isolinux_gfxboot_work, 'data/gfxboot.cfg'), @vars)
-#
+      # Inject boot menu items from layers
+      File.open(File.join(boot_grub, 'boot.cfg'), 'w'){|f|
+        @spec[@k.layers].select{|x| x[@k.type] == @k.machine}.reverse.each{|x| x[@k.boot].each{|boot|
+          layers = @vars["#{x[@k.name]}_layers"]
+          f << "menuentry --class=arch '#{boot[@k.entry]}' {\n"
+          f << "    linux /boot/vmlinuz layers=#{layers} showopts #{boot[@k.params]}\n"
+          f << "    initrd /boot/intel-ucode.img /boot/initramfs.img\n"
+          f << "}\n"
+        }}}
+      Fedit.resolve(File.join(boot_grub, 'boot.cfg'), @vars)
+
       # Build grub components inside build container to ensure isolation
       docker(@k.build, @k.build){|cont, home, cp, exec, execs, runuser|
         work_path = File.join(home, 'work')
@@ -609,8 +594,8 @@ class Reduce
   # @param disksize [int] disk size to use for pack
   # @param force [bool] pack even if already exists
   def pack(layers, disksize:nil, force:nil)
-    _layers = @spec[@k.layers].select{|x| x[@k.boot]}
-    layers = layers || _layers.reject{|x| x[@k.name] == 'live' or not x[@k.boot].any?{|y| y[@k.initrd]}}
+    _layers = @spec[@k.layers].select{|x| x[@k.type] == @k.machine}
+    layers = layers || _layers.reject{|x| x[@k.name] == 'live'}
     puts("#{'-' * 80}\nPacking layers #{layers * ','}\n#{'-' * 80}".colorize(:light_yellow))
     !puts("Error: must be executed as non-root user".colorize(:red)) and
       exit unless not Process.uid.zero?
@@ -640,7 +625,7 @@ class Reduce
     end
 
     # Pack implicated layers into vagrant boxes
-    installables = _layers.map{|x| x[@k.boot].map{|y| x[@k.name] if y[@k.initrd]}}.reverse.flatten.compact
+    installables = _layers.map{|x| x[@k.boot]}.map{|y| x[@k.entry]}.reverse.flatten.compact
     layers.each do |layer|
 
       # Remove old boxes and/or skip if current
