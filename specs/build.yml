@@ -21,12 +21,13 @@
 
 vars:
   arch: x86_64
-  release: 0.1.176
+  release: 0.1.177
   distro: cyberlinux
   timezone: US/Mountain
   country: United_States
   color_light: '#39AEF4'
   color_dark: '#216A94'
+  grub_theme: /boot/grub/themes/cyberlinux/theme.txt
 
   # Vagrant networking
   netname: vboxnet0

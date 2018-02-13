@@ -74,47 +74,47 @@ terminal-border: "0"
     top = 80%
     left = 17%
     + label {
-        color = "#ffffff"
+        color = "#cccccc"
         font = "Terminus Regular 16"
         text = "Disclaimer"
     }
     + label {
-        color = "#ffffff"
+        color = "#cccccc"
         font = "Terminus Regular 12"
         text = "your use of this and any other <%=distro%> product is at your own risk.  <%=distro%> disclaims all warranties, express or implied, including without"
     }
     + label {
-        color = "#ffffff"
+        color = "#cccccc"
         font = "Terminus Regular 12"
         text = "limitation, warranties of disclaims all warranties, express or implied, including without limitation, warranties of merchantability and fitness for"
     }
     + label {
-        color = "#ffffff"
+        color = "#cccccc"
         font = "Terminus Regular 12"
         text = "a particular purpose.  <%=distro%> disclaims liability for any direct, indirect, or incidental, special, consequential, exemplary, punitive or other"
     }
     + label {
-        color = "#ffffff"
+        color = "#cccccc"
         font = "Terminus Regular 12"
         text = "damages, or lost profits that may result directly or indirectly from the use of this and any other <%=distro%> product.  this includes, without"
     }
     + label {
-        color = "#ffffff"
+        color = "#cccccc"
         font = "Terminus Regular 12"
         text = "limitation, any damage to computer any other <%=distro%> product.  this includes, without limitation, any damage to computer systems, hardware or"
     }
     + label {
-        color = "#ffffff"
+        color = "#cccccc"
         font = "Terminus Regular 12"
         text = "software, loss of data, or any other performance failures, any errors, bugs, viruses or other defects that result from, or are associated with the"
     }
     + label {
-        color = "#ffffff"
+        color = "#cccccc"
         font = "Terminus Regular 12"
         text = "use of this and any other <%=distro%> product. we accept no liability for any damage or loss arising from your use or reliance on this product and"
     }
     + label {
-        color = "#ffffff"
+        color = "#cccccc"
         font = "Terminus Regular 12"
         text = "expressly disclaim any implied warranties to the fullest extent permissible by law."
     }

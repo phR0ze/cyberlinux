@@ -498,7 +498,7 @@ class Reduce
       changed |= true
 
       # Resolve templates
-      Fedit.resolve(File.join(boot_grub, 'variable.cfg'), @vars)
+      Fedit.resolve(File.join(boot_grub, 'grub.cfg'), @vars)
       Fedit.resolve(File.join(boot_grub, 'themes', @vars.distro.downcase, 'theme.txt'), @vars)
 
 #      # Inject boot menu items from layers
