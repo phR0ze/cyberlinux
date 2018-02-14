@@ -492,6 +492,7 @@ run_hook()
     params=$(cat /proc/cmdline)
     for x in ${params}; do
         case "${x}" in
+            'efi'=*) efi=${x//efi=} ;;
             'layers'=*) layers=${x//layers=} ;;
             'vagrant'=*) vagrant=${x//vagrant=} ;;
             'autologin'=*) autologin=${x//autologin=} ;;
