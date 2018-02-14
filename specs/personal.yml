@@ -190,5 +190,5 @@ layers:
     base: heavy
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     boot:
-      - entry: "Start <%=distro%>                           // Live heavy environment"
+      - entry: "Start <%=distro%>                           // Recovery environment based on heavy"
         params: ipv6.disable=1
