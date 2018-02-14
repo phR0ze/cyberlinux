@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.181
+  release: 0.1.182
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -52,7 +52,6 @@ build:
     - { install: core-tools }
     - { install: grub-pkgs }
     - { install: initramfs-pkgs }
-    - { install: isolinux-pkgs }
     - { pkg: sudo, desc: Elevate some user commands to root, group: build-devel }
   configs:
 
@@ -1169,13 +1168,6 @@ packages:
     - { pkg: mkinitcpio-vt-colors,          desc: vt console colors, type: CYBERLINUX }
     - { pkg: rsync,                         desc: Remote file sync utility }
     - { pkg: systemd,                       desc: System and service manager }
-
-  isolinux-pkgs:
-    - { pkg: gfxboot,                       desc: Graphical boot user interface }
-    - { pkg: intel-ucode,                   desc: Microcode update files for Intel CPUs }
-    - { pkg: make,                          desc: GNU utility to build programs, group: base-devel }
-    - { pkg: memtest86+,                    desc: memtest is used in the ISO creation as menu option }
-    - { pkg: syslinux,                      desc: Boot loaders for ext2/3/4 USB and CD }
 
   shell-pkgs:
     - { install: dev-pkgs }

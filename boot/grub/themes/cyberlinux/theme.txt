@@ -1,4 +1,6 @@
 # Grub2 <%=distro%> theme
+# ----------------------------------------
+# http://grub.gibibit.com/Theme_format
 # http://wiki.rosalab.ru/en/index.php/Grub2_theme_tutorial
 # Components: images, labels, styled boxes, progress indicators and containers
 # Generate fonts: grub-mkfont -o hack-10.pf2 -s 10 /usr/share/fonts/TTF/Hack-Regular.ttf
@@ -10,11 +12,7 @@ title-text: ""
 message-color: "#7f8c8d"
 message-bg-color: "#4d4d4d"
 desktop-image: "background.png"
-terminal-left: "0"
-terminal-top: "0"
-terminal-width: "100%"
-terminal-height: "100%"
-terminal-border: "0"
+terminal-box: "terminal_*.png"
 
 # Boot menu options
 # http://wiki.rosalab.ru/en/index.php/Grub2_theme_/_reference#Boot_menu_.28boot_menu.29

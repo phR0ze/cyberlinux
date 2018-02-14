@@ -480,6 +480,7 @@ class Reduce
 
   # Build bootable GRUB image with both BIOS and UEFI support
   # https://www.rodsbooks.com/efi-bootloaders/index.html
+  # https://wiki.archlinux.org/index.php/Multiboot_USB_drive#Using_GRUB_and_loopback_devices
   # @returns true on changed
   def build_grub_multiboot
     create_dir_structure
@@ -496,24 +497,6 @@ class Reduce
       # Resolve templates
       Fedit.resolve(File.join(boot_grub, 'grub.cfg'), @vars)
       Fedit.resolve(File.join(boot_grub, 'themes', @vars.distro.downcase, 'theme.txt'), @vars)
-
-#menuentry 'Arch Linux' --class arch --class gnu-linux --class gnu --class os $menuentry_id_option 'gnulinux-simple-963e8032-adb9-4abc-ac98-570a30f6f7bd' {
-#	load_video
-#	set gfxpayload=keep
-#	insmod gzio
-#	insmod part_gpt 
-#	insmod ext2
-#	set root='hd0,gpt25'
-#	if [ x$feature_platform_search_hint = xy ]; then
-#	  search --no-floppy --fs-uuid --set=root --hint-bios=hd0,gpt25 --hint-efi=hd0,gpt25 --hint-baremetal=ahci0,gpt25  963e8032-adb9-4abc-ac98-570a30f6f7bd
-#	else
-#	  search --no-floppy --fs-uuid --set=root 963e8032-adb9-4abc-ac98-570a30f6f7bd
-#	fi
-#	echo	'Loading Linux linux ...'
-#	linux	/boot/vmlinuz-linux root=UUID=963e8032-adb9-4abc-ac98-570a30f6f7bd rw  resume=/dev/disk/by-uuid/69bb9b40-aedd-4278-ac57-0113a7dc816f splash=silent quiet showopts video.use_native_backlight=1
-#	echo	'Loading initial ramdisk ...'
-#	initrd	/boot/intel-ucode.img /boot/initramfs-linux.img
-#}
 
       # Inject boot menu items from layers
       File.open(File.join(boot_grub, 'boot.cfg'), 'w'){|f|
