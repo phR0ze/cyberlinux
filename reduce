@@ -122,6 +122,7 @@ class Reduce
     @layers_work = File.join(@workpath, 'layers')
     @vagrantpath = File.join(@rootpath, 'vagrant')
 
+    @motd_path = File.join(@layers_src, 'base/etc/motd')
     @pacman_sync = File.join(@pacman_path, 'sync')
     @pacman_conf = File.join(@pacman_path, 'pacman.conf')
     @pacman_src_conf = File.join(@layers_src, 'base/etc/pacman.conf')
@@ -500,14 +501,19 @@ class Reduce
       Fedit.resolve(File.join(boot_grub, 'themes', @vars.distro.downcase, 'theme.txt'), @vars)
 
       # Inject boot menu items from layers
+      motd = File.readlines(@motd_path)
       File.open(File.join(boot_grub, 'boot.cfg'), 'w'){|f|
         @spec[@k.layers].select{|x| x[@k.type] == @k.machine}.reverse.each{|x| x[@k.boot].each{|boot|
-          layers = @vars["#{x[@k.name]}_layers"]
-          f << "menuentry --class=arch '#{boot[@k.entry]}' {\n"
-          f << "    linux /boot/vmlinuz layers=#{layers} showopts #{boot[@k.params]}\n"
-          f << "    initrd /boot/intel-ucode.img /boot/initramfs.img\n"
-          f << "}\n"
-        }}}
+            layers = @vars["#{x[@k.name]}_layers"]
+            f << "    menuentry --class=arch '#{boot[@k.entry]}' {\n"
+            f << "        echo\necho\n"
+            motd.each{|line| f << "        echo $\"          #{line.rstrip}\"\n" }
+            f << "        linux /boot/vmlinuz layers=#{layers} showopts #{boot[@k.params]}\n"
+            f << "        initrd /boot/intel-ucode.img /boot/initramfs.img\n"
+            f << "    }\n"
+          }
+        }
+      }
       Fedit.resolve(File.join(boot_grub, 'boot.cfg'), @vars)
 
       # Build grub components inside build container to ensure isolation
