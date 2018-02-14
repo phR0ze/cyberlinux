@@ -12,7 +12,12 @@ title-text: ""
 message-color: "#7f8c8d"
 message-bg-color: "#4d4d4d"
 desktop-image: "background.png"
+terminal-top: "10%"
+terminal-left: "10%"
+terminal-width: "80%"
+terminal-height: "85%"
 terminal-box: "terminal_*.png"
+terminal-font: "Terminus Bold 16"
 
 # Boot menu options
 # http://wiki.rosalab.ru/en/index.php/Grub2_theme_/_reference#Boot_menu_.28boot_menu.29
