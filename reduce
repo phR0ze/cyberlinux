@@ -402,7 +402,7 @@ class Reduce
     changed |= build_layers(@k.build) if not (layers || []).include?(@k.build)
 
     # Build early userspace ramdisk for install executed by grub
-    changed |= build_initramfs_installer if [initramfs, iso, isofull].any?
+    changed |= build_initramfs_installer if [initramfs, iso, isofull, changed].any?
 
     # Build GFXBoot UI that boots initramfs installer and in turn the real kernel
     changed |= build_grub_multiboot if [multiboot, iso, isofull].any?
