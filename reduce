@@ -399,7 +399,9 @@ class Reduce
     layers.each{|layer| changed |= build_layers(layer)} if layers
 
     # Build the build container for initramfs/multiboot
+    puts("Changed1: #{changed}")
     changed |= build_layers(@k.build) if not (layers || []).include?(@k.build)
+    puts("Changed2: #{changed}")
 
     # Build early userspace ramdisk for install executed by grub
     changed |= build_initramfs_installer if [initramfs, iso, isofull, changed].any?
