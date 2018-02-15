@@ -317,7 +317,7 @@ install_bootloader()
     echo -e 'menuentry "<%=distro%>" {' >> ${boot_path}/grub/grub.cfg
     echo -e "    set gfxpayload=keep" >> ${boot_path}/grub/grub.cfg
     echo -e "    search --no-floppy --set=root --label <%=distro%>" >> ${boot_path}/grub/grub.cfg
-    echo -e "    linux /boot/vmlinuz-linux root=<%=label%>=root rw <%=kernel_params%>" >> ${boot_path}/grub/grub.cfg
+    echo -e '    linux /boot/vmlinuz-linux root=${root}=root rw <%=kernel_params%>' >> ${boot_path}/grub/grub.cfg
     echo -e "    initrd /boot/intel-ucode.img /boot/initramfs-linux.img" >> ${boot_path}/grub/grub.cfg
     echo -e "}" >> ${boot_path}/grub/grub.cfg
     check_status
