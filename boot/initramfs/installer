@@ -36,11 +36,13 @@
 none="\e[m"
 red="\e[1;31m"
 cyan="\e[0;36m"
-alias ll='ls -lah'
-export PS1="${cyber}[rootfs:\w]\$ ${none}"
 
 fail_to_shell()
 {
+    alias ll='ls -lah'
+    PS1="${cyber}[rootfs:\w]\$ ${none}"
+    export PS1=$PS1
+
     echo -e "${red}failed!${none}"
     launch_interactive_shell
 }
@@ -183,7 +185,7 @@ partition_and_mount_disk()
     # https://wiki.archlinux.org/index.php/EFI_System_Partition#Create_the_partition
     if [ "x${efi}" == "x1" ]; then
         echo -en ":: Creating ${install_dev}1 as ESP boot partition..."
-        sgdisk -n 0:0:+550M -t 0:ef00 -c 0:"ESP boot" ${install_dev} &>/dev/null
+        sgdisk -n 0:0:+550M -t 0:ef00 -c 0:"EFI System" ${install_dev} &>/dev/null
         check_status
 
         echo -en ":: Creating ${install_dev}2 as Linux swap partition..."
@@ -231,6 +233,13 @@ partition_and_mount_disk()
     check_status
 }
 
+# systemd-boot comes by default in Arch Linux
+# it is simple to configure but only works with the Linux kernel EFISTUB
+# - requires UEFI variable support, should run no problem: efivar -l
+# - requires ESP mounted at /boot
+# https://wiki.archlinux.org/index.php/systemd-boot
+# https://wiki.archlinux.org/index.php/EFI_System_Partition#Using_systemd
+
 # GRUB was chosen for its ability to set the gfxmode and have the kernel keep it
 # 'install_dev' typically is '/dev/sda'
 # http://www.rodsbooks.com/efi-bootloaders/installation.html
@@ -238,34 +247,46 @@ partition_and_mount_disk()
 install_bootloader()
 {
     if [ "x${efi}" == "x1" ]; then
-        local esp_mnt="${rootmnt}/mnt"
+        local esp_mnt="/esp"
 
         echo -en ":: Formatting ${install_dev}1 (ESP boot) as FAT32..."
         mkfs.fat -s2 -F32 ${install_dev}1 &>/dev/null
         check_status
 
         echo -en ":: Mount ${install_dev}1 (ESP boot) as ${esp_mnt}..."
+        mkdir ${esp_mnt} &>/dev/null
         mount ${install_dev}1 ${esp_mnt} &>/dev/null
         check_status
 
+        # Arch Linux standard ESP mount point is /boot
+        # Tianocore UEFI only supports fallback location EFI/BOOT/BOOTX64.efi
+        # --removable           // installed bootloader to EFI/BOOT/BOOTX64.efi
         echo -en ":: Install GRUB EFI bootloader to ESP ${esp_mnt}..."
-        chroot ${rootmnt} grub-install --target=x86_64-efi --efi-directory=/usr/lib/grub/x86_64-efi --bootloader-id=grub &>/dev/null
+        chroot ${rootmnt} grub-install --target=x86_64-efi --efi-directory=${esp_mnt} --removable &>/dev/null
+        chroot ${rootmnt} bootctl --path=esp install
         check_status
+        fail_to_shell
 
         # Install GRUB EFI bootloader support modules to the ESP
 
         # Install GRUB EFI bootloader configuration files to the ESP
-
-        echo -en ":: Make GRUB config for ${install_dev}..."
-        chroot ${rootmnt} grub-mkconfig -o /boot/grub/grub.cfg
+        # linux /boot/vmlinuz-linux root=UUID=ad2983sd-i8s-si8fd-sidfi rw quiet
+        # initrd /boot/initramfs-linux-fallback.img
+        # generation is influenced by /etc/default/grub
+        echo -en ":: Make GRUB config for ${install_dev}1..."
+        chroot ${rootmnt} grub-mkconfig -o ${esp_mnt}/boot/grub/grub.cfg
         check_status
 
-        # Linux standard ESP mount point is /boot/efi
-        # Tianocore UEFI only supports boot location of EFI/BOOT/BOOTX64.efi
-        echo -en ":: blah..."
+        echo -en ":: Unmount ${esp_mnt} (ESP boot)..."
+        umount -f ${esp_mnt} &>/dev/null
+        check_status
     else
         echo -en ":: Install GRUB BIOS bootloader on ${install_dev}..."
         chroot ${rootmnt} grub-install --target=i386-pc ${install_dev}
+
+        echo -en ":: Make GRUB config for ${install_dev}..."
+        chroot ${rootmnt} grub-mkconfig -o ${install_dev}
+        check_status
     fi
 
     echo -en ":: Generate new initramfs..."
