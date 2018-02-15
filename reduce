@@ -130,11 +130,11 @@ class Reduce
 
     @boot_dst = File.join(@isopath, 'boot')
     @layer_images_dst = File.join(@isopath, 'images')
-    @grub_dst = File.join(@boot_dst, 'grub')
-    @grub_src = File.join(@rootpath, 'boot/grub')
-    @grub_work = File.join(@workpath, 'boot/grub')
-    @grub_efi_dst = File.join(@isopath, 'EFI')
-    @grub_efi_image = File.join(@isopath, 'efi.img')
+    @grub_iso_dst = File.join(@boot_dst, 'grub')
+    @grub_iso_src = File.join(@rootpath, 'boot/grub_iso')
+    @grub_iso_work = File.join(@workpath, 'boot/grub_iso')
+    @grub_iso_efi_dst = File.join(@isopath, 'EFI')
+    @grub_iso_efi_image = File.join(@isopath, 'efi.img')
 
     @memtest_image = File.join(@boot_dst, 'memtest')
     @vmlinuz_image = File.join(@boot_dst, 'vmlinuz')
@@ -203,9 +203,9 @@ class Reduce
     FileUtils.mkdir_p(@layer_images_dst)
     FileUtils.mkdir_p(@boot_dst)
 
-    FileUtils.mkdir_p(@grub_dst)
-    FileUtils.mkdir_p(@grub_work)
-    FileUtils.mkdir_p(@grub_efi_dst)
+    FileUtils.mkdir_p(@grub_iso_dst)
+    FileUtils.mkdir_p(@grub_iso_work)
+    FileUtils.mkdir_p(@grub_iso_efi_dst)
     FileUtils.mkdir_p(@layers_work)
     FileUtils.mkdir_p(@initramfs_work)
 
@@ -292,15 +292,15 @@ class Reduce
       Sys.rm_rf(@initramfs_image)
     end
 
-    # Clean grub components
+    # Clean grub iso components
     if !all and (multiboot or layers or isofull)
       puts("Cleaning multiboot...".colorize(:cyan))
-      [@grub_work, @grub_dst, @grub_efi_dst].each{|x|
+      [@grub_iso_work, @grub_iso_dst, @grub_iso_efi_dst].each{|x|
         puts("Deleting #{x}".colorize(:red)) if File.exist?(x)
         Sys.rm_rf(x)
       }
       ["#{@ucode_image}.img", "#{@ucode_image}.LICENSE", @memtest_image,
-       "#{@memtest_image}.LICENSE", @vmlinuz_image, @grub_efi_image].each{|x|
+       "#{@memtest_image}.LICENSE", @vmlinuz_image, @grub_iso_efi_image].each{|x|
         puts("Deleting #{x}".colorize(:red)) if File.exist?(x)
         File.delete(x) if File.exist?(x)
       }
@@ -427,7 +427,7 @@ class Reduce
         cmd += "-partition_offset 16 -b boot/grub/i386-pc/eltorito.img \ -c boot.catalog "
         cmd += "-no-emul-boot -boot-load-size 4 -boot-info-table --grub2-boot-info "
         # Add EFI boot support
-        cmd += "-eltorito-alt-boot -append_partition 2 0xef #{@grub_efi_image} "
+        cmd += "-eltorito-alt-boot -append_partition 2 0xef #{@grub_iso_efi_image} "
         cmd += "-e --interval:appended_partition_2:all:: -no-emul-boot "
         # Create the ISO
         cmd += "-output #{@vars.isofile} #{@isopath}"
@@ -487,13 +487,13 @@ class Reduce
   def build_grub_multiboot
     create_dir_structure
     changed = false
-    grub_digests = File.join(@grub_work, 'digests')
+    grub_digests = File.join(@grub_iso_work, 'digests')
 
-    boot_grub = File.join(@grub_work, 'boot/grub')
+    boot_grub = File.join(@grub_iso_work, 'boot/grub')
     FileUtils.mkdir_p(boot_grub)
     puts("#{'-' * 80}\nBuilding grub multiboot...\n#{'-' * 80}".colorize(:light_yellow))
-    if syncfiles(File.basename(@grub_work), @grub_src, boot_grub, grub_digests) or
-        not File.exist?(@grub_efi_image) or not File.exist?(@vmlinuz_image)
+    if syncfiles(File.basename(@grub_iso_work), @grub_iso_src, boot_grub, grub_digests) or
+        not File.exist?(@grub_iso_efi_image) or not File.exist?(@vmlinuz_image)
       changed |= true
 
       # Resolve templates
@@ -569,9 +569,9 @@ class Reduce
         runuser.call("sudo umount #{uefi_mnt_path}")
 
         # Extract grub boot files
-        cp.call("#{cont}:#{iso_path}/boot #{@grub_work}")
-        cp.call("#{cont}:#{iso_path}/EFI #{@grub_work}")
-        cp.call("#{cont}:#{uefi_image} #{@grub_work}")
+        cp.call("#{cont}:#{iso_path}/boot #{@grub_iso_work}")
+        cp.call("#{cont}:#{iso_path}/EFI #{@grub_iso_work}")
+        cp.call("#{cont}:#{uefi_image} #{@grub_iso_work}")
 
         # Extract kernel, memtest and intel-ucode as well as licenses
         cp.call("#{cont}:/boot/vmlinuz-linux #{@vmlinuz_image}")
@@ -582,9 +582,9 @@ class Reduce
       }
 
       puts("Copying grub multiboot to destination...".colorize(:cyan))
-      Dir.glob(File.join(@grub_work, '**/*'), File::FNM_DOTMATCH).each{|x|
+      Dir.glob(File.join(@grub_iso_work, '**/*'), File::FNM_DOTMATCH).each{|x|
         if File.basename(x) != 'digests' and File.file?(x)
-          dst = x.sub(@grub_work, @isopath)
+          dst = x.sub(@grub_iso_work, @isopath)
           puts("Copying to #{dst}")
           FileUtils.mkdir_p(File.dirname(dst))
           FileUtils.cp(x, dst)
