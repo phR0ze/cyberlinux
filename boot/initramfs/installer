@@ -229,27 +229,32 @@ partition_and_mount_disk()
     # Disable access time writes (speeds things up)
     mount -o noatime ${install_dev}3 ${rootmnt} &>/dev/null
     check_status
-
-    echo -en ":: Generate new initramfs..."
-    chroot ${rootmnt} mkinitcpio -p linux &>/dev/null
-    check_status
 }
 
+# GRUB was chosen for its ability to set the gfxmode and have the kernel keep it
+# 'install_dev' typically is '/dev/sda'
+# http://www.rodsbooks.com/efi-bootloaders/installation.html
+# https://wiki.archlinux.org/index.php/EFI_System_Partition#Using_mkinitcpio_hook_.282.29
 install_bootloader()
 {
-    # install_dev typically is '/dev/sda'
     if [ "x${efi}" == "x1" ]; then
+        local esp_mnt="${rootmnt}/mnt"
 
-        # http://www.rodsbooks.com/efi-bootloaders/installation.html
         echo -en ":: Formatting ${install_dev}1 (ESP boot) as FAT32..."
         mkfs.fat -s2 -F32 ${install_dev}1 &>/dev/null
         check_status
 
-        # EFI Stub loader, http://www.rodsbooks.com/efi-bootloaders/efistub.html
-        # Kernel must reside on the ESP e.g. esp/boot/vmlinuz-linux
-        echo -en ":: Install GRUB EFI bootloader on ${install_dev}..."
-        chroot ${rootmnt} grub-install --target=x86_64-efi --efi-directory=${isomnt}/boot/grub --bootloader-id=grub &>/dev/null
+        echo -en ":: Mount ${install_dev}1 (ESP boot) as ${esp_mnt}..."
+        mount ${install_dev}1 ${esp_mnt} &>/dev/null
         check_status
+
+        echo -en ":: Install GRUB EFI bootloader to ESP ${esp_mnt}..."
+        chroot ${rootmnt} grub-install --target=x86_64-efi --efi-directory=/usr/lib/grub/x86_64-efi --bootloader-id=grub &>/dev/null
+        check_status
+
+        # Install GRUB EFI bootloader support modules to the ESP
+
+        # Install GRUB EFI bootloader configuration files to the ESP
 
         echo -en ":: Make GRUB config for ${install_dev}..."
         chroot ${rootmnt} grub-mkconfig -o /boot/grub/grub.cfg
@@ -257,12 +262,15 @@ install_bootloader()
 
         # Linux standard ESP mount point is /boot/efi
         # Tianocore UEFI only supports boot location of EFI/BOOT/BOOTX64.efi
-        # https://wiki.archlinux.org/index.php/EFI_System_Partition#Using_mkinitcpio_hook_.282.29
         echo -en ":: blah..."
     else
         echo -en ":: Install GRUB BIOS bootloader on ${install_dev}..."
         chroot ${rootmnt} grub-install --target=i386-pc ${install_dev}
     fi
+
+    echo -en ":: Generate new initramfs..."
+    chroot ${rootmnt} mkinitcpio -p linux &>/dev/null
+    check_status
 }
 
 mount_chroot_dirs()
