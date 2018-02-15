@@ -244,35 +244,15 @@ partition_and_mount_disk()
 # GRUB has the ability to set the gfxmode and have the kernel keep it
 # https://wiki.archlinux.org/index.php/GRUB
 # https://blog.heckel.xyz/2017/05/28/creating-a-bios-gpt-and-uefi-gpt-grub-bootable-linux-system/
-
-# Recovery boot will show:
-# See EFI variables, run: efivar -l
-# See boot options and order, run: efibootmgr -v
-# 'Grub HD' should be listed as an option if GRUB was installed properly
 install_bootloader()
 {
+    platform=x86_64-efi
+    esp_mnt=${rootmnt}/mnt
+    grub_path=${rootmnt}/mnt/grub
+
+    # Prepare GRUB MBR (/new_root/boot/grub), EFI (/new_root/mnt/boot/grub)
+    #---------------------------------------------------------------------------
     if [ "x${efi}" == "x1" ]; then
-        local platform=x86_64-efi
-        local esp_mnt=${rootmnt}/mnt
-        local grub_path=${esp_mnt}/grub
-        local bootloader_path=${esp_mnt}/EFI/BOOT
-
-#        echo -en ":: Re-locate boot files to (ESP) at ${esp_tmp_mnt}..."
-#        mv ${rootmnt}/boot/* ${esp_tmp_mnt} &>/dev/null
-#        check_status
-#
-#        echo -en ":: Umount ${install_dev}1 (ESP) at ${esp_tmp_mnt}..."
-#        umount -f ${esp_tmp_mnt} &>/dev/null
-#        check_status
-#
-#        echo -en ":: Mount ${install_dev}1 (ESP) as ${boot_path}..."
-#        mount ${install_dev}1 ${boot_path} &>/dev/null
-#        check_status
-
-        # Install GRUB to /boot/grub on /new_root
-        #-----------------------------------------------------------------------
-        # Arch Linux standard ESP mount point is /boot used for kernel upgrades
-        # Tianocore UEFI only supports fallback location EFI/BOOT/BOOTX64.efi
         echo -en ":: Mount ${install_dev}1 (ESP) as ${esp_mnt}..."
         mount ${install_dev}1 ${esp_mnt} &>/dev/null
         check_status
@@ -280,52 +260,60 @@ install_bootloader()
         echo -en ":: Create GRUB path ${grub_path}..."
         mkdir -p ${grub_path} &>/dev/null
         check_status
+    else
+        platform=i386-pc
+        grub_path=${rootmnt}/boot/grub
+    fi
 
-        echo -en ":: Install GRUB unicode.pf2 font to ${grub_path}..."
-        cp ${rootmnt}/usr/share/grub/unicode.pf2 ${grub_path} &>/dev/null
+    echo -en ":: Install GRUB unicode.pf2 font to ${grub_path}..."
+    cp ${rootmnt}/usr/share/grub/unicode.pf2 ${grub_path} &>/dev/null
+    check_status
+
+    echo -en ":: Install GRUB platform ${platform} to ${grub_path}..."
+    cp -r ${rootmnt}/usr/lib/grub/${platform} ${grub_path} &>/dev/null
+    check_status
+
+    # Install GRUB to /boot/grub on /new_root
+    #---------------------------------------------------------------------------
+    shared_modules="ext2 all_video font gfxterm"
+    if [ "x${efi}" == "x1" ]; then
+        echo -en ":: Create GRUB bootloader path ${esp_mnt}/EFI/BOOT..."
+        mkdir -p ${esp_mnt}/EFI/BOOT &>/dev/null
         check_status
 
-        echo -en ":: Install GRUB platform ${platform} to ${grub_path}..."
-        cp -r ${rootmnt}/usr/lib/grub/${platform} ${grub_path} &>/dev/null
-        check_status
-
-        echo -en ":: Create GRUB bootloader path ${bootloader_path}..."
-        mkdir -p ${bootloader_path} &>/dev/null
-        check_status
-
-        # GRUB path is actually in the root of the ESP so just /grub when booted to
+        # Arch Linux standard ESP mount point is /boot used for kernel upgrades
+        # Tianocore UEFI only supports fallback location EFI/BOOT/BOOTX64.efi
         echo -en ":: Install GRUB bootloader to ${bootloader}..."
         chroot ${rootmnt} grub-mkimage -d /mnt/grub/${platform} -o /mnt/EFI/BOOT/BOOTX64.efi \
-            -O ${platform} -p /grub part_gpt part_msdos fat efi_gop efi_uga all_video \
-            font normal boot linux search search_label ext2 configfile ls reboot &>/dev/null
+            -O ${platform} -p /grub part_gpt fat efi_gop efi_uga ${shared_modules} &>/dev/null
         check_status
-
-        # Install GRUB EFI bootloader configuration files to the ESP
-        # generation is influenced by /etc/default/grub
-        echo -en ":: Generate GRUB config for ${install_dev}1..."
-        echo -e "insmod part_gpt\ninsmod part_msdos\ninsmod fat\ninsmod efi_gop" > ${grub_path}/grub.cfg
-        echo -e "insmod efi_uga\ninsmod all_video\ninsmod font\n" >> ${grub_path}/grub.cfg
-        echo -e "default=0\ntimeout=0\n" >> ${grub_path}/grub.cfg
-        echo -e 'if loadfont "${prefix}/unicode.pf2" ; then' >> ${grub_path}/grub.cfg
-        echo -e "    insmod gfxterm" >> ${grub_path}/grub.cfg
-        echo -e '    set gfxmode="<%=gfxmode%>"' >> ${grub_path}/grub.cfg
-        echo -e "    terminal_input console" >> ${grub_path}/grub.cfg
-        echo -e "    terminal_output gfxterm" >> ${grub_path}/grub.cfg
-        echo -e "fi\n" >> ${grub_path}/grub.cfg
-        echo -e 'menuentry "<%=distro%>" {' >> ${grub_path}/grub.cfg
-        echo -e "    set gfxpayload=keep" >> ${grub_path}/grub.cfg
-        echo -e "    search --no-floppy --set=root --label <%=distro%>" >> ${grub_path}/grub.cfg
-        echo -e '    linux /boot/vmlinuz-linux root=LABEL=<%=distro%> rw <%=kernel_params%>' >> ${grub_path}/grub.cfg
-        echo -e '    initrd /boot/intel-ucode.img /boot/initramfs-linux.img' >> ${grub_path}/grub.cfg
-        echo -e "}" >> ${grub_path}/grub.cfg
+    else
+        echo -en ":: Install GRUB BIOS bootloader to ${install_dev}..."
+        chroot ${rootmnt} grub-install --target=${platform} \
+            --modules="part_msdos ${shared_modules}" ${install_dev} &>/dev/null
         check_status
+    fi
 
+    # Install GRUB configuration files to the ESP for EFI or /boot for BIOS
+    echo -en ":: Install GRUB config at ${grub_path}..."
+    echo -e "default=0\ntimeout=0\n" > ${grub_path}/grub.cfg
+    echo -e 'set gfxmode="<%=gfxmode%>"' >> ${grub_path}/grub.cfg
+    echo -e 'loadfont "${prefix}/unicode.pf2"' >> ${grub_path}/grub.cfg
+    echo -e 'terminal_input console' >> ${grub_path}/grub.cfg
+    echo -e "terminal_output gfxterm\n" >> ${grub_path}/grub.cfg
+    echo -e 'menuentry "<%=distro%>" {' >> ${grub_path}/grub.cfg
+    echo -e "    set gfxpayload=keep" >> ${grub_path}/grub.cfg
+    echo -e "    search --no-floppy --set=root --label <%=distro%>" >> ${grub_path}/grub.cfg
+    echo -e '    linux /boot/vmlinuz-linux root=LABEL=<%=distro%> rw <%=kernel_params%>' >> ${grub_path}/grub.cfg
+    echo -e '    initrd /boot/intel-ucode.img /boot/initramfs-linux.img' >> ${grub_path}/grub.cfg
+    echo -e "}" >> ${grub_path}/grub.cfg
+    check_status
+
+    # Unmount ESP if EFI mode
+    if [ "x${efi}" == "x1" ]; then
         echo -en ":: Umount ${install_dev}1 (ESP) at ${esp_mnt}..."
         umount -f ${esp_mnt} &>/dev/null
         check_status
-    else
-        echo -en ":: Install GRUB BIOS bootloader on ${install_dev}..."
-        chroot ${rootmnt} grub-install --target=i386-pc ${install_dev}
     fi
 
     echo -en ":: Generate new initramfs specific to this machine..."
