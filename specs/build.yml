@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.190
+  release: 0.1.191
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -103,7 +103,6 @@ configs:
     - { apply: sshd-config }
     - { apply: sudo-vars-config }
     - { apply: sysctld-config }
-    - { apply: syslinux-config }
     - { apply: timesyncd-config }
     - { apply: user-dirs-config }
     - { apply: vconsole-config }
@@ -962,19 +961,19 @@ configs:
     - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "vm.swappiness = 1" }
     - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "net.ipv4.ip_forward = 1" }
     - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "net.ipv6.conf.all.forwarding = 0" }
-  syslinux-config:
-    - { exec: 'rm -f /boot/syslinux/syslinux.cfg' }
-    - edit: /boot/syslinux/syslinux.cfg
-      insert: append
-      values:
-        - 'PROMPT 0                     # Set to 1 to show menu'
-        - 'TIMEOUT 0                    # Time to show menu in 1/10 s so 50=5s'
-        - 'DEFAULT <%=distro%>'
-        - 'LABEL <%=distro%>'
-        - '    MENU LABEL <%=distro%>'
-        - '    LINUX ../vmlinuz-linux'
-        - '    APPEND root=LABEL=root rw ipv6.disable=1 vga=791'
-        - '    INITRD ../initramfs-linux.img'
+#  syslinux-config:
+#    - { exec: 'rm -f /boot/syslinux/syslinux.cfg' }
+#    - edit: /boot/syslinux/syslinux.cfg
+#      insert: append
+#      values:
+#        - 'PROMPT 0                     # Set to 1 to show menu'
+#        - 'TIMEOUT 0                    # Time to show menu in 1/10 s so 50=5s'
+#        - 'DEFAULT <%=distro%>'
+#        - 'LABEL <%=distro%>'
+#        - '    MENU LABEL <%=distro%>'
+#        - '    LINUX ../vmlinuz-linux'
+#        - '    APPEND root=LABEL=root rw ipv6.disable=1 vga=791'
+#        - '    INITRD ../initramfs-linux.img'
   thunar-config:
     - edit: /etc/skel/.config/autostart/thunar.desktop
       insert: append
@@ -1106,13 +1105,15 @@ packages:
 
   machine-pkgs:
     - { install: core-pkgs }
+    - { pkg: dosfstools,                    desc: DOS filesystem utilities e.g. mkfs.fat, depof: installer }
     - { pkg: dmidecode,                     desc: Desktop Managment Interface table related utilities }
+    - { pkg: grub,                          desc: GNU GRand Unified Booloader 2, depof: installer }
+    - { pkg: efibootmgr,                    desc: Tool to modify UEFI Firmware Boot Manager Variables, depof: installer }
     - { pkg: intel-ucode,                   desc: Microcode update files for Intel CPUs }
     - { pkg: linux,                         desc: Linux kernel and supporting modules }
     - { pkg: lsb-release,                   desc: LSB version query program }
     - { pkg: mkinitcpio,                    desc: initramfs image creation utility }
     - { pkg: mkinitcpio-vt-colors,          desc: vt console colors, type: CYBERLINUX }
-    - { pkg: syslinux,                      desc: Boot loaders for ext2/3/4 USB and CD }
     - { pkg: systemd,                       desc: System and service manager }
     - { pkg: systemd-sysvcompat,            desc: Sysinit compat for systemd }
 

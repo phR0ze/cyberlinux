@@ -36,6 +36,8 @@
 none="\e[m"
 red="\e[1;31m"
 cyan="\e[0;36m"
+alias ll='ls -lah'
+export PS1="${cyber}[rootfs:\w]\$ ${none}"
 
 fail_to_shell()
 {
@@ -177,10 +179,11 @@ partition_and_mount_disk()
     sgdisk --zap ${install_dev} &>/dev/null
     check_status
 
-    # Create a GPT boot disk
-    if [ "x${install_boot_type}" == "xgpt" ]; then
-        echo -en ":: Creating ${install_dev}1 as BIOS boot partition..."
-        sgdisk -n 0:0:+2M -t 0:ef02 -c 0:"BIOS boot" ${install_dev} &>/dev/null
+    # EFI: Create a GPT boot disk
+    # https://wiki.archlinux.org/index.php/EFI_System_Partition#Create_the_partition
+    if [ "x${efi}" == "x1" ]; then
+        echo -en ":: Creating ${install_dev}1 as ESP boot partition..."
+        sgdisk -n 0:0:+550M -t 0:ef00 -c 0:"ESP boot" ${install_dev} &>/dev/null
         check_status
 
         echo -en ":: Creating ${install_dev}2 as Linux swap partition..."
@@ -206,7 +209,7 @@ partition_and_mount_disk()
         rm -f layout
     fi
 
-    echo -en ":: Formating ${install_dev}2 as (swap)..."
+    echo -en ":: Formatting ${install_dev}2 as (swap)..."
     mkswap ${install_dev}2 &>/dev/null
     check_status
 
@@ -214,19 +217,52 @@ partition_and_mount_disk()
     swapon ${install_dev}2 &>/dev/null
     check_status
 
-    echo -en ":: Formating ${install_dev}3 as (ext4)..."
-    # -O ^64bit     makes compatible with syslinux
+    echo -en ":: Formatting ${install_dev}3 as (ext4)..."
     # -F            force creation even if some params don't make sense
-    # -L            set volume name used for /boot/syslinux/syslinux.cfg
+    # -L            set volume name to 'root' used by bootloaders
     # -m 0          don't reserve blocks for super user daemons
     # -q            run in quiet mode for scripts
-    mkfs.ext4 -O ^64bit -F -m 0 -q -L root ${install_dev}3 &>/dev/null
+    mkfs.ext4 -F -m 0 -q -L root ${install_dev}3 &>/dev/null
     check_status
 
     echo -en ":: Mounting ${install_dev}3 as ${rootmnt}..."
     # Disable access time writes (speeds things up)
     mount -o noatime ${install_dev}3 ${rootmnt} &>/dev/null
     check_status
+
+    echo -en ":: Generate new initramfs..."
+    chroot ${rootmnt} mkinitcpio -p linux &>/dev/null
+    check_status
+}
+
+install_bootloader()
+{
+    # install_dev typically is '/dev/sda'
+    if [ "x${efi}" == "x1" ]; then
+
+        # http://www.rodsbooks.com/efi-bootloaders/installation.html
+        echo -en ":: Formatting ${install_dev}1 (ESP boot) as FAT32..."
+        mkfs.fat -s2 -F32 ${install_dev}1 &>/dev/null
+        check_status
+
+        # EFI Stub loader, http://www.rodsbooks.com/efi-bootloaders/efistub.html
+        # Kernel must reside on the ESP e.g. esp/boot/vmlinuz-linux
+        echo -en ":: Install GRUB EFI bootloader on ${install_dev}..."
+        chroot ${rootmnt} grub-install --target=x86_64-efi --efi-directory=${isomnt}/boot/grub --bootloader-id=grub &>/dev/null
+        check_status
+
+        echo -en ":: Make GRUB config for ${install_dev}..."
+        chroot ${rootmnt} grub-mkconfig -o /boot/grub/grub.cfg
+        check_status
+
+        # Linux standard ESP mount point is /boot/efi
+        # Tianocore UEFI only supports boot location of EFI/BOOT/BOOTX64.efi
+        # https://wiki.archlinux.org/index.php/EFI_System_Partition#Using_mkinitcpio_hook_.282.29
+        echo -en ":: blah..."
+    else
+        echo -en ":: Install GRUB BIOS bootloader on ${install_dev}..."
+        chroot ${rootmnt} grub-install --target=i386-pc ${install_dev}
+    fi
 }
 
 mount_chroot_dirs()
@@ -402,7 +438,6 @@ installer()
         done
         IFS=$ifs
         getsel install_dev $disks
-        getinput install_boot_type 'boot type, gpt|mbr' 'mbr'
 
         # Configure networking
         #----------------------------------------------------------------------
@@ -466,16 +501,10 @@ installer()
     chroot ${rootmnt} ln -sf /etc/machine-id /var/lib/dbus/machine-id &>/dev/null
     check_status
 
-    # Install bootloader
+    # Install bootloader and initramfs
     #---------------------------------------------------------------------------
     if [ $target_layer != "live" ]; then
-        echo -en ":: Install syslinux bootloader on ${install_dev}..."
-        chroot ${rootmnt} syslinux-install_update -i -a -m &>/dev/null
-        check_status
-
-        echo -en ":: Generate new initramfs..."
-        chroot ${rootmnt} mkinitcpio -p linux &>/dev/null
-        check_status
+        install_bootloader
     fi
     umount_chroot_dirs
 

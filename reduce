@@ -507,8 +507,8 @@ class Reduce
             layers = @vars["#{x[@k.name]}_layers"]
             f << "    menuentry --class=arch '#{boot[@k.entry]}' {\n"
             f << "        echo\necho\n"
-            motd.each{|line| f << "        echo $\"          #{line.rstrip}\"\n" }
-            f << "        linux /boot/vmlinuz layers=#{layers} showopts #{boot[@k.params]}\n"
+            motd.each{|line| f << "        echo $\"          #{line.gsub("\n", "")}\"\n" }
+            f << "        linux /boot/vmlinuz efi=$efi layers=#{layers} showopts #{boot[@k.params]}\n"
             f << "        initrd /boot/intel-ucode.img /boot/initramfs.img\n"
             f << "    }\n"
           }
