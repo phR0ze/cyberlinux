@@ -34,7 +34,6 @@ layers:
     vagrant: { vram: 32, cpus: 2, ram: 2048 }
     boot:
       - entry: "Deploy <%=distro%>-base                     // Minimal shell environment"
-        params: ipv6.disable=1
     packages:
       - { install: machine-pkgs }
       - { install: machine-tools }
@@ -51,7 +50,6 @@ layers:
     vagrant: { vram: 32, cpus: 2, ram: 2048 }
     boot:
       - entry: "Deploy <%=distro%>-shell                    // Base + full shell development env"
-        params: ipv6.disable=1
     packages:
       - { install: shell-pkgs }
     configs:
@@ -70,7 +68,6 @@ layers:
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     boot:
       - entry: "Deploy <%=distro%>-lite                     // Shell + minimal X11 environment"
-        params: ipv6.disable=1
     packages:
       - { install: lite-pkgs }
 
@@ -88,7 +85,6 @@ layers:
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     boot:
       - entry: "Deploy <%=distro%>-chromebook               // Lite + light laptop oriented apps"
-        params: ipv6.disable=1
     packages:
       #- { install: chrome-pkgs }
 
@@ -107,7 +103,6 @@ layers:
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     boot:
       - entry: "Deploy <%=distro%>-server                   // Lite + LAMP type services"
-        params: ipv6.disable=1
     packages:
       - { install: server-pkgs }
 
@@ -131,7 +126,6 @@ layers:
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     boot:
       - entry: "Deploy <%=distro%>-heavy                    // Lite + conky, guake and other apps"
-        params: ipv6.disable=1
     packages:
       - { install: heavy-pkgs }
 
@@ -156,7 +150,6 @@ layers:
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     boot:
       - entry: "Deploy <%=distro%>-theater                  // Heavy + Kodi and media apps"
-        params: ipv6.disable=1
     packages:
       - { install: theater-pkgs }
     configs:
@@ -173,7 +166,6 @@ layers:
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     boot:
       - entry: "Deploy <%=distro%>-desktop                  // Heavy + development and office apps"
-        params: ipv6.disable=1
     packages:
       - { install: desktop-pkgs }
 
@@ -191,4 +183,3 @@ layers:
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     boot:
       - entry: "Start <%=distro%>-recovery                  // Live environment based on heavy"
-        params: ipv6.disable=1

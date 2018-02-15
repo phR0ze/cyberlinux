@@ -133,7 +133,7 @@ class Reduce
     @grub_dst = File.join(@boot_dst, 'grub')
     @grub_src = File.join(@rootpath, 'boot/grub')
     @grub_work = File.join(@workpath, 'boot/grub')
-    @grub_efi_dst = File.join(@isopath, 'efi')
+    @grub_efi_dst = File.join(@isopath, 'EFI')
     @grub_efi_image = File.join(@isopath, 'efi.img')
 
     @memtest_image = File.join(@boot_dst, 'memtest')
@@ -508,7 +508,7 @@ class Reduce
             f << "    menuentry --class=arch '#{boot[@k.entry]}' {\n"
             f << "        echo\necho\n"
             motd.each{|line| f << "        echo $\"          #{line.gsub("\n", "")}\"\n" }
-            f << "        linux /boot/vmlinuz efi=$efi layers=#{layers} showopts #{boot[@k.params]}\n"
+            f << "        linux /boot/vmlinuz efi=$efi layers=#{layers} #{@vars.kernel_params} #{boot[@k.params] if boot[@k.params]}\n"
             f << "        initrd /boot/intel-ucode.img /boot/initramfs.img\n"
             f << "    }\n"
           }
@@ -519,8 +519,8 @@ class Reduce
       # Build grub components inside build container to ensure isolation
       docker(@k.build, @k.build){|cont, home, cp, exec, execs, runuser|
         work_path = File.join(home, 'work')
-        iso_path = File.join(work_path, 'iso')                          # ~/work/iso
-        grub_path = File.join(iso_path, 'boot/grub')                    # ~/work/iso/boot/grub
+        iso_path = File.join(work_path, 'iso')                            # cont:~/work/iso
+        grub_path = File.join(iso_path, 'boot/grub')                      # cont:~/work/iso/boot/grub
 
         # Prepare GRUB boot location
         puts("Prepare GRUB boot location...".colorize(:cyan))
@@ -530,7 +530,7 @@ class Reduce
         # Create GRUB BIOS boot image
         puts("Create GRUB BIOS boot image...".colorize(:cyan))
         bios_platform = 'i386-pc'
-        bios_platform_path = File.join(grub_path, bios_platform)  # ~/work/iso/boot/grub/i386-pc
+        bios_platform_path = File.join(grub_path, bios_platform)          # cont:~/work/iso/boot/grub/i386-pc
         bios_platform_image = File.join(bios_platform_path, 'core.img')
         runuser.call("mkdir -p #{bios_platform_path}")
         runuser.call("cp /usr/lib/grub/#{bios_platform}/* #{bios_platform_path}")
@@ -547,9 +547,9 @@ class Reduce
         # which then points to /boot/grub/grub.cfg
         puts("Create GRUB EFI bootloader...".colorize(:cyan))
         uefi_platform = 'x86_64-efi'
-        uefi_platform_path = File.join(grub_path, uefi_platform)          # ~/work/iso/boot/grub/x86_64-efi
-        uefi_bootloader_path = File.join(iso_path, 'efi/boot')            # ~/work/iso/efi/boot
-        uefi_bootloader = File.join(uefi_bootloader_path, 'bootx64.efi')  # ~/work/iso/efi/boot/bootx64.efi
+        uefi_platform_path = File.join(grub_path, uefi_platform)          # cont:~/work/iso/boot/grub/x86_64-efi
+        uefi_bootloader_path = File.join(iso_path, 'EFI/BOOT')            # cont:~/work/iso/EFI/BOOT
+        uefi_bootloader = File.join(uefi_bootloader_path, 'BOOTX64.efi')  # cont:~/work/iso/EFI/BOOT/BOOTX64.efi
         runuser.call("mkdir -p #{uefi_platform_path} #{uefi_bootloader_path}")
         runuser.call("cp /usr/lib/grub/#{uefi_platform}/* #{uefi_platform_path}")
         runuser.call("grub-mkimage -d #{uefi_platform_path} -o #{uefi_bootloader} -O #{uefi_platform} -p /boot/grub iso9660")
@@ -570,7 +570,7 @@ class Reduce
 
         # Extract grub boot files
         cp.call("#{cont}:#{iso_path}/boot #{@grub_work}")
-        cp.call("#{cont}:#{iso_path}/efi #{@grub_work}")
+        cp.call("#{cont}:#{iso_path}/EFI #{@grub_work}")
         cp.call("#{cont}:#{uefi_image} #{@grub_work}")
 
         # Extract kernel, memtest and intel-ucode as well as licenses

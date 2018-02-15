@@ -20,18 +20,22 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
+# Booting Linux Systems:
 # http://archlinux.me/brain0/2010/02/13/early-userspace-in-arch-linux/
 # -----------------------------------------------------------------------------
-# Booting Linux Systems:
-# BIOS boots stage 1 bootloader (i.e. Master Boot Record) which then boots
-# stage 2 bootloader (i.e. ISOLinux) which then extracts the Kernel which then
-# boots the initramfs (i.e. early userspace) which then bootstraps the system
-# to the point where it can access the real root filesystem and then early
-# userspace turns control over to the init process (i.e. systemd) to complete
-# the boot process.
-# Thus booting into a live system means creating a unionfs mountpoint of the
-# correct squashfs images in the appropriate squence as implicated by the
-# kernel cmdline parameters and launching init from there.
+# BIOS Firmware
+# BIOS looks for a partition on the primary disk that contains the Master Boot
+# Record (MBR) and loads the boot manager from there (e.g. Syslinux/ISOlinux)
+# which in turn loads the chosen Linux kernel and initramfs (early userspace)
+# which then bootstraps then bootstraps the system to the point where it can
+# access the real root filesystem at which point the initramfs turns control
+# over to systemd to complete the boot process.
+#
+# UEFI Firmware
+# UEFI firmware identifies the ESP (i.e. partition with code ef00 formatted as
+# FAT) and loads the binary at /EFI/BOOT/BOOTx86.efi which can be either a boot
+# manager or bootloader. Either way the binary loads the target kernel or target
+# bootloader which loads the target kernel
 # -----------------------------------------------------------------------------
 none="\e[m"
 red="\e[1;31m"
@@ -106,16 +110,16 @@ getsel()
 
 mount_layers()
 {
-    local images_path=$1                            # e.g. ${isomnt}/images
-    local layered_mnt=$2                            # e.g. ${writemnt}/root
-    local layered_tmp=$3                            # e.g. ${writemnt}/temp
+    local images_path=$1                            # e.g. ${iso_mnt}/images
+    local layered_mnt=$2                            # e.g. ${write_mnt}/root
+    local layered_tmp=$3                            # e.g. ${write_mnt}/temp
 
     # Mount all implicated sqfs images
     local layer_dirs=""
     echo -e ":: Mounting implicated layers for install"
     for x in ${layers//,/ }; do
-        local img_mnt="${readmnt}/${x}"             # i.e. ${readmnt}/{base,devel,lite, etc...}
-        local img_path="${images_path}/${x}.sqfs"   # e.g. ${isomnt}/images/base.sqfs
+        local img_mnt="${read_mnt}/${x}"             # i.e. ${read_mnt}/{base,devel,lite, etc...}
+        local img_path="${images_path}/${x}.sqfs"   # e.g. ${iso_mnt}/images/base.sqfs
         layer_dirs="${layer_dirs}${img_mnt}:"
 
         echo -en ":: Mounting ${img_path} at ${img_mnt}..."
@@ -153,8 +157,8 @@ mount_iso()
             check_status
             local fstype=$(blkid -s TYPE -o value ${isodev}) &>/dev/null
             local install_type=$(lsblk -nl -o TYPE ${isodev}) &>/dev/null
-            echo -en "   Mounting ${cyan}${install_type}${none} device ${cyan}${isodev}${none} to ${isomnt}..."
-            mount -r -t ${fstype} -o noatime ${isodev} ${isomnt} &>/dev/null
+            echo -en "   Mounting ${cyan}${install_type}${none} device ${cyan}${isodev}${none} to ${iso_mnt}..."
+            mount -r -t ${fstype} -o noatime ${isodev} ${iso_mnt} &>/dev/null
             check_status && success=1
         fi
 
@@ -200,7 +204,7 @@ partition_and_mount_disk()
         sgdisk ${install_dev} --attributes=3:set:2 &>/dev/null
         check_status
 
-    # Create a MBR boot disk
+    # BIOS: Create a MBR boot disk
     else
         echo -en ":: Partitioning ${install_dev} with MBR..."
         echo ',2M,0' > layout
@@ -221,10 +225,10 @@ partition_and_mount_disk()
 
     echo -en ":: Formatting ${install_dev}3 as (ext4)..."
     # -F            force creation even if some params don't make sense
-    # -L            set volume name to 'root' used by bootloaders
+    # -L            set volume name to 'cyberlinux' used by bootloaders
     # -m 0          don't reserve blocks for super user daemons
     # -q            run in quiet mode for scripts
-    mkfs.ext4 -F -m 0 -q -L root ${install_dev}3 &>/dev/null
+    mkfs.ext4 -F -m 0 -q -L <%=distro%> ${install_dev}3 &>/dev/null
     check_status
 
     echo -en ":: Mounting ${install_dev}3 as ${rootmnt}..."
@@ -233,63 +237,92 @@ partition_and_mount_disk()
     check_status
 }
 
-# systemd-boot comes by default in Arch Linux
-# it is simple to configure but only works with the Linux kernel EFISTUB
-# - requires UEFI variable support, should run no problem: efivar -l
-# - requires ESP mounted at /boot
-# https://wiki.archlinux.org/index.php/systemd-boot
-# https://wiki.archlinux.org/index.php/EFI_System_Partition#Using_systemd
+# GRUB has the ability to set the gfxmode and have the kernel keep it
+# https://wiki.archlinux.org/index.php/GRUB
+# https://blog.heckel.xyz/2017/05/28/creating-a-bios-gpt-and-uefi-gpt-grub-bootable-linux-system/
 
-# GRUB was chosen for its ability to set the gfxmode and have the kernel keep it
-# 'install_dev' typically is '/dev/sda'
-# http://www.rodsbooks.com/efi-bootloaders/installation.html
-# https://wiki.archlinux.org/index.php/EFI_System_Partition#Using_mkinitcpio_hook_.282.29
+# Recovery boot will show:
+# See EFI variables, run: efivar -l
+# See boot options and order, run: efibootmgr -v
+# 'Grub HD' should be listed as an option if GRUB was installed properly
 install_bootloader()
 {
-    if [ "x${efi}" == "x1" ]; then
-        local esp_mnt="/esp"
+    boot_path=${rootmnt}/boot
+    grub_path=${boot_path}/grub
 
-        echo -en ":: Formatting ${install_dev}1 (ESP boot) as FAT32..."
+    if [ "x${efi}" == "x1" ]; then
+        local platform=x86_64-efi
+        local esp_tmp_mnt=${rootmnt}/mnt
+        local bootloader_path=${boot_path}/EFI/BOOT
+
+        # Format ESP, mount at /boot and relocate boot files there
+        #-----------------------------------------------------------------------
+        echo -en ":: Formatting ${install_dev}1 (ESP) as FAT32..."
         mkfs.fat -s2 -F32 ${install_dev}1 &>/dev/null
         check_status
 
-        echo -en ":: Mount ${install_dev}1 (ESP boot) as ${esp_mnt}..."
-        mkdir ${esp_mnt} &>/dev/null
-        mount ${install_dev}1 ${esp_mnt} &>/dev/null
+        echo -en ":: Mount ${install_dev}1 (ESP) as ${esp_tmp_mnt}..."
+        mount ${install_dev}1 ${esp_tmp_mnt} &>/dev/null
         check_status
 
-        # Arch Linux standard ESP mount point is /boot
+        echo -en ":: Re-locate boot files to (ESP) at ${esp_tmp_mnt}..."
+        mv ${rootmnt}/boot/* ${esp_tmp_mnt} &>/dev/null
+        check_status
+
+        echo -en ":: Umount ${install_dev}1 (ESP) at ${esp_tmp_mnt}..."
+        umount -f ${esp_tmp_mnt} &>/dev/null
+        check_status
+
+        echo -en ":: Mount ${install_dev}1 (ESP) as ${boot_path}..."
+        mount ${install_dev}1 ${boot_path} &>/dev/null
+        check_status
+
+        # Install GRUB to /boot/grub on /new_root
+        #-----------------------------------------------------------------------
+        # Arch Linux standard ESP mount point is /boot used for kernel upgrades
         # Tianocore UEFI only supports fallback location EFI/BOOT/BOOTX64.efi
-        # --removable           // installed bootloader to EFI/BOOT/BOOTX64.efi
-        echo -en ":: Install GRUB EFI bootloader to ESP ${esp_mnt}..."
-        chroot ${rootmnt} grub-install --target=x86_64-efi --efi-directory=${esp_mnt} --removable &>/dev/null
-        chroot ${rootmnt} bootctl --path=esp install
-        check_status
-        fail_to_shell
-
-        # Install GRUB EFI bootloader support modules to the ESP
-
-        # Install GRUB EFI bootloader configuration files to the ESP
-        # linux /boot/vmlinuz-linux root=UUID=ad2983sd-i8s-si8fd-sidfi rw quiet
-        # initrd /boot/initramfs-linux-fallback.img
-        # generation is influenced by /etc/default/grub
-        echo -en ":: Make GRUB config for ${install_dev}1..."
-        chroot ${rootmnt} grub-mkconfig -o ${esp_mnt}/boot/grub/grub.cfg
+        echo -en ":: Install GRUB unicode.pf2 font to ${grub_path}..."
+        cp ${rootmnt}/usr/share/grub/unicode.pf2 ${grub_path} &>/dev/null
         check_status
 
-        echo -en ":: Unmount ${esp_mnt} (ESP boot)..."
-        umount -f ${esp_mnt} &>/dev/null
+        echo -en ":: Install GRUB platform ${platform} to ${grub_path}..."
+        cp -r ${rootmnt}/usr/lib/grub/${platform} ${grub_path} &>/dev/null
+        check_status
+
+        echo -en ":: Create GRUB bootloader path ${bootloader_path}..."
+        mkdir -p ${bootloader_path} &>/dev/null
+        check_status
+
+        echo -en ":: Install GRUB bootloader to ${bootloader}..."
+        chroot ${rootmnt} grub-mkimage -d /boot/grub/${platform} -o /boot/EFI/BOOT/BOOTX64.efi \
+            -O ${platform} -p /boot/grub part_gpt part_msdos fat efi_gop efi_uga all_video \
+            font normal boot linux search search_label ext2 configfile ls reboot &>/dev/null
         check_status
     else
         echo -en ":: Install GRUB BIOS bootloader on ${install_dev}..."
         chroot ${rootmnt} grub-install --target=i386-pc ${install_dev}
-
-        echo -en ":: Make GRUB config for ${install_dev}..."
-        chroot ${rootmnt} grub-mkconfig -o ${install_dev}
-        check_status
     fi
 
-    echo -en ":: Generate new initramfs..."
+    # Install GRUB EFI bootloader configuration files to the ESP
+    # generation is influenced by /etc/default/grub
+    echo -en ":: Generate GRUB config for ${install_dev}1..."
+    echo -e "insmod part_gpt\ninsmod part_msdos\ninsmod fat\ninsmod efi_gop" > ${boot_path}/grub/grub.cfg
+    echo -e "insmod efi_uga\ninsmod all_video\ninsmod font\n" >> ${boot_path}/grub/grub.cfg
+    echo -e 'if loadfont "${prefix}/unicode.pf2" ; then' >> ${boot_path}/grub/grub.cfg
+    echo -e "    insmod gfxterm" >> ${boot_path}/grub/grub.cfg
+    echo -e '    set gfxmode="<%=gfxmode%>"' >> ${boot_path}/grub/grub.cfg
+    echo -e "    terminal_input console" >> ${boot_path}/grub/grub.cfg
+    echo -e "    terminal_output gfxterm" >> ${boot_path}/grub/grub.cfg
+    echo -e "fi\n" >> ${boot_path}/grub/grub.cfg
+    echo -e 'menuentry "<%=distro%>" {' >> ${boot_path}/grub/grub.cfg
+    echo -e "    set gfxpayload=keep" >> ${boot_path}/grub/grub.cfg
+    echo -e "    search --no-floppy --set=root --label <%=distro%>" >> ${boot_path}/grub/grub.cfg
+    echo -e "    linux /boot/vmlinuz-linux root=<%=label%>=root rw <%=kernel_params%>" >> ${boot_path}/grub/grub.cfg
+    echo -e "    initrd /boot/intel-ucode.img /boot/initramfs-linux.img" >> ${boot_path}/grub/grub.cfg
+    echo -e "}" >> ${boot_path}/grub/grub.cfg
+    check_status
+
+    echo -en ":: Generate new initramfs specific to this machine..."
     chroot ${rootmnt} mkinitcpio -p linux &>/dev/null
     check_status
 }
@@ -317,7 +350,7 @@ umount_chroot_dirs()
 
 umount_all()
 {
-    mounts="${mounts}${isomnt}"
+    mounts="${mounts}${iso_mnt}"
     for x in ${mounts}; do
         echo -en ":: Unmounting ${x}..."
         umount -f ${x} &>/dev/null
@@ -507,18 +540,18 @@ installer()
     echo -e ":: New Root path '${rootmnt}'"
     if [ $target_layer == "live" ]; then
         echo -en ":: Creating live tmpfs filesystem for writes, size=${rw_ram_size}..."
-        mount -t tmpfs -o "size=${rw_ram_size}",mode=0755 none ${writemnt} &>/dev/null
+        mount -t tmpfs -o "size=${rw_ram_size}",mode=0755 none ${write_mnt} &>/dev/null
         check_status
-        mount_layers "${isomnt}/images" ${writemnt}/root ${writemnt}/temp
+        mount_layers "${iso_mnt}/images" ${write_mnt}/root ${write_mnt}/temp
 
-        echo -en ":: Re-bind ${writemnt}/root to new root location ${rootmnt}..."
-        mount -o bind ${writemnt}/root ${rootmnt} &>/dev/null
+        echo -en ":: Re-bind ${write_mnt}/root to new root location ${rootmnt}..."
+        mount -o bind ${write_mnt}/root ${rootmnt} &>/dev/null
         check_status
     else
-        mount_layers "${isomnt}/images" ${readmnt}/root ${readmnt}/temp
+        mount_layers "${iso_mnt}/images" ${read_mnt}/root ${read_mnt}/temp
         partition_and_mount_disk
-        echo -e ":: Copying ${readmnt}/root to ${rootmnt}"
-        rsync -ah --info=progress2 ${readmnt}/root/* ${rootmnt}
+        echo -e ":: Copying ${read_mnt}/root to ${rootmnt}"
+        rsync -ah --info=progress2 ${read_mnt}/root/* ${rootmnt}
     fi
 
     # Configure system
@@ -560,15 +593,15 @@ run_hook()
 
     # Set additional variables
     mounts=""
-    isomnt=/mnt/iso
-    readmnt=/mnt/read
-    writemnt=/mnt/write
+    iso_mnt=/mnt/iso
+    read_mnt=/mnt/read
+    write_mnt=/mnt/write
 
     # Resolve template variables
-    label="<%= label %>"
-    distro="<%= distro %>"
-    timezone="<%= timezone %>"
-    all_groups="<%= groups %>"
+    label="<%=label%>"
+    distro="<%=distro%>"
+    timezone="<%=timezone%>"
+    all_groups="<%=groups%>"
 
     target_layer=$(echo $layers | awk -F, '{print $1}')
     [ "x$vagrant" == "x1" ] && autologin=1
