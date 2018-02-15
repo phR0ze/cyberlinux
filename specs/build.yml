@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.195
+  release: 0.1.196
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -963,19 +963,6 @@ configs:
     - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "vm.swappiness = 1" }
     - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "net.ipv4.ip_forward = 1" }
     - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "net.ipv6.conf.all.forwarding = 0" }
-#  syslinux-config:
-#    - { exec: 'rm -f /boot/syslinux/syslinux.cfg' }
-#    - edit: /boot/syslinux/syslinux.cfg
-#      insert: append
-#      values:
-#        - 'PROMPT 0                     # Set to 1 to show menu'
-#        - 'TIMEOUT 0                    # Time to show menu in 1/10 s so 50=5s'
-#        - 'DEFAULT <%=distro%>'
-#        - 'LABEL <%=distro%>'
-#        - '    MENU LABEL <%=distro%>'
-#        - '    LINUX ../vmlinuz-linux'
-#        - '    APPEND root=LABEL=root rw ipv6.disable=1 vga=791'
-#        - '    INITRD ../initramfs-linux.img'
   thunar-config:
     - edit: /etc/skel/.config/autostart/thunar.desktop
       insert: append

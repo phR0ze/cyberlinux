@@ -305,6 +305,7 @@ install_bootloader()
         echo -en ":: Generate GRUB config for ${install_dev}1..."
         echo -e "insmod part_gpt\ninsmod part_msdos\ninsmod fat\ninsmod efi_gop" > ${grub_path}/grub.cfg
         echo -e "insmod efi_uga\ninsmod all_video\ninsmod font\n" >> ${grub_path}/grub.cfg
+        echo -e "default=0\ntimeout=0\n" >> ${grub_path}/grub.cfg
         echo -e 'if loadfont "${prefix}/unicode.pf2" ; then' >> ${grub_path}/grub.cfg
         echo -e "    insmod gfxterm" >> ${grub_path}/grub.cfg
         echo -e '    set gfxmode="<%=gfxmode%>"' >> ${grub_path}/grub.cfg
@@ -577,6 +578,22 @@ installer()
 
     # Unmount everything after install
     [ $target_layer != "live" ] && umount_all
+
+    # Successfully deployed
+    #---------------------------------------------------------------------------
+    if [ $target_layer != "live" ]; then
+        local msg="--===<<<[[ SUCCESS ]]>>>===--"
+        local len=$((105 - ${#msg}))
+        local padleft=$(bash -c "printf '%0.1s' ' '{1..$((len/2))} $pad")
+        local padright=$(bash -c "printf '%0.1s' ' '{1..$((len/2))} $pad")
+        [ $((len%2)) == 1 ] && local padright="$padright "
+        echo -e "${cyan}:: $(bash -c "printf '%0.1s' '*'{1..107}")${none}"
+        echo -e "${cyan}:: *${padleft}${msg}${padright}*${none}"
+        echo -e "${cyan}:: $(bash -c "printf '%0.1s' '*'{1..107}")${none}"
+
+        # Eject media and reboot
+        [ "x$vagrant" != "x1" ] && eject &>/dev/null
+    fi
 }
 
 #----------------------------------------------------------------------------------------
