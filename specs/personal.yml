@@ -150,6 +150,7 @@ layers:
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     boot:
       - entry: "Deploy <%=distro%>-theater                  // Heavy + Kodi and media apps"
+        params: autologin=1
     packages:
       - { install: theater-pkgs }
     configs:
