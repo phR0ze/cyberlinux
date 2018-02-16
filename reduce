@@ -132,10 +132,7 @@ class Reduce
     @layer_images_dst = File.join(@isopath, 'images')
     @grub_iso_dst = File.join(@boot_dst, 'grub')
     @grub_iso_src = File.join(@rootpath, 'boot/grub_iso')
-    @grub_iso_src_conf = File.join(@rootpath, 'boot/grub_iso/grub.cfg')
     @grub_iso_work = File.join(@workpath, 'boot/grub_iso')
-    @grub_efi_dst = File.join(@isopath, 'EFI')
-    @grub_esp_image = File.join(@grub_iso_work, 'efi.img')
 
     @memtest_image = File.join(@boot_dst, 'memtest')
     @vmlinuz_image = File.join(@boot_dst, 'vmlinuz')
@@ -206,7 +203,6 @@ class Reduce
 
     FileUtils.mkdir_p(@grub_iso_dst)
     FileUtils.mkdir_p(@grub_iso_work)
-    FileUtils.mkdir_p(@grub_efi_dst)
     FileUtils.mkdir_p(@layers_work)
     FileUtils.mkdir_p(@initramfs_work)
 
@@ -296,12 +292,12 @@ class Reduce
     # Clean grub iso components
     if !all and (multiboot or layers or isofull)
       puts("Cleaning multiboot...".colorize(:cyan))
-      [@grub_iso_work, @grub_iso_dst, @grub_efi_dst].each{|x|
+      [@grub_iso_work, @grub_iso_dst].each{|x|
         puts("Deleting #{x}".colorize(:red)) if File.exist?(x)
         Sys.rm_rf(x)
       }
       ["#{@ucode_image}.img", "#{@ucode_image}.LICENSE", @memtest_image,
-       "#{@memtest_image}.LICENSE", @vmlinuz_image, @grub_esp_image].each{|x|
+       "#{@memtest_image}.LICENSE", @vmlinuz_image].each{|x|
         puts("Deleting #{x}".colorize(:red)) if File.exist?(x)
         File.delete(x) if File.exist?(x)
       }
@@ -417,23 +413,13 @@ class Reduce
     if [iso, isofull].any?
       puts("#{'-' * 80}\nBuilding ISO Hybrid CD/USB bootable image...\n#{'-' * 80}".colorize(:light_yellow))
       if changed or not File.exist?(@vars.isofile)
-        cmd = "xorriso -as mkisofs "
-        cmd += "-volid #{@vars.label} "
-        cmd += "-appid '#{@vars.distro} Install/Live Media' "
-        cmd += "-relaxed-filenames -allow-lowercase "
-        cmd += "-r -graft-points -no-pad --sort-weight 0 / --sort-weight 1 /boot "
+        cmd = "grub-mkrescue "
+        
+        # Pre-load the given modules
+        #cmd += "--modules='' "
 
-        # Add BIOS boot support
-        cmd += "--grub2-mbr #{@isopath}/boot/grub/i386-pc/boot_hybrid.img "
-        cmd += "-partition_offset 16 -b boot/grub/i386-pc/eltorito.img -c boot.catalog "
-        cmd += "-no-emul-boot -boot-load-size 4 -boot-info-table --grub2-boot-info "
-
-        # Add EFI boot support
-        #cmd += "-eltorito-alt-boot -append_partition 2 0xef #{@grub_esp_image} "
-        #cmd += "-e --interval:appended_partition_2:all:: -no-emul-boot -iso-level 3 "
-
-        # Create the ISO
-        cmd += "-output #{@vars.isofile} #{@isopath}"
+        # Create the ISO from @isopath
+        cmd += "-o #{@vars.isofile} #{@isopath}"
 
         msg = "ISO Hybrid CD/USB bootable image:\n#{@vars.isofile}"
         if Sys.exec(cmd)
@@ -493,16 +479,16 @@ class Reduce
     changed = false
     grub_digests = File.join(@grub_iso_work, 'digests')
     grub_iso_path = File.join(@grub_iso_work, 'boot/grub')
-    grub_iso_conf = File.join(grub_iso_path, 'grub.cfg')
 
     FileUtils.mkdir_p(grub_iso_path)
     puts("#{'-' * 80}\nBuilding grub multiboot...\n#{'-' * 80}".colorize(:light_yellow))
     if syncfiles(File.basename(@grub_iso_work), @grub_iso_src, grub_iso_path, grub_digests) or
-        not File.exist?(@grub_esp_image) or not File.exist?(@vmlinuz_image)
+        not File.exist?(@vmlinuz_image)
       changed |= true
 
       # Resolve templates
-      Fedit.resolve(grub_iso_conf, @vars)
+      Fedit.resolve(File.join(grub_iso_path, 'grub.cfg'), @vars)
+      Fedit.resolve(File.join(grub_iso_path, "themes/#{@vars.distro}/theme.txt"), @vars)
 
       # Inject boot menu items from layers
       motd = File.readlines(@motd_path)
@@ -522,68 +508,9 @@ class Reduce
 
       # Build grub components inside build container to ensure isolation
       docker(@k.build, @k.build){|cont, home, cp, exec, execs, runuser|
-        theme = "cyberlinux-iso"
-        theme_path = "/usr/share/grub/themes/#{theme}"
-
-        boot_tmp = File.join(home, 'boot', 'tmp')                         # cont:~/boot
-        boot_esp = File.join(home, 'boot', 'esp')                         # cont:~/boot/esp
-        boot_grub = File.join(home, 'boot', 'grub')                       # cont:~/boot/grub
-        esp_image = File.join(home, 'boot', 'efi.img')                    # cont:~/boot/efi.img
-        runuser.call("mkdir -p #{boot_tmp} #{boot_esp} #{boot_grub}")
-
-        # Copy in the GRUB boot configuration file
-        puts("Copy in GRUB boot configuration...".colorize(:cyan))
-        boot_tmp_grub_conf = File.join(boot_tmp, 'grub.cfg')              # cont:~/boot/tmp/grub.cfg
-        cp.call("#{grub_iso_conf} #{cont}:#{boot_tmp}")
-
-        # Create GRUB grub boot image
-        # ----------------------------------------------------------------------
-        puts("Create GRUB grub boot image...".colorize(:cyan))
-        platform = 'i386-pc'
-        platform_path = File.join(boot_grub, platform)                    # cont:~/boot/grub/i386-pc
-        platform_image = File.join(platform_path, 'core.img')             # cont:~/boot/grub/i386-pc/core.img
-        runuser.call("cp /usr/share/grub/unicode.pf2 #{boot_grub}")       # cont:~/boot/grub/unicode.pf2
-        runuser.call("mkdir -p #{boot_grub}/themes")                      # cont:~/boot/grub/themes
-        runuser.call("cp -r #{theme_path} #{boot_grub}/themes")           # cont:~/boot/grub/themes/cyberlinux-iso
-        runuser.call("cp -r /usr/lib/grub/#{platform} #{boot_grub}")      # cont:~/boot/grub/i386-pc
-        runuser.call("grub-mkimage -d #{platform_path} -o #{platform_image} -O #{platform} -p /boot/grub biosdisk iso9660")
-
-        # Create Eltorito removable media BIOS/USB boot image
-        puts("Create Eltorito boot image...".colorize(:cyan))
-        cdboot_image = File.join(platform_path, "cdboot.img")             # cont:~/boot/grub/i386-pc/cdboot.img
-        eltorito_image = File.join(platform_path, "eltorito.img")         # cont:~/boot/grub/i386-pc/eltorito.img
-        runuser.call("cat #{cdboot_image} #{platform_image} > #{eltorito_image}")
-
-        # Create GRUB EFI boot image - EFI System Partition (ESP)
-        # ----------------------------------------------------------------------
-        # fallback /EFI/BOOT/BOOTX64.efi boots which then points to /boot/grub/grub.cfg
-        puts("Create GRUB EFI System Partition (ESP)...".colorize(:cyan))
-        platform = 'x86_64-efi'
-        esp_grub = File.join(boot_esp, "grub")                            # cont:~/boot/esp/grub
-        platform_path = File.join(esp_grub, platform)                     # cont:~/boot/esp/grub/x86_64-efi
-        bootloader_path = File.join(boot_esp, "EFI/BOOT")                 # cont:~/boot/esp/EFI/BOOT
-        bootloader = File.join(bootloader_path, 'BOOTX64.efi')            # cont:~/boot/esp/EFI/BOOT/BOOTX64.efi
-
-        # Partition ESP
-        runuser.call("truncate -s 4M #{esp_image}")                       # cont:~/boot/efi.img
-        runuser.call("mkfs.fat -s2 -F32 -n 'EFI System' #{esp_image} &>/dev/null")
-        runuser.call("sudo mount #{esp_image} #{boot_esp}")               # cont:~/boot/esp
-
-        # Install GRUB EFI platform and EFI bootloader on ESP
-        runuser.call("sudo mkdir -p #{esp_grub} #{bootloader_path}")
-        runuser.call("sudo cp -r /usr/lib/grub/#{platform} #{esp_grub}")
-        runuser.call("sudo grub-mkimage -d #{platform_path} -o #{bootloader} -O #{platform} -p /grub iso9660")
-        runuser.call("sudo umount #{boot_esp}")
-
-        # Install GRUB configuration/theme to the ESP
-        #runuser.call("sudo mkdir -p #{uefi_docker_grub}/themes/#{theme}")
-        #runuser.call("sudo cp /usr/share/grub/unicode.pf2 #{uefi_docker_grub}")
-        #runuser.call("sudo cp -r /usr/share/grub/themes/#{theme} #{uefi_docker_grub}/themes")
-        #runuser.call("while :; do sleep 5; done")
 
         # Extract GRUB boot files
-        cp.call("#{cont}:#{boot_grub} #{@grub_iso_work}/boot")
-        cp.call("#{cont}:#{esp_image} #{@grub_iso_work}")
+        cp.call("#{cont}:/usr/share/grub/unicode.pf2 #{grub_iso_path}")
 
         # Extract kernel, memtest and intel-ucode as well as licenses
         cp.call("#{cont}:/boot/vmlinuz-linux #{@vmlinuz_image}")

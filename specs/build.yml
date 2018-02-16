@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.200
+  release: 0.1.201
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -30,7 +30,7 @@ vars:
   color_light: '#39AEF4'
   color_dark: '#216A94'
   gfxmode: 1280x1024,1024x768,auto
-  grub_iso_theme: /boot/grub/themes/cyberlinux-iso
+  grub_iso_theme: /boot/grub/themes/cyberlinux
   kernel_params: quiet loglevel=3 udev.log_priority=3 ipv6.disable=1
 
   # Vagrant networking
