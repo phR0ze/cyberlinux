@@ -495,7 +495,7 @@ class Reduce
       File.open(File.join(grub_iso_path, 'boot.cfg'), 'w'){|f|
         @spec[@k.layers].select{|x| x[@k.type] == @k.machine}.reverse.each{|x| x[@k.boot].each{|boot|
             layers = @vars["#{x[@k.name]}_layers"]
-            f << "    menuentry --class=arch '#{boot[@k.entry]}' {\n"
+            f << "    menuentry --class=deployment '#{boot[@k.entry]}' {\n"
             f << "        echo\necho\n"
             motd.each{|line| f << "        echo $\"          #{line.gsub("\n", "")}\"\n" }
             f << "        linux /boot/vmlinuz efi=$efi layers=#{layers} #{@vars.kernel_params} #{boot[@k.params] if boot[@k.params]}\n"

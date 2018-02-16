@@ -33,7 +33,7 @@ layers:
     groups: [lp, wheel, network, storage, users]
     vagrant: { vram: 32, cpus: 2, ram: 2048 }
     boot:
-      - entry: "Deploy <%=distro%>-base                     // Minimal shell environment"
+      - entry: "Deploy <%=distro%>-base                    // Minimal shell"
     packages:
       - { install: machine-pkgs }
       - { install: machine-tools }
@@ -49,7 +49,7 @@ layers:
     base: base
     vagrant: { vram: 32, cpus: 2, ram: 2048 }
     boot:
-      - entry: "Deploy <%=distro%>-shell                    // Base + full shell development env"
+      - entry: "Deploy <%=distro%>-shell                   // Base + shell devel"
     packages:
       - { install: shell-pkgs }
     configs:
@@ -67,7 +67,7 @@ layers:
       - audio
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     boot:
-      - entry: "Deploy <%=distro%>-lite                     // Shell + minimal X11 environment"
+      - entry: "Deploy <%=distro%>-lite                    // Shell + min X11"
     packages:
       - { install: lite-pkgs }
 
@@ -84,7 +84,7 @@ layers:
     base: lite
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     boot:
-      - entry: "Deploy <%=distro%>-chromebook               // Lite + light laptop oriented apps"
+      - entry: "Deploy <%=distro%>-chromebook              // Lite + more apps"
     packages:
       - { install: chromebook-pkgs }
       # GalliumOS Apps
@@ -121,7 +121,7 @@ layers:
     base: lite
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     boot:
-      - entry: "Deploy <%=distro%>-server                   // Lite + LAMP type services"
+      - entry: "Deploy <%=distro%>-server                  // Lite + services"
     packages:
       - { install: server-pkgs }
 
@@ -144,7 +144,7 @@ layers:
     base: lite
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     boot:
-      - entry: "Deploy <%=distro%>-heavy                    // Lite + conky, guake and other apps"
+      - entry: "Deploy <%=distro%>-heavy                   // Lite + more bling"
     packages:
       - { install: heavy-pkgs }
 
@@ -168,7 +168,7 @@ layers:
     vars: { fontsize: 18 }
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     boot:
-      - entry: "Deploy <%=distro%>-theater                  // Heavy + Kodi and media apps"
+      - entry: "Deploy <%=distro%>-theater                 // Heavy + media apps"
         params: autologin=1
     packages:
       - { install: theater-pkgs }
@@ -185,7 +185,7 @@ layers:
       wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     boot:
-      - entry: "Deploy <%=distro%>-desktop                  // Heavy + development and office apps"
+      - entry: "Deploy <%=distro%>-desktop                 // Heavy + more apps"
     packages:
       - { install: desktop-pkgs }
 
@@ -202,4 +202,4 @@ layers:
     base: heavy
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     boot:
-      - entry: "Start <%=distro%>-recovery                  // Live environment based on heavy"
+      - entry: "Start <%=distro%>-recovery                 // Live environment"
