@@ -415,8 +415,8 @@ class Reduce
       if changed or not File.exist?(@vars.isofile)
         cmd = "grub-mkrescue "
         
-        # Pre-load the given modules
-        #cmd += "--modules='' "
+        # Set the volume label
+        cmd += "-volid #{@vars.label} "
 
         # Create the ISO from @isopath
         cmd += "-o #{@vars.isofile} #{@isopath}"
