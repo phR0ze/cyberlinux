@@ -87,25 +87,13 @@ layers:
       - entry: "Deploy <%=distro%>-chromebook              // Lite + more apps"
     packages:
       - { install: chromebook-pkgs }
-      # GalliumOS Apps
-      # ------------------
-      # theme             // Nice gray/white
-      # Thunar            // Filemanager
+      # ristretto         // Image viewer
       # Hexchat           // IRC
       # Pidgin            // Messaging
-      # DeaDBeef          // Audio player
       # Xfce4 Dictionary
-      # Evince            // Document viewer
-      # Orage             // Calendar
-      # system-config-printer
       # Network manager
       # Xfce power manager
-      # Pulse Audio Volume Control
-      # VLC
-      # Ristretto Image Viewer
-      # Simple Scan
       # xfce4 settings display
-      # Moving splash screen
 
       # Teamviewer is free to use for personal use
       # https://www.teamviewer.com/en/credentials/free-for-personal-use/
