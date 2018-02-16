@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.204
+  release: 0.1.205
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -1149,7 +1149,6 @@ packages:
     - { pkg: intel-ucode,                   desc: Microcode update files for Intel CPUs }
     - { pkg: licenses,                      desc: Standard licenses distribution package }
     - { pkg: memtest86+,                    desc: memtest is used in the ISO creation as menu option }
-    - { pkg: cyberlinux-grub-themes,        desc: Grub2 themes for cyberlinux, type: CYBERLINUX }
 
   initramfs-pkgs:
     - { pkg: gptfdisk,                      desc: Paritioning tools e.g. sgdisk }
