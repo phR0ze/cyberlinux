@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.198
+  release: 0.1.199
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -1149,7 +1149,7 @@ packages:
     - { pkg: intel-ucode,                   desc: Microcode update files for Intel CPUs }
     - { pkg: licenses,                      desc: Standard licenses distribution package }
     - { pkg: memtest86+,                    desc: memtest is used in the ISO creation as menu option }
-      #- { pkg: cyberlinux-grub2-theme,        desc: Grub 2 theme for cyberlinux, type: CYBERLINUX }
+    - { pkg: cyberlinux-grub-themes,        desc: Grub2 themes for cyberlinux, type: CYBERLINUX }
 
   initramfs-pkgs:
     - { pkg: gptfdisk,                      desc: Paritioning tools e.g. sgdisk }
@@ -1423,6 +1423,9 @@ packages:
     - { pkg: ttf-indic-otf,                 desc: Indic Opentype Fonts collection }
     - { pkg: ttf-liberation,                desc: Red Hats Liberation fonts.  }
     - { pkg: ttf-ms-fonts,                  desc: Microsoft core fonts, type: CYBERLINUX }
+
+  chromebook-pkgs:
+    - { pkg: blueman,                       desc: GTK+ Bluetooth Manager }
 
   heavy-pkgs:
     - { install: media-pkgs }

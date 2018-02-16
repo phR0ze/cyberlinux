@@ -193,7 +193,7 @@ partition_and_mount_disk()
         check_status
 
         echo -en ":: Formatting ${install_dev}1 (ESP) as FAT32..."
-        mkfs.fat -s2 -F32 ${install_dev}1 &>/dev/null
+        mkfs.fat -s2 -F32 -n "EFI System" ${install_dev}1 &>/dev/null
         check_status
 
         echo -en ":: Creating ${install_dev}2 as Linux swap partition..."
@@ -283,6 +283,7 @@ install_bootloader()
 
         # Arch Linux standard ESP mount point is /boot used for kernel upgrades
         # Tianocore UEFI only supports fallback location EFI/BOOT/BOOTX64.efi
+        # /grub is used as the target as this is in the context of the partition
         echo -en ":: Install GRUB bootloader to ${bootloader}..."
         chroot ${rootmnt} grub-mkimage -d /mnt/grub/${platform} -o /mnt/EFI/BOOT/BOOTX64.efi \
             -O ${platform} -p /grub part_gpt fat efi_gop efi_uga ${shared_modules} &>/dev/null

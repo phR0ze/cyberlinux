@@ -528,6 +528,7 @@ class Reduce
         runuser.call("cp /usr/share/grub/unicode.pf2 #{grub_path}")
 
         # Create GRUB BIOS boot image
+        # ----------------------------------------------------------------------
         puts("Create GRUB BIOS boot image...".colorize(:cyan))
         bios_platform = 'i386-pc'
         bios_platform_path = File.join(grub_path, bios_platform)          # cont:~/work/iso/boot/grub/i386-pc
@@ -542,35 +543,39 @@ class Reduce
         eltorito_image = File.join(bios_platform_path, "eltorito.img")
         runuser.call("cat #{cdboot_image} #{bios_platform_image} > #{eltorito_image}")
 
-        # Create GRUB EFI bootloader
-        # 1st method for EFI support use fallback /efi/boot/bootx64.efi directly
-        # which then points to /boot/grub/grub.cfg
-        puts("Create GRUB EFI bootloader...".colorize(:cyan))
-        uefi_platform = 'x86_64-efi'
-        uefi_platform_path = File.join(grub_path, uefi_platform)          # cont:~/work/iso/boot/grub/x86_64-efi
-        uefi_bootloader_path = File.join(iso_path, 'EFI/BOOT')            # cont:~/work/iso/EFI/BOOT
-        uefi_bootloader = File.join(uefi_bootloader_path, 'BOOTX64.efi')  # cont:~/work/iso/EFI/BOOT/BOOTX64.efi
-        runuser.call("mkdir -p #{uefi_platform_path} #{uefi_bootloader_path}")
-        runuser.call("cp /usr/lib/grub/#{uefi_platform}/* #{uefi_platform_path}")
-        runuser.call("grub-mkimage -d #{uefi_platform_path} -o #{uefi_bootloader} -O #{uefi_platform} -p /boot/grub iso9660")
-
         # Create GRUB EFI boot image - EFI System Partition (ESP)
-        # 2nd method for EFI support create a FAT fs which contains the fallback
-        # /efi/boot/bootx64.efi bootloader which points to /boot/grub/grub.cfg
-        puts("Create GRUB EFI boot image...".colorize(:cyan))
-        uefi_mnt_path = File.join(work_path, 'mnt')              # ~/work/mnt
-        uefi_image = File.join(iso_path, 'efi.img')              # ~/work/iso/efi.img
+        # ----------------------------------------------------------------------
+        # fallback /EFI/BOOT/BOOTX64.efi boots which then points to /boot/grub/grub.cfg
+        puts("Create GRUB EFI System Partition (ESP)...".colorize(:cyan))
+        uefi_platform = 'x86_64-efi'
+        uefi_mnt_path = File.join(work_path, 'mnt')                           # cont:~/work/mnt
+        uefi_image = File.join(iso_path, 'efi.img')                           # cont:~/work/iso/efi.img
+        uefi_bootloader_path = File.join(uefi_mnt_path, "EFI/BOOT")           # cont:~/work/mnt/EFI/BOOT
+        uefi_bootloader = File.join(uefi_bootloader_path, 'BOOTX64.efi')      # cont:~/work/mnt/EFI/BOOT/BOOTX64.efi
+        uefi_platform_path = File.join(uefi_mnt_path, "grub", uefi_platrorm)  # cont:~/work/mnt/grub
         runuser.call("mkdir -p #{uefi_mnt_path}")
+
+        # Partition ESP
         runuser.call("truncate -s 4M #{uefi_image}")
-        runuser.call("mkfs.fat -n GRUB_EFI #{uefi_image} &>/dev/null")
-        #runuser.call("while :; do sleep 5; done")
+        runuser.call("mkfs.fat -s2 -F32 -n 'EFI System' #{uefi_image} &>/dev/null")
         runuser.call("sudo mount #{uefi_image} #{uefi_mnt_path}")
-        runuser.call("grub-mkimage -d #{uefi_platform_path} -o #{uefi_image} -O #{uefi_platform} -p /boot/grub iso9660")
+
+        # Install GRUB EFI platform on ESP
+        runuser.call("mkdir -p #{uefi_platform_path}")
+        runuser.call("cp /usr/lib/grub/#{uefi_platform}/* #{uefi_platform_path}")
+
+        # Install GRUB configuration/theme to the ESP
+        cp.call("#{cont}:#{uefi_image} #{@grub_iso_work}")
+        runuser.call("while :; do sleep 5; done")
+
+        # Create EFI GRUB bootloader on ESP
+        runuser.call("mkdir -p #{uefi_bootloader_path}")
+        runuser.call("grub-mkimage -d #{uefi_platform_path} -o #{uefi_bootloader} -O #{uefi_platform} -p /grub iso9660")
         runuser.call("sudo umount #{uefi_mnt_path}")
 
         # Extract grub boot files
-        cp.call("#{cont}:#{iso_path}/boot #{@grub_iso_work}")
-        cp.call("#{cont}:#{iso_path}/EFI #{@grub_iso_work}")
+        #cp.call("#{cont}:#{iso_path}/boot #{@grub_iso_work}")
+        #cp.call("#{cont}:#{iso_path}/EFI #{@grub_iso_work}")
         cp.call("#{cont}:#{uefi_image} #{@grub_iso_work}")
 
         # Extract kernel, memtest and intel-ucode as well as licenses
