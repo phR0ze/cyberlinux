@@ -494,6 +494,7 @@ installer()
             fi
         done
         IFS=$ifs
+        fail_to_shell
         getsel install_dev $disks
 
         # Configure networking
