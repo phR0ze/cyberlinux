@@ -84,9 +84,11 @@ layers:
     base: lite
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     boot:
-      - entry: "Deploy <%=distro%>-chromebook              // Lite + more apps"
+      - entry: "Deploy <%=distro%>-chromebook              // Lite + drivers"
     packages:
       - { install: chromebook-pkgs }
+
+      # Possible apps to add
       # ristretto         // Image viewer
       # Hexchat           // IRC
       # Pidgin            // Messaging

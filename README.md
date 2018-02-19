@@ -35,8 +35,9 @@ fork it and make their own configuration ***specs***
     * [Disable Proxy](#disable-proxy)
 * [Roll your own cyberlinux](#build-cyberlinux)
     * [Dependencies](#dependencies)
-    * [Linux Dev Envioronment](#linux-dev-environment)
+    * [Linux Dev Environment](#linux-dev-environment)
     * [Full cyberlinux build](#full-cyberlinux-build)
+        * [Arch Bootstrap deployment](#arch-bootstrap-deployment)
     * [Pack cyberlinux](#pack-cyberlinux)
     * [Customization](#customization)
         * [Spec Structure](#spec-structure)
@@ -260,10 +261,16 @@ sudo pacman -S ruby docker
 ```
 
 ### Linux dev environment <a name="linux-dev-environment"/></a>
-There are three different ways you can get a development environment up and running.
+There are multiple ways you can get a development environment up and running.
 * [Bare metal deployment](#bare-metal-deployment)
 * [Virtual box deployment](#virtual-box-deployment)
 * [Vagrant box deployment](#vagrant-box-deployment)
+* [Arch Bootstrap deployment](#arch-bootstrap-deployment)
+
+#### Arch Bootstrap deployment <a name="arch-bootstrap-deployment"/></a>
+** This is TBD**
+
+***sudo pacman -S grub mtools***
 
 ### Full cyberlinux Build <a name="full-cyberlinux-build"/></a>
 Once you happy with the current configuration build with the following

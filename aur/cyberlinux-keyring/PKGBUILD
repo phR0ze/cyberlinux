@@ -1,5 +1,5 @@
 #MIT License
-#Copyright (c) 2017 phR0ze
+#Copyright (c) 2017-2018 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -36,7 +36,9 @@ md5sums=('0d6e52c6c157e737e0964ee8d9b3e811' 'd41d8cd98f00b204e9800998ecf8427e'
 'd41d8cd98f00b204e9800998ecf8427e')
 
 package() {
-	cd "${srcdir}"
-    install -dm755 $pkgdir/usr/share/pacman/keyrings
-	install -Dm644 cyberlinux{.gpg,-trusted,-revoked} $pkgdir/usr/share/pacman/keyrings/
+  cd "${srcdir}"
+  install -dm755 $pkgdir/usr/share/pacman/keyrings
+  install -Dm644 cyberlinux{.gpg,-trusted,-revoked} $pkgdir/usr/share/pacman/keyrings/
 }
+
+# vim: ts=2:sw=2:sts=2
