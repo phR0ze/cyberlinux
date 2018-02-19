@@ -11,9 +11,9 @@
 # https://git.archlinux.org/svntogit/packages.git/tree/trunk?h=packages/linux
 #-------------------------------------------------------------------------------
 _srcname=linux-4.15
-_kernelname=-chrome
+_kernelname=-celes
 
-# linux-chrome
+# linux-celes
 pkgbase=linux$_kernelname
 pkgver=4.15.4
 pkgrel=1
