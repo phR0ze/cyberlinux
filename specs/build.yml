@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.212
+  release: 0.1.213
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -1152,7 +1152,8 @@ packages:
 
   initramfs-pkgs:
     - { pkg: gptfdisk,                      desc: Paritioning tools e.g. sgdisk }
-    - { pkg: linux,                         desc: Linux kernel }
+    - { pkg: linux,                         desc: Linux kernel and supporting modules }
+    - { pkg: linux-galliumos,               desc: Linux kernel and supporting modules, type: CYBERLINUX }
     - { pkg: mkinitcpio,                    desc: initramfs image creation utility }
     - { pkg: mkinitcpio-vt-colors,          desc: vt console colors, type: CYBERLINUX }
     - { pkg: rsync,                         desc: Remote file sync utility }
