@@ -36,21 +36,10 @@ layers:
       - { install: machine-pkgs }
       - { install: machine-tools }
       - { install: virtualbox-guest-nox }
+      - { install: shell-pkgs }
 
     configs:
       - { apply: machine-config }
-
-  # Shell
-  # ----------------------------------------------------------------------------
-  - name: shell
-    type: machine
-    base: base
-    vagrant: { vram: 32, cpus: 2, ram: 2048 }
-    deployment:
-      entry: "Deploy <%=distro%>-shell                   // Base + shell devel"
-    packages:
-      - { install: shell-pkgs }
-    configs:
       - { apply: shell-config }
 
   # Lite
@@ -63,24 +52,11 @@ layers:
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     deployment:
       entry: "Deploy <%=distro%>-lite                    // Shell + min X11"
+      kernel: linux
     packages:
       - { install: lite-pkgs }
     configs:
       - { apply: lite-config }
-
-  # Server
-  # ----------------------------------------------------------------------------
-  - name: server
-    type: machine
-    base: lite
-    vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
-    vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
-    deployment:
-      entry: "Deploy <%=distro%>-server                  // Lite + services"
-    packages:
-      - { install: server-pkgs }
-    configs:
-      - { apply: server-config }
 
   # Heavy
   # ----------------------------------------------------------------------------
@@ -90,6 +66,7 @@ layers:
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     deployment:
       entry: "Deploy <%=distro%>-heavy                   // Lite + more bling"
+      kernel: linux
     packages:
       - { install: heavy-pkgs }
     configs:
@@ -104,6 +81,7 @@ layers:
     vagrant: { vram: 8, cpus: 2, ram: 2048 }
     deployment:
       entry: "Deploy <%=distro%>-k8snode                 // Shell + k8s node"
+      kernel: linux
     packages:
       - { install: k8snode-pkgs }
     configs:
@@ -118,6 +96,7 @@ layers:
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     deployment:
       entry: "Deploy <%=distro%>-theater                 // Heavy + media apps"
+      kernel: linux
       params: autologin=1
     packages:
       - { install: theater-pkgs }
@@ -134,11 +113,11 @@ layers:
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     deployment:
       entry: "Deploy <%=distro%>-desktop                 // Heavy + more apps"
+      kernel: linux
     packages:
       - { install: desktop-pkgs }
     configs:
       - { apply: desktop-config }
-
 
   # Live
   # ----------------------------------------------------------------------------
@@ -149,3 +128,4 @@ layers:
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     deployment:
       entry: "Start <%=distro%>-recovery                 // Live environment"
+      kernel: linux

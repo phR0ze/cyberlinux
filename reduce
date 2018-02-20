@@ -134,13 +134,15 @@ class Reduce
     @grub_iso_src = File.join(@rootpath, 'boot/grub_iso')
     @grub_iso_work = File.join(@workpath, 'boot/grub_iso')
 
+    @kernel_path = @boot_dst
+    @kernel_prefix = 'vmlinuz'
     @memtest_image = File.join(@boot_dst, 'memtest')
-    @kernel_image = File.join(@boot_dst, 'vmlinuz')
     @ucode_image = File.join(@boot_dst, 'intel-ucode')
 
+    @initramfs_path = @boot_dst
+    @initramfs_prefix = 'initramfs'
     @initramfs_src = File.join(@rootpath, 'boot/initramfs')
     @initramfs_work = File.join(@workpath, 'boot/initramfs')
-    @initramfs_image = File.join(@boot_dst, 'initramfs.img')
 
     @packer_src = File.join(@rootpath, 'packer')
     @packer_work = File.join(@workpath, 'packer')
@@ -285,8 +287,10 @@ class Reduce
       puts("Cleaning initamfs...".colorize(:cyan))
       puts("Deleting #{@initramfs_work}".colorize(:red)) if File.exist?(@initramfs_work)
       Sys.rm_rf(@initramfs_work)
-      puts("Deleting #{@initramfs_image}".colorize(:red)) if File.exist?(@initramfs_image)
-      Sys.rm_rf(@initramfs_image)
+      Dir[File.join(@initramfs_path, "#{@initramfs_prefix}*")].each{|x|
+        puts("Deleting #{x}".colorize(:red))
+        Sys.rm_rf(x)
+      }
     end
 
     # Clean grub iso components
@@ -296,8 +300,8 @@ class Reduce
         puts("Deleting #{x}".colorize(:red)) if File.exist?(x)
         Sys.rm_rf(x)
       }
-      ["#{@ucode_image}.img", "#{@ucode_image}.LICENSE", @memtest_image,
-       "#{@memtest_image}.LICENSE", @kernel_image].each{|x|
+      (Dir[File.join(@kernel_path, "#{@kernel_prefix}*")] + ["#{@ucode_image}.img",
+        "#{@ucode_image}.LICENSE", @memtest_image, "#{@memtest_image}.LICENSE"]).each{|x|
         puts("Deleting #{x}".colorize(:red)) if File.exist?(x)
         File.delete(x) if File.exist?(x)
       }
@@ -438,10 +442,12 @@ class Reduce
     create_dir_structure
     changed = false
     initramfs_digests = File.join(@initramfs_work, 'digests')
+    initramfs_names = @spec[@k.layers].select{|x| x[@k.type] == @k.machine}
+      .map{|x| x[@k.deployment][@k.kernel]}.uniq.map{|x| "#{@initramfs_prefix}-#{x}"}
 
     puts("#{'-' * 80}\nBuilding initramfs images...\n#{'-' * 80}".colorize(:light_yellow))
     if syncfiles(File.basename(@initramfs_work), @initramfs_src, @initramfs_work, initramfs_digests) or
-        not File.exist?(@initramfs_image)
+        not Dir[File.join(@initramfs_path, "#{@initramfs_prefix}*")].any?
       changed |= true
       installer = File.join(@initramfs_work, 'installer')
       installer_conf = File.join(@initramfs_work, 'installer.conf')
@@ -452,18 +458,30 @@ class Reduce
 
       # Build initramfs images in build container
       docker(@k.build, @k.build){|cont, home, cp, exec, execs, runuser|
-        cp["#{installer} #{cont}:/usr/lib/initcpio/hooks"]
-        cp["#{installer_conf} #{cont}:/usr/lib/initcpio/install/installer"]
-        cp["#{mkinitcpio_conf} #{cont}:/etc"]
 
-        puts("Creating #{@initramfs_image}...".colorize(:cyan))
-        initramfs = File.join('/root', File.basename(@initramfs_image))
-        kernelstr = `#{execs} ls /lib/modules`.split("\n").sort.first
-        puts("Using kernel: #{kernelstr}".colorize(:green))
+        # Inject installer configuration
+        cp.call("#{installer} #{cont}:/usr/lib/initcpio/hooks")
+        cp.call("#{installer_conf} #{cont}:/usr/lib/initcpio/install/installer")
+        cp.call("#{mkinitcpio_conf} #{cont}:/etc")
 
-        exec["mkinitcpio -k #{kernelstr} -g #{initramfs}"]
-        cp["#{cont}:#{initramfs} #{@initramfs_image}"]
-        puts("Successfully built initramfs image #{@initramfs_image}".colorize(:green))
+        # Build an initramfs for each installed kernel
+        `#{execs} ls /lib/modules`.split(" ").compact.reject{|x| x.include?('extra')}.each{|kernel|
+
+          # Hack to the initramfs image name
+          # TODO: fix this so it can handle any number of kernels
+          if kernel.include?('ARCH')
+            initramfs_name = initramfs_names.find{|x| x == "#{@initramfs_prefix}-linux"}
+          else
+            initramfs_name = initramfs_names.find{|x| x != "#{@initramfs_prefix}-linux"}
+          end
+          puts("Creating #{initramfs_name}...".colorize(:cyan))
+          puts("Using kernel: #{kernel}".colorize(:green))
+          initramfs_image = File.join('/root', "#{initramfs_name}.img")
+
+          exec.call("mkinitcpio -k #{kernel} -g #{initramfs_image}")
+          cp.call("#{cont}:#{initramfs_image} #{@initramfs_path}")
+          puts("Successfully built initramfs image #{@initramfs_path}/#{initramfs_name}.img".colorize(:green))
+        }
       }
     end
 
@@ -479,11 +497,13 @@ class Reduce
     changed = false
     grub_digests = File.join(@grub_iso_work, 'digests')
     grub_iso_path = File.join(@grub_iso_work, 'boot/grub')
+    kernels = @spec[@k.layers].select{|x| x[@k.type] == @k.machine}
+      .map{|x| x[@k.deployment][@k.kernel]}.compact.uniq.map{|x| "#{@kernel_prefix}-#{x}"}
 
     FileUtils.mkdir_p(grub_iso_path)
     puts("#{'-' * 80}\nBuilding grub multiboot...\n#{'-' * 80}".colorize(:light_yellow))
     if syncfiles(File.basename(@grub_iso_work), @grub_iso_src, grub_iso_path, grub_digests) or
-        not File.exist?(@kernel_image)
+        not Dir[File.join(@kernel_path, "#{@kernel_prefix}*")].any?
       changed |= true
 
       # Resolve templates
@@ -494,38 +514,44 @@ class Reduce
       motd = File.readlines(@motd_path)
       File.open(File.join(grub_iso_path, 'boot.cfg'), 'w'){|f|
         @spec[@k.layers].select{|x| x[@k.type] == @k.machine}.reverse.each{|x|
+          kernel = "#{@kernel_prefix}-#{x[@k.deployment][@k.kernel]}"
           params = x[@k.deployment][@k.params]
           layers = @vars["#{x[@k.name]}_layers"]
 
           f << "    menuentry --class=deployment '#{x[@k.deployment][@k.entry]}' {\n"
           f << "        echo\necho\n"
           motd.each{|line| f << "        echo $\"          #{line.gsub("\n", "")}\"\n" }
-          f << "        linux /boot/vmlinuz efi=$efi layers=#{layers} #{@vars.kernel_params} #{params if params}\n"
-          f << "        initrd /boot/intel-ucode.img /boot/initramfs.img\n"
+          f << "        linux /boot/#{kernel} efi=$efi layers=#{layers} #{@vars.kernel_params} #{params if params}\n"
+          f << "        initrd /boot/intel-ucode.img /boot/#{@initramfs_prefix}-#{x[@k.deployment][@k.kernel]}.img\n"
           f << "    }\n"
         }
       }
       Fedit.resolve(File.join(grub_iso_path, 'boot.cfg'), @vars)
 
       # Build grub components inside build container to ensure isolation
-      docker(@k.build, @k.build){|cont, home, cp, exec, execs, runuser|
+      docker(@k.build, 'root'){|cont, home, cp, exec, execs, runuser|
 
         # Extract GRUB boot files
         cp.call("#{cont}:/usr/share/grub/unicode.pf2 #{grub_iso_path}")
 
-        # Extract kernel, memtest and intel-ucode as well as licenses
-        cp.call("#{cont}:/boot/vmlinuz-linux #{@kernel_image}")
+        # Extract memtest and intel-ucode as well as licenses
         cp.call("#{cont}:/boot/intel-ucode.img #{@ucode_image}.img")
         cp.call("#{cont}:/usr/share/licenses/intel-ucode/LICENSE #{@ucode_image}.LICENSE")
         cp.call("#{cont}:/boot/memtest86+/memtest.bin #{@memtest_image}")
         cp.call("#{cont}:/usr/share/licenses/common/GPL2/license.txt #{@memtest_image}.LICENSE")
+
+        # Extract kernels
+        kernels.each{|kernel|
+          puts("Copying: ...to #{@kernel_path}/#{kernel}")
+          cp.call("#{cont}:/boot/#{kernel} #{@kernel_path}")
+        }
       }
 
       puts("Copying grub multiboot to destination...".colorize(:cyan))
       Dir.glob(File.join(@grub_iso_work, '**/*'), File::FNM_DOTMATCH).each{|x|
         if !['digests', 'efi.img'].any?{|y| y == File.basename(x)} and File.file?(x)
           dst = x.sub(@grub_iso_work, @isopath)
-          puts("Copying to #{dst}")
+          puts("Copying: ...to #{dst}")
           FileUtils.mkdir_p(File.dirname(dst))
           FileUtils.cp(x, dst)
         end
