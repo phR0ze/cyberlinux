@@ -11,10 +11,10 @@
 # https://git.archlinux.org/svntogit/packages.git/tree/trunk?h=packages/linux
 #-------------------------------------------------------------------------------
 _srcname=linux-4.15
-_kernelname=-celes
+_kernelname=celes
 
 # linux-celes
-pkgbase=linux$_kernelname
+pkgbase=linux-$_kernelname
 pkgver=4.15.4
 pkgrel=1
 arch=('x86_64')
@@ -62,7 +62,8 @@ prepare() {
 
   msg "Applying configuration"
   cat ../config - >.config <<END
-CONFIG_LOCALVERSION="${_kernelname}"
+CONFIG_LOCALVERSION="-${_kernelname}"
+CONFIG_DEFAULT_HOSTNAME="${_kernelname}"
 CONFIG_LOCALVERSION_AUTO=n
 END
 
@@ -115,7 +116,7 @@ _package() {
   cp arch/x86/boot/bzImage "${pkgdir}/boot/vmlinuz-${pkgbase}"
 
   # make room for external modules
-  local _extramodules="extramodules-${_basekernel}${_kernelname}"
+  local _extramodules="extramodules-${_basekernel}-${_kernelname}"
   ln -s "../${_extramodules}" "${pkgdir}/usr/lib/modules/${_kernver}/extramodules"
 
   # add real version for building modules and running depmod from hook
