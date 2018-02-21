@@ -1,5 +1,5 @@
 #MIT License
-#Copyright (c) 2017 phR0ze
+#Copyright (c) 2017-2018 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -24,8 +24,8 @@
 #-------------------------------------------------------------------------------
 pkgname=vscode
 pkgdesc='Code editor for building modern apps'
-pkgver=1.19.1
-pkgrel=2
+pkgver=1.20.1
+pkgrel=1
 arch=(x86_64)
 url=https://github.com/Microsoft/vscode
 license=(MIT)
@@ -38,7 +38,7 @@ source=("vscode::git+https://github.com/Microsoft/vscode#tag=$pkgver"
         "$pkgname.svg")
 sha256sums=('SKIP'
             'ef3720f757a5efdd162ff3c084a56a2442dbb26db4b36759429d63a830f66d4c'
-            '90244586d3dc292527697dc5739d23d92f669bf094ca2b5748ac7f85be99c3f3'
+            '7ddae8cad9dc90cbc115f43021a9093ac4edbf803427edd3233b7f265102057b'
             '671416ddb8632e647369b1f3376cdaf6b92bf1c0856771f1ad561a62169b809f')
 
 build()
