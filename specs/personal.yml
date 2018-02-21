@@ -86,7 +86,7 @@ layers:
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     deployment:
       entry: "Deploy <%=distro%>-celes                   // Lite + drivers"
-      kernel: linux-galliumos
+      kernel: linux-celes
     packages:
       - { install: celes-pkgs }
 
