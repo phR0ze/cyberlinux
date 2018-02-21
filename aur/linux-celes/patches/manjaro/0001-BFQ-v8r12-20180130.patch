@@ -46,7 +46,7 @@ index c8b8e902d5a4..b58845d3e3e8 100644
 @@ -2,7 +2,7 @@
  VERSION = 4
  PATCHLEVEL = 15
- SUBLEVEL = 0
+ SUBLEVEL = 4
 -EXTRAVERSION =
 +EXTRAVERSION = -bfq
  NAME = Fearless Coyote
@@ -15942,7 +15942,7 @@ index b58845d3e3e8..caf79046752b 100644
 @@ -2,7 +2,7 @@
  VERSION = 4
  PATCHLEVEL = 15
- SUBLEVEL = 0
+ SUBLEVEL = 4
 -EXTRAVERSION = -bfq
 +EXTRAVERSION = -bfq-mq
  NAME = Fearless Coyote

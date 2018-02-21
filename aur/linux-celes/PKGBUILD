@@ -11,11 +11,12 @@
 # https://git.archlinux.org/svntogit/packages.git/tree/trunk?h=packages/linux
 #-------------------------------------------------------------------------------
 _srcname=linux-4.15
+_patch=4
 _kernelname=celes
 
 # linux-celes
 pkgbase=linux-$_kernelname
-pkgver=4.15.4
+pkgver=4.15.$_patch
 pkgrel=1
 arch=('x86_64')
 url="https://www.kernel.org/"
