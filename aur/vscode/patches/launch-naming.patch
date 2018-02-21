@@ -1,0 +1,31 @@
+diff '--color=auto' -ruN a/.vscode/launch.json b/.vscode/launch.json
+--- a/.vscode/launch.json	2018-02-20 16:28:49.204101579 -0700
++++ b/.vscode/launch.json	2018-02-21 08:59:57.639130360 -0700
+@@ -166,9 +166,9 @@
+ 			"name": "Unit Tests",
+ 			"protocol": "inspector",
+ 			"program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+-			"runtimeExecutable": "${workspaceFolder}/.build/electron/Code - OSS.app/Contents/MacOS/Electron",
++			"runtimeExecutable": "${workspaceFolder}/.build/electron/vscode.app/Contents/MacOS/Electron",
+ 			"windows": {
+-				"runtimeExecutable": "${workspaceFolder}/.build/electron/Code - OSS.exe"
++				"runtimeExecutable": "${workspaceFolder}/.build/electron/vscode.exe"
+ 			},
+ 			"linux": {
+ 				"runtimeExecutable": "${workspaceFolder}/.build/electron/code-oss"
+@@ -197,7 +197,7 @@
+ 			"port": 9999,
+ 			"args": [
+ 				"-l",
+-				"${workspaceFolder}/.build/electron/Code - OSS.app/Contents/MacOS/Electron"
++				"${workspaceFolder}/.build/electron/vscode.app/Contents/MacOS/Electron"
+ 			],
+ 			"outFiles": [
+ 				"${cwd}/out/**/*.js"
+@@ -225,4 +225,4 @@
+ 			]
+ 		}
+ 	]
+-}
+\ No newline at end of file
++}

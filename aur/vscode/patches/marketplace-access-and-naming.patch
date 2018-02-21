@@ -1,0 +1,35 @@
+diff '--color=auto' -ruN a/product.json b/product.json
+--- a/product.json	2018-02-21 09:59:28.626212893 -0700
++++ b/product.json	2018-02-21 10:04:22.565845377 -0700
+@@ -1,8 +1,8 @@
+ {
+-	"nameShort": "Code - OSS",
+-	"nameLong": "Code - OSS",
+-	"applicationName": "code-oss",
+-	"dataFolderName": ".vscode-oss",
++	"nameShort": "vscode",
++	"nameLong": "vscode",
++	"applicationName": "vscode",
++	"dataFolderName": ".vscode",
+ 	"win32MutexName": "vscodeoss",
+ 	"licenseName": "MIT",
+ 	"licenseUrl": "https://github.com/Microsoft/vscode/blob/master/LICENSE.txt",
+@@ -19,5 +19,15 @@
+ 	"extensionAllowedProposedApi": [
+ 		"ms-vscode.node-debug",
+ 		"ms-vscode.node-debug2"
+-	]
+-}
+\ No newline at end of file
++	],
++    "quality": "stable",
++    "extensionsGallery": {
++        "serviceUrl": "https://marketplace.visualstudio.com/_apis/public/gallery",
++        "cacheUrl": "https://vscode.blob.core.windows.net/gallery/index",
++        "itemUrl": "https://marketplace.visualstudio.com/items"
++    },
++    "documentationUrl": "https://github.com/microsoft/vscode-docs",
++    "requestFeatureUrl": "https://github.com/Microsoft/vscode/issues",
++    "commit": "{{ COMMIT }}",
++    "date": "{{ DATE }}"
++}
