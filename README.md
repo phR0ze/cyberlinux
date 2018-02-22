@@ -155,7 +155,7 @@ Deploy ***cyberlinux*** via a USB directly onto a machine
 1. Download the latest [***cyberlinux ISO***](https://github.com/phR0ze/cyberlinux/releases)
 2. Burn the ISO to a USB via ***dd***  
     a. Determine correct USB device: ```sudo fdisk -l```  
-    b. Burn to USB: ```sudo dd bs=4M if=~/cyberlinux-0.0.159-4.12.13-1-x86_64.iso of=/dev/sdb status=progress```  
+    b. Burn to USB: ```sudo dd bs=4M if=~/cyberlinux-0.0.159-4.12.13-1-x86_64.iso of=/dev/sdb status=progress oflag=sync```  
 2. Burn the ISO to a USB via ***MultiWriter***  
     a. Install MultiWriter: ```sudo pacman -S gnome-multi-writer```  
     b. Launch MultiWriter: ```gnome-multi-writer```  

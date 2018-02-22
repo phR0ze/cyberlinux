@@ -463,17 +463,13 @@ class Reduce
         cp.call("#{installer} #{cont}:/usr/lib/initcpio/hooks")
         cp.call("#{installer_conf} #{cont}:/usr/lib/initcpio/install/installer")
         cp.call("#{mkinitcpio_conf} #{cont}:/etc")
+        #exec.call('bash -c "while :; do sleep 5; done"')
 
         # Build an initramfs for each installed kernel
         `#{execs} ls /lib/modules`.split(" ").compact.reject{|x| x.include?('extra')}.each{|kernel|
-
-          # Hack to the initramfs image name
-          # TODO: fix this so it can handle any number of kernels
-          if kernel.include?('ARCH')
-            initramfs_name = initramfs_names.find{|x| x == "#{@initramfs_prefix}-linux"}
-          else
-            initramfs_name = initramfs_names.find{|x| x != "#{@initramfs_prefix}-linux"}
-          end
+          name = "-" + kernel.split("-").last
+          name = '' if name == "-ARCH"
+          initramfs_name = initramfs_names.find{|x| x == "#{@initramfs_prefix}-linux#{name}"}
           puts("Creating #{initramfs_name}...".colorize(:cyan))
           puts("Using kernel: #{kernel}".colorize(:green))
           initramfs_image = File.join('/root', "#{initramfs_name}.img")
