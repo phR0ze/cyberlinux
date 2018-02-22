@@ -474,28 +474,39 @@ installer()
         local i=0
         echo -e "\n${cyan}:: Select a disk as your install destination:${none}"
         local disks=''
-        local alldisks=$(lsblk -dn -o NAME,SIZE,VENDOR,MODEL,TYPE -x NAME | grep disk)
+        #local alldisks=$(lsblk -dn -o NAME,SIZE,VENDOR,MODEL,TYPE -x NAME | grep disk)
+        local alldisks=$(lsblk -dn -o NAME,SIZE,VENDOR,MODEL,TYPE -x NAME)
         for x in $alldisks; do
+            local details=""
             local disk=$(echo $x | awk '{print $1}')
             local size=$(echo $x | awk '{print $2}')
             local vendor=$(echo $x | awk '{print $3}')
             local model=$(echo $x | awk '{print $4}')
+            [ "x${size}" != "x" ] && details="${size}"
+            [ "x${vendor}" != "x" ] && details="${details} ${vendor}"
+            [ "x${model}" != "x" ] && details="${details} ${model}"
 
-            # Limit to just disks begining with "sd"
-            if [ "${disk#*sd}" != "${disk}" ]; then
+            # Limit to disks over 4GB in size
+            local factor=1
+            [ "${size#*G}" != "${size}" ] && factor=1024
+            size=${size//M}         # Drop M suffix
+            size=${size//G}         # Drop G suffix
+            size=${size%.*}         # Convert decimals to int
+            size=$((size*factor))
+            if [ ${size} -gt 4096 ]; then
 
-                # Limit to non iso device
+                # Exclude the device the iso was mounted from
                 local dev=/dev/${disk}
                 if [ "${isodev#*$dev}" == "${isodev}" ]; then
                     local i=$((i+1))
                     local disks="${disks} /dev/${disk}"
-                    echo -e "   ${i}) [${cyan}/dev/${disk}${none}] - ${size} ${vendor} ${model}"
+                    echo -e "   ${i}) [${cyan}/dev/${disk}${none}] - ${details}"
                 fi
             fi
         done
         IFS=$ifs
-        fail_to_shell
         getsel install_dev $disks
+        fail_to_shell
 
         # Configure networking
         #----------------------------------------------------------------------
