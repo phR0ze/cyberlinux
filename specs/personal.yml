@@ -77,35 +77,6 @@ layers:
     configs:
       - { apply: lite-config }
 
-  # Samsung Chromeboo 3 (a.k.a celes)
-  # ----------------------------------------------------------------------------
-  - name: celes
-    type: machine
-    base: lite
-    vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
-    vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
-    deployment:
-      entry: "Deploy <%=distro%>-celes                   // Lite + drivers"
-      kernel: linux-celes
-    packages:
-      - { install: celes-pkgs }
-
-      # Possible apps to add
-      # ristretto         // Image viewer
-      # Hexchat           // IRC
-      # Pidgin            // Messaging
-      # Xfce4 Dictionary
-      # Network manager
-      # Xfce power manager
-      # xfce4 settings display
-
-      # Teamviewer is free to use for personal use
-      # https://www.teamviewer.com/en/credentials/free-for-personal-use/
-      - { pkg: teamviewer,                    desc: All-In-One Software for Remote Support and Online Meetings, type: CYBERLINUX }
-    configs:
-      #- { apply: celes-config }
-      - { apply: teamviewer-client-config }
-
   # Server
   # ----------------------------------------------------------------------------
   - name: server
@@ -191,7 +162,7 @@ layers:
     configs:
       - { apply: desktop-config }
 
-  # Live
+  # Recovery
   # ----------------------------------------------------------------------------
   - name: live
     type: machine

@@ -19,6 +19,10 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
+# Samsung Chromebook 3 (a.k.a celes)
+# Personal - uses applications with various restrictions and can not be used
+# commercial purposes. It is only to be used for personal use only.
+# ------------------------------------------------------------------------------
 layers:
 
   # Base
@@ -31,11 +35,10 @@ layers:
     vagrant: { vram: 32, cpus: 2, ram: 2048 }
     deployment:
       entry: "Deploy <%=distro%>-base                    // Minimal shell"
-      kernel: linux
+      kernel: linux-celes
     packages:
       - { install: machine-pkgs }
       - { install: machine-tools }
-      - { install: virtualbox-guest-nox }
       - { install: shell-pkgs }
 
     configs:
@@ -46,86 +49,62 @@ layers:
   # ----------------------------------------------------------------------------
   - name: lite
     type: machine
-    base: shell
-    groups: [ video, audio]
-    vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
+    base: base
+    groups: [video, audio]
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
+    vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
     deployment:
       entry: "Deploy <%=distro%>-lite                    // Shell + min X11"
-      kernel: linux
+      kernel: linux-celes
     packages:
       - { install: lite-pkgs }
+
+      # Adobe fonts from adobe reader
+      # https://aur.archlinux.org/cgit/aur.git/tree/LICENSE?h=ttf-adobe-fonts
+      - { pkg: ttf-adobe-fonts,               desc: Adobe fonts including Myriad Minion and Courier, type: CYBERLINUX }
     configs:
       - { apply: lite-config }
-
-  # Heavy
-  # ----------------------------------------------------------------------------
-  - name: heavy
-    type: machine
-    base: lite
-    vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
-    deployment:
-      entry: "Deploy <%=distro%>-heavy                   // Lite + more bling"
-      kernel: linux
-    packages:
-      - { install: heavy-pkgs }
-    configs:
-      - { apply: heavy-config }
-
-  # K8snode
-  # ----------------------------------------------------------------------------
-  - name: k8snode
-    type: machine
-    base: shell
-    groups: [docker]
-    vagrant: { vram: 8, cpus: 2, ram: 2048 }
-    deployment:
-      entry: "Deploy <%=distro%>-k8snode                 // Shell + k8s node"
-      kernel: linux
-    packages:
-      - { install: k8snode-pkgs }
-    configs:
-      - { apply: k8snode-config }
-
-  # Theater
-  # ----------------------------------------------------------------------------
-  - name: theater
-    type: machine
-    base: heavy
-    vars: { fontsize: 18, wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
-    vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
-    deployment:
-      entry: "Deploy <%=distro%>-theater                 // Heavy + media apps"
-      kernel: linux
-      params: autologin=1
-    packages:
-      - { install: theater-pkgs }
-    configs:
-      - { apply: theater-config }
 
   # Desktop
   # ----------------------------------------------------------------------------
   - name: desktop
     type: machine
-    base: heavy
-    groups: [docker]
+    base: lite
     vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     deployment:
-      entry: "Deploy <%=distro%>-desktop                 // Heavy + more apps"
-      kernel: linux
+      entry: "Deploy <%=distro%>-desktop                 // Lite + more apps"
+      kernel: linux-celes
     packages:
-      - { install: desktop-pkgs }
-    configs:
-      - { apply: desktop-config }
+      #- { install: heavy-pkgs }
+      - { install: laptop-pkgs }
+        #- { install: desktop-pkgs }
 
-  # Recovery
+      # Possible apps to add
+      # ristretto         // Image viewer
+      # Hexchat           // IRC
+      # Pidgin            // Messaging
+      # Xfce4 Dictionary
+      # Network manager
+      # Xfce power manager
+      # xfce4 settings display
+
+      # Teamviewer is free to use for personal use
+      # https://www.teamviewer.com/en/credentials/free-for-personal-use/
+      - { pkg: teamviewer,                    desc: All-In-One Software for Remote Support and Online Meetings, type: CYBERLINUX }
+    configs:
+      #- { apply: heavy-config }
+      #- { apply: celes-config }
+      #- { apply: desktop-config }
+      - { apply: teamviewer-client-config }
+
+  # Live
   # ----------------------------------------------------------------------------
   - name: live
     type: machine
-    base: heavy
+    base: desktop
     vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     deployment:
       entry: "Start <%=distro%>-recovery                 // Live environment"
-      kernel: linux
+      kernel: linux-celes

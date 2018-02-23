@@ -325,8 +325,8 @@ install_bootloader()
     echo -e 'menuentry "<%=distro%>" {' >> ${grub_path}/grub.cfg
     echo -e "    set gfxpayload=keep" >> ${grub_path}/grub.cfg
     echo -e "    search --no-floppy --set=root --label <%=distro%>" >> ${grub_path}/grub.cfg
-    echo -e '    linux /boot/vmlinuz-linux root=LABEL=<%=distro%> rw <%=kernel_params%>' >> ${grub_path}/grub.cfg
-    echo -e '    initrd /boot/intel-ucode.img /boot/initramfs-linux.img' >> ${grub_path}/grub.cfg
+    echo -e "    linux /boot/vmlinuz-${kernel} root=LABEL=<%=distro%> rw <%=kernel_params%>" >> ${grub_path}/grub.cfg
+    echo -e "    initrd /boot/intel-ucode.img /boot/initramfs-${kernel}.img" >> ${grub_path}/grub.cfg
     echo -e "}" >> ${grub_path}/grub.cfg
     check_status
 
@@ -625,6 +625,7 @@ run_hook()
     for x in ${params}; do
         case "${x}" in
             'efi'=*) efi=${x//efi=} ;;
+            'kernel'=*) kernel=${x//kernel=} ;;
             'layers'=*) layers=${x//layers=} ;;
             'vagrant'=*) vagrant=${x//vagrant=} ;;
             'autologin'=*) autologin=${x//autologin=} ;;

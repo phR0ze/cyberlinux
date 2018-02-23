@@ -509,7 +509,9 @@ class Reduce
       File.open(File.join(grub_iso_path, 'boot.cfg'), 'w'){|f|
         @spec[@k.layers].select{|x| x[@k.type] == @k.machine}.reverse.each{|x|
           kernel = "#{@kernel_prefix}-#{x[@k.deployment][@k.kernel]}"
-          params = x[@k.deployment][@k.params]
+          params = x[@k.deployment][@k.params] || ""
+          params = "#{params} " if !params.empty?
+          params += "kernel=#{x[@k.deployment][@k.kernel]}"
           layers = @vars["#{x[@k.name]}_layers"]
 
           f << "    menuentry --class=deployment '#{x[@k.deployment][@k.entry]}' {\n"

@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.232
+  release: 0.1.233
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -1424,7 +1424,7 @@ packages:
     - { pkg: ttf-liberation,                desc: Red Hats Liberation fonts.  }
     - { pkg: ttf-ms-fonts,                  desc: Microsoft core fonts, type: CYBERLINUX }
 
-  celes-pkgs:
+  laptop-pkgs:
     - { pkg: blueman,                       desc: GTK+ Bluetooth Manager }
 
   heavy-pkgs:
