@@ -209,11 +209,11 @@ partition_and_mount_disk()
     # https://wiki.archlinux.org/index.php/EFI_System_Partition#Create_the_partition
     if [ "x${efi}" == "x1" ]; then
         echo -en ":: Creating ${install_dev}1 as ESP boot partition..."
-        sgdisk -n 0:0:+550M -t 0:ef00 -c 0:"EFI System" ${install_dev} &>/dev/null
+        sgdisk -n 0:0:+4M -t 0:ef00 -c 0:"EFI System" ${install_dev} &>/dev/null
         check_status
 
         echo -en ":: Formatting ${install_dev}1 (ESP) as FAT32..."
-        mkfs.fat -s2 -F32 -n "EFI System" ${install_dev}1 &>/dev/null
+        mkfs.fat -F32 -n "EFI System" ${install_dev}1 &>/dev/null
         check_status
 
         echo -en ":: Creating ${install_dev}2 as Linux swap partition..."

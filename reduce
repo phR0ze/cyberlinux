@@ -221,8 +221,6 @@ class Reduce
     opts = { ssl_verify_mode: 0, proxy:@proxy }
     page = open("https://www.archlinux.org/packages/core/x86_64/linux", opts).read
     @vars.kernel = page[/<title>(.*?)<\/title>/, 1][/.*linux (.*) \(x86_64\)/, 1]
-    @vars.isofile = File.join(@imagepaths.first,
-      "#{@vars.distro.downcase}-#{@vars.release}-#{@vars.kernel}-#{@vars.arch}.iso")
 
     puts("Distro: #{@vars.distro}".colorize(:green))
     puts("Release: #{@vars.release}".colorize(:green))
@@ -386,7 +384,6 @@ class Reduce
     !puts("Error: no build options specified".colorize(:red)) and exit unless opts.any?
     changed = false
     load_spec(spec)
-
     info
     create_dir_structure
 
@@ -412,6 +409,8 @@ class Reduce
 
     # Create ISO Hybrid CD/USB bootable image
     # http://lukeluo.blogspot.co.uk/2013/06/grub-how-to-2-make-boot-able-iso-with.html
+    @vars.isofile = File.join(@imagepaths.first,
+      "#{@vars.distro.downcase}-#{spec}-#{@vars.release}-#{@vars.kernel}-#{@vars.arch}.iso")
     if [iso, isofull].any?
       puts("#{'-' * 80}\nBuilding ISO Hybrid CD/USB bootable image...\n#{'-' * 80}".colorize(:light_yellow))
       if changed or not File.exist?(@vars.isofile)

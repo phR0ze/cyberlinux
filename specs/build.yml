@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.233
+  release: 0.1.234
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -40,32 +40,6 @@ vars:
 
   # NFS allowed cidr
   nfscidr: 192.168.56.0/24
-
-build:
-  name: build
-  type: container
-  multilib: true
-  docker:
-    # Note: need privileged=true to allow mount to work inside container
-    params: '-e TERM=xterm -v /var/run/docker.sock:/var/run/docker.sock --privileged=true'
-    command: 'bash -c "while :; do sleep 5; done"'
-  packages:
-    - { install: core-pkgs }
-    - { install: core-tools }
-    - { install: grub-pkgs }
-    - { install: initramfs-pkgs }
-    - { pkg: sudo, desc: Elevate some user commands to root, group: build-devel }
-  configs:
-
-    # Create and configure new build user and root user
-    - { chroot: 'useradd -m -G lp,wheel,network,storage,users -s /bin/bash build || true' }
-    - { exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /home/build' }
-    - { exec: "echo 'TERM=xterm' > /etc/environment" }
-    - { exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /root' }
-    - { edit: /etc/sudoers, insert: append, value: "build ALL=(ALL) NOPASSWD: ALL" }
-
-    - { apply: core-config }
-    - { apply: mkinitcpio-config }
 
 configs:
 
@@ -1149,15 +1123,6 @@ packages:
     - { pkg: intel-ucode,                   desc: Microcode update files for Intel CPUs }
     - { pkg: licenses,                      desc: Standard licenses distribution package }
     - { pkg: memtest86+,                    desc: memtest is used in the ISO creation as menu option }
-
-  initramfs-pkgs:
-    - { pkg: gptfdisk,                      desc: Paritioning tools e.g. sgdisk }
-    - { pkg: linux,                         desc: Linux kernel and supporting modules }
-    - { pkg: linux-celes,                   desc: Linux kernel and supporting modules, type: CYBERLINUX }
-    - { pkg: mkinitcpio,                    desc: initramfs image creation utility }
-    - { pkg: mkinitcpio-vt-colors,          desc: vt console colors, type: CYBERLINUX }
-    - { pkg: rsync,                         desc: Remote file sync utility }
-    - { pkg: systemd,                       desc: System and service manager }
 
   shell-pkgs:
     - { install: dev-pkgs }
