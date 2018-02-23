@@ -410,10 +410,8 @@ class Reduce
     # Build GRUB UI that boots initramfs installer and in turn the real kernel
     changed |= build_grub_multiboot if [multiboot, iso, isofull].any?
 
-    # Create ISO Hybrid CD/USB bootable image to launch grub via xorriso
-    # Note: the eltorito-boot and eltorito-catalog appear to be paths
-    # relative to the construction of the ISO which threw me off for awhile
-    # https://wiki.archlinux.org/index.php/Remastering_the_Install_ISO#Modifying_the_EFI_boot_image
+    # Create ISO Hybrid CD/USB bootable image
+    # http://lukeluo.blogspot.co.uk/2013/06/grub-how-to-2-make-boot-able-iso-with.html
     if [iso, isofull].any?
       puts("#{'-' * 80}\nBuilding ISO Hybrid CD/USB bootable image...\n#{'-' * 80}".colorize(:light_yellow))
       if changed or not File.exist?(@vars.isofile)

@@ -41,12 +41,17 @@ none="\e[m"
 red="\e[1;31m"
 cyan="\e[0;36m"
 
-fail_to_shell()
+exit_to_shell()
 {
     alias ll='ls -lah'
     PS1="${cyber}[rootfs:\w]\$ ${none}"
     export PS1=$PS1
+    echo -e "\n${cyan}:: Interactive Shell${none}"
+    launch_interactive_shell
+}
 
+fail_to_shell()
+{
     echo -e "${red}failed!${none}"
     launch_interactive_shell
 }
@@ -77,6 +82,7 @@ getinput()
         else
             read value
         fi
+        [ "$value" == "exit" ] && exit_to_shell
         [ "x$value" != "x" ] && local result=$value
     fi
 
@@ -96,6 +102,7 @@ getsel()
     while true; do
         echo -en "   Enter a number (default=${cyan}1${none}): "
         [ "x$vagrant" == "x1" ] && echo '' || read choice
+        [ "$choice" == "exit" ] && exit_to_shell
         [ "x$choice" == "x" ] && choice=1
         if [ $choice -gt 0 ] && [ $choice -le $out_of_bounds ]; then
             local result=$(echo $options | awk "{print \$$choice}")
@@ -151,13 +158,26 @@ mount_iso()
     while [ $success -eq 0 ]; do
         sleep 0.25 # Sleep for a bit
 
-        # Mount iso by label from kernel cmdline
+        # Find device by label
         isodev=$(blkid -L ${label}) &>/dev/null
         if [ "x${isodev}" != "x" ]; then
             check_status
+
+            # Get fstype trimming device partition off if type not correct
+            # /dev/sda3 to /dev/sda in USB case
+            # /dev/sr0 in CD/ISO case
             local fstype=$(blkid -s TYPE -o value ${isodev}) &>/dev/null
-            local install_type=$(lsblk -nl -o TYPE ${isodev}) &>/dev/null
-            echo -en "   Mounting ${cyan}${install_type}${none} device ${cyan}${isodev}${none} to ${iso_mnt}..."
+            if [ "x${fstype}" != "xiso9660" ]; then
+                isodev=${isodev%?}
+                fstype=$(blkid -s TYPE -o value ${isodev}) &>/dev/null
+            fi
+
+            # Get device type and trim to first word
+            local install_type=$(echo $(lsblk -nl -o TYPE ${isodev})) &>/dev/null
+            install_type=${install_type%% *}
+
+            # Mount iso device found by label with correct fstype
+            echo -en "   Mounting install ${cyan}${install_type}${none} [${cyan}${isodev}${none}] to ${iso_mnt}..."
             mount -r -t ${fstype} -o noatime ${isodev} ${iso_mnt} &>/dev/null
             check_status && success=1
         fi
@@ -474,8 +494,7 @@ installer()
         local i=0
         echo -e "\n${cyan}:: Select a disk as your install destination:${none}"
         local disks=''
-        #local alldisks=$(lsblk -dn -o NAME,SIZE,VENDOR,MODEL,TYPE -x NAME | grep disk)
-        local alldisks=$(lsblk -dn -o NAME,SIZE,VENDOR,MODEL,TYPE -x NAME)
+        local alldisks=$(lsblk -dn -o NAME,SIZE,VENDOR,MODEL,TYPE -x NAME | grep disk)
         for x in $alldisks; do
             local details=""
             local disk=$(echo $x | awk '{print $1}')
@@ -491,7 +510,7 @@ installer()
             [ "${size#*G}" != "${size}" ] && factor=1024
             size=${size//M}         # Drop M suffix
             size=${size//G}         # Drop G suffix
-            size=${size%.*}         # Convert decimals to int
+            size=${size%.*}         # Drop decimal suffix
             size=$((size*factor))
             if [ ${size} -gt 4096 ]; then
 
@@ -506,7 +525,6 @@ installer()
         done
         IFS=$ifs
         getsel install_dev $disks
-        fail_to_shell
 
         # Configure networking
         #----------------------------------------------------------------------
