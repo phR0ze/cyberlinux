@@ -220,7 +220,7 @@ partition_and_mount_disk()
 
         # Create ESP boot partition
         echo -en ":: Creating ${part_boot} as ESP boot partition..."
-        sgdisk -n 0:0:+10M -t 0:ef00 -c 0:"EFI System" ${install_dev} &>/dev/null
+        sgdisk -n 0:0:+4M -t 0:ef00 -c 0:"EFI System" ${install_dev} &>/dev/null
         check_status
         echo -en ":: Formatting ${part_boot} (ESP) as FAT..."
         mkfs.fat -n "EFI System" ${part_boot} &>/dev/null
@@ -353,7 +353,7 @@ install_bootloader()
     fi
 
     echo -en ":: Generate new initramfs specific to this machine..."
-    chroot ${rootmnt} mkinitcpio -p linux &>/dev/null
+    chroot ${rootmnt} mkinitcpio -p $kernel &>/dev/null
     check_status
 }
 
@@ -490,8 +490,6 @@ installer()
     echo -e "${cyan}:: *${padleft}${msg}${padright}*${none}"
     echo -e "${cyan}:: $(bash -c "printf '%0.1s' '*'{1..107}")${none}"
     echo -e "   ${params}"
-
-    echo -e "${cyan}${kernel}${none}"
 
     # Mount install source device
     #---------------------------------------------------------------------------

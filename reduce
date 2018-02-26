@@ -241,10 +241,10 @@ class Reduce
 
     # Formatting block for images
     putimages = ->(type, live, name){
-      puts("#{name.ljust(85, ' ')}Size:".colorize(:cyan))
+      puts("#{name.ljust(100, ' ')}Size:".colorize(:cyan))
       getimages(type, live:live).each{|k,v|
         size = v.to_s.count("a-zA-Z").zero? ? Filesize.from("#{v} B").to_s('MiB') : v
-        puts("#{k.ljust(85, ' ')}#{size}")
+        puts("#{k.ljust(100, ' ')}#{size}")
       }
       puts
     }
