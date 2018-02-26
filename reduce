@@ -772,7 +772,6 @@ class Reduce
   def build_layers(target_layer)
     changed = false
     layers = @spec[@k.layers].map{|x| x[@k.name]}
-    !puts("Error: Layer 'build' name not allowed") and exit if layers.include?(@k.build)
     !puts("Error: Layer '#{target_layer}' doesn't exist".colorize(:red)) and
       exit unless (layers + [nil, @k.build]).include?(target_layer)
     layers = getlayers(target_layer).reverse

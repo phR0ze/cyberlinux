@@ -44,8 +44,7 @@ cyan="\e[0;36m"
 exit_to_shell()
 {
     alias ll='ls -lah'
-    PS1="${cyber}[rootfs:\w]\$ ${none}"
-    export PS1=$PS1
+    export PS1="${cyber}[rootfs:\w]\$ ${none}"
     echo -e "\n${cyan}:: Interactive Shell${none}"
     launch_interactive_shell
 }
@@ -221,7 +220,7 @@ partition_and_mount_disk()
 
         # Create ESP boot partition
         echo -en ":: Creating ${part_boot} as ESP boot partition..."
-        sgdisk -n 0:0:+50M -t 0:ef00 -c 0:"EFI System" ${install_dev} &>/dev/null
+        sgdisk -n 0:0:+10M -t 0:ef00 -c 0:"EFI System" ${install_dev} &>/dev/null
         check_status
         echo -en ":: Formatting ${part_boot} (ESP) as FAT..."
         mkfs.fat -n "EFI System" ${part_boot} &>/dev/null
@@ -493,7 +492,6 @@ installer()
     echo -e "   ${params}"
 
     echo -e "${cyan}${kernel}${none}"
-    exit_to_shell
 
     # Mount install source device
     #---------------------------------------------------------------------------
