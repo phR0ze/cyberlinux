@@ -4,12 +4,23 @@ This is an attempt to build a kernel based on Arch Linux with support for celes
 I'm borrowing from the execellent Arch, Manjaro and GalliumOS projects as well as some other
 sources.
 
+* http://ck.kolivas.org/patches/muqss
 * https://github.com/manjaro/packages-core/tree/master/linux415
 * https://github.com/GalliumOS/linux/tree/v4.14.14-galliumos/galliumos/diffs
 * https://git.archlinux.org/svntogit/packages.git/tree/trunk?h=packages/linux
 
 ## Kernel Config
-Starting with the Arch Linux kernel config I'm making specific changes to work better with celes
+Starting with the Arch Linux kernel config I'm making specific changes for celes
+
+### Arch vs. Ubuntu
+http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.15.5/
+Download Ubuntu headers and extract ***config***
+```bash
+wget http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.15.5/linux-headers-4.15.5-041505-generic_4.15.5-041505.201802261304_amd64.deb
+ar xv linux-headers-4.15.5-041505-generic_4.15.5-041505.201802261304_amd64.deb
+tar xf data.tar.xz
+vim usr/src/linux-headers-4.15.5-041505-generic/.config
+```
 
 ### Kernel compression
 Typically disk I/O is the slowest component on a pc. By loading a decompressed kernel then
@@ -18,6 +29,26 @@ the CPU, which ***celes*** has little of
 
 * Enable ***CONFIG_KERNEL_GZIP=y***
 * Disable ***# CONFIG_KERNEL_XZ is not set***
+
+### MuQSS - The Multiple Queue Skiplist Scheduler by Con Kolivas
+***MuQSS*** pronounced ***mux*** is the evolved version of the BFS scheduler. http://ck.kolivas.org/patches/muqss/sched-MuQSS.txt
+Con Kolivas maintains patches for the mainline kernel http://ck.kolivas.org/patches/muqss/4.0/ that
+can be used to enable MuQSS for your kernel.
+
+* Add ***CONFIG_SCHED_MUQSS=y***
+* Add ***CONFIG_FORCE_IRQ_THREADING=y***
+* Disable ***CONFIG_NUMA_BALANCING is not set***
+* Disable ***CONFIG_NUMA_BALANCING_DEFAULT_ENABLED is not set***
+* Disable ***CONFIG_FAIR_GROUP_SCHED is not set***
+* Disable ***CONFIG_CFS_BANDWIDTH is not set***
+* Disable ***CONFIG_CGROUP_CPUACCT is not set***
+* Disable ***CONFIG_SCHED_AUTOGROUP is not set***
+* Add ***CONFIG_SMT_NICE=y***
+* Disable ***# CONFIG_RQ_NONE is not set***
+* Disable ***# CONFIG_RQ_SMT is not set***
+* Add ***CONFIG_RQ_MC=y***
+* Disable ***# CONFIG_RQ_SMP is not set***
+* Add ***CONFIG_SHARERQ=2***
 
 ### BFQ Storage I/O Scheduler
 http://algo.ing.unimo.it/people/paolo/disk_sched/  
