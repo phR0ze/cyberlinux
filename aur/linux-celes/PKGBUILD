@@ -11,7 +11,7 @@
 # https://git.archlinux.org/svntogit/packages.git/tree/trunk?h=packages/linux
 #-------------------------------------------------------------------------------
 _srcname=linux-4.15
-_patch=4
+_patch=5
 _kernelname=celes
 
 # linux-celes
@@ -37,7 +37,7 @@ validpgpkeys=(
 )
 sha256sums=('5a26478906d5005f4f809402e981518d2b8844949199f60c4b6e1f986ca2a769'
             'SKIP'
-            '5f8344fcc6b15be5f53001bb18df342bf5877563239f03271c236e3a40db89e8'
+            '79832aa2c9bc661ef1b4b8d55e6eff346cf23fd6c7dfd1ff0f1a7239cf2b8072'
             'SKIP'
             'SKIP'
             'ae2e95db94ef7176207c690224169594d49445e04249d2499e9d2fbc117a0b21'
