@@ -62,40 +62,31 @@ layers:
     vars: { fontsize: 10 }
     vagrant: { vram: 32, cpus: 2, ram: 2048 }
     deployment:
-      entry: "Deploy <%=distro%>-base                    // Minimal shell"
+      entry: "Deploy <%=distro%>-base                    // Shell env"
       kernel: linux
     packages:
+      - { pkg: linux,                       desc: Linux kernel and supporting modules }
+      - { pkg: linux-docs,                  desc: Linux kernel docs }
+      - { pkg: linux-headers,               desc: Linux kernel headers }
       - { install: machine-pkgs }
       - { install: machine-tools }
       - { install: virtualbox-guest-nox }
+      - { install: shell-pkgs }
 
     configs:
       - { apply: machine-config }
-
-  # Shell
-  # ----------------------------------------------------------------------------
-  - name: shell
-    type: machine
-    base: base
-    vagrant: { vram: 32, cpus: 2, ram: 2048 }
-    deployment:
-      entry: "Deploy <%=distro%>-shell                   // Base + shell devel"
-      kernel: linux
-    packages:
-      - { install: shell-pkgs }
-    configs:
       - { apply: shell-config }
 
   # Lite
   # ----------------------------------------------------------------------------
   - name: lite
     type: machine
-    base: shell
+    base: base
     groups: [ video, audio]
     vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     deployment:
-      entry: "Deploy <%=distro%>-lite                    // Shell + min X11"
+      entry: "Deploy <%=distro%>-lite                    // Base + min X11"
       kernel: linux
     packages:
       - { install: lite-pkgs }

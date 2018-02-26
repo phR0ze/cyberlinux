@@ -61,13 +61,28 @@ layers:
       entry: "Deploy <%=distro%>-base                    // Minimal shell"
       kernel: linux
     packages:
+      - { pkg: linux,                       desc: Linux kernel and supporting modules }
       - { install: machine-pkgs }
       - { install: machine-tools }
       - { install: virtualbox-guest-nox }
-      - { install: shell-pkgs }
 
     configs:
       - { apply: machine-config }
+
+  # Shell
+  # ----------------------------------------------------------------------------
+  - name: shell
+    type: machine
+    base: base
+    vagrant: { vram: 32, cpus: 2, ram: 2048 }
+    deployment:
+      entry: "Deploy <%=distro%>-shell                   // Base + shell devel"
+      kernel: linux
+    packages:
+      - { pkg: linux-docs,                  desc: Linux kernel docs }
+      - { pkg: linux-headers,               desc: Linux kernel headers }
+      - { install: shell-pkgs }
+    configs:
       - { apply: shell-config }
 
   # Lite

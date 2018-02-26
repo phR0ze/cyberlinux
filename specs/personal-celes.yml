@@ -66,6 +66,8 @@ layers:
       entry: "Deploy <%=distro%>-base                    // Minimal shell"
       kernel: linux-celes
     packages:
+      - { pkg: linux-celes,                 desc: Linux kernel and supporting modules, type: CYBERLINUX }
+      - { pkg: linux-celes-headers,         desc: Linux kernel headers }
       - { install: machine-pkgs }
       - { install: machine-tools }
       - { install: shell-pkgs }

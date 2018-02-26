@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.237
+  release: 0.1.238
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -1073,7 +1073,6 @@ packages:
     - { pkg: grub,                          desc: GNU GRand Unified Booloader 2, depof: installer }
     - { pkg: efibootmgr,                    desc: Tool to modify UEFI Firmware Boot Manager Variables, depof: installer }
     - { pkg: intel-ucode,                   desc: Microcode update files for Intel CPUs }
-    - { pkg: linux,                         desc: Linux kernel and supporting modules }
     - { pkg: lsb-release,                   desc: LSB version query program }
     - { pkg: mkinitcpio,                    desc: initramfs image creation utility }
     - { pkg: mkinitcpio-vt-colors,          desc: vt console colors, type: CYBERLINUX }
@@ -1131,7 +1130,6 @@ packages:
     - { pkg: htop,                          desc: Interactive process viewer, alt: top }
     - { pkg: iftop,                         desc: Display bandwidth usage on an interface }
     - { pkg: inxi,                          desc: System info display tool for CPUs/RAM/Kernel etc... }
-    - { pkg: linux-docs,                    desc: Linux kernel docs }
     - { pkg: lsof,                          desc: Lists open files for running processes }
     - { pkg: man-db,                        desc: A utility for reading man pages }
     - { pkg: man-pages,                     desc: Linux man pages }
@@ -1201,7 +1199,6 @@ packages:
     - { pkg: groff,                         desc: GNU trof text-formatting system, group: base-devel }
     - { pkg: jq,                            desc: Command line JSON processor, depof: kubectl }
     - { pkg: libtool,                       desc: Generic library support script, group: base-devel }
-    - { pkg: linux-headers,                 desc: Linux kernel headers }
     - { pkg: lld,                           desc: Linker from the LLVM project, depof: chromium }
     - { pkg: llvm,                          desc: Low Level compiler infrastructure, depof: chromium }
     - { pkg: ltrace,                        desc: Tracks runtime library calls in dynamically linked programs }
