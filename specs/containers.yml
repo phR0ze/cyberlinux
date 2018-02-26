@@ -42,7 +42,7 @@ layers:
         kernel: memtest
         noboot: true
     packages:
-      - { install: machine-core }
-      - { install: machine-tools }
+      - { install: core }
+      - { install: core-tools }
     configs:
-      - { apply: base-config }
+      - { apply: core-config }

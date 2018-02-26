@@ -68,12 +68,12 @@ layers:
     packages:
       - { pkg: linux-celes,                 desc: Linux kernel and supporting modules, type: CYBERLINUX }
       - { pkg: linux-celes-headers,         desc: Linux kernel headers }
-      - { install: machine-pkgs }
-      - { install: machine-tools }
+      - { install: base-pkgs }
+      - { install: base-tools }
       - { install: shell-pkgs }
 
     configs:
-      - { apply: machine-config }
+      - { apply: base-config }
       - { apply: shell-config }
 
   # Lite

@@ -68,13 +68,13 @@ layers:
       - { pkg: linux,                       desc: Linux kernel and supporting modules }
       - { pkg: linux-docs,                  desc: Linux kernel docs }
       - { pkg: linux-headers,               desc: Linux kernel headers }
-      - { install: machine-pkgs }
-      - { install: machine-tools }
+      - { install: base-pkgs }
+      - { install: base-tools }
       - { install: virtualbox-guest-nox }
       - { install: shell-pkgs }
 
     configs:
-      - { apply: machine-config }
+      - { apply: base-config }
       - { apply: shell-config }
 
   # Lite

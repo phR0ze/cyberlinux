@@ -62,12 +62,12 @@ layers:
       kernel: linux
     packages:
       - { pkg: linux,                       desc: Linux kernel and supporting modules }
-      - { install: machine-pkgs }
-      - { install: machine-tools }
+      - { install: base-pkgs }
+      - { install: base-tools }
       - { install: virtualbox-guest-nox }
 
     configs:
-      - { apply: machine-config }
+      - { apply: base-config }
 
   # Shell
   # ----------------------------------------------------------------------------

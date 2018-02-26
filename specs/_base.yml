@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.239
+  release: 0.1.240
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -62,7 +62,7 @@ configs:
 
   # Core configuration for any machine
   #-----------------------------------------------------------------------------
-  machine-config:
+  base-config:
     - { apply: bash-config }
     - { apply: hosts-config }
     - { apply: locale-config }
@@ -1066,7 +1066,7 @@ packages:
     - { pkg: ncurses,                       desc: System V curses emulation library, depof: bash }
     - { pkg: tzdata,                        desc: Time zone data, depof: glibc }
 
-  machine-pkgs:
+  base-pkgs:
     - { install: core-pkgs }
     - { pkg: dosfstools,                    desc: DOS filesystem utilities e.g. mkfs.fat, depof: installer }
     - { pkg: dmidecode,                     desc: Desktop Managment Interface table related utilities }
@@ -1093,7 +1093,7 @@ packages:
     - { pkg: vim,                           desc: Improved version of vi text editor, size: 28MB }
     - { pkg: vim-systemd,                   desc: Vim syntax highlighting for systemd }
 
-  machine-tools:
+  base-tools:
     - { install: core-tools }
     - { pkg: bash-completion,               desc: Bash tab completion }
     - { pkg: e2fsprogs,                     desc: Ext2/3/4 filesystem utilities }
