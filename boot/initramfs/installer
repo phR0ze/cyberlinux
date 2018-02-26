@@ -220,7 +220,7 @@ partition_and_mount_disk()
 
         # Create ESP boot partition
         echo -en ":: Creating ${part_boot} as ESP boot partition..."
-        sgdisk -n 0:0:+4M -t 0:ef00 -c 0:"EFI System" ${install_dev} &>/dev/null
+        sgdisk -n 0:0:+10M -t 0:ef00 -c 0:"EFI System" ${install_dev} &>/dev/null
         check_status
         echo -en ":: Formatting ${part_boot} (ESP) as FAT..."
         mkfs.fat -n "EFI System" ${part_boot} &>/dev/null
@@ -291,13 +291,14 @@ install_bootloader()
         echo -en ":: Mount ${part_boot} (ESP) as ${esp_mnt}..."
         mount ${part_boot} ${esp_mnt} &>/dev/null
         check_status
-
+        rm -rf ${rootmnt}/boot/grub
         echo -en ":: Create GRUB path ${grub_path}..."
         mkdir -p ${grub_path} &>/dev/null
         check_status
     else
         platform=i386-pc
         grub_path=${rootmnt}/boot/grub
+        rm -rf ${rootmnt}/boot/grub/grub.*
     fi
 
     echo -en ":: Install GRUB unicode.pf2 font to ${grub_path}..."
