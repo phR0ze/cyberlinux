@@ -56,7 +56,6 @@ prepare() {
   # Copy over patches and patch patches
   cp -r ../../patches $srcdir
   sed -i -e "s/SUBLEVEL = 0/SUBLEVEL = ${_patch}/g" "${srcdir}/patches/manjaro/0001-BFQ-${_bfqver}.patch"
-  exit
 
   # Apply patches from various distributions
   for patchset in arch manjaro ck gallium; do
