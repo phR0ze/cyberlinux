@@ -13,6 +13,7 @@
 _srcname=linux-4.15
 _patch=5
 _kernelname=celes
+_bfqver=v8r12-20180130
 
 # linux-celes
 pkgbase=linux-$_kernelname
@@ -29,15 +30,17 @@ source=(
   config         # the main kernel config file
   60-linux.hook  # pacman hook for depmod
   90-linux.hook  # pacman hook for initramfs regeneration
-  linux.preset   # standard config files for mkinitcpio ramdisk
+  linux.preset   # sta:ndard config files for mkinitcpio ramdisk
 )
+
+# Add keys with: gpg -recv-keys <key>
 validpgpkeys=(
   'ABAF11C65A2970B130ABE3C479BE3E4300411886'  # Linus Torvalds
   '647F28654894E3BD457199BE38DBBDC86092693E'  # Greg Kroah-Hartman
 )
 sha256sums=('5a26478906d5005f4f809402e981518d2b8844949199f60c4b6e1f986ca2a769'
             'SKIP'
-            '79832aa2c9bc661ef1b4b8d55e6eff346cf23fd6c7dfd1ff0f1a7239cf2b8072'
+            'b5dc7021bd0c08e4a58b59035f9b757ce6909b46067950ac56d2ad68c1b69dd1'
             'SKIP'
             'SKIP'
             'ae2e95db94ef7176207c690224169594d49445e04249d2499e9d2fbc117a0b21'
@@ -50,11 +53,16 @@ prepare() {
   msg "Applying upstream patch"
   patch -p1 -i ../patch-${pkgver}
 
+  # Copy over patches and patch patches
+  cp -r ../../patches $srcdir
+  sed -i -e "s/SUBLEVEL = 0/SUBLEVEL = ${_patch}/g" "${srcdir}/patches/manjaro/0001-BFQ-${_bfqver}.patch"
+  exit
+
   # Apply patches from various distributions
-  for patchset in arch manjaro gallium; do
-    if [ "$(ls -A ../../patches/$patchset)" ]; then
+  for patchset in arch manjaro ck gallium; do
+    if [ "$(ls -A $srcdir/patches/$patchset)" ]; then
       msg "Applying $patchset patches..."
-      for patch in ../../patches/$patchset/*.patch; do
+      for patch in $srcdir/patches/$patchset/*.patch; do
         msg2 "Applying patch $patch..."
         patch -Np1 -i $patch
       done
