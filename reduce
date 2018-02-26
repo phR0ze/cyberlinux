@@ -98,7 +98,7 @@ class Reduce
     @runuser = "runuser #{@user} -c"
 
     # Load vars from base spec
-    @spec = load_spec("_build")
+    @spec = load_spec("_base")
     @vars = OpenStruct.new(@spec[@k.vars])
 
     # Set proxy vars
