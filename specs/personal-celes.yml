@@ -88,8 +88,8 @@ layers:
       entry: "Deploy <%=distro%>-lite                    // Shell + min X11"
       kernel: linux-celes
     packages:
-      #- { pkg: gallium-base-git,              desc: GalliumOS base files, type: CYBERLINUX }
-      #- { pkg: gallium-braswell-config,       desc: GalliumOS userspace configuration files for braswell, type: CYBERLINUX }
+      - { pkg: gallium-base-git,              desc: GalliumOS base files, type: CYBERLINUX }
+      - { pkg: gallium-braswell-config,       desc: GalliumOS userspace configuration files for braswell, type: CYBERLINUX }
       - { install: lite-pkgs }
 
       # Adobe fonts from adobe reader
@@ -100,6 +100,7 @@ layers:
       - { apply: netbook-config }
 
       # Work around issues in the iwlwifi driver for celes' Intel 7265D wifi card
+      - { exec: 'rm -f /etc/modprobe.d/iwlwifi.conf'}
       - { edit: /etc/modprobe.d/iwlwifi.conf, insert: append, values: ['options iwlwifi 11n_disable=8 bt_coex_active=0 swcrypto=1']}
 
   # Desktop
