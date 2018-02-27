@@ -98,6 +98,7 @@ layers:
       kernel: linux
     packages:
       - { install: lite-pkgs }
+      - { install: virtualbox-guest }
     configs:
       - { apply: lite-config }
 

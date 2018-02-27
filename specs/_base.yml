@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.249
+  release: 0.1.250
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -803,10 +803,6 @@ configs:
     - { chroot: 'pacman-key --populate archlinux antergos blackarch' }
     - { chroot: 'pacman -Sy' }
   plank-desktop-config:
-    - { edit: /etc/dconf/db/local.d/03-plank, regex: "(dock-items.*)(,'filezilla.*)", value: "\\1,'ghb.dockitem'\\2" }
-    - { edit: /etc/dconf/db/local.d/03-plank, regex: "(dock-items.*)(,'filezilla.*)", value: "\\1,'virtualbox.dockitem'\\2" }
-    - { edit: /etc/dconf/db/local.d/03-plank, regex: '(dock-items.*)(\].*)', value: "\\1,'calc.dockitem','writer.dockitem'\\2" }
-  plank-desktop-config:
     - edit: /etc/skel/.config/autostart/plank.desktop
       insert: append
       values:
@@ -826,7 +822,7 @@ configs:
         - "hide-mode='window-dodge'"
         - 'icon-size=36'
         - "position='top'"
-        - "dock-items=['lxterminal.dockitem','thunar.dockitem','xnviewmp.dockitem','smplayer.dockitem','vlc.dockitem','filezilla.dockitem','chromium.dockitem','calc.dockitem','writer.dockitem','virtual.dockitem']"
+        - "dock-items=['lxterminal.dockitem','thunar.dockitem','xnviewmp.dockitem','smplayer.dockitem','vlc.dockitem','ghb.dockitem','filezilla.dockitem','chromium.dockitem','calc.dockitem','writer.dockitem','virtual.dockitem']"
         - "lock-items=true"
         - "pinned-only=true"
         - "theme='Transparent'"
@@ -1237,7 +1233,6 @@ packages:
     - { pkg: ruby-rest-client,              desc: Simple HTTP and REST client, depof: reduce, type: CYBERLINUX }
 
   lite-pkgs:
-    - { install: virtualbox-guest }
     - { pkg: archlinux-xdg-menu,            desc: Automatic OpenBox menu generation from xdg files }
     - { pkg: cups-pdf,                      desc: System/Printer Driver - PDF printer driver }
     - { pkg: dconf,                         desc: A low-level configuration system }

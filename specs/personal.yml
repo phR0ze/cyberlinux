@@ -90,6 +90,7 @@ layers:
       kernel: linux
     packages:
       - { install: lite-pkgs }
+      - { install: virtualbox-guest }
 
       # Adobe fonts from adobe reader
       # https://aur.archlinux.org/cgit/aur.git/tree/LICENSE?h=ttf-adobe-fonts
