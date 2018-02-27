@@ -30,7 +30,7 @@ class TestGetLayers < Minitest::Test
   def setup
     @reduce ||= Reduce.new
     @k = @reduce.instance_variable_get(:@k)
-    @reduce.load_spec('personal')
+    @reduce.load_spec('standard')
   end
 
   def test_getlayers_with_bad_layer_name
@@ -49,10 +49,10 @@ class TestGetLayers < Minitest::Test
   end
 
   def test_getlayers_with_good_layer_name_expecting_multi_result
-    yml = @reduce.getlayers('heavy')
+    yml = @reduce.getlayers('lite')
     assert(yml)
-    assert_equal(yml.size, 4)
-    assert_equal(yml, ['heavy', 'lite', 'shell', 'base'])
+    assert_equal(yml.size, 3)
+    assert_equal(yml, ['lite', 'shell', 'base'])
   end
 end
 
