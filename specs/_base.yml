@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.250
+  release: 0.1.251
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -104,7 +104,8 @@ configs:
     - { apply: thunar-config }
     - { apply: menu-lite-config }
   netbook-config:
-    - { apply: menu-desktop-config }
+    - { apply: wpa-gui }
+    - { apply: menu-netbook-config }
     - { apply: cinnamon-screensaver-config }
   desktop-config:
     - { apply: conky-config }
@@ -997,8 +998,13 @@ configs:
         - 'sort=alpha'
         - 'icon_caps=false'
         - 'dirs=/usr/share/wallpaper;'
+  wpa-gui:
+    # Autostart WPA Gui
+    - { exec: 'cp /usr/share/applications/wpa_gui.desktop /etc/skel/.config/autostart' }
+    # Enable wpa_supplicant out of the box so we have WiFi running
+    - { chroot: systemctl enable wpa_supplicant.service }
   wpa-config:
-    - edit: /etc/wpa_supplicant/wpa_supplicant-wlo1.conf
+    - edit: /etc/wpa_supplicant/wpa_supplicant-wlp2s0.conf
       insert: append
       values:
         - 'ctrl_interface=/run/wpa_supplicant'

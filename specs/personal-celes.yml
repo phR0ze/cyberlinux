@@ -88,6 +88,8 @@ layers:
       entry: "Deploy <%=distro%>-lite                    // Shell + min X11"
       kernel: linux-celes
     packages:
+      #- { pkg: gallium-base-git,              desc: GalliumOS base files, type: CYBERLINUX }
+      #- { pkg: gallium-braswell-config,       desc: GalliumOS userspace configuration files for braswell, type: CYBERLINUX }
       - { install: lite-pkgs }
 
       # Adobe fonts from adobe reader
@@ -95,6 +97,10 @@ layers:
       - { pkg: ttf-adobe-fonts,               desc: Adobe fonts including Myriad Minion and Courier, type: CYBERLINUX }
     configs:
       - { apply: lite-config }
+      - { apply: netbook-config }
+
+      # Work around issues in the iwlwifi driver for celes' Intel 7265D wifi card
+      - { edit: /etc/modprobe.d/iwlwifi.conf, insert: append, values: ['options iwlwifi 11n_disable=8 bt_coex_active=0 swcrypto=1']}
 
   # Desktop
   # ----------------------------------------------------------------------------
@@ -125,7 +131,6 @@ layers:
       # https://www.teamviewer.com/en/credentials/free-for-personal-use/
       - { pkg: teamviewer,                    desc: All-In-One Software for Remote Support and Online Meetings, type: CYBERLINUX }
     configs:
-      - { apply: netbook-config }
       - { apply: teamviewer-client-config }
 
   # Live
