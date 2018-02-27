@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.248
+  release: 0.1.249
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -103,6 +103,9 @@ configs:
     - { apply: xorg-config }
     - { apply: thunar-config }
     - { apply: menu-lite-config }
+  netbook-config:
+    - { apply: menu-desktop-config }
+    - { apply: cinnamon-screensaver-config }
   desktop-config:
     - { apply: conky-config }
     - { apply: docker-config }
@@ -179,6 +182,9 @@ configs:
     - { menu: Session, insert: append, entry: Logout, icon: /usr/share/icons/Paper/32x32/actions/exit.png, exec: openbox --exit }
     - { menu: Session, insert: append, entry: Reboot, icon: /usr/share/icons/hicolor/32x32/actions/system-reboot.png, exec: sudo reboot }
     - { menu: Session, insert: append, entry: Shutdown, icon: /usr/share/icons/hicolor/32x32/actions/system-shutdown.png, exec: sudo poweroff }
+  menu-netbook-config:
+    - { menu: Network, entry: WPA Gui, icon: /usr/share/icons/hicolor/32x32/apps/wpa_gui.png, exec: sudo wpa_gui }
+
   menu-desktop-config:
     - { menu: Accessories, entry: Catfish File Search, icon: /usr/share/icons/Paper/32x32/apps/system-search.png, exec: catfish }
     - { menu: Accessories, entry: KeePass, icon: /usr/share/icons/hicolor/32x32/apps/keepass.png, exec: keepass }
