@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.252
+  release: 0.1.253
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -1002,14 +1002,19 @@ configs:
     # Autostart WPA Gui
     - { exec: 'cp /usr/share/applications/wpa_gui.desktop /etc/skel/.config/autostart' }
     # Enable wpa_supplicant out of the box so we have WiFi running
-    - { chroot: systemctl enable wpa_supplicant.service }
+    - { chroot: systemctl enable wpa_supplicant@wlp2s0 }
   wpa-config:
     - edit: /etc/wpa_supplicant/wpa_supplicant-wlp2s0.conf
       insert: append
       values:
+        # Set permissions for wpa_supplicant
         - 'ctrl_interface=/run/wpa_supplicant'
         - 'ctrl_interface_group=wheel'
+        # Allow WPA GUI to update this file with persistent changes
         - 'update_config=1'
+        # Completely disable P2P/Direct WiFi - security hole
+        - 'p2p_disabled=1'
+        # Automatically scan and select networks matching saved ones
         - 'ap_scan=1'
   xorg-config:
     - edit: /opt/<%=distro%>/bin/pre-xorg

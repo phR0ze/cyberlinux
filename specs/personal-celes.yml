@@ -90,6 +90,7 @@ layers:
     packages:
       - { pkg: gallium-base-git,              desc: GalliumOS base files, type: CYBERLINUX }
       - { pkg: gallium-braswell-config,       desc: GalliumOS userspace configuration files for braswell, type: CYBERLINUX }
+      - { pkg: blueman,                       desc: GTK+ Bluetooth Manager }
       - { install: lite-pkgs }
 
       # Adobe fonts from adobe reader
@@ -114,7 +115,6 @@ layers:
       entry: "Deploy <%=distro%>-desktop                 // Lite + more apps"
       kernel: linux-celes
     packages:
-      - { pkg: blueman,                       desc: GTK+ Bluetooth Manager }
       - { pkg: cinnamon-screensaver,          desc: Screensaver for the Cinnamon desktop, type: CYBERLINUX }
       - { pkg: gimp,                          desc: Excellent image editor, alt: pinta }
       - { pkg: hunspell-en_US,                desc: US dictionaries for spell checking, deps: libreoffice }
