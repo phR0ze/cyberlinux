@@ -27,13 +27,13 @@ build:
     params: '-e TERM=xterm -v /var/run/docker.sock:/var/run/docker.sock --privileged=true'
     command: 'bash -c "while :; do sleep 5; done"'
   packages:
-    - { pkg: linux,                         desc: Linux kernel and supporting modules }
-    - { pkg: gptfdisk,                      desc: Paritioning tools e.g. sgdisk }
-    - { pkg: mkinitcpio,                    desc: initramfs image creation utility }
-    - { pkg: mkinitcpio-vt-colors,          desc: vt console colors, type: CYBERLINUX }
-    - { pkg: rsync,                         desc: Remote file sync utility }
-    - { pkg: systemd,                       desc: System and service manager }
-    - { pkg: sudo,                          desc: Elevate some user commands to root }
+    - { pkg: linux,                           desc: Linux kernel and supporting modules }
+    - { pkg: gptfdisk,                        desc: Paritioning tools e.g. sgdisk }
+    - { pkg: mkinitcpio,                      desc: initramfs image creation utility }
+    - { pkg: mkinitcpio-vt-colors,            desc: vt console colors, type: CYBERLINUX }
+    - { pkg: rsync,                           desc: Remote file sync utility }
+    - { pkg: systemd,                         desc: System and service manager }
+    - { pkg: sudo,                            desc: Elevate some user commands to root }
     - { install: core-pkgs }
     - { install: core-tools }
     - { install: grub-pkgs }
@@ -61,7 +61,7 @@ layers:
       entry: "Deploy <%=distro%>-base                    // Minimal shell"
       kernel: linux
     packages:
-      - { pkg: linux,                       desc: Linux kernel and supporting modules }
+      - { pkg: linux,                         desc: Linux kernel and supporting modules }
       - { install: base-pkgs }
       - { install: base-tools }
       - { install: virtualbox-guest-nox }
@@ -79,8 +79,8 @@ layers:
       entry: "Deploy <%=distro%>-shell                   // Base + shell devel"
       kernel: linux
     packages:
-      - { pkg: linux-docs,                  desc: Linux kernel docs }
-      - { pkg: linux-headers,               desc: Linux kernel headers }
+      - { pkg: linux-docs,                    desc: Linux kernel docs }
+      - { pkg: linux-headers,                 desc: Linux kernel headers }
       - { install: shell-pkgs }
     configs:
       - { apply: shell-config }
@@ -101,20 +101,6 @@ layers:
     configs:
       - { apply: lite-config }
 
-  # Heavy
-  # ----------------------------------------------------------------------------
-  - name: heavy
-    type: machine
-    base: lite
-    vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
-    deployment:
-      entry: "Deploy <%=distro%>-heavy                   // Lite + more bling"
-      kernel: linux
-    packages:
-      - { install: heavy-pkgs }
-    configs:
-      - { apply: heavy-config }
-
   # K8snode
   # ----------------------------------------------------------------------------
   - name: k8snode
@@ -134,11 +120,11 @@ layers:
   # ----------------------------------------------------------------------------
   - name: theater
     type: machine
-    base: heavy
+    base: lite
     vars: { fontsize: 18, wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     deployment:
-      entry: "Deploy <%=distro%>-theater                 // Heavy + media apps"
+      entry: "Deploy <%=distro%>-theater                 // Lite + media apps"
       kernel: linux
       params: autologin=1
     packages:
@@ -150,12 +136,12 @@ layers:
   # ----------------------------------------------------------------------------
   - name: desktop
     type: machine
-    base: heavy
+    base: lite
     groups: [docker]
     vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     deployment:
-      entry: "Deploy <%=distro%>-desktop                 // Heavy + more apps"
+      entry: "Deploy <%=distro%>-desktop                 // Lite + more apps"
       kernel: linux
     packages:
       - { install: desktop-pkgs }
@@ -166,7 +152,7 @@ layers:
   # ----------------------------------------------------------------------------
   - name: live
     type: machine
-    base: heavy
+    base: desktop
     vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     deployment:

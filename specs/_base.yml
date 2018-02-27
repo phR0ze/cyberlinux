@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.246
+  release: 0.1.247
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -101,15 +101,12 @@ configs:
     - { apply: mimeapps-config }
     - { apply: wallpaper-config }
     - { apply: xorg-config }
-    - { apply: menu-lite-config }
-  heavy-config:
-    - { apply: conky-config }
-    - { apply: guake-config }
     - { apply: thunar-config }
-    - { apply: menu-heavy-config }
-    - { apply: plank-heavy-config }
+    - { apply: menu-lite-config }
   desktop-config:
+    - { apply: conky-config }
     - { apply: docker-config }
+    - { apply: guake-config }
     - { apply: menu-desktop-config }
     - { apply: plank-desktop-config }
     - { apply: cinnamon-screensaver-config }
@@ -122,24 +119,33 @@ configs:
     - { apply: apache-php-config }
     - { apply: menu-server-config }
   theater-config:
+    - { apply: conky-config }
     - { apply: idesk-config }
     - { apply: resolution-theater }
+    - { apply: menu-theater-config }
   menu-lite-config:
     - { menu: Root, insert: append, entry: Thunar, icon: /usr/share/icons/Paper/32x32/apps/Thunar.png, exec: thunar }
     - { menu: Root, insert: append, entry: LXTerminal, icon: /usr/share/icons/Paper/32x32/apps/lxterminal.png, exec: lxterminal }
     - { menu: Root, insert: append, entry: Nitrogen, icon: /usr/share/icons/hicolor/32x32/apps/nitrogen.png, exec: nitrogen }
+    - { menu: Root, insert: append, entry: Screenshot, icon: /usr/share/icons/Paper/32x32/apps/gnome-screenshot.png, exec: xfce4-screenshooter }
     - { menu: Accessories, icon: /usr/share/icons/Paper/32x32/categories/applications-utilities.png }
+    - { menu: Accessories, entry: Archive Manager, icon: /usr/share/icons/Paper/32x32/apps/file-roller.png, exec: file-roller }
     - { menu: Accessories, entry: Bulk Rename, icon: /usr/share/icons/Paper/32x32/apps/Thunar.png, exec: /usr/lib/Thunar/ThunarBulkRename }
+    - { menu: Accessories, entry: Galculator, icon: /usr/share/icons/Paper/32x32/apps/galculator.png, exec: galculator }
+    - { menu: Accessories, entry: Leafpad, icon: /usr/share/icons/hicolor/32x32/apps/leafpad.png, exec: leafpad }
+    - { menu: Accessories, entry: Screenshot, icon: /usr/share/icons/Paper/32x32/apps/applets-screenshooter.png, exec: xfce4-screenshooter }
     - { menu: Development, icon: /usr/share/icons/Paper/32x32/categories/applications-development.png }
     - { menu: Development, entry: GVim, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim -f }
     - { menu: Graphics, icon: /usr/share/icons/Paper/32x32/categories/applications-graphics.png }
     - { menu: Graphics, entry: Image Viewer, icon: /usr/share/icons/Paper/32x32/apps/gpicview.png, exec: gpicview }
+    - { menu: Graphics, entry: XnViewMP, icon: /opt/xnviewmp/xnview.png, exec: xnviewmp }
     - { menu: Graphics, entry: Nitrogen, icon: /usr/share/icons/hicolor/32x32/apps/nitrogen.png, exec: nitrogen }
     - { menu: Multimedia, icon: /usr/share/icons/Paper/32x32/categories/applications-multimedia.png }
     - { menu: Multimedia, entry: Audacious, icon: /usr/share/icons/hicolor/32x32/apps/audacious.png, exec: audacious }
     - { menu: Multimedia, entry: Pulse Audio, icon: /usr/share/icons/Paper/32x32/apps/multimedia-volume-control.png, exec: pavucontrol }
     - { menu: Multimedia, entry: SMPlayer, icon: /usr/share/icons/hicolor/32x32/apps/smplayer.png, exec: smplayer }
     - { menu: Multimedia, entry: VLC, icon: /usr/share/icons/hicolor/32x32/apps/vlc.png, exec: vlc }
+    - { menu: Multimedia, entry: WinFF, icon: /usr/share/icons/hicolor/32x32/apps/winff.png, exec: winff }
     - { menu: Network, icon: /usr/share/icons/Paper/32x32/categories/applications-internet.png }
     - { menu: Network, entry: Chromium, icon: /usr/share/icons/Paper/32x32/apps/chromium.png, exec: chromium }
     - { menu: Network, entry: FileZilla, icon: /usr/share/icons/Paper/32x32/apps/filezilla.png, exec: filezilla }
@@ -158,11 +164,15 @@ configs:
     - { menu: Settings>Pacman/Servers, icon: /usr/share/icons/Paper/32x32/apps/software-center.png }
     - { menu: Settings>Pacman/Servers, entry: Pacman Config, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: sudo gvim /etc/pacman.conf }
     - { menu: Settings>Pacman/Servers, entry: Pacman Mirrorlist, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: sudo gvim /etc/pacman.d/mirrorlist }
+    - { menu: Settings, entry: Dconf Editor, icon: /usr/share/icons/Paper/32x32/apps/dconf-editor.png, exec: dconf-editor }
+    - { menu: Settings, entry: Gconf Editor, icon: /usr/share/icons/Paper/32x32/apps/gconf-editor.png, exec: gconf-editor }
     - { menu: Settings, entry: LXAppearance, icon: /usr/share/icons/Paper/32x32/apps/preferences-desktop-theme.png, exec: lxappearance }
     - { menu: Settings, entry: LXInput, icon: /usr/share/icons/Paper/32x32/apps/preferences-desktop-keyboard.png, exec: lxinput }
     - { menu: Settings, entry: LXRandR, icon: /usr/share/icons/Paper/32x32/apps/preferences-desktop-display.png, exec: lxrandr }
     - { menu: Settings, entry: Thunar Settings, icon: /usr/share/icons/Paper/32x32/apps/system-file-manager.png, exec: thunar-settings }
     - { menu: Settings, entry: Tint2 Themes, icon: /usr/share/icons/Paper/32x32/apps/tint2conf.png, exec: tint2conf }
+    - { menu: Settings, entry: Printer Preferences, icon: /usr/share/icons/Paper/32x32/devices/preferences-desktop-printer.png, exec: system-config-printer }
+    - { menu: Settings, entry: Thunar Volman, icon: /usr/share/icons/Paper/32x32/devices/drive-removable-media.png, exec: thunar-volman-settings }
     - { menu: System, icon: /usr/share/icons/Paper/32x32/categories/applications-system.png }
     - { menu: System, entry: HardInfo, icon: /usr/share/hardinfo/pixmaps/logo.png, exec: hardinfo }
     - { menu: System, entry: Htop, icon: /usr/share/icons/Paper/32x32/apps/htop.png, exec: lxterminal -e htop }
@@ -170,39 +180,25 @@ configs:
     - { menu: Session, insert: append, entry: Logout, icon: /usr/share/icons/Paper/32x32/actions/exit.png, exec: openbox --exit }
     - { menu: Session, insert: append, entry: Reboot, icon: /usr/share/icons/hicolor/32x32/actions/system-reboot.png, exec: sudo reboot }
     - { menu: Session, insert: append, entry: Shutdown, icon: /usr/share/icons/hicolor/32x32/actions/system-shutdown.png, exec: sudo poweroff }
-  menu-heavy-config:
-    - { menu: Root, insert: append, entry: Screenshot, icon: /usr/share/icons/Paper/32x32/apps/gnome-screenshot.png, exec: xfce4-screenshooter }
-    - { menu: Accessories, entry: Archive Manager, icon: /usr/share/icons/Paper/32x32/apps/file-roller.png, exec: file-roller }
-    - { menu: Accessories, entry: Catfish File Search, icon: /usr/share/icons/Paper/32x32/apps/system-search.png, exec: catfish }
-    - { menu: Accessories, entry: Galculator, icon: /usr/share/icons/Paper/32x32/apps/galculator.png, exec: galculator }
-    - { menu: Accessories, entry: Leafpad, icon: /usr/share/icons/hicolor/32x32/apps/leafpad.png, exec: leafpad }
-    - { menu: Accessories, entry: Multi Writer, icon: /usr/share/icons/Paper/32x32/devices/drive-harddisk-usb.png, exec: sudo gnome-multi-writer}
-    - { menu: Accessories, entry: Screenshot, icon: /usr/share/icons/Paper/32x32/apps/applets-screenshooter.png, exec: xfce4-screenshooter }
-    - { menu: Graphics, entry: XnViewMP, icon: /opt/xnviewmp/xnview.png, exec: xnviewmp }
-    - { menu: Multimedia, entry: Asunder, icon: /usr/share/icons/hicolor/32x32/apps/brasero.png, exec: asunder }
-    - { menu: Multimedia, entry: Audacity, icon: /usr/share/icons/hicolor/32x32/apps/audacity.png, exec: env UBUNTU_MENUPROXY=0 audacity }
-    - { menu: Multimedia, entry: Brasero, icon: /usr/share/icons/Paper/32x32/apps/brasero.png, exec: brasero }
-    - { menu: Multimedia, entry: DeVeDe, icon: /usr/share/devedeng/devedeng.png, exec: devede_ng.py }
-    - { menu: Multimedia, entry: HandBrake, icon: /usr/share/icons/hicolor/scalable/apps/hb-icon.svg, exec: ghb }
-    - { menu: Multimedia, entry: MKVToolNix, icon: /usr/share/icons/hicolor/32x32/apps/mkvtoolnix-gui.png, exec: mkvtoolnix-gui }
-    - { menu: Multimedia, entry: Tiny Media Manager, icon: /usr/share/icons/hicolor/32x32/apps/tiny-media-manager.png, exec: tiny-media-manager }
-    - { menu: Multimedia, entry: WinFF, icon: /usr/share/icons/hicolor/32x32/apps/winff.png, exec: winff }
-    - { menu: Network, entry: Remmina, icon: /usr/share/icons/Paper/32x32/apps/remmina.png, exec: remmina }
-    - { menu: Settings, entry: Dconf Editor, icon: /usr/share/icons/Paper/32x32/apps/dconf-editor.png, exec: dconf-editor }
-    - { menu: Settings, entry: Gconf Editor, icon: /usr/share/icons/Paper/32x32/apps/gconf-editor.png, exec: gconf-editor }
-    - { menu: Settings, entry: Guake Preferences, icon: /usr/share/icons/Paper/32x32/apps/guake-prefs.png, exec: guake-prefs }
-    - { menu: Settings, entry: Printer Preferences, icon: /usr/share/icons/Paper/32x32/devices/preferences-desktop-printer.png, exec: system-config-printer }
-    - { menu: Settings, entry: Thunar Volman, icon: /usr/share/icons/Paper/32x32/devices/drive-removable-media.png, exec: thunar-volman-settings }
-    - { menu: System, entry: GParted, icon: /usr/share/icons/Paper/32x32/apps/gparted.png, exec: sudo gparted }
   menu-desktop-config:
+    - { menu: Accessories, entry: Catfish File Search, icon: /usr/share/icons/Paper/32x32/apps/system-search.png, exec: catfish }
     - { menu: Accessories, entry: KeePass, icon: /usr/share/icons/hicolor/32x32/apps/keepass.png, exec: keepass }
+    - { menu: Accessories, entry: Multi Writer, icon: /usr/share/icons/Paper/32x32/devices/drive-harddisk-usb.png, exec: sudo gnome-multi-writer}
     - { menu: Development, entry: Meld, icon: /usr/share/icons/Paper/32x32/apps/meld.png, exec: meld }
     - { menu: Development, entry: Visual Studio Code, icon: /usr/share/icons/Paper/32x32/apps/visual-studio-code.png, exec: code }
     - { menu: Graphics, entry: Gimp, icon: /usr/share/icons/Paper/32x32/apps/gimp.png, exec: gimp }
     - { menu: Graphics, entry: Inkscape, icon: /usr/share/icons/Paper/32x32/apps/inkscape.png, exec: inkscape }
     - { menu: Graphics, entry: Kolour, icon: /usr/share/icons/Paper/32x32/apps/kolourpaint.png, exec: kolourpaint }
     - { menu: Graphics, entry: LibreOffice Draw, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-draw.png, exec: libreoffice --draw }
+    - { menu: Multimedia, entry: Asunder, icon: /usr/share/icons/hicolor/32x32/apps/brasero.png, exec: asunder }
+    - { menu: Multimedia, entry: Audacity, icon: /usr/share/icons/hicolor/32x32/apps/audacity.png, exec: env UBUNTU_MENUPROXY=0 audacity }
+    - { menu: Multimedia, entry: Brasero, icon: /usr/share/icons/Paper/32x32/apps/brasero.png, exec: brasero }
+    - { menu: Multimedia, entry: DeVeDe, icon: /usr/share/devedeng/devedeng.png, exec: devede_ng.py }
+    - { menu: Multimedia, entry: HandBrake, icon: /usr/share/icons/hicolor/scalable/apps/hb-icon.svg, exec: ghb }
+    - { menu: Multimedia, entry: MKVToolNix, icon: /usr/share/icons/hicolor/32x32/apps/mkvtoolnix-gui.png, exec: mkvtoolnix-gui }
     - { menu: Multimedia, entry: OpenShot, icon: /usr/share/icons/Paper/32x32/apps/openshot.png, exec: openshot-qt }
+    - { menu: Multimedia, entry: Tiny Media Manager, icon: /usr/share/icons/hicolor/32x32/apps/tiny-media-manager.png, exec: tiny-media-manager }
+    - { menu: Network, entry: Remmina, icon: /usr/share/icons/Paper/32x32/apps/remmina.png, exec: remmina }
     - { menu: Network, entry: Synergy, icon: /usr/share/icons/Paper/32x32/apps/synergy.png, exec: synergy }
     - { menu: Network, entry: WPA Gui, icon: /usr/share/icons/hicolor/32x32/apps/wpa_gui.png, exec: sudo wpa_gui }
     - { menu: Office, entry: LibreOffice Base, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-base.png, exec: libreoffice --base }
@@ -213,6 +209,7 @@ configs:
     - { menu: Office, entry: LibreOffice Writer, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-writer.png, exec: libreoffice --writer }
     - { menu: Office, entry: LibreOffice, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-startcenter.png, exec: libreoffice }
     - { menu: Office, entry: Scribus, icon: /usr/share/icons/Paper/32x32/apps/scribus.png, exec: scribus }
+    - { menu: Settings, entry: Guake Preferences, icon: /usr/share/icons/Paper/32x32/apps/guake-prefs.png, exec: guake-prefs }
     - { menu: Settings, entry: VirtualBox, icon: /usr/share/icons/Paper/32x32/apps/virtualbox.png, exec: VirtualBox }
   menu-server-config:
     - { menu: Accessories, entry: Archive Manager, icon: /usr/share/icons/Paper/32x32/apps/file-roller.png, exec: file-roller }
@@ -222,6 +219,10 @@ configs:
     - { menu: Multimedia, entry: Tiny Media Manager, icon: /usr/share/icons/hicolor/32x32/apps/tiny-media-manager.png, exec: tiny-media-manager }
     - { menu: Network, entry: OpenVPN PIA, icon: /usr/share/icons/hicolor/32x32/apps/openvpn-pia.png, exec: sudo openvpn-pia }
     - { menu: Network, entry: qBittorrent, icon: /usr/share/icons/hicolor/32x32/apps/qbittorrent.png, exec: qbittorrent }
+  menu-theater-config:
+    - { menu: Multimedia, entry: HandBrake, icon: /usr/share/icons/hicolor/scalable/apps/hb-icon.svg, exec: ghb }
+    - { menu: Multimedia, entry: MKVToolNix, icon: /usr/share/icons/hicolor/32x32/apps/mkvtoolnix-gui.png, exec: mkvtoolnix-gui }
+    - { menu: Multimedia, entry: Tiny Media Manager, icon: /usr/share/icons/hicolor/32x32/apps/tiny-media-manager.png, exec: tiny-media-manager }
   apache-php-config:
     - { edit: /etc/httpd/conf/httpd.conf, regex: '^(Listen).*', value: '\1 80' }
     - { edit: /etc/httpd/conf/httpd.conf, regex: '^(DocumentRoot).*', value: '\1 /srv/http' }
@@ -796,12 +797,10 @@ configs:
     - { chroot: 'pacman-key --populate archlinux antergos blackarch' }
     - { chroot: 'pacman -Sy' }
   plank-desktop-config:
+    - { edit: /etc/dconf/db/local.d/03-plank, regex: "(dock-items.*)(,'filezilla.*)", value: "\\1,'ghb.dockitem'\\2" }
     - { edit: /etc/dconf/db/local.d/03-plank, regex: "(dock-items.*)(,'filezilla.*)", value: "\\1,'virtualbox.dockitem'\\2" }
     - { edit: /etc/dconf/db/local.d/03-plank, regex: '(dock-items.*)(\].*)', value: "\\1,'calc.dockitem','writer.dockitem'\\2" }
-    - { edit: /etc/skel/.config/plank/dock1/launchers/calc.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/libreoffice-calc.desktop"]}
-    - { edit: /etc/skel/.config/plank/dock1/launchers/virtualbox.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/virtualbox.desktop"]}
-    - { edit: /etc/skel/.config/plank/dock1/launchers/writer.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/libreoffice-writer.desktop"]}
-  plank-heavy-config:
+  plank-desktop-config:
     - edit: /etc/skel/.config/autostart/plank.desktop
       insert: append
       values:
@@ -821,7 +820,7 @@ configs:
         - "hide-mode='window-dodge'"
         - 'icon-size=36'
         - "position='top'"
-        - "dock-items=['lxterminal.dockitem','thunar.dockitem','xnviewmp.dockitem','smplayer.dockitem','vlc.dockitem','ghb.dockitem','filezilla.dockitem','chromium.dockitem']"
+        - "dock-items=['lxterminal.dockitem','thunar.dockitem','xnviewmp.dockitem','smplayer.dockitem','vlc.dockitem','filezilla.dockitem','chromium.dockitem','calc.dockitem','writer.dockitem','virtual.dockitem']"
         - "lock-items=true"
         - "pinned-only=true"
         - "theme='Transparent'"
@@ -833,6 +832,9 @@ configs:
     - { edit: /etc/skel/.config/plank/dock1/launchers/ghb.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/ghb.desktop"]}
     - { edit: /etc/skel/.config/plank/dock1/launchers/filezilla.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/filezilla.desktop"]}
     - { edit: /etc/skel/.config/plank/dock1/launchers/chromium.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/chromium.desktop"]}
+    - { edit: /etc/skel/.config/plank/dock1/launchers/calc.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/libreoffice-calc.desktop"]}
+    - { edit: /etc/skel/.config/plank/dock1/launchers/writer.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/libreoffice-writer.desktop"]}
+    - { edit: /etc/skel/.config/plank/dock1/launchers/virtualbox.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/virtualbox.desktop"]}
     - { chroot: dconf update }
   openvpn-pia-config:
     - edit: /etc/skel/.config/autostart/openvpn-pia.desktop
@@ -1231,8 +1233,10 @@ packages:
   lite-pkgs:
     - { install: virtualbox-guest }
     - { pkg: archlinux-xdg-menu,            desc: Automatic OpenBox menu generation from xdg files }
+    - { pkg: cups-pdf,                      desc: System/Printer Driver - PDF printer driver }
     - { pkg: dconf,                         desc: A low-level configuration system }
     - { pkg: dconf-editor,                  desc: New configuration manager intended to replace gconf }
+    - { pkg: desktop-file-utils,            desc: Command line utilities for working with desktop entries }
     - { pkg: dmenu,                         desc: Super light weight application runner }
     - { pkg: gconf-editor,                  desc: Old Gnome configuration manager separate dconf-editor db }
     - { pkg: gtk-engines,                   desc: GTK theme engines for cyberlinux theme }
@@ -1256,6 +1260,7 @@ packages:
     - { pkg: xcursor-numix-frost,           desc: Numix frost cursor theme, type: CYBERLINUX }
     - { pkg: xdg-user-dirs,                 desc: Manage user directories like ~/Desktop }
     - { pkg: xdg-utils,                     desc: Desktop integration utilities }
+    - { pkg: xfce4-screenshooter,           desc: Plugin that makes screenshots for the Xfce panel }
 
     - { pkg: xorg,           desc: Stop gap until get a better break down }
     - { pkg: xf86-input-libinput,           desc: X.Org generic input driver, group: xorg-drivers }
@@ -1346,12 +1351,16 @@ packages:
     - { pkg: audacious,                     desc: Audio/Player, alt: deadbeaf, xnoise }
     - { pkg: chromium,                      desc: Opensource project behind Chrome, type: CYBERLINUX }
     - { pkg: chromium-widevine,             desc: Chromium support for Netflix, type: ANTERGOS }
+    - { pkg: evince,                        desc: Document viewer (PDF,Postscript,djvu,tiff,dvi,XPS,cbr,cbz,cb7 and cbt) }
+    - { pkg: file-roller,                   desc: System/Compression integrates well in Thunar }
     - { pkg: filezilla,                     desc: Network/Transfer }
     - { pkg: flashplugin,                   desc: Adobe Flash Player NPAPI }
+    - { pkg: galculator,                    desc: Office/Calculator }
     - { pkg: gpicview,                      desc: Image viewer, alt: shotwell/viewnior }
     - { pkg: gsimplecal,                    desc: Simple calendar like windows systray calendar }
+    - { pkg: gvfs,                          desc: Support for Trash and USB, depof: thunar-volman }
     - { pkg: gvim,                          desc: Improved version of vi text editor, conflict: vim }
-    - { pkg: hardinfo,                      desc: A system information and benchmark tool }
+    - { pkg: leafpad,                       desc: Office/Notepad - Simple notepad knock off }
     - { pkg: libx264-10bit,                 desc: Library for encoding H264/AVC video streams, depof: smplayer }
     - { pkg: nitrogen,                      desc: System wallpaper manager }
     - { pkg: pepper-flash,                  desc: Chromium flash support }
@@ -1361,9 +1370,16 @@ packages:
     - { pkg: smplayer,                      desc: UI wrapper around mplayer with click to pause, alt: vlc }
     - { pkg: smplayer-skins,                desc: Skins for SMPlayer }
     - { pkg: smplayer-themes,               desc: Themes for SMPlayer }
+    - { pkg: system-config-printer,         desc: A CUPS printer configuration tool and status applet }
     - { pkg: thunar,                        desc: Lightweight File Manager from Xfce }
+    - { pkg: thunar-archive-plugin,         desc: Thunar integration with file-roller }
+    - { pkg: thunar-media-tags-plugin,      desc: Thunar plugin to view media details }
+    - { pkg: thunar-volman,                 desc: Thunar plugin to automatically manage removeable devices }
     - { pkg: tint2,                         desc: Lightweight taskmanager and system tray }
+    - { pkg: tumbler,                       desc: D-Bus thumbnail service for apps (e.g. Thunar) }
     - { pkg: vlc,                           desc: Multi-platform MPEG, VCD/DVD, and DivX player }
+    - { pkg: winff,                         desc: GUI for ffmpeg, type: CYBERLINUX }
+    - { pkg: xnviewmp,                      desc: A digital photo organizer, type: CYBERLINUX }
 
     # Media Codecs
     - { pkg: gst-libav,                     desc: GStreamer libav Plugin }
@@ -1386,61 +1402,33 @@ packages:
     - { pkg: ttf-liberation,                desc: Red Hats Liberation fonts.  }
     - { pkg: ttf-ms-fonts,                  desc: Microsoft core fonts, type: CYBERLINUX }
 
-  laptop-pkgs:
-    - { pkg: blueman,                       desc: GTK+ Bluetooth Manager }
-
-  heavy-pkgs:
+  desktop-pkgs:
+    - { install: docker }
     - { install: media-pkgs }
-    - { install: remote-desktop }
+    - { install: virtualbox-host }
     - { pkg: asunder,                       desc: A lean and friendly audio CD ripper and encoder }
     - { pkg: audacity,                      desc: Audio editor - cross platform, tried and tested }
     - { pkg: brasero,                       desc: Burning tool, alt: k3b, xfburn }
+    - { pkg: catfish,                       desc: System/File Search - File search tool }
+    - { pkg: cinnamon-screensaver,          desc: Screensaver for the Cinnamon desktop, type: CYBERLINUX }
     - { pkg: conky,                         desc: Lightweight system monitor for X }
     - { pkg: devede,                        desc: A program to create VideoDVDs and CDs }
+    - { pkg: freerdp,                       desc: RDP client plugin for remmina }
+    - { pkg: gimp,                          desc: Excellent image editor, alt: pinta }
     - { pkg: gnome-multi-writer,            desc: Write an ISO file to multiple USB devices at once }
     - { pkg: guake,                         desc: Drop-down python based quake style terminal }
-    - { pkg: gvfs,                          desc: Support for Trash and USB, depof: thunar-volman }
-    - { pkg: id3v2,                         desc: Utility to edit id3v2 tags }
-    - { pkg: plank,                         desc: Elegant, simple, clean dock }
-    - { pkg: system-config-printer,         desc: A CUPS printer configuration tool and status applet }
-    - { pkg: thunar-archive-plugin,         desc: Thunar integration with file-roller }
-    - { pkg: thunar-media-tags-plugin,      desc: Thunar plugin to view media details }
-    - { pkg: thunar-volman,                 desc: Thunar plugin to automatically manage removeable devices }
-    - { pkg: xfce4-screenshooter,           desc: Plugin that makes screenshots for the Xfce panel }
-    - { pkg: winff,                         desc: GUI for ffmpeg, type: CYBERLINUX }
-    - { pkg: xnviewmp,                      desc: A digital photo organizer, type: CYBERLINUX }
-
-    # OpenGL
-    - { pkg: lib32-mesa,                    desc: OpenGL opensource implementation, depof: kodi steam }
-    - { pkg: lib32-mesa-vdpau,              desc: Mesa vdpau drivers, depof: kodi steam }
-    - { pkg: mesa-vdpau,                    desc: Mesa vdpau drivers, depof: kodi steam }
-
-    # Office
-    - { pkg: cups-pdf,                      desc: System/Printer Driver - PDF printer driver }
-    - { pkg: evince,                        desc: Document viewer (PDF,Postscript,djvu,tiff,dvi,XPS,cbr,cbz,cb7 and cbt) }
-    - { pkg: leafpad,                       desc: Office/Notepad - Simple notepad knock off }
-
-    # Utility
-    - { pkg: catfish,                       desc: System/File Search - File search tool }
-    - { pkg: desktop-file-utils,            desc: Command line utilities for working with desktop entries }
-    - { pkg: file-roller,                   desc: System/Compression integrates well in Thunar }
-    - { pkg: galculator,                    desc: Office/Calculator }
-    - { pkg: gparted,                       desc: System/Partitioning - Partition magic type tool }
-    - { pkg: tumbler,                       desc: D-Bus thumbnail service for apps (e.g. Thunar) }
-
-  desktop-pkgs:
-    - { install: docker }
-    - { install: virtualbox-host }
-    - { pkg: cinnamon-screensaver,          desc: Screensaver for the Cinnamon desktop, type: CYBERLINUX }
-    - { pkg: gimp,                          desc: Excellent image editor, alt: pinta }
+    - { pkg: hardinfo,                      desc: A system information and benchmark tool }
     - { pkg: hunspell-en_US,                desc: US dictionaries for spell checking, deps: libreoffice }
+    - { pkg: id3v2,                         desc: Utility to edit id3v2 tags }
     - { pkg: inkscape,                      desc: Professional vector graphics editor }
     - { pkg: libreoffice-fresh,             desc: LibreOffice branch with new features/enhancements }
     - { pkg: keepass,                       desc: Cross platform password manager }
     - { pkg: kolourpaint,                   desc: Paint application that saves jpg in format for GFXBoot }
+    - { pkg: plank,                         desc: Elegant, simple, clean dock }
     - { pkg: python2-lxml,                  desc: Python wrapper for libxml2, deps: Inkscape }
     - { pkg: openshot,                      desc: Simple powerful Video Editor, alt: pitivi, kdenlive }
     - { pkg: openvpn-update-systemd-resolved, desc: OpenVPN systemd-resolved updater, type: CYBERLINUX }
+    - { pkg: remmina,                       desc: Network/Remoting - Nice remoting UI for RDP }
     - { pkg: scribus,                       desc: Open Source Desktop Publishing }
     - { pkg: synergy,                       desc: Network/Virtual KVM }
     - { pkg: veracrypt,                     desc: Disk encryption with strong security based on TrueCrypt }
@@ -1453,6 +1441,11 @@ packages:
     - { pkg: vim-supertab,                  desc: <Tab> for all completion }
     - { pkg: vim-ultisnips,                 desc: TextMate-style snippets for Vim }
     - { pkg: vscode,                        desc: Editor for modern development, type: CYBERLINUX }
+
+    # OpenGL
+    - { pkg: lib32-mesa,                    desc: OpenGL opensource implementation, depof: kodi steam }
+    - { pkg: lib32-mesa-vdpau,              desc: Mesa vdpau drivers, depof: kodi steam }
+    - { pkg: mesa-vdpau,                    desc: Mesa vdpau drivers, depof: kodi steam }
 
   server-pkgs:
     - { install: apache-php }
@@ -1470,12 +1463,15 @@ packages:
     - { pkg: tiny-media-manager,            desc: Cross platform media manager, type: CYBERLINUX }
 
   theater-pkgs:
+    - { install: media-pkgs }
+    - { pkg: conky,                         desc: Lightweight system monitor for X }
     - { pkg: idesk,                         desc: Lightweight desktop icons for X, type: CYBERLINUX }
     - { pkg: kodi,                          desc: Software media player and entertainment hub }
 
-  remote-desktop:
-    - { pkg: freerdp,                       desc: RDP client plugin for remmina }
-    - { pkg: remmina,                       desc: Network/Remoting - Nice remoting UI for RDP }
+    # OpenGL
+    - { pkg: lib32-mesa,                    desc: OpenGL opensource implementation, depof: kodi steam }
+    - { pkg: lib32-mesa-vdpau,              desc: Mesa vdpau drivers, depof: kodi steam }
+    - { pkg: mesa-vdpau,                    desc: Mesa vdpau drivers, depof: kodi steam }
 
   apache-php:
     - { pkg: apache,                        desc: Apache web server, deb: phpBB }

@@ -31,13 +31,13 @@ build:
     params: '-e TERM=xterm -v /var/run/docker.sock:/var/run/docker.sock --privileged=true'
     command: 'bash -c "while :; do sleep 5; done"'
   packages:
-    - { pkg: linux,                         desc: Linux kernel and supporting modules }
-    - { pkg: gptfdisk,                      desc: Paritioning tools e.g. sgdisk }
-    - { pkg: mkinitcpio,                    desc: initramfs image creation utility }
-    - { pkg: mkinitcpio-vt-colors,          desc: vt console colors, type: CYBERLINUX }
-    - { pkg: rsync,                         desc: Remote file sync utility }
-    - { pkg: systemd,                       desc: System and service manager }
-    - { pkg: sudo,                          desc: Elevate some user commands to root }
+    - { pkg: linux,                           desc: Linux kernel and supporting modules }
+    - { pkg: gptfdisk,                        desc: Paritioning tools e.g. sgdisk }
+    - { pkg: mkinitcpio,                      desc: initramfs image creation utility }
+    - { pkg: mkinitcpio-vt-colors,            desc: vt console colors, type: CYBERLINUX }
+    - { pkg: rsync,                           desc: Remote file sync utility }
+    - { pkg: systemd,                         desc: System and service manager }
+    - { pkg: sudo,                            desc: Elevate some user commands to root }
     - { install: core-pkgs }
     - { install: core-tools }
     - { install: grub-pkgs }
@@ -65,9 +65,9 @@ layers:
       entry: "Deploy <%=distro%>-base                    // Shell env"
       kernel: linux
     packages:
-      - { pkg: linux,                       desc: Linux kernel and supporting modules }
-      - { pkg: linux-docs,                  desc: Linux kernel docs }
-      - { pkg: linux-headers,               desc: Linux kernel headers }
+      - { pkg: linux,                         desc: Linux kernel and supporting modules }
+      - { pkg: linux-docs,                    desc: Linux kernel docs }
+      - { pkg: linux-headers,                 desc: Linux kernel headers }
       - { install: base-pkgs }
       - { install: base-tools }
       - { install: virtualbox-guest-nox }
@@ -122,17 +122,19 @@ layers:
       - { apply: makemkv-config }
       - { apply: teamviewer-host-config }
 
-  # Heavy
+  # Theater
   # ----------------------------------------------------------------------------
-  - name: heavy
+  - name: theater
     type: machine
     base: lite
+    vars: { fontsize: 18, wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     deployment:
-      entry: "Deploy <%=distro%>-heavy                   // Lite + more bling"
+      entry: "Deploy <%=distro%>-theater                 // Lite + media apps"
       kernel: linux
+      params: autologin=1
     packages:
-      - { install: heavy-pkgs }
+      - { install: theater-pkgs }
 
       # MakeMKV is free while in beta but is a commercial product required a license normally
       # https://www.makemkv.com/forum2/viewtopic.php?f=5&t=1053
@@ -142,51 +144,45 @@ layers:
       # https://www.teamviewer.com/en/credentials/free-for-personal-use/
       - { pkg: teamviewer,                    desc: All-In-One Software for Remote Support and Online Meetings, type: CYBERLINUX }
     configs:
-      - { apply: heavy-config }
+      - { apply: theater-config }
       - { apply: makemkv-config }
       - { apply: teamviewer-host-config }
-
-  # Theater
-  # ----------------------------------------------------------------------------
-  - name: theater
-    type: machine
-    base: heavy
-    vars: { fontsize: 18, wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
-    vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
-    deployment:
-      entry: "Deploy <%=distro%>-theater                 // Heavy + media apps"
-      kernel: linux
-      params: autologin=1
-    packages:
-      - { install: theater-pkgs }
-    configs:
-      - { apply: theater-config }
 
   # Desktop
   # ----------------------------------------------------------------------------
   - name: desktop
     type: machine
-    base: heavy
+    base: lite
     groups: [docker]
     vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     deployment:
-      entry: "Deploy <%=distro%>-desktop                 // Heavy + more apps"
+      entry: "Deploy <%=distro%>-desktop                 // Lite + more apps"
       kernel: linux
     packages:
       - { install: desktop-pkgs }
+
+      # MakeMKV is free while in beta but is a commercial product required a license normally
+      # https://www.makemkv.com/forum2/viewtopic.php?f=5&t=1053
+      - { pkg: makemkv,                       desc: DVD and Blu-ray to MKV converter, type: CYBERLINUX }
+
+      # Teamviewer is free to use for personal use
+      # https://www.teamviewer.com/en/credentials/free-for-personal-use/
+      - { pkg: teamviewer,                    desc: All-In-One Software for Remote Support and Online Meetings, type: CYBERLINUX }
 
       # The Extension Pack binaries are released under the VirtualBox Personal Use and Evaluation License (PUEL).
       # https://www.virtualbox.org/wiki/Downloads
       - { pkg: virtualbox-ext-oracle,         desc: Oracle VM VirtualBox Extension Pack, type: CYBERLINUX }
     configs:
       - { apply: desktop-config }
+      - { apply: makemkv-config }
+      - { apply: teamviewer-host-config }
 
   # Recovery
   # ----------------------------------------------------------------------------
   - name: live
     type: machine
-    base: heavy
+    base: desktop
     vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     deployment:

@@ -32,13 +32,13 @@ build:
     params: '-e TERM=xterm -v /var/run/docker.sock:/var/run/docker.sock --privileged=true'
     command: 'bash -c "while :; do sleep 5; done"'
   packages:
-    - { pkg: linux-celes,                   desc: Linux kernel and supporting modules, type: CYBERLINUX }
-    - { pkg: gptfdisk,                      desc: Paritioning tools e.g. sgdisk }
-    - { pkg: mkinitcpio,                    desc: initramfs image creation utility }
-    - { pkg: mkinitcpio-vt-colors,          desc: vt console colors, type: CYBERLINUX }
-    - { pkg: rsync,                         desc: Remote file sync utility }
-    - { pkg: systemd,                       desc: System and service manager }
-    - { pkg: sudo,                          desc: Elevate some user commands to root }
+    - { pkg: linux-celes,                     desc: Linux kernel and supporting modules, type: CYBERLINUX }
+    - { pkg: gptfdisk,                        desc: Paritioning tools e.g. sgdisk }
+    - { pkg: mkinitcpio,                      desc: initramfs image creation utility }
+    - { pkg: mkinitcpio-vt-colors,            desc: vt console colors, type: CYBERLINUX }
+    - { pkg: rsync,                           desc: Remote file sync utility }
+    - { pkg: systemd,                         desc: System and service manager }
+    - { pkg: sudo,                            desc: Elevate some user commands to root }
     - { install: core-pkgs }
     - { install: core-tools }
     - { install: grub-pkgs }
@@ -66,8 +66,8 @@ layers:
       entry: "Deploy <%=distro%>-base                    // Minimal shell"
       kernel: linux-celes
     packages:
-      - { pkg: linux-celes,                 desc: Linux kernel and supporting modules, type: CYBERLINUX }
-      - { pkg: linux-celes-headers,         desc: Linux kernel headers }
+      - { pkg: linux-celes,                   desc: Linux kernel and supporting modules, type: CYBERLINUX }
+      - { pkg: linux-celes-headers,           desc: Linux kernel headers }
       - { install: base-pkgs }
       - { install: base-tools }
       - { install: shell-pkgs }
@@ -107,11 +107,12 @@ layers:
       entry: "Deploy <%=distro%>-desktop                 // Lite + more apps"
       kernel: linux-celes
     packages:
-      #- { install: heavy-pkgs }
-      - { install: laptop-pkgs }
-        #- { install: desktop-pkgs }
-
-      # Possible apps to add
+      - { pkg: blueman,                       desc: GTK+ Bluetooth Manager }
+      - { pkg: cinnamon-screensaver,          desc: Screensaver for the Cinnamon desktop, type: CYBERLINUX }
+      - { pkg: gimp,                          desc: Excellent image editor, alt: pinta }
+      - { pkg: hunspell-en_US,                desc: US dictionaries for spell checking, deps: libreoffice }
+      - { pkg: libreoffice-fresh,             desc: LibreOffice branch with new features/enhancements }
+      - { pkg: keepass,                       desc: Cross platform password manager }
       # ristretto         // Image viewer
       # Hexchat           // IRC
       # Pidgin            // Messaging
@@ -124,9 +125,7 @@ layers:
       # https://www.teamviewer.com/en/credentials/free-for-personal-use/
       - { pkg: teamviewer,                    desc: All-In-One Software for Remote Support and Online Meetings, type: CYBERLINUX }
     configs:
-      #- { apply: heavy-config }
-      #- { apply: celes-config }
-      #- { apply: desktop-config }
+      - { apply: cinnamon-screensaver-config }
       - { apply: teamviewer-client-config }
 
   # Live
