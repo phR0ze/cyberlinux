@@ -78,6 +78,7 @@ layers:
       - { apply: shell-config }
 
   # Lite
+  # https://wiki.archlinux.org/index.php/laptop
   # ----------------------------------------------------------------------------
   - name: lite
     type: machine

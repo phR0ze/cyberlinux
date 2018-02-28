@@ -1,0 +1,144 @@
+--MIT License
+--Copyright (c) 2018 phR0ze
+
+--Permission is hereby granted, free of charge, to any person obtaining a copy
+--of this software and associated documentation files (the "Software"), to deal
+--in the Software without restriction, including without limitation the rights
+--to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+--copies of the Software, and to permit persons to whom the Software is
+--furnished to do so, subject to the following conditions:
+
+--The above copyright notice and this permission notice shall be included in all
+--copies or substantial portions of the Software.
+
+--THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+--IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+--FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+--AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+--LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+--OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+--SOFTWARE.
+
+---------------------------------------------------------------------------------
+-- Conky Configuration 1.10 syntax
+-- https://github.com/brndnmtthws/conky/wiki/Default-Config
+-- https://github.com/brndnmtthws/conky/wiki/Configuration-Settings
+---------------------------------------------------------------------------------
+conky.config = {
+    -- General
+	total_run_times = 0,                    -- Run conky forever
+    no_buffers = true,                      -- ?
+	double_buffer = true,                   -- Double buffer to avoid flickering
+	update_interval = 1,                    -- Update interval for conky in seconds
+    cpu_avg_samples = 2,                    -- Number of samples to average for CPU monitoring
+    net_avg_samples = 2,                    -- Number of samples to average for NET monitoring
+
+    -- Window
+	own_window = true,                      -- Without a window behaves weirdly
+    own_window_type = 'desktop',            -- Specify that the window is different
+	own_window_transparent = false,          -- Set the background opacity to 0%
+
+    -- Position
+	alignment = 'top_left',              -- Align window on the desktop
+	maximum_width = 1366,                   -- Maximum width of conky window
+    minimum_width = 1366,                   -- Set to max so offset doesn't push into unknown
+    minimum_height = 768,                   -- Set to max so voffset doesn't push into unknown
+	gap_x = 20,                             -- Gap in pixels between right or left border of screen
+	gap_y = 20,                             -- Gap in pixels between top or bottom of screen
+
+    -- Fonts
+	use_xft = true,                         -- Anti-aliased fonts
+	uppercase = false,                      -- User upper case text
+    default_color = 'ffffff',               -- Default font color to use
+	color1 = 'ffffff',                      -- White
+	color2 = '3CB0FD',                      -- cyber blue
+	color3 = '0a6da6',                      -- Dark cyber blue
+
+    -- Bars/Graphs
+    default_bar_width= 300,                 -- Default width for bars
+    default_bar_height = 15,                -- Default height for bars
+    default_graph_width= 400,               -- Default width for graphs
+    default_graph_height = 100,             -- Default height for graphs
+};
+
+conky.text = [[
+#-------------------------------------------------------------------------------
+# Time/Date/Calendar
+#-------------------------------------------------------------------------------
+${voffset -45}${offset 1040}\
+${font Designer Block:bold:size=100}${color1}${time %I}\
+${offset 3}${voffset -38}${font Designer Block:bold:size=50}${color3}:${time %M}\
+${font Designer Block:bold:size=14}${time %p}\
+${offset -110}${voffset 13}${font Designer Block:bold:size=35}${color1}${time %a} ${time %d}\
+${voffset -10}${font Designer Block:bold:size=20}${exec ~/bin/conky_date.rb}
+# Month/Year
+${voffset 25}${offset 1048}\
+${font Designer Block:normal:size=24}${color1}${time %B}.${time %Y} ${hr 2}
+# Day names
+${offset 1038}${font Liberation Mono:bold:size=14}${color2}  Su  Mo  Tu  We  Th  Fr  Sa
+# Days
+${font Liberation Mono:size=14}${color1}${execp ~/bin/conky_cal.rb 2 1038}
+
+#-------------------------------------------------------------------------------
+# System
+#-------------------------------------------------------------------------------
+${voffset -330}
+${color2}${font Liberation Mono:size=20}System${font Liberation Mono:size=12}
+${voffset 4}${color lightgrey} Name: $color${nodename}
+${color lightgrey} Kernel: $color${kernel}
+${voffset 10}${color lightgrey} Storage: $color${fs_used_perc}% (${fs_used /}/${fs_size})
+${color} ${fs_bar}
+${voffset 10}${color lightgrey} Battery: $color${battery_percent}% (${battery_time})
+${color} ${battery_bar}
+
+#-------------------------------------------------------------------------------
+# CPU/Processes
+#-------------------------------------------------------------------------------
+${voffset 240}
+${color2}${font Liberation Mono:size=20}CPU${font Liberation Mono:size=12}
+${voffset 4}${color lightgrey} usage: ${cpu cpu1}%
+${color} ${cpubar cpu1}
+
+${color lightgrey} ${top name 1} ${top pid 1} ${top cpu 1}%
+${color lightgrey} ${top name 2} ${top pid 2} ${top cpu 2}%
+${color lightgrey} ${top name 3} ${top pid 3} ${top cpu 3}%
+${color lightgrey} ${top name 4} ${top pid 4} ${top cpu 4}%
+${color lightgrey} ${top name 5} ${top pid 5} ${top cpu 5}%
+${color lightgrey} ${top name 6} ${top pid 6} ${top cpu 6}%
+${color lightgrey} ${top name 7} ${top pid 7} ${top cpu 7}%
+${color lightgrey} ${top name 8} ${top pid 8} ${top cpu 8}%
+${color lightgrey} ${top name 9} ${top pid 9} ${top cpu 9}%
+${color lightgrey} ${top name 10} ${top pid 10} ${top cpu 10}%
+
+#-------------------------------------------------------------------------------
+# Memory/Processes
+#-------------------------------------------------------------------------------
+${voffset -319}
+${offset 350}${color2}${font Liberation Mono:size=20}Memory${font Liberation Mono:size=12}
+${voffset 4}${offset 350}${color lightgrey}$color usage: $memperc% ($mem/$memmax)
+${offset 350} ${membar}
+
+${offset 350}${color lightgrey} ${top_mem name 1} ${top_mem pid 1} ${top_mem mem_res 1}
+${offset 350}${color lightgrey} ${top_mem name 2} ${top_mem pid 2} ${top_mem mem_res 2}
+${offset 350}${color lightgrey} ${top_mem name 3} ${top_mem pid 3} ${top_mem mem_res 3}
+${offset 350}${color lightgrey} ${top_mem name 4} ${top_mem pid 4} ${top_mem mem_res 4}
+${offset 350}${color lightgrey} ${top_mem name 5} ${top_mem pid 5} ${top_mem mem_res 5}
+${offset 350}${color lightgrey} ${top_mem name 6} ${top_mem pid 6} ${top_mem mem_res 6}
+${offset 350}${color lightgrey} ${top_mem name 7} ${top_mem pid 7} ${top_mem mem_res 7}
+${offset 350}${color lightgrey} ${top_mem name 8} ${top_mem pid 8} ${top_mem mem_res 8}
+${offset 350}${color lightgrey} ${top_mem name 9} ${top_mem pid 9} ${top_mem mem_res 9}
+${offset 350}${color lightgrey} ${top_mem name 10} ${top_mem pid 10} ${top_mem mem_res 10}
+
+#-------------------------------------------------------------------------------
+# Networking
+#-------------------------------------------------------------------------------
+${voffset -315}
+${offset 700}${color2}${font Liberation Mono:size=20}Networking${font Liberation Mono:size=12}
+${voffset 4}${offset 700}${color lightgrey} SSID:      $color skynet
+${offset 700}${color lightgrey} Private IP:$color ${addrs wlp2s0}
+${offset 700}${color lightgrey} Public  IP:$color ${curl ipinfo.io/ip 5}
+${voffset 4}${offset 700}${color lightgrey} Up Speed: $color${upspeed eno1}
+${offset 700} $color${upspeedgraph eno1}
+${voffset 4}${offset 700}${color lightgrey} Down Speed: $color${downspeed eno1}
+${offset 700} $color${downspeedgraph eno1}
+]];
