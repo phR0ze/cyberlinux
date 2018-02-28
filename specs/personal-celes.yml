@@ -91,9 +91,10 @@ layers:
       entry: "Deploy <%=distro%>-lite                    // Shell + min X11"
       kernel: linux-celes
     packages:
+      - { pkg: blueman,                       desc: GTK+ Bluetooth Manager }
+      - { pkg: cinnamon-screensaver,          desc: Screensaver for the Cinnamon desktop, type: CYBERLINUX }
       - { pkg: galliumos-base-git,            desc: GalliumOS base files, type: CYBERLINUX }
       - { pkg: galliumos-braswell-config,     desc: GalliumOS configuration files for braswell, force: true, type: CYBERLINUX }
-      - { pkg: blueman,                       desc: GTK+ Bluetooth Manager }
       - { install: lite-pkgs }
 
       # Adobe fonts from adobe reader
@@ -101,7 +102,7 @@ layers:
       - { pkg: ttf-adobe-fonts,               desc: Adobe fonts including Myriad Minion and Courier, type: CYBERLINUX }
     configs:
       - { apply: lite-config }
-      - { apply: netbook-config }
+      - { apply: laptop-config }
 
       # Work around issues in the iwlwifi driver for celes' Intel 7265D wifi card
       - { exec: 'rm -f /etc/modprobe.d/iwlwifi.conf'}
@@ -119,7 +120,6 @@ layers:
       entry: "Deploy <%=distro%>-desktop                 // Lite + more apps"
       kernel: linux-celes
     packages:
-      - { pkg: cinnamon-screensaver,          desc: Screensaver for the Cinnamon desktop, type: CYBERLINUX }
       - { pkg: gimp,                          desc: Excellent image editor, alt: pinta }
       - { pkg: hunspell-en_US,                desc: US dictionaries for spell checking, deps: libreoffice }
       - { pkg: libreoffice-fresh,             desc: LibreOffice branch with new features/enhancements }
