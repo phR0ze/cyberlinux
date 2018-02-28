@@ -1022,12 +1022,13 @@ class Reduce
 
   # Syncs the source and work directories for a given layer
   # @param layer [string] layer to work with
-  # @param layer_src [array] layer source directories to work with
+  # @param layer_src [path or paths] layer source directories to work with
   # @param layer_work [path] layer work directory to work with
   # @param layer_digests [path] layer digests file
   # @param block [block] block of code to execute
   def syncfiles(layer, layer_src, layer_work, layer_digests, &block)
     changed = false
+    layer_src = [layer_src] if layer_src.is_a?(String)
     return changed if !layer_src.any?{|x| File.exist?(x)}
 
     layer_src.select{|x| File.exist?(x)}.each{|src|
@@ -1047,9 +1048,9 @@ class Reduce
 
         # Copy over files from data dir to layer dir
         files.each{|x|
-          puts("Copying: #{x.sub(layer_src, '...')}")
-          FileUtils.mkdir_p(File.dirname(x.sub(layer_src, layer_work)))
-          FileUtils.cp(x, x.sub(layer_src, layer_work))
+          puts("Copying: #{x.sub(src, '...')}")
+          FileUtils.mkdir_p(File.dirname(x.sub(src, layer_work)))
+          FileUtils.cp(x, x.sub(src, layer_work))
         }
 
         # Copy user files to root as well
