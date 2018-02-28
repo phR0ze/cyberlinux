@@ -783,9 +783,9 @@ class Reduce
       layer_changed = false
       layer_yml = getlayer(layer)
       layer_deps = getlayers(layer)[1..-1]
-      layer_src = File.join(@layers_src, layer_yml[@k.source])
       layer_work = FileUtils.mkdir_p(File.join(@layers_work, layer)).shift
       layer_digests = File.join(layer_work, 'digests')
+      layer_src = (layer_yml[@k.source] || [layer]).map{|x| File.join(@layers_src, x)}
       layer_image = layer_yml[@k.type] == @k.machine ? File.join(@layer_images_dst, "#{layer}.sqfs") :
         File.join(@imagepaths.first, "#{layer}-#{@vars.release}.tgz")
       puts("#{'-' * 80}\nBuilding layer '#{layer}'\n#{'-' * 80}".colorize(:light_yellow))
