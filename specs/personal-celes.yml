@@ -91,8 +91,8 @@ layers:
       entry: "Deploy <%=distro%>-lite                    // Shell + min X11"
       kernel: linux-celes
     packages:
-      - { pkg: gallium-base-git,              desc: GalliumOS base files, type: CYBERLINUX }
-      - { pkg: gallium-braswell-config,       desc: GalliumOS userspace configuration files for braswell, type: CYBERLINUX }
+      - { pkg: galliumos-base-git,              desc: GalliumOS base files, type: CYBERLINUX }
+      - { pkg: galliumos-braswell-config,       desc: GalliumOS userspace configuration files for braswell, type: CYBERLINUX }
       - { pkg: blueman,                       desc: GTK+ Bluetooth Manager }
       - { install: lite-pkgs }
 
