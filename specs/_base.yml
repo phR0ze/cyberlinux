@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.256
+  release: 0.1.257
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -939,8 +939,11 @@ configs:
       insert: append
       value: 'Defaults env_keep += "ftp_proxy http_proxy https_proxy no_proxy"'
   sysctld-config:
+    # Minimal amount of swapping without disabling it entirely
     - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "vm.swappiness = 1" }
+    # Enable kernel ipv4 forwarding for containers
     - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "net.ipv4.ip_forward = 1" }
+    # Disable ipv6 forwarding
     - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "net.ipv6.conf.all.forwarding = 0" }
   thunar-config:
     - edit: /etc/skel/.config/autostart/thunar.desktop

@@ -84,6 +84,7 @@ class Reduce
       pgp_key: 'pgp_key',
       pkg: 'pkg',
       ram: 'ram',
+      source: 'source',
       type: 'type',
       vagrant: 'vagrant',
       vars: 'vars',
@@ -779,11 +780,11 @@ class Reduce
 
     layers.each do |layer|
       layer_changed = false
+      layer_yml = getlayer(layer)
       layer_deps = getlayers(layer)[1..-1]
-      layer_src = File.join(@layers_src, layer)
+      layer_src = File.join(@layers_src, layer_yml[@k.source])
       layer_work = FileUtils.mkdir_p(File.join(@layers_work, layer)).shift
       layer_digests = File.join(layer_work, 'digests')
-      layer_yml = getlayer(layer)
       layer_image = layer_yml[@k.type] == @k.machine ? File.join(@layer_images_dst, "#{layer}.sqfs") :
         File.join(@imagepaths.first, "#{layer}-#{@vars.release}.tgz")
       puts("#{'-' * 80}\nBuilding layer '#{layer}'\n#{'-' * 80}".colorize(:light_yellow))
@@ -1021,54 +1022,55 @@ class Reduce
 
   # Syncs the source and work directories for a given layer
   # @param layer [string] layer to work with
-  # @param layer_src [path] layer source directory to work with
+  # @param layer_src [array] layer source directories to work with
   # @param layer_work [path] layer work directory to work with
   # @param layer_digests [path] layer digests file
   # @param block [block] block of code to execute
   def syncfiles(layer, layer_src, layer_work, layer_digests, &block)
     changed = false
-    return changed if not File.exist?(layer_src)
+    return changed if !layer_src.any?{|x| File.exist?(x)}
 
-    msg = "Syncing from #{layer_src}"
-    files = Dir.glob(File.join(layer_src, '**/*'), File::FNM_DOTMATCH).reject{|x| File.directory?(x)}
-    newfiles, modifiedfiles, deletedfiles = Fedit.digests_changed(layer, layer_digests, files)
-    if newfiles.any? or modifiedfiles.any? or deletedfiles.any? or not File.exist?(layer_digests)
-      changed |= true
-      puts(msg.colorize(:cyan))
+    layer_src.select{|x| File.exist?(x)}.each{|src|
+      msg = "Syncing from #{src}"
+      files = Dir.glob(File.join(src, '**/*'), File::FNM_DOTMATCH).reject{|x| File.directory?(x)}
+      newfiles, modifiedfiles, deletedfiles = Fedit.digests_changed(layer, layer_digests, files)
+      if newfiles.any? or modifiedfiles.any? or deletedfiles.any? or not File.exist?(layer_digests)
+        changed |= true
+        puts(msg.colorize(:cyan))
 
-      # Remove files that no longer exist from layer directory not data
-      deletedfiles.each{|x|
-        target = x.sub(layer_src, layer_work)
-        puts("Deleting #{target}".colorize(:red))
-        File.delete(target)
-      }
+        # Remove files that no longer exist from layer directory not data
+        deletedfiles.each{|x|
+          target = x.sub(src, layer_work)
+          puts("Deleting #{target}".colorize(:red))
+          File.delete(target)
+        }
 
-      # Copy over files from data dir to layer dir
-      if File.exist?(layer_src)
+        # Copy over files from data dir to layer dir
         files.each{|x|
           puts("Copying: #{x.sub(layer_src, '...')}")
           FileUtils.mkdir_p(File.dirname(x.sub(layer_src, layer_work)))
-          FileUtils.cp(x, x.sub(layer_src, layer_work))}
+          FileUtils.cp(x, x.sub(layer_src, layer_work))
+        }
+
+        # Copy user files to root as well
+        skelpath = File.join(src, 'etc/skel')
+        if File.exist?(skelpath)
+          puts("Copying from #{skelpath}".colorize(:cyan))
+          Dir.glob(File.join(skelpath, '/**/*'), File::FNM_DOTMATCH).reject{|x| File.directory?(x)}.each{|x|
+            puts("Copying: #{x.sub(src, '...')} => #{x.sub(skelpath, '.../root')}")
+            FileUtils.mkdir_p(File.dirname(x.sub(src, layer_work).sub('etc/skel', 'root')))
+            FileUtils.cp(x, x.sub(src, layer_work).sub('etc/skel', 'root'))}
+        end
+
+        # Execute block
+        block.call if block
+
+        # Update digests
+        Fedit.update_digests(layer, layer_digests, files)
+      else
+        puts("#{msg}...skipping".colorize(:cyan))
       end
-
-      # Copy user files to root as well
-      skelpath = File.join(layer_src, 'etc/skel')
-      if File.exist?(skelpath)
-        puts("Copying from #{skelpath}".colorize(:cyan))
-        Dir.glob(File.join(skelpath, '/**/*'), File::FNM_DOTMATCH).reject{|x| File.directory?(x)}.each{|x|
-          puts("Copying: #{x.sub(layer_src, '...')} => #{x.sub(skelpath, '.../root')}")
-          FileUtils.mkdir_p(File.dirname(x.sub(layer_src, layer_work).sub('etc/skel', 'root')))
-          FileUtils.cp(x, x.sub(layer_src, layer_work).sub('etc/skel', 'root'))}
-      end
-
-      # Execute block
-      block.call if block
-
-      # Update digests
-      Fedit.update_digests(layer, layer_digests, files)
-    else
-      puts("#{msg}...skipping".colorize(:cyan))
-    end
+    }
 
     puts("Completed constructing/modifiying files for '#{layer}' layer".colorize(:green))
 
