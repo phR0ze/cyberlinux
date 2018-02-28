@@ -861,7 +861,7 @@ class Reduce
     #---------------------------------------------------------------------------
     all_pkgs = getpkgs(layer_yml)
     pkgs = {
-      reg: all_pkgs.map{|x| x[@k.pkg] if !x[@k.ignore]}.compact,
+      reg: all_pkgs.map{|x| x[@k.pkg] if !x[@k.ignore] and !x[@k.force]}.compact,
       force: all_pkgs.map{|x| x[@k.pkg] if x[@k.force]}.compact,
       ignore: all_pkgs.map{|x| x[@k.pkg] if x[@k.ignore]}.compact,
       conflict: all_pkgs.map{|x| "CONFLICT:#{x[@k.conflict]}" if x[@k.conflict]}.compact
