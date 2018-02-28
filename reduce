@@ -67,6 +67,7 @@ class Reduce
       deployment: 'deployment',
       docker: 'docker',
       entry: 'entry',
+      force: 'force',
       groups: 'groups',
       i686: 'i686',
       ignore: 'ignore',
@@ -861,6 +862,7 @@ class Reduce
     all_pkgs = getpkgs(layer_yml)
     pkgs = {
       reg: all_pkgs.map{|x| x[@k.pkg] if !x[@k.ignore]}.compact,
+      force: all_pkgs.map{|x| x[@k.pkg] if x[@k.force]}.compact,
       ignore: all_pkgs.map{|x| x[@k.pkg] if x[@k.ignore]}.compact,
       conflict: all_pkgs.map{|x| "CONFLICT:#{x[@k.conflict]}" if x[@k.conflict]}.compact
     }
@@ -879,11 +881,12 @@ class Reduce
     if pkgs.any?{|k,v| v.any? if k != :conflict and k != :ignore}
       puts("#{msg}".colorize(:cyan))
       puts("Packages: #{pkgs[:reg]}")
+      puts("Force Pkgs: #{pkgs[:force]}")
       puts("Ignore Pkgs: #{pkgs[:ignore]}")
       puts("Conflict Pkgs: #{pkgs[:conflict]}")
 
       # pacstrap replacement
-      if pkgs[:conflict].any? or pkgs[:reg].any?
+      if pkgs[:conflict].any? or pkgs[:reg].any? or pkgs[:force].any?
         begin
           rm_rf(File.join(@pacman_path, 'pacman.log')) if !layer_deps.any?
 
@@ -924,6 +927,14 @@ class Reduce
             puts("Pacstrap package installs for '#{layer}'...".colorize(:cyan))
             cmd = ['pacstrap', '-GMcd', layer_work, '--config', @pacman_conf, '--needed', *pkgs[:reg]]
             cmd += ['--ignore', pkgs[:ignore] * ','] if pkgs[:ignore].any?
+            !puts("Error: Failed to install packages correctly".colorize(:red)) and
+              exit unless Sys.exec(cmd, env:@proxyenv)
+          end
+
+          # Install force packages
+          if pkgs[:force].any?
+            puts("Pacstrap package installs for '#{layer}'...".colorize(:cyan))
+            cmd = ['pacstrap', '-GMcd', layer_work, '--config', @pacman_conf, '--needed --force', *pkgs[:force]]
             !puts("Error: Failed to install packages correctly".colorize(:red)) and
               exit unless Sys.exec(cmd, env:@proxyenv)
           end
