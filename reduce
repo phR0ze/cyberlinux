@@ -934,7 +934,7 @@ class Reduce
           # Install force packages
           if pkgs[:force].any?
             puts("Pacstrap package installs for '#{layer}'...".colorize(:cyan))
-            cmd = ['pacstrap', '-GMcd', layer_work, '--config', @pacman_conf, '--needed --force', *pkgs[:force]]
+            cmd = ['pacstrap', '-GMcd', layer_work, '--config', @pacman_conf, '--needed', '--force', *pkgs[:force]]
             !puts("Error: Failed to install packages correctly".colorize(:red)) and
               exit unless Sys.exec(cmd, env:@proxyenv)
           end
