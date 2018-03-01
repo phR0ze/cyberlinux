@@ -9,3 +9,6 @@ Manually change:
 ```bash
 sudo tee /sys/class/backlight/intel_backlight/brightness <<< 800
 ```
+
+## Turn off Display
+```xset dpms force off```
