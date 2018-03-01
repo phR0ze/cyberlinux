@@ -103,6 +103,14 @@ layers:
       - { apply: lite-config }
       - { apply: laptop-config }
 
+      # Set Hot Keys for chromebooks
+      - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'Print', value: 'W-P' }
+      - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'XF86AudioMute', value: 'W-F8' }
+      - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'XF86AudioLowerVolume', value: 'W-F9' }
+      - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'XF86AudioRaiseVolume', value: 'W-F10' }
+      - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'XF86MonBrightnessUp', value: 'W-F7' }
+      - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'XF86MonBrightnessDown', value: 'W-F6' }
+
       # Work around issues in the iwlwifi driver for celes' Intel 7265D wifi card
       - { exec: 'rm -f /etc/modprobe.d/iwlwifi.conf'}
       - { edit: /etc/modprobe.d/iwlwifi.conf, insert: append, values: ['options iwlwifi 11n_disable=8 bt_coex_active=0 swcrypto=1']}

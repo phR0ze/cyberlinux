@@ -458,16 +458,20 @@
       </action>
     </keybind>
 
-    <!-- Handle brightness controls -->
+    <!-- Handle display controls -->
     <keybind key="XF86MonBrightnessUp">
       <action name="Execute">
         <command>xbacklight +10</command>
       </action>
     </keybind>
-
     <keybind key="XF86MonBrightnessDown">
       <action name="Execute">
         <command>xbacklight -10</command>
+      </action>
+    </keybind>
+    <keybind key="W-F4">
+      <action name="Execute">
+        <command>F11</command>
       </action>
     </keybind>
 
