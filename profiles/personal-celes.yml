@@ -19,10 +19,6 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-# Samsung Chromebook 3 (a.k.a celes)
-# Personal - uses applications with various restrictions and can not be used
-# commercial purposes. It is only to be used for personal use only.
-# ------------------------------------------------------------------------------
 build:
   name: build
   type: container
@@ -71,7 +67,6 @@ layers:
       - { install: base-pkgs }
       - { install: base-tools }
       - { install: shell-pkgs }
-
     configs:
       - { apply: base-config }
       - { apply: shell-config }

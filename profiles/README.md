@@ -1,7 +1,7 @@
 # cyberlinux profiles
 <img align="left" width="48" height="48" src="https://raw.githubusercontent.com/phR0ze/cyberlinux/master/art/logo_256x256.png">
 <b><i>cyberlinux profiles</i></b> were designed to provide a clean declaritive yaml syntax for
-building infinitely flexible/customizable <b><i>cyberlinux</i></b> deployments.
+building infinitely flexible <b><i>cyberlinux</i></b> deployments.
 
 ### Disclaimer
 Licensing/copyright use restrictions depend on the packages included in the profile.  Profiles that
