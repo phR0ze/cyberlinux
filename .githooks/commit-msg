@@ -21,11 +21,11 @@
 #SOFTWARE.
 
 # Prepend version to every commit message
-# Get version from the _base.yml spec
+# Get version from the _base.yml profile
 msgfile = ARGV[0]
 regex1 = /\d+\.\d+\.\d+:\s(.*)/
 regex2 = /\s*release:\s*(\d+\.\d+\.\d+)/
-File.open('specs/_base.yml', 'r') do |f|
+File.open('profiles/_base.yml', 'r') do |f|
   ver = f.readlines.find{|x| x[regex2, 1]}[regex2, 1]
   msg = File.read(msgfile)
   msg = msg[regex1, 1] if msg[regex1, 1]

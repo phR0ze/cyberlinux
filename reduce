@@ -99,9 +99,10 @@ class Reduce
     @sudoinv = Process.uid.zero? ? "sudo -Hu #{@user} " : ''
     @runuser = "runuser #{@user} -c"
 
-    # Load vars from base spec
-    @spec = load_spec("_base")
-    @vars = OpenStruct.new(@spec[@k.vars])
+    # Load vars from base profile
+    profile = "_base"
+    @profile = load_profile(profile)
+    @vars = OpenStruct.new(@profile[@k.vars])
 
     # Set proxy vars
     @proxyenv = {
@@ -155,9 +156,9 @@ class Reduce
       File.expand_path('~').include?('root') ? "/home/#{@user}/Downloads/images" :
         File.join(File.expand_path('~'), 'Downloads', 'images')]
 
-    # Validate spec params
+    # Validate profile params
     validate = ->(name, pred){
-      !puts("Error: '#{name}' is invalid in '#{@spec_file}'".colorize(:red)) and exit unless pred
+      !puts("Error: '#{name}' is invalid in '#{profile}'".colorize(:red)) and exit unless pred
     }
     validate.call('distro', @vars.distro)
     validate.call('release', @vars.release)
@@ -167,26 +168,26 @@ class Reduce
     @vars.label = "#{@vars.distro.upcase}_#{@vars.release.gsub('.', '')}"
   end
 
-  # Load and return the given spec
-  # @param spec [String] name of the spec to load
-  def load_spec(spec)
-    spec_path = File.join(@rootpath, "specs/#{spec}.yml")
+  # Load and return the given profile
+  # @param profile [String] name of the profile to load
+  def load_profile(profile)
+    profile_path = File.join(@rootpath, "profiles/#{profile}.yml")
 
     begin
-      spec = YAML.load_file(spec_path)
-      return spec if !@spec
+      profile = YAML.load_file(profile_path)
+      return profile if !@profile
 
-      # Merge with existing spec
-      spec.each{|k,v| @spec[k] = v}
+      # Merge with existing profile
+      profile.each{|k,v| @profile[k] = v}
 
       # Set layer variables as needed
-      @spec[@k.layers].select{|x| x[@k.type] == @k.machine}
+      @profile[@k.layers].select{|x| x[@k.type] == @k.machine}
         .each{|x| @vars["#{x[@k.name]}_layers"] = getlayers(x[@k.name]) * ','}
-      @spec[@k.layers].each{|x| @vars["#{x[@k.name]}_src"] = File.join(@layers_src, x[@k.name])}
-      @vars.groups = @spec[@k.layers].select{|x| x[@k.type] == @k.machine}
+      @profile[@k.layers].each{|x| @vars["#{x[@k.name]}_src"] = File.join(@layers_src, x[@k.name])}
+      @vars.groups = @profile[@k.layers].select{|x| x[@k.type] == @k.machine}
         .map{|x| x[@k.groups] if x[@k.groups]}.compact.uniq * ','
     rescue Exception => e
-      puts("Error: invalid yaml in '#{spec_path}'".colorize(:red))
+      puts("Error: invalid yaml in '#{profile_path}'".colorize(:red))
       puts(e.to_s.colorize(:red))
       raise
     end
@@ -375,17 +376,17 @@ class Reduce
   end
 
   # Build components as directed
-  # @param spec [String] cyberlinux spec to build from
+  # @param profile [String] cyberlinux profile to build
   # @param initramfs [bool] build initramfs component
   # @param multiboot [bool] build multiboot component
   # @param layers [Array] build given layers
   # @param iso [bool] build iso image from whatever machine layers exist
   # @param isofull [bool] build iso image including all machine layers
-  def build(spec, initramfs:nil, multiboot:nil, layers:nil, iso:nil, isofull:nil)
+  def build(profile, initramfs:nil, multiboot:nil, layers:nil, iso:nil, isofull:nil)
     opts = [initramfs, multiboot, layers, iso, isofull]
     !puts("Error: no build options specified".colorize(:red)) and exit unless opts.any?
     changed = false
-    load_spec(spec)
+    load_profile(profile)
     info
     create_dir_structure
 
@@ -396,7 +397,7 @@ class Reduce
     end
 
     # Build implicated layers
-    layers = @spec[@k.layers].select{|x| x[@k.type] == @k.machine}.map{|x| x[@k.name]} if isofull
+    layers = @profile[@k.layers].select{|x| x[@k.type] == @k.machine}.map{|x| x[@k.name]} if isofull
     layers.each{|layer| changed |= build_layers(layer)} if layers
 
     # Build the build container for initramfs/multiboot
@@ -412,7 +413,7 @@ class Reduce
     # Create ISO Hybrid CD/USB bootable image
     # http://lukeluo.blogspot.co.uk/2013/06/grub-how-to-2-make-boot-able-iso-with.html
     @vars.isofile = File.join(@imagepaths.first,
-      "#{@vars.distro.downcase}-#{spec}-#{@vars.release}-#{@vars.kernel}-#{@vars.arch}.iso")
+      "#{@vars.distro.downcase}-#{profile}-#{@vars.release}-#{@vars.kernel}-#{@vars.arch}.iso")
     if [iso, isofull].any?
       puts("#{'-' * 80}\nBuilding ISO Hybrid CD/USB bootable image...\n#{'-' * 80}".colorize(:light_yellow))
       if changed or not File.exist?(@vars.isofile)
@@ -441,7 +442,7 @@ class Reduce
     create_dir_structure
     changed = false
     initramfs_digests = File.join(@initramfs_work, 'digests')
-    initramfs_names = @spec[@k.layers].select{|x| x[@k.type] == @k.machine}
+    initramfs_names = @profile[@k.layers].select{|x| x[@k.type] == @k.machine}
       .map{|x| x[@k.deployment][@k.kernel]}.uniq.map{|x| "#{@initramfs_prefix}-#{x}"}
 
     puts("#{'-' * 80}\nBuilding initramfs images...\n#{'-' * 80}".colorize(:light_yellow))
@@ -492,7 +493,7 @@ class Reduce
     changed = false
     grub_digests = File.join(@grub_iso_work, 'digests')
     grub_iso_path = File.join(@grub_iso_work, 'boot/grub')
-    kernels = @spec[@k.layers].select{|x| x[@k.type] == @k.machine}
+    kernels = @profile[@k.layers].select{|x| x[@k.type] == @k.machine}
       .map{|x| x[@k.deployment][@k.kernel]}.compact.uniq.map{|x| "#{@kernel_prefix}-#{x}"}
 
     FileUtils.mkdir_p(grub_iso_path)
@@ -508,7 +509,7 @@ class Reduce
       # Inject deploy entries from layers
       motd = File.readlines(@motd_path)
       File.open(File.join(grub_iso_path, 'boot.cfg'), 'w'){|f|
-        @spec[@k.layers].select{|x| x[@k.type] == @k.machine}.reverse.each{|x|
+        @profile[@k.layers].select{|x| x[@k.type] == @k.machine}.reverse.each{|x|
           kernel = "#{@kernel_prefix}-#{x[@k.deployment][@k.kernel]}"
           params = x[@k.deployment][@k.params] || ""
           params = "#{params} " if !params.empty?
@@ -565,7 +566,7 @@ class Reduce
   # @param disksize [int] disk size to use for pack
   # @param force [bool] pack even if already exists
   def pack(layers, disksize:nil, force:nil)
-    _layers = @spec[@k.layers].select{|x| x[@k.type] == @k.machine}
+    _layers = @profile[@k.layers].select{|x| x[@k.type] == @k.machine}
     layers = layers || _layers.reject{|x| x[@k.name] == 'live'}
     puts("#{'-' * 80}\nPacking layers #{layers * ','}\n#{'-' * 80}".colorize(:light_yellow))
     !puts("Error: must be executed as non-root user".colorize(:red)) and
@@ -678,11 +679,11 @@ class Reduce
 
       # Generate vagrant node parameters
       #---------------------------------------------------------------------------
-      specs = []
+      profiles = []
       (nodes || [rand(2..254)]).each do |node|
         host = name || vagrant_box
         host = "#{host}#{node.to_s}".gsub(' ', '-').gsub('/', '-').gsub('_', '-')
-        spec = {
+        profile = {
           host: host,
           ip: "#{@vars.netip[0..-2]}#{node}/24",
           box: vagrant_box,
@@ -695,21 +696,21 @@ class Reduce
           no_proxy: @proxyenv['no_proxy'],
           ipv6: ipv6
         }
-        specs << spec
-        puts("Generating node: #{spec.to_s}".colorize(:cyan))
+        profiles << profile
+        puts("Generating node: #{profile.to_s}".colorize(:cyan))
       end
 
       # Create Vagrantfile for deployment
       vagrantfile_path = File.join(@vagrantpath, 'Vagrantfile')
       FileUtils.cp(File.join(@packer_src, 'Vagrantfile'), vagrantfile_path)
-      @vars.nodes = specs.map{|x| '  ' + x.to_s} * ",\n"
+      @vars.nodes = profiles.map{|x| '  ' + x.to_s} * ",\n"
       Fedit.resolve(vagrantfile_path, @vars)
 
       # Initialize a new vagrant instance
       #-----------------------------------------------------------------------
       if not vagrantfile
         puts("Initializing vagrant node from layer '#{layer}'".colorize(:cyan))
-        vmpath = File.expand_path(FileUtils.mkdir_p(File.join(@vagrantpath, specs.first[:host])).shift)
+        vmpath = File.expand_path(FileUtils.mkdir_p(File.join(@vagrantpath, profiles.first[:host])).shift)
         FileUtils.cp(vagrantfile_path, vmpath)
         File.delete(vagrantfile_path)
 
@@ -773,7 +774,7 @@ class Reduce
   # @returns true if changed
   def build_layers(target_layer)
     changed = false
-    layers = @spec[@k.layers].map{|x| x[@k.name]}
+    layers = @profile[@k.layers].map{|x| x[@k.name]}
     !puts("Error: Layer '#{target_layer}' doesn't exist".colorize(:red)) and
       exit unless (layers + [nil, @k.build]).include?(target_layer)
     layers = getlayers(target_layer).reverse
@@ -811,7 +812,7 @@ class Reduce
         if layer_changed or not File.exist?(changedfile) or not File.exist?(layer_image)
           vars = layer_yml[@k.vars] ? @vars.to_h.merge(layer_yml[@k.vars]) : @vars
           layer_changed |= Config.apply(layer_yml[@k.configs] || [],
-            OpenStruct.new({root: layer_work, vars: vars, configs: @spec[@k.configs]}))
+            OpenStruct.new({root: layer_work, vars: vars, configs: @profile[@k.configs]}))
           File.open(changedfile, 'w'){|f|}
         end
 
@@ -961,7 +962,7 @@ class Reduce
   # @returns list of packages for the given layer or all packages
   def getpkgs(layer_yml)
     result = {}
-    layers = layer_yml ? [layer_yml] : @spec[@k.layers]
+    layers = layer_yml ? [layer_yml] : @profile[@k.layers]
 
     # Detect multilib value
     multilib = layers.any?{|x| x[@k.multilib]}
@@ -974,7 +975,7 @@ class Reduce
         return pkgs.map{|x|
           if x[@k.install] || (x[@k.ignore] && !x[@k.pkg])
             pkgkey = x[@k.install] || x[@k.ignore]
-            pkgset = @spec[@k.packages][pkgkey].clone
+            pkgset = @profile[@k.packages][pkgkey].clone
             !puts("Error: missing package set '#{pkgkey}'".colorize(:red)) and exit unless pkgset
             # TODO: when multilib=true and arch is i686 then do opposite
             pkgset.reject!{|y| multilib ? y[@k.multilib] == false : y[@k.multilib]} if x[@k.install]
@@ -1209,11 +1210,11 @@ class Reduce
     layers = [layer]
     return layers if layer == @k.build
     !puts("Error: invalid layer '#{layer}'".colorize(:red)) and
-      exit if not @spec[@k.layers].find{|x| x[@k.name] == layer}
+      exit if not @profile[@k.layers].find{|x| x[@k.name] == layer}
 
     _layer = layer
     while _layer
-      _layer = @spec[@k.layers].find{|x| x[@k.name] == _layer}[@k.base]
+      _layer = @profile[@k.layers].find{|x| x[@k.name] == _layer}[@k.base]
       layers << _layer if _layer
     end
 
@@ -1226,7 +1227,7 @@ class Reduce
   def getlayer(layer)
 
     # Get yaml for the given layer
-    layer = layer == @k.build ? @spec[@k.build] : @spec[@k.layers].find{|x| x[@k.name] == layer}
+    layer = layer == @k.build ? @profile[@k.build] : @profile[@k.layers].find{|x| x[@k.name] == layer}
     !puts("Error: invalid layer '#{layer}'".colorize(:red)) and exit if not layer
 
     # Resolve templating for the given layer
@@ -1246,11 +1247,11 @@ if __FILE__ == $0
   reduce = Reduce.new
   version = reduce.instance_variable_get(:@vars).release
   examples = "Examples:\n".colorize(:green)
-  examples += "Full ISO Build: sudo ./#{app} clean build --iso-full --spec=personal\n".colorize(:green)
-  examples += "Rebuild initramfs: sudo ./#{app} clean build --initramfs --iso --spec=personal\n".colorize(:green)
-  examples += "Rebuild multiboot: sudo ./#{app} clean build --multiboot --iso --spec=personal\n".colorize(:green)
+  examples += "Full ISO Build: sudo ./#{app} clean build --iso-full --profile=personal\n".colorize(:green)
+  examples += "Rebuild initramfs: sudo ./#{app} clean build --initramfs --iso --profile=personal\n".colorize(:green)
+  examples += "Rebuild multiboot: sudo ./#{app} clean build --multiboot --iso --profile=personal\n".colorize(:green)
   examples += "Clean pacman dbs: sudo ./#{app} clean --pacman\n".colorize(:green)
-  examples += "Build k8snode layer: sudo ./#{app} clean build --layers=k8snode --iso --spec=personal\n".colorize(:green)
+  examples += "Build k8snode layer: sudo ./#{app} clean build --layers=k8snode --iso --profile=personal\n".colorize(:green)
   examples += "Pack k8snode layer: ./#{app} pack --layers=k8snode\n".colorize(:green)
   examples += "Deploy nodes: sudo ./#{app} deploy --layer=k8snode --nodes=10,11,12\n".colorize(:green)
   examples += "Deploy container: sudo ./#{app} deploy --run --layer=build\n".colorize(:green)
@@ -1277,7 +1278,7 @@ if __FILE__ == $0
     CmdOpt.new('--vms', 'Clean VMs that are no longer deployed'),
   ])
   opts.add('build', 'Build ISO components', [
-    CmdOpt.new('--spec=SPEC', 'Build from the given spec', type:String, required:true),
+    CmdOpt.new('--profile=PROFILE', 'Build from the given profile', type:String, required:true),
     CmdOpt.new('--initramfs', 'Build initramfs image'),
     CmdOpt.new('--multiboot', 'Build grub multiboot'),
     CmdOpt.new('--layers=x,y,z', 'Build given layers', type:Array),
@@ -1317,7 +1318,7 @@ if __FILE__ == $0
     isofull: opts[:isofull]) if opts[:clean]
 
   # Execute 'build' command
-  reduce.build(opts[:spec], initramfs: opts[:initramfs], multiboot: opts[:multiboot],
+  reduce.build(opts[:profile], initramfs: opts[:initramfs], multiboot: opts[:multiboot],
     layers: opts[:layers], iso: opts[:iso], isofull: opts[:isofull]) if opts[:build]
 
   # Execute 'pack' command

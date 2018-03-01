@@ -1,7 +1,7 @@
 # cyberlinux
 <img align="left" width="48" height="48" src="https://raw.githubusercontent.com/phR0ze/cyberlinux/master/art/logo_256x256.png">
 <b><i>cyberlinux</i></b> was designed to provide the unobtrusive beauty and power of Arch Linux as a fully
-customized automated offline multi-deployment ISO. Using a clean declarative yaml specification,
+customized automated offline multi-deployment ISO. Using a clean declarative yaml profiles,
 cyberlinux is able to completely customize and automate the building of Arch Linux filesystems
 which are bundled as a bootable ISO. Many common use cases are available as deployment options
 right out of the box, but the option to build your own infinitely flexible deployment is yours
@@ -14,11 +14,11 @@ for the taking.
 your own risk.  Any damages, issues, losses or problems caused by the use of ***cyberlinux*** are
 strictly the responsiblity of the user and not the developer/creator of ***cyberlinux***.
 
-Additionally the pre-configured ***specs*** and ***layers*** that exist in this repo are
+Additionally the pre-configured ***profiles*** and ***layers*** that exist in this repo are
 purely for my own personal benefit and pull requests will be evaluated as such. I intend to make the
 defaults generally useful but foremost it needs to be useful for my purposes. Pull requests aligning
 with my desires will be accepted. Typically I would expect those looking to leverage this framework to
-fork it and make their own configuration ***specs***
+fork it and make their own configuration ***profiles***
 
 ### Table of Contents
 * [Background](#background)
@@ -40,7 +40,7 @@ fork it and make their own configuration ***specs***
         * [Arch Bootstrap deployment](#arch-bootstrap-deployment)
     * [Pack cyberlinux](#pack-cyberlinux)
     * [Customization](#customization)
-        * [Spec Structure](#spec-structure)
+        * [Profile Structure](#profile-structure)
         * [Variables](#variables)
         * [Build Layer](#build-layer)
         * [Layers](#layers)
@@ -306,10 +306,10 @@ To pack a specific deployment for use - e.g. k8snode -  use the following:
 ### Customization <a name="customization"/></a>
 The heart of ***cyberlinux*** is it's ability to provide infinite variations of repeatable
 deployments that can be built together into a bootable/installable ISO.  This is driven through
-the use of ***specs*** which are declarative yaml describing all of the packages and configuration
+the use of ***profiles*** which are declarative yaml describing all of the packages and configuration
 required when building ***cyberlinux***.
 
-#### Spec Structure <a name="spec-structure"/></a>
+#### Profile Structure <a name="profile-structure"/></a>
 Example:
 ```YAML
 vars:
@@ -337,10 +337,10 @@ packages:
 
 #### Variables <a name="variables"/></a>
 ***vars*** are used for specifying distribution specific values and templating variables.
-***cyberlinux*** leverages Ruby's ERB templating in the specs as well as any configuration files
-that are called out in the ***spec*** with the ***resolve*** change function. The ***vars***
+***cyberlinux*** leverages Ruby's ERB templating in the profiles as well as any configuration files
+that are called out in the ***profile*** with the ***resolve*** change function. The ***vars***
 block provides templating variables to use. Variables are evaluated first by pulling in all
-variables from the ***vars*** block then overriding as needed for the specific ***layer***
+variables from the ***vars*** block then overriding as needed for the profile ***layer***
 context that is being evaluated.
 
 The existing set of base vars below are required, but more can be added as desired:
@@ -422,7 +422,7 @@ change calling out configuration and a change reference which simply groups chan
 changes that can be applied by referencing the change block's name.
 
 Changes must be either defined directly in the ***changes*** section of a ***layer*** or in the top
-level ***changes*** section of the ***spec.yml***. Change names when used as a re-usable change
+level ***changes*** section of the ***profile***. Change names when used as a re-usable change
 block in the ***changes*** section follow the convention of using an action followed by a short
 description separated by a hypen (e.g. ***config-autologin*** or ***remove-docs***).
 
@@ -482,7 +482,7 @@ There are four fundamental changes types: ***apply, edit, exec*** and ***resolve
 ```
 
 #### Change Block <a name="change-block"/></a>
-Change Blocks are listed in the ***changes*** top level seection of ***spec.yml***
+Change Blocks are listed in the ***changes*** top level seection of ***profile***
 ```YAML
 changes:
 ```

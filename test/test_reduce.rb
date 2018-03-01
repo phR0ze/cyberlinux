@@ -30,7 +30,7 @@ class TestGetLayers < Minitest::Test
   def setup
     @reduce ||= Reduce.new
     @k = @reduce.instance_variable_get(:@k)
-    @reduce.load_spec('standard')
+    @reduce.load_profile('standard')
   end
 
   def test_getlayers_with_bad_layer_name
@@ -61,7 +61,7 @@ class TestGetLayer < Minitest::Test
   def setup
     @reduce ||= Reduce.new
     @k = @reduce.instance_variable_get(:@k)
-    @reduce.load_spec('personal')
+    @reduce.load_profile('personal')
   end
 
   def test_getlayer_with_bad_layer_name

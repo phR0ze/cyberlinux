@@ -111,7 +111,7 @@ end
 update_copyright("Copyright (c)")
 
 # Auto-increment versions
-ver = increment_version('specs/_base.yml', /\s*release:\s*(\d+\.\d+\.\d+)/, override:nil)
+ver = increment_version('profiles/_base.yml', /\s*release:\s*(\d+\.\d+\.\d+)/, override:nil)
 puts("Version: #{ver}")
 
 # vim: ft=ruby:ts=2:sw=2:sts=2
