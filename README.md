@@ -241,7 +241,7 @@ Disable proxy:
 2. Logout and back in
 
 ## Roll your own cyberlinux <a name="build-cyberlinux"/></a>
-[See => profiles/README.md](https://github.com/phR0ze/cyberlinux/blob/master/profiles/README.md)
+[See => profiles/README.md](https://github.com/phR0ze/cyberlinux/blob/master/profiles)
 
 ## Troubleshooting<a name="troubleshooting"/></a>
 
