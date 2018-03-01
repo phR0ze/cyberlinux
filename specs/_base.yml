@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.266
+  release: 0.1.267
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -1265,6 +1265,7 @@ packages:
     - { pkg: openbox,                       desc: Lightweight X11 window manager }
     - { pkg: mesa,                          desc: Open-source OpenGL implementation }
     - { pkg: mesa-demos,                    desc: Mesa demos and tools e.g glxinfo }
+    - { pkg: mesa-vdpau,                    desc: Mesa VDPAU drivers }
     - { pkg: numix-frost-themes,            desc: Numix frost GTK2, GTK3 and OpenBox themes, type: ANTERGOS }
     - { pkg: paper-icon-theme,              desc: Paper icon theme, type: CYBERLINUX }
     - { pkg: pavucontrol,                   desc: PulseAudio Volume Control }
