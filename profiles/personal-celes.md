@@ -48,37 +48,14 @@ Documenting various configuration changes that I made to support the ***celes***
 
 ### Brightness
 Brightness is controlled via the sysfs file ***/sys/class/backlight/intel_backlight/brightness***
-with a max value of ***1200***
+with a max value of ***1200***. After a not finding an easy solution to use xbackight, simply wrote
+my own script to modify the brightness directly and wired it up through openbox. See the
+correspondign yaml file.
 
 Manually change:
 
 ```bash
 sudo tee /sys/class/backlight/intel_backlight/brightness <<< 800
-```
-
-#### Enable intel_backlight
-Create the file ***/etc/X11/xorg.conf.d/10-display.conf*** with content:
-https://wiki.archlinux.org/index.php/Backlight#xbacklight
-
-```bash
-Section "Device"
-    Identifier  "Card0"
-    Driver      "intel"
-    Option      "Backlight"  "intel_backlight"
-EndSection
-
-```
-Validate Backlight:
-
-```bash
-grep backlight /var/log/Xorg.0.log
-```
-
-kernel params: ***acpi_backlight=none***
-### Modify kernel params
-```bash
-sudo cp /proc/cmdline /root/cmdline
-echo -n ' acpi_backlight=none' >> /root/cmdline
 ```
 
 ### Turn off Display

@@ -84,7 +84,6 @@ layers:
     deployment:
       entry: "Deploy <%=distro%>-lite                    // Shell + min X11"
       kernel: linux-celes
-      params: acpi_backlight=none
     packages:
       - { pkg: blueman,                       desc: GTK+ Bluetooth Manager }
       - { pkg: cinnamon-screensaver,          desc: Screensaver for the Cinnamon desktop, type: CYBERLINUX }
@@ -99,23 +98,26 @@ layers:
       - { apply: lite-config }
       - { apply: laptop-config }
 
-      # Configure xbacklight to use intel_backlight
-      # https://wiki.archlinux.org/index.php/Backlight#xbacklight
-      - edit: /etc/X11/xorg.conf.d/10-display.conf
+      # Backlight configuration script
+      # Workaround as xranrd doesn't seem to recognize intel_backlight
+      - edit: /usr/bin/backlight
         insert: append
         values:
-          - 'Section "Device"'
-          - '    Identifier "Card0"'
-          - '    Driver     "intel"'
-          - '    Option     "Backlight" "intel_backlight"'
-          - 'EndSection'
-          - 'Section "Screen"'
-          - '    Identifier "Screen0"'
-          - '    SubSection "Display"'
-          - '        Depth  24'
-          - '        Modes "1366x768"'
-          - '    EndSubSection'
-          - 'EndSection'
+          - "#!/usr/bin/env ruby\n"
+          - "max = 1200"
+          - "intel_backlight = '/sys/class/backlight/intel_backlight/brightness'"
+          - "level = File.read(intel_backlight).to_i\n"
+          - "if ARGV.first[0] == '+'"
+          - "  val = ARGV.first.split('+').last.to_i"
+          - "  level += val"
+          - "  level = max if level > max"
+          - "else"
+          - "  val = ARGV.first.split('-').last.to_i"
+          - "  level -= val"
+          - "  level = 0 if val < 0"
+          - "end"
+          - "`echo '#{level}' > #{intel_backlight}`"
+      - { exec: 'chmod +x /usr/bin/backlight'}
 
       # Set Hot Keys for chromebooks
       - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'Print', value: 'W-P' }
@@ -123,7 +125,9 @@ layers:
       - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'XF86AudioLowerVolume', value: 'W-F9' }
       - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'XF86AudioRaiseVolume', value: 'W-F10' }
       - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'XF86MonBrightnessUp', value: 'W-F7' }
+      - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'xbacklight +10', value: 'sudo backlight +100' }
       - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'XF86MonBrightnessDown', value: 'W-F6' }
+      - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'xbacklight -10', value: 'sudo backlight -100' }
 
       # Work around issues in the iwlwifi driver for celes' Intel 7265D wifi card
       - { exec: 'rm -f /etc/modprobe.d/iwlwifi.conf'}
