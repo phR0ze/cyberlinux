@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.275
+  release: 0.1.276
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -105,6 +105,7 @@ configs:
     - { apply: menu-lite-config }
   laptop-config:
     - { apply: wpa-gui }
+    - { apply: conky-config }
     - { apply: menu-laptop-config }
     - { apply: cinnamon-screensaver-config }
   desktop-config:

@@ -87,6 +87,7 @@ layers:
     packages:
       - { pkg: blueman,                       desc: GTK+ Bluetooth Manager }
       - { pkg: cinnamon-screensaver,          desc: Screensaver for the Cinnamon desktop, type: CYBERLINUX }
+      - { pkg: conky,                         desc: Lightweight system monitor for X }
       - { pkg: galliumos-base-git,            desc: GalliumOS base files, type: CYBERLINUX }
       - { pkg: galliumos-braswell-config,     desc: GalliumOS configuration files for braswell, force: true, type: CYBERLINUX }
       - { install: lite-pkgs }
