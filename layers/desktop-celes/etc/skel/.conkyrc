@@ -36,7 +36,7 @@ conky.config = {
     -- Window
 	own_window = true,                      -- Without a window behaves weirdly
     own_window_type = 'desktop',            -- Specify that the window is different
-	own_window_transparent = false,          -- Set the background opacity to 0%
+	own_window_transparent = true,          -- Set the background opacity to 0%
 
     -- Position
 	alignment = 'top_left',              -- Align window on the desktop
@@ -57,7 +57,7 @@ conky.config = {
     -- Bars/Graphs
     default_bar_width= 300,                 -- Default width for bars
     default_bar_height = 15,                -- Default height for bars
-    default_graph_width= 400,               -- Default width for graphs
+    default_graph_width= 640,               -- Default width for graphs
     default_graph_height = 100,             -- Default height for graphs
 };
 
@@ -65,14 +65,14 @@ conky.text = [[
 #-------------------------------------------------------------------------------
 # Time/Date/Calendar
 #-------------------------------------------------------------------------------
-${voffset -45}${offset 1040}\
+${voffset -38}${offset 1040}\
 ${font Designer Block:bold:size=100}${color1}${time %I}\
 ${offset 3}${voffset -38}${font Designer Block:bold:size=50}${color3}:${time %M}\
 ${font Designer Block:bold:size=14}${time %p}\
 ${offset -110}${voffset 13}${font Designer Block:bold:size=35}${color1}${time %a} ${time %d}\
 ${voffset -10}${font Designer Block:bold:size=20}${exec ~/bin/conky_date.rb}
 # Month/Year
-${voffset 25}${offset 1048}\
+${voffset 25}${offset 1050}\
 ${font Designer Block:normal:size=24}${color1}${time %B}.${time %Y} ${hr 2}
 # Day names
 ${offset 1038}${font Liberation Mono:bold:size=14}${color2}  Su  Mo  Tu  We  Th  Fr  Sa
@@ -82,20 +82,43 @@ ${font Liberation Mono:size=14}${color1}${execp ~/bin/conky_cal.rb 2 1038}
 #-------------------------------------------------------------------------------
 # System
 #-------------------------------------------------------------------------------
-${voffset -330}
-${color2}${font Liberation Mono:size=20}System${font Liberation Mono:size=12}
+${voffset -340}
+${color2}${font Liberation Mono:size=20}SYSTEM${font Liberation Mono:size=12}
 ${voffset 4}${color lightgrey} Name: $color${nodename}
 ${color lightgrey} Kernel: $color${kernel}
+${voffset 8}${color lightgrey} SSID:      $color ${wireless_essid}
+${color lightgrey} Private IP:$color ${addrs wlp2s0}
+${color lightgrey} Public  IP:$color ${curl ipinfo.io/ip 5}
+${voffset -4}${color lightgrey} Battery: $color${battery_percent}% (${battery_time})
+${color} ${battery_bar}
 ${voffset 10}${color lightgrey} Storage: $color${fs_used_perc}% (${fs_used /}/${fs_size})
 ${color} ${fs_bar}
-${voffset 10}${color lightgrey} Battery: $color${battery_percent}% (${battery_time})
-${color} ${battery_bar}
+
+#-------------------------------------------------------------------------------
+# Connections
+#-------------------------------------------------------------------------------
+${voffset -273}
+${offset 350}${color2}${font Liberation Mono:size=20}CONNECTIONS${font Liberation Mono:size=12}
+${offset 350}${color2}${font Liberation Mono:size=14} Inbound:  ${tcp_portmon 1 32767 count}${font Liberation Mono:size=12}
+${offset 350}${color lightgrey} ${tcp_portmon 1 32767 rhost 0} ${tcp_portmon 1 32767 lport 0}
+${offset 350}${color lightgrey} ${tcp_portmon 1 32767 rhost 1} ${tcp_portmon 1 32767 lport 1}
+${offset 350}${color lightgrey} ${tcp_portmon 1 32767 rhost 2} ${tcp_portmon 1 32767 lport 2}
+${offset 350}${color lightgrey} ${tcp_portmon 1 32767 rhost 3} ${tcp_portmon 1 32767 lport 3}
+${offset 350}${color lightgrey} ${tcp_portmon 1 32767 rhost 4} ${tcp_portmon 1 32767 lport 4}
+${offset 350}${color2}${font Liberation Mono:size=14} Outbound: ${tcp_portmon 32768 65535 count}${font Liberation Mono:size=12}
+${offset 350}${color lightgrey} ${tcp_portmon 32768 61000 rhost 0} ${tcp_portmon 32768 61000 rport 0}
+${offset 350}${color lightgrey} ${tcp_portmon 32768 61000 rhost 1} ${tcp_portmon 32768 61000 rport 1}
+${offset 350}${color lightgrey} ${tcp_portmon 32768 61000 rhost 2} ${tcp_portmon 32768 61000 rport 2}
+${offset 350}${color lightgrey} ${tcp_portmon 32768 61000 rhost 3} ${tcp_portmon 32768 61000 rport 3}
+${offset 350}${color lightgrey} ${tcp_portmon 32768 61000 rhost 4} ${tcp_portmon 32768 61000 rport 4}
+${offset 350}${color lightgrey} ${tcp_portmon 32768 61000 rhost 5} ${tcp_portmon 32768 61000 rport 5}
+${offset 350}${color lightgrey} ${tcp_portmon 32768 61000 rhost 6} ${tcp_portmon 32768 61000 rport 6}
 
 #-------------------------------------------------------------------------------
 # CPU/Processes
 #-------------------------------------------------------------------------------
-${voffset 240}
-${color2}${font Liberation Mono:size=20}CPU${font Liberation Mono:size=12}
+${voffset 80}
+${color2}${font Liberation Mono:size=20}CPU/PROCESSES${font Liberation Mono:size=12}
 ${voffset 4}${color lightgrey} usage: ${cpu cpu1}%
 ${color} ${cpubar cpu1}
 
@@ -113,8 +136,8 @@ ${color lightgrey} ${top name 10} ${top pid 10} ${top cpu 10}%
 #-------------------------------------------------------------------------------
 # Memory/Processes
 #-------------------------------------------------------------------------------
-${voffset -319}
-${offset 350}${color2}${font Liberation Mono:size=20}Memory${font Liberation Mono:size=12}
+${voffset -318}
+${offset 350}${color2}${font Liberation Mono:size=20}MEMORY${font Liberation Mono:size=12}
 ${voffset 4}${offset 350}${color lightgrey}$color usage: $memperc% ($mem/$memmax)
 ${offset 350} ${membar}
 
@@ -130,15 +153,12 @@ ${offset 350}${color lightgrey} ${top_mem name 9} ${top_mem pid 9} ${top_mem mem
 ${offset 350}${color lightgrey} ${top_mem name 10} ${top_mem pid 10} ${top_mem mem_res 10}
 
 #-------------------------------------------------------------------------------
-# Networking
+# UP/DOWN SPEED
 #-------------------------------------------------------------------------------
 ${voffset -315}
-${offset 700}${color2}${font Liberation Mono:size=20}Networking${font Liberation Mono:size=12}
-${voffset 4}${offset 700}${color lightgrey} SSID:      $color skynet
-${offset 700}${color lightgrey} Private IP:$color ${addrs wlp2s0}
-${offset 700}${color lightgrey} Public  IP:$color ${curl ipinfo.io/ip 5}
-${voffset 4}${offset 700}${color lightgrey} Up Speed: $color${upspeed eno1}
-${offset 700} $color${upspeedgraph eno1}
-${voffset 4}${offset 700}${color lightgrey} Down Speed: $color${downspeed eno1}
-${offset 700} $color${downspeedgraph eno1}
+${offset 700}${color2}${font Liberation Mono:size=20}UP/DOWN SPEED${font Liberation Mono:size=12}
+${offset 700}${color lightgrey} Up Speed: $color${upspeed wlp2s0}
+${offset 700} $color${upspeedgraph wlp2s0}
+${voffset 4}${offset 700}${color lightgrey} Down Speed: $color${downspeed wlp2s0}
+${offset 700} $color${downspeedgraph wlp2s0}
 ]];
