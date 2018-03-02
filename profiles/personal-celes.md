@@ -78,7 +78,7 @@ CELES has the Intel Corporation Wireless 7265 [8086:095a] ***REV=0x210*** termed
 Keyboard and Touchpad support required kernel changes see [linux-celes](https://github.com/phR0ze/cyberlinux/tree/master/aur/linux-cele)
 
 ### Sound Output <a name="sound-output"/></a>
-Audio required using the [GalliumOS Braswell Config](https://aur.archlinux.org/packages/galliumos-braswell-config/), but after that seems to work well for both the speakers as well as headphones. 
+Audio required using the [GalliumOS Braswell Config](https://aur.archlinux.org/packages/galliumos-braswell-config/), but after that seems to work well for both the speakers as well as headphones with jack detection working correctly.
 
 ### Microphone Headset <a name="microphone-headset"/></a>
 ?
@@ -90,7 +90,10 @@ Audio required using the [GalliumOS Braswell Config](https://aur.archlinux.org/p
 ?
 
 ### HDMI Output <a name="hdmi-output"/></a>
-?
+irc nskelsey?
+
+### Suspend <a name="suspend"/></a>
+Suspend works out of the box with ***systemd*** as the default system manager
 
 ### Brightness <a name="brightness"/></a>
 Brightness is controlled via the sysfs file ***/sys/class/backlight/intel_backlight/brightness***
