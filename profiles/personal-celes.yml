@@ -84,6 +84,7 @@ layers:
     deployment:
       entry: "Deploy <%=distro%>-lite                    // Shell + min X11"
       kernel: linux-celes
+      params: acpi_backlight=none
     packages:
       - { pkg: blueman,                       desc: GTK+ Bluetooth Manager }
       - { pkg: cinnamon-screensaver,          desc: Screensaver for the Cinnamon desktop, type: CYBERLINUX }
@@ -97,6 +98,24 @@ layers:
     configs:
       - { apply: lite-config }
       - { apply: laptop-config }
+
+      # Configure xbacklight to use intel_backlight
+      # https://wiki.archlinux.org/index.php/Backlight#xbacklight
+      - edit: /etc/X11/xorg.conf.d/10-display.conf
+        insert: append
+        values:
+          - 'Section "Device"'
+          - '    Identifier "Card0"'
+          - '    Driver     "intel"'
+          - '    Option     "Backlight" "intel_backlight"'
+          - 'EndSection'
+          - 'Section "Screen"'
+          - '    Identifier "Screen0"'
+          - '    SubSection "Display"'
+          - '        Depth  24'
+          - '        Modes "1366x768"'
+          - '    EndSubSection'
+          - 'EndSection'
 
       # Set Hot Keys for chromebooks
       - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'Print', value: 'W-P' }

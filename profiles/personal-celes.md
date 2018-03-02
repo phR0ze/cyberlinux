@@ -56,5 +56,34 @@ Manually change:
 sudo tee /sys/class/backlight/intel_backlight/brightness <<< 800
 ```
 
+#### Enable intel_backlight
+Create the file ***/etc/X11/xorg.conf.d/10-display.conf*** with content:
+https://wiki.archlinux.org/index.php/Backlight#xbacklight
+
+```bash
+Section "Device"
+    Identifier  "Card0"
+    Driver      "intel"
+    Option      "Backlight"  "intel_backlight"
+EndSection
+
+```
+Validate Backlight:
+
+```bash
+grep backlight /var/log/Xorg.0.log
+```
+
+kernel params: ***acpi_backlight=none***
+### Modify kernel params
+```bash
+sudo cp /proc/cmdline /root/cmdline
+echo -n ' acpi_backlight=none' >> /root/cmdline
+```
+
 ### Turn off Display
 ***xset dpms force off***
+
+## Notes
+* https://github.com/GalliumOS/galliumos-distro/issues/270
+* https://wiki.debian.org/InstallingDebianOn
