@@ -1,5 +1,5 @@
-# Kernel for the Samsung Chromebook 3 a.k.a. celes
-This is an attempt to build a kernel based on Arch Linux with support for celes
+# Kernel for the Samsung Chromebook 3 (a.k.a. CELES)
+Arch Linux based Kernel for the Samsung Chromebook 2 (CELES)
 
 I'm borrowing from the execellent Arch, Manjaro and GalliumOS projects as well as some other
 sources.
@@ -11,16 +11,6 @@ sources.
 
 ## Kernel Config
 Starting with the Arch Linux kernel config I'm making specific changes for celes
-
-### Arch vs. Ubuntu
-http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.15.5/
-Download Ubuntu headers and extract ***config***
-```bash
-wget http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.15.5/linux-headers-4.15.5-041505-generic_4.15.5-041505.201802261304_amd64.deb
-ar xv linux-headers-4.15.5-041505-generic_4.15.5-041505.201802261304_amd64.deb
-tar xf data.tar.xz
-vim usr/src/linux-headers-4.15.5-041505-generic/.config
-```
 
 ### Kernel compression
 Typically disk I/O is the slowest component on a pc. By loading a decompressed kernel then
@@ -70,6 +60,7 @@ The Cherryview hardware driver must be enabled to support braswell
 * Enable ***CONFIG_PINCTRL_CHERRYVIEW=y***
 
 ## Patches
+I've included a handlful of patches from other projects as called out below:
 
 ### Manjaro - BFQ-v8r12-20180130
 See the BFQ Storage I/O Scheduler section in the kernel config
@@ -96,10 +87,21 @@ drivers
 This patch was created to prevent errors when partitioning MMC storage. It has been fixed in the
 4.15.4 kernel and is no longer needed
 
-## Other research (cherryview)
-
+## Other research
 * https://patchwork.ozlabs.org/patch/661413/
+* https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=808044;msg=5
 
-https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=808044;msg=5
+### Arch vs. Ubuntu
+I was attempting to compare teh Arch Linux kernel and the Ubuntu kernels but found they differ so
+much it isn't really practicle.
 
-* CONFIG_I2C_MUX_PINCTRL
+http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.15.5/
+Download Ubuntu headers and extract ***config***
+```bash
+wget http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.15.5/linux-headers-4.15.5-041505-generic_4.15.5-041505.201802261304_amd64.deb
+ar xv linux-headers-4.15.5-041505-generic_4.15.5-041505.201802261304_amd64.deb
+tar xf data.tar.xz
+vim usr/src/linux-headers-4.15.5-041505-generic/.config
+```
+
+
