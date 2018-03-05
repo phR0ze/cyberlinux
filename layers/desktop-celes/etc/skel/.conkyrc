@@ -133,8 +133,8 @@ ${offset 700}${color lightgrey} Super+r         (Launch runner)
 ${offset 700}${color lightgrey} Super+t         (Launch terminal)
 ${offset 700}${color lightgrey} Super+w         (Launch web browser)
 ${offset 700}${color lightgrey} Super+x         (Launch login controls)
-${offset 700}${color lightgrey} Super+Alt+F6    (Toggle bluetooth)
-${offset 700}${color lightgrey} Super+Alt+F7    (Toggle WiFi)
+${offset 700}${color lightgrey} Alt+Super+F6    (Toggle bluetooth)
+${offset 700}${color lightgrey} Alt+Super+F7    (Toggle WiFi)
 ${offset 700}${color lightgrey} Super+media key (Trigger media control)
 
 #-------------------------------------------------------------------------------
