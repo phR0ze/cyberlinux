@@ -86,6 +86,8 @@ ${voffset -340}
 ${color2}${font Liberation Mono:size=20}SYSTEM${font Liberation Mono:size=12}
 ${voffset 4}${color lightgrey} Name: $color${nodename}
 ${color lightgrey} Kernel: $color${kernel}
+${voffset 8}${color lightgrey} WiFi:      $color${exec ~/bin/conky_radio.rb wifi}
+${color lightgrey} Bluetooth: $color${exec ~/bin/conky_radio.rb bluetooth}
 ${voffset 8}${color lightgrey} SSID:      $color ${wireless_essid}
 ${color lightgrey} Private IP:$color ${addrs wlp2s0}
 ${color lightgrey} Public  IP:$color ${curl ipinfo.io/ip 5}
@@ -97,7 +99,7 @@ ${color} ${fs_bar}
 #-------------------------------------------------------------------------------
 # Connections
 #-------------------------------------------------------------------------------
-${voffset -273}
+${voffset -320}
 ${offset 350}${color2}${font Liberation Mono:size=20}CONNECTIONS${font Liberation Mono:size=12}
 ${offset 350}${color2}${font Liberation Mono:size=14} Inbound:  ${tcp_portmon 1 32767 count}${font Liberation Mono:size=12}
 ${offset 350}${color lightgrey} ${tcp_portmon 1 32767 rhost 0} ${tcp_portmon 1 32767 lport 0}
