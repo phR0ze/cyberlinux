@@ -99,6 +99,22 @@ layers:
       - { apply: lite-config }
       - { apply: laptop-config }
 
+      # Toggle radios to save power
+      - edit: /usr/bin/toggle
+        insert: append
+        values:
+          - "#!/usr/bin/env ruby\n"
+          - "if ARGV.first == 'wifi'"
+          - "  val = `rfkill | grep wlan`[/unblocked|blocked/]"
+          - "  `rfkill block wlan` if val == 'unblocked'"
+          - "  `rfkill unblock wlan` if val == 'blocked'"
+          - "elsif ARGV.first == 'bluetooth'"
+          - "  val = `rfkill | grep bluetooth`[/unblocked|blocked/]"
+          - "  `rfkill block bluetooth` if val == 'unblocked'"
+          - "  `rfkill unblock bluetooth` if val == 'blocked'"
+          - "end"
+      - { exec: 'chmod +x /usr/bin/toggle'}
+
       # Backlight configuration script
       # Workaround as xranrd doesn't seem to recognize intel_backlight
       - edit: /usr/bin/backlight
