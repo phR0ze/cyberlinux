@@ -105,6 +105,9 @@ ${offset 350}${color lightgrey} ${tcp_portmon 1 32767 rhost 1} ${tcp_portmon 1 3
 ${offset 350}${color lightgrey} ${tcp_portmon 1 32767 rhost 2} ${tcp_portmon 1 32767 lport 2}
 ${offset 350}${color lightgrey} ${tcp_portmon 1 32767 rhost 3} ${tcp_portmon 1 32767 lport 3}
 ${offset 350}${color lightgrey} ${tcp_portmon 1 32767 rhost 4} ${tcp_portmon 1 32767 lport 4}
+${offset 350}${color lightgrey} ${tcp_portmon 1 32767 rhost 5} ${tcp_portmon 1 32767 lport 5}
+
+
 ${offset 350}${color2}${font Liberation Mono:size=14} Outbound: ${tcp_portmon 32768 65535 count}${font Liberation Mono:size=12}
 ${offset 350}${color lightgrey} ${tcp_portmon 32768 61000 rhost 0} ${tcp_portmon 32768 61000 rport 0}
 ${offset 350}${color lightgrey} ${tcp_portmon 32768 61000 rhost 1} ${tcp_portmon 32768 61000 rport 1}
@@ -115,9 +118,27 @@ ${offset 350}${color lightgrey} ${tcp_portmon 32768 61000 rhost 5} ${tcp_portmon
 ${offset 350}${color lightgrey} ${tcp_portmon 32768 61000 rhost 6} ${tcp_portmon 32768 61000 rport 6}
 
 #-------------------------------------------------------------------------------
+# Hot Keys
+#-------------------------------------------------------------------------------
+${voffset -392}
+${offset 700}${color2}${font Liberation Mono:size=20}HOT KEYS${font Liberation Mono:size=10}
+${offset 700}${color lightgrey} Super+c         (Reconfigure openbox)
+${offset 700}${color lightgrey} Super+e         (Launch editor)
+${offset 700}${color lightgrey} Super+f         (Launch filemanager)
+${offset 700}${color lightgrey} Super+l         (Launch lock)
+${offset 700}${color lightgrey} Super+o         (Launch office)
+${offset 700}${color lightgrey} Super+r         (Launch runner)
+${offset 700}${color lightgrey} Super+t         (Launch terminal)
+${offset 700}${color lightgrey} Super+w         (Launch web browser)
+${offset 700}${color lightgrey} Super+x         (Launch login controls)
+${offset 700}${color lightgrey} Super+Alt+F6    (Toggle bluetooth)
+${offset 700}${color lightgrey} Super+Alt+F7    (Toggle WiFi)
+${offset 700}${color lightgrey} Super+media key (Trigger media control)
+
+#-------------------------------------------------------------------------------
 # CPU/Processes
 #-------------------------------------------------------------------------------
-${voffset 80}
+${voffset 140}
 ${color2}${font Liberation Mono:size=20}CPU/PROCESSES${font Liberation Mono:size=12}
 ${voffset 4}${color lightgrey} usage: ${cpu cpu1}%
 ${color} ${cpubar cpu1}
