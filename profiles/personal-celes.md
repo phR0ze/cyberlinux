@@ -87,7 +87,14 @@ Audio required using the [GalliumOS Braswell Config](https://aur.archlinux.org/p
 ?
 
 ### MicroSD Storage <a name="micro-sd-storage"/></a>
-?
+List out all properties for the sd card device. Seems as though it is recognized as ***/dev/mmcblk1***. It's not recognized as a removable device maybe?
+
+```bash
+lspci -k
+```
+```bash
+udevadm info -a -n /dev/mmcblk1
+```
 
 ### HDMI Output <a name="hdmi-output"/></a>
 irc nskelsey?
@@ -100,6 +107,11 @@ Brightness is controlled via the sysfs file ***/sys/class/backlight/intel_backli
 with a max value of ***1200***. After not finding an easy solution to use xbackight, I simply wrote
 my own script to modify the brightness directly and wired it up through openbox. See the
 corresponding yaml file.
+
+Get udev properties:
+```bash
+udevadm info -a -p /sys/class/backlight/intel_backlight
+```
 
 Manually change:
 
