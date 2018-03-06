@@ -88,7 +88,6 @@ layers:
       - { pkg: blueman,                       desc: GTK+ Bluetooth Manager }
       - { pkg: cinnamon-screensaver,          desc: Screensaver for the Cinnamon desktop, type: CYBERLINUX }
       - { pkg: conky,                         desc: Lightweight system monitor for X }
-      - { pkg: galliumos-base-git,            desc: GalliumOS base files, type: CYBERLINUX }
       - { pkg: galliumos-braswell-config,     desc: GalliumOS configuration files for braswell, force: true, type: CYBERLINUX }
       - { install: lite-pkgs }
 
@@ -98,6 +97,16 @@ layers:
     configs:
       - { apply: lite-config }
       - { apply: laptop-config }
+
+      # Memory pages that have been cached/queued to be async written to disk are said to be dirty.
+      # Lower the dirty values to decrease the use of async disk write outs stored in cache
+      - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "vm.dirty_ratio = 20" }
+      - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "vm.dirty_background_ratio = 10" }
+      # How often should pdflush/flush/kdmflush processes wake up and check to see if work needs to be done
+      - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "vm.dirty_writeback_centisecs = 1500" }
+      # The watchdog timer is meant for embedded/mission critical systems and is not needed for normal desktop use
+      - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "kernel.watchdog = 0" }
+      - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "kernel.rr_interval = 6" }
 
       # Toggle radios to save power
       - edit: /usr/bin/toggle
