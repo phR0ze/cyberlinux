@@ -166,13 +166,6 @@ layers:
       - { pkg: hunspell-en_US,                desc: US dictionaries for spell checking, deps: libreoffice }
       - { pkg: libreoffice-fresh,             desc: LibreOffice branch with new features/enhancements }
       - { pkg: keepass,                       desc: Cross platform password manager }
-      # ristretto         // Image viewer
-      # Hexchat           // IRC
-      # Pidgin            // Messaging
-      # Xfce4 Dictionary
-      # Network manager
-      # Xfce power manager
-      # xfce4 settings display
 
       # Teamviewer is free to use for personal use
       # https://www.teamviewer.com/en/credentials/free-for-personal-use/

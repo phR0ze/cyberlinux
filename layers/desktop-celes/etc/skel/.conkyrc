@@ -144,6 +144,8 @@ ${voffset 140}
 ${color2}${font Liberation Mono:size=20}CPU/PROCESSES${font Liberation Mono:size=12}
 ${voffset 4}${color lightgrey} usage: ${cpu cpu1}%
 ${color} ${cpubar cpu1}
+${color lightgrey} usage: ${cpu cpu2}%
+${color} ${cpubar cpu2}
 
 ${color lightgrey} ${top name 1} ${top pid 1} ${top cpu 1}%
 ${color lightgrey} ${top name 2} ${top pid 2} ${top cpu 2}%
@@ -159,7 +161,7 @@ ${color lightgrey} ${top name 10} ${top pid 10} ${top cpu 10}%
 #-------------------------------------------------------------------------------
 # Memory/Processes
 #-------------------------------------------------------------------------------
-${voffset -318}
+${voffset -356}
 ${offset 350}${color2}${font Liberation Mono:size=20}MEMORY${font Liberation Mono:size=12}
 ${voffset 4}${offset 350}${color lightgrey}$color usage: $memperc% ($mem/$memmax)
 ${offset 350} ${membar}
@@ -178,7 +180,7 @@ ${offset 350}${color lightgrey} ${top_mem name 10} ${top_mem pid 10} ${top_mem m
 #-------------------------------------------------------------------------------
 # UP/DOWN SPEED
 #-------------------------------------------------------------------------------
-${voffset -315}
+${voffset -319}
 ${offset 700}${color2}${font Liberation Mono:size=20}UP/DOWN SPEED${font Liberation Mono:size=12}
 ${offset 700}${color lightgrey} Up Speed: $color${upspeed wlp2s0}
 ${offset 700} $color${upspeedgraph wlp2s0}
