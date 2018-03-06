@@ -125,11 +125,22 @@ sudo tee /sys/class/backlight/intel_backlight/brightness <<< 800
 To keep the OS as light as possible I decided to use [conky](https://github.com/phR0ze/cyberlinux/blob/master/layers/desktop-celes/etc/skel/.conkyrc) to provide ***Date***, ***Time***, ***Calendar***, and ***Battery status*** as well as a few other monitoring widgets.
 
 ### Key Mappings <a name="key-mappings"/></a>
-https://github.com/dnschneid/crouton/wiki/Keyboard
-https://wiki.galliumos.org/Media_keys_and_default_keybindings
-https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=xkeyboard-config-chromebook
+* https://wiki.archlinux.org/index.php/xmodmap
+* https://github.com/dnschneid/crouton/wiki/Keyboard
+* https://wiki.galliumos.org/Media_keys_and_default_keybindings
+* https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=xkeyboard-config-chromebook
 
-Tweaks can be done manually then added to a script on startup:
+***xmodmap*** provides a way to dynamically modify keymaps. Many apps will recognize multimedia keys
+out of the box. So I will be modifying the existing key maps to emit multimedia keys where applicable.
+
+xmodmap uses columns to denote different access modifiers:
+1. Key
+2. Shift+Key
+3. mode_switch+Key
+4. mode_switch+Shift+Key
+5. AltGr+Key
+6. AltGr+Shift+Key
+
 ```bash
 xmodmap -e "keycode 133 = Super_L"
 xmodmap -e "keycode 64 = Overlay1_Enable"
@@ -143,34 +154,22 @@ xmodmap -e "add control = Control_L"
 xmodmap -e "remove control = Overlay1_Enable"
 ```
 
-Key codes can be found by running ***xev*** then pressing a key.  Key code ***134*** normally mapped
-to ***Super_R*** will not work as ***Overlay1_Enable*** (https://github.com/dnschneid/crouton/issues/362)
+Key codes can be found by running `xev` then pressing a key.
 
-* 67-76 = F1-F10 (top row function keys)
-* 133, Super_L (Search)
-* 50, Shift_L
-* 37, Control_L
-* 64, Alt_L
-* 108, Alt_R
-* 105, Control_R
-* 62, Shift_R
-* 113, Left
-* 114, right
-* 111, Up
-* 116, Down
+Keymappings are handled by ***xmodmap*** as desribed below
 
-Keymappings are handled by ***xmodmap*** commands as desribed below
+Show current key map: `xmodmap -pke`
 
-| Key       | Combination |
-| --------- | ----------- |
-| F11       | ? |
-| F12       | ? |
-| Home      | ? |
-| End       | ? |
+| Key       | Combination           | xmodmap                                   |
+| --------- | --------------------- | ----------------------------------------- |
+| F11       | ? |                           |
+| F12       | ? |       |
+| Home      | Overlay+Left |        |
+| End       | ? | |
 | Page Up   | ? |
 | Page Down | ? |
 | Insert    | ? |
-| Delete    | ? |
+| Delete    | Search+BackSpace      | `xmodmap -e "keycode 119 = Super_L"`      |
 
 ### Keyboard Shortcuts <a name="keyboard-shortcuts"/></a>
 Keyboard shortcuts are handled by OpenBox key bindings as described below
