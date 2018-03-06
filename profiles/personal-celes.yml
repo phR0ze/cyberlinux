@@ -146,7 +146,8 @@ layers:
       - { exec: 'chmod +x /usr/bin/backlight'}
 
       # Set Hot Keys for chromebooks
-      - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'Print', value: 'W-P' }
+      - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'A-Print', value: 'A-S-W-F5' }
+      - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'Print', value: 'A-W-F5' }
       - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'XF86AudioMute', value: 'W-F8' }
       - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'XF86AudioLowerVolume', value: 'W-F9' }
       - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'XF86AudioRaiseVolume', value: 'W-F10' }

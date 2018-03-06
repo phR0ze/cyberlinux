@@ -153,16 +153,6 @@
       <action name="MoveToCenter"/>
     </keybind>
 
-    <!-- Center and resize window -->
-    <keybind key="W-S-Return">
-      <action name="Unmaximize"/>
-      <action name="MoveResizeTo">
-        <height>85%</height>
-        <width>70%</width>
-      </action>
-      <action name="MoveToCenter"/>
-    </keybind>
-
     <!-- Resize window to small size -->
     <keybind key="W-minus">
       <action name="Unmaximize"/>
@@ -178,20 +168,6 @@
       <action name="MoveResizeTo">
         <height>85%</height>
         <width>70%</width>
-      </action>
-    </keybind>
-
-    <!-- Move window to monitor 1 -->
-    <keybind key="W-1">
-      <action name="MoveResizeTo">
-        <monitor>1</monitor>
-      </action>
-    </keybind>
-
-    <!-- Move window to monitor 2 -->
-    <keybind key="W-2">
-      <action name="MoveResizeTo">
-        <monitor>2</monitor>
       </action>
     </keybind>
 
@@ -300,39 +276,6 @@
           <action name="Raise"/>
           <action name="Unshade"/>
         </finalactions>
-      </action>
-    </keybind>
-    <keybind key="C-A-Tab">
-      <action name="NextWindow">
-        <panels>yes</panels>
-        <desktop>yes</desktop>
-        <finalactions>
-          <action name="Focus"/>
-          <action name="Raise"/>
-          <action name="Unshade"/>
-        </finalactions>
-      </action>
-    </keybind>
-
-    <!-- Keybindings for window switching with the arrow keys -->
-    <keybind key="W-S-Right">
-      <action name="DirectionalCycleWindows">
-        <direction>right</direction>
-      </action>
-    </keybind>
-    <keybind key="W-S-Left">
-      <action name="DirectionalCycleWindows">
-        <direction>left</direction>
-      </action>
-    </keybind>
-    <keybind key="W-S-Up">
-      <action name="DirectionalCycleWindows">
-        <direction>up</direction>
-      </action>
-    </keybind>
-    <keybind key="W-S-Down">
-      <action name="DirectionalCycleWindows">
-        <direction>down</direction>
       </action>
     </keybind>
 

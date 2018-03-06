@@ -13,6 +13,8 @@ everything is availble to change it from a ChromeOS paper weight into a full Lin
     * [Install cyberlinux](#install-cyberlinux)
 * [License](#license)
 * [Configuration](#configuration)
+    * [Key Mappings](#key-mappings)
+    * [Keyboard Shortcuts](#keyboard-shortcuts)
 
 ## Build Deployable ISO <a name="build-deployable-iso"/></a>
 
@@ -122,15 +124,94 @@ sudo tee /sys/class/backlight/intel_backlight/brightness <<< 800
 ### Battery Status <a name="battery-status"/></a>
 To keep the OS as light as possible I decided to use [conky](https://github.com/phR0ze/cyberlinux/blob/master/layers/desktop-celes/etc/skel/.conkyrc) to provide ***Date***, ***Time***, ***Calendar***, and ***Battery status*** as well as a few other monitoring widgets.
 
-### Hot Keys <a name="hot-keys"/></a>
-I took advantage of OpenBox to map the Search button on the keyboard (which by default is the Super key) as a
-modifier for Audio and Brightness controls.
+### Key Mappings <a name="key-mappings"/></a>
+https://github.com/dnschneid/crouton/wiki/Keyboard
+https://wiki.galliumos.org/Media_keys_and_default_keybindings
+https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=xkeyboard-config-chromebook
 
-I have as yet not figured out how to get the following working:
-* ***Back***
-* ***Forward***
-* ***Refresh***
-* ***Full Screen***
-* ***HDMI***
+Tweaks can be done manually then added to a script on startup:
+```bash
+xmodmap -e "keycode 133 = Super_L"
+xmodmap -e "keycode 64 = Overlay1_Enable"
+```
 
-***galliumos-xkeyboard-config***?
+Swap Left Control and Search Key:
+```bash
+xmodmap -e "keycode 133 = Control_L"
+xmodmap -e "keycode 37 = Overlay1_Enable"
+xmodmap -e "add control = Control_L"
+xmodmap -e "remove control = Overlay1_Enable"
+```
+
+Key codes can be found by running ***xev*** then pressing a key.  Key code ***134*** normally mapped
+to ***Super_R*** will not work as ***Overlay1_Enable*** (https://github.com/dnschneid/crouton/issues/362)
+
+* 67-76 = F1-F10 (top row function keys)
+* 133, Super_L (Search)
+* 50, Shift_L
+* 37, Control_L
+* 64, Alt_L
+* 108, Alt_R
+* 105, Control_R
+* 62, Shift_R
+* 113, Left
+* 114, right
+* 111, Up
+* 116, Down
+
+Keymappings are handled by ***xmodmap*** commands as desribed below
+
+| Key       | Combination |
+| --------- | ----------- |
+| F11       | ? |
+| F12       | ? |
+| Home      | ? |
+| End       | ? |
+| Page Up   | ? |
+| Page Down | ? |
+| Insert    | ? |
+| Delete    | ? |
+
+### Keyboard Shortcuts <a name="keyboard-shortcuts"/></a>
+Keyboard shortcuts are handled by OpenBox key bindings as described below
+
+* ***Search key*** maps to ***Super_L***
+* Top row ***function keys*** map to ***F1 - F10***
+
+| Combination           | Function |
+| --------------------- | -------- |
+| Alt+F4                | Close the current window |
+| Alt+Tab               | Switch to next window |
+| Alt+Shift+Tab         | Switch to previous window |
+| Search+c              | Reconfigure openbox |
+| Search+e              | Launch Editor (GVim) |
+| Search+f              | Launch FileManager (Thunar) |
+| Search+l              | Lock (Cinnamon Lock) |
+| Search+m              | Show the desktop |
+| Search+o              | Launch Office (libre-office) |
+| Search+r              | Launch Runner (dmenu) |
+| Search+t              | Launch Terminal (lxterminal) |
+| Search+w              | Launch Web Browser (chromium) |
+| Search+x              | Launch Login Controls (oblogout) |
+| Search+F1             | ? |
+| Search+F2             | ? |
+| Search+F3             | ? |
+| Search+F4             | ? |
+| Search+F5             | ? |
+| Search+F6             | Decrease Brightness |
+| Search+F7             | Increase Brightness |
+| Search+F8             | Mute Volume |
+| Search+F9             | Decrease Volume |
+| Search+F10            | Increase Volume |
+| Search+Up             | Maximize Window |
+| Search+Down           | Minimize Window |
+| Search+Escape         | Unmaximize Window |
+| Search+Enter          | Centers Window |
+| Search+minus          | Resize to smaller Window |
+| Search+equal          | Resize to larger Window |
+| Search+Left           | Dock Window left |
+| Search+Right          | Dock Window Right |
+| Alt+Search+F5         | Take Screenshot |
+| Alt+Shift+Search+F5   | Launch Screenshot |
+| Alt+Search+F6         | Increase Volume |
+| Alt+Search+F7         | Increase Volume |
