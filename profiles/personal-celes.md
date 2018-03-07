@@ -137,8 +137,8 @@ To keep the OS as light as possible I decided to use [conky](https://github.com/
 
 /etc/default/keyboard
 
-See current: `setxkbmap -print -verbose 10`
-
+* See current: `setxkbmap -print -verbose 10`
+* `setxkbmap -layout us`
 * /usr/share/X11/xkb/symbols/us
 * /usr/share/X11/xkb/rules/evdev
 
