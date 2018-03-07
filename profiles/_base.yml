@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.289
+  release: 0.1.290
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -1057,7 +1057,7 @@ configs:
       insert: append
       values:
         - 'Section "InputClass"'
-        - '    Identifier "Mouse0"'
+        - '    Identifier "Mouse"'
         - '    Driver "libinput"'
         - '    MatchIsPointer "on"'
         - '    Option "AccelSpeed" "0.3"'
@@ -1066,7 +1066,7 @@ configs:
       insert: append
       values:
         - 'Section "InputClass"'
-        - '    Identifier "Touchpad0"'
+        - '    Identifier "Touchpad"'
         - '    Driver "libinput"'
         - '    MatchIsTouchpad "on"'
         - '    Option "Tapping" "on"'

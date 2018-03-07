@@ -126,9 +126,24 @@ To keep the OS as light as possible I decided to use [conky](https://github.com/
 
 ### Key Mappings <a name="key-mappings"/></a>
 * https://wiki.archlinux.org/index.php/xmodmap
+* https://wiki.archlinux.org/index.php/X_KeyBoard_extension
+* https://wiki.archlinux.org/index.php/Keyboard_configuration_in_console
 * https://github.com/dnschneid/crouton/wiki/Keyboard
 * https://wiki.galliumos.org/Media_keys_and_default_keybindings
 * https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=xkeyboard-config-chromebook
+* https://medium.com/@damko/a-simple-humble-but-comprehensive-guide-to-xkb-for-linux-6f1ad5e13450
+
+`~/.Xkeymap`
+
+/etc/default/keyboard
+
+See current: `setxkbmap -print -verbose 10`
+
+* /usr/share/X11/xkb/symbols/us
+* /usr/share/X11/xkb/rules/evdev
+
+The ***symbols/us*** file hosts many different layouts.  Each layout can be written from scratch or
+it can inherit from a parent layout and modify something.
 
 ***xmodmap*** provides a way to dynamically modify keymaps. Many apps will recognize multimedia keys
 out of the box. So I will be modifying the existing key maps to emit multimedia keys where applicable.
@@ -169,7 +184,9 @@ Show current key map: `xmodmap -pke`
 | Page Up   | ? |
 | Page Down | ? |
 | Insert    | ? |
-| Delete    | Search+BackSpace      | `xmodmap -e "keycode 119 = Super_L"`      |
+| Delete    | Search+BackSpace      | `xmodmap -e "keycode 22 = Super_L"`      |
+
+Manually invoke: `xmodmap ~/.Xmodmap`
 
 ### Keyboard Shortcuts <a name="keyboard-shortcuts"/></a>
 Keyboard shortcuts are handled by OpenBox key bindings as described below

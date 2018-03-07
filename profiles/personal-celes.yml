@@ -71,33 +71,6 @@ layers:
       - { apply: base-config }
       - { apply: shell-config }
 
-  # Lite
-  # https://wiki.archlinux.org/index.php/laptop
-  # ----------------------------------------------------------------------------
-  - name: lite
-    type: machine
-    base: base
-    source: [lite, lite-celes]
-    groups: [video, audio]
-    vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
-    vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
-    deployment:
-      entry: "Deploy <%=distro%>-lite                    // Shell + min X11"
-      kernel: linux-celes
-    packages:
-      - { pkg: blueman,                       desc: GTK+ Bluetooth Manager }
-      - { pkg: cinnamon-screensaver,          desc: Screensaver for the Cinnamon desktop, type: CYBERLINUX }
-      - { pkg: conky,                         desc: Lightweight system monitor for X }
-      - { pkg: galliumos-braswell-config,     desc: GalliumOS configuration files for braswell, force: true, type: CYBERLINUX }
-      - { install: lite-pkgs }
-
-      # Adobe fonts from adobe reader
-      # https://aur.archlinux.org/cgit/aur.git/tree/LICENSE?h=ttf-adobe-fonts
-      - { pkg: ttf-adobe-fonts,               desc: Adobe fonts including Myriad Minion and Courier, type: CYBERLINUX }
-    configs:
-      - { apply: lite-config }
-      - { apply: laptop-config }
-
       # Memory pages that have been cached/queued to be async written to disk are said to be dirty.
       # Lower the dirty values to decrease the use of async disk write outs stored in cache
       - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "vm.dirty_ratio = 20" }
@@ -145,6 +118,60 @@ layers:
           - "`echo '#{level}' > #{intel_backlight}`"
       - { exec: 'chmod +x /usr/bin/backlight'}
 
+      # Work around issues in the iwlwifi driver for celes' Intel 7265D wifi card
+      - { exec: 'rm -f /etc/modprobe.d/iwlwifi.conf'}
+      - { edit: /etc/modprobe.d/iwlwifi.conf, insert: append, values: ['options iwlwifi 11n_disable=8 bt_coex_active=0 swcrypto=1']}
+
+  # Lite
+  # https://wiki.archlinux.org/index.php/laptop
+  # ----------------------------------------------------------------------------
+  - name: lite
+    type: machine
+    base: base
+    source: [lite, lite-celes]
+    groups: [video, audio]
+    vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
+    vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
+    deployment:
+      entry: "Deploy <%=distro%>-lite                    // Shell + min X11"
+      kernel: linux-celes
+    packages:
+      - { pkg: blueman,                       desc: GTK+ Bluetooth Manager }
+      - { pkg: cinnamon-screensaver,          desc: Screensaver for the Cinnamon desktop, type: CYBERLINUX }
+      - { pkg: conky,                         desc: Lightweight system monitor for X }
+      - { pkg: galliumos-braswell-config,     desc: GalliumOS configuration files for braswell, force: true, type: CYBERLINUX }
+      - { install: lite-pkgs }
+
+      # Adobe fonts from adobe reader
+      # https://aur.archlinux.org/cgit/aur.git/tree/LICENSE?h=ttf-adobe-fonts
+      - { pkg: ttf-adobe-fonts,               desc: Adobe fonts including Myriad Minion and Courier, type: CYBERLINUX }
+    configs:
+      - { apply: lite-config }
+      - { apply: laptop-config }
+
+      - edit: /etc/X11/xorg.conf.d/00-keyboard.conf
+        insert: append
+        values:
+          - 'Section "InputClass"'
+          - '    Identifier "Keyboard"'
+          - '    MatchIsKeyboard "on"'
+          - '    Option "XkbLayout" "us"'
+          - '    Option "XkbModel" "pc105"'
+            #- '    Option "XkbVariant" ",dvorak"'
+            #- '    Option "XkbOptions" "grp:alt_shift_toggle"'
+          - 'EndSection'
+
+      - edit: /etc/X11/xorg.conf.d/10-display.conf
+        insert: append
+        values:
+          - 'Section "Screen"'
+          - '    Identifier "Screen"'
+          - '    SubSection "Display"'
+          - '        Depth  24'
+          - '        Modes  "1366x768"'
+          - '    EndSubSection'
+          - 'EndSection'
+
       # Set Hot Keys for chromebooks
       - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'A-Print', value: 'A-S-W-F5' }
       - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'Print', value: 'A-W-F5' }
@@ -155,10 +182,6 @@ layers:
       - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'xbacklight +10', value: 'sudo backlight +100' }
       - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'XF86MonBrightnessDown', value: 'W-F6' }
       - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'xbacklight -10', value: 'sudo backlight -100' }
-
-      # Work around issues in the iwlwifi driver for celes' Intel 7265D wifi card
-      - { exec: 'rm -f /etc/modprobe.d/iwlwifi.conf'}
-      - { edit: /etc/modprobe.d/iwlwifi.conf, insert: append, values: ['options iwlwifi 11n_disable=8 bt_coex_active=0 swcrypto=1']}
 
   # Desktop
   # ----------------------------------------------------------------------------
