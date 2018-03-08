@@ -130,17 +130,15 @@ To keep the OS as light as possible I decided to use [conky](https://github.com/
 * https://wiki.archlinux.org/index.php/Keyboard_configuration_in_console
 * https://wiki.archlinux.org/index.php/Keyboard_configuration_in_Xorg
 * https://github.com/dnschneid/crouton/wiki/Keyboard
+* https://www.x.org/wiki/XKB/
 * https://jlk.fjfi.cvut.cz/arch/manpages/man/localectl.1
-* https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=xkeyboard-config-chromebook
-* https://medium.com/@damko/a-simple-humble-but-comprehensive-guide-to-xkb-for-linux-6f1ad5e13450
 * https://wiki.galliumos.org/Media_keys_and_default_keybindings
 * https://github.com/GalliumOS/xkeyboard-config/blob/master/debian/patches/chromebook.patch
-* https://www.linux.com/news/creating-custom-keyboard-layouts-x11-using-xkb
 
 ***xmodmap*** is a pretty good solution for one or two key remappings, but for a larger scale
 solution the correct method is to use ***X Keyboard Extension (XKB)*** and create a new layout.
 During the creation of a layout you can use `xev` to determine key codes and symbol names.
-***xkeyboard-config*** provides the description files for the XKB system, settable with
+The ***xkeyboard-config*** package provides the description files for the XKB system, settable with
 ***setxkbmap***. Use a custom layout file name to avoid obliteration on ***xkeyboard-config***
 updates e.g. ***/usr/share/X11/xkb/symbols/chromebook***.
 

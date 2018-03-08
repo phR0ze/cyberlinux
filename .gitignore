@@ -7,6 +7,7 @@ aur/*/src/
 aur/*/pkg/
 aur/*/*.xz
 aur/*/*.gz
+aur/*/*.bz2
 aur/*/*.asc
 aur/*/*.deb
 aur/*/*.gem
