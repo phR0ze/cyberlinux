@@ -149,18 +149,6 @@ layers:
       - { apply: lite-config }
       - { apply: laptop-config }
 
-      - edit: /etc/X11/xorg.conf.d/00-keyboard.conf
-        insert: append
-        values:
-          - 'Section "InputClass"'
-          - '    Identifier "Keyboard"'
-          - '    MatchIsKeyboard "on"'
-          - '    Option "XkbLayout" "us"'
-          - '    Option "XkbModel" "pc105"'
-            #- '    Option "XkbVariant" ",dvorak"'
-            #- '    Option "XkbOptions" "grp:alt_shift_toggle"'
-          - 'EndSection'
-
       - edit: /etc/X11/xorg.conf.d/10-display.conf
         insert: append
         values:

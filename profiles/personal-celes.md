@@ -128,52 +128,53 @@ To keep the OS as light as possible I decided to use [conky](https://github.com/
 * https://wiki.archlinux.org/index.php/xmodmap
 * https://wiki.archlinux.org/index.php/X_KeyBoard_extension
 * https://wiki.archlinux.org/index.php/Keyboard_configuration_in_console
+* https://wiki.archlinux.org/index.php/Keyboard_configuration_in_Xorg
 * https://github.com/dnschneid/crouton/wiki/Keyboard
-* https://wiki.galliumos.org/Media_keys_and_default_keybindings
+* https://jlk.fjfi.cvut.cz/arch/manpages/man/localectl.1
 * https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=xkeyboard-config-chromebook
 * https://medium.com/@damko/a-simple-humble-but-comprehensive-guide-to-xkb-for-linux-6f1ad5e13450
+* https://wiki.galliumos.org/Media_keys_and_default_keybindings
+* https://github.com/GalliumOS/xkeyboard-config/blob/master/debian/patches/chromebook.patch
+* https://www.linux.com/news/creating-custom-keyboard-layouts-x11-using-xkb
 
-`~/.Xkeymap`
+***xmodmap*** is a pretty good solution for one or two key remappings, but for a larger scale
+solution the correct method is to use ***X Keyboard Extension (XKB)*** and create a new layout.
+During the creation of a layout you can use `xev` to determine key codes and symbol names.
+***xkeyboard-config*** provides the description files for the XKB system, settable with
+***setxkbmap***. Use a custom layout file name to avoid obliteration on ***xkeyboard-config***
+updates e.g. ***/usr/share/X11/xkb/symbols/chromebook***.
 
-/etc/default/keyboard
+Creating a custom layout:
+* ***/usr/share/X11/xkb/symbols/us***
+    * The layout file ***us*** may hosts many different layouts known as layout variants
+    * Each layout variant can be written from scratch or it can inherit from a parent layout and modify something.
+    * Create a custom layout ***/usr/share/X11/xkb/symbols/chromebook***
+    * Have the custom layout inherit from ***us*** as its parent
+* ***/usr/share/X11/xkb/rules/evdev***
+    * Update the ***rules/evdev*** file to include your new layout
 
-* See current: `setxkbmap -print -verbose 10`
-* `setxkbmap -layout us`
-* /usr/share/X11/xkb/symbols/us
-* /usr/share/X11/xkb/rules/evdev
+Celes Keyboard Hardware defaults:
 
-The ***symbols/us*** file hosts many different layouts.  Each layout can be written from scratch or
-it can inherit from a parent layout and modify something.
+| Param         | Value   | Explanation                                                    |
+| ------------- | --------| -------------------------------------------------------------- |
+| XkbModel      | pc105   | selects the keyboard model, usually ***pc104*** or ***pc105*** |
+| XkbLayout     | us      | selects the keyboard layout, usually ***us***                  |
+| XkbVariant    |         | selects the specific layout variant                            |
+| XkbOptions    |         | any extra options                                              |
 
-***xmodmap*** provides a way to dynamically modify keymaps. Many apps will recognize multimedia keys
-out of the box. So I will be modifying the existing key maps to emit multimedia keys where applicable.
-
-xmodmap uses columns to denote different access modifiers:
-1. Key
-2. Shift+Key
-3. mode_switch+Key
-4. mode_switch+Shift+Key
-5. AltGr+Key
-6. AltGr+Shift+Key
-
+Set keyboard configuration:
 ```bash
-xmodmap -e "keycode 133 = Super_L"
-xmodmap -e "keycode 64 = Overlay1_Enable"
+# Current session only use setxkbmap
+# setxkbmap [-model xkb_model] [-layout xkb_layout] [-variant xkb-variant] [-option xkb_options]
+# See current configuration
+setxkbmap -print -verbose 10
+# Set current layout
+setxkbmap -layout us
+# Persist layout for virtual console which saves in /etc/vconsole.conf
+sudo localectl --no-convert set-keymap us
+# Persist layout for X11 which saves in /etc/X11/xorg.conf.d/00-keyboard.conf
+sudo localectl --no-convert set-x11-keymap us pc105
 ```
-
-Swap Left Control and Search Key:
-```bash
-xmodmap -e "keycode 133 = Control_L"
-xmodmap -e "keycode 37 = Overlay1_Enable"
-xmodmap -e "add control = Control_L"
-xmodmap -e "remove control = Overlay1_Enable"
-```
-
-Key codes can be found by running `xev` then pressing a key.
-
-Keymappings are handled by ***xmodmap*** as desribed below
-
-Show current key map: `xmodmap -pke`
 
 | Key       | Combination           | xmodmap                                   |
 | --------- | --------------------- | ----------------------------------------- |

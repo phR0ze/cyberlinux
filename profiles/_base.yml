@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.291
+  release: 0.1.292
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -1074,6 +1074,8 @@ configs:
         - '    Option "NaturalScrolling" "on"'
         - 'EndSection'
 
+# Package selection
+# https://wiki.archlinux.org/index.php/Desktop_environment
 packages:
   core-pkgs:
     - { pkg: bash,                          desc: GNU Bourne Again shell }
