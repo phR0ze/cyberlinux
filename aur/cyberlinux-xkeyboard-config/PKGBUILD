@@ -43,6 +43,7 @@ prepare()
   cd ${_src}-${pkgver}
   msg "Patching $pkgname..."
 
+  exit
   #msg2 "Renaming: $base => $x"
   #patch -Np1 -i $patch
 }

@@ -1,0 +1,228 @@
+diff '--color=auto' -ruN a/compat/celes b/compat/celes
+--- a/compat/celes	1969-12-31 17:00:00.000000000 -0700
++++ b/compat/celes	2018-03-08 17:13:23.642287921 -0700
+@@ -0,0 +1,7 @@
++// Overlay1_Enable is a latch key for overlay1
++
++default partial xkb_compatibility "overlay"  {
++    interpret Overlay1_Enable+AnyOfOrNone(all) {
++        action= SetControls(controls=Overlay1);
++    };
++};
+diff '--color=auto' -ruN a/compat/Makefile.am b/compat/Makefile.am
+--- a/compat/Makefile.am	2018-03-08 16:46:26.213187398 -0700
++++ b/compat/Makefile.am	2018-03-08 17:12:39.338056304 -0700
+@@ -1,7 +1,7 @@
+ compatdir = $(xkb_base)/compat
+ 
+ compat_DATA = \
+-accessx basic caps complete \
++accessx basic caps complete celes \
+ iso9995 \
+ japan ledcaps \
+ lednum ledscroll level5 \
+diff '--color=auto' -ruN a/keycodes/celes b/keycodes/celes
+--- a/keycodes/celes	1969-12-31 17:00:00.000000000 -0700
++++ b/keycodes/celes	2018-03-08 17:14:29.246947209 -0700
+@@ -0,0 +1,23 @@
++default xkb_keycodes "media" {
++	<FK01> = 166;   //Back
++	<FK02> = 167;   //Forward
++	<FK03> = 181;   //Refresh
++	<FK04> = 160;   //Video next
++	<FK05> = 235;   //Video mode
++	<FK06> = 232;   //Brightness down
++	<FK07> = 233;   //Brightness up
++	<FK08> = 121;   //Mute
++	<FK09> = 122;   //Volume -
++	<FK10> = 123;   //Volume +
++
++    <I166> = 67;    // #define KEY_BACK
++    <I167> = 68;    // #define KEY_FORWARD
++    <I181> = 69;    // #define KEY_REFRESH
++    <I160> = 70;    // #define KEY_COFFEE
++    <I235> = 71;    // #define KEY_SWITCHVIDEOMODE
++    <I232> = 72;    // #define KEY_BRIGHTNESSDOWN
++    <I233> = 73;    // #define KEY_BRIGHTNESSUP
++    <MUTE> = 74;
++    <VOL-> = 75;
++    <VOL+> = 76;
++};
+diff '--color=auto' -ruN a/keycodes/Makefile.am b/keycodes/Makefile.am
+--- a/keycodes/Makefile.am	2018-03-08 16:46:26.213187398 -0700
++++ b/keycodes/Makefile.am	2018-03-08 17:13:32.312463437 -0700
+@@ -6,6 +6,7 @@
+ aliases \
+ amiga \
+ ataritt \
++celes \
+ empty \
+ evdev \
+ fujitsu \
+diff '--color=auto' -ruN a/rules/base.ml1_c.part b/rules/base.ml1_c.part
+--- a/rules/base.ml1_c.part	2018-03-08 16:46:26.219854190 -0700
++++ b/rules/base.ml1_c.part	2018-03-08 17:15:31.428199838 -0700
+@@ -1 +1,2 @@
++  celes		*		=	complete+celes
+   *		*		=	complete
+diff '--color=auto' -ruN a/rules/base.m_s.part b/rules/base.m_s.part
+--- a/rules/base.m_s.part	2018-03-08 16:46:26.219854190 -0700
++++ b/rules/base.m_s.part	2018-03-08 16:59:35.061512035 -0700
+@@ -8,7 +8,6 @@
+   btc5126t      =       +inet(nav_acpi_common)
+   btc9116u      =       +inet(btc9019u)
+   btc6301urf    =       +inet(media_nav_acpi_common)
+-  chromebook    =       +inet(chromebook)
+   dellsk8125    =       +inet(dell)
+   dellsk8135    =       +inet(dell)
+   cherrybunlim  =       +inet(nav_common)
+diff '--color=auto' -ruN a/rules/base.xml.in b/rules/base.xml.in
+--- a/rules/base.xml.in	2018-03-08 16:46:26.219854190 -0700
++++ b/rules/base.xml.in	2018-03-08 17:15:48.971885922 -0700
+@@ -4,6 +4,13 @@
+   <modelList>
+     <model>
+       <configItem>
++        <name>celes</name>
++        <_description>Samsung Chromebook 3</_description>
++        <vendor>Samsung</vendor>
++      </configItem>
++    </model>
++    <model>
++      <configItem>
+         <name>pc101</name>
+         <_description>Generic 101-key PC</_description>
+         <vendor>Generic</vendor>
+diff '--color=auto' -ruN a/rules/evdev.m_s.part b/rules/evdev.m_s.part
+--- a/rules/evdev.m_s.part	2018-03-08 16:46:26.219854190 -0700
++++ b/rules/evdev.m_s.part	2018-03-08 17:09:49.137913164 -0700
+@@ -1,4 +1,4 @@
+   $evdevkbds    =   +inet(evdev)+inet(%m)
+-  chromebook    =   +inet(evdev)+inet(chromebook)
++  celes         =   +inet(evdev)+celes(overlay)
+   applealu_jis  =   +inet(evdev)+macintosh_vndr/jp(alujiskeys)
+   *             =   +inet(evdev)
+diff '--color=auto' -ruN a/rules/evdev.xml.in b/rules/evdev.xml.in
+--- a/rules/evdev.xml.in	2018-03-08 16:46:26.219854190 -0700
++++ b/rules/evdev.xml.in	2018-03-08 17:09:29.784181521 -0700
+@@ -4,6 +4,13 @@
+   <modelList>
+     <model>
+       <configItem>
++        <name>celes</name>
++        <_description>Samsung Chromebook 3</_description>
++        <vendor>Samsung</vendor>
++      </configItem>
++    </model>
++    <model>
++      <configItem>
+         <name>pc101</name>
+         <_description>Generic 101-key PC</_description>
+         <vendor>Generic</vendor>
+diff '--color=auto' -ruN a/symbols/celes b/symbols/celes
+--- a/symbols/celes	1969-12-31 17:00:00.000000000 -0700
++++ b/symbols/celes	2018-03-08 17:12:30.494543370 -0700
+@@ -0,0 +1,49 @@
++// This mapping assumes that inet(evdev) will also be sourced
++partial
++xkb_symbols "overlay" {
++    key <LWIN> { [ Overlay1_Enable ], overlay1=<LWIN> };
++    key <I225> { [ Overlay1_Enable ], overlay1=<I225> };
++
++    key <AB09> { overlay1=<INS> };
++
++    key <LEFT> { overlay1=<HOME> };
++    key <RGHT> { overlay1=<END> };
++    key <UP>   { overlay1=<PGUP> };
++    key <DOWN> { overlay1=<PGDN> };
++
++    key <FK01> { overlay1=<I166> };
++    key <FK02> { overlay1=<I167> };
++    key <FK03> { overlay1=<I181> };
++    key <FK04> { overlay1=<I160> };
++    key <FK05> { overlay1=<I235> };
++    key <FK06> { overlay1=<I232> }; // XF86MonBrightnessDown
++    key <FK07> { overlay1=<I233> }; // XF86MonBrightnessUp
++    key <FK08> { overlay1=<MUTE> };
++    key <FK09> { overlay1=<VOL-> };
++    key <FK10> { overlay1=<VOL+> };
++
++    key <AE01> { overlay1=<FK01> };
++    key <AE02> { overlay1=<FK02> };
++    key <AE03> { overlay1=<FK03> };
++    key <AE04> { overlay1=<FK04> };
++    key <AE05> { overlay1=<FK05> };
++    key <AE06> { overlay1=<FK06> };
++    key <AE07> { overlay1=<FK07> };
++    key <AE08> { overlay1=<FK08> };
++    key <AE09> { overlay1=<FK09> };
++    key <AE10> { overlay1=<I236> }; // KEY_KBDILLUMTOGGLE
++    key <AE11> { overlay1=<I237> }; // KEY_KBDILLUMDOWN
++    key <AE12> { overlay1=<I238> }; // KEY_KBDILLUMUP
++    key <BKSP> { overlay1=<DELE> };
++
++    key <LALT> { overlay1=<CAPS> };
++    key <RALT> { overlay1=<CAPS> };
++
++    // For some strange reason, some Super_R events are triggered when
++    // the Search key is released (i.e. with overlay on).
++    // This maps RWIN to a dummy key (<I253>), to make sure we catch it.
++    key <RWIN> { [ NoSymbol ], overlay1=<I253> };
++
++    // Map dummy key to no symbol
++    key <I253> { [ NoSymbol ] };
++};
+diff '--color=auto' -ruN a/symbols/inet b/symbols/inet
+--- a/symbols/inet	2018-03-08 16:46:26.199853816 -0700
++++ b/symbols/inet	2018-03-08 16:59:07.864324212 -0700
+@@ -1877,27 +1877,6 @@
+ };
+ 
+ partial alphanumeric_keys
+-xkb_symbols "chromebook" {
+-	include "level3(ralt_switch)"
+-        key <FK01> {    [ XF86Back ] };
+-        key <FK02> {    [ XF86Forward ] };
+-        key <FK03> {    [ XF86Reload ] };
+-        key <FK04> {    [ F11 ] };
+-//        key <FK05> {    [ F5, F5, F5, F5 ] }; // Overview key
+-        key <FK06> {    [ XF86MonBrightnessDown ] };
+-        key <FK07> {    [ XF86MonBrightnessUp ] };
+-        key <FK08> {    [ XF86AudioMute ] };
+-        key <FK09> {    [ XF86AudioLowerVolume ] };
+-        key <FK10> {    [ XF86AudioRaiseVolume ] };
+-        key <BKSP> {    [ BackSpace, BackSpace, Delete ] };
+-        key <UP>   {    [ Up, Up, Prior, Up ] };
+-        key <DOWN> {    [ Down, Down, Next, Down ] };
+-        key <LEFT> {    [ Left, Left, Home, Left ] };
+-        key <RGHT> {    [ Right, Right, End, Right ] };
+-        key <LWIN> {    [ Super_L, Super_L, Caps_Lock, Super_L ] };
+-};
+-
+-partial alphanumeric_keys
+ xkb_symbols "teck227" {
+     include "inet(media_nav_common)"
+     key <HIRA> { [ Hiragana ] };
+diff '--color=auto' -ruN a/symbols/Makefile.am b/symbols/Makefile.am
+--- a/symbols/Makefile.am	2018-03-08 16:46:26.199853816 -0700
++++ b/symbols/Makefile.am	2018-03-08 17:08:57.996859131 -0700
+@@ -35,6 +35,6 @@
+ ua us uz vn \
+ za \
+ altwin capslock compose ctrl empty eurosign rupeesign group inet \
+-keypad kpdl level3 level5 nbsp olpc shift srvr_ctrl typo
++keypad kpdl level3 level5 nbsp olpc shift srvr_ctrl typo celes
+ 
+ EXTRA_DIST = $(symbols_DATA)
+diff '--color=auto' -ruN a/symbols/Makefile.in b/symbols/Makefile.in
+--- a/symbols/Makefile.in	2018-03-08 16:46:26.209854003 -0700
++++ b/symbols/Makefile.in	2018-03-08 17:08:46.609957084 -0700
+@@ -393,7 +393,7 @@
+ ua us uz vn \
+ za \
+ altwin capslock compose ctrl empty eurosign rupeesign group inet \
+-keypad kpdl level3 level5 nbsp olpc shift srvr_ctrl typo
++keypad kpdl level3 level5 nbsp olpc shift srvr_ctrl typo celes
+ 
+ EXTRA_DIST = $(symbols_DATA)
+ all: all-recursive
