@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.298
+  release: 0.1.299
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -176,7 +176,7 @@ configs:
     - { menu: Settings, entry: LXRandR, icon: /usr/share/icons/Paper/32x32/apps/preferences-desktop-display.png, exec: lxrandr }
     - { menu: Settings, entry: Thunar Settings, icon: /usr/share/icons/Paper/32x32/apps/system-file-manager.png, exec: thunar-settings }
     - { menu: Settings, entry: Tint2 Themes, icon: /usr/share/icons/Paper/32x32/apps/tint2conf.png, exec: tint2conf }
-    - { menu: Settings, entry: Printer Preferences, icon: /usr/share/icons/Paper/32x32/devices/preferences-desktop-printer.png, exec: system-config-printer }
+    - { menu: Settings, entry: Printer Preferences, icon: /usr/share/icons/Paper/32x32/devices/preferences-desktop-printer.png, exec: sudo system-config-printer }
     - { menu: Settings, entry: Thunar Volman, icon: /usr/share/icons/Paper/32x32/devices/drive-removable-media.png, exec: thunar-volman-settings }
     - { menu: System, icon: /usr/share/icons/Paper/32x32/categories/applications-system.png }
     - { menu: System, entry: Htop, icon: /usr/share/icons/Paper/32x32/apps/htop.png, exec: lxterminal -e htop }
@@ -1457,6 +1457,7 @@ packages:
     - { pkg: awf-git,                       desc: Widget Factory for developing GTK themes, type: CYBERLINUX }
     - { pkg: glade,                         desc: User Interface Builder for GTK+ applications }
     - { pkg: meld,                          desc: Develop/Diff Tool - Graphical diff tool cross platform }
+    - { pkg: ripgrep,                       desc: A search tool combining the usability of ag with speed of grep, depof: vscode }
     - { pkg: vim-fugitive,                  desc: Git wrapper }
     - { pkg: vim-supertab,                  desc: <Tab> for all completion }
     - { pkg: vim-ultisnips,                 desc: TextMate-style snippets for Vim }
