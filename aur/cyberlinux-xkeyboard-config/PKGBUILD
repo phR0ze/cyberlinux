@@ -35,17 +35,19 @@ makedepends=('intltool' 'xorg-xkbcomp' 'libxslt')
 provides=('xkbdata', 'xkeyboard-config')
 replaces=('xkbdata', 'xkeyboard-config')
 conflicts=('xkbdata', 'xkeyboard-config')
-source=(https://xorg.freedesktop.org/archive/individual/data/${_src}/${_src}-${pkgver}.tar.bz2)
-sha256sums=('2a4bbc05fea22151b7a7c8ac2655d549aa9b0486bedc7f5a68c72716343b02f3')
+source=(https://xorg.freedesktop.org/archive/individual/data/${_src}/${_src}-${pkgver}.tar.bz2
+    'celes.patch'
+)
+sha256sums=('2a4bbc05fea22151b7a7c8ac2655d549aa9b0486bedc7f5a68c72716343b02f3'
+    'SKIP')
 
 prepare()
 {
   cd ${_src}-${pkgver}
   msg "Patching $pkgname..."
 
-  exit
-  #msg2 "Renaming: $base => $x"
-  #patch -Np1 -i $patch
+  msg2 "Applying patch 'celes.patch'"
+  patch -Np1 -i ../celes.patch
 }
 
 build()
