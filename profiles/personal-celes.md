@@ -134,6 +134,7 @@ To keep the OS as light as possible I decided to use [conky](https://github.com/
 * https://jlk.fjfi.cvut.cz/arch/manpages/man/localectl.1
 * https://wiki.galliumos.org/Media_keys_and_default_keybindings
 * https://github.com/GalliumOS/xkeyboard-config/blob/master/debian/patches/chromebook.patch
+* http://www.fascinatingcaptain.com/blog/remap-keyboard-keys-for-ubuntu/
 
 ***xmodmap*** is a pretty good solution for one or two key remappings, but for a larger scale
 solution the correct method is to use ***X Keyboard Extension (XKB)*** and create a new layout.
@@ -142,8 +143,15 @@ The ***xkeyboard-config*** package provides the description files for the XKB sy
 ***setxkbmap***. Use a custom layout file name to avoid obliteration on ***xkeyboard-config***
 updates e.g. ***/usr/share/X11/xkb/symbols/chromebook***.
 
+1. Make XKB changes
+    1. Edit: ***sudo vim /usr/share/X11/symbols/pc***
+    2. In the ***pc105*** section add ***key <FK01> { [XF86Back] }***
+3. Clear XKB cache
+    1. Run: `sudo rm -rf /var/lib/xkb/*.xkm`
+4. Reboot
+
 Creating a custom layout:
-* ***/usr/share/X11/xkb/symbols/us***
+1. ***/usr/share/X11/xkb/symbols/us***
     * The layout file ***us*** may hosts many different layouts known as layout variants
     * Each layout variant can be written from scratch or it can inherit from a parent layout and modify something.
     * Create a custom layout ***/usr/share/X11/xkb/symbols/chromebook***
@@ -167,16 +175,27 @@ Set keyboard configuration:
 # See current configuration
 setxkbmap -print -verbose 10
 # Set current layout
-setxkbmap -layout us
+setxkbmap -layout us -option ctrl:nocaps
 # Persist layout for virtual console which saves in /etc/vconsole.conf
 sudo localectl --no-convert set-keymap us
 # Persist layout for X11 which saves in /etc/X11/xorg.conf.d/00-keyboard.conf
 sudo localectl --no-convert set-x11-keymap us pc105
 ```
 
-| Key       | Combination           | xmodmap                                   |
-| --------- | --------------------- | ----------------------------------------- |
-| F11       | ? |                           |
+| Key               | Symbol                | xmodmap                                   |
+| ----------------- | --------------------- | ----------------------------------------- |
+| Search+F1         | F11                   | ?  |
+| Search+F2         | F12                   | ?  |
+| Search+F3         | XF86Reload            | ?  |
+| Search+F4         | Print                 | ?  |
+| Search+F5         | XF86                  | ?  |
+| Search+F6         | XF86MonBrightnessDown | [ F6 ] |
+| Search+F7         | XF86MonBrightnessUp   | ?  |
+| Search+F8         | XF86AudioMute         | ?  |
+| Search+F9         | XF86AudioLowerVolume  | ?  |
+| Search+F10        | XF86AudioRaiseVolume  | ?  |
+| BackSpace  | [ BackSpace, BackSpace, Delete ] | ?  |
+| F11               | kk                    | ?  |
 | F12       | ? |       |
 | Home      | Overlay+Left |        |
 | End       | ? | |
