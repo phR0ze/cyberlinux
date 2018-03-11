@@ -1,8 +1,8 @@
 # Samsung Chromebook 3 (a.k.a CELES)
 <img align="left" width="48" height="48" src="https://raw.githubusercontent.com/phR0ze/cyberlinux/master/art/logo_256x256.png">
 The Samsung Chromebook 3 is an excellent general purpose netbook. Thanks to the opensource community
-everything is availble to change it from a ChromeOS paper weight into a full Linux operating system.  Kudos to
-<b><i>Mr. Chromebox</i></b> <a href="https://mrchromebox.tech">https://mrchromebox.tech</a> for the firmware to make this happen. 
+everything is availble to change it from a ChromeOS paper weight into a fully functioning Linux system.  Kudos to
+<b><i>Mr. Chromebox</i></b> <a href="https://mrchromebox.tech">https://mrchromebox.tech</a> for the UEFI firmware to make this happen. 
 
 ### Table of Contents
 * [Build Deployable ISO](#build-deployable-iso)
@@ -13,6 +13,19 @@ everything is availble to change it from a ChromeOS paper weight into a full Lin
     * [Install cyberlinux](#install-cyberlinux)
 * [License](#license)
 * [Configuration](#configuration)
+    * [Kernel](#kernel)
+    * [Video](#video)
+    * [WiFi](#wifi)
+    * [BlueTooth](#bluetooth)
+    * [Keyboard/Touchpad](#keyboard-touchpad)
+    * [Sound Output](#sound-output)
+    * [Microphone Headset](#microphone-headset)
+    * [USB Storage](#usb-storage)
+    * [MicroSD Storage](#micro-sd-storage)
+    * [HDMI Output](#hdmi-output)
+    * [Suspend](#suspend)
+    * [Brightness](#brightness)
+    * [Battery Status](#battery-status)
     * [Key Mappings](#key-mappings)
     * [Keyboard Shortcuts](#keyboard-shortcuts)
 
@@ -37,9 +50,10 @@ Once you have a compatible enviroment setup:
 
 ### Prerequisites <a name="prerequisites"/></a>
 Chromebooks are not setup for Linux out of the box however there has been some excellent work done
-in this area to make Chromebooks behave like normal Linux netbooks.
+in the community to make Chromebooks behave like normal Linux netbooks.
 
-1. Follow the direction found here https://wiki.galliumos.org/Installing/Preparing
+1. Prepare you system for install using [these](https://wiki.galliumos.org/Installing/Preparing)
+   instructions
 2. Burn your ISO to a USB using
     ```bash
     sudo dd bs=4M if=/path/to/cyberlinux.iso of=/dev/sdx status=progress oflag=sync
@@ -86,16 +100,28 @@ Audio required using the [GalliumOS Braswell Config](https://aur.archlinux.org/p
 ?
 
 ### USB Storage <a name="usb-storage"/></a>
-?
+USB thumbdrives seem to work great, providing simple mount and eject options in Thunar and the
+process can be repeated as many times as desired.
 
 ### MicroSD Storage <a name="micro-sd-storage"/></a>
-List out all properties for the sd card device. Seems as though it is recognized as ***/dev/mmcblk1***. It's not recognized as a removable device maybe?
+The MicroSD card is recognized as ***/dev/mmcblk1*** and not as removable device. This would be a
+problem if I intended to be inserting/removing it a lot, however I intend to simply use it as
+personal data storage for things such as Documents and media separate from the main disk. This will
+allow the main disk to be wiped and reinstalled as often as needed while keeping all non-system
+i.e. personal data separate and protected during system re-installs/formats.
 
+Prepare SD card for use and persistently mount:
 ```bash
+# See device drivers and details
 lspci -k
-```
-```bash
 udevadm info -a -n /dev/mmcblk1
+# Format use '-m 0' to prevent reserved block as this is a storage disk
+sudo mkfs.ext4 -m 0 /dev/mmcblk1
+# Mount, use 'noatime' to improve performance
+sudo mkdir /mnt/storage
+sudo tee -a /etc/fstab <<< "/dev/mmcblk1 /mnt/storage ext4 defaults,noatime 0 0"
+sudo mount -a
+sudo chown -R $USER: /mnt/storage
 ```
 
 ### HDMI Output <a name="hdmi-output"/></a>
@@ -125,6 +151,8 @@ sudo tee /sys/class/backlight/intel_backlight/brightness <<< 800
 To keep the OS as light as possible I decided to use [conky](https://github.com/phR0ze/cyberlinux/blob/master/layers/desktop-celes/etc/skel/.conkyrc) to provide ***Date***, ***Time***, ***Calendar***, and ***Battery status*** as well as a few other monitoring widgets.
 
 ### Key Mappings <a name="key-mappings"/></a>
+Blah, this section is WIP, XKB kicked my butt for now.
+
 * https://wiki.archlinux.org/index.php/xmodmap
 * https://wiki.archlinux.org/index.php/X_KeyBoard_extension
 * https://wiki.archlinux.org/index.php/Keyboard_configuration_in_console
