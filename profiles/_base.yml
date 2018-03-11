@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.302
+  release: 0.1.303
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -40,6 +40,36 @@ vars:
 
   # NFS allowed cidr
   nfscidr: 192.168.56.0/24
+
+apps:
+  server-apps:
+    - conky
+    - curl
+    - phpBB
+  conky:
+    packages:
+      - { pkg: conky,                         desc: Lightweight system monitor for X }
+    configs:
+      - { menu: Settings, entry: Conky RC, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.conkyrc }
+      - edit: /etc/lxdm/PostLogout
+        insert: append
+        values:
+          - 'killall conky'
+  curl:
+    packages:
+      - { pkg: curl,                          desc: Network download REST command line tool }
+  phpBB:
+    packages:
+      - { pkg: apache,                        desc: Apache web server }
+      - { pkg: php-apache,                    desc: PHP apache module }
+      - { pkg: php-sqlite,                    desc: PHP sqlite module }
+      - { pkg: php-gd,                        desc: PHP gd module }
+    configs:
+      - { edit: /etc/httpd/conf/httpd.conf, regex: '^(Listen).*', value: '\1 80' }
+      - { edit: /etc/httpd/conf/httpd.conf, regex: '^(DocumentRoot).*', value: '\1 /srv/http' }
+      - { edit: /etc/httpd/conf/httpd.conf, regex: '^(.*DirectoryIndex index.html).*', value: '\1 index.php' }
+      - { edit: /etc/httpd/conf/httpd.conf, regex: '^(LoadModule mpm_event.*)', value: '#\1' }
+      - { chroot: systemctl enable httpd.service }
 
 configs:
 
@@ -106,12 +136,14 @@ configs:
   laptop-config:
     - { apply: wpa-gui }
     - { apply: conky-config }
+    - { apply: keepass-config }
     - { apply: menu-laptop-config }
     - { apply: cinnamon-screensaver-config }
   desktop-config:
     - { apply: conky-config }
     - { apply: docker-config }
     - { apply: guake-config }
+    - { apply: keepass-config }
     - { apply: menu-desktop-config }
     - { apply: plank-desktop-config }
     - { apply: cinnamon-screensaver-config }
@@ -122,6 +154,7 @@ configs:
     - { apply: nfs-config }
     - { apply: thunar-config }
     - { apply: apache-php-config }
+    - { apply: keepass-config }
     - { apply: menu-server-config }
   theater-config:
     - { apply: conky-config }
@@ -189,7 +222,6 @@ configs:
 
   menu-desktop-config:
     - { menu: Accessories, entry: Catfish File Search, icon: /usr/share/icons/Paper/32x32/apps/system-search.png, exec: catfish }
-    - { menu: Accessories, entry: KeePass, icon: /usr/share/icons/hicolor/32x32/apps/keepass.png, exec: keepass }
     - { menu: Accessories, entry: Multi Writer, icon: /usr/share/icons/Paper/32x32/devices/drive-harddisk-usb.png, exec: sudo gnome-multi-writer}
     - { menu: Development, entry: Meld, icon: /usr/share/icons/Paper/32x32/apps/meld.png, exec: meld }
     - { menu: Development, entry: Visual Studio Code, icon: /usr/share/icons/Paper/32x32/apps/visual-studio-code.png, exec: code }
@@ -221,7 +253,6 @@ configs:
     - { menu: Settings, entry: VirtualBox, icon: /usr/share/icons/Paper/32x32/apps/virtualbox.png, exec: VirtualBox }
   menu-server-config:
     - { menu: Accessories, entry: Archive Manager, icon: /usr/share/icons/Paper/32x32/apps/file-roller.png, exec: file-roller }
-    - { menu: Accessories, entry: KeePass, icon: /usr/share/icons/hicolor/32x32/apps/keepass.png, exec: keepass }
     - { menu: Multimedia, entry: HandBrake, icon: /usr/share/icons/hicolor/scalable/apps/hb-icon.svg, exec: ghb }
     - { menu: Multimedia, entry: MKVToolNix, icon: /usr/share/icons/hicolor/32x32/apps/mkvtoolnix-gui.png, exec: mkvtoolnix-gui }
     - { menu: Multimedia, entry: Tiny Media Manager, icon: /usr/share/icons/hicolor/32x32/apps/tiny-media-manager.png, exec: tiny-media-manager }
@@ -603,6 +634,8 @@ configs:
     - { exec: 'rm -rf /var/log/journal' }
     # Restrict journal disk size to avoid hogging the system
     - { edit: /etc/systemd/journald.conf, regex: '^#(SystemMaxUse).*', value: '\1=100M' }
+  keepass-config:
+    - { menu: Accessories, entry: KeePass, icon: /usr/share/icons/hicolor/32x32/apps/keepass.png, exec: keepass }
   locale-config:
     - edit: /etc/locale.conf
       insert: append

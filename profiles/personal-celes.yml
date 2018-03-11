@@ -122,32 +122,41 @@ layers:
       - { exec: 'rm -f /etc/modprobe.d/iwlwifi.conf'}
       - { edit: /etc/modprobe.d/iwlwifi.conf, insert: append, values: ['options iwlwifi 11n_disable=8 bt_coex_active=0 swcrypto=1']}
 
-  # Lite
+  # Desktop
   # https://wiki.archlinux.org/index.php/laptop
   # ----------------------------------------------------------------------------
-  - name: lite
+  - name: desktop
     type: machine
     base: base
-    source: [lite, lite-celes]
+    source: [lite, lite-celes, desktop, desktop-celes]
     groups: [video, audio]
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
     deployment:
-      entry: "Deploy <%=distro%>-lite                    // Shell + min X11"
+      entry: "Deploy <%=distro%>-desktop                 // Full X11 env."
       kernel: linux-celes
     packages:
+      - { install: lite-pkgs }
       - { pkg: blueman,                       desc: GTK+ Bluetooth Manager }
       - { pkg: cinnamon-screensaver,          desc: Screensaver for the Cinnamon desktop, type: CYBERLINUX }
       - { pkg: conky,                         desc: Lightweight system monitor for X }
       - { pkg: galliumos-braswell-config,     desc: GalliumOS configuration files for braswell, force: true, type: CYBERLINUX }
-      - { install: lite-pkgs }
+      - { pkg: gimp,                          desc: Excellent image editor, alt: pinta }
+      - { pkg: hunspell-en_US,                desc: US dictionaries for spell checking, deps: libreoffice }
+      - { pkg: libreoffice-fresh,             desc: LibreOffice branch with new features/enhancements }
+      - { pkg: keepass,                       desc: Cross platform password manager }
 
       # Adobe fonts from adobe reader
       # https://aur.archlinux.org/cgit/aur.git/tree/LICENSE?h=ttf-adobe-fonts
       - { pkg: ttf-adobe-fonts,               desc: Adobe fonts including Myriad Minion and Courier, type: CYBERLINUX }
+
+      # Teamviewer is free to use for personal use
+      # https://www.teamviewer.com/en/credentials/free-for-personal-use/
+      - { pkg: teamviewer,                    desc: All-In-One Software for Remote Support and Online Meetings, type: CYBERLINUX }
     configs:
       - { apply: lite-config }
       - { apply: laptop-config }
+      - { apply: teamviewer-client-config }
 
       - edit: /etc/X11/xorg.conf.d/10-display.conf
         insert: append
@@ -170,29 +179,6 @@ layers:
       - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'xbacklight +10', value: 'sudo backlight +100' }
       - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'XF86MonBrightnessDown', value: 'W-F6' }
       - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'xbacklight -10', value: 'sudo backlight -100' }
-
-  # Desktop
-  # ----------------------------------------------------------------------------
-  - name: desktop
-    type: machine
-    base: lite
-    source: [desktop, desktop-celes]
-    vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
-    vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
-    deployment:
-      entry: "Deploy <%=distro%>-desktop                 // Lite + more apps"
-      kernel: linux-celes
-    packages:
-      - { pkg: gimp,                          desc: Excellent image editor, alt: pinta }
-      - { pkg: hunspell-en_US,                desc: US dictionaries for spell checking, deps: libreoffice }
-      - { pkg: libreoffice-fresh,             desc: LibreOffice branch with new features/enhancements }
-      - { pkg: keepass,                       desc: Cross platform password manager }
-
-      # Teamviewer is free to use for personal use
-      # https://www.teamviewer.com/en/credentials/free-for-personal-use/
-      - { pkg: teamviewer,                    desc: All-In-One Software for Remote Support and Online Meetings, type: CYBERLINUX }
-    configs:
-      - { apply: teamviewer-client-config }
 
   # Live
   # ----------------------------------------------------------------------------

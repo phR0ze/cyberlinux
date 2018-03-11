@@ -23,7 +23,8 @@ created from this profile to personal use only.
         * [Variables](#variables)
         * [Build Layer](#build-layer)
         * [Layers](#layers)
-        * [Changes](#changes)
+        * [Apps](#apps)
+        * [Configs](#configs)
 * [Troubleshooting](#troubleshooting)
     * [BlackArch Signature issue](#blackarch-signature-issue)
 * [Contributions](#contributions)
@@ -72,7 +73,7 @@ uploaded for public use or deployed locally.
 
 To pack a specific deployment for use - e.g. k8snode -  use the following:
 
-1. Pack image: ```./reduce pack --layers=k8snode```
+1. Pack image: `./reduce pack --layers=k8snode`
 2. Login to https://app.vagrantup.com/session
 3. Click ***New Vagrant Box***
 4. Set ***Name*** to ***cyberlinux-k8snode*** and ***Short description*** then click ***Create box***
@@ -85,33 +86,58 @@ To pack a specific deployment for use - e.g. k8snode -  use the following:
 ### Customization <a name="customization"/></a>
 The heart of ***cyberlinux*** is it's ability to provide infinite variations of repeatable
 deployments that can be built together into a bootable/installable ISO.  This is driven through
-the use of ***profiles*** which are declarative yaml describing all of the packages and configuration
+the use of ***profiles*** which are declarative yaml describionts all of the packages and configuration
 required when building ***cyberlinux***.
 
 #### Profile Structure <a name="profile-structure"/></a>
 Example:
 ```YAML
-vars:
-  distro: cyberlinux
 build:
   name: build
   type: container
   ...
 layers:
   - name: base
+    type: machine
+    multilib: true
+    groups: [ls, wheel, network, storage, users]
+    vars: { fontsize: 10 }
+    vagrant: { vram: 32, cpus: 2, ram: 2048 }
+    deployment:
+      entry: "Deploy <%=distro%>-base                    // Minimal shell"
+      kernel: linux-celes
+    apps:
+      - server-apps
+
+apps:
+  server-apps:
+    - conky
+    - curl
+    - phpBB
+  conky:
     packages:
-      - { install: machine-core }
-    changes:
-      - { apply: autologin-config }
-      - { exec: 'ln -sf //usr/share/zoneinfo/Zulu /etc/localtime' }
-repos:
-  - name: archlinux
-changes:
-  autologin-config:
-    - { edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(autologin)=.*', value: '\1=<%= USER %>'
-packages:
-  machine-core:
-    - { install: container-core }
+      - { pkg: conky,                         desc: Lightweight system monitor for X }
+    configs:
+      - { menu: Settings, entry: Conky RC, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.conkyrc }
+      - edit: /etc/lxdm/PostLogout
+        insert: append
+        values:
+          - 'killall conky'
+  curl:
+    packages:
+      - { pkg: curl,                          desc: Network download REST command line tool }
+  phpBB:
+    packages:
+      - { pkg: apache,                        desc: Apache web server }
+      - { pkg: php-apache,                    desc: PHP apache module }
+      - { pkg: php-sqlite,                    desc: PHP sqlite module }
+      - { pkg: php-gd,                        desc: PHP gd module }
+    configs:
+      - { edit: /etc/httpd/conf/httpd.conf, regex: '^(Listen).*', value: '\1 80' }
+      - { edit: /etc/httpd/conf/httpd.conf, regex: '^(DocumentRoot).*', value: '\1 /srv/http' }
+      - { edit: /etc/httpd/conf/httpd.conf, regex: '^(.*DirectoryIndex index.html).*', value: '\1 index.php' }
+      - { edit: /etc/httpd/conf/httpd.conf, regex: '^(LoadModule mpm_event.*)', value: '#\1' }
+      - { chroot: systemctl enable httpd.service }
 ```
 
 #### Variables <a name="variables"/></a>
@@ -194,6 +220,10 @@ server - server focused environment for file sharing and web apps
 
 **Live Layer**  
 live - full maintenance, recovery, or no trace privacy environment
+
+#### Apps <a name="apps"/></a>
+***Apps*** is a list of ***App*** which are individual components that describe both the packages
+that will be installed for the given app and the configuration to apply for the app.
 
 #### Changes <a name="changes"/></a>
 ***Changes*** are a way to invoke blocks of configuration. They come in two flavors: the actual
