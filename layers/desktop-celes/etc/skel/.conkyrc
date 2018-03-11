@@ -93,13 +93,15 @@ ${color lightgrey} Private IP:$color ${addrs wlp2s0}
 ${color lightgrey} Public  IP:$color ${curl ipinfo.io/ip 5}
 ${voffset -4}${color lightgrey} Battery: $color${battery_percent}% (${battery_time})
 ${color} ${battery_bar}
-${voffset 10}${color lightgrey} Storage: $color${fs_used_perc}% (${fs_used /}/${fs_size})
-${color} ${fs_bar}
+${voffset 10}${color lightgrey} Storage 1: $color${fs_used_perc /}% (${fs_used /}/${fs_size /})
+${color} ${fs_bar /}
+${voffset 10}${color lightgrey} Storage 2: $color${fs_used_perc /mnt/storage}% (${fs_used /mnt/storage}/${fs_size /mnt/storage})
+${color} ${fs_bar /mnt/storage}
 
 #-------------------------------------------------------------------------------
 # Connections
 #-------------------------------------------------------------------------------
-${voffset -320}
+${voffset -370}
 ${offset 350}${color2}${font Liberation Mono:size=20}CONNECTIONS${font Liberation Mono:size=12}
 ${offset 350}${color2}${font Liberation Mono:size=14} Inbound:  ${tcp_portmon 1 32767 count}${font Liberation Mono:size=12}
 ${offset 350}${color lightgrey} ${tcp_portmon 1 32767 rhost 0} ${tcp_portmon 1 32767 lport 0}
@@ -124,18 +126,18 @@ ${offset 350}${color lightgrey} ${tcp_portmon 32768 61000 rhost 6} ${tcp_portmon
 #-------------------------------------------------------------------------------
 ${voffset -392}
 ${offset 700}${color2}${font Liberation Mono:size=20}HOT KEYS${font Liberation Mono:size=10}
-${offset 700}${color lightgrey} Super+c         (Reconfigure openbox)
-${offset 700}${color lightgrey} Super+e         (Launch editor)
-${offset 700}${color lightgrey} Super+f         (Launch filemanager)
-${offset 700}${color lightgrey} Super+l         (Launch lock)
-${offset 700}${color lightgrey} Super+o         (Launch office)
-${offset 700}${color lightgrey} Super+r         (Launch runner)
-${offset 700}${color lightgrey} Super+t         (Launch terminal)
-${offset 700}${color lightgrey} Super+w         (Launch web browser)
-${offset 700}${color lightgrey} Super+x         (Launch login controls)
-${offset 700}${color lightgrey} Alt+Super+F6    (Toggle bluetooth)
-${offset 700}${color lightgrey} Alt+Super+F7    (Toggle WiFi)
-${offset 700}${color lightgrey} Super+media key (Trigger media control)
+${offset 700}${color lightgrey} Search+c         (Reconfigure openbox)
+${offset 700}${color lightgrey} Search+e         (Launch editor)
+${offset 700}${color lightgrey} Search+f         (Launch filemanager)
+${offset 700}${color lightgrey} Search+l         (Launch lock)
+${offset 700}${color lightgrey} Search+o         (Launch office)
+${offset 700}${color lightgrey} Search+r         (Launch runner)
+${offset 700}${color lightgrey} Search+t         (Launch terminal)
+${offset 700}${color lightgrey} Search+w         (Launch web browser)
+${offset 700}${color lightgrey} Search+x         (Launch login controls)
+${offset 700}${color lightgrey} Alt+Search+F6    (Toggle bluetooth)
+${offset 700}${color lightgrey} Alt+Search+F7    (Toggle WiFi)
+${offset 700}${color lightgrey} Search+media key (Trigger media control)
 
 #-------------------------------------------------------------------------------
 # CPU/Processes
