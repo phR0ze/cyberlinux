@@ -20,24 +20,86 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
+require 'yaml'
 require 'minitest/autorun'
 
 reduce_path = File.join(File.dirname(File.expand_path(__FILE__)), '../reduce')
 load reduce_path
 
-class TestBaseProfile < Minitest::Test
+class TestProfiles < Minitest::Test
 
   def setup
     @reduce ||= Reduce.new
     @k = @reduce.instance_variable_get(:@k)
-    profile-EOF
-EOF
+
+    @vars = {
+      'arch' => 'x86_64',
+      'release' => '0.1.305',
+      'distro' => 'cyberlinux',
+      'language' => 'en_US',
+      'character_set' => 'UTF=8',
+      'timezone' => 'US/Mountain',
+      'country' => 'United_States',
+      'color_light' => '#39AEF4',
+      'color_dark' => '#215A94',
+      'gfxmode' => '1280x1024',
+      'grub_iso_theme' => '/boot/grub/themes/cyberlinux'
+    }
+    @mock = Minitest::Mock.new
+
+    # vars/base checked on child profile
+    @mock.expect(:[], false, [@k.vars])
+    @mock.expect(:[], true, [@k.base])
+    @mock.expect(:[], '_base', [@k.base])
+
+    # vars/base checked on base profile
+    @mock.expect(:[], true, [@k.vars])
+    @mock.expect(:[], @vars, [@k.vars])
+    @mock.expect(:[], false, [@k.base])
   end
 
   def test_vars
+    # ignore other calls tested elsewhere
+    @mock.expect(:[], false, [@k.apps])
+    @mock.expect(:[], false, [@k.apps])
+
+    YAML.stub(:load_file, @mock){
+      @reduce.load_profile('bogus')
+      assert(@reduce.instance_variable_get(:@vars).label == 'CYBERLINUX_01305')
+    }
   end
 
   def test_apps
+    base_data = {
+      'apps' => {
+        'server-apps' => ['conky', 'curl', 'phpBB'],
+        'conky' => [
+          { 'install' => 'conky', 'desc' => 'Lightweight system monitor for X' },
+          { 'menu' => 'Settings', 'entry' => 'Conky RC', 'icon' => 'gvim.png', 'exec' => 'gvim ~/.conkyrc' },
+          { 'edit' => '/etc/lxdm/PostLogout', 'insert' => 'append', 'values' => [ 'killall conky' ] },
+          { 'chroot' => 'systemctl enable cronie.service' }
+        ]
+      }
+    }.to_yaml
+
+    profile_data = {
+      'apps' => {
+        'server-apps' => ['conky', 'curl', 'phpBB'],
+        'conky' => [
+          { 'install' => 'conky', 'desc' => 'Lightweight system monitor for X' },
+          { 'menu' => 'Settings', 'entry' => 'Conky RC', 'icon' => 'gvim.png', 'exec' => 'gvim ~/.conkyrc' },
+          { 'edit' => '/etc/lxdm/PostLogout', 'insert' => 'append', 'values' => [ 'killall conky' ] },
+          { 'chroot' => 'systemctl enable cronie.service' }
+        ]
+      }
+    }.to_yaml
+
+    @mock.expect(:[], false, [@k.apps])
+    @mock.expect(:[], false, [@k.apps])
+
+    YAML.stub(:load_file, @mock){
+      @reduce.load_profile('bogus')
+    }
   end
 
 end

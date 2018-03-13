@@ -99,6 +99,8 @@ class Reduce
     @user = Process.uid.zero? ? Etc.getpwuid(ENV['SUDO_UID'].to_i).name : ENV['USER']
     @sudoinv = Process.uid.zero? ? "sudo -Hu #{@user} " : ''
     @runuser = "runuser #{@user} -c"
+
+    @profile = {}
     @vars = OpenStruct.new
 
     # Set proxy vars
@@ -159,47 +161,47 @@ class Reduce
   def load_profile(profile)
     profile_path = File.join(@rootpath, "profiles/#{profile}.yml")
 
-    begin
+    #begin
       profile = YAML.load_file(profile_path)
 
-      # Load base and merge profile with it
+      # Load vars and validate base vars
+      profile[@k.vars].each{|k,v| @vars[k.to_sym] = v} if profile[@k.vars]
       if profile[@k.base]
-        base = load_profile(profile[@k.base])
-        profile.each{|k,v| @profile[k] = v}
+        load_profile(profile[@k.base])
+      else
+        validate = ->(name, pred){
+          !puts("Error: '#{name}' is invalid in '#{profile}'".colorize(:red)) and exit unless pred
+        }
+        validate.call('arch', [@k.i686, @k.x86_64].include?(@vars.arch))
+        validate.call('release', @vars.release)
+        validate.call('distro', @vars.distro)
+        validate.call('language', @vars.language)
+        validate.call('character_set', @vars.character_set)
+        validate.call('timezone', @vars.timezone)
+        validate.call('country', @vars.country)
+        validate.call('color_light', @vars.color_light)
+        validate.call('color_dark', @vars.color_dark)
+        validate.call('gfxmode', @vars.gfxmode)
+        validate.call('grub_iso_theme', @vars.grub_iso_theme)
 
+        # Configure variables
+        @vars.label = "#{@vars.distro.upcase}_#{@vars.release.gsub('.', '')}"
       end
-      exit
 
-      # Validate profile vars
-      validate = ->(name, pred){
-        !puts("Error: '#{name}' is invalid in '#{profile}'".colorize(:red)) and exit unless pred
-      }
-      validate.call('arch', [@k.i686, @k.x86_64].include?(@vars.arch))
-      validate.call('release', @vars.release)
-      validate.call('distro', @vars.distro)
-      validate.call('language', @vars.language)
-      validate.call('character_set', @vars.character_set)
-      validate.call('timezone', @vars.timezone)
-      validate.call('country', @vars.country)
-      validate.call('color_light', @vars.color_light)
-      validate.call('color_dark', @vars.color_dark)
-      validate.call('gfxmode', @vars.gfxmode)
-      validate.call('grub_iso_theme', @vars.grub_iso_theme)
+      # Load and merge apps from profile
+      profile[@k.apps].each{|k,v| @profile[k] = v} if profile[@k.apps]
 
-      # Configure variables
-      @vars.label = "#{@vars.distro.upcase}_#{@vars.release.gsub('.', '')}"
-
-      # Set layer variables as needed
-      @profile[@k.layers].select{|x| x[@k.type] == @k.machine}
-        .each{|x| @vars["#{x[@k.name]}_layers"] = getlayers(x[@k.name]) * ','}
-      @profile[@k.layers].each{|x| @vars["#{x[@k.name]}_src"] = File.join(@layers_src, x[@k.name])}
-      @vars.groups = @profile[@k.layers].select{|x| x[@k.type] == @k.machine}
-        .map{|x| x[@k.groups] if x[@k.groups]}.compact.uniq * ','
-    rescue Exception => e
-      puts("Error: invalid yaml in '#{profile_path}'".colorize(:red))
-      puts(e.to_s.colorize(:red))
-      raise
-    end
+#      # Set layer variables as needed
+#      @profile[@k.layers].select{|x| x[@k.type] == @k.machine}
+#        .each{|x| @vars["#{x[@k.name]}_layers"] = getlayers(x[@k.name]) * ','}
+#      @profile[@k.layers].each{|x| @vars["#{x[@k.name]}_src"] = File.join(@layers_src, x[@k.name])}
+#      @vars.groups = @profile[@k.layers].select{|x| x[@k.type] == @k.machine}
+#        .map{|x| x[@k.groups] if x[@k.groups]}.compact.uniq * ','
+#    rescue Exception => e
+#      puts("Error: invalid yaml in '#{profile_path}'".colorize(:red))
+#      puts(e.to_s.colorize(:red))
+#      raise
+#    end
   end
 
   # Create directory structure for project
