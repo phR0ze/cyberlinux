@@ -56,6 +56,7 @@ class Reduce
     })
     @k = OpenStruct.new({
       all: 'all',
+      apps: 'apps',
       base: 'base',
       build: 'build',
       configs: 'configs',
@@ -98,11 +99,7 @@ class Reduce
     @user = Process.uid.zero? ? Etc.getpwuid(ENV['SUDO_UID'].to_i).name : ENV['USER']
     @sudoinv = Process.uid.zero? ? "sudo -Hu #{@user} " : ''
     @runuser = "runuser #{@user} -c"
-
-    # Load vars from base profile
-    profile = "_base"
-    @profile = load_profile(profile)
-    @vars = OpenStruct.new(@profile[@k.vars])
+    @vars = OpenStruct.new
 
     # Set proxy vars
     @proxyenv = {
@@ -155,17 +152,6 @@ class Reduce
       @layer_images_dst,
       File.expand_path('~').include?('root') ? "/home/#{@user}/Downloads/images" :
         File.join(File.expand_path('~'), 'Downloads', 'images')]
-
-    # Validate profile params
-    validate = ->(name, pred){
-      !puts("Error: '#{name}' is invalid in '#{profile}'".colorize(:red)) and exit unless pred
-    }
-    validate.call('distro', @vars.distro)
-    validate.call('release', @vars.release)
-    validate.call('arch', [@k.i686, @k.x86_64].include?(@vars.arch))
-
-    # Configure variables
-    @vars.label = "#{@vars.distro.upcase}_#{@vars.release.gsub('.', '')}"
   end
 
   # Load and return the given profile
@@ -175,10 +161,33 @@ class Reduce
 
     begin
       profile = YAML.load_file(profile_path)
-      return profile if !@profile
 
-      # Merge with existing profile
-      profile.each{|k,v| @profile[k] = v}
+      # Load base and merge profile with it
+      if profile[@k.base]
+        base = load_profile(profile[@k.base])
+        profile.each{|k,v| @profile[k] = v}
+
+      end
+      exit
+
+      # Validate profile vars
+      validate = ->(name, pred){
+        !puts("Error: '#{name}' is invalid in '#{profile}'".colorize(:red)) and exit unless pred
+      }
+      validate.call('arch', [@k.i686, @k.x86_64].include?(@vars.arch))
+      validate.call('release', @vars.release)
+      validate.call('distro', @vars.distro)
+      validate.call('language', @vars.language)
+      validate.call('character_set', @vars.character_set)
+      validate.call('timezone', @vars.timezone)
+      validate.call('country', @vars.country)
+      validate.call('color_light', @vars.color_light)
+      validate.call('color_dark', @vars.color_dark)
+      validate.call('gfxmode', @vars.gfxmode)
+      validate.call('grub_iso_theme', @vars.grub_iso_theme)
+
+      # Configure variables
+      @vars.label = "#{@vars.distro.upcase}_#{@vars.release.gsub('.', '')}"
 
       # Set layer variables as needed
       @profile[@k.layers].select{|x| x[@k.type] == @k.machine}
@@ -220,6 +229,8 @@ class Reduce
 
   # Print out distro information
   def info
+    load_profile('_base')
+
     # Scrape Arch Linux kernel package
     opts = { ssl_verify_mode: 0, proxy:@proxy }
     page = open("https://www.archlinux.org/packages/core/x86_64/linux", opts).read

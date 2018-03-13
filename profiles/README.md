@@ -21,10 +21,9 @@ created from this profile to personal use only.
     * [Customization](#customization)
         * [Profile Structure](#profile-structure)
         * [Variables](#variables)
-        * [Build Layer](#build-layer)
-        * [Layers](#layers)
+        * [Build](#build)
+        * [Deployments](#deployments)
         * [Apps](#apps)
-        * [Configs](#configs)
 * [Troubleshooting](#troubleshooting)
     * [BlackArch Signature issue](#blackarch-signature-issue)
 * [Contributions](#contributions)
@@ -48,7 +47,7 @@ There are multiple ways you can get a development environment up and running.
 * [Arch Bootstrap deployment](#arch-bootstrap-deployment)
 
 #### Arch Bootstrap deployment <a name="arch-bootstrap-deployment"/></a>
-** This is TBD**
+**This is TBD**
 
 ***sudo pacman -S grub mtools***
 
@@ -63,17 +62,17 @@ sudo ./reduce clean build --iso-full
 ```
 
 ### Pack cyberlinux <a name="pack-cyberlinux"/></a>
-***reduce*** provides the ability to pack any given layer into a vagrant box that can then be
+***reduce*** provides the ability to pack any given deploymet into a vagrant box that can then be
 uploaded for public use or deployed locally.
 
 ```bash
-# Pack all layers, boxes end up in .../cyberlinux/temp/images
+# Pack all deployments, boxes end up in .../cyberlinux/temp/images
 ./reduce pack
 ```
 
 To pack a specific deployment for use - e.g. k8snode -  use the following:
 
-1. Pack image: `./reduce pack --layers=k8snode`
+1. Pack image: `./reduce pack --deployments=k8snode`
 2. Login to https://app.vagrantup.com/session
 3. Click ***New Vagrant Box***
 4. Set ***Name*** to ***cyberlinux-k8snode*** and ***Short description*** then click ***Create box***
@@ -86,8 +85,8 @@ To pack a specific deployment for use - e.g. k8snode -  use the following:
 ### Customization <a name="customization"/></a>
 The heart of ***cyberlinux*** is it's ability to provide infinite variations of repeatable
 deployments that can be built together into a bootable/installable ISO.  This is driven through
-the use of ***profiles*** which are declarative yaml describionts all of the packages and configuration
-required when building ***cyberlinux***.
+the use of ***profiles*** which are declarative yaml descriptions of everything required when
+building a deployment.
 
 #### Profile Structure <a name="profile-structure"/></a>
 Example:
@@ -96,14 +95,14 @@ build:
   name: build
   type: container
   ...
-layers:
+deployments:
   - name: base
     type: machine
     multilib: true
     groups: [ls, wheel, network, storage, users]
     vars: { fontsize: 10 }
     vagrant: { vram: 32, cpus: 2, ram: 2048 }
-    deployment:
+    install:
       entry: "Deploy <%=distro%>-base                    // Minimal shell"
       kernel: linux-celes
     apps:
@@ -115,29 +114,24 @@ apps:
     - curl
     - phpBB
   conky:
-    packages:
-      - { pkg: conky,                         desc: Lightweight system monitor for X }
-    configs:
-      - { menu: Settings, entry: Conky RC, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.conkyrc }
-      - edit: /etc/lxdm/PostLogout
-        insert: append
-        values:
-          - 'killall conky'
+    - { install: conky,                         desc: Lightweight system monitor for X }
+    - { menu: Settings, entry: Conky RC, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.conkyrc }
+    - edit: /etc/lxdm/PostLogout
+      insert: append
+      values:
+        - 'killall conky'
   curl:
-    packages:
-      - { pkg: curl,                          desc: Network download REST command line tool }
+    - { install: curl,                          desc: Network download REST command line tool }
   phpBB:
-    packages:
-      - { pkg: apache,                        desc: Apache web server }
-      - { pkg: php-apache,                    desc: PHP apache module }
-      - { pkg: php-sqlite,                    desc: PHP sqlite module }
-      - { pkg: php-gd,                        desc: PHP gd module }
-    configs:
-      - { edit: /etc/httpd/conf/httpd.conf, regex: '^(Listen).*', value: '\1 80' }
-      - { edit: /etc/httpd/conf/httpd.conf, regex: '^(DocumentRoot).*', value: '\1 /srv/http' }
-      - { edit: /etc/httpd/conf/httpd.conf, regex: '^(.*DirectoryIndex index.html).*', value: '\1 index.php' }
-      - { edit: /etc/httpd/conf/httpd.conf, regex: '^(LoadModule mpm_event.*)', value: '#\1' }
-      - { chroot: systemctl enable httpd.service }
+    - { install: apache,                        desc: Apache web server }
+    - { install: php-apache,                    desc: PHP apache module }
+    - { install: php-sqlite,                    desc: PHP sqlite module }
+    - { install: php-gd,                        desc: PHP gd module }
+    - { edit: /etc/httpd/conf/httpd.conf, regex: '^(Listen).*', value: '\1 80' }
+    - { edit: /etc/httpd/conf/httpd.conf, regex: '^(DocumentRoot).*', value: '\1 /srv/http' }
+    - { edit: /etc/httpd/conf/httpd.conf, regex: '^(.*DirectoryIndex index.html).*', value: '\1 index.php' }
+    - { edit: /etc/httpd/conf/httpd.conf, regex: '^(LoadModule mpm_event.*)', value: '#\1' }
+    - { chroot: systemctl enable httpd.service }
 ```
 
 #### Variables <a name="variables"/></a>
@@ -145,7 +139,7 @@ apps:
 ***cyberlinux*** leverages Ruby's ERB templating in the profiles as well as any configuration files
 that are called out in the ***profile*** with the ***resolve*** change function. The ***vars***
 block provides templating variables to use. Variables are evaluated first by pulling in all
-variables from the ***vars*** block then overriding as needed for the profile ***layer***
+variables from the ***vars*** block then overriding as needed for the profile ***deployment***
 context that is being evaluated.
 
 The existing set of base vars below are required, but more can be added as desired:
@@ -166,12 +160,16 @@ vars:
   nfscidr: 192.168.56.0/24
 ```
 
-#### Build Layer <a name="build-layer"/></a>
+#### Build <a name="build"/></a>
 The ***build*** layer is a special purpose layer for building ***cyberlinux*** components in an
 isolated environment to avoid cluttering up the host build machine as well as staying independent
 from it's specifics. It is also required.
 
-#### Layers <a name="layers"/></a>
+#### Deployments <a name="deployments"/></a>
+Deployments can be layered on top of each other to build a variation of the
+underlying deployment.  Each deployment has a list of ***apps*** included in the deployment.
+***Apps*** are a group of packages to install and configuration changes that constitute the app.
+
 ***Layers*** are granular re-buildable parts of the whole that can be layered to form more complex
 parts. They promote reuse. A deployable stack of layers are considered to be a ***deployment***.
 Machine layers are installable sqfs images targeting 'baremetal' and 'VMs'. Container layers are
@@ -225,7 +223,7 @@ live - full maintenance, recovery, or no trace privacy environment
 ***Apps*** is a list of ***App*** which are individual components that describe both the packages
 that will be installed for the given app and the configuration to apply for the app.
 
-#### Changes <a name="changes"/></a>
+##### Changes <a name="changes"/></a>
 ***Changes*** are a way to invoke blocks of configuration. They come in two flavors: the actual
 change calling out configuration and a change reference which simply groups changes into a block of
 changes that can be applied by referencing the change block's name.
@@ -289,12 +287,3 @@ There are four fundamental changes types: ***apply, edit, exec*** and ***resolve
 - { exec: 'ln -sf //usr/share/zoneinfo/Zulu /etc/localtime' }
 - { resolve: /etc/os-release }
 ```
-
-#### Change Block <a name="change-block"/></a>
-Change Blocks are listed in the ***changes*** top level seection of ***profile***
-```YAML
-changes:
-```
-
-### Repos <a name="repos"/></a>
-Defines the repositories that are available for pulling packages from

@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.304
+  release: 0.1.305
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -47,29 +47,24 @@ apps:
     - curl
     - phpBB
   conky:
-    packages:
-      - { pkg: conky,                         desc: Lightweight system monitor for X }
-    configs:
-      - { menu: Settings, entry: Conky RC, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.conkyrc }
-      - edit: /etc/lxdm/PostLogout
-        insert: append
-        values:
-          - 'killall conky'
+    - { install: conky,                         desc: Lightweight system monitor for X }
+    - { menu: Settings, entry: Conky RC, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.conkyrc }
+    - edit: /etc/lxdm/PostLogout
+      insert: append
+      values:
+        - 'killall conky'
   curl:
-    packages:
-      - { pkg: curl,                          desc: Network download REST command line tool }
+    - { install: curl,                          desc: Network download REST command line tool }
   phpBB:
-    packages:
-      - { pkg: apache,                        desc: Apache web server }
-      - { pkg: php-apache,                    desc: PHP apache module }
-      - { pkg: php-sqlite,                    desc: PHP sqlite module }
-      - { pkg: php-gd,                        desc: PHP gd module }
-    configs:
-      - { edit: /etc/httpd/conf/httpd.conf, regex: '^(Listen).*', value: '\1 80' }
-      - { edit: /etc/httpd/conf/httpd.conf, regex: '^(DocumentRoot).*', value: '\1 /srv/http' }
-      - { edit: /etc/httpd/conf/httpd.conf, regex: '^(.*DirectoryIndex index.html).*', value: '\1 index.php' }
-      - { edit: /etc/httpd/conf/httpd.conf, regex: '^(LoadModule mpm_event.*)', value: '#\1' }
-      - { chroot: systemctl enable httpd.service }
+    - { install: apache,                        desc: Apache web server }
+    - { install: php-apache,                    desc: PHP apache module }
+    - { install: php-sqlite,                    desc: PHP sqlite module }
+    - { install: php-gd,                        desc: PHP gd module }
+    - { edit: /etc/httpd/conf/httpd.conf, regex: '^(Listen).*', value: '\1 80' }
+    - { edit: /etc/httpd/conf/httpd.conf, regex: '^(DocumentRoot).*', value: '\1 /srv/http' }
+    - { edit: /etc/httpd/conf/httpd.conf, regex: '^(.*DirectoryIndex index.html).*', value: '\1 index.php' }
+    - { edit: /etc/httpd/conf/httpd.conf, regex: '^(LoadModule mpm_event.*)', value: '#\1' }
+    - { chroot: systemctl enable httpd.service }
 
 configs:
 

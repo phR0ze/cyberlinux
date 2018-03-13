@@ -25,6 +25,23 @@ require 'minitest/autorun'
 reduce_path = File.join(File.dirname(File.expand_path(__FILE__)), '../reduce')
 load reduce_path
 
+class TestBaseProfile < Minitest::Test
+
+  def setup
+    @reduce ||= Reduce.new
+    @k = @reduce.instance_variable_get(:@k)
+    profile-EOF
+EOF
+  end
+
+  def test_vars
+  end
+
+  def test_apps
+  end
+
+end
+
 class TestGetLayers < Minitest::Test
 
   def setup
