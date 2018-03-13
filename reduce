@@ -66,6 +66,7 @@ class Reduce
       container: 'container',
       desc: 'desc',
       deployment: 'deployment',
+      deployments: 'deployments',
       docker: 'docker',
       entry: 'entry',
       force: 'force',
@@ -100,8 +101,10 @@ class Reduce
     @sudoinv = Process.uid.zero? ? "sudo -Hu #{@user} " : ''
     @runuser = "runuser #{@user} -c"
 
-    @profile = {}
+    # Load base profile
+    @profile = {@k.deployments => {}, @k.apps => {}}
     @vars = OpenStruct.new
+    load_profile('_base')
 
     # Set proxy vars
     @proxyenv = {
@@ -161,7 +164,7 @@ class Reduce
   def load_profile(profile)
     profile_path = File.join(@rootpath, "profiles/#{profile}.yml")
 
-    #begin
+    begin
       profile = YAML.load_file(profile_path)
 
       # Load vars and validate base vars
@@ -189,7 +192,10 @@ class Reduce
       end
 
       # Load and merge apps from profile
-      profile[@k.apps].each{|k,v| @profile[k] = v} if profile[@k.apps]
+      profile[@k.apps].each{|k,v| @profile[@k.apps][k] = v} if profile[@k.apps]
+
+      # Load and merge deployments from profile
+      profile[@k.deployments].each{|k,v| @profile[@k.deployments][k] = v} if profile[@k.deployments]
 
 #      # Set layer variables as needed
 #      @profile[@k.layers].select{|x| x[@k.type] == @k.machine}
@@ -197,11 +203,11 @@ class Reduce
 #      @profile[@k.layers].each{|x| @vars["#{x[@k.name]}_src"] = File.join(@layers_src, x[@k.name])}
 #      @vars.groups = @profile[@k.layers].select{|x| x[@k.type] == @k.machine}
 #        .map{|x| x[@k.groups] if x[@k.groups]}.compact.uniq * ','
-#    rescue Exception => e
-#      puts("Error: invalid yaml in '#{profile_path}'".colorize(:red))
-#      puts(e.to_s.colorize(:red))
-#      raise
-#    end
+    rescue Exception => e
+      puts("Error: invalid yaml in '#{profile_path}'".colorize(:red))
+      puts(e.to_s.colorize(:red))
+      raise
+    end
   end
 
   # Create directory structure for project

@@ -31,37 +31,55 @@ class TestProfiles < Minitest::Test
   def setup
     @reduce ||= Reduce.new
     @k = @reduce.instance_variable_get(:@k)
+    @profile = @reduce.instance_variable_get(:@profile)
 
-    @vars = {
-      'arch' => 'x86_64',
-      'release' => '0.1.305',
-      'distro' => 'cyberlinux',
-      'language' => 'en_US',
-      'character_set' => 'UTF=8',
-      'timezone' => 'US/Mountain',
-      'country' => 'United_States',
-      'color_light' => '#39AEF4',
-      'color_dark' => '#215A94',
-      'gfxmode' => '1280x1024',
-      'grub_iso_theme' => '/boot/grub/themes/cyberlinux'
+    @base_data = {
+      'vars' => {
+        'arch' => 'x86_64',
+        'release' => '0.1.305',
+        'distro' => 'cyberlinux',
+        'language' => 'en_US',
+        'character_set' => 'UTF=8',
+        'timezone' => 'US/Mountain',
+        'country' => 'United_States',
+        'color_light' => '#39AEF4',
+        'color_dark' => '#215A94',
+        'gfxmode' => '1280x1024',
+        'grub_iso_theme' => '/boot/grub/themes/cyberlinux'
+      },
+      'apps' => {
+        'server-apps' => ['conky'],
+        'conky' => [
+          { 'install' => 'conky', 'desc' => 'Lightweight system monitor for X' }
+        ]
+      },
+      'deployments' => {
+        'base' => {}
+      }
     }
     @mock = Minitest::Mock.new
 
-    # vars/base checked on child profile
+    # vars/base check on child profile
     @mock.expect(:[], false, [@k.vars])
     @mock.expect(:[], true, [@k.base])
     @mock.expect(:[], '_base', [@k.base])
 
-    # vars/base checked on base profile
+    # vars/base check on base profile
     @mock.expect(:[], true, [@k.vars])
-    @mock.expect(:[], @vars, [@k.vars])
+    @mock.expect(:[], @base_data[@k.vars], [@k.vars])
     @mock.expect(:[], false, [@k.base])
+  end
+
+  def teardown
+    assert_mock(@mock)
   end
 
   def test_vars
     # ignore other calls tested elsewhere
     @mock.expect(:[], false, [@k.apps])
+    @mock.expect(:[], false, [@k.deployments])
     @mock.expect(:[], false, [@k.apps])
+    @mock.expect(:[], false, [@k.deployments])
 
     YAML.stub(:load_file, @mock){
       @reduce.load_profile('bogus')
@@ -70,35 +88,61 @@ class TestProfiles < Minitest::Test
   end
 
   def test_apps
-    base_data = {
-      'apps' => {
-        'server-apps' => ['conky', 'curl', 'phpBB'],
-        'conky' => [
-          { 'install' => 'conky', 'desc' => 'Lightweight system monitor for X' },
-          { 'menu' => 'Settings', 'entry' => 'Conky RC', 'icon' => 'gvim.png', 'exec' => 'gvim ~/.conkyrc' },
-          { 'edit' => '/etc/lxdm/PostLogout', 'insert' => 'append', 'values' => [ 'killall conky' ] },
-          { 'chroot' => 'systemctl enable cronie.service' }
-        ]
-      }
-    }.to_yaml
-
     profile_data = {
       'apps' => {
-        'server-apps' => ['conky', 'curl', 'phpBB'],
+        'lite-apps' => ['conky'],
         'conky' => [
           { 'install' => 'conky', 'desc' => 'Lightweight system monitor for X' },
-          { 'menu' => 'Settings', 'entry' => 'Conky RC', 'icon' => 'gvim.png', 'exec' => 'gvim ~/.conkyrc' },
-          { 'edit' => '/etc/lxdm/PostLogout', 'insert' => 'append', 'values' => [ 'killall conky' ] },
-          { 'chroot' => 'systemctl enable cronie.service' }
+          { 'menu' => 'Settings', 'entry' => 'Conky RC', 'icon' => 'gvim.png', 'exec' => 'gvim ~/.conkyrc' }
         ]
       }
-    }.to_yaml
+    }
 
-    @mock.expect(:[], false, [@k.apps])
-    @mock.expect(:[], false, [@k.apps])
+    # Mock/test out the base profile
+    @mock.expect(:[], true, [@k.apps])
+    @mock.expect(:[], @base_data[@k.apps], [@k.apps])
+    @mock.expect(:[], false, [@k.deployments])
+
+    # Mock/test out the child profile
+    @mock.expect(:[], true, [@k.apps])
+    @mock.expect(:[], profile_data[@k.apps]){|x|
+      assert(@profile[@k.apps]['conky'].size == 1)
+      assert(@profile[@k.apps]['conky'].any?{|y| y['install']})
+      assert(!@profile[@k.apps]['conky'].any?{|y| y['menu']})
+    }
+    @mock.expect(:[], false, [@k.deployments])
 
     YAML.stub(:load_file, @mock){
       @reduce.load_profile('bogus')
+      assert(@profile[@k.apps]['conky'].size == 2)
+    }
+  end
+
+  def test_deployments
+    profile_data = {
+      'deployments' => {
+        'base' => {},
+        'lite' => {}
+      }
+    }
+
+    # Mock/test out the base profile
+    @mock.expect(:[], false, [@k.apps])
+    @mock.expect(:[], true, [@k.deployments])
+    @mock.expect(:[], @base_data[@k.deployments], [@k.deployments])
+
+    # Mock/test out the child profile
+    @mock.expect(:[], false, [@k.apps])
+    @mock.expect(:[], true, [@k.deployments])
+    @mock.expect(:[], profile_data[@k.deployments]){|x|
+      assert(@profile[@k.deployments].size == 1)
+      assert(@profile[@k.deployments]['base'])
+      assert(!@profile[@k.deployments]['lite'])
+    }
+
+    YAML.stub(:load_file, @mock){
+      @reduce.load_profile('bogus')
+      assert(@profile[@k.deployments].size == 2)
     }
   end
 

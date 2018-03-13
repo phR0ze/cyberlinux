@@ -1,5 +1,5 @@
 #MIT License
-#Copyright (c) 2017 phR0ze
+#Copyright (c) 2017-2018 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -19,13 +19,13 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-source 'https://rubygems.org' do
-  gem 'colorize', '>= 0.8.1'
-  gem 'filesize', '>= 0.1.1'
-  gem 'minitest', '>= 5.10.2'
-  gem 'net-scp', '>= 1.2.1'
-  gem 'net-ssh', '>= 4.1.0'
-  gem 'rake'
-end
+source 'https://rubygems.org'
+
+gem 'colorize', '>= 0.8.1'
+gem 'filesize', '>= 0.1.1'
+gem 'minitest', '>= 5.11.3'
+gem 'net-scp', '>= 1.2.1'
+gem 'net-ssh', '>= 4.2.0'
+gem 'rake'
 
 # vim: ft=ruby:ts=2:sw=2:sts=2
