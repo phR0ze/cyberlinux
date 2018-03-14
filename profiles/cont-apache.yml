@@ -19,8 +19,8 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-layers:
-  - name: core
+deployments:
+  core:
     type: container
     docker:
       params: '-e TERM=xterm -v /var/run/docker.sock:/var/run/docker.sock'

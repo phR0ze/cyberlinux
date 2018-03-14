@@ -20,7 +20,6 @@
 #SOFTWARE.
 
 build:
-  name: build
   type: container
   multilib: true
   docker:
@@ -48,17 +47,14 @@ build:
     - { apply: core-config }
     - { apply: mkinitcpio-config }
 
-layers:
-
-  # Base
-  # ----------------------------------------------------------------------------
-  - name: base
+deployments:
+  base:
     type: machine
     multilib: true
     groups: [lp, wheel, network, storage, users]
     vars: { fontsize: 10 }
     vagrant: { vram: 32, cpus: 2, ram: 2048 }
-    deployment:
+    boot:
       entry: "Deploy <%=distro%>-base                    // Shell env"
       kernel: linux
     packages:
@@ -74,15 +70,13 @@ layers:
       - { apply: base-config }
       - { apply: shell-config }
 
-  # Lite
-  # ----------------------------------------------------------------------------
-  - name: lite
+  lite:
     type: machine
     base: base
     groups: [ video, audio]
     vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
-    deployment:
+    boot:
       entry: "Deploy <%=distro%>-lite                    // Base + min X11"
       kernel: linux
     packages:
@@ -95,14 +89,12 @@ layers:
     configs:
       - { apply: lite-config }
 
-  # Server
-  # ----------------------------------------------------------------------------
-  - name: server
+  server:
     type: machine
     base: lite
     vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
-    deployment:
+    boot:
       entry: "Deploy <%=distro%>-server                  // Lite + services"
       kernel: linux
     packages:
@@ -120,14 +112,12 @@ layers:
       - { apply: makemkv-config }
       - { apply: teamviewer-host-config }
 
-  # Theater
-  # ----------------------------------------------------------------------------
-  - name: theater
+  theater:
     type: machine
     base: lite
     vars: { fontsize: 18, wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
-    deployment:
+    boot:
       entry: "Deploy <%=distro%>-theater                 // Lite + media apps"
       kernel: linux
       params: autologin=1
@@ -146,15 +136,13 @@ layers:
       - { apply: makemkv-config }
       - { apply: teamviewer-host-config }
 
-  # Desktop
-  # ----------------------------------------------------------------------------
-  - name: desktop
+  desktop:
     type: machine
     base: lite
     groups: [docker]
     vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
-    deployment:
+    boot:
       entry: "Deploy <%=distro%>-desktop                 // Lite + more apps"
       kernel: linux
     packages:
@@ -176,13 +164,11 @@ layers:
       - { apply: makemkv-config }
       - { apply: teamviewer-host-config }
 
-  # Recovery
-  # ----------------------------------------------------------------------------
-  - name: live
+  live:
     type: machine
     base: desktop
     vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
-    deployment:
+    boot:
       entry: "Start <%=distro%>-recovery                 // Live environment"
       kernel: linux

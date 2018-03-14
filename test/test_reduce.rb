@@ -31,6 +31,7 @@ class Test_load_profiles < Minitest::Test
   def setup
     @reduce ||= Reduce.new
     @k = @reduce.instance_variable_get(:@k)
+    @vars = @reduce.instance_variable_get(:@vars)
     @profile = @reduce.instance_variable_get(:@profile)
 
     @base_data = {
@@ -56,7 +57,7 @@ class Test_load_profiles < Minitest::Test
       'deployments' => {
         'base' => {
           'type' => 'machine',
-          'groups' => ['group1', 'group2']
+          'groups' => ['group1']
         }
       }
     }
@@ -86,7 +87,7 @@ class Test_load_profiles < Minitest::Test
 
     YAML.stub(:load_file, @mock){
       @reduce.load_profile('bogus')
-      assert(@reduce.instance_variable_get(:@vars).label == 'CYBERLINUX_01305')
+      assert_equal('CYBERLINUX_01305', @vars.label)
     }
   end
 
@@ -109,7 +110,7 @@ class Test_load_profiles < Minitest::Test
     # Mock/test out the child profile
     @mock.expect(:[], true, [@k.apps])
     @mock.expect(:[], profile_data[@k.apps]){|x|
-      assert(@profile[@k.apps]['conky'].size == 1)
+      assert_equal(1, @profile[@k.apps]['conky'].size)
       assert(@profile[@k.apps]['conky'].any?{|y| y['install']})
       assert(!@profile[@k.apps]['conky'].any?{|y| y['menu']})
     }
@@ -117,7 +118,7 @@ class Test_load_profiles < Minitest::Test
 
     YAML.stub(:load_file, @mock){
       @reduce.load_profile('bogus')
-      assert(@profile[@k.apps]['conky'].size == 2)
+      assert(1, @profile[@k.apps]['conky'].size)
     }
   end
 
@@ -144,14 +145,14 @@ class Test_load_profiles < Minitest::Test
     @mock.expect(:[], false, [@k.apps])
     @mock.expect(:[], true, [@k.deployments])
     @mock.expect(:[], profile_data[@k.deployments]){|x|
-      assert(@profile[@k.deployments].size == 1)
+      assert_equal(1, @profile[@k.deployments].size)
       assert(@profile[@k.deployments]['base'])
       assert(!@profile[@k.deployments]['lite'])
     }
 
     YAML.stub(:load_file, @mock){
       @reduce.load_profile('bogus')
-      assert(@profile[@k.deployments].size == 2)
+      assert_equal(2, @profile[@k.deployments].size)
     }
   end
 
@@ -165,6 +166,11 @@ class Test_load_profiles < Minitest::Test
         'lite' => {
           'type' => 'container',
           'groups' => ['group2']
+        },
+        'heavy' => {
+          'type' => 'machine',
+          'base' => 'base',
+          'groups' => ['group3', 'group4']
         }
       }
     }
@@ -179,7 +185,12 @@ class Test_load_profiles < Minitest::Test
 
     YAML.stub(:load_file, @mock){
       @reduce.load_profile('bogus')
-      assert(@reduce.instance_variable_get(:@vars).label == 'CYBERLINUX_01305')
+      assert_equal('base', @vars.base_deployment)
+      assert_nil(@vars.lite_deployment)
+      assert_equal('heavy,base', @vars.heavy_deployment)
+      assert_equal('group1', @vars.base_groups)
+      assert_equal('group2', @vars.lite_groups)
+      assert_equal('group3,group4,group1', @vars.heavy_groups)
     }
   end
 

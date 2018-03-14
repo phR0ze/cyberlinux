@@ -21,7 +21,6 @@
 #base: _base
 
 build:
-  name: build
   type: container
   multilib: true
   docker:
@@ -49,17 +48,14 @@ build:
     - { apply: core-config }
     - { apply: mkinitcpio-config }
 
-layers:
-
-  # Base
-  # ----------------------------------------------------------------------------
-  - name: base
+deployments:
+  base:
     type: machine
     multilib: true
     groups: [lp, wheel, network, storage, users]
     vars: { fontsize: 10 }
     vagrant: { vram: 32, cpus: 2, ram: 2048 }
-    deployment:
+    boot:
       entry: "Deploy <%=distro%>-base                    // Minimal shell"
       kernel: linux
     packages:
@@ -71,13 +67,11 @@ layers:
     configs:
       - { apply: base-config }
 
-  # Shell
-  # ----------------------------------------------------------------------------
-  - name: shell
+  shell:
     type: machine
     base: base
     vagrant: { vram: 32, cpus: 2, ram: 2048 }
-    deployment:
+    boot:
       entry: "Deploy <%=distro%>-shell                   // Base + shell devel"
       kernel: linux
     packages:
@@ -87,15 +81,13 @@ layers:
     configs:
       - { apply: shell-config }
 
-  # Lite
-  # ----------------------------------------------------------------------------
-  - name: lite
+  lite:
     type: machine
     base: shell
     groups: [ video, audio]
     vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
-    deployment:
+    boot:
       entry: "Deploy <%=distro%>-lite                    // Shell + min X11"
       kernel: linux
     packages:
@@ -104,14 +96,12 @@ layers:
     configs:
       - { apply: lite-config }
 
-  # K8snode
-  # ----------------------------------------------------------------------------
-  - name: k8snode
+  k8snode:
     type: machine
     base: shell
     groups: [docker]
     vagrant: { vram: 8, cpus: 2, ram: 2048 }
-    deployment:
+    boot:
       entry: "Deploy <%=distro%>-k8snode                 // Shell + k8s node"
       kernel: linux
     packages:
@@ -119,14 +109,12 @@ layers:
     configs:
       - { apply: k8snode-config }
 
-  # Theater
-  # ----------------------------------------------------------------------------
-  - name: theater
+  theater:
     type: machine
     base: lite
     vars: { fontsize: 18, wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
-    deployment:
+    boot:
       entry: "Deploy <%=distro%>-theater                 // Lite + media apps"
       kernel: linux
       params: autologin=1
@@ -135,15 +123,13 @@ layers:
     configs:
       - { apply: theater-config }
 
-  # Desktop
-  # ----------------------------------------------------------------------------
-  - name: desktop
+  desktop:
     type: machine
     base: lite
     groups: [docker]
     vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
-    deployment:
+    boot:
       entry: "Deploy <%=distro%>-desktop                 // Lite + more apps"
       kernel: linux
     packages:
@@ -151,13 +137,11 @@ layers:
     configs:
       - { apply: desktop-config }
 
-  # Recovery
-  # ----------------------------------------------------------------------------
-  - name: live
+  live:
     type: machine
     base: desktop
     vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
-    deployment:
+    boot:
       entry: "Start <%=distro%>-recovery                 // Live environment"
       kernel: linux
