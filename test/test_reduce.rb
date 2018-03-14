@@ -259,4 +259,41 @@ class Test_get_deployments < Minitest::Test
   end
 end
 
+class Test_getpkgs < Minitest::Test
+
+  def setup
+    @reduce ||= Reduce.new
+    @k = @reduce.instance_variable_get(:@k)
+    @profile = @reduce.instance_variable_get(:@profile)
+
+    @data = {
+      'apps' => {
+        'server-apps' => ['conky'],
+        'conky' => [
+          { 'install' => 'conky', 'desc' => 'Lightweight system monitor for X' }
+        ]
+      },
+      'deployments' => {
+        'dep1' => { 'type' => 'machine' },
+        'dep2' => { 'type' => 'machine', 'base' => 'dep1' }
+      }
+    }
+
+    @mock = Minitest::Mock.new
+    @mock.expect(:[], false, [@k.vars])
+    @mock.expect(:[], false, [@k.base])
+    @mock.expect(:[], true, [@k.apps])
+    @mock.expect(:[], @data[@k.apps], [@k.apps])
+    @mock.expect(:[], true, [@k.deployments])
+    @mock.expect(:[], @data[@k.deployments], [@k.deployments])
+    YAML.stub(:load_file, @mock){ @reduce.load_profile('bogus') }
+  end
+
+  def test_getpkgs_get_all
+    @reduce.stub(:puts, nil){
+      pkgs = @reduce.getpkgs
+    }
+  end
+end
+
 # vim: ft=ruby:ts=2:sw=2:sts=2

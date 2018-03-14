@@ -58,6 +58,7 @@ class Reduce
       all: 'all',
       apps: 'apps',
       base: 'base',
+      boot: 'boot',
       build: 'build',
       configs: 'configs',
       command: 'command',
@@ -83,7 +84,6 @@ class Reduce
       packages: 'packages',
       params: 'params',
       pgp_key: 'pgp_key',
-      pkg: 'pkg',
       ram: 'ram',
       source: 'source',
       type: 'type',
@@ -415,10 +415,6 @@ class Reduce
     end
 
     # Build implicated deployments
-    print(deployments)
-    puts
-    exit
-    deployments = [deployments] if deployments.is_s
     deployments = @profile[@k.deployments].keys if isofull
     deployments.each{|deployment| changed |= build_deployments(deployment)} if deployments
 
@@ -531,18 +527,19 @@ class Reduce
       # Inject deploy entries from deployments
       motd = File.readlines(@motd_path)
       File.open(File.join(grub_iso_path, 'boot.cfg'), 'w'){|f|
-        @profile[@k.deployments].select{|x| x[@k.type] == @k.machine}.reverse.each{|x|
-          kernel = "#{@kernel_prefix}-#{x[@k.deployment][@k.kernel]}"
-          params = x[@k.deployment][@k.params] || ""
+        @profile[@k.deployments].select{|k,v| v[@k.type] == @k.machine}.reverse.each{|x|
+          v = x.values.first
+          kernel = "#{@kernel_prefix}-#{v[@k.boot][@k.kernel]}"
+          params = v[@k.boot][@k.params] || ""
           params = "#{params} " if !params.empty?
-          params += "kernel=#{x[@k.deployment][@k.kernel]}"
-          deployments = @vars["#{x[@k.name]}_deployments"]
+          params += "kernel=#{v[@k.boot][@k.kernel]}"
+          deployments = @vars["#{x.keys.first}_deployments"]
 
-          f << "    menuentry --class=deployment '#{x[@k.deployment][@k.entry]}' {\n"
+          f << "    menuentry --class=deployment '#{v[@k.boot][@k.entry]}' {\n"
           f << "        echo\necho\n"
           motd.each{|line| f << "        echo $\"          #{line.gsub("\n", "")}\"\n" }
           f << "        linux /boot/#{kernel} efi=$efi deployments=#{deployments} #{@vars.kernel_params} #{params if params}\n"
-          f << "        initrd /boot/intel-ucode.img /boot/#{@initramfs_prefix}-#{x[@k.deployment][@k.kernel]}.img\n"
+          f << "        initrd /boot/intel-ucode.img /boot/#{@initramfs_prefix}-#{v[@k.boot][@k.kernel]}.img\n"
           f << "    }\n"
         }
       }
@@ -796,9 +793,9 @@ class Reduce
   # @returns true if changed
   def build_deployments(target_deployment)
     changed = false
-    deployments = @profile[@k.deployments].map{|x| x[@k.name]}
     !puts("Error: deployment '#{target_deployment}' doesn't exist".colorize(:red)) and
-      exit unless (deployments + [nil, @k.build]).include?(target_deployment)
+      exit unless target_deployment == @k.build || @profile[@k.deployments][target_deployment]
+    # Build in reverse order to layer deployments
     deployments = get_deployments(target_deployment).reverse
     create_dir_structure
 
@@ -882,7 +879,7 @@ class Reduce
 
     # Handle packages differently based on type
     #---------------------------------------------------------------------------
-    all_pkgs = getpkgs(deployment_yml)
+    all_pkgs = getpkgs(deployment, deployment_yml)
     pkgs = {
       reg: all_pkgs.map{|x| x[@k.pkg] if !x[@k.ignore] and !x[@k.force]}.compact,
       force: all_pkgs.map{|x| x[@k.pkg] if x[@k.force]}.compact,
@@ -980,15 +977,17 @@ class Reduce
   end
 
   # Get packages for the given deployment
+  # @param deployment [string] deployment name
   # @param deployment_yml [yml] deployment yaml to work with or all if nil
   # @returns list of packages for the given deployment or all packages
-  def getpkgs(deployment_yml)
+  def getpkgs(deployment:nil, deployment_yml:nil)
     result = {}
-    deployments = deployment_yml ? [deployment_yml] : @profile[@k.deployments]
+    deployments = deployment_yml ? [[deployment, deployment_yml]] : @profile[@k.deployments].to_a
+    print(deployments)
 
     # Detect multilib value
-    multilib = deployments.any?{|x| x[@k.multilib]}
-    puts("Multilib: #{multilib} for #{deployments.map{|x| "'#{x[@k.name]}'"} * ','}".colorize(:cyan))
+    multilib = deployments.any?{|x| x.last[@k.multilib]}
+    puts("Multilib: #{multilib} for #{deployments.map{|x| "'#{x.first}'"} * ','}".colorize(:cyan))
 
     # Get all packages for given deployments
     deployments.each{|deployment|

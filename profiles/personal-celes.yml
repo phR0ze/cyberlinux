@@ -175,7 +175,7 @@ deployments:
 
   live:
     type: machine
-    base: lite
+    base: desktop
     vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     boot:
