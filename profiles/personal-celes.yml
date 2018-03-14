@@ -48,17 +48,14 @@ build:
     - { apply: core-config }
     - { apply: mkinitcpio-config }
 
-layers:
-
-  # Base
-  # ----------------------------------------------------------------------------
-  - name: base
+deployments:
+  base:
     type: machine
     multilib: true
     groups: [lp, wheel, network, storage, users]
     vars: { fontsize: 10 }
     vagrant: { vram: 32, cpus: 2, ram: 2048 }
-    deployment:
+    boot:
       entry: "Deploy <%=distro%>-base                    // Minimal shell"
       kernel: linux-celes
     packages:
@@ -122,17 +119,14 @@ layers:
       - { exec: 'rm -f /etc/modprobe.d/iwlwifi.conf'}
       - { edit: /etc/modprobe.d/iwlwifi.conf, insert: append, values: ['options iwlwifi 11n_disable=8 bt_coex_active=0 swcrypto=1']}
 
-  # Desktop
-  # https://wiki.archlinux.org/index.php/laptop
-  # ----------------------------------------------------------------------------
-  - name: desktop
+  desktop:
     type: machine
     base: base
     source: [lite, lite-celes, desktop, desktop-celes]
     groups: [video, audio]
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
-    deployment:
+    boot:
       entry: "Deploy <%=distro%>-desktop                 // Full X11 env."
       kernel: linux-celes
     packages:
@@ -180,13 +174,11 @@ layers:
       - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'XF86MonBrightnessDown', value: 'W-F6' }
       - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'xbacklight -10', value: 'sudo backlight -100' }
 
-  # Live
-  # ----------------------------------------------------------------------------
-  - name: live
+  live:
     type: machine
     base: lite
     vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
-    deployment:
+    boot:
       entry: "Start <%=distro%>-recovery                 // Live environment"
       kernel: linux-celes

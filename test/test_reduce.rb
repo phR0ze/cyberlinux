@@ -26,7 +26,7 @@ require 'minitest/autorun'
 reduce_path = File.join(File.dirname(File.expand_path(__FILE__)), '../reduce')
 load reduce_path
 
-class TestProfiles < Minitest::Test
+class Test_load_profiles < Minitest::Test
 
   def setup
     @reduce ||= Reduce.new
@@ -54,7 +54,10 @@ class TestProfiles < Minitest::Test
         ]
       },
       'deployments' => {
-        'base' => {}
+        'base' => {
+          'type' => 'machine',
+          'groups' => ['group1', 'group2']
+        }
       }
     }
     @mock = Minitest::Mock.new
@@ -121,8 +124,14 @@ class TestProfiles < Minitest::Test
   def test_deployments
     profile_data = {
       'deployments' => {
-        'base' => {},
-        'lite' => {}
+        'base' => {
+          'type' => 'machine',
+          'groups' => ['group1']
+        },
+        'lite' => {
+          'type' => 'container',
+          'groups' => ['group2']
+        }
       }
     }
 
@@ -146,65 +155,96 @@ class TestProfiles < Minitest::Test
     }
   end
 
+  def test_deployment_vars
+   profile_data = {
+      'deployments' => {
+        'base' => {
+          'type' => 'machine',
+          'groups' => ['group1']
+        },
+        'lite' => {
+          'type' => 'container',
+          'groups' => ['group2']
+        }
+      }
+    }
+
+    # ignore other calls tested elsewhere
+    @mock.expect(:[], false, [@k.apps])
+    @mock.expect(:[], true, [@k.deployments])
+    @mock.expect(:[], @base_data[@k.deployments], [@k.deployments])
+    @mock.expect(:[], false, [@k.apps])
+    @mock.expect(:[], true, [@k.deployments])
+    @mock.expect(:[], profile_data[@k.deployments], [@k.deployments])
+
+    YAML.stub(:load_file, @mock){
+      @reduce.load_profile('bogus')
+      assert(@reduce.instance_variable_get(:@vars).label == 'CYBERLINUX_01305')
+    }
+  end
+
 end
 
-class TestGetLayers < Minitest::Test
+class Test_get_deployments < Minitest::Test
 
   def setup
     @reduce ||= Reduce.new
     @k = @reduce.instance_variable_get(:@k)
-    @reduce.load_profile('standard')
+    @profile = @reduce.instance_variable_get(:@profile)
+
+    @base_data = {
+      'deployments' => {
+        'dep1' => { 'type' => 'machine' },
+        'dep2' => { 'type' => 'machine', 'base' => 'dep1' }
+      }
+    }
+
+    @mock = Minitest::Mock.new
+    @mock.expect(:[], false, [@k.vars])
+    @mock.expect(:[], false, [@k.base])
+    @mock.expect(:[], false, [@k.apps])
+    @mock.expect(:[], true, [@k.deployments])
+    @mock.expect(:[], @base_data[@k.deployments], [@k.deployments])
+    YAML.stub(:load_file, @mock){ @reduce.load_profile('bogus') }
   end
 
-  def test_getlayers_with_bad_layer_name
+  def test_deployment_existence
     @reduce.stub(:exit, nil){
       @reduce.stub(:puts, nil){
-        assert_raises(NoMethodError){@reduce.getlayers('foo')}
+        assert(NoMethodError){@reduce.get_deployments('dep1')}
+        assert_raises(NoMethodError){@reduce.get_deployments('dep3')}
       }
     }
   end
 
-  def test_getlayers_with_good_layer_name_expecting_single_result
-    yml = @reduce.getlayers(@k.base)
-    assert(yml)
-    assert_equal(yml.size, 1)
-    assert_equal(yml.first, @k.base)
+  def test_deployment_expecting_single_result
+    names = @reduce.get_deployments('dep1')
+    assert(names)
+    assert_equal(1, names.size)
+    assert_equal('dep1', names.first)
   end
 
-  def test_getlayers_with_good_layer_name_expecting_multi_result
-    yml = @reduce.getlayers('lite')
-    assert(yml)
-    assert_equal(yml.size, 3)
-    assert_equal(yml, ['lite', 'shell', 'base'])
-  end
-end
-
-class TestGetLayer < Minitest::Test
-
-  def setup
-    @reduce ||= Reduce.new
-    @k = @reduce.instance_variable_get(:@k)
-    @reduce.load_profile('personal')
+  def test_deployment_expecting_multi_result
+    names = @reduce.get_deployments('dep2')
+    assert(names)
+    assert_equal(2, names.size)
+    # order is important here
+    assert_equal(['dep2', 'dep1'], names)
   end
 
-  def test_getlayer_with_bad_layer_name
+  def test_deployment_yml_bad_name
     @reduce.stub(:exit, nil){
       @reduce.stub(:puts, nil){
-        assert_raises(NoMethodError){@reduce.getlayer('foo')}
+        assert(NoMethodError){@reduce.get_deployments('dep1')}
+        assert_raises(NoMethodError){@reduce.get_deployments('dep3')}
       }
     }
   end
 
-  def test_getlayer_build
-    yml = @reduce.getlayer(@k.build)
+  def test_deployment_yml_good
+    yml = @reduce.get_deployment_yml('dep2')
     assert(yml)
-    assert_equal(yml[@k.name], @k.build)
-  end
-
-  def test_getlayer_with_good_layer_name
-    yml = @reduce.getlayer(@k.base)
-    assert(yml)
-    assert_equal(yml[@k.name], @k.base)
+    assert_equal('dep1', yml[@k.base])
   end
 end
 
