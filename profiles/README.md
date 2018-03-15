@@ -92,11 +92,20 @@ building a deployment.
 Example:
 ```YAML
 build:
-  name: build
   type: container
+  multilib: true
+  docker:
+    params: '-e TERM=xterm -v /var/run/docker.sock:/var/run/docker.sock --privileged=true'
+    command: 'bash -c "while :; do sleep 5; done"'
+  apps:
+    - { install: linux-celes,                     desc: Linux kernel and supporting modules, type: CYBERLINUX }
+    - core
+    - core-tools
+    - grub
+  configs:
   ...
 deployments:
-  - name: base
+  base:
     type: machine
     multilib: true
     groups: [ls, wheel, network, storage, users]
@@ -107,37 +116,34 @@ deployments:
       kernel: linux-celes
     apps:
       - server-apps
-
+  ...
 apps:
-  server-apps:
+  base-apps:
     - conky
-    - curl
+    - { install: curl, desc: Network download REST command line tool }
+  server-apps:
+    - base-apps
     - phpBB
-  conky:
-    - { install: conky,                         desc: Lightweight system monitor for X }
-    - { menu: Settings, entry: Conky RC, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.conkyrc }
-    - edit: /etc/lxdm/PostLogout
-      insert: append
-      values:
-        - 'killall conky'
-  curl:
-    - { install: curl,                          desc: Network download REST command line tool }
-  phpBB:
-    - { install: apache,                        desc: Apache web server }
-    - { install: php-apache,                    desc: PHP apache module }
-    - { install: php-sqlite,                    desc: PHP sqlite module }
-    - { install: php-gd,                        desc: PHP gd module }
     - { edit: /etc/httpd/conf/httpd.conf, regex: '^(Listen).*', value: '\1 80' }
+    - { chroot: systemctl enable httpd.service }
+  conky:
+    - { install: conky, desc: Lightweight system monitor for X }
+    - { menu: Settings, entry: Conky RC, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.conkyrc }
+    - { edit: /etc/lxdm/PostLogout, insert: append, values: [ 'killall conky' ]}
+  phpBB:
+    - { install: apache, desc: Apache web server }
+    - { install: php-apache, desc: PHP apache module }
+    - { install: php-sqlite, desc: PHP sqlite module }
+    - { install: php-gd, desc: PHP gd module }
     - { edit: /etc/httpd/conf/httpd.conf, regex: '^(DocumentRoot).*', value: '\1 /srv/http' }
     - { edit: /etc/httpd/conf/httpd.conf, regex: '^(.*DirectoryIndex index.html).*', value: '\1 index.php' }
     - { edit: /etc/httpd/conf/httpd.conf, regex: '^(LoadModule mpm_event.*)', value: '#\1' }
-    - { chroot: systemctl enable httpd.service }
 ```
 
 #### Variables <a name="variables"/></a>
 ***vars*** are used for specifying distribution specific values and templating variables.
 ***cyberlinux*** leverages Ruby's ERB templating in the profiles as well as any configuration files
-that are called out in the ***profile*** with the ***resolve*** change function. The ***vars***
+that are called out in the ***profile*** with the ***resolve*** function. The ***vars***
 block provides templating variables to use. Variables are evaluated first by pulling in all
 variables from the ***vars*** block then overriding as needed for the profile ***deployment***
 context that is being evaluated.
@@ -179,49 +185,12 @@ menus.
 
 Layers have a ***type*** which is one of two values either ***machine*** or ***container***
 
-##### Default Layers <a name="default-layers"/></a>
-**Base Layer**  
-The ***base*** layer is a minimal shell environment that is typically inherited by all other machine
-layers. Container based layers will not want to inherit from this as ***base*** contains the kernel
-and other full system type components not required by containers.
-
-**Shell Layer**  
-The ***shell*** layer is a full shell environment inheriting from base, meaning that it has all
-tooling needed for development and building applications from the terminal. There are no X11/GUI
-componentsa and a bare minimum set of services running.
-
-**Lite Layer**  
-The ***lite*** layer builds on top of the shell layer adding in a minimal X11 environment.
-
-**Music Layer**  
-The ***music*** layer builds on top of the lite layer adding in Music focused applications.
-
-**Heavy Layer**  
-The ***heavy*** layer builds on top of the lite layer fleshing out the applications offerings and
-adds a few more running services. This is really the base for all desktop type deployments. Heavy is
-the layer required to fully rebuild ***cyberlinux*** from source.
-
-**Desktop Layer**  
-The ***desktop*** layer builds on the build layer adding in all normal applications for a full
-desktop environmen (e.g. libreoffice and gimp).
-
-**K8sNode Layer**  
-The ***k8snode*** layer builds on the shell layer adding in the applications required to easily
-use this deployment as a node in a Kubernetes cluster. This includes ***kubectl***, ***helm*** and
-K8s networking components.
-
-**Theater Layer**  
-theater - full theater environment with couch video playback as the focus
-
-**Server Layer**  
-server - server focused environment for file sharing and web apps
-
-**Live Layer**  
-live - full maintenance, recovery, or no trace privacy environment
-
 #### Apps <a name="apps"/></a>
 ***Apps*** is a list of ***App*** which are individual components that describe both the packages
 that will be installed for the given app and the configuration to apply for the app.
+
+***app*** blocks are one of the fundamental elements of reuse in the profile. They can be used to
+capture packages to install and configuration to perform. They can also reference other app blocks.
 
 ##### Changes <a name="changes"/></a>
 ***Changes*** are a way to invoke blocks of configuration. They come in two flavors: the actual

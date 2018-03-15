@@ -267,15 +267,35 @@ class Test_getpkgs < Minitest::Test
     @profile = @reduce.instance_variable_get(:@profile)
 
     @data = {
-      'apps' => {
-        'server-apps' => ['conky'],
-        'conky' => [
-          { 'install' => 'conky', 'desc' => 'Lightweight system monitor for X' }
-        ]
-      },
       'deployments' => {
-        'dep1' => { 'type' => 'machine' },
-        'dep2' => { 'type' => 'machine', 'base' => 'dep1' }
+        'dep1' => {
+          'apps' => [
+            'base-apps',
+          ]
+        },
+        'dep2' => {
+          'apps' => [
+            'server-apps',
+          ]
+        }
+      },
+      'apps' => {
+        'base-apps' => [
+          'conky',
+          { 'install' => 'curl', 'desc' => 'Network download REST command line tool' }
+        ],
+        'server-apps' => [
+          'base-apps',
+          'phpBB',
+          { 'chroot' => 'systemctl enable httpd.service' }
+        ],
+        'conky' => [
+          { 'install' => 'conky', 'desc' => 'Lightweight system monitor for X' },
+          { 'chroot' => 'systemctl enable httpd.service' }
+        ],
+        'phpBB' => [
+          { 'install' => 'apache', 'desc' => 'Apache web server' }
+        ]
       }
     }
 
@@ -289,9 +309,12 @@ class Test_getpkgs < Minitest::Test
     YAML.stub(:load_file, @mock){ @reduce.load_profile('bogus') }
   end
 
-  def test_getpkgs_get_all
+  def test_getpkgs_for_deployment
     @reduce.stub(:puts, nil){
-      pkgs = @reduce.getpkgs
+      pkgs = @reduce.getpkgs('dep1', @data[@k.deployments]['dep1'])
+      assert_equal(['conky', 'curl'], pkgs)
+      pkgs = @reduce.getpkgs('dep2', @data[@k.deployments]['dep2'])
+      assert_equal(['conky', 'curl', 'apache'], pkgs)
     }
   end
 end

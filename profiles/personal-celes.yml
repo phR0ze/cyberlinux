@@ -54,7 +54,7 @@ deployments:
     groups: [lp, wheel, network, storage, users]
     vars: { fontsize: 10 }
     vagrant: { vram: 32, cpus: 2, ram: 2048 }
-    boot:
+    install:
       entry: "Deploy <%=distro%>-base                    // Minimal shell"
       kernel: linux-celes
     packages:
@@ -125,7 +125,7 @@ deployments:
     groups: [video, audio]
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
-    boot:
+    install:
       entry: "Deploy <%=distro%>-desktop                 // Full X11 env."
       kernel: linux-celes
     packages:
@@ -178,6 +178,6 @@ deployments:
     base: desktop
     vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
-    boot:
+    install:
       entry: "Start <%=distro%>-recovery                 // Live environment"
       kernel: linux-celes

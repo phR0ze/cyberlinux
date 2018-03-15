@@ -58,7 +58,6 @@ class Reduce
       all: 'all',
       apps: 'apps',
       base: 'base',
-      boot: 'boot',
       build: 'build',
       configs: 'configs',
       command: 'command',
@@ -529,17 +528,17 @@ class Reduce
       File.open(File.join(grub_iso_path, 'boot.cfg'), 'w'){|f|
         @profile[@k.deployments].select{|k,v| v[@k.type] == @k.machine}.reverse.each{|x|
           v = x.values.first
-          kernel = "#{@kernel_prefix}-#{v[@k.boot][@k.kernel]}"
-          params = v[@k.boot][@k.params] || ""
+          kernel = "#{@kernel_prefix}-#{v[@k.install][@k.kernel]}"
+          params = v[@k.install][@k.params] || ""
           params = "#{params} " if !params.empty?
-          params += "kernel=#{v[@k.boot][@k.kernel]}"
+          params += "kernel=#{v[@k.install][@k.kernel]}"
           deployments = @vars["#{x.keys.first}_deployments"]
 
-          f << "    menuentry --class=deployment '#{v[@k.boot][@k.entry]}' {\n"
+          f << "    menuentry --class=deployment '#{v[@k.install][@k.entry]}' {\n"
           f << "        echo\necho\n"
           motd.each{|line| f << "        echo $\"          #{line.gsub("\n", "")}\"\n" }
           f << "        linux /boot/#{kernel} efi=$efi deployments=#{deployments} #{@vars.kernel_params} #{params if params}\n"
-          f << "        initrd /boot/intel-ucode.img /boot/#{@initramfs_prefix}-#{v[@k.boot][@k.kernel]}.img\n"
+          f << "        initrd /boot/intel-ucode.img /boot/#{@initramfs_prefix}-#{v[@k.install][@k.kernel]}.img\n"
           f << "    }\n"
         }
       }
@@ -978,43 +977,46 @@ class Reduce
 
   # Get packages for the given deployment
   # @param deployment [string] deployment name
-  # @param deployment_yml [yml] deployment yaml to work with or all if nil
-  # @returns list of packages for the given deployment or all packages
-  def getpkgs(deployment:nil, deployment_yml:nil)
-    result = {}
-    deployments = deployment_yml ? [[deployment, deployment_yml]] : @profile[@k.deployments].to_a
-    print(deployments)
+  # @param deployment_yml [yml] deployment yaml to work with
+  # @returns list of packages for the given deployment
+  def getpkgs(deployment, deployment_yml)
+    result = []
 
     # Detect multilib value
-    multilib = deployments.any?{|x| x.last[@k.multilib]}
-    puts("Multilib: #{multilib} for #{deployments.map{|x| "'#{x.first}'"} * ','}".colorize(:cyan))
+    multilib = deployment_yml[@k.multilib] || false
+    puts("Multilib: #{multilib} for deployment '#{deployment}'".colorize(:cyan))
 
-    # Get all packages for given deployments
-    deployments.each{|deployment|
-      all_pkgs = (deployment[@k.packages] || [])
-      resolve_pkgsets = ->(pkgs){
-        return pkgs.map{|x|
-          if x[@k.install] || (x[@k.ignore] && !x[@k.pkg])
-            pkgkey = x[@k.install] || x[@k.ignore]
-            pkgset = @profile[@k.packages][pkgkey].clone
-            !puts("Error: missing package set '#{pkgkey}'".colorize(:red)) and exit unless pkgset
-            # TODO: when multilib=true and arch is i686 then do opposite
-            pkgset.reject!{|y| multilib ? y[@k.multilib] == false : y[@k.multilib]} if x[@k.install]
-            pkgset.each{|y| y[@k.ignore] = true } if x[@k.ignore]
-            pkgset
-          else
-            x
-          end
-        }.flatten}
-      (0..1).each{|i| all_pkgs = resolve_pkgsets.call(all_pkgs)}
+    # Get all packages for given app
+    resolve_app = ->(app, pkgs){
 
-      # Remove duplicates
-      all_pkgs.uniq!
+      # Lookup app reference
+      if app.is_a?(String)
+        _app = @profile[@k.apps][app]
+        !puts("Error: invalid app reference '#{app}'".colorize(:red)) and exit unless _app
+        _app.each{|x| resolve_app.call(x, pkgs) }
 
-      result[deployment[@k.name]] = all_pkgs
+      # Only pull out pkgs from app
+      elsif app[@k.install]
+        pkgs << app[@k.install]
+      end
+
+#      return pkgs.map{|x|
+#        if x[@k.install] || (x[@k.ignore] && !x[@k.pkg])
+#          pkgkey = x[@k.install] || x[@k.ignore]
+#          pkgset = @profile[@k.packages][pkgkey].clone
+#          !puts("Error: missing package set '#{pkgkey}'".colorize(:red)) and exit unless pkgset
+#          # TODO: when multilib=true and arch is i686 then do opposite
+#          pkgset.reject!{|y| multilib ? y[@k.multilib] == false : y[@k.multilib]} if x[@k.install]
+#          pkgset.each{|y| y[@k.ignore] = true } if x[@k.ignore]
+#          pkgset
+#        else
+#          x
+#        end
+#      }.flatten}
     }
+    deployment_yml[@k.apps].each{|x| resolve_app.call(x, result) }
 
-    return result.length == 1 ? result.values.first : result
+    return result.uniq
   end
 
   # Spins up indicated container and executes the given block

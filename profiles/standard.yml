@@ -55,7 +55,7 @@ deployments:
     groups: [lp, wheel, network, storage, users]
     vars: { fontsize: 10 }
     vagrant: { vram: 32, cpus: 2, ram: 2048 }
-    boot:
+    install:
       entry: "Deploy <%=distro%>-base                    // Minimal shell"
       kernel: linux
     packages:
@@ -71,7 +71,7 @@ deployments:
     type: machine
     base: base
     vagrant: { vram: 32, cpus: 2, ram: 2048 }
-    boot:
+    install:
       entry: "Deploy <%=distro%>-shell                   // Base + shell devel"
       kernel: linux
     packages:
@@ -87,7 +87,7 @@ deployments:
     groups: [ video, audio]
     vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
-    boot:
+    install:
       entry: "Deploy <%=distro%>-lite                    // Shell + min X11"
       kernel: linux
     packages:
@@ -101,7 +101,7 @@ deployments:
     base: shell
     groups: [docker]
     vagrant: { vram: 8, cpus: 2, ram: 2048 }
-    boot:
+    install:
       entry: "Deploy <%=distro%>-k8snode                 // Shell + k8s node"
       kernel: linux
     packages:
@@ -114,7 +114,7 @@ deployments:
     base: lite
     vars: { fontsize: 18, wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
-    boot:
+    install:
       entry: "Deploy <%=distro%>-theater                 // Lite + media apps"
       kernel: linux
       params: autologin=1
@@ -129,7 +129,7 @@ deployments:
     groups: [docker]
     vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
-    boot:
+    install:
       entry: "Deploy <%=distro%>-desktop                 // Lite + more apps"
       kernel: linux
     packages:
@@ -142,6 +142,6 @@ deployments:
     base: desktop
     vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
-    boot:
+    install:
       entry: "Start <%=distro%>-recovery                 // Live environment"
       kernel: linux
