@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.310
+  release: 0.1.311
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -1454,6 +1454,7 @@ packages:
     - { install: media-pkgs }
     - { install: virtualbox-host }
     - { pkg: asunder,                       desc: A lean and friendly audio CD ripper and encoder }
+    - { pkg: avidemux-qt,                   desc: Graphical tool to edit video (filter/re-encode/split) - Qt GUI }
     - { pkg: audacity,                      desc: Audio editor - cross platform, tried and tested }
     - { pkg: brasero,                       desc: Burning tool, alt: k3b, xfburn }
     - { pkg: catfish,                       desc: System/File Search - File search tool }
