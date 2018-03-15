@@ -878,7 +878,7 @@ class Reduce
 
     # Handle packages differently based on type
     #---------------------------------------------------------------------------
-    all_pkgs = getpkgs(deployment, deployment_yml)
+    all_pkgs = getapps(deployment, deployment_yml)
     pkgs = {
       reg: all_pkgs.map{|x| x[@k.pkg] if !x[@k.ignore] and !x[@k.force]}.compact,
       force: all_pkgs.map{|x| x[@k.pkg] if x[@k.force]}.compact,
@@ -975,11 +975,11 @@ class Reduce
     return pkgs.any?{|k,v| v.any? if k != :conflict and k != :ignore }
   end
 
-  # Get packages for the given deployment
+  # Get app configuration for the given deployment
   # @param deployment [string] deployment name
   # @param deployment_yml [yml] deployment yaml to work with
   # @returns list of packages for the given deployment
-  def getpkgs(deployment, deployment_yml)
+  def getapps(deployment, deployment_yml, configs:false)
     result = []
 
     # Detect multilib value
@@ -987,32 +987,22 @@ class Reduce
     puts("Multilib: #{multilib} for deployment '#{deployment}'".colorize(:cyan))
 
     # Get all packages for given app
-    resolve_app = ->(app, pkgs){
+    resolve_app = ->(app, items){
 
       # Lookup app reference
       if app.is_a?(String)
         _app = @profile[@k.apps][app]
         !puts("Error: invalid app reference '#{app}'".colorize(:red)) and exit unless _app
-        _app.each{|x| resolve_app.call(x, pkgs) }
+        _app.each{|x| resolve_app.call(x, items) }
 
-      # Only pull out pkgs from app
-      elsif app[@k.install]
-        pkgs << app[@k.install]
+      # Get app pkgs
+      elsif !configs && app[@k.install]
+        items << app
+
+      # Get app configs
+      elsif configs && !app[@k.install]
+        items << app
       end
-
-#      return pkgs.map{|x|
-#        if x[@k.install] || (x[@k.ignore] && !x[@k.pkg])
-#          pkgkey = x[@k.install] || x[@k.ignore]
-#          pkgset = @profile[@k.packages][pkgkey].clone
-#          !puts("Error: missing package set '#{pkgkey}'".colorize(:red)) and exit unless pkgset
-#          # TODO: when multilib=true and arch is i686 then do opposite
-#          pkgset.reject!{|y| multilib ? y[@k.multilib] == false : y[@k.multilib]} if x[@k.install]
-#          pkgset.each{|y| y[@k.ignore] = true } if x[@k.ignore]
-#          pkgset
-#        else
-#          x
-#        end
-#      }.flatten}
     }
     deployment_yml[@k.apps].each{|x| resolve_app.call(x, result) }
 

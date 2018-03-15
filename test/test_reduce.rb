@@ -259,7 +259,7 @@ class Test_get_deployments < Minitest::Test
   end
 end
 
-class Test_getpkgs < Minitest::Test
+class Test_getapps < Minitest::Test
 
   def setup
     @reduce ||= Reduce.new
@@ -291,7 +291,7 @@ class Test_getpkgs < Minitest::Test
         ],
         'conky' => [
           { 'install' => 'conky', 'desc' => 'Lightweight system monitor for X' },
-          { 'chroot' => 'systemctl enable httpd.service' }
+          { 'exec' => 'echo 1 >> foobar' }
         ],
         'phpBB' => [
           { 'install' => 'apache', 'desc' => 'Apache web server' }
@@ -309,14 +309,33 @@ class Test_getpkgs < Minitest::Test
     YAML.stub(:load_file, @mock){ @reduce.load_profile('bogus') }
   end
 
-  def test_getpkgs_for_deployment
+  def test_getapps_pkgs
+    result1 = [
+      { 'install' => 'conky', 'desc' => 'Lightweight system monitor for X' },
+      { 'install' => 'curl', 'desc' => 'Network download REST command line tool' }
+    ]
+    result2 = result1 + [{ 'install' => 'apache', 'desc' => 'Apache web server' }]
+
     @reduce.stub(:puts, nil){
-      pkgs = @reduce.getpkgs('dep1', @data[@k.deployments]['dep1'])
-      assert_equal(['conky', 'curl'], pkgs)
-      pkgs = @reduce.getpkgs('dep2', @data[@k.deployments]['dep2'])
-      assert_equal(['conky', 'curl', 'apache'], pkgs)
+      pkgs = @reduce.getapps('dep1', @data[@k.deployments]['dep1'])
+      assert_equal(result1, pkgs)
+      pkgs = @reduce.getapps('dep2', @data[@k.deployments]['dep2'])
+      assert_equal(result2, pkgs)
     }
   end
+
+  def test_getapps_configs
+    result1 = [{ 'exec' => 'echo 1 >> foobar' }]
+    result2 = result1 + [{ 'chroot' => 'systemctl enable httpd.service' }]
+
+    @reduce.stub(:puts, nil){
+      configs = @reduce.getapps('dep1', @data[@k.deployments]['dep1'], configs:true)
+      assert_equal(result1, configs)
+      configs = @reduce.getapps('dep2', @data[@k.deployments]['dep2'], configs:true)
+      assert_equal(result2, configs)
+    }
+  end
+
 end
 
 # vim: ft=ruby:ts=2:sw=2:sts=2
