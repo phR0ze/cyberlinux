@@ -335,7 +335,72 @@ class Test_getapps < Minitest::Test
       assert_equal(result2, configs)
     }
   end
+end
 
+class Test_installapps < Minitest::Test
+
+  def setup
+    @reduce ||= Reduce.new
+    @k = @reduce.instance_variable_get(:@k)
+    @profile = @reduce.instance_variable_get(:@profile)
+
+    @data = {
+      'deployments' => {
+        'dep1' => {
+          'apps' => [
+            'base-apps',
+          ]
+        },
+        'dep2' => {
+          'apps' => [
+            'server-apps',
+          ]
+        }
+      },
+      'apps' => {
+        'base-apps' => [
+          'conky',
+          { 'install' => 'curl', 'conflict' => 'curl2' },
+          { 'install' => 'foo1', 'force' => true },
+          { 'install' => 'foo2', 'ignore' => true }
+        ],
+        'server-apps' => [
+          'base-apps',
+          'phpBB',
+          { 'chroot' => 'systemctl enable httpd.service' }
+        ],
+        'conky' => [
+          { 'install' => 'conky' },
+          { 'exec' => 'echo 1 >> foobar' }
+        ],
+        'phpBB' => [
+          { 'install' => 'apache', 'desc' => 'Apache web server' }
+        ]
+      }
+    }
+
+    @mock = Minitest::Mock.new
+    @mock.expect(:[], false, [@k.vars])
+    @mock.expect(:[], false, [@k.base])
+    @mock.expect(:[], true, [@k.apps])
+    @mock.expect(:[], @data[@k.apps], [@k.apps])
+    @mock.expect(:[], true, [@k.deployments])
+    @mock.expect(:[], @data[@k.deployments], [@k.deployments])
+    YAML.stub(:load_file, @mock){ @reduce.load_profile('bogus') }
+  end
+
+
+  def test_installpkgs_fresh
+    mock = Minitest::Mock.new
+    data = ["curl"]
+    mock.expect(:readlines, data)
+
+    File.stub(:exist?, true){
+      File.stub(:open, true, mock){
+        @reduce.installapps('dep1', @data[@k.deployments]['dep1'], '.')
+      }
+    }
+  end
 end
 
 # vim: ft=ruby:ts=2:sw=2:sts=2

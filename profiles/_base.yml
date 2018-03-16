@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.313
+  release: 0.1.314
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -1256,6 +1256,7 @@ packages:
     - { pkg: patch,                         desc: Utility to apply patches to files, group: base-devel }
     - { pkg: pkg-config,                    desc: System for managing library flags, group: base-devel }
     - { pkg: psmisc,                        desc: fuser/killall/pstree }
+    - { pkg: python-pip,                    desc: The PyPA recommended tool for installing Python packages }
     - { pkg: ruby,                          desc: Ruby lang quick and easy programming }
     - { pkg: strace,                        desc: A diagnostic, debugging and instructional userspace tracer }
     - { pkg: texinfo,                       desc: Documentation for online information, group: base-devel }

@@ -819,7 +819,7 @@ class Reduce
         end
 
         # Install deployment specific packages via pacman
-        deployment_changed |= installpkgs(deployment, deployment_yml, deployment_work)
+        deployment_changed |= installapps(deployment, deployment_yml, deployment_work)
 
         # Copy over all deployment data if it exists
         deployment_changed |= syncfiles(deployment, deployment_src, deployment_work, deployment_digests)
@@ -870,42 +870,43 @@ class Reduce
   # @param deployment [string] deployment name to work with
   # @param deployment_yml [yml] deployment yaml to work with
   # @param deployment_work [string] the directory where to install the deployment packages to
-  # @returns true if any pkgs were installed else false
-  def installpkgs(deployment, deployment_yml, deployment_work)
-    msg = "Installing packages for '#{deployment}'..."
-    pkgfile = File.join(deployment_work, 'packages')
+  # @returns true if any apps were installed else false
+  def installapps(deployment, deployment_yml, deployment_work)
+    msg = "Installing apps for '#{deployment}'..."
+    appfile = File.join(deployment_work, 'packages')
     deployment_deps = get_deployments(deployment)[1..-1]
 
     # Handle packages differently based on type
     #---------------------------------------------------------------------------
-    all_pkgs = getapps(deployment, deployment_yml)
-    pkgs = {
-      reg: all_pkgs.map{|x| x[@k.pkg] if !x[@k.ignore] and !x[@k.force]}.compact,
-      force: all_pkgs.map{|x| x[@k.pkg] if x[@k.force]}.compact,
-      ignore: all_pkgs.map{|x| x[@k.pkg] if x[@k.ignore]}.compact,
-      conflict: all_pkgs.map{|x| "CONFLICT:#{x[@k.conflict]}" if x[@k.conflict]}.compact
+    all_apps = getapps(deployment, deployment_yml)
+    apps = {
+      reg: all_apps.map{|x| x[@k.install] if !x[@k.ignore] and !x[@k.force]}.compact,
+      force: all_apps.map{|x| x[@k.install] if x[@k.force]}.compact,
+      ignore: all_apps.map{|x| x[@k.install] if x[@k.ignore]}.compact,
+      conflict: all_apps.map{|x| "CONFLICT:#{x[@k.conflict]}" if x[@k.conflict]}.compact
     }
 
     # Filter out already installed packages
     #---------------------------------------------------------------------------
-    if File.exist?(pkgfile)
+    if File.exist?(appfile)
       puts("Filtering out packages that are already installed".colorize(:cyan))
-      installed_pkgs = nil
-      File.open(pkgfile){|f| installed_pkgs = f.readlines.map{|x| x.strip}}
-      [:reg, :conflict].each{|x| pkgs[x] = pkgs[x].select{|y| not installed_pkgs.include?(y)}}
+      installed_apps = nil
+      File.open(appfile){|f| installed_apps = f.readlines.map{|x| x.strip}}
+      [:reg, :conflict].each{|x| apps[x] = apps[x].select{|y| not installed_apps.include?(y)}}
     end
+    exit
 
     # Install any missing packages
     #---------------------------------------------------------------------------
-    if pkgs.any?{|k,v| v.any? if k != :conflict and k != :ignore}
+    if apps.any?{|k,v| v.any? if k != :conflict and k != :ignore}
       puts("#{msg}".colorize(:cyan))
-      puts("Packages: #{pkgs[:reg]}")
-      puts("Force Pkgs: #{pkgs[:force]}")
-      puts("Ignore Pkgs: #{pkgs[:ignore]}")
-      puts("Conflict Pkgs: #{pkgs[:conflict]}")
+      puts("Packages: #{apps[:reg]}")
+      puts("Force Apps: #{apps[:force]}")
+      puts("Ignore Apps: #{apps[:ignore]}")
+      puts("Conflict Apps: #{apps[:conflict]}")
 
       # pacstrap replacement
-      if pkgs[:conflict].any? or pkgs[:reg].any? or pkgs[:force].any?
+      if apps[:conflict].any? or apps[:reg].any? or apps[:force].any?
         begin
           rm_rf(File.join(@pacman_path, 'pacman.log')) if !deployment_deps.any?
 
@@ -933,27 +934,27 @@ class Reduce
           end
 
           # Remove these packages first
-          if pkgs[:conflict].any?
+          if apps[:conflict].any?
             puts("Removing conflicting packages for '#{deployment}'...".colorize(:cyan))
-            pkgs[:conflict].map{|x| x.split(':').last}.each{|conflict|
+            apps[:conflict].map{|x| x.split(':').last}.each{|conflict|
               !puts("Error: Failed to remove conflicting package".colorize(:red)) and
                 exit unless Sys.exec("pacman -Rn -r #{deployment_work} -d -d --noconfirm #{conflict} &>/dev/null || true", die:false)
             }
           end
 
           # Install normal packages
-          if pkgs[:reg].any?
+          if apps[:reg].any?
             puts("Pacstrap package installs for '#{deployment}'...".colorize(:cyan))
-            cmd = ['pacstrap', '-GMcd', deployment_work, '--config', @pacman_conf, '--needed', *pkgs[:reg]]
-            cmd += ['--ignore', pkgs[:ignore] * ','] if pkgs[:ignore].any?
+            cmd = ['pacstrap', '-GMcd', deployment_work, '--config', @pacman_conf, '--needed', *apps[:reg]]
+            cmd += ['--ignore', apps[:ignore] * ','] if apps[:ignore].any?
             !puts("Error: Failed to install packages correctly".colorize(:red)) and
               exit unless Sys.exec(cmd, env:@proxyenv)
           end
 
           # Install force packages
-          if pkgs[:force].any?
+          if apps[:force].any?
             puts("Pacstrap package installs for '#{deployment}'...".colorize(:cyan))
-            cmd = ['pacstrap', '-GMcd', deployment_work, '--config', @pacman_conf, '--needed', '--force', *pkgs[:force]]
+            cmd = ['pacstrap', '-GMcd', deployment_work, '--config', @pacman_conf, '--needed', '--force', *apps[:force]]
             !puts("Error: Failed to install packages correctly".colorize(:red)) and
               exit unless Sys.exec(cmd, env:@proxyenv)
           end
@@ -967,12 +968,12 @@ class Reduce
       end
 
       # Update list of packages that were installed
-      File.open(pkgfile, 'a'){|f| f.puts(pkgs[:reg])}
+      File.open(appfile, 'a'){|f| f.puts(apps[:reg])}
     else
       puts("#{msg}skipping".colorize(:cyan))
     end
 
-    return pkgs.any?{|k,v| v.any? if k != :conflict and k != :ignore }
+    return apps.any?{|k,v| v.any? if k != :conflict and k != :ignore }
   end
 
   # Get app configuration for the given deployment
