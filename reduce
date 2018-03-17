@@ -894,7 +894,6 @@ class Reduce
       File.open(appfile){|f| installed_apps = f.readlines.map{|x| x.strip}}
       [:reg, :conflict].each{|x| apps[x] = apps[x].select{|y| not installed_apps.include?(y)}}
     end
-    exit
 
     # Install any missing packages
     #---------------------------------------------------------------------------
@@ -905,7 +904,6 @@ class Reduce
       puts("Ignore Apps: #{apps[:ignore]}")
       puts("Conflict Apps: #{apps[:conflict]}")
 
-      # pacstrap replacement
       if apps[:conflict].any? or apps[:reg].any? or apps[:force].any?
         begin
           rm_rf(File.join(@pacman_path, 'pacman.log')) if !deployment_deps.any?
@@ -915,7 +913,7 @@ class Reduce
             Sys.exec("cp -a #{@pacman_src_conf} #{@pacman_path}")
             Sys.exec("cp -a #{@pacman_src_mirrors} #{@pacman_path}")
             Fedit.replace(@pacman_conf, /(Architecture = ).*/, "\\1#{@vars.arch}")
-            # Leaave DBPath set as /var/lib/pacman and copy out sync
+            # Leave DBPath set as /var/lib/pacman and copy out sync
             Fedit.replace(@pacman_conf, /#(CacheDir\s+= ).*/, "\\1#{File.join(@pacman_path, 'cache')}")
             Fedit.replace(@pacman_conf, /#(LogFile\s+= ).*/, "\\1#{File.join(@pacman_path, 'pacman.log')}")
             Fedit.replace(@pacman_conf, /#(GPGDir\s+= ).*/, "\\1#{File.join(@pacman_path, 'gnupg')}")

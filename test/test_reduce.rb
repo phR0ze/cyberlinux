@@ -361,7 +361,6 @@ class Test_installapps < Minitest::Test
         'base-apps' => [
           'conky',
           { 'install' => 'curl', 'conflict' => 'curl2' },
-          { 'install' => 'foo1', 'force' => true },
           { 'install' => 'foo2', 'ignore' => true }
         ],
         'server-apps' => [
@@ -389,15 +388,34 @@ class Test_installapps < Minitest::Test
     YAML.stub(:load_file, @mock){ @reduce.load_profile('bogus') }
   end
 
-
-  def test_installpkgs_fresh
+  def test_installapps_fresh
     mock = Minitest::Mock.new
-    data = ["curl"]
-    mock.expect(:readlines, data)
+    mock.expect(:readlines, ['curl', 'CONFLICT:curl2'])
+    mock.expect(:puts, nil){|x| true}
+
+    validate_cmd = -> (cmd, env:nil){
+      #print(cmd)
+      if cmd.is_a?(Array)
+        assert_equal(9, cmd.size)
+        assert(cmd.include?('conky'))
+        assert(cmd.include?('foo2'))
+      end
+      true
+    }
 
     File.stub(:exist?, true){
       File.stub(:open, true, mock){
-        @reduce.installapps('dep1', @data[@k.deployments]['dep1'], '.')
+        Dir.stub(:[], []){
+          Sys.stub(:exec, validate_cmd){
+            Sys.stub(:umount, nil){
+              @reduce.stub(:puts, nil){
+                @reduce.stub(:rm_rf, nil){
+                  @reduce.installapps('dep1', @data[@k.deployments]['dep1'], '.')
+                }
+              }
+            }
+          }
+        }
       }
     }
   end
