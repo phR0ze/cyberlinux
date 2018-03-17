@@ -88,7 +88,15 @@ CELES has the Intel Corporation Wireless 7265 [8086:095a] ***REV=0x210*** termed
 ***iwlwifi 29.610311.0*** as found from **dmesg | grep iwlwifi**. WiFi worked out of the box with the ***wpa_gui***, ***wpa_supplicant*** packages from Arch Linux.
 
 ### BlueTooth <a name="bluetooth"/></a>
-?
+https://wiki.archlinux.org/index.php/bluetooth
+
+```bash
+# Install Bluetooth protocl stack and control tool
+sudo pacman -S bluez bluez-utils
+# Start the Bluetooth service
+sudo systemctl enable bluetooth
+sudo systemctl start bluetooth
+```
 
 ### Keyboard/Touchpad <a name="keyboard-touchpad"/></a>
 Keyboard and Touchpad support required kernel changes see [linux-celes](https://github.com/phR0ze/cyberlinux/tree/master/aur/linux-cele)

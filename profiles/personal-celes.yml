@@ -130,6 +130,8 @@ deployments:
       kernel: linux-celes
     packages:
       - { install: lite-pkgs }
+      - { pkg: bluez,                         desc: Daemons for the bluetooth protocol stack }
+      - { pkg: bluez-utils,                   desc: Development and debugging utilities for the bluetooth protocol stack }
       - { pkg: blueman,                       desc: GTK+ Bluetooth Manager }
       - { pkg: cinnamon-screensaver,          desc: Screensaver for the Cinnamon desktop, type: CYBERLINUX }
       - { pkg: conky,                         desc: Lightweight system monitor for X }
