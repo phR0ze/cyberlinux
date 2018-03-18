@@ -22,6 +22,7 @@ everything is availble to change it from a ChromeOS paper weight into a fully fu
     * [Microphone Headset](#microphone-headset)
     * [USB Storage](#usb-storage)
     * [MicroSD Storage](#micro-sd-storage)
+    * [Android Phone MTP](#android-phone-mtp)
     * [HDMI Output](#hdmi-output)
     * [Suspend](#suspend)
     * [Brightness](#brightness)
@@ -91,11 +92,12 @@ CELES has the Intel Corporation Wireless 7265 [8086:095a] ***REV=0x210*** termed
 https://wiki.archlinux.org/index.php/bluetooth
 
 ```bash
-# Install Bluetooth protocl stack and control tool
-sudo pacman -S bluez bluez-utils
-# Start the Bluetooth service
+# Install Bluetooth management tool and pulse audio plugin
+sudo pacman -S blueman pulseaudio-bluetooth
+# Enable/Start the Bluetooth daemon
 sudo systemctl enable bluetooth
 sudo systemctl start bluetooth
+# Start Blueman
 ```
 
 ### Keyboard/Touchpad <a name="keyboard-touchpad"/></a>
@@ -131,6 +133,15 @@ sudo tee -a /etc/fstab <<< "/dev/mmcblk1 /mnt/storage ext4 defaults,noatime 0 0"
 sudo mount -a
 sudo chown -R $USER: /mnt/storage
 ```
+
+### Android Phone MTP <a name="android-phone-mtp"/></a>
+1. Ensure the proper drivers are installed:
+    ```bash
+    sudo pacman -S libmtp gvfs-mtp
+    sudo reboot
+    ```
+2. To connect your android phone via USB
+3. Put the phone into USB file transfer mode
 
 ### HDMI Output <a name="hdmi-output"/></a>
 irc nskelsey?

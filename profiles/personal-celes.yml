@@ -130,15 +130,14 @@ deployments:
       kernel: linux-celes
     packages:
       - { install: lite-pkgs }
-      - { pkg: bluez,                         desc: Daemons for the bluetooth protocol stack }
-      - { pkg: bluez-utils,                   desc: Development and debugging utilities for the bluetooth protocol stack }
-      - { pkg: blueman,                       desc: GTK+ Bluetooth Manager }
       - { pkg: cinnamon-screensaver,          desc: Screensaver for the Cinnamon desktop, type: CYBERLINUX }
       - { pkg: conky,                         desc: Lightweight system monitor for X }
       - { pkg: galliumos-braswell-config,     desc: GalliumOS configuration files for braswell, force: true, type: CYBERLINUX }
       - { pkg: gimp,                          desc: Excellent image editor, alt: pinta }
+      - { pkg: gvfs-mtp,                      desc: Virtual filesystem implementation for GIO Android MTP }
       - { pkg: hunspell-en_US,                desc: US dictionaries for spell checking, deps: libreoffice }
       - { pkg: libreoffice-fresh,             desc: LibreOffice branch with new features/enhancements }
+      - { pkg: libmtp,                        desc: Library implementation of the Media Transfer Protocol }
       - { pkg: keepass,                       desc: Cross platform password manager }
 
       # Adobe fonts from adobe reader
