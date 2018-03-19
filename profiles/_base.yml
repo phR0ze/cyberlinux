@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.318
+  release: 0.1.319
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -1400,6 +1400,7 @@ packages:
     - { pkg: chromium,                      desc: Opensource project behind Chrome, type: CYBERLINUX }
     - { pkg: chromium-widevine,             desc: Chromium support for Netflix, type: ANTERGOS }
     - { pkg: evince,                        desc: Document viewer (PDF,Postscript,djvu,tiff,dvi,XPS,cbr,cbz,cb7 and cbt) }
+    - { pkg: ffmpegthumbnailer,             desc: Lightweight video thumbnailer that can be used by file managers }
     - { pkg: file-roller,                   desc: System/Compression integrates well in Thunar }
     - { pkg: filezilla,                     desc: Network/Transfer }
     - { pkg: flashplugin,                   desc: Adobe Flash Player NPAPI }
