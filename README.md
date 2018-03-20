@@ -34,7 +34,8 @@ fork it and make their own configuration ***profiles***
     * [Enable Proxy](#enable-proxy)
     * [Disable Proxy](#disable-proxy)
 * [Roll your own cyberlinux](#build-cyberlinux)
-* [Troubleshooting](#troubleshooting)
+* [Arch Help](#arch-help)
+    * [Certificates](#certificates)
     * [BlackArch Signature issue](#blackarch-signature-issue)
 * [Contributions](#contributions)
     * [Git-Hook Version Increment](#git-hook-version-increment)
@@ -243,7 +244,19 @@ Disable proxy:
 ## Roll your own cyberlinux <a name="build-cyberlinux"/></a>
 [See => profiles/README.md](https://github.com/phR0ze/cyberlinux/blob/master/profiles)
 
-## Troubleshooting<a name="troubleshooting"/></a>
+## Arch Help <a name="arch-help"/></a>
+
+### Certificates <a name="certificates"/></a>
+
+#### Add Root CA <a name="add-root-ca"/></a>
+```bash
+#Download certs
+wget --no-check-certificate -P ~/Downloads https://example.com/CAs/CA1.zip
+# Unzip cert and rename to crt
+unzip CA1.zip && rename CA1.cer CA1.crt
+# Install new CA cert, original file can then be deleted
+sudo trust anchor CA1.crt
+```
 
 ### BlackArch Signature issue <a name="blackarch-signature-issue"/></a>
 To fix the issue below delete ***/var/lib/pacman/sync/*.sig***
