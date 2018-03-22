@@ -139,6 +139,7 @@ deployments:
       - { pkg: libreoffice-fresh,             desc: LibreOffice branch with new features/enhancements }
       - { pkg: libmtp,                        desc: Library implementation of the Media Transfer Protocol }
       - { pkg: keepass,                       desc: Cross platform password manager }
+      - { pkg: openvpn-update-systemd-resolved, desc: OpenVPN systemd-resolved updater, type: CYBERLINUX }
 
       # Adobe fonts from adobe reader
       # https://aur.archlinux.org/cgit/aur.git/tree/LICENSE?h=ttf-adobe-fonts
