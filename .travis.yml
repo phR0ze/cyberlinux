@@ -1,9 +1,11 @@
 language: ruby
-rvm:
-  - 2.4.1
 sudo: false
-dist: trusty
-
-# Configure notifications
+cache: bundler
+rvm:
+  - 2.5.0
+before_install:
+  - gem update --system
+script:
+  - rake
 notifications:
   email: false
