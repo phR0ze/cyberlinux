@@ -22,13 +22,13 @@
 #-------------------------------------------------------------------------------
 # Maintained by phR0ze
 #-------------------------------------------------------------------------------
-gem=utils
+gem=nub
 pkgname=ruby-$gem
-pkgver=0.0.19
+pkgver=0.0.24
 pkgrel=1
 pkgdesc='Collection of useful Ruby utils'
 arch=(any)
-url='https://github.com/phR0ze/ruby-utils'
+url='https://github.com/phR0ze/ruby-nub'
 license=(MIT)
 depends=(ruby=2.5.0 ruby-colorize)
 options=(!emptydirs)
