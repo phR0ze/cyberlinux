@@ -3,6 +3,7 @@
 doc
 .yardoc
 mkmf.log
+Gemfile.lock
 aur/*/src/
 aur/*/pkg/
 aur/*/*.xz

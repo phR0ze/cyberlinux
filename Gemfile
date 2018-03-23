@@ -20,12 +20,6 @@
 #SOFTWARE.
 
 source 'https://rubygems.org'
-
-gem 'colorize', '>= 0.8.1'
-gem 'filesize', '>= 0.1.1'
-gem 'minitest', '>= 5.11.3'
-gem 'net-scp', '>= 1.2.1'
-gem 'net-ssh', '>= 4.2.0'
-gem 'rake'
+gemspec
 
 # vim: ft=ruby:ts=2:sw=2:sts=2
