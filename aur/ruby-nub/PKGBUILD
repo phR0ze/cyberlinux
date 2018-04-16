@@ -24,36 +24,25 @@
 #-------------------------------------------------------------------------------
 gem=nub
 pkgname=ruby-$gem
-pkgver=0.0.24
+pkgver=0.0.49
 pkgrel=1
 pkgdesc='Collection of useful Ruby utils'
 arch=(any)
 url='https://github.com/phR0ze/ruby-nub'
 license=(MIT)
-depends=(ruby=2.5.0 ruby-colorize)
+depends=(ruby ruby-colorize)
 options=(!emptydirs)
-source=("git+https://github.com/phR0ze/ruby-$gem.git#tag=$pkgver")
-sha1sums=('SKIP')
-
-build()
-{
-  cd $srcdir/$pkgname
-
-  msg "Building $pkgname"
-  gem build $gem.gemspec
-}
+source=(https://rubygems.org/downloads/$gem-$pkgver.gem)
+noextract=($gem-$pkgver.gem)
+sha256sums=('2a2494d48d7028e65c26c7bd8ee9a7047df831f0a9fa97566850ab46311c5c71')
 
 package()
 {
-  cd $srcdir/$pkgname
-
   msg "Packaging $pkgname"
   gem_install_path="$(ruby -e'puts Gem.default_dir')"
   msg2 $gem_install_path
   gem install --ignore-dependencies --no-user-install -i "$pkgdir/$gem_install_path" -n "$pkgdir/usr/bin" $gem-$pkgver.gem
   rm "$pkgdir/$gem_install_path/cache/$gem-$pkgver.gem"
-  install -D -m644 $srcdir/$pkgname/LICENSE $pkgdir/$gem_install_path/gems/$gem-$pkgver/LICENSE
-  install -D -m644 "$pkgdir/$gem_install_path/gems/$gem-$pkgver/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }
 
 # vim: ts=2:sw=2:sts=2

@@ -1,5 +1,5 @@
 #MIT License
-#Copyright (c) 2017 phR0ze
+#Copyright (c) 2017-2018 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -25,12 +25,12 @@
 gem=rest-client
 pkgname=ruby-$gem
 pkgver=2.0.2
-pkgrel=2
+pkgrel=3
 pkgdesc='Simple HTTP and REST client for Ruby inspired by the Sinatra framework'
 arch=(any)
 url='https://github.com/rest-client/rest-client'
 license=(MIT)
-depends=(ruby=2.5.0)
+depends=(ruby)
 options=(!emptydirs)
 source=(https://rubygems.org/downloads/$gem-$pkgver.gem)
 noextract=($gem-$pkgver.gem)

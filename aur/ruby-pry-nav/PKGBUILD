@@ -1,5 +1,5 @@
 #MIT License
-#Copyright (c) 2017 phR0ze
+#Copyright (c) 2017-2018 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -25,12 +25,12 @@
 gem=pry-nav
 pkgname=ruby-$gem
 pkgver=0.2.4
-pkgrel=2
+pkgrel=3
 pkgdesc='Primitive debugging step and next commands for pry'
 arch=(any)
 url='https://github.com/nixme/pry-nav'
 license=(MIT)
-depends=(ruby=2.5.0 ruby-pry)
+depends=(ruby ruby-pry)
 options=(!emptydirs)
 source=(https://rubygems.org/downloads/$gem-$pkgver.gem)
 noextract=($gem-$pkgver.gem)

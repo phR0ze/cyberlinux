@@ -1,5 +1,5 @@
 #MIT License
-#Copyright (c) 2017 phR0ze
+#Copyright (c) 2017-2018 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -25,12 +25,12 @@
 gem=pry
 pkgname=ruby-$gem
 pkgver=0.11.3
-pkgrel=2
+pkgrel=3
 pkgdesc='An IRB alternative and runtime developer console'
 arch=(any)
 url='http://github.com/pry/pry'
 license=(MIT)
-depends=(ruby=2.5.0 ruby-coderay ruby-method_source)
+depends=(ruby ruby-coderay ruby-method_source)
 options=(!emptydirs)
 source=(https://rubygems.org/downloads/$gem-$pkgver.gem)
 noextract=($gem-$pkgver.gem)

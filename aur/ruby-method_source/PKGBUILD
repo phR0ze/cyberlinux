@@ -1,5 +1,5 @@
 #MIT License
-#Copyright (c) 2017 phR0ze
+#Copyright (c) 2017-2018 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -25,12 +25,12 @@
 gem=method_source
 pkgname=ruby-$gem
 pkgver=0.9.0
-pkgrel=2
+pkgrel=3
 pkgdesc='retrieve the sourcecode for a method'
 arch=(any)
 url='https://github.com/banister/method_source'
 license=(MIT)
-depends=(ruby=2.5.0)
+depends=(ruby)
 options=(!emptydirs)
 source=(https://rubygems.org/downloads/$gem-$pkgver.gem)
 noextract=($gem-$pkgver.gem)
