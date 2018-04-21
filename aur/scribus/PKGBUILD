@@ -1,6 +1,6 @@
 pkgname=scribus
 pkgver=1.5.3
-pkgrel=1
+pkgrel=3
 pkgdesc="Desktop publishing software"
 arch=('x86_64')
 url="https://www.scribus.net/"
@@ -10,10 +10,12 @@ depends=('hunspell' 'libcdr' 'libmspub' 'libpagemaker' 'libvisio' 'podofo'
 makedepends=('cmake' 'boost' 'mesa' 'qt5-tools')
 source=("https://downloads.sourceforge.net/${pkgname}/${pkgname}-${pkgver}.tar.xz"
         'findOpenSSL.patch'
-        'fix-poppler-issue.patch')
+        'fix-poppler-issue.patch'
+        'fix-icu-0.61.1-compilation.patch')
 sha256sums=('73a30b4727e19f5d301a936d23a84275cc4f5613a92416cbd843f5167721d74f'
             'd6d798a370442026e04d56769848761111d63af2ca69a6c2591233da3703dfb4'
-            '9e9e954cb30fe606196cb8fc1864983fa571f3a729aec0c3ef01fc577be238a1')
+            '9e9e954cb30fe606196cb8fc1864983fa571f3a729aec0c3ef01fc577be238a1'
+            '9faa7fe6d5c7744511b5472ad0e376162360099b9456aaaf3ec78290b1bfef11')
 
 prepare()
 {
@@ -22,6 +24,7 @@ prepare()
 
   patch -p1 -i ../findOpenSSL.patch
   patch -p1 -i ../fix-poppler-issue.patch
+  patch -p1 -i ../fix-icu-0.61.1-compilation.patch
 
   sed \
       -e 's|#!/usr/bin/python|#!/usr/bin/python2|' \
