@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.331
+  release: 0.1.332
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -440,12 +440,14 @@ configs:
         - '    <prefer>'
         - '      <family>Source Serif Pro</family>'
         - '      <family>Liberation Serif</family>'
+        - '      <family>PowerlineSymbols</family>'
         - '    </prefer>'
         - '  </alias>'
         - '  <alias><family>sans-serif</family>'
         - '    <prefer>'
         - '      <family>Source Sans Pro</family>'
         - '      <family>Liberation Sans</family>'
+        - '      <family>PowerlineSymbols</family>'
         - '    </prefer>'
         - '  </alias>'
         - '  <alias><family>monospace</family>'
@@ -453,6 +455,7 @@ configs:
         - '      <family>Inconsolata-g</family>'
         - '      <family>Source Code Pro</family>'
         - '      <family>Liberation Mono</family>'
+        - '      <family>PowerlineSymbols</family>'
         - '    </prefer>'
         - '  </alias>'
         - '  <!-- Override Helvetica with Adobe choice -->'
