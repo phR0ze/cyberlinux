@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.332
+  release: 0.1.333
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -441,6 +441,7 @@ configs:
         - '      <family>Source Serif Pro</family>'
         - '      <family>Liberation Serif</family>'
         - '      <family>PowerlineSymbols</family>'
+        - '      <family>Symbols Nerd Font</family>'
         - '    </prefer>'
         - '  </alias>'
         - '  <alias><family>sans-serif</family>'
@@ -448,6 +449,7 @@ configs:
         - '      <family>Source Sans Pro</family>'
         - '      <family>Liberation Sans</family>'
         - '      <family>PowerlineSymbols</family>'
+        - '      <family>Symbols Nerd Font</family>'
         - '    </prefer>'
         - '  </alias>'
         - '  <alias><family>monospace</family>'
@@ -456,6 +458,7 @@ configs:
         - '      <family>Source Code Pro</family>'
         - '      <family>Liberation Mono</family>'
         - '      <family>PowerlineSymbols</family>'
+        - '      <family>Symbols Nerd Font</family>'
         - '    </prefer>'
         - '  </alias>'
         - '  <!-- Override Helvetica with Adobe choice -->'
@@ -1456,6 +1459,7 @@ packages:
     - { pkg: ttf-indic-otf,                 desc: Indic Opentype Fonts collection }
     - { pkg: ttf-liberation,                desc: Red Hats Liberation fonts.  }
     - { pkg: ttf-ms-fonts,                  desc: Microsoft core fonts, type: CYBERLINUX }
+    - { pkg: ttf-nerd-fonts-symbols,        desc: Nerd Font Symbols, type: CYBERLINUX }
 
   desktop-pkgs:
     - { install: docker }
