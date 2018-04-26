@@ -73,3 +73,11 @@ none="\[\e[0m\]"
 cyber="\[\e[1;38;5;67m\]"
 export PS1="${cyber}[\u@\h:\w]\$${none} "
 export PATH=$PATH:$HOME/bin
+
+# Powerline configuration
+if [ -f /usr/bin/powerline ]; then
+  powerline-daemon -q
+  POWERLINE_BASH_CONTINUATION=1
+  POWERLINE_BASH_SELECT=1
+  . /usr/lib/python3.6/site-packages/powerline/bindings/bash/powerline.sh
+fi

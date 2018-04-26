@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.326
+  release: 0.1.327
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -1255,6 +1255,8 @@ packages:
     - { pkg: make,                          desc: GNU utility to build programs, group: base-devel }
     - { pkg: patch,                         desc: Utility to apply patches to files, group: base-devel }
     - { pkg: pkg-config,                    desc: System for managing library flags, group: base-devel }
+    - { pkg: powerline,                     desc: Status line plugin for bash }
+    - { pkg: powerline-fonts,               desc: Powerline font symbols }
     - { pkg: psmisc,                        desc: fuser/killall/pstree }
     - { pkg: python-pip,                    desc: The PyPA recommended tool for installing Python packages }
     - { pkg: ruby,                          desc: Ruby lang quick and easy programming }
@@ -1489,9 +1491,6 @@ packages:
     - { pkg: glade,                         desc: User Interface Builder for GTK+ applications }
     - { pkg: meld,                          desc: Develop/Diff Tool - Graphical diff tool cross platform }
     - { pkg: ripgrep,                       desc: A search tool combining the usability of ag with speed of grep, depof: vscode }
-    - { pkg: vim-fugitive,                  desc: Git wrapper }
-    - { pkg: vim-supertab,                  desc: <Tab> for all completion }
-    - { pkg: vim-ultisnips,                 desc: TextMate-style snippets for Vim }
     - { pkg: vscode,                        desc: Editor for modern development, type: CYBERLINUX }
 
     # OpenGL
