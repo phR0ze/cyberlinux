@@ -1,5 +1,5 @@
 "MIT License
-"Copyright (c) 2017 phR0ze
+"Copyright (c) 2018 phR0ze
 "
 "Permission is hereby granted, free of charge, to any person obtaining a copy
 "of this software and associated documentation files (the 'Software'), to deal
@@ -19,68 +19,260 @@
 "OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 "SOFTWARE.
 
-" Command Help
+" General settings
+"
+" Examples:
+" https://github.com/EricFalkenberg/dotfiles/blob/master/.vimrc
+" https://github.com/zeorin/dotfiles/blob/e01cebf/.vimrc#L864-L900
+" https://github.com/ryanoasis/vim-devicons/issues/158
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" set <var>?                " Show current value of specified variable
-" verbose set modeline?     " Show modeline value and when last set
-" General Options
+set title                         " Sets the window title to your current buffer name
+set encoding=UTF-8                " Required for vim-devicons to work correctly
+set autochdir                     " Automatically switch working directory to current file
+set backspace=2                   " Configure backspace to work as normal same as =indent,eol,start
+set clipboard=unnamedplus         " Set all yanks to be copied to register * as well as register +
+set formatoptions+=tqw            " Text formatting, a=auto formatting for t=text and w=paragraphs
+set nobackup                      " Don't make a backup of a file when overwriting it
+set noerrorbells                  " Turn off incessant beeping
+
+" Search
+set nohlsearch                    " Don't highlight matches with last search pattern
+set ignorecase                    " Ignore case in search patterns
+set smartcase                     " Works with ignorecase to only search case sensitive when capital is given
+
+" Mouse
+set mouse=a                       " Enable mouse for all modes
+set mousehide                     " Hide the mouse when typing text
+
+" Set numbering/position/status
+set number			                  " Shows line numbers
+set ruler 			                  " Shows current position (row and column) at the bottom of srceen
+
+" Set tabbing/indenting
+set tabstop=2		                  " How many columns a tab counts for
+set shiftwidth=2	                " Specifies how many columns text is indented with the rindent operations << and >>
+set softtabstop=2                 " How many columns a tab counts for, only used when expandtab is not set
+set cindent                       " Enables automatic C program indenting
+set autoindent                    " Enables automatic C program indenting
+set smartindent		                " Indents according to blocks of code, 'nosmartindent'
+set expandtab		                  " Hitting tab in insert mode will produce the appropriate number of spaces
+
+set showmatch		                  " When typing a closing parenthesis, bracket, or brace, shows match
+set showmode                      " Show if you are in insert mode or command mode at the bottom of the screen
+set spell spelllang=en_us         " Set spelling options
+set nospell                       " Turn spelling off by default
+set textwidth=100	                " Maximum line length before wrapping; 0 means don't do this
+set wrapmargin=10	                " wraps if within this many spaces from right margin; doesn't work unless text width is 0
+set wildmode=longest,list         " Sets tab completion for command line similar to bash
+
+" Plugin install
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-set autochdir               "    Automatically switch working directory to current file
-set autoindent              "ai  Enables automatic C program indenting
-set backspace=2             "bs  Configure backspace to work as normal same as =indent,eol,start
-set cindent                 "cin Enables automatic C program indenting
-set clipboard=unnamedplus   "    Set all yanks to be copied to register * as well as register +
-set expandtab		        "et  Hitting tab in insert mode will produce the appropriate number of spaces
-set formatoptions+=tqw      "    Text formatting, a=auto formatting for t=text and w=paragraphs
-set ignorecase              "ic  Ignore case in search patterns. Also used when searching in the tags file.
-set laststatus=2	        "ls  Always include the status line at the bottom of the screen
-set mouse=a                 "    Enable mouse for all modes
-set mousehide               "    Hide the mouse when typing text
-set modeline                "    Honor modelines in files as overrides
-set modelines=5             "    Number of lines at begining of file to check for modelines
-set nobackup                "bk  Don't make a backup of a file when overwriting it
-set nocompatible  	        "cp  Use current VIM syntax and not old VI syntax
-set nohlsearch              "hls Don't highlight matches with last search pattern
-set number			        "nu  Shows line numbers
-set ruler 			        "ru  Shows current position (row and column) at the bottom of srceen
-set shiftwidth=4	        "sw  Specifies how many columns text is indented with the rindent operations << and >>
-set showmatch		        "sm  When typing a closing parenthesis, bracket, or brace, shows match
-set showmode                "smd Show if you are in insert mode or command mode at the bottom of the screen
-set smartindent		        "    Indents according to blocks of code, 'nosmartindent'
-set spell spelllang=en_us   "    Set spelling options
-set nospell                 "    Turn spelling off by default
-set softtabstop=4           "sts How many columns a tab counts for, only used when expandtab is not set
-set tabstop=4		        "ts  How many columns a tab counts for
-set textwidth=100	        "tw  Maximum line length before wrapping; 0 means don't do this
-set wrapmargin=10	        "wm  If you get within this many spaces from right margin it will wrap; doesn't work unless text width is 0
-set wildmode=longest,list   "    Sets tab completion for command line similar to bash
+set nocompatible  	                        " Use modern VIM syntax, required by Vundle
+filetype off                                " Required for Vundle
+set rtp+=~/.vim/bundle/Vundle.vim           " Add Vundle to runtime path
+call vundle#begin()                         " Initialize Vundle
+Plugin 'VundleVim/Vundle.vim'               " Manage Vundle with Vundle
 
-" Load filetype specific plugins and indent rules
-filetype plugin indent on
+" Utilities
+"Plug 'yegappan/mru'
+"Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all'  }
+"Plug 'junegunn/fzf.vim'
+"Plug 'ctrlpvim/ctrlp.vim'
+"
+"Plug 'Shougo/neocomplete.vim'
+"Plug 'tommcdo/vim-exchange'
+"Plug 'ntpeters/vim-better-whitespace'
+"Plug 'tpope/vim-surround'
+"Plug 'tpope/vim-repeat'
+"Plug 'jiangmiao/auto-pairs'
+"Plug 'vim-scripts/CursorLineCurrentWindow'
+"Plug 'victormours/better-writing.vim'
+"Plug 'janko-m/vim-test'
+"Plug 'skywind3000/asyncrun.vim'
+"Plug 'w0rp/ale'
+"Plugin 'scrooloose/nerdtree'
+"Plugin 'majutsushi/tagbar'
+"Plugin 'ervandew/supertab'
+"Plugin 'BufOnly.vim'
+"Plugin 'wesQ3/vim-windowswap'
+"Plugin 'SirVer/ultisnips'
+"Plugin 'junegunn/fzf.vim'
+"Plugin 'junegunn/fzf'
+"Plugin 'godlygeek/tabular'
+"Plugin 'ctrlpvim/ctrlp.vim'
+"Plugin 'benmills/vimux'
+"Plugin 'jeetsukumaran/vim-buffergator'
+"Plugin 'gilsondev/searchtasks.vim'
+"Plugin 'Shougo/neocomplete.vim'
+"Plugin 'tpope/vim-dispatch'
 
-" Override filetype detection for *.smali files
+" Interface
+Plugin 'scrooloose/nerdtree'                      " File explorer sidebar
+"Plugin 'Xuyuanp/nerdtree-git-plugin'             " Seems to break devicons in NerdTree
+Plugin 'vim-airline/vim-airline'                  " Awesome status bar at bottom with git support
+Plugin 'vim-airline/vim-airline-themes'           " Vim Airline themes
+Plugin 'ryanoasis/vim-devicons'                   " Sweet folder/file icons for nerd tree
+Plugin 'tiagofumo/vim-nerdtree-syntax-highlight'  " Colorizes devicons
+
+" ColorSchemes
+Plugin 'vim-scripts/CycleColor' 			            " Color scheme cycler
+Plugin 'ajmwagar/vim-deus' 				                " deus
+Plugin 'YorickPeterse/happy_hacking.vim'          " happy_hacking
+Plugin 'w0ng/vim-hybrid' 				                  " hybrid
+Plugin 'kristijanhusak/vim-hybrid-material'       " hybrid_material
+Plugin 'nanotech/jellybeans.vim' 			            " jellybeans
+Plugin 'dikiaap/minimalist' 				              " minimalist
+Plugin 'marcopaganini/termschool-vim-theme'       " termschool
+
+" Programming
+Plugin 'tpope/vim-fugitive'                 " Git integration
+"Plugin 'kablamo/vim-git-log'
+"Plugin 'gregsexton/gitv'
+"Plugin 'jakedouglas/exuberant-ctags'
+"Plugin 'honza/vim-snippets'
+"Plugin 'Townk/vim-autoclose'
+"Plugin 'tomtom/tcomment_vim'
+"Plugin 'tobyS/vmustache'
+"Plugin 'janko-m/vim-test'
+"Plugin 'maksimr/vim-jsbeautify'
+"Plugin 'vim-syntastic/syntastic'
+"Plugin 'neomake/neomake'
+"Plugin 'artur-shaik/vim-javacomplete2'
+"Bundle 'jalcine/cmake.vim'
+
+" CSS
+Plugin 'hail2u/vim-css3-syntax'             " CSS3 syntax highlighting
+
+" Markdown / Writting
+"Plugin 'reedes/vim-pencil'
+"Plugin 'tpope/vim-markdown'
+"Plugin 'jtratner/vim-flavored-markdown'
+"Plugin 'LanguageTool'
+
+" HTML
+"Plug 'mattn/emmet-vim'
+"Plug 'slim-template/vim-slim'
+"Plug 'mustache/vim-mustache-handlebars'
+
+" Javascript
+"Plug 'pangloss/vim-javascript'
+"Plug 'mxw/vim-jsx'
+"Plug 'othree/yajs.vim'
+"Plug 'othree/javascript-libraries-syntax.vim'
+"Plug 'claco/jasmine.vim'
+"Plug 'kchmck/vim-coffee-script'
+"Plug 'lfilho/cosco.vim'
+
+" Ruby
+"Plug 'Keithbsmiley/rspec.vim'
+"Plug 'tpope/vim-rails'
+"Plug 'tpope/vim-endwise'
+"Plug 'ecomba/vim-ruby-refactoring'
+"Plug 'vim-ruby/vim-ruby'
+"Plug 'emilsoman/spec-outline.vim'
+"Plug 'victormours/vim-rspec'
+"Plug 'nelstrom/vim-textobj-rubyblock'
+"Plug 'kana/vim-textobj-user'
+"Plug 'jgdavey/vim-blockle'
+"Plug 'KurtPreston/vim-autoformat-rails'
+"Plug 'ngmy/vim-rubocop'
+
+call vundle#end()                           " Plugins must be between begin and end for Vundle to manage them
+filetype on
+filetype plugin indent on                   " Load filetype specific plugins and indent rules, required by Vundle
+
+" Filetype settings
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Override filetype detection
 au BufNewFile,BufRead *.smali set filetype=smali
+au BufNewFile,BufRead *conkyrc set filetype=conkyrc
 
-" Override configs for specific file types
+" Override file type configs
 au FileType make setl noexpandtab
 au FileType yaml setl ts=2 sw=2 sts=2
 
-" Plugin settings
+" DevIcons Settings
+" https://github.com/ryanoasis/vim-devicons/wiki/Extra-Configuration
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Jedi: Turn off pop up call signatures
-let g:jedi#show_call_signatures = "2"
+" Set padding after/before glyph
+let g:WebDevIconsNerdTreeAfterGlyphPadding = ' '
+let g:WebDevIconsNerdTreeBeforeGlyphPadding = ''
 
-" Jedi: Turn off auto completion
-let g:jedi#popup_on_dot = 0
+" Decorate directories with folder icons
+let g:WebDevIconsUnicodeDecorateFolderNodes = 1
 
-" Jedi: Turn off docstring preview window
-au FileType python setl completeopt-=preview
+" Limit the icons coloring to smaller number
+let g:NERDTreeSyntaxDisableDefaultExtensions = 1
+let g:NERDTreeDisableExactMatchHighlight = 1
+let g:NERDTreeDisablePatternMatchHighlight = 1
+let g:NERDTreeSyntaxEnabledExtensions = ['rb', 'js', 'css', 'yml', 'md', 'go']
 
-" SuperTab: Enable menu filtering as you type
-set completeopt=menuone,longest,preview
+" NERDTree Settings
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Show hidden files
+let NERDTreeShowHidden = 1
 
-" SuperTab: Select first instead of last autocomplete
-let g:SuperTabDefaultCompletionType = "<c-n>"
+" Automatically delete the buffer of the file you just deleted
+let NERDTreeAutoDeleteBuffer = 1
+
+" Vim-Airline settings
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Always include powerline status line at the bottom of the screen
+set laststatus=2
+
+" User powerline fonts for icons
+let g:airline_powerline_fonts = 1
+
+"let g:Powerline_symbols = 'unicode'
+
+" Automatically displays all buffers when there's only one tab open
+let g:airline#extensions#tabline#enabled = 1
+
+" Set the airline theme
+let g:airline_theme = 'deus'
+
+"let g:hybrid_custom_term_colors = 1
+"let g:hybrid_reduced_contrast = 1 
+
+" Syntastic settings
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"set statusline+=%#warningmsg#
+"set statusline+=%{SyntasticStatuslineFlag()}
+"set statusline+=%*
+"let g:syntastic_always_populate_loc_list = 1
+"let g:syntastic_auto_loc_list = 1
+"let g:syntastic_check_on_open = 1
+
+" Supertab settings
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"" SuperTab: Enable menu filtering as you type
+"set completeopt=menuone,longest,preview
+"
+"" SuperTab: Select first instead of last autocomplete
+"let g:SuperTabDefaultCompletionType = "<c-n>"
+"
+
+" Enable omni completion.
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
+"autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
+"autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
+"autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
+"autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
+"autocmd FileType java setlocal omnifunc=javacomplete#Complete
+
+" Enable heavy omni completion.
+"if !exists('g:neocomplete#sources#omni#input_patterns')
+"  let g:neocomplete#sources#omni#input_patterns = {}
+"endif
+""let g:neocomplete#sources#omni#input_patterns.php = '[^. \t]->\h\w*\|\h\w*::'
+"let g:neocomplete#sources#omni#input_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)'
+"let g:neocomplete#sources#omni#input_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
+"
+"" For perlomni.vim setting.
+"" https://github.com/c9s/perlomni.vim
+"let g:neocomplete#sources#omni#input_patterns.java = '[^. *\t]\.\w*\|\h\w*::'
+"let g:neocomplete#sources#omni#input_patterns.perl = '\h\w*->\h\w*\|\h\w*::'
 
 " Key Mappings
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -92,163 +284,22 @@ let g:SuperTabDefaultCompletionType = "<c-n>"
 " c Command-line mode map. Defined using :cmap or cnoremap
 " noremap ignores other mappings - always use this mode
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-" Register +: Vim, X Apps
-" Register + w/unnamedplus: Vim, X Apps, MSWindows/Synergy
-" Register + w/Parcellite: Vim, X Apps, MSWindows/Synergy
-" Register *: Vim, MSWindows/Synergy, middle clicks
-" Register * w/Parcellite: Vim, MSWindows/Synergy, middle clicks
-vnoremap <C-c> "+y
-nnoremap <C-v> "+p
-inoremap <C-v> <Esc>"+pa
-nnoremap <C-a> ggVG
+" Toggle nerd tree with Ctrl+f
+map <C-f> :NERDTreeToggle<CR>
 
 " Move up/down by rows rather than by lines
 nnoremap k gk
 nnoremap j gj
 
-" Show syntax highlighting group with Ctrl+Shift+h for word under cursor
-nnoremap <C-S-h> :call ColorGroup()<CR>
-fun ColorGroup()
-    echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
-endfun
+" Configure copy/paste and select all
+vnoremap <C-c> "+y
+nnoremap <C-v> "+p
+inoremap <C-v> <Esc>"+pa
+nnoremap <C-a> ggVG
 
-if has("gui_running") 
-    if has("win32") || has("win64")
-        source $VIMRUNTIME/mswin.vim    " Add Windows copy/paste support
-        autocmd GUIEnter * simalt ~x    " Start GUI maximized
-    endif
-endif
-
-syntax on                               " Turn on syntax hi-lighting
-hi clear                                " Clear any previous hi-lighting
-set background=dark                     " Set vim color mode (dark or light)
-if has("gui_running")
-    if has("gui_gtk2")
-        set guioptions-=T               " Remove toolbar at the top
-        set guifont=Inconsolata-g\ Medium\ 11
-    endif
-else
-    set t_Co=256                        " Enable 256 colors for terminal mode
-endif
-let g:colors_name = "frank"             " Set color scheme name
-let python_highlight_all = 1            " Enable syntax/python.vim highlighting
-let c_gnu = 1                           " ?
-
-" Colors
-" Show groups: help hightlight-groups
-" http://www.calmar.ws/vim/256-xterm-24bit-rgb-color-chart.html
+" Color settings
 "******************************************************************************
-let xBlack = [0, "#000000"]
-let xWhite = [15, "#ffffff"]
-let xGrayDusk = [59, "#5f5f5f"]
-let xTealDusk = [66, "#5f8787"]
-let xBlueDusk = [67, "#5f87af"]
-let xPurpleDusk = [139, "#af87af"]
-let xGreenDusk = [148, "#afd700"]       " 142 is also good
-let xOrangeDusk = [202, "#ff5f00"]      " 208 is also really good
-let xYellowDusk = [220, "#ffd700"]      " Numbers
-let xBackground = [234, "#1c1c1c"]      " Background color for window
-let xGrayDark = [236, "#3a3a3a"]        " Pop up menu background
-let xGrayLight = [239, "#4e4e4e"]       " Visual hi-light background
-let xGrayText = [252, "#d0d0d0"]
-
-" Functions
-" g: global scope used by default when not specified
-" a: indicates function arguments
-" l: local function argument
-"******************************************************************************
-" group, fgcolor, bgcolor, attrib
-fun SetColor(groups, ...)
-    let l:attr = a:0 > 2 ? a:3 : "none"
-
-    if !has("gui_running")
-        let l:fgcolor = a:0 > 0 && type(a:1) == type([]) ? a:1[0] : g:xBackground[0]
-        let l:bgcolor = a:0 > 1 && type(a:2) == type([]) ? a:2[0] : g:xBackground[0]
-        for group in a:groups
-            exec "hi " . group . " cterm=" . l:attr . " ctermfg=" . l:fgcolor . " ctermbg=" . l:bgcolor
-        endfor
-    else
-        let l:fgcolor = a:0 > 0 && type(a:1) == type([]) ? a:1[1] : g:xBackground[1]
-        let l:bgcolor = a:0 > 1 && type(a:2) == type([]) ? a:2[1] : g:xBackground[1]
-        for group in a:groups
-            exec "hi " . group . " gui=" . l:attr . " guifg=" . l:fgcolor . " guibg=" . l:bgcolor
-        endfor
-    endif
-endfun
-
-" Vim Interface
-"******************************************************************************
-" See all current colors with: hi
-
-call SetColor(["Normal"], xGrayText)
-call SetColor(["Question", "SpecialKey", "Title", "VertSplit", "WildMenu"], xOrangeDusk)
-
-" Dosn't do anything in term only gvim
-call SetColor(["Cursor"], xBlack, xOrangeDusk)
-call SetColor(["CursorLine", "CursorColumn"], xBlack, xOrangeDusk)
-
-call SetColor(["Error"], xOrangeDusk)
-call SetColor(["Todo"], xBlack, xBlueDusk)
-call SetColor(["LineNr", "NonText"], xGrayDusk)
-call SetColor(["Directory"], xBlueDusk)
-call SetColor(["MatchParen"], xOrangeDusk, xBlack, "bold")
-call SetColor(["Underlined"], xBlueDusk, "none", "underline")
-call SetColor(["ErrorMsg", "WarningMsg", "ModeMsg", "MoreMsg"], xOrangeDusk)
-
-call SetColor(["TabLine", "TabLineFill", "TabLineSel"], xOrangeDusk)
-"
-" Tab completion menu
-call SetColor(["Pmenu"], xBlueDusk, xGrayDark)
-call SetColor(["PmenuSel"], xWhite, xBlueDusk)
-
-" Status line at bottom (selected and non-selected/NC)
-call SetColor(["StatusLine"], xWhite, xBlueDusk)
-call SetColor(["StatusLineNC"], xBlack, xBlueDusk)
-"
-"hi DiffAdd          cterm=none              ctermfg=none        ctermbg=239
-"hi DiffChange       cterm=none              ctermfg=none        ctermbg=170
-"hi DiffDelete       cterm=bold              ctermfg=239         ctermbg=66
-"hi DiffText         cterm=bold              ctermfg=15         	ctermbg=none
-"
-call SetColor(["Visual", "VisualNOS"], xBlueDusk, xGrayLight)
-
-"hi Folded           cterm=none              ctermfg=244 		ctermbg=235
-"hi FoldColumn       cterm=none              ctermfg=15          ctermbg=237
-"
-"hi IncSearch        cterm=none              ctermfg=15          ctermbg=149
-"hi Search           cterm=none              ctermfg=15          ctermbg=149
-"
-" Code Syntax
-"******************************************************************************
-call SetColor(["String"], xOrangeDusk)
-call SetColor(["Comment"], xTealDusk)
-call SetColor(["Function", "Identifier"], xBlueDusk)
-call SetColor(["Float", "Boolean", "Number"], xYellowDusk)
-call SetColor(["PreProc", "Include", "Define", "Macro", "PreCondit"], xPurpleDusk)
-call SetColor(["Constant", "Type", "StorageClass", "Typedef", "Structure"], xGreenDusk)
-call SetColor(["Special", "Character", "SpecialChar", "Tag", "Delimiter", "SpecialComment", "Debug"], xBlueDusk)
-call SetColor(["Statement", "Conditional", "Repeat", "Label", "Operator", "Keyword", "Exception"], xGreenDusk, "none", "bold")
-
-" Markdown Syntax
-"******************************************************************************
-call SetColor(["markdownCode"], xBlueDusk)
-call SetColor(["markdownLink"], xYellowDusk)
-call SetColor(["markdownHeadingDelimiter"], xTealDusk)
-call SetColor(["markdownH1", "markdownH2", "markdownH3", "markdownH4"], xOrangeDusk)
-call SetColor(["markdownItalic", "markdownLinkText", "markdownListMarker", "markdownOrderedListMarker"], xGreenDusk)
-
-" XML/HTML Syntax
-"******************************************************************************
-"hi xmlTagName       cterm=none			    ctermfg=149			ctermbg=none
-"hi xmlCdata         cterm=none			    ctermfg=246			ctermbg=none
-"hi xmlAttrib        cterm=none			    ctermfg=110			ctermbg=none
-"hi htmlTagName      cterm=none			    ctermfg=149			ctermbg=none
-"hi htmlArg          cterm=none			    ctermfg=110			ctermbg=none
-"hi htmlItalic		cterm=none				ctermfg=253		    ctermbg=235
-"
-"hi Ignore           cterm=none              ctermfg=15          ctermbg=none
-"
-" Clean up
-"******************************************************************************
-delf SetColor
+syntax on                                   " Turn on syntax hi-lighting
+set t_Co=256                                " Enable 256 colors for terminal mode
+set background=dark                         " Set vim color mode (dark or light)
+colorscheme deus                            " Set the color scheme
