@@ -1,3 +1,4 @@
+" Copyright {{{
 "MIT License
 "Copyright (c) 2018 phR0ze
 "
@@ -18,133 +19,208 @@
 "LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 "OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 "SOFTWARE.
+" }}}
 
-" Plugin install
+" General settings {{{
+" Examples:
+" https://github.com/EricFalkenberg/dotfiles/blob/master/.vimrc
+" https://github.com/zeorin/dotfiles/blob/e01cebf/.vimrc#L864-L900
+" https://github.com/ryanoasis/vim-devicons/issues/158
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-set nocompatible  	                        " Use modern VIM syntax, required by Vundle
-filetype off                                " Required for Vundle
-set rtp+=~/.vim/bundle/Vundle.vim           " Add Vundle to runtime path
-call vundle#begin()                         " Initialize Vundle
-Plugin 'VundleVim/Vundle.vim'               " Manage Vundle with Vundle
+augroup GeneralSettings
+  autocmd!
+  set title                     " Sets the window title to your current buffer name
+  set encoding=UTF-8            " Required for vim-devicons to work correctly
+  set autochdir                 " Automatically switch working directory to current file
+  set backspace=2               " Configure backspace to work as normal same as =indent,eol,start
+  set clipboard=unnamedplus     " Set all yanks to be copied to register * as well as register +
+  set formatoptions+=tqw        " Text formatting, a=auto formatting for t=text and w=paragraphs
+  set nobackup                  " Don't make a backup of a file when overwriting it
+  set noerrorbells              " Turn off incessant beeping
 
-" Utilities
-"Plug 'yegappan/mru'
-"Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all'  }
-"Plug 'junegunn/fzf.vim'
-"Plug 'ctrlpvim/ctrlp.vim'
-"
-"Plug 'Shougo/neocomplete.vim'
-"Plug 'tommcdo/vim-exchange'
-"Plug 'ntpeters/vim-better-whitespace'
-"Plug 'tpope/vim-surround'
-"Plug 'tpope/vim-repeat'
-"Plug 'jiangmiao/auto-pairs'
-"Plug 'vim-scripts/CursorLineCurrentWindow'
-"Plug 'victormours/better-writing.vim'
-"Plug 'janko-m/vim-test'
-"Plug 'skywind3000/asyncrun.vim'
-"Plug 'w0rp/ale'
-"Plugin 'scrooloose/nerdtree'
-"Plugin 'majutsushi/tagbar'
-"Plugin 'ervandew/supertab'
-"Plugin 'BufOnly.vim'
-"Plugin 'wesQ3/vim-windowswap'
-"Plugin 'SirVer/ultisnips'
-"Plugin 'junegunn/fzf.vim'
-"Plugin 'junegunn/fzf'
-"Plugin 'godlygeek/tabular'
-"Plugin 'ctrlpvim/ctrlp.vim'
-"Plugin 'benmills/vimux'
-"Plugin 'jeetsukumaran/vim-buffergator'
-"Plugin 'gilsondev/searchtasks.vim'
-"Plugin 'Shougo/neocomplete.vim'
-"Plugin 'tpope/vim-dispatch'
+  " Search
+  set nohlsearch                " Don't highlight matches with last search pattern
+  set ignorecase                " Ignore case in search patterns
+  set smartcase                 " With ignorecase this searches case sensitive when capital is given
 
-" Interface
-Plugin 'scrooloose/nerdtree'                      " File explorer sidebar
-"Plugin 'Xuyuanp/nerdtree-git-plugin'             " Seems to break devicons in NerdTree
-Plugin 'vim-airline/vim-airline'                  " Awesome status bar at bottom with git support
-Plugin 'vim-airline/vim-airline-themes'           " Vim Airline themes
-Plugin 'ryanoasis/vim-devicons'                   " Sweet folder/file icons for nerd tree
+  " Mouse
+  set mouse=a                   " Enable mouse for all modes
+  set mousehide                 " Hide the mouse when typing text
 
-" ColorSchemes
-Plugin 'vim-scripts/CycleColor' 			            " Color scheme cycler
-Plugin 'ajmwagar/vim-deus' 				                " deus
-Plugin 'YorickPeterse/happy_hacking.vim'          " happy_hacking
-Plugin 'w0ng/vim-hybrid' 				                  " hybrid
-Plugin 'kristijanhusak/vim-hybrid-material'       " hybrid_material
-Plugin 'nanotech/jellybeans.vim' 			            " jellybeans
-Plugin 'dikiaap/minimalist' 				              " minimalist
-Plugin 'marcopaganini/termschool-vim-theme'       " termschool
+  " Set numbering/status
+  set number			              " Shows line numbers
+  set ruler 			              " Shows current position (row and column) at the bottom of srceen
 
-" Programming
-Plugin 'airblade/vim-gitgutter'                   " Git integration in gutter
-"Plugin 'tpope/vim-fugitive'                 " Git integration
-"Plugin 'kablamo/vim-git-log'
-"Plugin 'gregsexton/gitv'
-"Plugin 'jakedouglas/exuberant-ctags'
-"Plugin 'honza/vim-snippets'
-"Plugin 'Townk/vim-autoclose'
-"Plugin 'tomtom/tcomment_vim'
-"Plugin 'tobyS/vmustache'
-"Plugin 'janko-m/vim-test'
-"Plugin 'maksimr/vim-jsbeautify'
-"Plugin 'vim-syntastic/syntastic'
-"Plugin 'neomake/neomake'
-"Plugin 'artur-shaik/vim-javacomplete2'
-"Bundle 'jalcine/cmake.vim'
+  " Set tabbing/indenting
+  set tabstop=2		              " How many columns a tab counts for
+  set shiftwidth=2	            " Specifies how many columns text is indented with the rindent operations << and >>
+  set softtabstop=2             " How many columns a tab counts for, only used when expandtab is not set
+  set expandtab		              " Hitting tab in insert mode will produce the appropriate number of spaces
+  set cindent                   " Enables automatic C program indenting
+  set autoindent                " Enables automatic C program indenting
+  set smartindent		            " Indents according to blocks of code, 'nosmartindent'
 
-" Syntax highlighting
-Plugin 'stephpy/vim-yaml'                         " yaml
-Plugin 'hail2u/vim-css3-syntax'                   " css3
-Plugin 'kurayama/systemd-vim-syntax'              " systemd
+  set showmatch		              " When typing a closing parenthesis, bracket, or brace, shows match
+  set showmode                  " Show if you are in insert/command mode at the bottom of the screen
+  set spell spelllang=en_us     " Set spelling options
+  set nospell                   " Turn spelling off by default
+  set textwidth=100	            " Maximum line length before wrapping; 0 means don't do this
+  set wrapmargin=10	            " When width 0, this wraps if within this many spaces from right margin
+  set wildmode=longest,list     " Sets tab completion for command line similar to bash
 
-" Markdown / Writting
-"Plugin 'reedes/vim-pencil'
-"Plugin 'tpope/vim-markdown'
-"Plugin 'jtratner/vim-flavored-markdown'
-"Plugin 'LanguageTool'
+  " Code folding
+  "set foldenable                " Enable folding
+  "set foldmarker={,}            " Markers are { }
+  "set foldmethod=marker         " Create folds based on markers in code
+  "set foldlevelstart=99       " Open all folds when opening a file
+  "set foldnestmax=10          " Maximum nested folds
+  "set foldtext=IndFoldTxt()   " Indent Fold Text
+  "function! IndFoldTxt()
+  "  let indent = repeat(' ', indent(v:foldstart))
+  "  let txt = foldtext()
+  "  return indent.txt
+  "endfunction
+augroup END
+" }}}
 
-" HTML
-"Plug 'mattn/emmet-vim'
-"Plug 'slim-template/vim-slim'
-"Plug 'mustache/vim-mustache-handlebars'
+" Plugin install {{{
+augroup PluginInstall
+  autocmd!
 
-" Javascript
-"Plug 'pangloss/vim-javascript'
-"Plug 'mxw/vim-jsx'
-"Plug 'othree/yajs.vim'
-"Plug 'othree/javascript-libraries-syntax.vim'
-"Plug 'claco/jasmine.vim'
-"Plug 'kchmck/vim-coffee-script'
-"Plug 'lfilho/cosco.vim'
+  set nocompatible  	                        " Use modern VIM syntax, required by Vundle
+  filetype off                                " Required for Vundle
+  set rtp+=~/.vim/bundle/Vundle.vim           " Add Vundle to runtime path
+  call vundle#begin()                         " Initialize Vundle
+  Plugin 'VundleVim/Vundle.vim'               " Manage Vundle with Vundle
 
-" Ruby
-"Plug 'Keithbsmiley/rspec.vim'
-"Plug 'tpope/vim-rails'
-"Plug 'tpope/vim-endwise'
-"Plug 'ecomba/vim-ruby-refactoring'
-"Plug 'vim-ruby/vim-ruby'
-"Plug 'emilsoman/spec-outline.vim'
-"Plug 'victormours/vim-rspec'
-"Plug 'nelstrom/vim-textobj-rubyblock'
-"Plug 'kana/vim-textobj-user'
-"Plug 'jgdavey/vim-blockle'
-"Plug 'KurtPreston/vim-autoformat-rails'
-"Plug 'ngmy/vim-rubocop'
+  " Utilities
+  "Plug 'yegappan/mru'
+  "Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all'  }
+  "Plug 'junegunn/fzf.vim'
+  "Plug 'ctrlpvim/ctrlp.vim'
+  "
+  "Plug 'Shougo/neocomplete.vim'
+  "Plug 'tommcdo/vim-exchange'
+  "Plug 'ntpeters/vim-better-whitespace'
+  "Plug 'tpope/vim-surround'
+  "Plug 'tpope/vim-repeat'
+  "Plug 'jiangmiao/auto-pairs'
+  "Plug 'vim-scripts/CursorLineCurrentWindow'
+  "Plug 'victormours/better-writing.vim'
+  "Plug 'janko-m/vim-test'
+  "Plug 'skywind3000/asyncrun.vim'
+  "Plug 'w0rp/ale'
+  "Plugin 'scrooloose/nerdtree'
+  "Plugin 'majutsushi/tagbar'
+  "Plugin 'ervandew/supertab'
+  "Plugin 'BufOnly.vim'
+  "Plugin 'wesQ3/vim-windowswap'
+  "Plugin 'SirVer/ultisnips'
+  "Plugin 'junegunn/fzf.vim'
+  "Plugin 'junegunn/fzf'
+  "Plugin 'godlygeek/tabular'
+  "Plugin 'ctrlpvim/ctrlp.vim'
+  "Plugin 'benmills/vimux'
+  "Plugin 'jeetsukumaran/vim-buffergator'
+  "Plugin 'gilsondev/searchtasks.vim'
+  "Plugin 'Shougo/neocomplete.vim'
+  "Plugin 'tpope/vim-dispatch'
 
-call vundle#end()                           " Plugins must be btw begin/end for Vundle to manage them
-filetype plugin indent on                   " Turn file type and indenting back on
+  " Interface
+  Plugin 'scrooloose/nerdtree'                " File explorer sidebar
+  "Plugin 'Xuyuanp/nerdtree-git-plugin'       " Seems to break devicons in NerdTree
+  Plugin 'vim-airline/vim-airline'            " Awesome status bar at bottom with git support
+  Plugin 'vim-airline/vim-airline-themes'     " Vim Airline themes
+  Plugin 'ryanoasis/vim-devicons'             " Sweet folder/file icons for nerd tree
 
-" Filetype settings
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Override filetype detection
-au BufNewFile,BufRead *.smali set filetype=smali
-au BufNewFile,BufRead *conkyrc set filetype=conkyrc
+  " ColorSchemes
+  Plugin 'vim-scripts/CycleColor' 			      " Color scheme cycler
+  Plugin 'ajmwagar/vim-deus' 				          " deus
+  Plugin 'YorickPeterse/happy_hacking.vim'    " happy_hacking
+  Plugin 'w0ng/vim-hybrid' 				            " hybrid
+  Plugin 'kristijanhusak/vim-hybrid-material' " hybrid_material
+  Plugin 'nanotech/jellybeans.vim' 			      " jellybeans
+  Plugin 'dikiaap/minimalist' 				        " minimalist
+  Plugin 'marcopaganini/termschool-vim-theme' " termschool
 
-" Override file type configs
-au FileType make setl noexpandtab
-au FileType yaml setl ts=2 sw=2 sts=2
+  " Programming
+  Plugin 'airblade/vim-gitgutter'             " Git integration in gutter
+  "Plugin 'tpope/vim-fugitive'                " Git integration
+  "Plugin 'kablamo/vim-git-log'
+  "Plugin 'gregsexton/gitv'
+  "Plugin 'jakedouglas/exuberant-ctags'
+  "Plugin 'honza/vim-snippets'
+  "Plugin 'Townk/vim-autoclose'
+  "Plugin 'tomtom/tcomment_vim'
+  "Plugin 'tobyS/vmustache'
+  "Plugin 'janko-m/vim-test'
+  "Plugin 'maksimr/vim-jsbeautify'
+  "Plugin 'vim-syntastic/syntastic'
+  "Plugin 'neomake/neomake'
+  "Plugin 'artur-shaik/vim-javacomplete2'
+  "Bundle 'jalcine/cmake.vim'
+
+  " Syntax highlighting
+  Plugin 'stephpy/vim-yaml'                  " yaml
+  Plugin 'hail2u/vim-css3-syntax'            " css3
+  Plugin 'kurayama/systemd-vim-syntax'       " systemd
+
+  " Markdown / Writting
+  "Plugin 'reedes/vim-pencil'
+  "Plugin 'tpope/vim-markdown'
+  "Plugin 'jtratner/vim-flavored-markdown'
+  "Plugin 'LanguageTool'
+
+  " HTML
+  "Plug 'mattn/emmet-vim'
+  "Plug 'slim-template/vim-slim'
+  "Plug 'mustache/vim-mustache-handlebars'
+
+  " Javascript
+  "Plug 'pangloss/vim-javascript'
+  "Plug 'mxw/vim-jsx'
+  "Plug 'othree/yajs.vim'
+  "Plug 'othree/javascript-libraries-syntax.vim'
+  "Plug 'claco/jasmine.vim'
+  "Plug 'kchmck/vim-coffee-script'
+  "Plug 'lfilho/cosco.vim'
+
+  " Ruby
+  "Plug 'Keithbsmiley/rspec.vim'
+  "Plug 'tpope/vim-rails'
+  "Plug 'tpope/vim-endwise'
+  "Plug 'ecomba/vim-ruby-refactoring'
+  "Plug 'vim-ruby/vim-ruby'
+  "Plug 'emilsoman/spec-outline.vim'
+  "Plug 'victormours/vim-rspec'
+  "Plug 'nelstrom/vim-textobj-rubyblock'
+  "Plug 'kana/vim-textobj-user'
+  "Plug 'jgdavey/vim-blockle'
+  "Plug 'KurtPreston/vim-autoformat-rails'
+  "Plug 'ngmy/vim-rubocop'
+
+  " Colorize last to ensure overriding
+  Plugin 'phR0ze/vim-colorize'               " Colorize various plugins
+
+  call vundle#end()                          " Plugins must be btw begin/end for Vundle to manage them
+  filetype plugin indent on                  " Turn file type and indenting back on
+augroup END
+" }}}
+
+" Filetype settings {{{
+augroup FiletypeSettings
+  autocmd!
+
+  " Override filetype detection
+  au BufNewFile,BufRead *.smali set filetype=smali
+  au BufNewFile,BufRead *conkyrc set filetype=conkyrc
+
+  " Override file type configs
+  au FileType make setl noexpandtab
+  au FileType vim setl foldmethod=marker
+  au FileType yaml setl ts=2 sw=2 sts=2
+augroup END
+" }}}
 
 " DevIcons Settings
 " https://github.com/ryanoasis/vim-devicons/wiki/Extra-Configuration
@@ -163,6 +239,10 @@ let NERDTreeShowHidden = 1
 
 " Automatically delete the buffer of the file you just deleted
 let NERDTreeAutoDeleteBuffer = 1
+
+" Default arrow symbols
+let g:NERDTreeDirArrowExpandable = '▸'
+let g:NERDTreeDirArrowCollapsible = '▾'
 
 " Vim-Airline settings
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -258,114 +338,3 @@ syntax on                                   " Turn on syntax hi-lighting
 set t_Co=256                                " Enable 256 colors for terminal mode
 set background=dark                         " Set vim color mode (dark or light)
 colorscheme deus                            " Set the color scheme
-
-" Colorize DevIcons
-" http://vim.wikia.com/wiki/Xterm256_color_names_for_console_Vim
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-function! ColorizeDevicons(iconmap)
-  let colors = keys(a:iconmap)
-  augroup devicons_colors
-    autocmd!
-    for color in colors
-
-      " Set up highlight group e.g. 'devicons_green'
-      exec 'autocmd FileType nerdtree,startify highlight devicons_'.color.
-        \ ' guifg=#'.g:devicons_colors[color][0].' ctermfg='.g:devicons_colors[color][1]
-
-      " Match highlight group e.g. 'devicons_green' with icons set e.g. ['', '', '', '']
-      exec 'autocmd FileType nerdtree,startify syntax match devicons_'.color.
-        \ ' /\v'.join(a:iconmap[color], '|').'/ containedin=ALL'
-    endfor
-  augroup END
-endfunction
-
-" Color to icon set mapping
-"\'seagreen': ['', '', '', '', ''],
-let g:devicons_iconmap = {
-  \'lightgreen': ['', '', '', '', '', '', '', '', '', '', ''],
-  \'yellow': ['', '', ''],
-  \'orange': ['', '', '', 'λ', '', ''],
-  \'red': ['', '', '', '', '', '', '', '', ''],
-  \'magenta': [''],
-  \'violet': ['', '', '', ''],
-  \'blue': ['', '', '', '', '', '', '', '', '', '', '', '', ''],
-  \'cyan': ['', '', '', ''],
-  \'green': ['', '', '', '']
-\}
-
-" guifg in Xterm256 and ctermfg
-let g:devicons_colors = {
-  \'cyan'         : ['00ffff', '51'],
-  \'blue'         : ['0000ff', '21'],
-  \'violet'       : ['d787ff', '177'],
-  \'red'          : ['ff0000', '196'],
-  \'yellow'       : ['ffff00', '226'],
-  \'orange'       : ['ffaf00', '214'],
-  \'magenta'      : ['ff00ff', '201'],
-  \'green'        : ['00ff00', '46'],
-  \'lightgreen'   : ['87ff5f', '119']
-\}
-
-call ColorizeDevicons(g:devicons_iconmap)
-
-" General settings
-" placed intentionally at the bottom to override anything plugins may have set
-"
-" Examples:
-" https://github.com/EricFalkenberg/dotfiles/blob/master/.vimrc
-" https://github.com/zeorin/dotfiles/blob/e01cebf/.vimrc#L864-L900
-" https://github.com/ryanoasis/vim-devicons/issues/158
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-set title                     " Sets the window title to your current buffer name
-set encoding=UTF-8            " Required for vim-devicons to work correctly
-set autochdir                 " Automatically switch working directory to current file
-set backspace=2               " Configure backspace to work as normal same as =indent,eol,start
-set clipboard=unnamedplus     " Set all yanks to be copied to register * as well as register +
-set formatoptions+=tqw        " Text formatting, a=auto formatting for t=text and w=paragraphs
-set nobackup                  " Don't make a backup of a file when overwriting it
-set noerrorbells              " Turn off incessant beeping
-
-" Search
-set nohlsearch                " Don't highlight matches with last search pattern
-set ignorecase                " Ignore case in search patterns
-set smartcase                 " With ignorecase this searches case sensitive when capital is given
-
-" Mouse
-set mouse=a                   " Enable mouse for all modes
-set mousehide                 " Hide the mouse when typing text
-
-" Set numbering/status
-set number			              " Shows line numbers
-set ruler 			              " Shows current position (row and column) at the bottom of srceen
-
-" Set tabbing/indenting
-set tabstop=2		              " How many columns a tab counts for
-set shiftwidth=2	            " Specifies how many columns text is indented with the rindent operations << and >>
-set softtabstop=2             " How many columns a tab counts for, only used when expandtab is not set
-set expandtab		              " Hitting tab in insert mode will produce the appropriate number of spaces
-set cindent                   " Enables automatic C program indenting
-set autoindent                " Enables automatic C program indenting
-set smartindent		            " Indents according to blocks of code, 'nosmartindent'
-
-set showmatch		              " When typing a closing parenthesis, bracket, or brace, shows match
-set showmode                  " Show if you are in insert/command mode at the bottom of the screen
-set spell spelllang=en_us     " Set spelling options
-set nospell                   " Turn spelling off by default
-set textwidth=100	            " Maximum line length before wrapping; 0 means don't do this
-set wrapmargin=10	            " When width 0, this wraps if within this many spaces from right margin
-set wildmode=longest,list     " Sets tab completion for command line similar to bash
-
-" Code folding
-"set foldenable              " Enable folding
-"set foldlevelstart=99       " Open all folds when opening a file
-"set foldnestmax=10          " Maximum nested folds
-"set foldmethod=marker       " Create folds based on markers in code
-"set foldmarker={,}          " Markers are { }
-"set foldtext=IndFoldTxt()   " Indent Fold Text
-"function! IndFoldTxt()
-"  let indent = repeat(' ', indent(v:foldstart))
-"  let txt = foldtext()
-"  return indent.txt
-"endfunction
-
-
