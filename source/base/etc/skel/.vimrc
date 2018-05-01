@@ -94,6 +94,7 @@ augroup PluginInstall
   Plugin 'VundleVim/Vundle.vim'               " Manage Vundle with Vundle
 
   " Utilities
+  Plugin 'aserebryakov/vim-todo-lists'        " Manage TODOs
   "Plug 'yegappan/mru'
   "Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all'  }
   "Plug 'junegunn/fzf.vim'
@@ -128,7 +129,6 @@ augroup PluginInstall
 
   " Interface
   Plugin 'scrooloose/nerdtree'                " File explorer sidebar
-  "Plugin 'Xuyuanp/nerdtree-git-plugin'       " Seems to break devicons in NerdTree
   Plugin 'vim-airline/vim-airline'            " Awesome status bar at bottom with git support
   Plugin 'vim-airline/vim-airline-themes'     " Vim Airline themes
   Plugin 'ryanoasis/vim-devicons'             " Sweet folder/file icons for nerd tree
@@ -145,7 +145,7 @@ augroup PluginInstall
 
   " Programming
   Plugin 'airblade/vim-gitgutter'             " Git integration in gutter
-  "Plugin 'tpope/vim-fugitive'                " Git integration
+  Plugin 'tpope/vim-fugitive'                 " Git integration
   "Plugin 'kablamo/vim-git-log'
   "Plugin 'gregsexton/gitv'
   "Plugin 'jakedouglas/exuberant-ctags'
