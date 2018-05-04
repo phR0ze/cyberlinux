@@ -1,0 +1,77 @@
+#MIT License
+#Copyright (c) 2017-2018 phR0ze
+#
+#Permission is hereby granted, free of charge, to any person obtaining a copy
+#of this software and associated documentation files (the "Software"), to deal
+#in the Software without restriction, including without limitation the rights
+#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#copies of the Software, and to permit persons to whom the Software is
+#furnished to do so, subject to the following conditions:
+#
+#The above copyright notice and this permission notice shall be included in all
+#copies or substantial portions of the Software.
+#
+#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+#SOFTWARE.
+base: _base
+
+build:
+  type: container
+  multilib: true
+  docker:
+    # Note: need privileged=true to allow mount to work inside container
+    params: '-e TERM=xterm -v /var/run/docker.sock:/var/run/docker.sock --privileged=true'
+    command: 'bash -c "while :; do sleep 5; done"'
+  packages:
+    - { pkg: linux,                           desc: Linux kernel and supporting modules }
+    - { pkg: gptfdisk,                        desc: Paritioning tools e.g. sgdisk }
+    - { pkg: mkinitcpio,                      desc: initramfs image creation utility }
+    - { pkg: mkinitcpio-vt-colors,            desc: vt console colors, type: CYBERLINUX }
+    - { pkg: rsync,                           desc: Remote file sync utility }
+    - { pkg: systemd,                         desc: System and service manager }
+    - { pkg: sudo,                            desc: Elevate some user commands to root }
+    - { install: core-pkgs }
+    - { install: core-tools }
+    - { install: grub-pkgs }
+  configs:
+    # Create and configure new build user and root user
+    - { chroot: 'useradd -m -G lp,wheel,network,storage,users -s /bin/bash build || true' }
+    - { exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /home/build' }
+    - { exec: "echo 'TERM=xterm' > /etc/environment" }
+    - { exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /root' }
+    - { edit: /etc/sudoers, insert: append, value: "build ALL=(ALL) NOPASSWD: ALL" }
+    - { apply: core-config }
+    - { apply: mkinitcpio-config }
+
+deployments:
+  base:
+    type: machine
+    multilib: true
+    groups: [lp, wheel, network, storage, users]
+    vars: { fontsize: 10 }
+    vagrant: { vram: 32, cpus: 2, ram: 2048 }
+    install:
+      entry: "Deploy <%=distro%>-base                    // Minimal shell"
+      kernel: linux
+    packages:
+      - { pkg: linux,                         desc: Linux kernel and supporting modules }
+      - { install: base-pkgs }
+      - { install: base-tools }
+      - { install: virtualbox-guest-nox }
+
+    configs:
+      - { apply: base-config }
+
+  live:
+    type: machine
+    base: desktop
+    vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
+    vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
+    install:
+      entry: "Start <%=distro%>-recovery                 // Live environment"
+      kernel: linux

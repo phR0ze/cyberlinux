@@ -30,22 +30,22 @@ require 'yaml'                  # YAML
 
 require_relative 'lib/core'     # ERB Handlers for different types
 require_relative 'lib/config'   # Programatic file editor and command runner
-require_relative 'lib/cmds'     # optparse wrapper for commands
 require_relative 'lib/sys'      # System helpers
 
 # Gems that should already be installed
 begin
+  require 'nub'                 # Commander, logging and other utilities
   require 'colorize'            # color output: colorize
   require 'filesize'            # human readable file sizes: Filesize
   require 'net/ssh'             # ssh integration: Net::SSH
   require 'net/scp'             # scp integration: Net::SCP
 rescue Exception => e
-  mod = e.message.split(' ').last.sub('/', '-')
-  !puts("Error: install missing package with 'sudo pacman -S ruby-#{mod}'") and exit
+  puts("Error: missing package '#{e.message.split(' ').last.sub('/', '-')}'")
+  !puts("Error: install missing packages with 'bundle install --system") and exit
 end
+MakeMakefile::Logging.instance_variable_set(:@logfile, File::NULL)
 
 class Reduce
-
   def initialize
     @type = OpenStruct.new({
       img: 'img',
@@ -1256,8 +1256,7 @@ if __FILE__ == $0
   app = 'reduce'
   reduce = Reduce.new
   version = reduce.instance_variable_get(:@vars).release
-  examples = "Examples:\n".colorize(:green)
-  examples += "Full ISO Build: sudo ./#{app} clean build --iso-full --profile=personal\n".colorize(:green)
+  examples = "Full ISO Build: sudo ./#{app} clean build --iso-full --profile=personal\n".colorize(:green)
   examples += "Rebuild initramfs: sudo ./#{app} clean build --initramfs --iso --profile=personal\n".colorize(:green)
   examples += "Rebuild multiboot: sudo ./#{app} clean build --multiboot --iso --profile=personal\n".colorize(:green)
   examples += "Clean pacman dbs: sudo ./#{app} clean --pacman\n".colorize(:green)
@@ -1267,76 +1266,77 @@ if __FILE__ == $0
   examples += "Deploy container: sudo ./#{app} deploy --run --deployment=build\n".colorize(:green)
   examples += "\n"
 
-  opts = Cmds.new(app, version, examples)
-  opts.add('info', 'List build info', [])
-  opts.add('list', 'List out components', [
-    CmdOpt.new('--all', 'List all components'),
-    CmdOpt.new('--boxes', 'List all boxes'),
-    CmdOpt.new('--isos', 'List all isos'),
-    CmdOpt.new('--images', 'List all docker images'),
-    CmdOpt.new('--raw', 'Automation suitable output'),
+  cmdr = Commander.new(app:app, version:version, examples:examples)
+  cmdr.add('info', 'List build info')
+  cmdr.add('list', 'List out components', options:[
+    Option.new('--all', 'List all components'),
+    Option.new('--boxes', 'List all boxes'),
+    Option.new('--isos', 'List all isos'),
+    Option.new('--images', 'List all docker images'),
+    Option.new('--raw', 'Automation suitable output'),
   ])
-  opts.add('clean', 'Clean ISO components', [
-    CmdOpt.new('--all', 'Clean all components'),
-    CmdOpt.new('--pacman', 'Clean pacman repos'),
-    CmdOpt.new('--pacman-all', 'Clean pacman repos and cache'),
-    CmdOpt.new('--initramfs', 'Clean initramfs image'),
-    CmdOpt.new('--multiboot', 'Clean grub multiboot'),
-    CmdOpt.new('--deployments=x,y,z', 'Clean given deployments', type:Array),
-    CmdOpt.new('--iso', 'Clean bootable ISO'),
-    CmdOpt.new('--iso-full', 'Clean bootable ISO and all machine deployments'),
-    CmdOpt.new('--vms', 'Clean VMs that are no longer deployed'),
+  cmdr.add('clean', 'Clean ISO components', options:[
+    Option.new(nil, 'Components to clean', type:Array, required:true,
+    Option.new('--all', 'Clean all components'),
+    Option.new('--pacman', 'Clean pacman repos'),
+    Option.new('--pacman-all', 'Clean pacman repos and cache'),
+    Option.new('--initramfs', 'Clean initramfs image'),
+    Option.new('--multiboot', 'Clean grub multiboot'),
+    Option.new('--deployments=DEPLOYMENTS', 'Clean given deployments', type:Array),
+    Option.new('--iso', 'Clean bootable ISO'),
+    Option.new('--iso-full', 'Clean bootable ISO and all machine deployments'),
+    Option.new('--vms', 'Clean VMs that are no longer deployed'),
   ])
-  opts.add('build', 'Build ISO components', [
-    CmdOpt.new('--profile=PROFILE', 'Build from the given profile', type:String, required:true),
-    CmdOpt.new('--initramfs', 'Build initramfs image'),
-    CmdOpt.new('--multiboot', 'Build grub multiboot'),
-    CmdOpt.new('--deployments=x,y,z', 'Build given deployments', type:Array),
-    CmdOpt.new('--iso', 'Build USB bootable ISO with existing deployments'),
-    CmdOpt.new('--iso-full', 'Build USB bootable ISO with all machine deployments')
+  cmdr.add('build', 'Build ISO components', options:[
+    Option.new('--profile=PROFILE', 'Build from the given profile', type:String, required:true),
+    Option.new('--initramfs', 'Build initramfs image'),
+    Option.new('--multiboot', 'Build grub multiboot'),
+    Option.new('--deployments=DEPLOYMENTS', 'Build given deployments', type:Array),
+    Option.new('--iso', 'Build USB bootable ISO with existing deployments'),
+    Option.new('--iso-full', 'Build USB bootable ISO with all machine deployments')
   ])
-  opts.add('pack', 'Pack ISO deployments into vagrant boxes', [
-    CmdOpt.new('--all', 'Pack all deployments'),
-    CmdOpt.new('--deployments=x,y,z', 'Pack given deployments', type:Array),
-    CmdOpt.new('--disksize=DISKSIZE', 'Set the disk size in MB e.g. 10000', type:String),
-    CmdOpt.new('--force', 'Pack the given deployment/s even if they already exists'),
+  cmdr.add('pack', 'Pack ISO deployments into vagrant boxes', options:[
+    Option.new('--all', 'Pack all deployments'),
+    Option.new('--deployments=DEPLOYMENTS', 'Pack given deployments', type:Array),
+    Option.new('--disksize=DISKSIZE', 'Set the disk size in MB e.g. 10000', type:String),
+    Option.new('--force', 'Pack the given deployment/s even if they already exists'),
   ])
-  opts.add('deploy', 'Deploy VMs or containers', [
-    CmdOpt.new('--deployment=DEPLOYMENT', 'Deploy a specific deployment VM', type:String, required:true),
-    CmdOpt.new('--name=NAME', 'Give a name to the specific node being deployed', type:String),
-    CmdOpt.new('--run', 'Run default container run'),
-    CmdOpt.new('--exec=CMD', 'Specific command to run in container', type:String),
-    CmdOpt.new('--nodes=x,y,z', 'Comma delimited list of last octet IPs (e.g. 10,11,2)', type:Array),
-    CmdOpt.new('--force', 'Deploy the given deployment/s even if already exists'),
-    CmdOpt.new('--ipv6', 'Enable ipv6 on the given nodes'),
-    CmdOpt.new('--vagrantfile', 'Export the Vagrantfile only'),
+  cmdr.add('deploy', 'Deploy VMs or containers', options:[
+    Option.new('--deployment=DEPLOYMENT', 'Deploy a specific deployment VM', type:String, required:true),
+    Option.new('--name=NAME', 'Give a name to the specific node being deployed', type:String),
+    Option.new('--run', 'Run default container run'),
+    Option.new('--exec=CMD', 'Specific command to run in container', type:String),
+    Option.new('--nodes=NODES', 'Comma delimited list of last octet IPs (e.g. 10,11,2)', type:Array),
+    Option.new('--force', 'Deploy the given deployment/s even if already exists'),
+    Option.new('--ipv6', 'Enable ipv6 on the given nodes'),
+    Option.new('--vagrantfile', 'Export the Vagrantfile only'),
   ])
-  opts.parse!
+  cmdr.parse!
 
   # Execute
-  puts(opts.banner) unless opts[:raw]
+  puts(cmdr.banner) unless cmdr[:raw]
 
   # Execute 'info' command
-  reduce.info if opts[:info]
+  reduce.info if cmdr[:info]
 
   # Execute 'list' command
-  reduce.list(boxes: opts[:boxes], isos: opts[:isos], images: opts[:images], all: opts[:all]) if opts[:list]
+  reduce.list(boxes: cmdr[:boxes], isos: cmdr[:isos], images: cmdr[:images], all: cmdr[:all]) if cmdr[:list]
 
   # Execute 'clean' command
-  reduce.clean(pacman: opts[:pacman], pacman_all: opts[:pacman_all], initramfs: opts[:initramfs],
-    multiboot: opts[:multiboot], deployments: opts[:deployments], iso: opts[:iso], vms: opts[:vms], all: opts[:all],
-    isofull: opts[:isofull]) if opts[:clean]
+  reduce.clean(pacman: cmdr[:pacman], pacman_all: cmdr[:pacman_all], initramfs: cmdr[:initramfs],
+    multiboot: cmdr[:multiboot], deployments: cmdr[:deployments], iso: cmdr[:iso], vms: cmdr[:vms], all: cmdr[:all],
+    isofull: cmdr[:isofull]) if cmdr[:clean]
 
   # Execute 'build' command
-  reduce.build(opts[:profile], initramfs: opts[:initramfs], multiboot: opts[:multiboot],
-    deployments: opts[:deployments], iso: opts[:iso], isofull: opts[:isofull]) if opts[:build]
+  reduce.build(cmdr[:profile], initramfs: cmdr[:initramfs], multiboot: cmdr[:multiboot],
+    deployments: cmdr[:deployments], iso: cmdr[:iso], isofull: cmdr[:isofull]) if cmdr[:build]
 
   # Execute 'pack' command
-  reduce.pack(opts[:deployments], disksize: opts[:disksize], force: opts[:force]) if opts[:pack]
+  reduce.pack(cmdr[:deployments], disksize: cmdr[:disksize], force: cmdr[:force]) if cmdr[:pack]
 
   # Execute 'deploy' command
-  reduce.deploy(opts[:deployment], name: opts[:name], run: opts[:run], exec: opts[:exec], nodes: opts[:nodes],
-    ipv6: opts[:ipv6], vagrantfile: opts[:vagrantfile], force: opts[:force]) if opts[:deploy]
+  reduce.deploy(cmdr[:deployment], name: cmdr[:name], run: cmdr[:run], exec: cmdr[:exec], nodes: cmdr[:nodes],
+    ipv6: cmdr[:ipv6], vagrantfile: cmdr[:vagrantfile], force: cmdr[:force]) if cmdr[:deploy]
 end
 
 # vim: ft=ruby:ts=2:sw=2:sts=2

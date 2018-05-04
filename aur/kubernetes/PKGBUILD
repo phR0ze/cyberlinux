@@ -1,5 +1,5 @@
 #MIT License
-#Copyright (c) 2017 phR0ze
+#Copyright (c) 2017-2018 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -21,11 +21,14 @@
 
 #-------------------------------------------------------------------------------
 # Maintained by phR0ze
+# https://github.com/kubernetes/kubernetes
+# https://github.com/containernetworking/cni
+# Kubeadmin is the go forward tool deployment tool
 #-------------------------------------------------------------------------------
 pkgname=('kubernetes-kubeadm' 'kubernetes-kubectl' 'kubernetes-kubelet' 'kubernetes-cni')
-pkgver='1.6.2'
+pkgver='1.10.2'
 pkgrel=1
-cniver='0.5.2'
+cniver='0.6.0'
 pkgdesc='Tool to create a secure Kubernetes cluster'
 arch=('i686' 'x86_64')
 url='http://kubernetes.io/docs/getting-started-guides/kubeadm/'
@@ -33,25 +36,25 @@ license=('Apache')
 install=kubeadm.install
 depends=('glibc' 'bash' 'ebtables' 'ethtool' 'iptables' 'socat' 'docker' 'util-linux')
 makedepends=('git' 'go' 'rsync' 'go-bindata')
-source=("git+https://github.com/kubernetes/kubernetes.git#tag=v${pkgver//_/-}"
+source=("https://github.com/kubernetes/kubernetes/archive/v${pkgver}.tar.gz"
+        "https://github.com/containernetworking/cni/archive/v${cniver}.tar.gz"
         "git+https://github.com/kubernetes/release.git#branch=master"
-        "git+https://github.com/containernetworking/cni.git#tag=v${cniver//_/-}"
         'kubeadm.install')
-sha256sums=('SKIP'
+sha256sums=('41df701cfb19c3f308f3066203c7f8225d509aa895ca4103564ccc957b391c6b'
+        '802f4a002b4eb774624a9dc1c859d3c9926eb2d862e66a673fc99cfc8bcd7494'
         'SKIP'
-        'SKIP'
-        'ff97101a4a4705293d11e19a6bbc3af1025720af0da8c667bebae753a942756a')
+        'c838345ec43b7db7676d209756d6fe7b8259f41253f02ba1426eddd129e05294')
 
 # Automated build of kubernetes
 #-------------------------------------------------------------------------------
 build()
 {
     # Build linux binaries in a container
-    cd $srcdir/kubernetes
+    cd $srcdir/kubernetes-$pkgver
     build/run.sh make
 
     # Build kubernetes-cni
-    cd $srcdir/cni
+    cd $srcdir/cni-$cniver
     bash -c 'CGO_ENABLED=0 GOOS=linux GOARCH=amd64 ./build.sh'
 }
 
@@ -59,21 +62,21 @@ build()
 #-------------------------------------------------------------------------------
 package_kubernetes-kubeadm()
 {
-    cd $srcdir/kubernetes
+    cd $srcdir/kubernetes-$pkgver
     install -dm 755 $pkgdir/usr/bin
     install -Dm755 _output/dockerized/bin/linux/amd64/kubeadm $pkgdir/usr/bin/
 }
 
 package_kubernetes-kubectl()
 {
-    cd $srcdir/kubernetes
+    cd $srcdir/kubernetes-$pkgver
     install -dm 755 $pkgdir/usr/bin
     install -Dm755 _output/dockerized/bin/linux/amd64/kubectl $pkgdir/usr/bin/
 }
 
 package_kubernetes-kubelet()
 {
-    cd $srcdir/kubernetes
+    cd $srcdir/kubernetes-$pkgver
     install -dm 755 $pkgdir/usr/bin
     install -Dm755 _output/dockerized/bin/linux/amd64/kubelet $pkgdir/usr/bin/
 
@@ -88,12 +91,12 @@ package_kubernetes-kubelet()
     # Create override location for kubelet confs
     cd $srcdir/release/debian/xenial/kubeadm/channel/stable/etc/systemd/system
     install -dm 755 $pkgdir/etc/systemd/system/kubelet.service.d/
-    install -m 644 -t $pkgdir/etc/systemd/system/kubelet.service.d/ kubelet.service.d/10-kubeadm.conf
+    install -m 644 -t $pkgdir/etc/systemd/system/kubelet.service.d/ kubelet.service.d/post-1.8/10-kubeadm.conf
 }
 
 package_kubernetes-cni()
 {
-    cd $srcdir/cni
+    cd $srcdir/cni-$cniver
     install -dm 755 $pkgdir/opt/cni/bin
     install -m 755 -t $pkgdir/opt/cni/bin bin/*
 }

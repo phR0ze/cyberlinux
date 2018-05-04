@@ -47,9 +47,7 @@ There are multiple ways you can get a development environment up and running.
 * [Arch Bootstrap deployment](#arch-bootstrap-deployment)
 
 #### Arch Bootstrap deployment <a name="arch-bootstrap-deployment"/></a>
-**This is TBD**
-
-***sudo pacman -S grub mtools***
+**This is still TBD**
 
 ### Full cyberlinux Build <a name="full-cyberlinux-build"/></a>
 Once you happy with the current configuration build with the following
@@ -57,6 +55,13 @@ Once you happy with the current configuration build with the following
 ```bash
 # Clone cyberlinux
 git clone git@github.com:phR0ze/cyberlinux.git
+
+# Change directory into the newly cloned repo
+cd cyberlinux
+
+# Install ruby dependencies
+bundle install --system
+
 # Trigger full build
 sudo ./reduce clean build --iso-full
 ```
@@ -86,7 +91,7 @@ To pack a specific deployment for use - e.g. k8snode -  use the following:
 The heart of ***cyberlinux*** is it's ability to provide infinite variations of repeatable
 deployments that can be built together into a bootable/installable ISO.  This is driven through
 the use of ***profiles*** which are declarative yaml descriptions of everything required when
-building a deployment.
+building a bootable ISO with installable deployments.
 
 #### Profile Structure <a name="profile-structure"/></a>
 Example:
@@ -186,11 +191,24 @@ menus.
 Layers have a ***type*** which is one of two values either ***machine*** or ***container***
 
 #### Apps <a name="apps"/></a>
-***Apps*** is a list of ***App*** which are individual components that describe both the packages
-that will be installed for the given app and the configuration to apply for the app.
+***Apps*** is a list of type ***App*** which are individual components that describe both the packages
+that will be installed for the given application and the associated configuration to apply.
 
 ***app*** blocks are one of the fundamental elements of reuse in the profile. They can be used to
 capture packages to install and configuration to perform. They can also reference other app blocks.
+
+**App Structure**
+```YAML
+# Structure for an app
+layers:
+  - layer: server
+    changes:
+      - { apply: config-autologin }
+      - { exec: 'ln -sf //usr/share/zoneinfo/Zulu /etc/localtime' }
+changes:
+  config-autologin:
+    - { edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(autologin)=.*', value: '\1=<%= USER %>'
+```
 
 ##### Changes <a name="changes"/></a>
 ***Changes*** are a way to invoke blocks of configuration. They come in two flavors: the actual
