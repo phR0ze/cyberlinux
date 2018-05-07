@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 #MIT License
-#Copyright (c) 2017 phR0ze
+#Copyright (c) 2017-2018 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -41,9 +41,7 @@ module Sys
         Sys.exec("pacman -Sy")
         success = true
       rescue Exception => e
-        puts("pacman update failed 1")
         puts(e.message)
-        puts("pacman update failed 2")
       end
     end
   end
@@ -141,27 +139,6 @@ module Sys
       Process::Sys.seteuid(uid)
       Process::Sys.setegid(gid)
     end
-  end
-
-  # Capture stdout for the block given
-  # +block+:: block of code to execute
-  # +returns+:: string of the captured stdout
-  def capture(&block)
-    begin
-      # Capture output
-      stdout, stderr = StringIO.new, StringIO.new
-      $stdout, $stderr = stdout, stderr
-
-      # Invoke block
-      result = block.call
-
-    # Restore normal operation
-    ensure
-      $stdout, $stderr = STDOUT, STDERR
-    end
-
-    # Return results
-    OpenStruct.new(result: result, stdout: stdout.string, stderr: stderr.string)
   end
 end
 
