@@ -278,18 +278,18 @@ class Reduce
   end
 
   # Clean components as directed
-  # @param pacman [bool] clean pacman repos
-  # @param pacman_all [bool] clean pacman repos and cache
-  # @param initramfs [bool] clean initramfs component
-  # @param multiboot [bool] clean multiboot components
-  # @param deployments [bool] clean given deployments
-  # @param iso [bool] clean iso image
-  # @param vms [bool] clean vms
-  # @param all [bool] clean all components
-  # @param isofull [bool] clean iso image including all machine deployments
-  def clean(pacman:nil, pacman_all:nil, initramfs:nil, multiboot:nil, deployments:nil, iso:nil, vms:nil, all:nil, isofull:nil)
+  # @param items [Array] components to clean
+  # @param deployments [Array] deployments to clean
+  # @param pacman [Bool] clean pacman repos
+  # @param cache [Bool] clean pacman repos and cache
+  # @param vms [Bool] clean vms
+  def clean(items, deployments:nil, pacman:nil, cache:nil, vms:nil)
+    iso = items && items.include?('iso') || false
+    initramfs = items && items.include?('initramfs') || false
+    multiboot = items && items.include?('multiboot') || false
+    all = items && items.include?('all')
     !puts("Error: no clean options specified".colorize(:red)) and
-      exit unless [pacman, pacman_all, initramfs, multiboot, deployments, iso, vms, all, isofull].any?
+      exit unless [all, iso, initramfs, multiboot, deployments, pacman, cache, vms].any?
     !puts("Error: must be executed as root".colorize(:red)) and
       exit unless Process.uid.zero?
 
@@ -342,10 +342,10 @@ class Reduce
     end
 
     # Clean pacman
-    if pacman or pacman_all or all
+    if pacman or cache or all
       puts("Cleaning pacman repos...".colorize(:cyan))
-      puts("Cleaning pacman cache...".colorize(:cyan)) if pacman_all
-      if pacman_all
+      puts("Cleaning pacman cache...".colorize(:cyan)) if cache
+      if cache
         puts("Deleting #{@pacman_path}".colorize(:red)) if Dir.exist?(@pacman_path)
         Sys.rm_rf(@pacman_path)
       elsif pacman
