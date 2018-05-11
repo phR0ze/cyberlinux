@@ -24,7 +24,7 @@
 #-------------------------------------------------------------------------------
 gem=gdk3
 pkgname=ruby-$gem
-pkgver=3.2.4
+pkgver=3.2.5
 pkgrel=1
 pkgdesc='Ruby/GDK3 is a Ruby binding of GDK-3.x.'
 arch=(any)
@@ -35,7 +35,7 @@ makedepends=(ruby-native-package-installer)
 options=(!emptydirs)
 source=(https://rubygems.org/downloads/$gem-$pkgver.gem)
 noextract=($gem-$pkgver.gem)
-sha256sums=('ff6577900ffbb6392bd111b457e0f4cbeb006a97ca436f81aa370b659223c2a6')
+sha256sums=('0c6391407ec623005a67badd3565b13ede6ae4935db5540c7a94a1198c852c85')
 
 package() {
   msg "Packaging $pkgname"
