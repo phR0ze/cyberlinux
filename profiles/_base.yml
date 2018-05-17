@@ -980,6 +980,8 @@ configs:
     - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "net.ipv4.ip_forward = 1" }
     # Disable ipv6 forwarding
     - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "net.ipv6.conf.all.forwarding = 0" }
+    # Increase the number of user file watches to max
+    - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "fs.inotify.max_user_watches = 524288" }
   thunar-config:
     - edit: /etc/skel/.config/autostart/thunar.desktop
       insert: append
