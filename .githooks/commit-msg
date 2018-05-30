@@ -20,16 +20,21 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-# Prepend version to every commit message
-# Get version from the _base.yml profile
-msgfile = ARGV[0]
-regex1 = /\d+\.\d+\.\d+:\s(.*)/
-regex2 = /\s*release:\s*(\d+\.\d+\.\d+)/
-File.open('profiles/_base.yml', 'r') do |f|
-  ver = f.readlines.find{|x| x[regex2, 1]}[regex2, 1]
-  msg = File.read(msgfile)
-  msg = msg[regex1, 1] if msg[regex1, 1]
-  File.write(msgfile, "#{ver}: #{msg}")
+begin
+  require 'nub'
+rescue Exception => e
+  mod = e.message.split(' ').last.sub('/', '-')
+  !puts("Error: install missing package with 'sudo pacman -S ruby-#{mod}'") and exit
 end
+
+# Prepend version to every commit message
+# Get version from the base.yml profile
+msgfile = ARGV[0]
+msg_regex = /\d+\.\d+\.\d+:\s(.*)/
+ver_regex = /\s*spec\.version\s*=.*(\d+\.\d+\.\d+).*/
+ver = FileUtils.version('profiles/base.yml', ver_regex)
+msg = File.read(msgfile)
+msg = msg[msg_regex, 1] if msg[msg_regex, 1]
+File.write(msgfile, "#{ver}: #{msg}")
 
 # vim: ft=ruby:ts=2:sw=2:sts=2

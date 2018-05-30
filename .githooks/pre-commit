@@ -20,98 +20,25 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-# Check copyright and update if required
-# @param copyright [String] copyright match string
-def update_copyright(copyright)
-  curr_year = Time.now.year
-
-  `git diff --cached --name-only --diff-filter=d`.split(' ').each{|path|
-    if `file #{path}`.include?("ASCII text")
-      modify(path){|line|
-        if line =~ /##{Regexp.quote(copyright)}/
-          year = line[/##{Regexp.quote(copyright)}\s+((\d{4}\s)|(\d{4}-\d{4})).*/, 1].strip
-          if year.include?("-")
-            years = year.split("-")
-            line.gsub!(year, "#{years.first}-#{curr_year}") if years.last != curr_year
-          else
-            prev_year = year == curr_year.to_s ? year.to_i - 1 : year
-            line.gsub!(year.to_s, "#{prev_year}-#{curr_year}")
-          end
-        end
-      }
-    end
-  }
+begin
+  require 'nub'
+rescue Exception => e
+  mod = e.message.split(' ').last.sub('/', '-')
+  !puts("Error: install missing package with 'sudo pacman -S ruby-#{mod}'") and exit
 end
 
-# Increment SemVer formatted versions
-# @param files [String/Array] files to increment version for
-# @param regex [Regex] capture pattern for version match
-# @param override [String] value to use for version if set
-def increment_version(files, regex, override:nil)
-  result = nil
-  files = [files] if files.is_a?(String)
-
-  files.each{|filename|
-    result = modify(filename){|line|
-
-      # Increment version
-      if ver = line[regex, 1]
-        new_ver = nil
-        if not override
-          new_ver = ver.strip.split('.')
-          new_ver[2] = new_ver[2].to_i + 1
-          new_ver = new_ver * '.'
-        else
-          new_ver = override
-        end
-
-        # Modify the original line
-        line.gsub!(ver, new_ver)
-        next new_ver
-      end
-    }
-  }
-
-  return result
-end
-
-# Modify the file with block, revert on failure.
-# @param filename [String] name of the file to change
-def modify(filename)
-  result = nil
-  block = Proc.new
-
-  begin
-    lines = nil
-    File.open(filename, 'r+') do |f|
-      lines = f.readlines
-      lines.each{|line| 
-        r = block.call(line)
-        result = r if r
-      }
-
-      # Save the changes back to the file
-      f.seek(0)
-      f.truncate(0)
-      f.puts(lines)
-    end
-
-    # Now add the modified file to the git commit
-    `git add #{filename}`
-  rescue
-    # Revert back to the original incase of failure
-    File.open(filename, 'w'){|f| f.puts(lines)} if lines
-    raise
+# Update copyright in ASCII files
+`git diff --cached --name-only --diff-filter=d`.split(' ').each{|path|
+  if `file #{path}`.include?("ASCII text")
+    `git add #{path}` if FileUtils.update_copyright(path, "Copyright (c)")
   end
+}
 
-  return result
-end
-
-# Auto-update copyrights
-update_copyright("Copyright (c)")
-
-# Auto-increment versions
-ver = increment_version('profiles/_base.yml', /\s*release:\s*(\d+\.\d+\.\d+)/, override:nil)
+# Increment revision of version
+version_file = 'profiles/base.yml'
+version_regx = /\s*release:\s*(\d+\.\d+\.\d+).*/
+ver = FileUtils.inc_version(version_file, version_regx)
+`git add #{version_file}`
 puts("Version: #{ver}")
 
 # vim: ft=ruby:ts=2:sw=2:sts=2

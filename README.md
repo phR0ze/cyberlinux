@@ -78,7 +78,7 @@ to ***Thus***, the installer, and other installation aspects other than what was
 Manjaro's current tool set at the time. I soon realized that I had evolved my use of Manjaro so far
 beyond its original purpose that consuming updates from upstream Manjaro and other tasks were
 becoming complicated and tedious.  Additionally I was more and more envious of pure Arch Linux and
-the goodness that was available by stying close to the source and began looking at Arch Linux
+the goodness that was available by staying close to the source and began looking at Arch Linux
 directly.
 
 **Arch Offline Install**  
@@ -127,7 +127,7 @@ their custom repos.
 ### Distro requirements <a name="distro-requirements"></a>
 I boiled down my requirements for ***cyberlinux*** as follows:
 
-* Single configuration file to drive ISO creation
+* Single configuration file (i.e. profile) to drive ISO creation
 * ISO must include all packages, config etc... (i.e. works offline)
 * Boot splash screen shown with multi-deployment options
 * Fast, simple automated installs with abosolute minimal initial user input
@@ -144,15 +144,31 @@ Deploy ***cyberlinux*** via a USB directly onto a machine
 
 1. Download the latest [***cyberlinux ISO***](https://github.com/phR0ze/cyberlinux/releases)
 2. Burn the ISO to a USB via ***dd***  
-    a. Determine correct USB device: ```sudo fdisk -l```  
-    b. Burn to USB: ```sudo dd bs=4M if=~/cyberlinux-0.0.159-4.12.13-1-x86_64.iso of=/dev/sdb status=progress oflag=sync```  
+    ```bash
+    # Determine correct USB device
+    sudo fdisk -l
+
+    # Burn to USB
+    sudo dd bs=4M if=~/cyberlinux-0.0.159-4.12.13-1-x86_64.iso of=/dev/sdb status=progress oflag=sync
+    ```
 2. Burn the ISO to a USB via ***MultiWriter***  
-    a. Install MultiWriter: ```sudo pacman -S gnome-multi-writer```  
-    b. Launch MultiWriter: ```gnome-multi-writer```  
-    c. Add the ISO and point it at your USB and click start  
+    ```bash
+    # Install MultiWriter
+    sudo pacman -S gnome-multi-writer
+
+    # Launch MultiWriter
+    gnome-multi-writer
+
+    # Add the ISO and point it at your USB and click start  
+    ```
 3. Burn the ISO to a DVD via ***GrowISOFS***  
-    a. Open a shell to ```~/Projects/cyberlinux/temp```  
-    b. Burn dvd: ```growisofs -dvd-compat -Z /dev/sr0=images/cyberlinux-0.1.2-4.14.11-1-x86_64.iso```  
+    ```bash
+    # Navigate to temp location
+    cd ~/Projects/cyberlinux/temp
+
+    # Burn dvd
+    growisofs -dvd-compat -Z /dev/sr0=images/cyberlinux-0.1.2-4.14.11-1-x86_64.iso
+    ```
 4. Boot from the USB and choose the ***cyberlinux-desktop*** deployment option
 
 ### Virtual box deployment <a name="virtual-box-deployment"/></a>
@@ -174,6 +190,7 @@ Deploy ***cyberlinux*** via a VM using a Vagrant Box
 ```bash
 # Create a Vagrantfile describing the cyberlinux-desktop box to use
 vagrant init phR0ze/cyberlinux-desktop --box-version 0.0.159
+
 # Download and deploy cyberlinux-desktop box
 vagrant up
 ```
@@ -182,8 +199,10 @@ vagrant up
 ```bash
 # Clone cyberlinux
 git clone git@github.com:phR0ze/cyberlinux.git
+
 # Deploy cyberlinux vagrant box via reduce
-cd cyberlinux; sudo ./reduce deploy --layer=desktop
+cd cyberlinux
+sudo ./reduce deploy --layer=desktop
 ```
 
 ### Deployment Options <a name="deployment-options"/></a>
@@ -245,6 +264,8 @@ Disable proxy:
 [See => profiles/README.md](https://github.com/phR0ze/cyberlinux/blob/master/profiles)
 
 ## Arch Help <a name="arch-help"/></a>
+The [arch wiki](https://wiki.archlinux.org/) is the best place to go for help. I've just collected a
+few things here that I seem to referre to a lot.
 
 ### Certificates <a name="certificates"/></a>
 
@@ -299,7 +320,7 @@ some reason a licensing mistake has been made please let me know and I'll review
 boot/initramfs/installer bash code base is likewise MIT licensed.
 
 MIT License
-Copyright (c) 2017 phR0ze
+Copyright (c) 2017-2018 phR0ze
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
