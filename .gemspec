@@ -1,7 +1,7 @@
 Gem::Specification.new do |spec|
-  spec.name        = 'reduce'
-  spec.version     = '0.0.1'
-  spec.summary     = "Build tool for cyberlinux"
+  spec.name        = 'cyberlinux'
+  spec.version     = '0.1.345'
+  spec.summary     = "cyberlinux"
   spec.authors     = ["Patrick Crummett"]
   spec.homepage    = 'https://github.com/phR0ze/cyberlinux'
   spec.license     = 'MIT'

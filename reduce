@@ -101,7 +101,7 @@ class Reduce
     # Load base profile
     @profile = {@k.deployments => {}, @k.apps => {}}
     @vars = OpenStruct.new
-    load_profile('_base')
+    load_profile('base')
 
     # Set proxy vars
     @proxyenv = {

@@ -16,7 +16,7 @@ created from this profile to personal use only.
     * [Dev Environment](#dev-environment)
     * [Full cyberlinux build](#full-cyberlinux-build)
     * [Pack cyberlinux](#pack-cyberlinux)
-    * [Customization](#customization)
+    * [Profiles](#profiles)
         * [Profile Structure](#profile-structure)
         * [Variables](#variables)
         * [Build](#build)
@@ -79,11 +79,16 @@ To pack a specific deployment for use - e.g. k8snode -  use the following:
 8. Once uploaded click the ***Finish*** button
 9. Compete the process by releasing the box to make it publicly available
 
-### Customization <a name="customization"/></a>
+### Profiles <a name="profiles"/></a>
 The heart of ***cyberlinux*** is it's ability to provide infinite variations of repeatable
 deployments that can be built together into a bootable/installable ISO.  This is driven through
 the use of ***profiles*** which are declarative yaml descriptions of everything required when
 building a bootable ISO with installable deployments.
+
+**Profiles** all inherit from the ***base*** profile. However top level blocks can be overridden in
+the derived profile. For example the ***build*** block can be configured in the base profile to
+handle most cases while being overridden in the ***celes*** case to provide an alternate kernel for
+the build environment.
 
 #### Profile Structure <a name="profile-structure"/></a>
 Example:
