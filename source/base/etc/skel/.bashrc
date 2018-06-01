@@ -72,7 +72,7 @@ alias egrep='egrep --color=auto'
 none="\[\e[0m\]"
 cyber="\[\e[1;38;5;67m\]"
 export PS1="${cyber}[\u@\h:\w]\$${none} "
-export PATH=$PATH:$HOME/bin
+export PATH=$PATH:$HOME/bin:$GOPATH/bin
 
 # Powerline configuration
 if [ -f /usr/bin/powerline ]; then

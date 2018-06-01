@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.347
+  release: 0.1.348
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
