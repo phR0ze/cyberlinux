@@ -30,7 +30,6 @@ require 'yaml'                  # YAML
 
 require_relative 'lib/core'     # ERB Handlers for different types
 require_relative 'lib/config'   # Programatic file editor and command runner
-require_relative 'lib/sys'      # System helpers
 
 # Gems that should already be installed
 begin
@@ -40,8 +39,9 @@ begin
   require 'net/ssh'             # ssh integration: Net::SSH
   require 'net/scp'             # scp integration: Net::SCP
 rescue Exception => e
-  puts("Error: missing package '#{e.message.split(' ').last.sub('/', '-')}'")
-  !puts("Error: install missing packages with 'bundle install --system") and exit
+  puts(e)
+  #puts("Error: missing package '#{e.message.split(' ').last.sub('/', '-')}'")
+  #!puts("Error: install missing packages with 'bundle install --system") and exit
 end
 MakeMakefile::Logging.instance_variable_set(:@logfile, File::NULL)
 
@@ -94,9 +94,8 @@ class Reduce
     })
 
     @rootpath = File.dirname(File.expand_path(__FILE__))
-    @user = Process.uid.zero? ? Etc.getpwuid(ENV['SUDO_UID'].to_i).name : ENV['USER']
-    @sudoinv = Process.uid.zero? ? "sudo -Hu #{@user} " : ''
-    @runuser = "runuser #{@user} -c"
+    @sudoinv = User.root? ? "sudo -Hu #{User.name} " : ''
+    @runuser = "runuser #{User.name} -c"
 
     # Load base profile
     @profile = {@k.deployments => {}, @k.apps => {}}

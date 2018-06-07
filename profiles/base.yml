@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.348
+  release: 0.1.349
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -31,6 +31,12 @@ vars:
   color_dark: '#216A94'
   gfxmode: 1280x1024,1024x768,auto
   grub_iso_theme: /boot/grub/themes/cyberlinux
+
+  # Kernel params
+  # ----------------------------------------------------------------------------
+  # ipv6.disable=1              // don't really need or want ipv6
+  # rd.systemd.show_status=auto // reduce systemd boot logging
+  # rd.udev.log_priority=3      // reduce udev boot logging
   kernel_params: rd.systemd.show_status=auto rd.udev.log_priority=3 ipv6.disable=1
 
   # Vagrant networking
