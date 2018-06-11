@@ -28,7 +28,6 @@ require 'open3'                 # Better system commands
 require 'rubygems/package'      # tar
 require 'yaml'                  # YAML
 
-require_relative 'lib/core'     # ERB Handlers for different types
 require_relative 'lib/config'   # Programatic file editor and command runner
 
 # Gems that should already be installed
@@ -46,6 +45,8 @@ end
 MakeMakefile::Logging.instance_variable_set(:@logfile, File::NULL)
 
 class Reduce
+  attr_accessor(:vars)
+
   def initialize
     @type = OpenStruct.new({
       img: 'img',
@@ -156,9 +157,9 @@ class Reduce
   end
 
   # Load and return the given profile
-  # @param profile [String] name of the profile to load
-  def load_profile(profile)
-    profile_path = File.join(@rootpath, "profiles/#{profile}.yml")
+  # @param name [String] name of the profile to load
+  def load_profile(name)
+    profile_path = File.join(@rootpath, "profiles/#{name}.yml")
 
     begin
       profile = YAML.load_file(profile_path)
@@ -167,6 +168,7 @@ class Reduce
       profile[@k.vars].each{|k,v| @vars[k.to_sym] = v} if profile[@k.vars]
 
       if profile[@k.base]
+        @vars.profile = name
         load_profile(profile[@k.base])
       else
         validate = ->(name, pred){
@@ -209,7 +211,7 @@ class Reduce
 
   # Create directory structure for project
   def create_dir_structure
-    uid, gid = Sys.drop_privileges
+    uid, gid = User.drop_privileges
 
     puts("Creating directory structure")
     FileUtils.mkdir_p(@pacman_path)
@@ -229,25 +231,23 @@ class Reduce
     FileUtils.mkdir_p(@packer_work)
     FileUtils.mkdir_p(@vagrantpath)
 
-    Sys.raise_privileges(uid, gid)
+    User.raise_privileges(uid, gid)
   end
 
   # Print out distro information
   def info
-    load_profile('_base')
-
     # Scrape Arch Linux kernel package
     opts = { ssl_verify_mode: 0, proxy:@proxy }
     page = open("https://www.archlinux.org/packages/core/x86_64/linux", opts).read
     @vars.kernel = page[/<title>(.*?)<\/title>/, 1][/.*linux (.*) \(x86_64\)/, 1]
 
-    puts("Distro: #{@vars.distro}".colorize(:green))
-    puts("Release: #{@vars.release}".colorize(:green))
-    puts("Arch: #{@vars.arch}".colorize(:green))
-    puts("Kernel: #{@vars.kernel}".colorize(:green))
-    puts("Source path: #{@rootpath}".colorize(:green))
-    puts("Output path: #{@outpath}".colorize(:green))
-    puts("Proxy: #{@proxyenv['http_proxy']}".colorize(:green)) if @proxy
+    puts("Distro: #{@vars.distro.colorize(:cyan)}")
+    puts("Release: #{@vars.release.colorize(:cyan)}")
+    puts("Arch: #{@vars.arch.colorize(:cyan)}")
+    puts("Kernel: #{@vars.kernel.colorize(:cyan)}")
+    puts("Source path: #{@rootpath.colorize(:cyan)}")
+    puts("Output path: #{@outpath.colorize(:cyan)}")
+    puts("Proxy: #{@proxyenv['http_proxy'].colorize(:cyan)}") if @proxy
   end
 
   # List components as directed
@@ -277,18 +277,16 @@ class Reduce
   end
 
   # Clean components as directed
-  # @param items [Array] components to clean
+  # @param targets [Array] components to clean
   # @param deployments [Array] deployments to clean
   # @param pacman [Bool] clean pacman repos
   # @param cache [Bool] clean pacman repos and cache
   # @param vms [Bool] clean vms
-  def clean(items, deployments:nil, pacman:nil, cache:nil, vms:nil)
-    iso = items && items.include?('iso') || false
-    initramfs = items && items.include?('initramfs') || false
-    multiboot = items && items.include?('multiboot') || false
-    all = items && items.include?('all')
-    !puts("Error: no clean options specified".colorize(:red)) and
-      exit unless [all, iso, initramfs, multiboot, deployments, pacman, cache, vms].any?
+  def clean(targets, deployments:nil, pacman:nil, cache:nil, vms:nil)
+    iso = targets && targets.include?('iso') || false
+    initramfs = targets && targets.include?('initramfs') || false
+    multiboot = targets && targets.include?('multiboot') || false
+    all = targets && targets.include?('all')
     !puts("Error: must be executed as root".colorize(:red)) and
       exit unless Process.uid.zero?
 
@@ -300,7 +298,7 @@ class Reduce
     end
 
     # Clean initramfs component
-    if !all and (initramfs or isofull)
+    if !all and (initramfs or iso)
       puts("Cleaning initamfs...".colorize(:cyan))
       puts("Deleting #{@initramfs_work}".colorize(:red)) if File.exist?(@initramfs_work)
       Sys.rm_rf(@initramfs_work)
@@ -311,7 +309,7 @@ class Reduce
     end
 
     # Clean grub iso components
-    if !all and (multiboot or deployments or isofull)
+    if !all and (multiboot or deployments or iso)
       puts("Cleaning multiboot...".colorize(:cyan))
       [@grub_iso_work, @grub_iso_dst].each{|x|
         puts("Deleting #{x}".colorize(:red)) if File.exist?(x)
@@ -325,8 +323,8 @@ class Reduce
     end
 
     # Clean given deployments
-    if !all and Dir.exist?(@deployments_work) and (deployments || isofull)
-      (deployments || ((all || isofull) ? Dir.children(@deployments_work) : nil)).each{|deployment|
+    if !all and Dir.exist?(@deployments_work) and (deployments || iso)
+      (deployments || ((all || iso) ? Dir.children(@deployments_work) : nil)).each{|deployment|
         puts("Cleaning deployment '#{deployment}'...".colorize(:cyan))
         path = File.join(@deployments_work, deployment)
         puts("Deleting #{path}".colorize(:red)) if File.exist?(path)
@@ -358,14 +356,14 @@ class Reduce
     end
 
     # Clean iso path
-    if !all and isofull
+    if !all and iso
       puts("Cleaning iso path...".colorize(:cyan))
       puts("Deleting #{@isopath}".colorize(:red)) if File.exist?(@isopath)
       Sys.rm_rf(@isopath)
     end
 
     # Clean iso image
-    if iso or deployments or all or isofull
+    if iso or deployments or all
       puts("Cleaning iso image...".colorize(:cyan))
       Dir[File.join(@imagepaths.first, '*.iso')].each{|x|
         puts("Deleting #{x}".colorize(:red))
@@ -392,28 +390,24 @@ class Reduce
   end
 
   # Build components as directed
-  # @param profile [String] cyberlinux profile to build
-  # @param initramfs [bool] build initramfs component
-  # @param multiboot [bool] build multiboot component
+  # @param targets [Array] components to build
   # @param deployments [Array] build given deployments
-  # @param iso [bool] build iso image from whatever machine deployments exist
-  # @param isofull [bool] build iso image including all machine deployments
-  def build(profile, initramfs:nil, multiboot:nil, deployments:nil, iso:nil, isofull:nil)
-    opts = [initramfs, multiboot, deployments, iso, isofull]
-    !puts("Error: no build options specified".colorize(:red)) and exit unless opts.any?
-    changed = false
-    load_profile(profile)
-    info
-    create_dir_structure
+  def build(targets, deployments:nil)
+    iso = targets && targets.include?('iso') || false
+    initramfs = targets && targets.include?('initramfs') || false
+    multiboot = targets && targets.include?('multiboot') || false
+    all = targets && targets.include?('all')
+    !puts("Error: profile must be given for builds".colorize(:red)) and
+      exit unless @vars.profile
 
-    if opts.any?
-      !puts("Error: must be executed as root".colorize(:red)) and
-        exit unless Process.uid.zero?
-      puts("#{'-' * 80}\nBuilding ISO components...\n#{'-' * 80}".colorize(:light_yellow))
-    end
+    info
+    changed = false
+    create_dir_structure
+    !puts("Error: must be executed as root".colorize(:red)) and exit unless Process.uid.zero?
+    puts("#{'-' * 80}\nBuilding ISO components...\n#{'-' * 80}".colorize(:light_yellow))
 
     # Build implicated deployments
-    deployments = @profile[@k.deployments].keys if isofull
+    deployments = @profile[@k.deployments].keys if all
     deployments.each{|deployment| changed |= build_deployments(deployment)} if deployments
 
     # Build the build container for initramfs/multiboot
@@ -421,10 +415,10 @@ class Reduce
 
     # Build early userspace ramdisk for install executed by grub
     clean(initramfs:true) if changed
-    changed |= build_initramfs_installer if [initramfs, iso, isofull, changed].any?
+    changed |= build_initramfs_installer if [all, iso, initramfs, changed].any?
 
     # Build GRUB UI that boots initramfs installer and in turn the real kernel
-    changed |= build_grub_multiboot if [multiboot, iso, isofull].any?
+    changed |= build_grub_multiboot if [all, iso, multiboot].any?
 
     # Create ISO Hybrid CD/USB bootable image
     # http://lukeluo.blogspot.co.uk/2013/06/grub-how-to-2-make-boot-able-iso-with.html
@@ -665,7 +659,7 @@ class Reduce
     # Deploy vagrant VM
     #---------------------------------------------------------------------------
     if deployment_yml[@k.type] == @k.machine
-      uid, gid = Sys.drop_privileges
+      uid, gid = User.drop_privileges
 
       # Check that vagrant is on the path and clean previously deployed VMs
       !puts("Ensure 'vagrant' https://www.vagrantup.com/downloads.html is in the path".colorize(:red)) and
@@ -737,7 +731,7 @@ class Reduce
         Sys.exec("#{@sudoinv}vagrant reload")
       end
 
-      Sys.raise_privileges(uid, gid)
+      User.raise_privileges(uid, gid)
 
     # Deploy docker container
     #---------------------------------------------------------------------------
@@ -793,6 +787,7 @@ class Reduce
     changed = false
     !puts("Error: deployment '#{target_deployment}' doesn't exist".colorize(:red)) and
       exit unless target_deployment == @k.build || @profile[@k.deployments][target_deployment]
+
     # Build in reverse order to layer deployments
     deployments = get_deployments(target_deployment).reverse
     create_dir_structure
@@ -1254,7 +1249,7 @@ end
 if __FILE__ == $0
   app = 'reduce'
   reduce = Reduce.new
-  version = reduce.instance_variable_get(:@vars).release
+  version = reduce.vars.release
   examples = "Full ISO Build: sudo ./#{app} clean build all -p personal\n".colorize(:green)
   examples += "Rebuild initramfs: sudo ./#{app} clean build initramfs,iso -p personal\n".colorize(:green)
   examples += "Rebuild multiboot: sudo ./#{app} clean build multiboot,iso -p personal\n".colorize(:green)
@@ -1314,6 +1309,9 @@ if __FILE__ == $0
   ])
   cmdr.parse!
 
+  # Load target profile
+  reduce.load_profile(cmdr[:global][:profile]) if cmdr[:global][:profile]
+
   # Execute 'info' command
   reduce.info if cmdr[:info]
 
@@ -1325,7 +1323,7 @@ if __FILE__ == $0
     pacman: cmdr[:clean][:pacman], cache: cmdr[:clean][:cache], vms: cmdr[:vms]) if cmdr[:clean]
 
   # Execute 'build' command
-  reduce.build(cmdr[:clean][:clean0], deployments: cmdr[:clean][:deployments]) if cmdr[:build]
+  reduce.build(cmdr[:build][:build0], deployments: cmdr[:build][:deployments]) if cmdr[:build]
 
   # Execute 'pack' command
   reduce.pack(cmdr[:pack][:pack0], disksize: cmdr[:pack][:disksize], force: cmdr[:pack][:force]) if cmdr[:pack]

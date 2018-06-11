@@ -20,10 +20,10 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
+require 'nub'
 require 'fileutils'
 require 'ostruct'
 
-require_relative 'core'
 require_relative 'fedit'
 
 module Config

@@ -19,6 +19,8 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
+base: base
+
 deployments:
   base:
     type: machine
@@ -35,3 +37,5 @@ deployments:
       - shell-apps
       - virtualbox-guest-nox
 
+# Desktop android
+# groups: [adbusers, uucp]

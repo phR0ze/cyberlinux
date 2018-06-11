@@ -20,11 +20,10 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
+require 'nub'
 require 'digest'
 require 'fileutils'
 require 'yaml'
-
-require_relative 'core'
 
 module Fedit
   extend self
