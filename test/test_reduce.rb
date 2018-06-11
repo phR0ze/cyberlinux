@@ -269,11 +269,13 @@ class Test_getapps < Minitest::Test
     @data = {
       'deployments' => {
         'dep1' => {
+          'multilib' => true,
           'apps' => [
             'base-apps',
           ]
         },
         'dep2' => {
+          'multilib' => false,
           'apps' => [
             'server-apps',
           ]
@@ -282,7 +284,9 @@ class Test_getapps < Minitest::Test
       'apps' => {
         'base-apps' => [
           'conky',
-          { 'install' => 'curl', 'desc' => 'Network download REST command line tool' }
+          { 'install' => 'curl', 'desc' => 'Network download REST command line tool' },
+          { 'install' => 'gcc-libs', 'desc' => 'GCC runtime libraries', multilib: false },
+          { 'install' => 'gcc-libs-multilib', 'desc' => 'GCC runtime libraries', multilib: true }
         ],
         'server-apps' => [
           'base-apps',
@@ -310,11 +314,16 @@ class Test_getapps < Minitest::Test
   end
 
   def test_getapps_pkgs
+    apache = [{ 'install' => 'apache', 'desc' => 'Apache web server' }]
+    lib = [{ 'install' => 'gcc-libs', 'desc' => 'GCC runtime libraries', multilib: false }]
+    multilib = [{ 'install' => 'gcc-libs-multilib', 'desc' => 'GCC runtime libraries', multilib: true }]
+
     result1 = [
       { 'install' => 'conky', 'desc' => 'Lightweight system monitor for X' },
       { 'install' => 'curl', 'desc' => 'Network download REST command line tool' }
     ]
-    result2 = result1 + [{ 'install' => 'apache', 'desc' => 'Apache web server' }]
+    result2 = result1 + apache + lib
+    result1 = result1 + multilib
 
     @reduce.stub(:puts, nil){
       pkgs = @reduce.getapps('dep1', @data[@k.deployments]['dep1'])
