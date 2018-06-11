@@ -971,6 +971,7 @@ class Reduce
   # Get app configuration for the given deployment
   # @param deployment [string] deployment name
   # @param deployment_yml [yml] deployment yaml to work with
+  # @param configs [Bool] 
   # @returns list of packages for the given deployment
   def getapps(deployment, deployment_yml, configs:false)
     result = []

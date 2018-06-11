@@ -23,6 +23,5 @@
 require_relative 'test_fedit'
 require_relative 'test_config'
 require_relative 'test_reduce'
-require_relative 'test_sys'
 
 # vim: ft=ruby:ts=2:sw=2:sts=2

@@ -20,12 +20,12 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
+require 'nub'
 require 'minitest/autorun'
 require 'ostruct'
 
 require_relative '../lib/config'
 require_relative '../lib/fedit'
-require_relative '../lib/sys'
 
 class TestApply < Minitest::Test
 
