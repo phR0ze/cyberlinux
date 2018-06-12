@@ -28,6 +28,9 @@ end
 
 require_relative 'test_fedit'
 require_relative 'test_config'
-require_relative 'test_reduce'
+require_relative 'test_getapps'
+require_relative 'test_get_deployments'
+require_relative 'test_installapps'
+require_relative 'test_load_profiles'
 
 # vim: ft=ruby:ts=2:sw=2:sts=2

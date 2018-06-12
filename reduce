@@ -428,7 +428,7 @@ class Reduce
       puts("#{'-' * 80}\nBuilding ISO Hybrid CD/USB bootable image...\n#{'-' * 80}".colorize(:light_yellow))
       if changed or not File.exist?(@vars.isofile)
         cmd = "grub-mkrescue "
-        
+
         # Set the volume label
         cmd += "-volid #{@vars.label} "
 
@@ -872,7 +872,7 @@ class Reduce
 
     # Handle packages differently based on type
     #---------------------------------------------------------------------------
-    all_apps = getapps(deployment, deployment_yml)
+    all_apps, all_configs = getapps(deployment, deployment_yml)
     apps = {
       reg: all_apps.map{|x| x[@k.install] if !x[@k.ignore] and !x[@k.force]}.compact,
       force: all_apps.map{|x| x[@k.install] if x[@k.force]}.compact,
@@ -971,36 +971,35 @@ class Reduce
   # Get app configuration for the given deployment
   # @param deployment [string] deployment name
   # @param deployment_yml [yml] deployment yaml to work with
-  # @param configs [Bool] 
-  # @returns list of packages for the given deployment
-  def getapps(deployment, deployment_yml, configs:false)
-    result = []
+  # @returns (pkgs,configs) list of packages and list of configs for the given deployment
+  def getapps(deployment, deployment_yml)
+    pkgs, configs = [], []
 
     # Detect multilib value
     multilib = deployment_yml[@k.multilib] || false
     puts("Multilib: #{multilib} for deployment '#{deployment}'".colorize(:cyan))
 
     # Get all packages for given app
-    resolve_app = ->(app, items){
+    resolve_app = ->(app){
 
       # Lookup app reference
       if app.is_a?(String)
         _app = @profile[@k.apps][app]
         !puts("Error: invalid app reference '#{app}'".colorize(:red)) and exit unless _app
-        _app.each{|x| resolve_app.call(x, items) }
+        _app.each{|x| resolve_app.call(x)}
 
       # Get app pkgs
-      elsif !configs && app[@k.install]
-        items << app
+      elsif app[@k.install]
+        pkgs << app if app[@k.multilib] == nil || app[@k.multilib] == multilib
 
       # Get app configs
-      elsif configs && !app[@k.install]
-        items << app
+      elsif !app[@k.install]
+        configs << app
       end
     }
-    deployment_yml[@k.apps].each{|x| resolve_app.call(x, result) }
+    deployment_yml[@k.apps].each{|x| resolve_app.call(x)}
 
-    return result.uniq
+    return pkgs.uniq, configs.uniq
   end
 
   # Spins up indicated container and executes the given block
