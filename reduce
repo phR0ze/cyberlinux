@@ -999,7 +999,7 @@ class Reduce
     }
     deployment_yml[@k.apps].each{|x| resolve_app.call(x)}
 
-    return pkgs.uniq, configs.uniq
+    return pkgs.uniq.sort_by{|x| x[@k.install]}, configs.uniq
   end
 
   # Spins up indicated container and executes the given block

@@ -82,30 +82,28 @@ class Test_getapps < Minitest::Test
 
   def test_pkgs
     apache = [{ 'install' => 'apache', 'desc' => 'Apache web server' }]
+    conky = [{ 'install' => 'conky', 'desc' => 'Lightweight system monitor for X'}]
+    curl = [{ 'install' => 'curl', 'desc' => 'Network download REST command line tool' }]
     lib = [{ 'install' => 'gcc-libs', 'desc' => 'GCC runtime libraries', 'multilib' => false }]
     multilib = [{ 'install' => 'gcc-libs-multilib', 'desc' => 'GCC runtime libraries', 'multilib' => true }]
-    conky_curl = [
-      { 'install' => 'conky', 'desc' => 'Lightweight system monitor for X' },
-      { 'install' => 'curl', 'desc' => 'Network download REST command line tool' }
-    ]
 
     @reduce.stub(:puts, nil){
       pkgs, _ = @reduce.getapps('base', @data[@k.deployments]['base'])
-      assert_equal(conky_curl + lib, pkgs)
+      assert_equal(conky + curl + lib, pkgs)
       pkgs, _ = @reduce.getapps('server', @data[@k.deployments]['server'])
-      assert_equal(conky_curl + multilib + apache, pkgs)
+      assert_equal(apache + conky + curl + multilib, pkgs)
     }
   end
-#
-#  def test_configs
-#    result1 = [{ 'exec' => 'echo 1 >> foobar' }]
-#    result2 = result1 + [{ 'chroot' => 'systemctl enable httpd.service' }]
-#
-#    @reduce.stub(:puts, nil){
-#      configs = @reduce.getapps('base', @data[@k.deployments]['base'], configs:true)
-#      assert_equal(result1, configs)
-#      configs = @reduce.getapps('server', @data[@k.deployments]['server'], configs:true)
-#      assert_equal(result2, configs)
-#    }
-#  end
+
+  def test_configs
+    result1 = [{ 'exec' => 'echo 1 >> foobar' }]
+    result2 = result1 + [{ 'chroot' => 'systemctl enable httpd.service' }]
+
+    @reduce.stub(:puts, nil){
+      _, configs = @reduce.getapps('base', @data[@k.deployments]['base'])
+      assert_equal(result1, configs)
+      _, configs = @reduce.getapps('server', @data[@k.deployments]['server'])
+      assert_equal(result2, configs)
+    }
+  end
 end
