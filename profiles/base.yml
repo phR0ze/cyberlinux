@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.358
+  release: 0.1.359
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -232,16 +232,15 @@ apps:
     - { install: ruby-amatch,                   desc: Fuzzy string matching, depof: watchman, type: CYBERLINUX }
     - { install: ruby-bundler,                  desc: Gem management, depof: reduce }
     - { install: ruby-colorize,                 desc: Colorized output, depof: reduce }
-    - { install: ruby-cmds,                     desc: Command like syntax for parameters, depof: openvpn-pia, type: CYBERLINUX }
     - { install: ruby-filesize,                 desc: Filesize to string maipulations, depof: reduce, type: CYBERLINUX }
     - { install: ruby-gtk3,                     desc: Ruby binding of GTK3, depof: openvpn-pia, type: CYBERLINUX }
     - { install: ruby-net-scp,                  desc: Pure Ruby SCP client protocol, depof: reduce, type: CYBERLINUX }
     - { install: ruby-net-sftp,                 desc: Pure Ruby SFTP client protocol, depof: reduce, type: CYBERLINUX }
     - { install: ruby-net-ssh,                  desc: Pure Ruby SSH2 client protocol, depof: reduce, type: CYBERLINUX }
     - { install: ruby-nokogiri,                 desc: HTML parser, depof: chromium build, type: CYBERLINUX }
+    - { install: ruby-nub,                      desc: Collection of useful Ruby utils, depof: vpnctl, type: CYBERLINUX }
     - { install: ruby-mechanize,                desc: Automate interation with websites, depof: chromium build, type: CYBERLINUX }
     - { install: ruby-pry,                      desc: Ruby debugger, type: CYBERLINUX }
-    - { install: ruby-pry-nav,                  desc: Primitive debugging step and next commands for pry, type: CYBERLINUX }
     - { install: ruby-rest-client,              desc: Simple HTTP and REST client, depof: reduce, type: CYBERLINUX }
   virtualbox-guest-nox:
     - { install: virtualbox-guest-utils-nox,    desc: VirtualBox guest drivers and utilities w/out X support }
