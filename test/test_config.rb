@@ -25,7 +25,6 @@ require 'minitest/autorun'
 require 'ostruct'
 
 require_relative '../lib/config'
-require_relative '../lib/fedit'
 
 class TestApply < Minitest::Test
 
@@ -79,7 +78,7 @@ class TestApply < Minitest::Test
       true
     }
 
-    Fedit.stub(:resolve, assert_args){
+    FileUtils.stub(:resolve, assert_args){
       assert(Config.apply(config, @ctx))
     }
   end
@@ -100,7 +99,7 @@ class TestApply < Minitest::Test
     Config.stub(:puts, nil){
       FileUtils.stub(:mkdir_p, true, @file){
         File.stub(:exist?, false, @file){
-          Fedit.stub(:insert, true, @file){
+          FileUtils.stub(:insert, true, @file){
             assert(Config.apply(config, @ctx))
           }
         }
@@ -124,7 +123,7 @@ class TestApply < Minitest::Test
     Config.stub(:puts, nil){
       File.stub(:exist?, true, @file){
         File.stub(:binread, mock, @file){
-          Fedit.stub(:replace, assert_args){
+          FileUtils.stub(:replace, assert_args){
             assert(Config.apply(config, @ctx))
           }
         }
@@ -149,7 +148,7 @@ class TestApply < Minitest::Test
     Config.stub(:puts, nil){
       File.stub(:exist?, true, @file){
         File.stub(:binread, mock, @file){
-          Fedit.stub(:insert, assert_args){
+          FileUtils.stub(:insert, assert_args){
             assert(Config.apply(config, @ctx))
           }
         }
@@ -185,7 +184,7 @@ class TestApply < Minitest::Test
     Config.stub(:puts, nil){
       File.stub(:exist?, true, @file){
         File.stub(:binread, mock, @file){
-          Fedit.stub(:insert, assert_args){
+          FileUtils.stub(:insert, assert_args){
             assert(Config.apply(config, @ctx))
           }
         }

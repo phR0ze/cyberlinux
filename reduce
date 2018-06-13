@@ -935,9 +935,13 @@ class Reduce
           end
 
           # Install normal packages
+          # -G    pacstrap: Avoid copying the host's pacman keyring to the target
+          # -M    pacstrap: Avoid copying the host's mirrorlist to the target
+          # -c    pacstrap: Use the package cache on the host, rather than the target
+          # --config        Specify an alternate configuration file
           if apps[:reg].any?
             puts("Pacstrap package installs for '#{deployment}'...".colorize(:cyan))
-            cmd = ['pacstrap', '-GMcd', deployment_work, '--config', @pacman_conf, '--needed', *apps[:reg]]
+            cmd = ['pacstrap', '-GMc', deployment_work, '--config', @pacman_conf, '--needed', *apps[:reg]]
             cmd += ['--ignore', apps[:ignore] * ','] if apps[:ignore].any?
             !puts("Error: Failed to install packages correctly".colorize(:red)) and
               exit unless Sys.exec(cmd, env:@proxyenv)
@@ -946,7 +950,7 @@ class Reduce
           # Install force packages
           if apps[:force].any?
             puts("Pacstrap package installs for '#{deployment}'...".colorize(:cyan))
-            cmd = ['pacstrap', '-GMcd', deployment_work, '--config', @pacman_conf, '--needed', '--force', *apps[:force]]
+            cmd = ['pacstrap', '-GMc', deployment_work, '--config', @pacman_conf, '--needed', '--force', *apps[:force]]
             !puts("Error: Failed to install packages correctly".colorize(:red)) and
               exit unless Sys.exec(cmd, env:@proxyenv)
           end

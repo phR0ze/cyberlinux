@@ -94,7 +94,7 @@ module Config
           FileUtils.mkdir_p(File.dirname(file)) if not File.exist?(File.dirname(file))
 
           if not File.exist?(file)
-            changed |= FileUtils.insert(file, values)
+            changed |= Fedit.insert(file, values)
           else
             insert = config[k.insert]
 
@@ -104,12 +104,12 @@ module Config
 
             # Regex replacements
             if not insert
-              changed |= FileUtils.replace(file, config[k.regex], values.first)
+              changed |= Fedit.replace(file, config[k.regex], values.first)
 
             # File insert/appends
             elsif not already
               offset = insert == k.append ? nil : insert == k.after ? 1 : 0
-              changed |= FileUtils.insert(file, values, regex:config[k.regex], offset:offset)
+              changed |= Fedit.insert(file, values, regex:config[k.regex], offset:offset)
             end
           end
 
@@ -123,7 +123,7 @@ module Config
 
         # Resolve template
         elsif config[k.resolve]
-          changed |= FileUtils.resolve(config[k.resolve], ctx.vars)
+          changed |= Fedit.resolve(config[k.resolve], ctx.vars)
         end
       end
     }

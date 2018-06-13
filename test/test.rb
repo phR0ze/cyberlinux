@@ -26,7 +26,6 @@ if ENV['TRAVIS']
   Coveralls.wear!
 end
 
-require_relative 'test_fedit'
 require_relative 'test_config'
 require_relative 'test_getapps'
 require_relative 'test_get_deployments'
