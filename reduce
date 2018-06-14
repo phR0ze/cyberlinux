@@ -210,12 +210,13 @@ class Reduce
       @profile.deployments.deep_merge!(profile[@k.deployments]) if profile[@k.deployments]
 
       # Set variables as needed
+      @vars[@k.groups] ||= []
       @profile.deployments.each{|k,v| @vars["#{k}_src"] = File.join(@deployments_src, k)}
       @profile.deployments.each{|k,v|
         @vars["#{k}_deployment"] = get_deployments(k) * ',' if v[@k.type] == @k.machine}
       @profile.deployments.each{|k,v|
-        @vars["#{k}_groups"] = get_deployments(k).map{|x|
-          @profile.deployments[x][@k.groups] if @profile.deployments[x][@k.groups]}.compact.uniq * ','}
+        @vars["#{k}_groups"] = get_deployments(k).map{|x| @profile.deployments[x][@k.groups]}.flatten.compact.uniq
+        @vars.groups += @vars["#{k}_groups"]}
       @vars["base_src"] = File.join(@deployments_src, 'base') if !@vars["base_src"] 
 
     rescue Exception => e
@@ -490,6 +491,8 @@ class Reduce
       mkinitcpio_conf = File.join(@initramfs_work, 'mkinitcpio.conf')
 
       # Resolve template
+      puts(@vars)
+      exit
       FileUtils.resolve(installer, @vars)
 
       # Build initramfs images in build container
