@@ -29,24 +29,65 @@ load reduce_path
 class Test_get_deployments < Minitest::Test
 
   def setup
-    @reduce ||= Reduce.new
-    @k = @reduce.instance_variable_get(:@k)
-    @profile = @reduce.instance_variable_get(:@profile)
-
-    @base_data = {
+    @base = {
+      "vars" => {
+        "arch" => "x86_64",
+        "release" => "0.1.305",
+        "distro" => "cyberlinux",
+        "language" => "en_US",
+        "character_set" => "UTF=8",
+        "timezone" => "US/Mountain",
+        "country" => "United_States",
+        "color_light" => "#39AEF4",
+        "color_dark" => "#215A94",
+        "gfxmode" => "1280x1024",
+        "grub_iso_theme" => "/boot/grub/themes/cyberlinux"
+      },
+      "build" => {
+        "type" => "container",
+        "multilib" => true,
+        "docker" => {
+          "params" => '-e TERM=xterm -v /var/run/docker.sock:/var/run/docker.sock --privileged=true',
+          "command" => 'bash -c "while :; do sleep 5; done"',
+        },
+        "apps" => [
+          { "install" => "linux", "desc" => "Linux kernel and supporting modules" }
+        ]
+      },
       'deployments' => {
         'dep1' => { 'type' => 'machine' },
         'dep2' => { 'type' => 'machine', 'base' => 'dep1' }
+      },
+      "apps" => {
+        "server-apps" => ["conky"],
+        "conky" => [
+          { "install" => "conky", "desc" => "Lightweight system monitor for X" }
+        ]
+      },
+      "configs" => {
+        "server-configs" => {"edit" => "/etc/httpd/conf/httpd.conf", "regex" => '^(Listen).*', "value" => '\1 80'}
       }
     }
 
-    @mock = Minitest::Mock.new
-    @mock.expect(:[], false, [@k.vars])
-    @mock.expect(:[], false, [@k.base])
-    @mock.expect(:[], false, [@k.apps])
-    @mock.expect(:[], true, [@k.deployments])
-    @mock.expect(:[], @base_data[@k.deployments], [@k.deployments])
-    YAML.stub(:load_file, @mock){ @reduce.load_profile('bogus') }
+    @base_mock = Minitest::Mock.new
+    @base_mock.expect(:[], true, ['vars'])
+    @base_mock.expect(:[], @base['vars'], ['vars'])
+    @base_mock.expect(:[], false, ['base'])
+    @base_mock.expect(:[], true, ['build'])
+    @base_mock.expect(:[], @base['build'], ['build'])
+    @base_mock.expect(:[], true, ['apps'])
+    @base_mock.expect(:[], @base['apps'], ['apps'])
+    @base_mock.expect(:[], true, ['configs'])
+    @base_mock.expect(:[], @base['configs'], ['configs'])
+    @base_mock.expect(:[], true, ['deployments'])
+    @base_mock.expect(:[], @base['deployments'], ['deployments'])
+
+    YAML.stub(:load_file, @base_mock){
+      @reduce = Reduce.new
+      @k = @reduce.instance_variable_get(:@k)
+      @vars = @reduce.instance_variable_get(:@vars)
+      @profile = @reduce.instance_variable_get(:@profile)
+    }
   end
 
   def test_deployment_existence

@@ -47,6 +47,18 @@ MakeMakefile::Logging.instance_variable_set(:@logfile, File::NULL)
 class Reduce
   attr_accessor(:vars)
 
+  # Profile encapsulates profile YAML data
+  Profile ||= Struct.new(:vars, :build, :deployments, :apps, :configs) do
+    def initialize(*)
+      super
+      self.vars ||= {}
+      self.build ||= {}
+      self.deployments ||= {}
+      self.apps ||= {}
+      self.configs ||= {}
+    end
+  end
+
   def initialize
     @type = OpenStruct.new({
       img: 'img',
@@ -99,8 +111,8 @@ class Reduce
     @runuser = "runuser #{User.name} -c"
 
     # Load base profile
-    @profile = {@k.deployments => {}, @k.apps => {}}
     @vars = OpenStruct.new
+    @loaded_profiles = []
     load_profile('base')
 
     # Set proxy vars
@@ -158,6 +170,7 @@ class Reduce
   # Load and return the given profile
   # @param name [String] name of the profile to load
   def load_profile(name)
+    return if @loaded_profiles.include?(name)
     profile_path = File.join(@rootpath, "profiles/#{name}.yml")
 
     begin
@@ -166,9 +179,9 @@ class Reduce
       # Load vars and validate base vars
       profile[@k.vars].each{|k,v| @vars[k.to_sym] = v} if profile[@k.vars]
 
-      if profile[@k.base]
+      if base = profile[@k.base]
+        load_profile(base)
         @vars.profile = name
-        load_profile(profile[@k.base])
       else
         validate = ->(name, pred){
           !puts("Error: '#{name}' is invalid in '#{profile}'".colorize(:red)) and exit unless pred
@@ -189,16 +202,19 @@ class Reduce
         @vars.label = "#{@vars.distro.upcase}_#{@vars.release.gsub('.', '')}"
       end
 
-      # Load and merge apps and deployments
-      @profile[@k.apps].merge!(profile[@k.apps]) if profile[@k.apps]
-      @profile[@k.deployments].merge!(profile[@k.deployments]) if profile[@k.deployments]
+      # Load and merge profiles
+      @profile = Profile.new unless defined?(@profile)
+      @profile.build.deep_merge!(profile[@k.build]) if profile[@k.build]
+      @profile.apps.deep_merge!(profile[@k.apps]) if profile[@k.apps]
+      @profile.configs.deep_merge!(profile[@k.configs]) if profile[@k.configs]
+      @profile.deployments.deep_merge!(profile[@k.deployments]) if profile[@k.deployments]
 
       # Set deployment and group variables as needed
-      @profile[@k.deployments].each{|k,v|
+      @profile.deployments.each{|k,v|
         @vars["#{k}_deployment"] = get_deployments(k) * ',' if v[@k.type] == @k.machine }
-      @profile[@k.deployments].each{|k,v|
+      @profile.deployments.each{|k,v|
         @vars["#{k}_groups"] = get_deployments(k).map{|x|
-          @profile[@k.deployments][x][@k.groups] if @profile[@k.deployments][x][@k.groups]}.compact.uniq * ','
+          @profile.deployments[x][@k.groups] if @profile.deployments[x][@k.groups]}.compact.uniq * ','
       }
 
     rescue Exception => e
@@ -206,6 +222,8 @@ class Reduce
       puts(e.to_s.colorize(:red))
       raise
     end
+
+    @loaded_profiles << name
   end
 
   # Create directory structure for project
@@ -405,7 +423,7 @@ class Reduce
     puts("#{'-' * 80}\nBuilding ISO components...\n#{'-' * 80}".colorize(:light_yellow))
 
     # Build implicated deployments
-    deployments = @profile[@k.deployments].keys if all
+    deployments = @profile.deployments.keys if all
     deployments.each{|deployment| changed |= build_deployments(deployment)} if deployments
 
     # Build the build container for initramfs/multiboot
@@ -450,7 +468,7 @@ class Reduce
     create_dir_structure
     changed = false
     initramfs_digests = File.join(@initramfs_work, 'digests')
-    initramfs_names = @profile[@k.deployments].select{|x| x[@k.type] == @k.machine}
+    initramfs_names = @profile.deployments.select{|x| x[@k.type] == @k.machine}
       .map{|x| x[@k.deployment][@k.kernel]}.uniq.map{|x| "#{@initramfs_prefix}-#{x}"}
 
     puts("#{'-' * 80}\nBuilding initramfs images...\n#{'-' * 80}".colorize(:light_yellow))
@@ -501,7 +519,7 @@ class Reduce
     changed = false
     grub_digests = File.join(@grub_iso_work, 'digests')
     grub_iso_path = File.join(@grub_iso_work, 'boot/grub')
-    kernels = @profile[@k.deployments].select{|x| x[@k.type] == @k.machine}
+    kernels = @profile.deployments.select{|x| x[@k.type] == @k.machine}
       .map{|x| x[@k.deployment][@k.kernel]}.compact.uniq.map{|x| "#{@kernel_prefix}-#{x}"}
 
     FileUtils.mkdir_p(grub_iso_path)
@@ -517,7 +535,7 @@ class Reduce
       # Inject deploy entries from deployments
       motd = File.readlines(@motd_path)
       File.open(File.join(grub_iso_path, 'boot.cfg'), 'w'){|f|
-        @profile[@k.deployments].select{|k,v| v[@k.type] == @k.machine}.reverse.each{|x|
+        @profile.deployments.select{|k,v| v[@k.type] == @k.machine}.reverse.each{|x|
           v = x.values.first
           kernel = "#{@kernel_prefix}-#{v[@k.install][@k.kernel]}"
           params = v[@k.install][@k.params] || ""
@@ -575,7 +593,7 @@ class Reduce
   # @param disksize [int] disk size to use for pack
   # @param force [bool] pack even if already exists
   def pack(deployments, disksize:nil, force:nil)
-    _deployments = @profile[@k.deployments].select{|x| x[@k.type] == @k.machine}
+    _deployments = @profile.deployments.select{|x| x[@k.type] == @k.machine}
     deployments = deployments || _deployments.reject{|x| x[@k.name] == 'live'}
     puts("#{'-' * 80}\nPacking deployments #{deployments * ','}\n#{'-' * 80}".colorize(:light_yellow))
     !puts("Error: must be executed as non-root user".colorize(:red)) and
@@ -784,7 +802,7 @@ class Reduce
   def build_deployments(target_deployment)
     changed = false
     !puts("Error: deployment '#{target_deployment}' doesn't exist".colorize(:red)) and
-      exit unless target_deployment == @k.build || @profile[@k.deployments][target_deployment]
+      exit unless target_deployment == @k.build || @profile.deployments[target_deployment]
 
     # Build in reverse order to layer deployments
     deployments = get_deployments(target_deployment).reverse
@@ -822,7 +840,7 @@ class Reduce
         if deployment_changed or not File.exist?(changedfile) or not File.exist?(deployment_image)
           vars = deployment_yml[@k.vars] ? @vars.to_h.merge(deployment_yml[@k.vars]) : @vars
           deployment_changed |= Config.apply(deployment_yml[@k.configs] || [],
-            OpenStruct.new({root: deployment_work, vars: vars, configs: @profile[@k.configs]}))
+            OpenStruct.new({root: deployment_work, vars: vars, configs: @profile.configs}))
           File.open(changedfile, 'w'){|f|}
         end
 
@@ -950,7 +968,7 @@ class Reduce
 
       # Lookup app reference
       if app.is_a?(String)
-        _app = @profile[@k.apps][app]
+        _app = @profile.apps[app]
         !puts("Error: invalid app reference '#{app}'".colorize(:red)) and exit unless _app
         _app.each{|x| resolve_app.call(x)}
 
@@ -1182,11 +1200,11 @@ class Reduce
     deployments = [deployment]
     return deployments if deployment == @k.build
     !puts("Error: invalid deployment '#{deployment}'".colorize(:red)) and
-      exit if not @profile[@k.deployments][deployment]
+      exit if not @profile.deployments[deployment]
 
     _deployment = deployment
     while _deployment
-      _deployment = @profile[@k.deployments][_deployment][@k.base]
+      _deployment = @profile.deployments[_deployment][@k.base]
       deployments << _deployment if _deployment
     end
 
@@ -1197,7 +1215,7 @@ class Reduce
   # @param deployment [string] deployment name to get yaml for
   # @returns yaml for the indicated deployment
   def get_deployment_yml(deployment)
-    yml = deployment == @k.build ? @profile[@k.build] : @profile[@k.deployments][deployment]
+    yml = deployment == @k.build ? @profile.build : @profile.deployments[deployment]
     !puts("Error: invalid deployment '#{deployment}'".colorize(:red)) and exit if not yml
 
     # Resolve templating for the given deployment

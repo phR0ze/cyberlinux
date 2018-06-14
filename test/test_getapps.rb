@@ -29,11 +29,31 @@ load reduce_path
 class Test_getapps < Minitest::Test
 
   def setup
-    @reduce ||= Reduce.new
-    @k = @reduce.instance_variable_get(:@k)
-    @profile = @reduce.instance_variable_get(:@profile)
-
-    @data = {
+    @base = {
+      "vars" => {
+        "arch" => "x86_64",
+        "release" => "0.1.305",
+        "distro" => "cyberlinux",
+        "language" => "en_US",
+        "character_set" => "UTF=8",
+        "timezone" => "US/Mountain",
+        "country" => "United_States",
+        "color_light" => "#39AEF4",
+        "color_dark" => "#215A94",
+        "gfxmode" => "1280x1024",
+        "grub_iso_theme" => "/boot/grub/themes/cyberlinux"
+      },
+      "build" => {
+        "type" => "container",
+        "multilib" => true,
+        "docker" => {
+          "params" => '-e TERM=xterm -v /var/run/docker.sock:/var/run/docker.sock --privileged=true',
+          "command" => 'bash -c "while :; do sleep 5; done"',
+        },
+        "apps" => [
+          { "install" => "linux", "desc" => "Linux kernel and supporting modules" }
+        ]
+      },
       'deployments' => {
         'base' => {
           'multilib' => false,
@@ -67,17 +87,34 @@ class Test_getapps < Minitest::Test
         'phpBB' => [
           { 'install' => 'apache', 'desc' => 'Apache web server' }
         ]
+      },
+      "configs" => {
+        "server-configs" => {"edit" => "/etc/httpd/conf/httpd.conf", "regex" => '^(Listen).*', "value" => '\1 80'}
       }
     }
 
-    @mock = Minitest::Mock.new
-    @mock.expect(:[], false, [@k.vars])
-    @mock.expect(:[], false, [@k.base])
-    @mock.expect(:[], true, [@k.apps])
-    @mock.expect(:[], @data[@k.apps], [@k.apps])
-    @mock.expect(:[], true, [@k.deployments])
-    @mock.expect(:[], @data[@k.deployments], [@k.deployments])
-    YAML.stub(:load_file, @mock){ @reduce.load_profile('bogus') }
+    @base_mock = Minitest::Mock.new
+    @base_mock.expect(:[], true, ['vars'])
+    @base_mock.expect(:[], @base['vars'], ['vars'])
+    @base_mock.expect(:[], false, ['base'])
+    @base_mock.expect(:[], true, ['build'])
+    @base_mock.expect(:[], @base['build'], ['build'])
+    @base_mock.expect(:[], true, ['apps'])
+    @base_mock.expect(:[], @base['apps'], ['apps'])
+    @base_mock.expect(:[], true, ['configs'])
+    @base_mock.expect(:[], @base['configs'], ['configs'])
+    @base_mock.expect(:[], true, ['deployments'])
+    @base_mock.expect(:[], @base['deployments'], ['deployments'])
+
+    YAML.stub(:load_file, @base_mock){
+      @reduce = Reduce.new
+      @k = @reduce.instance_variable_get(:@k)
+      @profile = @reduce.instance_variable_get(:@profile)
+    }
+  end
+
+  def teardown
+    assert_mock(@base_mock)
   end
 
   def test_pkgs
@@ -88,9 +125,9 @@ class Test_getapps < Minitest::Test
     multilib = [{ 'install' => 'gcc-libs-multilib', 'desc' => 'GCC runtime libraries', 'multilib' => true }]
 
     @reduce.stub(:puts, nil){
-      pkgs, _ = @reduce.getapps('base', @data[@k.deployments]['base'])
+      pkgs, _ = @reduce.getapps('base', @base[@k.deployments]['base'])
       assert_equal(conky + curl + lib, pkgs)
-      pkgs, _ = @reduce.getapps('server', @data[@k.deployments]['server'])
+      pkgs, _ = @reduce.getapps('server', @base[@k.deployments]['server'])
       assert_equal(apache + conky + curl + multilib, pkgs)
     }
   end
@@ -100,9 +137,9 @@ class Test_getapps < Minitest::Test
     result2 = result1 + [{ 'chroot' => 'systemctl enable httpd.service' }]
 
     @reduce.stub(:puts, nil){
-      _, configs = @reduce.getapps('base', @data[@k.deployments]['base'])
+      _, configs = @reduce.getapps('base', @base[@k.deployments]['base'])
       assert_equal(result1, configs)
-      _, configs = @reduce.getapps('server', @data[@k.deployments]['server'])
+      _, configs = @reduce.getapps('server', @base[@k.deployments]['server'])
       assert_equal(result2, configs)
     }
   end
