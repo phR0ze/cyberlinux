@@ -106,14 +106,10 @@ class Reduce
       x86_64: 'x86_64',
     })
 
+    @vars = OpenStruct.new
     @rootpath = File.dirname(File.expand_path(__FILE__))
     @sudoinv = User.root? ? "sudo -Hu #{User.name} " : ''
     @runuser = "runuser #{User.name} -c"
-
-    # Load base profile
-    @vars = OpenStruct.new
-    @loaded_profiles = []
-    load_profile('base')
 
     # Set proxy vars
     @proxyenv = {
@@ -165,6 +161,10 @@ class Reduce
       @deployment_images_dst,
       File.expand_path('~').include?('root') ? "/home/#{@user}/Downloads/images" :
         File.join(File.expand_path('~'), 'Downloads', 'images')]
+
+    # Load base profile
+    @loaded_profiles = []
+    load_profile('base')
   end
 
   # Load and return the given profile
@@ -209,13 +209,14 @@ class Reduce
       @profile.configs.deep_merge!(profile[@k.configs]) if profile[@k.configs]
       @profile.deployments.deep_merge!(profile[@k.deployments]) if profile[@k.deployments]
 
-      # Set deployment and group variables as needed
+      # Set variables as needed
+      @profile.deployments.each{|k,v| @vars["#{k}_src"] = File.join(@deployments_src, k)}
       @profile.deployments.each{|k,v|
-        @vars["#{k}_deployment"] = get_deployments(k) * ',' if v[@k.type] == @k.machine }
+        @vars["#{k}_deployment"] = get_deployments(k) * ',' if v[@k.type] == @k.machine}
       @profile.deployments.each{|k,v|
         @vars["#{k}_groups"] = get_deployments(k).map{|x|
-          @profile.deployments[x][@k.groups] if @profile.deployments[x][@k.groups]}.compact.uniq * ','
-      }
+          @profile.deployments[x][@k.groups] if @profile.deployments[x][@k.groups]}.compact.uniq * ','}
+      @vars["base_src"] = File.join(@deployments_src, 'base') if !@vars["base_src"] 
 
     rescue Exception => e
       puts("Error: invalid yaml in '#{profile_path}'".colorize(:red))
@@ -296,9 +297,10 @@ class Reduce
   # @param targets [Array] components to clean
   # @param deployments [Array] deployments to clean
   # @param pacman [Bool] clean pacman repos
+  # @param build [Bool] clean build
   # @param cache [Bool] clean pacman repos and cache
   # @param vms [Bool] clean vms
-  def clean(targets, deployments:nil, pacman:nil, cache:nil, vms:nil)
+  def clean(targets, deployments:nil, pacman:nil, build:nil, cache:nil, vms:nil)
     iso = targets && targets.include?('iso') || false
     initramfs = targets && targets.include?('initramfs') || false
     multiboot = targets && targets.include?('multiboot') || false
@@ -369,6 +371,14 @@ class Reduce
         Dir[File.join(@pacman_path, '*.conf')].each{|f| File.delete(f)}
         Dir[File.join(@pacman_path, '*.log')].each{|f| File.delete(f)}
       end
+    end
+
+    # Clean build deployment
+    if !all and build
+      build_path = File.join(@deployments_work, @k.build)
+      puts("Cleaning build...".colorize(:cyan))
+      puts("Deleting #{build_path}".colorize(:red)) if Dir.exist?(build_path)
+      Sys.rm_rf(build_path)
     end
 
     # Clean iso path
@@ -813,8 +823,6 @@ class Reduce
       deployment_yml = get_deployment_yml(deployment)
       deployment_deps = get_deployments(deployment)[1..-1]
       deployment_work = FileUtils.mkdir_p(File.join(@deployments_work, deployment)).shift
-      deployment_digests = File.join(deployment_work, 'digests')
-      deployment_src = (deployment_yml[@k.source] || [deployment]).map{|x| File.join(@deployments_src, x)}
       deployment_image = deployment_yml[@k.type] == @k.machine ? File.join(@deployment_images_dst, "#{deployment}.sqfs") :
         File.join(@imagepaths.first, "#{deployment}-#{@vars.release}.tgz")
       puts("#{'-' * 80}\nBuilding deployment '#{deployment}'\n#{'-' * 80}".colorize(:light_yellow))
@@ -829,20 +837,7 @@ class Reduce
         end
 
         # Install deployment specific packages via pacman
-        deployment_changed |= installapps(deployment, deployment_yml, deployment_work)
-
-        # Copy over all deployment data if it exists
-        deployment_changed |= syncfiles(deployment, deployment_src, deployment_work, deployment_digests)
-
-        # Apply configuration changes
-        puts("Applying configs...".colorize(:cyan))
-        changedfile = File.join(deployment_work, 'changed')
-        if deployment_changed or not File.exist?(changedfile) or not File.exist?(deployment_image)
-          vars = deployment_yml[@k.vars] ? @vars.to_h.merge(deployment_yml[@k.vars]) : @vars
-          deployment_changed |= Config.apply(deployment_yml[@k.configs] || [],
-            OpenStruct.new({root: deployment_work, vars: vars, configs: @profile.configs}))
-          File.open(changedfile, 'w'){|f|}
-        end
+        deployment_changed |= installapps(deployment, deployment_image, deployment_work, deployment_yml)
 
         # Build deployment image if needed
         if deployment_changed or not File.exist?(deployment_image)
@@ -878,13 +873,17 @@ class Reduce
 
   # Install packages for the given deployment
   # @param deployment [string] deployment name to work with
-  # @param deployment_yml [yml] deployment yaml to work with
-  # @param deployment_work [string] the directory where to install the deployment packages to
+  # @param deployment_image [String] deployment name to work with
+  # @param deployment_work [String] path deployment work directory to work with
+  # @param deployment_yml [YAML] deployment yaml to work with
   # @returns true if any apps were installed else false
-  def installapps(deployment, deployment_yml, deployment_work)
+  def installapps(deployment, deployment_image, deployment_work, deployment_yml)
+    changed = false
     msg = "Installing apps for '#{deployment}'..."
     appfile = File.join(deployment_work, 'packages')
     deployment_deps = get_deployments(deployment)[1..-1]
+    deployment_src = [deployment].map{|x| File.join(@deployments_src, x)}
+    deployment_digests = File.join(deployment_work, 'digests')
 
     # Handle packages differently based on type
     #---------------------------------------------------------------------------
@@ -949,7 +948,25 @@ class Reduce
       puts("#{msg}skipping".colorize(:cyan))
     end
 
-    return apps.any?{|k,v| v.any? if k != :conflict and k != :ignore }
+    # Mark changed if any apps were installed
+    changed |= apps.any?{|k,v| v.any? if k != :conflict and k != :ignore }
+
+    # Copy over all deployment data if it exists
+    #---------------------------------------------------------------------------
+    changed |= syncfiles(deployment, deployment_src, deployment_work, deployment_digests)
+
+    # Apply app configuration changes
+    #---------------------------------------------------------------------------
+    puts("Applying configs...".colorize(:cyan))
+    changedfile = File.join(deployment_work, 'changed')
+    if changed or not File.exist?(changedfile) or not File.exist?(deployment_image)
+      vars = deployment_yml[@k.vars] ? @vars.to_h.merge(deployment_yml[@k.vars]) : @vars
+      changed |= Config.apply(all_configs || [],
+        OpenStruct.new({root: deployment_work, vars: vars, configs: @profile.configs}))
+      File.open(changedfile, 'w'){|f|}
+    end
+
+    return changed
   end
 
   # Get app configuration for the given deployment
@@ -964,24 +981,24 @@ class Reduce
     puts("Multilib: #{multilib} for deployment '#{deployment}'".colorize(:cyan))
 
     # Get all packages for given app
-    resolve_app = ->(app){
+    resolve = ->(entry){
 
-      # Lookup app reference
-      if app.is_a?(String)
-        _app = @profile.apps[app]
-        !puts("Error: invalid app reference '#{app}'".colorize(:red)) and exit unless _app
-        _app.each{|x| resolve_app.call(x)}
+      # Lookup entry reference
+      if entry.is_a?(String)
+        _entry = @profile.apps[entry] || @profile.configs[entry]
+        !puts("Error: invalid entry reference '#{entry}'".colorize(:red)) and exit unless _entry
+        _entry.each{|x| resolve.call(x)}
 
-      # Get app pkgs
-      elsif app[@k.install]
-        pkgs << app if app[@k.multilib] == nil || app[@k.multilib] == multilib
+      # Get entry pkgs
+      elsif entry[@k.install]
+        pkgs << entry if entry[@k.multilib] == nil || entry[@k.multilib] == multilib
 
-      # Get app configs
-      elsif !app[@k.install]
-        configs << app
+      # Get entry configs
+      elsif !entry[@k.install]
+        configs << entry
       end
     }
-    deployment_yml[@k.apps].each{|x| resolve_app.call(x)}
+    deployment_yml[@k.apps].each{|x| resolve.call(x)}
 
     return pkgs.uniq.sort_by{|x| x[@k.install]}, configs.uniq
   end
@@ -1031,10 +1048,10 @@ class Reduce
   def syncfiles(deployment, deployment_src, deployment_work, deployment_digests, &block)
     changed = false
     deployment_src = [deployment_src] if deployment_src.is_a?(String)
-    return changed if !deployment_src.any?{|x| File.exist?(x)}
+    return changed if !deployment_src.any?{|x| Dir.exist?(x)}
 
     msg = "Syncing from #{deployment_src}"
-    sources = deployment_src.select{|x| File.exist?(x)}
+    sources = deployment_src.select{|x| Dir.exist?(x)}
     reversed = sources.sort.reverse
     files = sources.map{|src| Dir.glob(File.join(src, '**/*'), File::FNM_DOTMATCH).reject{|x| File.directory?(x)}}.flatten
     newfiles, modifiedfiles, deletedfiles = FileUtils.digests_changed?(deployment, deployment_digests, files)
@@ -1224,7 +1241,6 @@ class Reduce
 
     return yml
   end
-
 end
 
 #-------------------------------------------------------------------------------
@@ -1262,6 +1278,7 @@ if __FILE__ == $0
       multiboot: 'Clean grub multiboot image',
       iso: 'Clean bootable ISO'
     }),
+    Option.new('--build', "Clean build"),
     Option.new('--pacman', "Clean pacman repos"),
     Option.new('--cache', "Clean pacman/ruby package cache"),
     Option.new('--vms', "Clean VMs that are no longer deployed"),
@@ -1303,7 +1320,7 @@ if __FILE__ == $0
   reduce.list(cmdr[:list][:list0]) if cmdr[:list]
 
   # Execute 'clean' command
-  reduce.clean(cmdr[:clean][:clean0], deployments: cmdr[:clean][:deployments],
+  reduce.clean(cmdr[:clean][:clean0], deployments: cmdr[:clean][:deployments], build: cmdr[:clean][:build],
     pacman: cmdr[:clean][:pacman], cache: cmdr[:clean][:cache], vms: cmdr[:vms]) if cmdr[:clean]
 
   # Execute 'build' command

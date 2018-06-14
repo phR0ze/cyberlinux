@@ -65,6 +65,7 @@ class Test_getapps < Minitest::Test
           'multilib' => true,
           'apps' => [
             'server-apps',
+            'server-configs'
           ]
         }
       },
@@ -77,8 +78,7 @@ class Test_getapps < Minitest::Test
         ],
         'server-apps' => [
           'base-apps',
-          'phpBB',
-          { 'chroot' => 'systemctl enable httpd.service' }
+          'phpBB'
         ],
         'conky' => [
           { 'install' => 'conky', 'desc' => 'Lightweight system monitor for X' },
@@ -89,7 +89,10 @@ class Test_getapps < Minitest::Test
         ]
       },
       "configs" => {
-        "server-configs" => {"edit" => "/etc/httpd/conf/httpd.conf", "regex" => '^(Listen).*', "value" => '\1 80'}
+        "server-configs" => [
+          {'chroot' => 'systemctl enable httpd.service'},
+          {"edit" => "/etc/httpd/conf/httpd.conf", "regex" => '^(Listen).*', "value" => '\1 80'}
+        ]
       }
     }
 
@@ -134,7 +137,8 @@ class Test_getapps < Minitest::Test
 
   def test_configs
     result1 = [{ 'exec' => 'echo 1 >> foobar' }]
-    result2 = result1 + [{ 'chroot' => 'systemctl enable httpd.service' }]
+    result2 = result1 + [{ 'chroot' => 'systemctl enable httpd.service' },
+    {"edit" => "/etc/httpd/conf/httpd.conf", "regex" => '^(Listen).*', "value" => '\1 80'}]
 
     @reduce.stub(:puts, nil){
       _, configs = @reduce.getapps('base', @base[@k.deployments]['base'])

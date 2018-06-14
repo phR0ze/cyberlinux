@@ -86,7 +86,9 @@ class Test_installapps < Minitest::Test
         ]
       },
       "configs" => {
-        "server-configs" => {"edit" => "/etc/httpd/conf/httpd.conf", "regex" => '^(Listen).*', "value" => '\1 80'}
+        "server-configs" => [
+          {"edit" => "/etc/httpd/conf/httpd.conf", "regex" => '^(Listen).*', "value" => '\1 80'}
+        ]
       }
     }
 
@@ -132,7 +134,7 @@ class Test_installapps < Minitest::Test
             Sys.stub(:umount, nil){
               @reduce.stub(:puts, nil){
                 @reduce.stub(:rm_rf, nil){
-                  @reduce.installapps('dep1', @base[@k.deployments]['dep1'], '.')
+                  @reduce.installapps('dep1', 'dep1.sqfs', '.', @base[@k.deployments]['dep1'])
                 }
               }
             }

@@ -240,8 +240,8 @@ In order to actually reference the host files system preced the path with an ext
 # Structure for a config reference
 deployments:
   - deployment: server
-    configs:
-      - { apply: config-autologin }
+    apps:
+      - config-autologin
       - { exec: 'ln -sf //usr/share/zoneinfo/Zulu /etc/localtime' }
 configs:
   config-autologin:
@@ -258,7 +258,7 @@ vars).
 
 | Function | Params | Description |
 | -------- | ------ | ----------- |
-| apply | config name | Applies the referrenced config in the context of the encompassing ***deployment*** |
+| install | pkg name | install the given packag for the encompassing ***deployment*** |
 | chroot | bash script | Variation of ***exec*** but executes in a chroot of the encompassing ***deployment*** |
 | edit | append, value | Append the given value to the implicated file |
 | edit | append, values | Append the given values to the implicated file |
@@ -269,7 +269,7 @@ vars).
 
 **Examples**
 ```YAML
-- { apply: config-autologin }
+- { install: linux-celes, desc: Linux kernel and supporting modules, type: CYBERLINUX }
 - { chroot: systemctl enable sshd.service }
 - { edit: /etc/foo/bar, append: true, value: 'Lorem ipsum de foo bar'}
 - { edit: /etc/foo/bar, append: true, values: ['Lorem ipsum', 'de foo bar'] }

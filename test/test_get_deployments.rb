@@ -65,7 +65,9 @@ class Test_get_deployments < Minitest::Test
         ]
       },
       "configs" => {
-        "server-configs" => {"edit" => "/etc/httpd/conf/httpd.conf", "regex" => '^(Listen).*', "value" => '\1 80'}
+        "server-configs" => [
+          {"edit" => "/etc/httpd/conf/httpd.conf", "regex" => '^(Listen).*', "value" => '\1 80'}
+        ]
       }
     }
 

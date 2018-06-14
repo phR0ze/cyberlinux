@@ -33,7 +33,6 @@ module Config
   def keys
     return OpenStruct.new({
       after: 'after',
-      apply: 'apply',
       append: 'append',
       before: 'before',
       chroot: 'chroot',
@@ -63,68 +62,54 @@ module Config
     k = Config.keys
     configs.each{|config|
 
-      # Recurse on config references
-      if config[k.apply]
-        puts("Applying '#{config[k.apply]}'")
-        begin
-          changed |= apply(ctx.configs[config[k.apply]], ctx)
-        rescue
-          puts("Failed to find the config referenced by '#{config[k.apply]}'")
-          raise
-        end
+      # Resolve templating in the actual config
+      config = config.erb(ctx.vars)
 
-      # Apply the config
-      else
+      # Redirect paths as required
+      config = Config.redirect(config, ctx, k) if not config[k.chroot]
 
-        # Resolve templating in the actual config
-        config = config.erb(ctx.vars)
+      # Apply bash scripts
+      if config[k.chroot]
+        Sys.exec("arch-chroot #{ctx.root} #{config[k.chroot]}")
 
-        # Redirect paths as required
-        config = Config.redirect(config, ctx, k) if not config[k.chroot]
+      # Apply file edits
+      elsif config[k.edit]
+        file = config[k.edit]
+        puts("Editing: #{file}")
+        values = config[k.value] ? [config[k.value]] : config[k.values]
+        FileUtils.mkdir_p(File.dirname(file)) if not File.exist?(File.dirname(file))
 
-        # Apply bash scripts
-        if config[k.chroot]
-          Sys.exec("arch-chroot #{ctx.root} #{config[k.chroot]}")
+        if not File.exist?(file)
+          changed |= FileUtils.insert(file, values)
+        else
+          insert = config[k.insert]
 
-        # Apply file edits
-        elsif config[k.edit]
-          file = config[k.edit]
-          puts("Editing: #{file}")
-          values = config[k.value] ? [config[k.value]] : config[k.values]
-          FileUtils.mkdir_p(File.dirname(file)) if not File.exist?(File.dirname(file))
+          # Check if the configs have already been made
+          data = File.binread(file)
+          already = values.all?{|y| data =~ Regexp.new(Regexp.quote(y))}
 
-          if not File.exist?(file)
-            changed |= FileUtils.insert(file, values)
-          else
-            insert = config[k.insert]
+          # Regex replacements
+          if not insert
+            changed |= FileUtils.replace(file, config[k.regex], values.first)
 
-            # Check if the configs have already been made
-            data = File.binread(file)
-            already = values.all?{|y| data =~ Regexp.new(Regexp.quote(y))}
-
-            # Regex replacements
-            if not insert
-              changed |= FileUtils.replace(file, config[k.regex], values.first)
-
-            # File insert/appends
-            elsif not already
-              offset = insert == k.append ? nil : insert == k.after ? 1 : 0
-              changed |= FileUtils.insert(file, values, regex:config[k.regex], offset:offset)
-            end
+          # File insert/appends
+          elsif not already
+            offset = insert == k.append ? nil : insert == k.after ? 1 : 0
+            changed |= FileUtils.insert(file, values, regex:config[k.regex], offset:offset)
           end
-
-        # Apply menu entries
-        elsif config[k.menu]
-          changed |= add_menu_entry(config, ctx, k)
-
-        # Apply bash scripts
-        elsif config[k.exec]
-          Sys.exec(config[k.exec])
-
-        # Resolve template
-        elsif config[k.resolve]
-          changed |= FileUtils.resolve(config[k.resolve], ctx.vars)
         end
+
+      # Apply menu entries
+      elsif config[k.menu]
+        changed |= add_menu_entry(config, ctx, k)
+
+      # Apply bash scripts
+      elsif config[k.exec]
+        Sys.exec(config[k.exec])
+
+      # Resolve template
+      elsif config[k.resolve]
+        changed |= FileUtils.resolve(config[k.resolve], ctx.vars)
       end
     }
 

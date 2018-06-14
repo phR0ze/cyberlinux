@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.360
+  release: 0.1.361
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -57,16 +57,24 @@ build:
     command: 'bash -c "while :; do sleep 5; done"'
   apps:
     - { install: linux,                         desc: Linux kernel and supporting modules }
+    - build-apps
+
+################################################################################
+apps:
+  kernel:
+    - { install: linux,                         desc: Linux kernel and supporting modules }
+    - { install: linux-docs,                    desc: Linux kernel docs }
+    - { install: linux-headers,                 desc: Linux kernel headers }
+  build-apps:
     - { install: gptfdisk,                      desc: Paritioning tools e.g. sgdisk }
     - { install: mkinitcpio,                    desc: initramfs image creation utility }
     - { install: mkinitcpio-vt-colors,          desc: vt console colors, type: CYBERLINUX }
     - { install: rsync,                         desc: Remote file sync utility }
-    - { install: systemd,                       desc: System and service manager }
+      #- { install: systemd,                       desc: System and service manager }
     - { install: sudo,                          desc: Elevate some user commands to root }
     - core-apps
     - core-tools
     - grub-tools
-  configs:
     # Create and configure new build user and root user
     - { chroot: 'useradd -m -G lp,wheel,network,storage,users -s /bin/bash build || true' }
     - { exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /home/build' }
@@ -75,13 +83,6 @@ build:
     - { edit: /etc/sudoers, insert: append, value: "build ALL=(ALL) NOPASSWD: ALL" }
     - config-core
     - config-mkinitcpio
-
-################################################################################
-apps:
-  kernel:
-    - { install: linux,                         desc: Linux kernel and supporting modules }
-    - { install: linux-docs,                    desc: Linux kernel docs }
-    - { install: linux-headers,                 desc: Linux kernel headers }
   core-apps:
     - { install: bash,                          desc: GNU Bourne Again shell }
     - { install: gcc-libs,                      desc: GCC runtime libraries, multilib: false, depof: ncurses }
@@ -143,7 +144,7 @@ apps:
     - { install: antergos-keyring,              desc: Antergos GPG keyring, type: ANTERGOS }
     - { install: blackarch-keyring,             desc: Blackarch GPG keyring, type: BLACKARCH }
     - { install: cyberlinux-keyring,            desc: Blackarch GPG keyring, type: CYBERLINUX }
-    - { apply: base-config }
+    - config-base
   shell-apps:
     - dev-apps
     - ruby-gems
@@ -186,7 +187,7 @@ apps:
     - { install: tcpdump,                       desc: Network monitoring and data acquisition }
     - { install: wget,                          desc: Retrieve files from the Web }
     - { install: wpa_supplicant,                desc: A utility providing key negotiation for WPA wireless networks }
-    - { apply: shell-config }
+    - config-shell
   dev-apps:
     - { install: arch-install-scripts,          desc: arch-chroot/genfstab/pacstrap }
     - { install: autoconf,                      desc: Automatically configure source code, group: base-devel }
@@ -252,92 +253,92 @@ configs:
   # Core configuration for any container
   #-----------------------------------------------------------------------------
   config-core:
-    - { apply: config-bash }
-    - { apply: config-hosts }
-    - { apply: locale-config }
-    - { apply: config-lsb-release }
-    - { apply: journald-config }
-    - { apply: os-release-config }
-    - { apply: proxy-config }
-    - { apply: resolved-config }
-    - { apply: sudo-vars-config }
-    - { apply: sysctld-config }
-    - { apply: user-dirs-config }
-    - { apply: vconsole-config }
-    - { apply: remove-core-waste }
+    - config-bash
+    - config-hosts
+    - config-locale
+    - config-lsb-release
+    - config-journald
+    - config-os-release
+    - config-proxy
+    - config-resolved
+    - config-sudo-vars
+    - config-sysctld
+    - config-user-dirs
+    - config-vconsole
+    - remove-core-waste
 
   # Core configuration for any machine
   #-----------------------------------------------------------------------------
-  base-config:
-    - { apply: bash-config }
-    - { apply: hosts-config }
-    - { apply: locale-config }
-    - { apply: logind-config }
-    - { apply: lsb-release-config }
-    - { apply: journald-config }
-    - { apply: makepkg-config }
-    - { apply: mkinitcpio-config }
-    - { apply: modprobed-config }
-    - { apply: os-release-config }
-    - { apply: pacman-config }
-    - { apply: proxy-config }
-    - { apply: resolved-config }
-    - { apply: sshd-config }
-    - { apply: sudo-vars-config }
-    - { apply: sysctld-config }
-    - { apply: timesyncd-config }
-    - { apply: user-dirs-config }
-    - { apply: vconsole-config }
-    - { apply: remove-machine-waste }
+  config-base:
+    - config-bash
+    - config-hosts
+    - config-locale
+    - config-logind
+    - config-lsb-release
+    - config-journald
+    - config-makepkg
+    - config-mkinitcpio
+    - config-modprobed
+    - config-os-release
+    - config-pacman
+    - config-proxy
+    - config-resolved
+    - config-sshd
+    - config-sudo-vars
+    - config-sysctld
+    - config-timesyncd
+    - config-user-dirs
+    - config-vconsole
+    - remove-machine-waste
     - { chroot: systemctl enable sshd.service }
     - { chroot: systemctl enable systemd-networkd.service }
     - { chroot: systemctl enable systemd-networkd-wait-online.service }
     - { chroot: systemctl enable systemd-resolved.service }
     - { chroot: systemctl enable systemd-timesyncd.service }
-  shell-config:
-    - { apply: wpa-config }
+  config-shell:
+    - config-wpa
     - { chroot: systemctl enable cronie.service }
-  lite-config:
-    - { apply: lxdm-config }
-    - { apply: fonts-config }
-    - { apply: dconf-config }
-    - { apply: gtk-config }
-    - { apply: openbox-config }
-    - { apply: oblogout-config }
-    - { apply: mimeapps-config }
-    - { apply: wallpaper-config }
-    - { apply: xorg-config }
-    - { apply: thunar-config }
-    - { apply: menu-lite-config }
-  laptop-config:
-    - { apply: wpa-gui }
-    - { apply: conky-config }
-    - { apply: keepass-config }
-    - { apply: menu-laptop-config }
-    - { apply: cinnamon-screensaver-config }
-  desktop-config:
-    - { apply: conky-config }
-    - { apply: docker-config }
-    - { apply: guake-config }
-    - { apply: keepass-config }
-    - { apply: menu-desktop-config }
-    - { apply: plank-desktop-config }
-    - { apply: cinnamon-screensaver-config }
-  k8snode-config:
-    - { apply: docker-config }
+  config-lite:
+    - config-lxdm
+    - config-fonts
+    - config-dconf
+    - config-gtk
+    - config-openbox
+    - config-oblogout
+    - config-mimeapps
+    - config-wallpaper
+    - config-xorg
+    - config-thunar
+    - config-menu-lite
+  config-laptop:
+    - config-wpa-gui
+    - config-conky
+    - config-keepass
+    - config-menu-laptop
+    - config-cinnamon-screensaver
+  config-desktop:
+    - config-conky
+    - config-docker
+    - config-guake
+    - config-keepass
+    - config-menu-desktop
+    - config-plank-desktop
+    - config-cinnamon-screensaver
+  config-k8snode:
+    - config-docker
     - { chroot: systemctl enable kubelet.service }
-  server-config:
-    - { apply: nfs-config }
-    - { apply: thunar-config }
-    - { apply: apache-php-config }
-    - { apply: keepass-config }
-    - { apply: menu-server-config }
-  theater-config:
-    - { apply: conky-config }
-    - { apply: idesk-config }
-    - { apply: resolution-theater }
-    - { apply: menu-theater-config }
-  menu-lite-config:
+  config-server:
+    - config-nfs
+    - config-thunar
+    - config-apache-php
+    - config-keepass
+    - config-menu-server
+  config-theater:
+    - config-conky
+    - config-idesk
+    - config-theater-resolution
+    - config-menu-theater
+  config-menu-lite:
     - { menu: Root, insert: append, entry: Thunar, icon: /usr/share/icons/Paper/32x32/apps/Thunar.png, exec: thunar }
     - { menu: Root, insert: append, entry: LXTerminal, icon: /usr/share/icons/Paper/32x32/apps/lxterminal.png, exec: lxterminal }
     - { menu: Root, insert: append, entry: Nitrogen, icon: /usr/share/icons/hicolor/32x32/apps/nitrogen.png, exec: nitrogen }
@@ -393,10 +394,10 @@ configs:
     - { menu: Session, insert: append, entry: Logout, icon: /usr/share/icons/Paper/32x32/actions/exit.png, exec: openbox --exit }
     - { menu: Session, insert: append, entry: Reboot, icon: /usr/share/icons/hicolor/32x32/actions/system-reboot.png, exec: sudo reboot }
     - { menu: Session, insert: append, entry: Shutdown, icon: /usr/share/icons/hicolor/32x32/actions/system-shutdown.png, exec: sudo poweroff }
-  menu-laptop-config:
+  config-menu-laptop:
     - { menu: Network, entry: WPA Gui, icon: /usr/share/icons/hicolor/32x32/apps/wpa_gui.png, exec: sudo wpa_gui }
 
-  menu-desktop-config:
+  config-menu-desktop:
     - { menu: Accessories, entry: Catfish File Search, icon: /usr/share/icons/Paper/32x32/apps/system-search.png, exec: catfish }
     - { menu: Accessories, entry: Multi Writer, icon: /usr/share/icons/Paper/32x32/devices/drive-harddisk-usb.png, exec: sudo gnome-multi-writer}
     - { menu: Development, entry: Meld, icon: /usr/share/icons/Paper/32x32/apps/meld.png, exec: meld }
@@ -427,18 +428,18 @@ configs:
     - { menu: System, entry: HardInfo, icon: /usr/share/hardinfo/pixmaps/logo.png, exec: hardinfo }
     - { menu: Settings, entry: Guake Preferences, icon: /usr/share/icons/Paper/32x32/apps/guake-prefs.png, exec: guake-prefs }
     - { menu: Settings, entry: VirtualBox, icon: /usr/share/icons/Paper/32x32/apps/virtualbox.png, exec: VirtualBox }
-  menu-server-config:
+  config-menu-server:
     - { menu: Accessories, entry: Archive Manager, icon: /usr/share/icons/Paper/32x32/apps/file-roller.png, exec: file-roller }
     - { menu: Multimedia, entry: HandBrake, icon: /usr/share/icons/hicolor/scalable/apps/hb-icon.svg, exec: ghb }
     - { menu: Multimedia, entry: MKVToolNix, icon: /usr/share/icons/hicolor/32x32/apps/mkvtoolnix-gui.png, exec: mkvtoolnix-gui }
     - { menu: Multimedia, entry: Tiny Media Manager, icon: /usr/share/icons/hicolor/32x32/apps/tiny-media-manager.png, exec: tiny-media-manager }
     - { menu: Network, entry: OpenVPN PIA, icon: /usr/share/icons/hicolor/32x32/apps/openvpn-pia.png, exec: sudo openvpn-pia }
     - { menu: Network, entry: qBittorrent, icon: /usr/share/icons/hicolor/32x32/apps/qbittorrent.png, exec: qbittorrent }
-  menu-theater-config:
+  config-menu-theater:
     - { menu: Multimedia, entry: HandBrake, icon: /usr/share/icons/hicolor/scalable/apps/hb-icon.svg, exec: ghb }
     - { menu: Multimedia, entry: MKVToolNix, icon: /usr/share/icons/hicolor/32x32/apps/mkvtoolnix-gui.png, exec: mkvtoolnix-gui }
     - { menu: Multimedia, entry: Tiny Media Manager, icon: /usr/share/icons/hicolor/32x32/apps/tiny-media-manager.png, exec: tiny-media-manager }
-  apache-php-config:
+  config-apache-php:
     - { edit: /etc/httpd/conf/httpd.conf, regex: '^(Listen).*', value: '\1 80' }
     - { edit: /etc/httpd/conf/httpd.conf, regex: '^(DocumentRoot).*', value: '\1 /srv/http' }
     - { edit: /etc/httpd/conf/httpd.conf, regex: '^(.*DirectoryIndex index.html).*', value: '\1 index.php' }
@@ -487,10 +488,10 @@ configs:
     - { edit: /etc/php/php.ini, regex: '^;(extension=pdo_sqlite.so.*)', value: '\1' }
     - { edit: /etc/php/php.ini, regex: '^;(extension=sqlite3.so.*)', value: '\1' }
     - { chroot: systemctl enable httpd.service }
-  bash-config:
+  config-bash:
     - { edit: /root/.bashrc, regex: '^(export PATH.*)', value: '\1:/opt/<%=distro%>/bin' }
     - { edit: /etc/skel/.bashrc, regex: '^(export PATH.*)', value: '\1:/opt/<%=distro%>/bin' }
-  cinnamon-screensaver-config:
+  config-cinnamon-screensaver:
     - edit: /etc/skel/.config/autostart/cinnamon-screensaver.desktop
       insert: append
       values:
@@ -521,7 +522,7 @@ configs:
         - "    <key type=\"s\" name=\"logout-command\"><default>''</default></key>\n"
         - "    <key type=\"u\" name=\"logout-delay\"><default>7200</default></key>\n"
     - { chroot: glib-compile-schemas /usr/share/glib-2.0/schemas }
-  conky-config:
+  config-conky:
     - { menu: Settings, entry: Conky RC, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.conkyrc }
     - edit: /etc/lxdm/PostLogout
       insert: append
@@ -539,7 +540,7 @@ configs:
         - 'StartupNotify=true'
         - 'Type=Application'
         - 'Categories=System;Utility;'
-  dconf-config:
+  config-dconf:
     - edit: /etc/dconf/profile/user
       insert: append
       values:
@@ -582,7 +583,7 @@ configs:
         - "    #dconf write /system/proxy/mode 'none'"
         - '  fi'
         - 'fi'
-  docker-config:
+  config-docker:
     - edit: /opt/<%=distro%>/bin/setproxy
       insert: before
       regex: 'PROXY_MARKER'
@@ -603,13 +604,13 @@ configs:
         - 'fi'
         - ''
     - { chroot: systemctl enable docker.service }
-  hosts-config:
+  config-hosts:
     - { exec: 'rm -f /etc/hosts' }
     - edit: /etc/hosts
       insert: append
       values:
         - '127.0.0.1 localhost'
-  fonts-config:
+  config-fonts:
     - edit: /etc/skel/.config/fontconfig/fonts.conf
       insert: append
       values:
@@ -667,7 +668,7 @@ configs:
         - '  </match>'
         - '</fontconfig>'
     - { chroot: fc-cache }
-  gtk-config:
+  config-gtk:
     - edit: /etc/dconf/db/local.d/02-gtk
       insert: append
       values:
@@ -718,7 +719,7 @@ configs:
         - 'Name=Default'
         - 'Comment=Default Cursor Theme'
         - 'Inherits=xcursor-numix-frost'
-  guake-config:
+  config-guake:
     - edit: /etc/skel/.config/autostart/guake.desktop
       insert: append
       values:
@@ -757,7 +758,7 @@ configs:
         - '  <entry name="style" mtime="1476881725" type="string"><stringvalue>Inconsolata-g Medium 11</stringvalue></entry>'
         - '  <entry name="color" mtime="1476881725" type="string"><stringvalue>#D4D4D4D4D4D4</stringvalue></entry>'
         - '</gconf>'
-  idesk-config:
+  config-idesk:
     - edit: /etc/skel/.config/autostart/idesk.desktop
       insert: append
       values:
@@ -811,14 +812,14 @@ configs:
       values:
         - "table Icon\n  Icon: /usr/share/icons/hicolor/96x96/apps/smplayer.png"
         - "  X: 110\n  Y: 193\n  Command[0]: smplayer\nend"
-  journald-config:
+  config-journald:
     # Avoid "Failed to start Create Volatile Files and Directories"
     - { exec: 'rm -rf /var/log/journal' }
     # Restrict journal disk size to avoid hogging the system
     - { edit: /etc/systemd/journald.conf, regex: '^#(SystemMaxUse).*', value: '\1=100M' }
-  keepass-config:
+  config-keepass:
     - { menu: Accessories, entry: KeePass, icon: /usr/share/icons/hicolor/32x32/apps/keepass.png, exec: keepass }
-  locale-config:
+  config-locale:
     - edit: /etc/locale.conf
       insert: append
       values:
@@ -828,14 +829,14 @@ configs:
     - { edit: /etc/locale.gen, regex: '^#(<%=language%>\..*)', value: '\1' }
     - { chroot: locale-gen }
     - { edit: /etc/profile.d/locale.sh, insert: append, value: "export LC_COLLATE=C" }
-  logind-config:
+  config-logind:
     - { edit: /etc/systemd/logind.conf, regex: '^#(KillUserProcesses)=.*', value: '\1=yes' }
     - { edit: /etc/systemd/logind.conf, regex: '^#(HandlePowerKey)=.*', value: '\1=poweroff' }
     - { edit: /etc/systemd/logind.conf, regex: '^#(HandleSuspendKey)=.*', value: '\1=suspend' }
     - { edit: /etc/systemd/logind.conf, regex: '^#(HandleHibernateKey)=.*', value: '\1=hibernate' }
     - { edit: /etc/systemd/logind.conf, regex: '^#(HandleLidSwitch)=.*', value: '\1=suspend' }
     - { edit: /etc/systemd/logind.conf, regex: '^#(HandleLidSwitchDocked)=.*', value: '\1=ignore' }
-  lsb-release-config:
+  config-lsb-release:
     - { exec: 'rm -f /etc/lsb-release' }
     - edit: /etc/lsb-release
       insert: append
@@ -844,7 +845,7 @@ configs:
         - 'DISTRIB_ID=<%=distro%>'
         - 'DISTRIB_RELEASE=rolling'
         - 'DISTRIB_DESCRIPTION=<%=distro%>'
-  lxdm-config:
+  config-lxdm:
     - { exec: ln -sf //usr/lib/systemd/system/lxdm.service /etc/systemd/system/display-manager.service }
     - { edit: /usr/share/lxdm/themes/Industrial/gtk.css, regex: '^(\s*font: Sans).*', value: '\1 18;' }
     - { edit: /usr/share/lxdm/themes/Industrial/gtk.css, regex: '^(\s*color:) #000000.*', value: '\1 #ffffff;' }
@@ -866,9 +867,9 @@ configs:
       regex: 'exec'
       values:
         - '/opt/<%=distro%>/bin/pre-xorg'
-  makemkv-config:
+  config-makemkv:
     - { menu: Multimedia, entry: MakeMKV, icon: /usr/share/icons/hicolor/32x32/apps/makemkv.png, exec: makemkv }
-  teamviewer-client-config:
+  config-teamviewer-client:
     - { menu: Network, entry: Teamviewer, icon: /usr/share/icons/Paper/32x32/apps/teamviewer.png, exec: teamviewer }
     - edit: /etc/skel/.config/autostart/teamviewer.desktop
       insert: append
@@ -908,14 +909,14 @@ configs:
         - 'rm -f /home/$SUDO_USER/.config/autostart/teamviewer.desktop'
     - { exec: chmod +x /opt/<%=distro%>/bin/config-teamviewer }
     - { chroot: systemctl enable teamviewerd.service }
-  teamviewer-host-config:
-    - { apply: teamviewer-client-config }
+  config-teamviewer-host:
+    - config-teamviewer-client
     - { edit: /opt/<%=distro%>/bin/config-teamviewer, regex: 'systemctl disable teamviewerd', value: '  :' }
     - { edit: /opt/<%=distro%>/bin/config-teamviewer, regex: 'systemctl stop teamviewerd', value: '  :' }
-  makepkg-config:
+  config-makepkg:
     - { edit: /etc/makepkg.conf, regex: '^#(MAKEFLAGS)=.*', value: '\1="-j8"' }
     - { edit: /etc/makepkg.conf, regex: '^(COMPRESSXZ)=.*', value: '\1=(xz -c -z - --threads=0)' }
-  mimeapps-config:
+  config-mimeapps:
     - edit: /etc/skel/.config/mimeapps.list
       insert: append
       values:
@@ -948,13 +949,13 @@ configs:
         - 'video/x-matroska=smplayer.desktop;'
         - 'video/mp4=smplayer.desktop;'
         - 'video/mpeg=smplayer.desktop;'
-  mkinitcpio-config:
+  config-mkinitcpio:
     - edit: /etc/mkinitcpio.conf
       regex: '^(HOOKS).*'
       value: '\1="base udev autodetect vt-colors modconf block filesystems keyboard"'
-  modprobed-config:
+  config-modprobed:
     - { edit: /etc/modprobe.d/pcspkr.conf, insert: append, value: "blacklist pcspkr" }
-  nfs-config:
+  config-nfs:
     - edit: /etc/exports
       insert: append
       values:
@@ -971,7 +972,7 @@ configs:
     # Manually mount on client side with this
     #- { edit: /etc/fstab, insert: append, value: serverip:/srv/nfs/Cache /var/cache/pacman/pkg nfs auto,noatime,rsize=8192,wsize=8192,timeo=14,_netdev 0 0
     - { chroot: systemctl enable nfs-server.service }
-  oblogout-config:
+  config-oblogout:
     - edit: /etc/oblogout.conf
       insert: append
       values:
@@ -993,7 +994,7 @@ configs:
         - 'restart = systemctl reboot'
         - 'shutdown = systemctl poweroff'
         - 'lock = cinnamon-screensaver-command --lock'
-  openbox-config:
+  config-openbox:
     - edit: /etc/skel/.config/openbox/autostart
       insert: append
       values:
@@ -1012,14 +1013,14 @@ configs:
       values:
         - '# Source the user rc file if it exists'
         - '[ -r ~/.bashrc ] && source ~/.bashrc'
-  pacman-config:
+  config-pacman:
     - { exec: 'rm -f /etc/pacman.d/gnupg/dirmngr.conf' }
     - { edit: /etc/pacman.d/gnupg/dirmngr.conf, insert: append, value: "honor-http-proxy" }
     - { edit: /etc/pacman.d/gnupg/gpg.conf, regex: '^keyserver\s.*', value: 'keyserver http://ipv4.pool.sks-keyservers.net' }
     - { chroot: "bash -c 'haveged -r 0 && pacman-key --init'" }
     - { chroot: 'pacman-key --populate archlinux antergos blackarch' }
     - { chroot: 'pacman -Sy' }
-  plank-desktop-config:
+  config-plank-desktop:
     - edit: /etc/skel/.config/autostart/plank.desktop
       insert: append
       values:
@@ -1055,7 +1056,7 @@ configs:
     - { edit: /etc/skel/.config/plank/dock1/launchers/writer.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/libreoffice-writer.desktop"]}
     - { edit: /etc/skel/.config/plank/dock1/launchers/virtualbox.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/virtualbox.desktop"]}
     - { chroot: dconf update }
-  openvpn-pia-config:
+  config-openvpn-pia:
     - edit: /etc/skel/.config/autostart/openvpn-pia.desktop
       insert: append
       values:
@@ -1068,7 +1069,7 @@ configs:
         - 'StartupNotify=true'
         - 'Type=Application'
         - 'Categories=Network;'
-  os-release-config:
+  config-os-release:
     - { exec: 'rm -f /etc/os-release' }
     - edit: /etc/os-release
       insert: append
@@ -1077,7 +1078,7 @@ configs:
         - 'ID=<%=distro%>'
         - 'VERSION=<%=release%>'
         - 'PRETTY_NAME=<%=distro%>'
-  proxy-config:
+  config-proxy:
     - edit: /opt/<%=distro%>/bin/setproxy
       insert: append
       values:
@@ -1133,7 +1134,7 @@ configs:
     - { exec: 'rm -rf /etc/pacman.d/mirrorlist' }
     - { exec: 'rm -rf /var/tmp/*' }
     - { exec: 'rm -rf /tmp/*' }
-  resolution-theater:
+  config-theater-resolution:
     - edit: /etc/X11/xorg.conf.d/10-display.conf
       insert: append
       values:
@@ -1144,17 +1145,17 @@ configs:
         - '        Modes "1920x1080"'
         - '    EndSubSection'
         - 'EndSection'
-  resolved-config:
+  config-resolved:
     - { exec: ln -sf //run/systemd/resolve/resolv.conf /etc/resolv.conf }
-  sshd-config:
+  config-sshd:
     - { edit: /etc/ssh/sshd_config, regex: '^#(PermitRootLogin).*', value: '\1 no' }
     - { edit: /etc/ssh/sshd_config, regex: '^#(PermitEmptyPasswords).*', value: '\1 no' }
     - { edit: /etc/ssh/sshd_config, regex: '^#(UsePrivilegeSeparation).*', value: '\1 sandbox' }
-  sudo-vars-config:
+  config-sudo-vars:
     - edit: /etc/sudoers
       insert: append
       value: 'Defaults env_keep += "ftp_proxy http_proxy https_proxy no_proxy"'
-  sysctld-config:
+  config-sysctld:
     # Minimal amount of swapping without disabling it entirely
     - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "vm.swappiness = 1" }
     # Enable kernel ipv4 forwarding for containers
@@ -1163,7 +1164,7 @@ configs:
     - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "net.ipv6.conf.all.forwarding = 0" }
     # Increase the number of user file watches to max
     - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "fs.inotify.max_user_watches = 524288" }
-  thunar-config:
+  config-thunar:
     - edit: /etc/skel/.config/autostart/thunar.desktop
       insert: append
       values:
@@ -1177,7 +1178,7 @@ configs:
         - 'StartupNotify=true'
         - 'Type=Application'
         - 'Categories=System;Utility;Core;GTK;FileTools;FileManager;'
-  timesyncd-config:
+  config-timesyncd:
     - { exec: 'rm -f /etc/systemd/timesyncd.conf' }
     - edit: /etc/systemd/timesyncd.conf
       insert: append
@@ -1185,7 +1186,7 @@ configs:
         - '[Time]'
         - 'NTP=0.arch.pool.ntp.org 1.arch.pool.ntp.org 2.arch.pool.ntp.org 3.arch.pool.ntp.org'
         - 'FallbackNTP=0.pool.ntp.org 1.pool.ntp.org 0.fr.pool.ntp.org'
-  user-dirs-config:
+  config-user-dirs:
     - { exec: 'rm -f /etc/xdg/user-dirs.defaults' }
     - edit: /etc/xdg/user-dirs.defaults
       insert: append
@@ -1195,9 +1196,9 @@ configs:
         - 'DOWNLOAD=Downloads'
         - 'PROJECTS=Projects'
         - 'SCRIPTS=bin'
-  vconsole-config:
+  config-vconsole:
     - {edit: /etc/vconsole.conf, insert: append, value: 'KEYMAP=us' }
-  wallpaper-config:
+  config-wallpaper:
     - edit: /etc/skel/.config/nitrogen/bg-saved.cfg
       insert: append
       values:
@@ -1219,12 +1220,12 @@ configs:
         - 'sort=alpha'
         - 'icon_caps=false'
         - 'dirs=/usr/share/wallpaper;'
-  wpa-gui:
+  config-wpa-gui:
     # Autostart WPA Gui
     - { exec: 'cp /usr/share/applications/wpa_gui.desktop /etc/skel/.config/autostart' }
     # Enable wpa_supplicant out of the box so we have WiFi running
     - { chroot: systemctl enable wpa_supplicant@wlp2s0 }
-  wpa-config:
+  config-wpa:
     - edit: /etc/wpa_supplicant/wpa_supplicant-wlp2s0.conf
       insert: append
       values:
@@ -1237,7 +1238,7 @@ configs:
         - 'p2p_disabled=1'
         # Automatically scan and select networks matching saved ones
         - 'ap_scan=1'
-  xorg-config:
+  config-xorg:
     - edit: /opt/<%=distro%>/bin/pre-xorg
       insert: append
       values:
