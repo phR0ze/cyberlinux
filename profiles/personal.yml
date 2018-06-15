@@ -29,7 +29,7 @@ deployments:
     vagrant: { vram: 32, cpus: 2, ram: 2048 }
     install:
       order: 1
-      label: "Deploy <%=distro%>-base                    // Shell env"
+      label: "Deploy <%=distro%>-base                    // Base shell env"
       kernel: linux
     apps:
       - kernel
