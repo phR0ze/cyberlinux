@@ -65,6 +65,8 @@ apps:
     - { install: linux,               desc: Linux kernel and supporting modules }
     - { install: linux-docs,          desc: Linux kernel docs }
     - { install: linux-headers,       desc: Linux kernel headers }
+
+  # Packages and configs for building initramfs etc...
   build:
     - { install: gptfdisk,            desc: Paritioning tools e.g. sgdisk }
     - { install: mkinitcpio,          desc: initramfs image creation utility }

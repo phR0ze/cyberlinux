@@ -18,17 +18,23 @@
 #LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
-
 base: base
 
 deployments:
-  ruby:
-    type: container
-    docker:
-      params: '-e TERM=xterm'
-      command: 'bash -c "while :; do sleep 5; done"'
+  base:
+    type: machine
+    multilib: true
+    groups: [lp, wheel, network, storage, users]
+    vars: { fontsize: 10 }
+    vagrant: { vram: 32, cpus: 2, ram: 2048 }
+    deploy:
+      label: "Deploy <%=distro%>-base                    // Shell env"
+      kernel: linux
     apps:
-      - ruby-core
+      - kernel
+      - base-apps
+        #- shell-apps
+        #- virtualbox-guest-nox
 
 # Desktop android
 # groups: [adbusers, uucp]
