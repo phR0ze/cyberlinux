@@ -72,7 +72,7 @@ apps:
     - { install: mkinitcpio,          desc: initramfs image creation utility }
     - { install: mkinitcpio-vt-colors,desc: vt console colors, type: CYBERLINUX }
     - { install: rsync,               desc: Remote file sync utility }
-      #- { install: systemd,             desc: System and service manager }
+    - { install: systemd,             desc: System and service manager }
     - { install: sudo,                desc: Elevate some user commands to root }
     - core
     - core-tools

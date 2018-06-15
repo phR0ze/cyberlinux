@@ -78,10 +78,9 @@ class Reduce
       conflict: 'conflict',
       container: 'container',
       desc: 'desc',
-      deployment: 'deployment',
       deployments: 'deployments',
       docker: 'docker',
-      entry: 'entry',
+      label: 'label',
       force: 'force',
       groups: 'groups',
       i686: 'i686',
@@ -94,6 +93,7 @@ class Reduce
       name: 'name',
       nodeps: 'nodeps',
       off: 'off',
+      order: 'order',
       packages: 'packages',
       params: 'params',
       pgp_key: 'pgp_key',
@@ -448,10 +448,10 @@ class Reduce
     deployments.each{|deployment| changed |= build_deployments(deployment)} if deployments
 
     # Only trigger ISO creation if we are building a machine
-    if @profile.deployments.select{|k,v| deployments.include?(k)}.any?{|k,v| v[@k.type] == @k.machine}
+    if initramfs || multiboot || @profile.deployments.select{|k,v| deployments.include?(k)}.any?{|k,v| v[@k.type] == @k.machine}
 
       # Build the build container for initramfs/multiboot
-      changed |= build_deployments(@k.build) if machines and not (deployments || []).include?(@k.build)
+      changed |= build_deployments(@k.build) if not (deployments || []).include?(@k.build)
 
       # Build early userspace ramdisk for install executed by grub
       clean(initramfs:true) if changed
@@ -463,8 +463,8 @@ class Reduce
       # Create ISO Hybrid CD/USB bootable image
       # http://lukeluo.blogspot.co.uk/2013/06/grub-how-to-2-make-boot-able-iso-with.html
       @vars.isofile = File.join(@imagepaths.first,
-        "#{@vars.distro.downcase}-#{profile}-#{@vars.release}-#{@vars.kernel}-#{@vars.arch}.iso")
-      if [iso, isofull].any?
+        "#{@vars.distro.downcase}-#{@vars.profile.downcase}-#{@vars.release}-#{@vars.kernel}-#{@vars.arch}.iso")
+      if [iso, all].any?
         puts("Building ISO Hybrid CD/USB bootable image...\n#{'-' * 80}".colorize(:light_yellow))
         if changed or not File.exist?(@vars.isofile)
           cmd = "grub-mkrescue "
@@ -494,7 +494,7 @@ class Reduce
     changed = false
     initramfs_digests = File.join(@initramfs_work, 'digests')
     initramfs_names = @profile.deployments.select{|x| x[@k.type] == @k.machine}
-      .map{|x| x[@k.deployment][@k.kernel]}.uniq.map{|x| "#{@initramfs_prefix}-#{x}"}
+      .map{|x| x[@k.install][@k.kernel]}.uniq.map{|x| "#{@initramfs_prefix}-#{x}"}
 
     puts("Building initramfs images...\n#{'-' * 80}".colorize(:light_yellow))
     if syncfiles(File.basename(@initramfs_work), @initramfs_src, @initramfs_work, initramfs_digests) or
@@ -545,7 +545,7 @@ class Reduce
     grub_digests = File.join(@grub_iso_work, 'digests')
     grub_iso_path = File.join(@grub_iso_work, 'boot/grub')
     kernels = @profile.deployments.select{|x| x[@k.type] == @k.machine}
-      .map{|x| x[@k.deployment][@k.kernel]}.compact.uniq.map{|x| "#{@kernel_prefix}-#{x}"}
+      .map{|x| x[@k.install][@k.kernel]}.compact.uniq.map{|x| "#{@kernel_prefix}-#{x}"}
 
     FileUtils.mkdir_p(grub_iso_path)
     puts("Building grub multiboot...\n#{'-' * 80}".colorize(:light_yellow))
@@ -560,19 +560,19 @@ class Reduce
       # Inject deploy entries from deployments
       motd = File.readlines(@motd_path)
       File.open(File.join(grub_iso_path, 'boot.cfg'), 'w'){|f|
-        @profile.deployments.select{|k,v| v[@k.type] == @k.machine}.reverse.each{|x|
-          v = x.values.first
-          kernel = "#{@kernel_prefix}-#{v[@k.install][@k.kernel]}"
-          params = v[@k.install][@k.params] || ""
+        @profile.deployments.select{|k,v| v[@k.type] == @k.machine}.map{|k,v| v[@k.name] = k; [v]}
+          .flatten.sort_by{|x| x[@k.install][@k.order]}.reverse.each{|x|
+          kernel = "#{@kernel_prefix}-#{x[@k.install][@k.kernel]}"
+          params = x[@k.install][@k.params] || ""
           params = "#{params} " if !params.empty?
-          params += "kernel=#{v[@k.install][@k.kernel]}"
-          deployments = @vars["#{x.keys.first}_deployments"]
+          params += "kernel=#{x[@k.install][@k.kernel]}"
+          layers = @vars["#{x[@k.name]}_deployment"]
 
-          f << "    menuentry --class=deployment '#{v[@k.install][@k.entry]}' {\n"
+          f << "    menuentry --class=deployment '#{x[@k.install][@k.label]}' {\n"
           f << "        echo\necho\n"
           motd.each{|line| f << "        echo $\"          #{line.gsub("\n", "")}\"\n" }
-          f << "        linux /boot/#{kernel} efi=$efi deployments=#{deployments} #{@vars.kernel_params} #{params if params}\n"
-          f << "        initrd /boot/intel-ucode.img /boot/#{@initramfs_prefix}-#{v[@k.install][@k.kernel]}.img\n"
+          f << "        linux /boot/#{kernel} efi=$efi layers=#{layers} #{@vars.kernel_params} #{params if params}\n"
+          f << "        initrd /boot/intel-ucode.img /boot/#{@initramfs_prefix}-#{x[@k.install][@k.kernel]}.img\n"
           f << "    }\n"
         }
       }
@@ -646,7 +646,7 @@ class Reduce
     end
 
     # Pack implicated deployments into vagrant boxes
-    installables = _deployments.map{|x| x[@k.deployment][@k.entry]}.reverse.flatten.compact
+    installables = _deployments.map{|x| x[@k.install][@k.label]}.reverse.flatten.compact
     deployments.each do |deployment|
 
       # Remove old boxes and/or skip if current
