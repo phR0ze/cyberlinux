@@ -33,8 +33,8 @@ msgfile = ARGV[0]
 msg_regx = /\d+\.\d+\.\d+:\s(.*)/
 ver_regx = /\s*release:\s*(\d+\.\d+\.\d+).*/
 ver = FileUtils.version('profiles/base.yml', ver_regx)
-puts("*#{ver}*")
 msg = File.read(msgfile)
+puts(msg)
 msg = msg[msg_regx, 1] if msg[msg_regx, 1]
 File.write(msgfile, "#{ver}: #{msg}")
 
