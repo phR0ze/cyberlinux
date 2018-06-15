@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.362
+  release: 0.1.363
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -83,6 +83,8 @@ apps:
     - { edit: /etc/sudoers, insert: append, value: "build ALL=(ALL) NOPASSWD: ALL" }
     - config-core
     - config-mkinitcpio
+
+  # core-apps was designed as the fewest packages possible for a functioning container
   core-apps:
     - { install: bash,                          desc: GNU Bourne Again shell }
     - { install: gcc-libs,                      desc: GCC runtime libraries, multilib: false, depof: ncurses }

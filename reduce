@@ -184,7 +184,7 @@ class Reduce
         @vars.profile = name
       else
         validate = ->(name, pred){
-          !puts("Error: '#{name}' is invalid in '#{profile}'".colorize(:red)) and exit unless pred
+          Log.die("'#{name}' is invalid in '#{profile}'") unless pred
         }
         validate.call('arch', [@k.i686, @k.x86_64].include?(@vars.arch))
         validate.call('release', @vars.release)
@@ -230,21 +230,34 @@ class Reduce
 
   # Create directory structure for project
   def create_dir_structure
+    changed = false
     uid, gid = User.drop_privileges
 
-    puts("Creating directory structure")
+    changed |= !Dir.exist?(@pacman_path)
+    changed |= !Dir.exist?(@workpath)
+    changed |= !Dir.exist?(@tmp_dir)
+    changed |= !Dir.exist?(@isopath)
+    changed |= !Dir.exist?(@deployment_images_dst)
+    changed |= !Dir.exist?(@boot_dst)
+    changed |= !Dir.exist?(@grub_iso_dst)
+    changed |= !Dir.exist?(@grub_iso_work)
+    changed |= !Dir.exist?(@deployments_work)
+    changed |= !Dir.exist?(@initramfs_work)
+    changed |= !Dir.exist?(@imagepaths.first)
+    changed |= !Dir.exist?(@packer_work)
+    changed |= !Dir.exist?(@vagrantpath)
+    puts("Creating directory structure") if changed
+
     FileUtils.mkdir_p(@pacman_path)
     FileUtils.mkdir_p(@workpath)
     FileUtils.mkdir_p(@tmp_dir)
     FileUtils.mkdir_p(@isopath)
     FileUtils.mkdir_p(@deployment_images_dst)
     FileUtils.mkdir_p(@boot_dst)
-
     FileUtils.mkdir_p(@grub_iso_dst)
     FileUtils.mkdir_p(@grub_iso_work)
     FileUtils.mkdir_p(@deployments_work)
     FileUtils.mkdir_p(@initramfs_work)
-
     FileUtils.mkdir_p(@imagepaths.first)
     FileUtils.mkdir_p(@packer_work)
     FileUtils.mkdir_p(@vagrantpath)
@@ -306,8 +319,7 @@ class Reduce
     initramfs = targets && targets.include?('initramfs') || false
     multiboot = targets && targets.include?('multiboot') || false
     all = targets && targets.include?('all')
-    !puts("Error: must be executed as root".colorize(:red)) and
-      exit unless Process.uid.zero?
+    Log.die("must be executed as root") unless Process.uid.zero?
 
     # Clean all
     if all
@@ -424,49 +436,49 @@ class Reduce
     initramfs = targets && targets.include?('initramfs') || false
     multiboot = targets && targets.include?('multiboot') || false
     all = targets && targets.include?('all')
-    !puts("Error: profile must be given for builds".colorize(:red)) and
-      exit unless @vars.profile
 
-    info
     changed = false
     create_dir_structure
-    !puts("Error: must be executed as root".colorize(:red)) and exit unless Process.uid.zero?
-    puts("#{'-' * 80}\nBuilding ISO components...\n#{'-' * 80}".colorize(:light_yellow))
+    Log.die("must be executed as root") unless Process.uid.zero?
 
     # Build implicated deployments
     deployments = @profile.deployments.keys if all
     deployments.each{|deployment| changed |= build_deployments(deployment)} if deployments
 
-    # Build the build container for initramfs/multiboot
-    changed |= build_deployments(@k.build) if not (deployments || []).include?(@k.build)
+    # Only trigger ISO creation if we are building a machine
+    if @profile.deployments.select{|k,v| deployments.include?(k)}.any?{|k,v| v[@k.type] == @k.machine}
 
-    # Build early userspace ramdisk for install executed by grub
-    clean(initramfs:true) if changed
-    changed |= build_initramfs_installer if [all, iso, initramfs, changed].any?
+      # Build the build container for initramfs/multiboot
+      changed |= build_deployments(@k.build) if machines and not (deployments || []).include?(@k.build)
 
-    # Build GRUB UI that boots initramfs installer and in turn the real kernel
-    changed |= build_grub_multiboot if [all, iso, multiboot].any?
+      # Build early userspace ramdisk for install executed by grub
+      clean(initramfs:true) if changed
+      changed |= build_initramfs_installer if [all, iso, initramfs, changed].any?
 
-    # Create ISO Hybrid CD/USB bootable image
-    # http://lukeluo.blogspot.co.uk/2013/06/grub-how-to-2-make-boot-able-iso-with.html
-    @vars.isofile = File.join(@imagepaths.first,
-      "#{@vars.distro.downcase}-#{profile}-#{@vars.release}-#{@vars.kernel}-#{@vars.arch}.iso")
-    if [iso, isofull].any?
-      puts("#{'-' * 80}\nBuilding ISO Hybrid CD/USB bootable image...\n#{'-' * 80}".colorize(:light_yellow))
-      if changed or not File.exist?(@vars.isofile)
-        cmd = "grub-mkrescue "
+      # Build GRUB UI that boots initramfs installer and in turn the real kernel
+      changed |= build_grub_multiboot if [all, iso, multiboot].any?
 
-        # Set the volume label
-        cmd += "-volid #{@vars.label} "
+      # Create ISO Hybrid CD/USB bootable image
+      # http://lukeluo.blogspot.co.uk/2013/06/grub-how-to-2-make-boot-able-iso-with.html
+      @vars.isofile = File.join(@imagepaths.first,
+        "#{@vars.distro.downcase}-#{profile}-#{@vars.release}-#{@vars.kernel}-#{@vars.arch}.iso")
+      if [iso, isofull].any?
+        puts("Building ISO Hybrid CD/USB bootable image...\n#{'-' * 80}".colorize(:light_yellow))
+        if changed or not File.exist?(@vars.isofile)
+          cmd = "grub-mkrescue "
 
-        # Create the ISO from @isopath
-        cmd += "-o #{@vars.isofile} #{@isopath}"
+          # Set the volume label
+          cmd += "-volid #{@vars.label} "
 
-        msg = "ISO Hybrid CD/USB bootable image:\n#{@vars.isofile}"
-        if Sys.exec(cmd)
-          puts("Successfully built #{msg}".colorize(:green))
-        else
-          !puts("Error: Failed to build #{msg}".colorize(:red)) and exit
+          # Create the ISO from @isopath
+          cmd += "-o #{@vars.isofile} #{@isopath}"
+
+          msg = "ISO Hybrid CD/USB bootable image:\n#{@vars.isofile}"
+          if Sys.exec(cmd)
+            puts("Successfully built #{msg}".colorize(:green))
+          else
+            Log.die("failed to build #{msg}")
+          end
         end
       end
     end
@@ -482,7 +494,7 @@ class Reduce
     initramfs_names = @profile.deployments.select{|x| x[@k.type] == @k.machine}
       .map{|x| x[@k.deployment][@k.kernel]}.uniq.map{|x| "#{@initramfs_prefix}-#{x}"}
 
-    puts("#{'-' * 80}\nBuilding initramfs images...\n#{'-' * 80}".colorize(:light_yellow))
+    puts("Building initramfs images...\n#{'-' * 80}".colorize(:light_yellow))
     if syncfiles(File.basename(@initramfs_work), @initramfs_src, @initramfs_work, initramfs_digests) or
         not Dir[File.join(@initramfs_path, "#{@initramfs_prefix}*")].any?
       changed |= true
@@ -491,8 +503,6 @@ class Reduce
       mkinitcpio_conf = File.join(@initramfs_work, 'mkinitcpio.conf')
 
       # Resolve template
-      puts(@vars)
-      exit
       FileUtils.resolve(installer, @vars)
 
       # Build initramfs images in build container
@@ -536,7 +546,7 @@ class Reduce
       .map{|x| x[@k.deployment][@k.kernel]}.compact.uniq.map{|x| "#{@kernel_prefix}-#{x}"}
 
     FileUtils.mkdir_p(grub_iso_path)
-    puts("#{'-' * 80}\nBuilding grub multiboot...\n#{'-' * 80}".colorize(:light_yellow))
+    puts("Building grub multiboot...\n#{'-' * 80}".colorize(:light_yellow))
     if syncfiles(File.basename(@grub_iso_work), @grub_iso_src, grub_iso_path, grub_digests) or
         not Dir[File.join(@kernel_path, "#{@kernel_prefix}*")].any?
       changed |= true
@@ -608,20 +618,17 @@ class Reduce
   def pack(deployments, disksize:nil, force:nil)
     _deployments = @profile.deployments.select{|x| x[@k.type] == @k.machine}
     deployments = deployments || _deployments.reject{|x| x[@k.name] == 'live'}
-    puts("#{'-' * 80}\nPacking deployments #{deployments * ','}\n#{'-' * 80}".colorize(:light_yellow))
-    !puts("Error: must be executed as non-root user".colorize(:red)) and
-      exit unless not Process.uid.zero?
+    puts("Packing deployments #{deployments * ','}\n#{'-' * 80}".colorize(:light_yellow))
+    Log.die("must be executed as non-root user") unless not Process.uid.zero?
     create_dir_structure
 
     # Ensure we have the right binaries available
-    !puts("Ensure 'packer' https://www.packer.io/downloads.html is in the path".colorize(:red)) and
-      exit unless find_executable('packer')
-    !puts("Please install 'virtualbox' via 'sudo pacman -S virtualbox'".colorize(:red)) and
-      exit unless find_executable('vboxmanage')
+    Log.die("ensure 'packer' https://www.packer.io/downloads.html is in the path") unless find_executable('packer')
+    Log.die("install 'virtualbox' via 'sudo pacman -S virtualbox'") unless find_executable('vboxmanage')
 
     # Locate latest iso
     isos = getimages(@type.iso).keys
-    !puts("Error: no ISOs found".colorize(:red)) and exit unless isos.any?
+    Log.die("no ISOs found") unless isos.any?
     @vars.isofile = isos.shift
 
     @vars.release = @vars.isofile[/-(.*?)-/, 1]
@@ -672,7 +679,7 @@ class Reduce
   end
 
   # Deploy vagrant node/s
-  # @param deployment [string] deployment to deploy
+  # @param deployment [String] deployment to deploy
   # @param name [string] name to give the specific node/container being created
   # @param run [string] run the container with default run
   # @param exec [string] specific command to run in the container
@@ -681,7 +688,7 @@ class Reduce
   # @param vagrantfile [bool] export the vagrant file only
   # @param force [bool] deploy even if already exists
   def deploy(deployment, name:nil, run:nil, exec:nil, nodes:nil, ipv6:nil, vagrantfile:nil, force:nil)
-    puts("#{'-' * 80}\nDeploying deployment '#{deployment}'\n#{'-' * 80}".colorize(:light_yellow))
+    puts("Deploying deployment '#{deployment}'\n#{'-' * 80}".colorize(:light_yellow))
     create_dir_structure
     deployment_yml = get_deployment_yml(deployment)
 
@@ -691,8 +698,7 @@ class Reduce
       uid, gid = User.drop_privileges
 
       # Check that vagrant is on the path and clean previously deployed VMs
-      !puts("Ensure 'vagrant' https://www.vagrantup.com/downloads.html is in the path".colorize(:red)) and
-        exit unless find_executable('vagrant')
+      Log.die("ensure 'vagrant' https://www.vagrantup.com/downloads.html is in the path") unless find_executable('vagrant')
       clean(vms:true)
 
       # Choose a vagrant box to use and update registry if needed
@@ -702,14 +708,13 @@ class Reduce
         vagrant_box = "phR0ze/cyberlinux-#{deployment}"
         puts("Downloading '#{vagrant_box}' from vagrantup.com".colorize(:cyan))
       else
-        !puts("Error: no box found for #{deployment}, please pack the box first".colorize(:red)) and exit unless box
+        Log.die("no box found for #{deployment}, please pack the box first") unless box
         puts("Updating vagrant registry for '#{deployment}'".colorize(:cyan))
         Sys.exec("#{@sudoinv}vagrant box add #{deployment} #{box} --force")
       end
 
       # Configure host-only network
-      !puts("Ensure 'virtualbox' https://www.virtualbox.org/wiki/Downloads is in the path".colorize(:red)) and
-        exit unless find_executable('vboxmanage')
+      Log.die("ensure 'virtualbox' https://www.virtualbox.org/wiki/Downloads is in the path") unless find_executable('vboxmanage')
       config_network = "#{@sudoinv}vboxmanage hostonlyif ipconfig "
       config_network += "#{@vars.netname} -ip #{@vars.netip} -netmask #{@vars.subnet}"
       if not Sys.exec(config_network, die:false)
@@ -765,8 +770,7 @@ class Reduce
     # Deploy docker container
     #---------------------------------------------------------------------------
     elsif deployment_yml[@k.type] == @k.container
-      !puts("Error: must be executed as root".colorize(:red)) and
-        exit unless Process.uid.zero?
+      Log.die("must be executed as root") unless Process.uid.zero?
 
       # Remove old 'live' images or skip if current
       image = evalimages!(@type.tgz, deployment:deployment, live:true, force:force)
@@ -776,7 +780,7 @@ class Reduce
       if not image
         image = evalimages!(@type.tgz, deployment:deployment, live:false)
         image ? puts("Image #{image} exists importing".colorize(:green)) :
-          !puts("Error: need to first build image '#{image}'".colorize(:red)) and exit
+          Log.die("need to first build image '#{image}'")
         Sys.exec("cat #{image} | docker import - #{File.basename(image, '.*')}:latest")
         image = File.basename(image, '.*')
       end
@@ -814,8 +818,9 @@ class Reduce
   # @returns true if changed
   def build_deployments(target_deployment)
     changed = false
-    !puts("Error: deployment '#{target_deployment}' doesn't exist".colorize(:red)) and
-      exit unless target_deployment == @k.build || @profile.deployments[target_deployment]
+    if target_deployment != @k.build && !@profile.deployments[target_deployment]
+      Log.die("deployment '#{target_deployment}' doesn't exist")
+    end
 
     # Build in reverse order to layer deployments
     deployments = get_deployments(target_deployment).reverse
@@ -828,7 +833,7 @@ class Reduce
       deployment_work = FileUtils.mkdir_p(File.join(@deployments_work, deployment)).shift
       deployment_image = deployment_yml[@k.type] == @k.machine ? File.join(@deployment_images_dst, "#{deployment}.sqfs") :
         File.join(@imagepaths.first, "#{deployment}-#{@vars.release}.tgz")
-      puts("#{'-' * 80}\nBuilding deployment '#{deployment}'\n#{'-' * 80}".colorize(:light_yellow))
+      puts("Building deployment '#{deployment}'\n#{'-' * 80}".colorize(:light_yellow))
 
       begin
         # Mount all dependent deployments starting with base
@@ -920,6 +925,7 @@ class Reduce
         begin
 
           # Prepare pacman for use
+          rm_rf(File.join(@pacman_path, 'db/local')) # Removes any package tracking from previous install
           rm_rf(File.join(@pacman_path, 'pacman.log')) if !deployment_deps.any?
           Pacman.init(@pacman_path, @pacman_src_conf, @pacman_src_mirrors, sysroot: deployment_work)
 
@@ -952,7 +958,7 @@ class Reduce
     end
 
     # Mark changed if any apps were installed
-    changed |= apps.any?{|k,v| v.any? if k != :conflict and k != :ignore }
+    changed |= apps.any?{|k,v| v.any? if k != :conflict && k != :ignore}
 
     # Copy over all deployment data if it exists
     #---------------------------------------------------------------------------
@@ -960,9 +966,9 @@ class Reduce
 
     # Apply app configuration changes
     #---------------------------------------------------------------------------
-    puts("Applying configs...".colorize(:cyan))
     changedfile = File.join(deployment_work, 'changed')
-    if changed or not File.exist?(changedfile) or not File.exist?(deployment_image)
+    if all_configs.any? && (changed || !File.exist?(changedfile) || !File.exist?(deployment_image))
+      puts("Applying configs...".colorize(:cyan))
       vars = deployment_yml[@k.vars] ? @vars.to_h.merge(deployment_yml[@k.vars]) : @vars
       changed |= Config.apply(all_configs || [],
         OpenStruct.new({root: deployment_work, vars: vars, configs: @profile.configs}))
@@ -989,7 +995,7 @@ class Reduce
       # Lookup entry reference
       if entry.is_a?(String)
         _entry = @profile.apps[entry] || @profile.configs[entry]
-        !puts("Error: invalid entry reference '#{entry}'".colorize(:red)) and exit unless _entry
+        Log.die("invalid entry reference '#{entry}'") unless _entry
         _entry.each{|x| resolve.call(x)}
 
       # Get entry pkgs
@@ -1183,7 +1189,7 @@ class Reduce
     if deployment and image_maps.keys.first
       puts("Located '#{live ? 'live' : 'disk'}' image #{image_maps.keys.first}".colorize(:cyan))
     elsif deployment and die
-      !puts("Could not find image type '#{type}' for '#{deployment}'".colorize(:red)) and exit
+      Log.die("could not find image type '#{type}' for '#{deployment}'")
     end
 
     return image_maps
@@ -1219,8 +1225,7 @@ class Reduce
   def get_deployments(deployment)
     deployments = [deployment]
     return deployments if deployment == @k.build
-    !puts("Error: invalid deployment '#{deployment}'".colorize(:red)) and
-      exit if not @profile.deployments[deployment]
+    Log.die("invalid deployment '#{deployment}'") if !@profile.deployments[deployment]
 
     _deployment = deployment
     while _deployment
@@ -1236,7 +1241,7 @@ class Reduce
   # @returns yaml for the indicated deployment
   def get_deployment_yml(deployment)
     yml = deployment == @k.build ? @profile.build : @profile.deployments[deployment]
-    !puts("Error: invalid deployment '#{deployment}'".colorize(:red)) and exit if not yml
+    Log.die("invalid deployment '#{deployment}'") if !yml
 
     # Resolve templating for the given deployment
     vars = yml[@k.vars] ? @vars.to_h.merge(yml[@k.vars]) : @vars
@@ -1302,7 +1307,7 @@ if __FILE__ == $0
     Option.new('--force', "Pack the given deployment/s even if they already exist")
   ])
   cmdr.add('deploy', 'Deploy VMs or containers', nodes:[
-    Option.new(nil, "Deployments to pack", type:Array, required:true),
+    Option.new(nil, "Deployment to deploy", type:String, required:true),
     Option.new(nil, "Comma delimited list of last octet IPs (e.g. 10,11,12", type:Array),
     Option.new('-n|--name=NAME', "Give a name to the nodes being deployed", type:String),
     Option.new('-f|--force', "Deploy the given deployment/s even if they already exist"),
@@ -1310,11 +1315,14 @@ if __FILE__ == $0
     Option.new('-e|--exec=CMD', "Specific command to run in container", type:String),
     Option.new('--ipv6', "Enable IPv6 on the given nodes"),
     Option.new('--vagrantfile', "Export the Vagrantfile only"),
-  ])
+  ], examples:"deploy core")
   cmdr.parse!
 
   # Load target profile
   reduce.load_profile(cmdr[:global][:profile]) if cmdr[:global][:profile]
+  if !reduce.vars.profile && (cmdr[:build] || cmdr[:deploy])
+    Log.die("profile must be given")
+  end
 
   # Execute 'info' command
   reduce.info if cmdr[:info]
@@ -1333,7 +1341,7 @@ if __FILE__ == $0
   reduce.pack(cmdr[:pack][:pack0], disksize: cmdr[:pack][:disksize], force: cmdr[:pack][:force]) if cmdr[:pack]
 
   # Execute 'deploy' command
-  reduce.deploy(cmdr[:deploy][:pack0], nodes: cmdr[:deploy][:deploy1], name: cmdr[:deploy][:name],
+  reduce.deploy(cmdr[:deploy][:deploy0], nodes: cmdr[:deploy][:deploy1], name: cmdr[:deploy][:name],
     run: cmdr[:deploy][:run], exec: cmdr[:deploy][:exec], ipv6: cmdr[:ipv6],
     vagrantfile: cmdr[:vagrantfile], force: cmdr[:force]) if cmdr[:deploy]
 end
