@@ -22,10 +22,13 @@
 base: base
 
 deployments:
-  core:
+  ruby:
     type: container
+    docker:
+      params: '-e TERM=xterm'
+      command: 'bash -c "while :; do sleep 5; done"'
     apps:
-      - core-apps
+      - ruby-core
 
 # Desktop android
 # groups: [adbusers, uucp]

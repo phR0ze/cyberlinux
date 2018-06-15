@@ -92,6 +92,7 @@ class Reduce
       mirrors: 'mirrors',
       multilib: 'multilib',
       name: 'name',
+      nodeps: 'nodeps',
       off: 'off',
       packages: 'packages',
       params: 'params',
@@ -436,6 +437,7 @@ class Reduce
     initramfs = targets && targets.include?('initramfs') || false
     multiboot = targets && targets.include?('multiboot') || false
     all = targets && targets.include?('all')
+    Log.die("target not given") if (targets.nil? or targets.empty?) && !deployments
 
     changed = false
     create_dir_structure
@@ -793,6 +795,7 @@ class Reduce
         params = []
         deployments = get_deployments(deployment).reverse[0..-1].each{|x|
           docker = get_deployment_yml(x)[@k.docker]
+          Log.die("docker field is missing from deployment yaml") if !docker
           params << docker[@k.params] if docker[@k.params]
         }
         puts("docker: using params #{params}".colorize(:cyan))
@@ -897,7 +900,8 @@ class Reduce
     #---------------------------------------------------------------------------
     all_apps, all_configs = getapps(deployment, deployment_yml)
     apps = {
-      reg: all_apps.map{|x| x[@k.install] if !x[@k.ignore] and !x[@k.force]}.compact,
+      reg: all_apps.map{|x| x[@k.install] if !x[@k.ignore] and !x[@k.force] and !x[@k.nodeps]}.compact,
+      nodeps: all_apps.map{|x| x[@k.install] if x[@k.nodeps]}.compact,
       force: all_apps.map{|x| x[@k.install] if x[@k.force]}.compact,
       ignore: all_apps.map{|x| x[@k.install] if x[@k.ignore]}.compact,
       conflict: all_apps.map{|x| "CONFLICT:#{x[@k.conflict]}" if x[@k.conflict]}.compact
@@ -918,10 +922,11 @@ class Reduce
       puts("#{msg}".colorize(:cyan))
       puts("Packages: #{apps[:reg]}")
       puts("Force Apps: #{apps[:force]}")
+      puts("Nodeps Apps: #{apps[:nodeps]}")
       puts("Ignore Apps: #{apps[:ignore]}")
       puts("Conflict Apps: #{apps[:conflict]}")
 
-      if apps[:conflict].any? or apps[:reg].any? or apps[:force].any?
+      if apps[:conflict].any? or apps[:reg].any? or apps[:force].any? or apps[:nodeps].any?
         begin
 
           # Prepare pacman for use
@@ -935,16 +940,22 @@ class Reduce
             Pacman.remove_conflict(apps[:conflict].map{|x| x.split(':').last})
           end
 
+          # Install nodeps packages
+          if apps[:nodeps].any?
+            puts("Pacstrap package nodeps installs for '#{deployment}'...".colorize(:cyan))
+            Pacman.install(apps[:nodeps], flags: ['--nodeps', '--nodeps'])
+          end
+
           # Install normal packages
           if apps[:reg].any?
-            puts("Pacstrap package installs for '#{deployment}'...".colorize(:cyan))
-            Pacman.install(apps[:reg])
+            puts("Pacstrap package regular installs for '#{deployment}'...".colorize(:cyan))
+            Pacman.install(apps[:reg], flags: ['--ignore', apps[:ignore] * ','])
           end
 
           # Install force packages
           if apps[:force].any?
-            puts("Pacstrap package installs for '#{deployment}'...".colorize(:cyan))
-            Pacman.install(apps[:force], force:true)
+            puts("Pacstrap package force installs for '#{deployment}'...".colorize(:cyan))
+            Pacman.install(apps[:force], flags: ['--ignore', apps[:ignore] * ',', '--force'])
           end
         ensure
           Sys.umount(File.join(deployment_work, 'dev'), retries: 10)

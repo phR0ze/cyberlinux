@@ -20,6 +20,14 @@
 #SOFTWARE.
 
 deployments:
+  busybox:
+    type: container
+    docker:
+      params: '-e TERM=xterm'
+      command: 'busybox ash -c "busybox --install; while :; do sleep 5; done"'
+    apps:
+      - {install: busybox}
+
   core:
     type: container
     docker:
