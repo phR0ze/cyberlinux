@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.368
+  release: 0.1.369
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -91,13 +91,12 @@ apps:
   # Size: 63.39 MiB
   ruby-core:
     - core
+    - openssl-without-perl
     - { install: ruby,                desc: Ruby, depends-on: [gdbm, openssl, libffi, libyaml, gmp, zlib], size: 11.15 MiB }
     - { install: gdbm,                desc: GNU database library, depends-on: [glibc, bash], size: 443.00 KiB }
     - { install: gmp,                 desc: Library for precision arithmetic, depends-on: [gcc-libs, bash], size: 945.00 KiB }
     - { install: libffi,              desc: Portable foreign function interface, depends-on: [glibc], size: 64.00 KiB }
     - { install: libyaml,             desc: YAML 1.1 library, size: 177.00 KiB }
-    - { install: openssl,             desc: Secure sockets layer and TLS, nodeps: true, depends-on: [perl], size: 6.36 MiB }
-    - { install: perl,                desc: Perl language, ignore: true, depends-on: [gdbm, db, glibc], size: 52.00 MiB }
     - { install: rubygems,            desc: Package management framework for Ruby, depends-on: [ruby], size: 1026.00 KiB }
     - { install: zlib,                desc: Compression got gzip and pkzip, depends-on: [glibc], size: 326.00 KiB }
 
@@ -116,24 +115,35 @@ apps:
 
   # Standard linux shell tools e.g. ls, cp, mv, hostname, gzip, tar and vim
   core-tools:
+    - openssl-with-perl
     - { install: coreutils,           desc: Utils ls/cp/mv, depends-on: [glibc, acl, attr, gmp, libcap, openssl], size: 13.79 MiB }
     - { install: gzip,                desc: GNU compression utility, depof: locale-gen, group: build-devel }
     - { install: inetutils,           desc: hostname, ftp, telnet }
     - { install: iproute2,            desc: ifcfg/ip other networking tools }
     - { install: net-tools,           desc: arp/ifconfig/iptunnel/netstat }
-    - { install: openssl,             desc: Secure sockets layer and TLS, nodeps: true, depends-on: [perl], size: 6.36 MiB }
-    - { install: perl,                desc: Perl language, ignore: true, depends-on: [gdbm, db, glibc], size: 52.00 MiB }
     - { install: procps-ng,           desc: pidof/pkill/ps/top/uptime etc..., size: 1MB }
     - { install: sed,                 desc: GNU stream editor, depof: locale-gen, group: build-devel, size: 1MB }
     - { install: tar,                 desc: File store backup and transport utility, depof: k8s cp }
     - { install: vim,                 desc: Improved version of vi text editor, size: 28MB }
     - { install: vim-systemd,         desc: Vim syntax highlighting for systemd }
+
+  # perl is huge, slow, outdated and useless, however some packages still use it.
+  # containers should use the without-perl option to reduce size while machines will need to use with to behave normally
+  openssl-with-perl:
+    - { install: openssl,             desc: Secure sockets layer and TLS, depends-on: [perl], size: 6.36 MiB }
+    - { install: perl,                desc: Perl language, depends-on: [gdbm, db, glibc], size: 52.00 MiB }
+  openssl-without-perl:
+    - { install: openssl,             desc: Secure sockets layer and TLS, nodeps: true, depends-on: [perl], size: 6.36 MiB }
+    - { install: perl,                desc: Perl language, ignore: true, depends-on: [gdbm, db, glibc], size: 52.00 MiB }
+
   grub-tools:
     - { install: dosfstools,          desc: DOS filesystem utilities e.g. mkfs.fat }
     - { install: grub,                desc: GNU GRand Unified Booloader 2 }
     - { install: intel-ucode,         desc: Microcode update files for Intel CPUs }
     - { install: licenses,            desc: Standard licenses distribution package }
     - { install: memtest86+,          desc: memtest is used in the ISO creation as menu option }
+
+  # Base for any machine being deployed
   base-apps:
     - core
     - core-tools
