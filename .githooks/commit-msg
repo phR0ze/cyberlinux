@@ -30,11 +30,11 @@ end
 # Prepend version to every commit message
 # Get version from the base.yml profile
 msgfile = ARGV[0]
-msg_regex = /\d+\.\d+\.\d+:\s(.*)/
-ver_regex = /\s*spec\.version\s*=.*(\d+\.\d+\.\d+).*/
-ver = FileUtils.version('profiles/base.yml', ver_regex)
+msg_regx = /\d+\.\d+\.\d+:\s(.*)/
+ver_regx = /\s*release:\s*(\d+\.\d+\.\d+).*/
+ver = FileUtils.version('profiles/base.yml', ver_regx)
 msg = File.read(msgfile)
-msg = msg[msg_regex, 1] if msg[msg_regex, 1]
+msg = msg[msg_regx, 1] if msg[msg_regx, 1]
 File.write(msgfile, "#{ver}: #{msg}")
 
 # vim: ft=ruby:ts=2:sw=2:sts=2

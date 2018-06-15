@@ -35,10 +35,10 @@ end
 }
 
 # Increment revision of version
-version_file = 'profiles/base.yml'
-version_regx = /\s*release:\s*(\d+\.\d+\.\d+).*/
-ver = FileUtils.inc_version(version_file, version_regx)
-`git add #{version_file}`
+ver_file = 'profiles/base.yml'
+ver_regx = /\s*release:\s*(\d+\.\d+\.\d+).*/
+ver = FileUtils.inc_version(ver_file, ver_regx)
+`git add #{ver_file}`
 puts("Version: #{ver}")
 
 # vim: ft=ruby:ts=2:sw=2:sts=2
