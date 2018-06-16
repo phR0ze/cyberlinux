@@ -949,16 +949,14 @@ class Reduce
         ensure
           Sys.umount(File.join(deployment_work, 'dev'), retries: 10)
         end
-      end
 
-      # Update list of packages that were installed
-      File.open(appfile, 'a'){|f| f.puts(apps[:reg])}
+        # Update list of packages that were installed
+        File.open(appfile, 'a'){|f| f.puts(apps[:reg])} if apps[:reg].any?
+        changed |= true
+      end
     else
       puts("#{msg}skipping".colorize(:cyan))
     end
-
-    # Mark changed if any apps were installed
-    changed |= apps.any?{|k,v| v.any? if k != :conflict && k != :ignore}
 
     # Copy over all deployment data if it exists
     #---------------------------------------------------------------------------
