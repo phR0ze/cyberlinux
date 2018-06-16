@@ -69,6 +69,7 @@ class Reduce
     })
     @k = OpenStruct.new({
       all: 'all',
+      all_groups: 'all_groups',
       apps: 'apps',
       base: 'base',
       builder: 'builder',
@@ -211,13 +212,14 @@ class Reduce
       @profile.deployments.deep_merge!(profile[@k.deployments]) if profile[@k.deployments]
 
       # Set variables as needed
-      @vars[@k.groups] ||= []
+      @vars[@k.all_groups] ||= []
       @profile.deployments.each{|k,v| @vars["#{k}_src"] = File.join(@deployments_src, k)}
       @profile.deployments.each{|k,v|
         @vars["#{k}_deployment"] = get_deployments(k) * ',' if v[@k.type] == @k.machine}
       @profile.deployments.each{|k,v|
         @vars["#{k}_groups"] = get_deployments(k).map{|x| @profile.deployments[x][@k.groups]}.flatten.compact.uniq
-        @vars.groups += @vars["#{k}_groups"]}
+        @vars.all_groups = (@vars.all_groups + @vars["#{k}_groups"]).uniq
+        @vars[@k.groups] = @vars.all_groups * ","}
       @vars["base_src"] = File.join(@deployments_src, 'base') if !@vars["base_src"]
 
     rescue Exception => e
