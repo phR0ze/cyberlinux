@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.2.1
+  release: 0.2.2
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -77,6 +77,7 @@ apps:
     - core
     - core-tools
     - grub-tools
+
     # Create and configure new build user and root user
     - { chroot: 'useradd -m -G lp,wheel,network,storage,users -s /bin/bash builder || true' }
     - { exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /home/builder' }
