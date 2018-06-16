@@ -218,7 +218,7 @@ class Reduce
       @profile.deployments.each{|k,v|
         @vars["#{k}_groups"] = get_deployments(k).map{|x| @profile.deployments[x][@k.groups]}.flatten.compact.uniq
         @vars.groups += @vars["#{k}_groups"]}
-      @vars["base_src"] = File.join(@deployments_src, 'base') if !@vars["base_src"] 
+      @vars["base_src"] = File.join(@deployments_src, 'base') if !@vars["base_src"]
 
     rescue Exception => e
       puts("Error: invalid yaml in '#{profile_path}'".colorize(:red))
@@ -317,6 +317,7 @@ class Reduce
   # @param vms [Bool] clean vms
   def clean(targets, deployments:nil, pacman:nil, build:nil, cache:nil, vms:nil)
     iso = targets && targets.include?('iso') || false
+    isofull = targets && targets.include?('isofull') || false
     initramfs = targets && targets.include?('initramfs') || false
     multiboot = targets && targets.include?('multiboot') || false
     all = targets && targets.include?('all')
@@ -330,7 +331,7 @@ class Reduce
     end
 
     # Clean initramfs component
-    if !all and initramfs
+    if !all and (initramfs or isofull)
       puts("Cleaning initamfs...".colorize(:cyan))
       puts("Deleting #{@initramfs_work}".colorize(:red)) if File.exist?(@initramfs_work)
       Sys.rm_rf(@initramfs_work)
@@ -341,7 +342,7 @@ class Reduce
     end
 
     # Clean multiboot components
-    if !all and multiboot
+    if !all and (multiboot or isofull)
       puts("Cleaning multiboot...".colorize(:cyan))
       [@grub_iso_work, @grub_iso_dst].each{|x|
         puts("Deleting #{x}".colorize(:red)) if File.exist?(x)
@@ -396,14 +397,14 @@ class Reduce
     end
 
     # Clean iso path
-    if all or iso
+    if all or isofull
       puts("Cleaning iso path...".colorize(:cyan))
       puts("Deleting #{@isopath}".colorize(:red)) if File.exist?(@isopath)
       Sys.rm_rf(@isopath)
     end
 
     # Clean iso image
-    if all or iso or deployments
+    if all or deployments or iso or isofull
       puts("Cleaning iso image...".colorize(:cyan))
       Dir[File.join(@imagepaths.first, '*.iso')].each{|x|
         puts("Deleting #{x}".colorize(:red))
@@ -434,6 +435,7 @@ class Reduce
   # @param deployments [Array] build given deployments
   def build(targets, deployments:nil)
     iso = targets && targets.include?('iso') || false
+    isofull = targets && targets.include?('isofull') || false
     initramfs = targets && targets.include?('initramfs') || false
     multiboot = targets && targets.include?('multiboot') || false
     all = targets && targets.include?('all')
@@ -448,23 +450,24 @@ class Reduce
     deployments.each{|deployment| changed |= build_deployments(deployment)} if deployments
 
     # Only trigger ISO creation if we are building a machine
-    if initramfs || multiboot || @profile.deployments.select{|k,v| deployments.include?(k)}.any?{|k,v| v[@k.type] == @k.machine}
+    if initramfs || multiboot || isofull ||
+      @profile.deployments.select{|k,v| deployments.include?(k)}.any?{|k,v| v[@k.type] == @k.machine}
 
       # Build the build container for initramfs/multiboot
       changed |= build_deployments(@k.build) if not (deployments || []).include?(@k.build)
 
       # Build early userspace ramdisk for install executed by grub
       clean(initramfs:true) if changed
-      changed |= build_initramfs_installer if [all, iso, initramfs, changed].any?
+      changed |= build_initramfs_installer if [all, isofull, initramfs, changed].any?
 
       # Build GRUB UI that boots initramfs installer and in turn the real kernel
-      changed |= build_grub_multiboot if [all, iso, multiboot].any?
+      changed |= build_grub_multiboot if [all, isofull, multiboot].any?
 
       # Create ISO Hybrid CD/USB bootable image
       # http://lukeluo.blogspot.co.uk/2013/06/grub-how-to-2-make-boot-able-iso-with.html
       @vars.isofile = File.join(@imagepaths.first,
         "#{@vars.distro.downcase}-#{@vars.profile.downcase}-#{@vars.release}-#{@vars.kernel}-#{@vars.arch}.iso")
-      if [iso, all].any?
+      if [iso, isofull, all].any?
         puts("Building ISO Hybrid CD/USB bootable image...\n#{'-' * 80}".colorize(:light_yellow))
         if changed or not File.exist?(@vars.isofile)
           cmd = "grub-mkrescue "
@@ -493,8 +496,8 @@ class Reduce
     create_dir_structure
     changed = false
     initramfs_digests = File.join(@initramfs_work, 'digests')
-    initramfs_names = @profile.deployments.select{|x| x[@k.type] == @k.machine}
-      .map{|x| x[@k.install][@k.kernel]}.uniq.map{|x| "#{@initramfs_prefix}-#{x}"}
+    initramfs_names = @profile.deployments.select{|k,v| v[@k.type] == @k.machine}
+      .map{|k,v| v[@k.install][@k.kernel]}.uniq.map{|x| "#{@initramfs_prefix}-#{x}"}
 
     puts("Building initramfs images...\n#{'-' * 80}".colorize(:light_yellow))
     if syncfiles(File.basename(@initramfs_work), @initramfs_src, @initramfs_work, initramfs_digests) or
@@ -1290,7 +1293,8 @@ if __FILE__ == $0
       all: 'Clean all components including deployments',
       initramfs: 'Clean initramfs image',
       multiboot: 'Clean grub multiboot image',
-      iso: 'Clean bootable ISO'
+      iso: 'Clean bootable ISO',
+      isofull: 'Clean initramfs, multiboot and iso'
     }),
     Option.new('--build', "Clean build"),
     Option.new('--pacman', "Clean pacman repos"),
@@ -1303,7 +1307,8 @@ if __FILE__ == $0
       all: 'Build all components including deployments',
       initramfs: 'Build initramfs image',
       multiboot: 'Build grub multiboot image',
-      iso: 'Clean bootable ISO',
+      iso: 'Build bootable ISO',
+      isofull: 'Build initramfs, multiboot and iso'
     }),
     Option.new('-d|--deployments=DEPLOYMENTS', "Deployments to build", type:Array)
   ])
