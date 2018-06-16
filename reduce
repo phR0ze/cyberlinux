@@ -330,7 +330,7 @@ class Reduce
     end
 
     # Clean initramfs component
-    if !all and (initramfs or iso)
+    if !all and initramfs
       puts("Cleaning initamfs...".colorize(:cyan))
       puts("Deleting #{@initramfs_work}".colorize(:red)) if File.exist?(@initramfs_work)
       Sys.rm_rf(@initramfs_work)
@@ -340,8 +340,8 @@ class Reduce
       }
     end
 
-    # Clean grub iso components
-    if !all and (multiboot or deployments or iso)
+    # Clean multiboot components
+    if !all and multiboot
       puts("Cleaning multiboot...".colorize(:cyan))
       [@grub_iso_work, @grub_iso_dst].each{|x|
         puts("Deleting #{x}".colorize(:red)) if File.exist?(x)
@@ -355,8 +355,8 @@ class Reduce
     end
 
     # Clean given deployments
-    if !all and Dir.exist?(@deployments_work) and (deployments || iso)
-      (deployments || ((all || iso) ? Dir.children(@deployments_work) : nil)).each{|deployment|
+    if !all and Dir.exist?(@deployments_work) and deployments
+      deployments.each{|deployment|
         puts("Cleaning deployment '#{deployment}'...".colorize(:cyan))
         path = File.join(@deployments_work, deployment)
         puts("Deleting #{path}".colorize(:red)) if File.exist?(path)
@@ -371,7 +371,7 @@ class Reduce
     end
 
     # Clean pacman
-    if pacman or cache or all
+    if pacman or cache
       puts("Cleaning pacman repos...".colorize(:cyan))
       puts("Cleaning pacman cache...".colorize(:cyan)) if cache
       if cache
@@ -388,7 +388,7 @@ class Reduce
     end
 
     # Clean build deployment
-    if !all and build
+    if build
       build_path = File.join(@deployments_work, @k.build)
       puts("Cleaning build...".colorize(:cyan))
       puts("Deleting #{build_path}".colorize(:red)) if Dir.exist?(build_path)
@@ -396,14 +396,14 @@ class Reduce
     end
 
     # Clean iso path
-    if !all and iso
+    if all or iso
       puts("Cleaning iso path...".colorize(:cyan))
       puts("Deleting #{@isopath}".colorize(:red)) if File.exist?(@isopath)
       Sys.rm_rf(@isopath)
     end
 
     # Clean iso image
-    if iso or deployments or all
+    if all or iso or deployments
       puts("Cleaning iso image...".colorize(:cyan))
       Dir[File.join(@imagepaths.first, '*.iso')].each{|x|
         puts("Deleting #{x}".colorize(:red))
@@ -412,7 +412,7 @@ class Reduce
     end
 
     # Clean vagrant vms that are no longer deployed
-    if vms or all
+    if all or vms
       puts("Cleaning vagrant vms...".colorize(:cyan))
       if File.exist?(@vagrantpath)
         vgout = `#{@sudoinv}vagrant global-status --prune`.split("\n")
@@ -544,8 +544,8 @@ class Reduce
     changed = false
     grub_digests = File.join(@grub_iso_work, 'digests')
     grub_iso_path = File.join(@grub_iso_work, 'boot/grub')
-    kernels = @profile.deployments.select{|x| x[@k.type] == @k.machine}
-      .map{|x| x[@k.install][@k.kernel]}.compact.uniq.map{|x| "#{@kernel_prefix}-#{x}"}
+    kernels = @profile.deployments.select{|k,v| v[@k.type] == @k.machine}
+      .map{|k,v| v[@k.install][@k.kernel]}.compact.uniq.map{|x| "#{@kernel_prefix}-#{x}"}
 
     FileUtils.mkdir_p(grub_iso_path)
     puts("Building grub multiboot...\n#{'-' * 80}".colorize(:light_yellow))
@@ -589,12 +589,7 @@ class Reduce
         cp.call("#{cont}:/usr/share/licenses/intel-ucode/LICENSE #{@ucode_image}.LICENSE")
         cp.call("#{cont}:/boot/memtest86+/memtest.bin #{@memtest_image}")
         cp.call("#{cont}:/usr/share/licenses/common/GPL2/license.txt #{@memtest_image}.LICENSE")
-
-        # Extract kernels
-        kernels.each{|kernel|
-          puts("Copying: ...to #{@kernel_path}/#{kernel}")
-          cp.call("#{cont}:/boot/#{kernel} #{@kernel_path}")
-        }
+        kernels.each{|kernel| cp.call("#{cont}:/boot/#{kernel} #{@kernel_path}")}
       }
 
       puts("Copying grub multiboot to destination...".colorize(:cyan))
