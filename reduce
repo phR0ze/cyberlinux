@@ -317,11 +317,13 @@ class Reduce
   # @param cache [Bool] clean pacman repos and cache
   # @param vms [Bool] clean vms
   def clean(targets, deployments:nil, pacman:nil, cache:nil, vms:nil)
+    deployments ||= []
     iso = targets && targets.include?('iso') || false
     isofull = targets && targets.include?('isofull') || false
     initramfs = targets && targets.include?('initramfs') || false
     multiboot = targets && targets.include?('multiboot') || false
     all = targets && targets.include?('all') || false
+    deployments << @k.builder if targets && targets.include?('builder')
     Log.die("must be executed as root") unless Process.uid.zero?
 
     # Clean all
@@ -357,7 +359,7 @@ class Reduce
     end
 
     # Clean given deployments
-    if !all and Dir.exist?(@deployments_work) and deployments
+    if !all and Dir.exist?(@deployments_work) and deployments.any?
       deployments.each{|deployment|
         puts("Cleaning deployment '#{deployment}'...".colorize(:cyan))
         path = File.join(@deployments_work, deployment)
@@ -397,7 +399,7 @@ class Reduce
     end
 
     # Clean iso image
-    if all or deployments or iso or isofull
+    if all or deployments.any? or iso or isofull
       puts("Cleaning iso image...".colorize(:cyan))
       Dir[File.join(@imagepaths.first, '*.iso')].each{|x|
         puts("Deleting #{x}".colorize(:red))
@@ -427,12 +429,14 @@ class Reduce
   # @param targets [Array] components to build
   # @param deployments [Array] build given deployments
   def build(targets, deployments:nil)
+    deployments ||= []
     iso = targets && targets.include?('iso') || false
     isofull = targets && targets.include?('isofull') || false
     initramfs = targets && targets.include?('initramfs') || false
     multiboot = targets && targets.include?('multiboot') || false
     all = targets && targets.include?('all')
-    Log.die("target not given") if (targets.nil? or targets.empty?) && !deployments
+    deployments << @k.builder if targets && targets.include?('builder')
+    Log.die("target not given") if (targets.nil? or targets.empty?) && deployments.empty?
 
     info  # required to get the current kernel version
     changed = false
@@ -441,14 +445,14 @@ class Reduce
 
     # Build implicated deployments
     deployments = @profile.deployments.keys if all
-    deployments.each{|deployment| changed |= build_deployments(deployment)} if deployments
+    deployments.each{|deployment| changed |= build_deployments(deployment)} if deployments.any?
 
     # Only trigger ISO creation if we are building a machine
     if initramfs || multiboot || isofull ||
       @profile.deployments.select{|k,v| deployments.include?(k)}.any?{|k,v| v[@k.type] == @k.machine}
 
       # Build the builder container for initramfs/multiboot
-      changed |= build_deployments(@k.builder) if not (deployments || []).include?(@k.builder)
+      changed |= build_deployments(@k.builder) if not deployments.include?(@k.builder)
 
       # Build early userspace ramdisk for install executed by grub
       clean(initramfs:true) if changed
@@ -1285,6 +1289,7 @@ if __FILE__ == $0
       all: 'Clean all components including deployments',
       initramfs: 'Clean initramfs image',
       multiboot: 'Clean grub multiboot image',
+      builder: 'Clean builder',
       iso: 'Clean bootable ISO',
       isofull: 'Clean initramfs, multiboot and iso'
     }),
@@ -1298,6 +1303,7 @@ if __FILE__ == $0
       all: 'Build all components including deployments',
       initramfs: 'Build initramfs image',
       multiboot: 'Build grub multiboot image',
+      builder: 'Build builder',
       iso: 'Build bootable ISO',
       isofull: 'Build initramfs, multiboot and iso'
     }),
