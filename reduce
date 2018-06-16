@@ -432,6 +432,7 @@ class Reduce
     all = targets && targets.include?('all')
     Log.die("target not given") if (targets.nil? or targets.empty?) && !deployments
 
+    info  # required to get the current kernel version
     changed = false
     create_dir_structure
     Log.die("must be executed as root") unless Process.uid.zero?
