@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.2.3
+  release: 0.2.4
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -127,6 +127,7 @@ apps:
     - { install: tar,                 desc: File store backup and transport utility, depof: k8s cp }
     - { install: vim,                 desc: Improved version of vi text editor, size: 28MB }
     - { install: vim-systemd,         desc: Vim syntax highlighting for systemd }
+    - { install: vundle,              desc: Plug-in manager for Vim, type: CYBERLINUX }
 
   # perl is huge, slow, outdated and useless, however some packages still use it.
   # containers should use the without-perl option to reduce size while machines will need to use with to behave normally
