@@ -48,11 +48,11 @@ class Reduce
   attr_accessor(:vars)
 
   # Profile encapsulates profile YAML data
-  Profile ||= Struct.new(:vars, :build, :deployments, :apps, :configs) do
+  Profile ||= Struct.new(:vars, :builder, :deployments, :apps, :configs) do
     def initialize(*)
       super
       self.vars ||= {}
-      self.build ||= {}
+      self.builder ||= {}
       self.deployments ||= {}
       self.apps ||= {}
       self.configs ||= {}
@@ -71,7 +71,7 @@ class Reduce
       all: 'all',
       apps: 'apps',
       base: 'base',
-      build: 'build',
+      builder: 'builder',
       configs: 'configs',
       command: 'command',
       cpus: 'cpus',
@@ -205,7 +205,7 @@ class Reduce
 
       # Load and merge profiles
       @profile = Profile.new unless defined?(@profile)
-      @profile.build.deep_merge!(profile[@k.build]) if profile[@k.build]
+      @profile.builder.deep_merge!(profile[@k.builder]) if profile[@k.builder]
       @profile.apps.deep_merge!(profile[@k.apps]) if profile[@k.apps]
       @profile.configs.deep_merge!(profile[@k.configs]) if profile[@k.configs]
       @profile.deployments.deep_merge!(profile[@k.deployments]) if profile[@k.deployments]
@@ -312,15 +312,14 @@ class Reduce
   # @param targets [Array] components to clean
   # @param deployments [Array] deployments to clean
   # @param pacman [Bool] clean pacman repos
-  # @param build [Bool] clean build
   # @param cache [Bool] clean pacman repos and cache
   # @param vms [Bool] clean vms
-  def clean(targets, deployments:nil, pacman:nil, build:nil, cache:nil, vms:nil)
+  def clean(targets, deployments:nil, pacman:nil, cache:nil, vms:nil)
     iso = targets && targets.include?('iso') || false
     isofull = targets && targets.include?('isofull') || false
     initramfs = targets && targets.include?('initramfs') || false
     multiboot = targets && targets.include?('multiboot') || false
-    all = targets && targets.include?('all')
+    all = targets && targets.include?('all') || false
     Log.die("must be executed as root") unless Process.uid.zero?
 
     # Clean all
@@ -388,14 +387,6 @@ class Reduce
       end
     end
 
-    # Clean build deployment
-    if build
-      build_path = File.join(@deployments_work, @k.build)
-      puts("Cleaning build...".colorize(:cyan))
-      puts("Deleting #{build_path}".colorize(:red)) if Dir.exist?(build_path)
-      Sys.rm_rf(build_path)
-    end
-
     # Clean iso path
     if all or isofull
       puts("Cleaning iso path...".colorize(:cyan))
@@ -453,8 +444,8 @@ class Reduce
     if initramfs || multiboot || isofull ||
       @profile.deployments.select{|k,v| deployments.include?(k)}.any?{|k,v| v[@k.type] == @k.machine}
 
-      # Build the build container for initramfs/multiboot
-      changed |= build_deployments(@k.build) if not (deployments || []).include?(@k.build)
+      # Build the builder container for initramfs/multiboot
+      changed |= build_deployments(@k.builder) if not (deployments || []).include?(@k.builder)
 
       # Build early userspace ramdisk for install executed by grub
       clean(initramfs:true) if changed
@@ -511,7 +502,7 @@ class Reduce
       FileUtils.resolve(installer, @vars)
 
       # Build initramfs images in build container
-      docker(@k.build, @k.build){|cont, home, cp, exec, execs, runuser|
+      docker(@k.builder, @k.builder){|cont, home, cp, exec, execs, runuser|
 
         # Inject installer configuration
         cp.call("#{installer} #{cont}:/usr/lib/initcpio/hooks")
@@ -582,7 +573,7 @@ class Reduce
       FileUtils.resolve(File.join(grub_iso_path, 'boot.cfg'), @vars)
 
       # Build grub components inside build container to ensure isolation
-      docker(@k.build, 'root'){|cont, home, cp, exec, execs, runuser|
+      docker(@k.builder, 'root'){|cont, home, cp, exec, execs, runuser|
 
         # Extract GRUB boot files
         cp.call("#{cont}:/usr/share/grub/unicode.pf2 #{grub_iso_path}")
@@ -819,7 +810,7 @@ class Reduce
   # @returns true if changed
   def build_deployments(target_deployment)
     changed = false
-    if target_deployment != @k.build && !@profile.deployments[target_deployment]
+    if target_deployment != @k.builder && !@profile.deployments[target_deployment]
       Log.die("deployment '#{target_deployment}' doesn't exist")
     end
 
@@ -1233,7 +1224,7 @@ class Reduce
   # @returns list of deployments (e.g. heavy => heavy, lite, shell, base)
   def get_deployments(deployment)
     deployments = [deployment]
-    return deployments if deployment == @k.build
+    return deployments if deployment == @k.builder
     Log.die("invalid deployment '#{deployment}'") if !@profile.deployments[deployment]
 
     _deployment = deployment
@@ -1249,7 +1240,7 @@ class Reduce
   # @param deployment [string] deployment name to get yaml for
   # @returns yaml for the indicated deployment
   def get_deployment_yml(deployment)
-    yml = deployment == @k.build ? @profile.build : @profile.deployments[deployment]
+    yml = deployment == @k.builder ? @profile.builder : @profile.deployments[deployment]
     Log.die("invalid deployment '#{deployment}'") if !yml
 
     # Resolve templating for the given deployment
@@ -1296,7 +1287,6 @@ if __FILE__ == $0
       iso: 'Clean bootable ISO',
       isofull: 'Clean initramfs, multiboot and iso'
     }),
-    Option.new('--build', "Clean build"),
     Option.new('--pacman', "Clean pacman repos"),
     Option.new('--cache', "Clean pacman/ruby package cache"),
     Option.new('--vms', "Clean VMs that are no longer deployed"),
@@ -1342,7 +1332,7 @@ if __FILE__ == $0
   reduce.list(cmdr[:list][:list0]) if cmdr[:list]
 
   # Execute 'clean' command
-  reduce.clean(cmdr[:clean][:clean0], deployments: cmdr[:clean][:deployments], build: cmdr[:clean][:build],
+  reduce.clean(cmdr[:clean][:clean0], deployments: cmdr[:clean][:deployments],
     pacman: cmdr[:clean][:pacman], cache: cmdr[:clean][:cache], vms: cmdr[:vms]) if cmdr[:clean]
 
   # Execute 'build' command

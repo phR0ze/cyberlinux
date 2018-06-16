@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.1.371
+  release: 0.1.372
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -48,7 +48,7 @@ vars:
   nfscidr: 192.168.56.0/24
 
 ################################################################################
-build:
+builder:
   type: container
   multilib: true
   docker:
@@ -57,7 +57,7 @@ build:
     command: 'bash -c "while :; do sleep 5; done"'
   apps:
     - { install: linux,               desc: Linux kernel and supporting modules }
-    - build
+    - builder
 
 ################################################################################
 apps:
@@ -67,7 +67,7 @@ apps:
     - { install: linux-headers,       desc: Linux kernel headers }
 
   # Packages and configs for building initramfs etc...
-  build:
+  builder:
     - { install: gptfdisk,            desc: Paritioning tools e.g. sgdisk }
     - { install: mkinitcpio,          desc: initramfs image creation utility }
     - { install: mkinitcpio-vt-colors,desc: vt console colors, type: CYBERLINUX }
@@ -78,11 +78,11 @@ apps:
     - core-tools
     - grub-tools
     # Create and configure new build user and root user
-    - { chroot: 'useradd -m -G lp,wheel,network,storage,users -s /bin/bash build || true' }
-    - { exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /home/build' }
+    - { chroot: 'useradd -m -G lp,wheel,network,storage,users -s /bin/bash builder || true' }
+    - { exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /home/builder' }
     - { exec: "echo 'TERM=xterm' > /etc/environment" }
     - { exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /root' }
-    - { edit: /etc/sudoers, insert: append, value: "build ALL=(ALL) NOPASSWD: ALL" }
+    - { edit: /etc/sudoers, insert: append, value: "builder ALL=(ALL) NOPASSWD: ALL" }
     - config-core
     - config-mkinitcpio
 
