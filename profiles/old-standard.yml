@@ -18,6 +18,7 @@
 #LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
+#base: _base
 
 build:
   type: container
@@ -55,62 +56,58 @@ deployments:
     vars: { fontsize: 10 }
     vagrant: { vram: 32, cpus: 2, ram: 2048 }
     install:
-      entry: "Deploy <%=distro%>-base                    // Shell env"
+      entry: "Deploy <%=distro%>-base                    // Minimal shell"
       kernel: linux
     packages:
       - { pkg: linux,                         desc: Linux kernel and supporting modules }
-      - { pkg: linux-docs,                    desc: Linux kernel docs }
-      - { pkg: linux-headers,                 desc: Linux kernel headers }
       - { install: base-pkgs }
       - { install: base-tools }
       - { install: virtualbox-guest-nox }
-      - { install: shell-pkgs }
 
     configs:
       - { apply: base-config }
+
+  shell:
+    type: machine
+    base: base
+    vagrant: { vram: 32, cpus: 2, ram: 2048 }
+    install:
+      entry: "Deploy <%=distro%>-shell                   // Base + shell devel"
+      kernel: linux
+    packages:
+      - { pkg: linux-docs,                    desc: Linux kernel docs }
+      - { pkg: linux-headers,                 desc: Linux kernel headers }
+      - { install: shell-pkgs }
+    configs:
       - { apply: shell-config }
 
   lite:
     type: machine
-    base: base
+    base: shell
     groups: [ video, audio]
     vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     install:
-      entry: "Deploy <%=distro%>-lite                    // Base + min X11"
+      entry: "Deploy <%=distro%>-lite                    // Shell + min X11"
       kernel: linux
     packages:
       - { install: lite-pkgs }
       - { install: virtualbox-guest }
-
-      # Adobe fonts from adobe reader
-      # https://aur.archlinux.org/cgit/aur.git/tree/LICENSE?h=ttf-adobe-fonts
-      - { pkg: ttf-adobe-fonts,               desc: Adobe fonts including Myriad Minion and Courier, type: CYBERLINUX }
     configs:
       - { apply: lite-config }
 
-  server:
+  k8snode:
     type: machine
-    base: lite
-    vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
-    vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
+    base: shell
+    groups: [docker]
+    vagrant: { vram: 8, cpus: 2, ram: 2048 }
     install:
-      entry: "Deploy <%=distro%>-server                  // Lite + services"
+      entry: "Deploy <%=distro%>-k8snode                 // Shell + k8s node"
       kernel: linux
     packages:
-      - { install: server-pkgs }
-
-      # MakeMKV is free while in beta but is a commercial product required a license normally
-      # https://www.makemkv.com/forum2/viewtopic.php?f=5&t=1053
-      - { pkg: makemkv,                       desc: DVD and Blu-ray to MKV converter, type: CYBERLINUX }
-
-      # Teamviewer is free to use for personal use
-      # https://www.teamviewer.com/en/credentials/free-for-personal-use/
-      - { pkg: teamviewer,                    desc: All-In-One Software for Remote Support and Online Meetings, type: CYBERLINUX }
+      - { install: k8snode-pkgs }
     configs:
-      - { apply: server-config }
-      - { apply: makemkv-config }
-      - { apply: teamviewer-host-config }
+      - { apply: k8snode-config }
 
   theater:
     type: machine
@@ -123,18 +120,8 @@ deployments:
       params: autologin=1
     packages:
       - { install: theater-pkgs }
-
-      # MakeMKV is free while in beta but is a commercial product required a license normally
-      # https://www.makemkv.com/forum2/viewtopic.php?f=5&t=1053
-      - { pkg: makemkv,                       desc: DVD and Blu-ray to MKV converter, type: CYBERLINUX }
-
-      # Teamviewer is free to use for personal use
-      # https://www.teamviewer.com/en/credentials/free-for-personal-use/
-      - { pkg: teamviewer,                    desc: All-In-One Software for Remote Support and Online Meetings, type: CYBERLINUX }
     configs:
       - { apply: theater-config }
-      - { apply: makemkv-config }
-      - { apply: teamviewer-host-config }
 
   desktop:
     type: machine
@@ -147,22 +134,8 @@ deployments:
       kernel: linux
     packages:
       - { install: desktop-pkgs }
-
-      # MakeMKV is free while in beta but is a commercial product required a license normally
-      # https://www.makemkv.com/forum2/viewtopic.php?f=5&t=1053
-      - { pkg: makemkv,                       desc: DVD and Blu-ray to MKV converter, type: CYBERLINUX }
-
-      # Teamviewer is free to use for personal use
-      # https://www.teamviewer.com/en/credentials/free-for-personal-use/
-      - { pkg: teamviewer,                    desc: All-In-One Software for Remote Support and Online Meetings, type: CYBERLINUX }
-
-      # The Extension Pack binaries are released under the VirtualBox Personal Use and Evaluation License (PUEL).
-      # https://www.virtualbox.org/wiki/Downloads
-      - { pkg: virtualbox-ext-oracle,         desc: Oracle VM VirtualBox Extension Pack, type: CYBERLINUX }
     configs:
       - { apply: desktop-config }
-      - { apply: makemkv-config }
-      - { apply: teamviewer-host-config }
 
   live:
     type: machine
