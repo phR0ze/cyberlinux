@@ -18,58 +18,9 @@
 #LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
-
-build:
-  type: container
-  multilib: true
-  docker:
-    # Note: need privileged=true to allow mount to work inside container
-    params: '-e TERM=xterm -v /var/run/docker.sock:/var/run/docker.sock --privileged=true'
-    command: 'bash -c "while :; do sleep 5; done"'
-  packages:
-    - { pkg: linux,                           desc: Linux kernel and supporting modules }
-    - { pkg: gptfdisk,                        desc: Paritioning tools e.g. sgdisk }
-    - { pkg: mkinitcpio,                      desc: initramfs image creation utility }
-    - { pkg: mkinitcpio-vt-colors,            desc: vt console colors, type: CYBERLINUX }
-    - { pkg: rsync,                           desc: Remote file sync utility }
-    - { pkg: systemd,                         desc: System and service manager }
-    - { pkg: sudo,                            desc: Elevate some user commands to root }
-    - { install: core-pkgs }
-    - { install: core-tools }
-    - { install: grub-pkgs }
-  configs:
-    # Create and configure new build user and root user
-    - { chroot: 'useradd -m -G lp,wheel,network,storage,users -s /bin/bash build || true' }
-    - { exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /home/build' }
-    - { exec: "echo 'TERM=xterm' > /etc/environment" }
-    - { exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /root' }
-    - { edit: /etc/sudoers, insert: append, value: "build ALL=(ALL) NOPASSWD: ALL" }
-    - { apply: core-config }
-    - { apply: mkinitcpio-config }
+base: standard
 
 deployments:
-  base:
-    type: machine
-    multilib: true
-    groups: [lp, wheel, network, storage, users]
-    vars: { fontsize: 10 }
-    vagrant: { vram: 32, cpus: 2, ram: 2048 }
-    install:
-      entry: "Deploy <%=distro%>-base                    // Shell env"
-      kernel: linux
-    packages:
-      - { pkg: linux,                         desc: Linux kernel and supporting modules }
-      - { pkg: linux-docs,                    desc: Linux kernel docs }
-      - { pkg: linux-headers,                 desc: Linux kernel headers }
-      - { install: base-pkgs }
-      - { install: base-tools }
-      - { install: virtualbox-guest-nox }
-      - { install: shell-pkgs }
-
-    configs:
-      - { apply: base-config }
-      - { apply: shell-config }
-
   lite:
     type: machine
     base: base

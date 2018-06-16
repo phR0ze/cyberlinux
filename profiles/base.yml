@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.2.4
+  release: 0.2.5
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -67,6 +67,7 @@ apps:
     - { install: linux-headers,       desc: Linux kernel headers }
 
   # Packages and configs for building initramfs etc...
+  # ----------------------------------------------------------------------------
   builder:
     - { install: gptfdisk,            desc: Paritioning tools e.g. sgdisk }
     - { install: mkinitcpio,          desc: initramfs image creation utility }
@@ -90,6 +91,7 @@ apps:
   # Smallest set of packages required to have a ruby container
   # bash is a dependency of gdbm which is a dependency of ruby so ruby-core builds off core
   # Size: 63.39 MiB
+  # ----------------------------------------------------------------------------
   ruby-core:
     - core
     - openssl-without-perl
@@ -103,6 +105,7 @@ apps:
 
   # Smallest set of packages possible for a functioning container with bash
   # Size: 53.14 MiB
+  # ----------------------------------------------------------------------------
   core:
     - { install: bash,                desc: GNU Bourne Again shell, depends-on: [readline, glibc, ncurses], size: 7321.00 KiB }
     - { install: gcc-libs,            desc: GCC runtime libraries, depends-on: [glibc], size: 105.27 MiB }
@@ -115,6 +118,7 @@ apps:
     - { install: tzdata,              desc: Sources for time zone and daylight savings time data, size: 1861.00 KiB }
 
   # Standard linux shell tools e.g. ls, cp, mv, hostname, gzip, tar and vim
+  # ----------------------------------------------------------------------------
   core-tools:
     - openssl-with-perl
     - { install: coreutils,           desc: Utils ls/cp/mv, depends-on: [glibc, acl, attr, gmp, libcap, openssl], size: 13.79 MiB }
@@ -146,6 +150,7 @@ apps:
     - { install: memtest86+,          desc: memtest is used in the ISO creation as menu option }
 
   # Base for any machine being deployed
+  # ----------------------------------------------------------------------------
   base-apps:
     - core
     - core-tools
@@ -278,6 +283,183 @@ apps:
     - { install: ruby-mechanize,      desc: Automate interation with websites, depof: chromium build, type: CYBERLINUX }
     - { install: ruby-pry,            desc: Ruby debugger, type: CYBERLINUX }
     - { install: ruby-rest-client,    desc: Simple HTTP and REST client, depof: reduce, type: CYBERLINUX }
+
+  # Lite weight X11 evironment
+  # ----------------------------------------------------------------------------
+  lite-apps:
+    - { install: archlinux-xdg-menu,  desc: Automatic OpenBox menu generation from xdg files }
+    - { install: cups-pdf,            desc: System/Printer Driver - PDF printer driver }
+    - { install: dconf,               desc: A low-level configuration system }
+    - { install: dconf-editor,        desc: New configuration manager intended to replace gconf }
+    - { install: desktop-file-utils,  desc: Command line utilities for working with desktop entries }
+    - { install: dmenu,               desc: Super light weight application runner }
+    - { install: gconf-editor,        desc: Old Gnome configuration manager separate dconf-editor db }
+    - { install: gtk-engines,         desc: GTK theme engines for cyberlinux theme }
+    - { install: gtk-engine-murrine,  desc: GTK theme engine for cyberlinux theme }
+    - { install: lxappearance-obconf, desc: Openbox support for lxappearance }
+    - { install: lxdm-gtk3,           desc: Lightweight X11 Display Manager }
+    - { install: lxinput,             desc: Keyboard and mouse config for LXDE }
+    - { install: lxrandr,             desc: Monitor configuration tool for LXDE }
+    - { install: lxterminal,          desc: Terminal for LXDE, alt: terminator }
+    - { install: oblogout,            desc: Openbox logout script }
+    - { install: openbox,             desc: Lightweight X11 window manager }
+    - { install: mesa,                desc: Open-source OpenGL implementation }
+    - { install: mesa-demos,          desc: Mesa demos and tools e.g glxinfo }
+    - { install: mesa-vdpau,          desc: Mesa VDPAU drivers }
+    - { install: numix-frost-themes,  desc: Numix frost GTK2, GTK3 and OpenBox themes, type: ANTERGOS }
+    - { install: paper-icon-theme,    desc: Paper icon theme, type: CYBERLINUX }
+    - { install: pavucontrol,         desc: PulseAudio Volume Control }
+    - { install: pulseaudio-alsa,     desc: ALSA Configuration for PulseAudio }
+    - { install: python2-xdg,         desc: Enable use of .desktop files in /etc/xdg in openbox }
+    - { install: wmctrl,              desc: Control your EWMH compliant window manager from command line }
+    - { install: wpa_gui,             desc: Qt4 GUI for WPA Supplicant, type: CYBERLINUX }
+    - { install: xcursor-numix-frost, desc: Numix frost cursor theme, type: CYBERLINUX }
+    - { install: xdg-user-dirs,       desc: Manage user directories like ~/Desktop }
+    - { install: xdg-utils,           desc: Desktop integration utilities }
+    - { install: xfce4-screenshooter, desc: Plugin that makes screenshots for the Xfce panel }
+
+    - { install: xorg,                desc: Stop gap until get a better break down }
+    - { install: xf86-input-libinput, desc: X.Org generic input driver, group: xorg-drivers }
+#    - { install: xf86-input-evdev,    desc: X.org evdev input driver, group: xorg-drivers }
+#    - { install: xf86-input-keyboard, desc: X.Org keyboard input driver, group: xorg-drivers }
+#    - { install: xf86-input-mouse,    desc: X.org mouse input driver, group: xorg-drivers }
+#    - { install: xf86-input-synaptics,desc: Synaptics driver for notebook touchpads, group: xorg-drivers }
+#    - { install: xf86-input-vmmouse,  desc: X.org VMWare Mouse input driver, group: xorg-drivers }
+#    - { install: xf86-input-void,     desc: X.org void input driver, group: xorg-drivers }
+#    - { install: xf86-video-amdgpu,   desc: X.org amdgpu video driver, group: xorg-drivers }
+#    - { install: xf86-video-ati,      desc: X.org ati video driver, group: xorg-drivers }
+#    - { install: xf86-video-dummy,    desc: X.org dummy video driver, group: xorg-drivers }
+#    - { install: xf86-video-fbdev,    desc: X.org framebuffer video driver, group: xorg-drivers }
+#    - { install: xf86-video-intel,    desc: X.org Intel video drivers, group: xorg-drivers }
+#    - { install: xf86-video-nouveau,  desc: X.org nVidia Open Source 2D drivers, group: xorg-drivers }
+#    - { install: xf86-video-openchrome,         desc: X.Org Openchrome drivers, group: xorg-drivers }
+#    - { install: xf86-video-vmware,   desc: X.org vmware video driver, group: xorg-drivers }
+#    - { install: xf86-video-voodoo,   desc: X.org 3dfx Voodoo1/Voodoo2 2D video driver, group: xorg-drivers }
+#    - { install: xf86-video-qxl,      desc: Xorg X11 qxl video driver, group: xorg-drivers }
+    - { install: xf86-video-vesa,     desc: X.org vesa video driver, group: xorg-drivers xorg }
+
+#    - { install: xorg-bdftopcf,     desc: Convert X font from Bitmap Distribution Format to Portable Compiled Format, group: xorg-apps }
+#    - { install: xorg-iceauth,     desc: ICE authority file utility, group: xorg-apps }
+#    - { install: xorg-luit,     desc: Filter that can be run between an arbitrary application and a UTF-8 terminal emulator, group: xorg-apps }
+#    - { install: xorg-mkfontdir,     desc: Create an index of X font files in a directory, group: xorg-apps }
+#    - { install: xorg-mkfontscale,     desc: Create an index of scalable font files for X, group: xorg-apps }
+#    - { install: xorg-sessreg,     desc: Register X sessions in system utmp/utmpx databases, group: xorg-apps }
+#    - { install: xorg-setxkbmap,     desc: Set the keyboard using the X Keyboard Extension, group: xorg-apps }
+#    - { install: xorg-smproxy,     desc: Allows X applications that do not support X11R6 session management to participate in an X11R6 session, group: xorg-apps }
+#    - { install: xorg-x11perf,     desc: Simple X server performance benchmarker, group: xorg-apps }
+#    - { install: xorg-xauth,     desc: X.Org authorization settings program, group: xorg-apps }
+#    - { install: xorg-xbacklight,     desc: RandR-based backlight control application, group: xorg-apps }
+#    - { install: xorg-xcmsdb,     desc: Device Color Characterization utility for X Color Management System, group: xorg-apps }
+#    - { install: xorg-xcursorgen,     desc: Create an X cursor file from PNG images, group: xorg-apps }
+#    - { install: xorg-xdpyinfo,     desc: Display information utility for X, group: xorg-apps }
+#    - { install: xorg-xdriinfo,     desc: Query configuration information of DRI drivers, group: xorg-apps }
+#    - { install: xorg-xev,     desc: Print contents of X events, group: xorg-apps }
+#    - { install: xorg-xgamma,     desc: Alter a monitor's gamma correction, group: xorg-apps }
+#    - { install: xorg-xhost,     desc: Server access control program for X, group: xorg-apps }
+#    - { install: xorg-xinput,     desc: Small commandline tool to configure devices, group: xorg-apps }
+#    - { install: xorg-xkbcomp,     desc: X Keyboard description compiler, group: xorg-apps }
+#    - { install: xorg-xkbevd,     desc: XKB event daemon, group: xorg-apps }
+#    - { install: xorg-xkbutils,     desc: XKB utility demos, group: xorg-apps }
+#    - { install: xorg-xkill,     desc: Kill a client by its X resource, group: xorg-apps }
+#    - { install: xorg-xlsatoms,     desc: List interned atoms defined on server, group: xorg-apps }
+#    - { install: xorg-xlsclients,     desc: List client applications running on a display, group: xorg-apps }
+#    - { install: xorg-xmodmap,     desc: Utility for modifying keymaps and button mappings, group: xorg-apps }
+#    - { install: xorg-xpr,     desc: Print an X window dump from xwd, group: xorg-apps }
+#    - { install: xorg-xprop,     desc: Property displayer for X, group: xorg-apps }
+#    - { install: xorg-xrandr,     desc: Primitive command line interface to RandR extension, group: xorg-apps }
+#    - { install: xorg-xrdb,     desc: X server resource database utility, group: xorg-apps }
+#    - { install: xorg-xrefresh,     desc: Refresh all or part of an X screen, group: xorg-apps }
+#    - { install: xorg-xset,     desc: User preference utility for X, group: xorg-apps }
+#    - { install: xorg-xsetroot,     desc: Classic X utility to set your root window background to a given pattern or color, group: xorg-apps }
+#    - { install: xorg-xvinfo,     desc: Prints out the capabilities of any video adaptors associated with the display that are accessible through the X-Video extension, group: xorg-apps }
+#    - { install: xorg-xwd,     desc: X Window System image dumping utility, group: xorg-apps }
+#    - { install: xorg-xwininfo,     desc: Command-line utility to print information about windows on an X server, group: xorg-apps }
+#    - { install: xorg-xwud,     desc: X Window System image undumping utility, group: xorg-apps }
+# }
+#    - { install: xorg-bdftopcf,                 desc: , group: xorg }
+#    - { install: xorg-docs,                     desc: , group: xorg }
+#    - { install: xorg-font-util,                desc: , group: xorg }
+#    - { install: xorg-fonts-75,                 desc: , group: xorg }
+#    - { install: xorg-fonts-100dpi,             desc: , group: xorg }
+#    - { install: xorg-fonts-encodings,          desc: , group: xorg }
+#    - { install: xorg-iceauth,                  desc: , group: xorg }
+#    - { install: xorg-luit,                     desc: , group: xorg }
+#    - { install: xorg-mkfontdir,                desc: , group: xorg }
+#    - { install: xorg-mkfontscale,              desc: , group: xorg }
+#    - { install: xorg-sever,                    desc: , group: xorg }
+#    - { install: xorg-server-devel,             desc: , group: xorg }
+#    - { install: xorg-server-xdmx,              desc: , group: xorg }
+#    - { install: xorg-server-xephyr,            desc: , group: xorg }
+#    - { install: xorg-server-xnest,             desc: , group: xorg }
+#    - { install: xorg-server-xvfb,              desc: , group: xorg }
+#    - { install: xorg-server-xwayland,          desc: , group: xorg }
+#    - { install: xorg-sessreg,                  desc: , group: xorg }
+#    - { install: xorg-setxkbmap,                desc: , group: xorg }
+#    - { install: xorg-smproxy,                  desc: , group: xorg }
+#    - { install: xorg-x11perf,                  desc: , group: xorg }
+#    - { install: xorg-xauth,                    desc: , group: xorg }
+
+    - { install: xorg-xdpyinfo,                 desc: Xorg display info utility }
+    - { install: xsel,                          desc: Tool for getting/setting X selection }
+    - { install: xterm,                         desc: X terminal emulator }
+
+    # XWindows tools
+    - { install: audacious,                     desc: Audio/Player, alt: deadbeaf, xnoise }
+    - { install: chromium,                      desc: Opensource project behind Chrome, type: CYBERLINUX }
+    - { install: chromium-widevine,             desc: Chromium support for Netflix, type: ANTERGOS }
+    - { install: evince,                        desc: Document viewer (PDF,Postscript,djvu,tiff,dvi,XPS,cbr,cbz,cb7 and cbt) }
+    - { install: ffmpegthumbnailer,             desc: Lightweight video thumbnailer that can be used by file managers }
+    - { install: file-roller,                   desc: System/Compression integrates well in Thunar }
+    - { install: filezilla,                     desc: Network/Transfer }
+    - { install: flashplugin,                   desc: Adobe Flash Player NPAPI }
+    - { install: galculator,                    desc: Office/Calculator }
+    - { install: gpicview,                      desc: Image viewer, alt: shotwell/viewnior }
+    - { install: gsimplecal,                    desc: Simple calendar like windows systray calendar }
+    - { install: gvfs,                          desc: Support for Trash and USB, depof: thunar-volman }
+    - { install: gvim,                          desc: Improved version of vi text editor, conflict: vim }
+    - { install: leafpad,                       desc: Office/Notepad - Simple notepad knock off }
+    - { install: libx264-10bit,                 desc: Library for encoding H264/AVC video streams, depof: smplayer }
+    - { install: nitrogen,                      desc: System wallpaper manager }
+    - { install: pepper-flash,                  desc: Chromium flash support }
+    - { install: pnmixer,                       desc: Volume controls in system tray, type: CYBERLINUX }
+    - { install: qt4,                           desc: A cross-platform application and UI framework, deps: vlc }
+    - { install: qt5-base,                      desc: A cross-platform application and UI framework, deps: mkvtoolnix-gui }
+    - { install: smplayer,                      desc: UI wrapper around mplayer with click to pause, alt: vlc }
+    - { install: smplayer-skins,                desc: Skins for SMPlayer }
+    - { install: smplayer-themes,               desc: Themes for SMPlayer }
+    - { install: system-config-printer,         desc: A CUPS printer configuration tool and status applet }
+    - { install: thunar,                        desc: Lightweight File Manager from Xfce }
+    - { install: thunar-archive-plugin,         desc: Thunar integration with file-roller }
+    - { install: thunar-media-tags-plugin,      desc: Thunar plugin to view media details }
+    - { install: thunar-volman,                 desc: Thunar plugin to automatically manage removeable devices }
+    - { install: tint2,                         desc: Lightweight taskmanager and system tray }
+    - { install: tumbler,                       desc: D-Bus thumbnail service for apps (e.g. Thunar) }
+    - { install: vlc,                           desc: Multi-platform MPEG, VCD/DVD, and DivX player }
+    - { install: winff,                         desc: GUI for ffmpeg, type: CYBERLINUX }
+    - { install: xnviewmp,                      desc: A digital photo organizer, type: CYBERLINUX }
+
+    # Media Codecs
+    - { install: gst-libav,                     desc: GStreamer libav Plugin }
+    - { install: gst-plugins-bad,               desc: GStreamer Bad Plugins }
+    - { install: gst-plugins-base,              desc: GStreamer Base Plugins }
+    - { install: gst-plugins-good,              desc: GStreamer Good Plugins }
+    - { install: gst-plugins-ugly,              desc: GStreamer Ugly Plugins }
+    - { install: libdvdcss,                     desc: DVD media codec support }
+
+    # X11 Fonts
+    - { install: adobe-source-code-pro-fonts,   desc: Mono-spaced coding environments }
+    - { install: terminus-font,                 desc: Monospace bitmap font for consoles }
+    - { install: ttf-bitstream-vera,            desc: Bitstream vera fonts }
+    - { install: ttf-dejavu,                    desc: Bitstream Vera Fonts w/more characters }
+    - { install: ttf-droid,                     desc: Google Android general purpose fonts }
+    - { install: ttf-google-fonts-typewolf,     desc: Typewolf's 40 best fonts from the Google Fonts project, type: ANTERGOS }
+    - { install: ttf-hack,                      desc: Hand groomed/optically balanced typeface based on Bitstream Vera Mono }
+    - { install: ttf-inconsolata-g,             desc: Best monospace terminal font, type: CYBERLINUX }
+    - { install: ttf-indic-otf,                 desc: Indic Opentype Fonts collection }
+    - { install: ttf-liberation,                desc: Red Hats Liberation fonts.  }
+    - { install: ttf-ms-fonts,                  desc: Microsoft core fonts, type: CYBERLINUX }
+    - { install: ttf-nerd-fonts-symbols,        desc: Nerd Font Symbols, type: CYBERLINUX }
+    - config-lite
   virtualbox-guest-nox:
     - { install: virtualbox-guest-utils-nox,    desc: VirtualBox guest drivers and utilities w/out X support }
     - { install: virtualbox-guest-modules-arch, desc: VirtualBox guest kernel modules, conflict: virtualbox-guest-dkms }

@@ -25,8 +25,8 @@ deployments:
     type: machine
     multilib: true
     groups: [lp, wheel, network, storage, users]
-    vars: { fontsize: 10 }
-    vagrant: { vram: 32, cpus: 2, ram: 2048 }
+    vars: {fontsize: 10}
+    vagrant: {vram: 32, cpus: 2, ram: 2048}
     install:
       order: 1
       label: "Deploy <%=distro%>-base                    // Base shell env"
@@ -34,8 +34,21 @@ deployments:
     apps:
       - kernel
       - base-apps
-        #- shell-apps
-        #- virtualbox-guest-nox
+      - shell-apps
+      - virtualbox-guest-nox
+  lite:
+    type: machine
+    base: base
+    groups: [video, audio]
+    vars: {wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg}
+    vagrant: {vram: 32, cpus: 2, ram: 2048, v3d: 'on'}
+    install:
+      order: 2
+      label: "Deploy <%=distro%>-lite                    // Shell + min X11"
+      kernel: linux
+    apps:
+      - lite-apps
+        #- virtualbox-guest
 
 # Desktop android
 # groups: [adbusers, uucp]
