@@ -389,9 +389,9 @@ class Reduce
 
     # Clean iso path
     if all or isofull
-      puts("Cleaning iso path...".colorize(:cyan))
-      puts("Deleting #{@isopath}".colorize(:red)) if File.exist?(@isopath)
-      Sys.rm_rf(@isopath)
+      puts("Cleaning iso path except for images...".colorize(:cyan))
+      puts("Deleting #{@boot_dst}".colorize(:red)) if File.exist?(@boot_dst)
+      Sys.rm_rf(@boot_dst)
     end
 
     # Clean iso image
