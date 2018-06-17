@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.2.10
+  release: 0.2.11
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -284,6 +284,11 @@ apps:
     - { install: ruby-pry,            desc: Ruby debugger, type: CYBERLINUX }
     - { install: ruby-rest-client,    desc: Simple HTTP and REST client, depof: reduce, type: CYBERLINUX }
 
+  # Non X11 virtualbox guest tools for shell environments
+  virtualbox-guest-nox:
+    - { install: virtualbox-guest-utils-nox,    desc: VirtualBox guest drivers and utilities w/out X support }
+    - { install: virtualbox-guest-modules-arch, desc: VirtualBox guest kernel modules, conflict: virtualbox-guest-dkms }
+
   # Lite weight X11 evironment
   # ----------------------------------------------------------------------------
   lite-apps:
@@ -460,9 +465,6 @@ apps:
     - { install: ttf-ms-fonts,                  desc: Microsoft core fonts, type: CYBERLINUX }
     - { install: ttf-nerd-fonts-symbols,        desc: Nerd Font Symbols, type: CYBERLINUX }
     - config-lite
-  virtualbox-guest-nox:
-    - { install: virtualbox-guest-utils-nox,    desc: VirtualBox guest drivers and utilities w/out X support }
-    - { install: virtualbox-guest-modules-arch, desc: VirtualBox guest kernel modules, conflict: virtualbox-guest-dkms }
 
 ################################################################################
 configs:
