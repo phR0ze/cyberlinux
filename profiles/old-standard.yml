@@ -19,21 +19,6 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 base: base
-  lite:
-    type: machine
-    base: shell
-    groups: [ video, audio]
-    vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
-    vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
-    install:
-      entry: "Deploy <%=distro%>-lite                    // Shell + min X11"
-      kernel: linux
-    packages:
-      - { install: lite-pkgs }
-      - { install: virtualbox-guest }
-    configs:
-      - { apply: lite-config }
-
   k8snode:
     type: machine
     base: shell
