@@ -33,14 +33,9 @@ require_relative 'lib/config'   # Programatic file editor and command runner
 # Gems that should already be installed
 begin
   require 'nub'                 # Commander, logging and other utilities
-  require 'colorize'            # color output: colorize
-  require 'filesize'            # human readable file sizes: Filesize
-  require 'net/ssh'             # ssh integration: Net::SSH
-  require 'net/scp'             # scp integration: Net::SCP
 rescue Exception => e
-  puts(e)
-  #puts("Error: missing package '#{e.message.split(' ').last.sub('/', '-')}'")
-  #!puts("Error: install missing packages with 'bundle install --system") and exit
+  puts("Error: missing package '#{e.message.split(' ').last.sub('/', '-')}'")
+  !puts("Error: install missing packages with 'bundle install --system") and exit
 end
 MakeMakefile::Logging.instance_variable_set(:@logfile, File::NULL)
 
@@ -926,8 +921,7 @@ class Reduce
         begin
 
           # Prepare pacman for use
-          Pacman.init(deployment_work, @pacman_src_conf, @pacman_src_mirrors, cache_path: @pacman_cache)
-          #FileUtils.cp(File.join(deployment_work, 'etc/pacman.d/gnupg'), @pacman_path)
+          Pacman.init(@pacman_path, deployment_work, @pacman_src_conf, @pacman_src_mirrors)
 
           # Remove these packages first
           if apps[:conflict].any?
@@ -944,13 +938,15 @@ class Reduce
           # Install normal packages
           if apps[:reg].any?
             puts("Pacstrap package regular installs for '#{deployment}'...".colorize(:cyan))
-            Pacman.install(apps[:reg], flags: ['--ignore', apps[:ignore] * ','])
+            Pacman.install(apps[:reg], flags: apps[:ignore].any? ? ['--ignore', apps[:ignore] * ','] : nil)
           end
 
           # Install force packages
           if apps[:force].any?
             puts("Pacstrap package force installs for '#{deployment}'...".colorize(:cyan))
-            Pacman.install(apps[:force], flags: ['--ignore', apps[:ignore] * ',', '--force'])
+            flags = apps[:ignore].any? ? ['--ignore', apps[:ignore] * ','] : []
+            flags += ['--force']
+            Pacman.install(apps[:force], flags: flags)
           end
         ensure
           Sys.umount(File.join(deployment_work, 'dev'), retries: 10)
