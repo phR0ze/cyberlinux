@@ -128,6 +128,7 @@ class Reduce
     @outpath = File.join(@rootpath, 'temp')
     @workpath = File.join(@outpath, 'work')
     @pacman_path = File.join(@outpath, 'pacman')
+    @pacman_cache = File.join(@pacman_path, 'cache')
     @tmp_dir = File.join(@workpath, 'tmp')
     @isopath = File.join(@workpath, '_iso_')
     @deployments_src = File.join(@rootpath, 'source')
@@ -378,16 +379,15 @@ class Reduce
     if pacman or cache
       puts("Cleaning pacman repos...".colorize(:cyan))
       puts("Cleaning pacman cache...".colorize(:cyan)) if cache
-      if cache
-        puts("Deleting #{@pacman_path}".colorize(:red)) if Dir.exist?(@pacman_path)
-        Sys.rm_rf(@pacman_path)
-      elsif pacman
+      if pacman
         puts("Deleting repo files except cache".colorize(:red))
-        Sys.rm_rf(File.join(@pacman_path, 'db'))
         Sys.rm_rf(File.join(@pacman_path, 'gnupg'))
         Dir[File.join(@pacman_path, '*.mirrorlist')].each{|f| File.delete(f)}
         Dir[File.join(@pacman_path, '*.conf')].each{|f| File.delete(f)}
         Dir[File.join(@pacman_path, '*.log')].each{|f| File.delete(f)}
+      elsif cache
+        puts("Deleting #{@pacman_cache}".colorize(:red)) if Dir.exist?(@pacman_cache)
+        Sys.rm_rf(@pacman_cache)
       end
     end
 
@@ -926,9 +926,8 @@ class Reduce
         begin
 
           # Prepare pacman for use
-          rm_rf(File.join(@pacman_path, 'db/local')) # Removes any package tracking from previous install
-          rm_rf(File.join(@pacman_path, 'pacman.log')) if !deployment_deps.any?
-          Pacman.init(@pacman_path, @pacman_src_conf, @pacman_src_mirrors, sysroot: deployment_work)
+          Pacman.init(deployment_work, @pacman_src_conf, @pacman_src_mirrors, cache_path: @pacman_cache)
+          #FileUtils.cp(File.join(deployment_work, 'etc/pacman.d/gnupg'), @pacman_path)
 
           # Remove these packages first
           if apps[:conflict].any?

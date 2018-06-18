@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.2.11
+  release: 0.2.12
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -499,7 +499,7 @@ configs:
     - config-mkinitcpio
     - config-modprobed
     - config-os-release
-    - config-pacman
+      #- config-pacman
     - config-proxy
     - config-resolved
     - config-sshd
