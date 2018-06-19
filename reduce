@@ -208,6 +208,10 @@ class Reduce
       @profile.configs.deep_merge!(profile[@k.configs]) if profile[@k.configs]
       @profile.deployments.deep_merge!(profile[@k.deployments]) if profile[@k.deployments]
 
+      # Merging deployment over the top of defaults so it takes precedents
+      @profile.deployments.each{|k,v|
+        v.deep_merge!((@profile.defaults[v[@k.type] || @k.machine] || {}).deep_merge(v))}
+
       # Set variables as needed
       @vars[@k.all_groups] ||= []
       @profile.deployments.each{|k,v| @vars["#{k}_src"] = File.join(@deployments_src, k)}

@@ -44,6 +44,14 @@ class Test_load_profiles < Minitest::Test
         "grub_iso_theme" => "/boot/grub/themes/cyberlinux"
       },
       "defaults" => {
+        "machine" => {
+          "multilib" => false,
+          "groups" => ["lp", "docker"],
+          "vars" => {"fontsize" => 10},
+          "install" => {
+            "kernel" => "linux"
+          }
+        }
       },
       "builder" => {
         "type" => "container",
@@ -59,6 +67,7 @@ class Test_load_profiles < Minitest::Test
       "deployments" => {
         "base" => {
           "type" => "machine",
+          "multilib" => true,
           "groups" => ["group1"]
         }
       },
@@ -79,16 +88,8 @@ class Test_load_profiles < Minitest::Test
     @base_mock.expect(:[], true, ['vars'])
     @base_mock.expect(:[], @base['vars'], ['vars'])
     @base_mock.expect(:[], false, ['base'])
-    @base_mock.expect(:[], true, ['defaults'])
-    @base_mock.expect(:[], @base['defaults'], ['defaults'])
-    @base_mock.expect(:[], true, ['builder'])
-    @base_mock.expect(:[], @base['builder'], ['builder'])
-    @base_mock.expect(:[], true, ['apps'])
-    @base_mock.expect(:[], @base['apps'], ['apps'])
-    @base_mock.expect(:[], true, ['configs'])
-    @base_mock.expect(:[], @base['configs'], ['configs'])
-    @base_mock.expect(:[], true, ['deployments'])
-    @base_mock.expect(:[], @base['deployments'], ['deployments'])
+    ["defaults", "builder", "apps", "configs", "deployments"].each{|x|
+      @base_mock.expect(:[], true, [x]); @base_mock.expect(:[], @base[x], [x])}
 
     YAML.stub(:load_file, @base_mock){
       @reduce = Reduce.new
@@ -102,10 +103,19 @@ class Test_load_profiles < Minitest::Test
     assert_mock(@base_mock)
   end
 
+  def test_defaults
+    base = @profile.deployments['base']
+    assert(base[@k.multilib])
+    assert_equal("linux", base[@k.install][@k.kernel])
+    assert_equal(["group1"], base[@k.groups])
+    assert_equal(["lp", "docker"], @profile.defaults[@k.machine][@k.groups])
+    assert_equal(10, base[@k.vars]['fontsize'])
+  end
+
   def test_recurse_set
     mock = Minitest::Mock.new
     mock.expect(:[], false, [@k.vars])
-    mock.expect(:[], 'base', [@k.base])
+    mock.expect(:[], @k.base, [@k.base])
     [@k.defaults, @k.builder, @k.apps, @k.configs, @k.deployments].each{|x| mock.expect(:[], false, [x])}
 
     YAML.stub(:load_file, mock){
