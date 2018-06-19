@@ -63,6 +63,9 @@ class Test_getapps < Minitest::Test
         },
         'server' => {
           'multilib' => true,
+          'vars' => {
+            'timezone' => "Africa"
+          },
           'apps' => [
             'server-apps',
             'server-configs'
@@ -82,7 +85,7 @@ class Test_getapps < Minitest::Test
         ],
         'conky' => [
           { 'install' => 'conky', 'desc' => 'Lightweight system monitor for X' },
-          { 'exec' => 'echo 1 >> foobar' }
+          { 'exec' => 'echo 1 >> <%=country%>' }
         ],
         'phpBB' => [
           { 'install' => 'apache', 'desc' => 'Apache web server' }
@@ -91,7 +94,7 @@ class Test_getapps < Minitest::Test
       "configs" => {
         "server-configs" => [
           {'chroot' => 'systemctl enable httpd.service'},
-          {"edit" => "/etc/httpd/conf/httpd.conf", "regex" => '^(Listen).*', "value" => '\1 80'}
+          {"edit" => "/etc/httpd/conf/httpd.conf", "regex" => '^(timezone).*', "value" => '<%=timezone%>'}
         ]
       }
     }
@@ -128,22 +131,22 @@ class Test_getapps < Minitest::Test
     multilib = [{ 'install' => 'gcc-libs-multilib', 'desc' => 'GCC runtime libraries', 'multilib' => true }]
 
     @reduce.stub(:puts, nil){
-      pkgs, _ = @reduce.getapps('base', @base[@k.deployments]['base'])
+      pkgs, _ = @reduce.getapps('base', @reduce.get_deployment_yml('base'))
       assert_equal(conky + curl + lib, pkgs)
-      pkgs, _ = @reduce.getapps('server', @base[@k.deployments]['server'])
+      pkgs, _ = @reduce.getapps('server', @reduce.get_deployment_yml('server'))
       assert_equal(apache + conky + curl + multilib, pkgs)
     }
   end
 
   def test_configs
-    result1 = [{ 'exec' => 'echo 1 >> foobar' }]
+    result1 = [{ 'exec' => 'echo 1 >> United_States' }]
     result2 = result1 + [{ 'chroot' => 'systemctl enable httpd.service' },
-    {"edit" => "/etc/httpd/conf/httpd.conf", "regex" => '^(Listen).*', "value" => '\1 80'}]
+    {"edit" => "/etc/httpd/conf/httpd.conf", "regex" => '^(timezone).*', "value" => 'Africa'}]
 
     @reduce.stub(:puts, nil){
-      _, configs = @reduce.getapps('base', @base[@k.deployments]['base'])
+      _, configs = @reduce.getapps('base', @reduce.get_deployment_yml('base'))
       assert_equal(result1, configs)
-      _, configs = @reduce.getapps('server', @base[@k.deployments]['server'])
+      _, configs = @reduce.getapps('server', @reduce.get_deployment_yml('server'))
       assert_equal(result2, configs)
     }
   end

@@ -43,10 +43,11 @@ class Reduce
   attr_accessor(:vars)
 
   # Profile encapsulates profile YAML data
-  Profile ||= Struct.new(:vars, :builder, :deployments, :apps, :configs) do
+  Profile ||= Struct.new(:vars, :defaults, :builder, :deployments, :apps, :configs) do
     def initialize(*)
       super
       self.vars ||= {}
+      self.defaults ||= {}
       self.builder ||= {}
       self.deployments ||= {}
       self.apps ||= {}
@@ -196,7 +197,7 @@ class Reduce
         validate.call('gfxmode', @vars.gfxmode)
         validate.call('grub_iso_theme', @vars.grub_iso_theme)
 
-        # Configure variables
+        # Load variables and defaults
         @vars.label = "#{@vars.distro.upcase}_#{@vars.release.gsub('.', '')}"
       end
 
@@ -1009,7 +1010,11 @@ class Reduce
     }
     deployment_yml[@k.apps].each{|x| resolve.call(x)}
 
-    return pkgs.uniq.sort_by{|x| x[@k.install]}, configs.uniq
+    # Resolve any templating
+    pkgs = pkgs.uniq.sort_by{|x| x[@k.install]}.erb(deployment_yml[@k.vars])
+    configs = configs.uniq.erb(deployment_yml[@k.vars])
+
+    return pkgs, configs
   end
 
   # Spins up indicated container and executes the given block

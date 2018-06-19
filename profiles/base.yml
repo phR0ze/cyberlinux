@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.17
+  release: 0.2.18
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -52,12 +52,12 @@ vars:
 # Defaults provide a base used when a value is not given for deployments
 ################################################################################
 defaults:
-  type: machine
-  kernel: linux
-  multilib: true
-  vars: {fontsize: 10}
-  vagrant: {vram: 32, cpus: 2, ram: 2048}
-  groups: [lp, wheel, network, storage, users]
+  machine:
+    kernel: linux
+    multilib: true
+    vars: {fontsize: 10}
+    vagrant: {vram: 32, cpus: 2, ram: 2048}
+    groups: [lp, wheel, network, storage, users]
 
 # Container for building components for ISO
 ################################################################################

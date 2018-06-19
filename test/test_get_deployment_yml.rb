@@ -100,7 +100,6 @@ class Test_get_deployment_yml < Minitest::Test
     YAML.stub(:load_file, @base_mock){
       @reduce = Reduce.new
       @k = @reduce.instance_variable_get(:@k)
-      @vars = @reduce.instance_variable_get(:@vars)
       @profile = @reduce.instance_variable_get(:@profile)
     }
   end
