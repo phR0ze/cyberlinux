@@ -59,8 +59,8 @@ class TestApply < Minitest::Test
     }
   end
 
-  def test_apply_with_templating_reference
-    config = { 'apply' => 'config-foobar2'}
+  def test_with_templating_reference
+    config = @ctx.configs['config-foobar2']
     config_insert_helper(config, 1)
   end
 
@@ -83,13 +83,8 @@ class TestApply < Minitest::Test
     }
   end
 
-  def test_apply_with_apply_reference_fail
-    config = { 'apply' => 'config-bar' }
-    assert_raises(NoMethodError){config_insert_helper(config, 1)}
-  end
-
-  def test_apply_with_apply_reference_success
-    config = { 'apply' => 'config-foobar1' }
+  def test_with_reference_success
+    config = @ctx.configs['config-foobar1']
     config_insert_helper(config, 1)
   end
 

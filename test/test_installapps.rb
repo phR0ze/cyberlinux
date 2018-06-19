@@ -43,7 +43,7 @@ class Test_installapps < Minitest::Test
         "gfxmode" => "1280x1024",
         "grub_iso_theme" => "/boot/grub/themes/cyberlinux"
       },
-      "build" => {
+      "builder" => {
         "type" => "container",
         "multilib" => true,
         "docker" => {
@@ -96,8 +96,8 @@ class Test_installapps < Minitest::Test
     @base_mock.expect(:[], true, ['vars'])
     @base_mock.expect(:[], @base['vars'], ['vars'])
     @base_mock.expect(:[], false, ['base'])
-    @base_mock.expect(:[], true, ['build'])
-    @base_mock.expect(:[], @base['build'], ['build'])
+    @base_mock.expect(:[], true, ['builder'])
+    @base_mock.expect(:[], @base['builder'], ['builder'])
     @base_mock.expect(:[], true, ['apps'])
     @base_mock.expect(:[], @base['apps'], ['apps'])
     @base_mock.expect(:[], true, ['configs'])
@@ -118,23 +118,45 @@ class Test_installapps < Minitest::Test
     mock.expect(:puts, nil){|x| true}
 
     validate_cmd = -> (cmd, env:nil){
-      #print(cmd)
-      if cmd.is_a?(Array)
-        assert_equal(7, cmd.size)
-        assert(cmd.include?('conky'))
-        assert(!cmd.include?('foo2'))
+      #puts(cmd)
+
+      # Validate init/populate
+      if ["--init", "--populate"].any?{|x| cmd.include?(x)}
+        assert(cmd.include?("pacman-key"))
+        assert(cmd.include?("--config"))
+        assert(cmd.include?("pacman.conf"))
+
+      # Validate remove_conflict
+      elsif cmd.include?("noconfirm")
+        assert_equal("pacman -Rn -r . -d -d --noconfirm curl2 &>/dev/null || true", cmd)
+      
+      # Validate install
+      elsif cmd.include?("--needed")
+        assert_equal("pacstrap", cmd.first)
+        ignore_i = cmd.find_index{|x| x == "--ignore"}
+        assert_equal("foo2", cmd[ignore_i + 1])
+        needed_i = cmd.find_index{|x| x == "--needed"}
+        assert_equal("conky", cmd[needed_i + 1])
+        assert_equal("curl", cmd[needed_i + 2])
       end
       true
     }
 
-    File.stub(:exist?, true){
-      File.stub(:open, true, mock){
-        Dir.stub(:[], []){
-          Sys.stub(:exec, validate_cmd){
-            Sys.stub(:umount, nil){
-              @reduce.stub(:puts, nil){
-                @reduce.stub(:rm_rf, nil){
-                  @reduce.installapps('dep1', 'dep1.sqfs', '.', @base[@k.deployments]['dep1'])
+    # Stub out Pacman.init
+    File.stub(:exist?, Proc.new{|x| x.include?("pacman.conf")}){
+      FileUtils.stub(:mkdir_p, true){
+        FileUtils.stub(:cp, true){
+          FileUtils.stub(:replace, true){
+            File.stub(:open, true, mock){
+              Dir.stub(:[], []){
+                Sys.stub(:exec, validate_cmd){
+                  Sys.stub(:umount, nil){
+                    @reduce.stub(:puts, nil){
+                      @reduce.stub(:rm_rf, nil){
+                        @reduce.installapps('dep1', 'dep1.sqfs', '.', @base[@k.deployments]['dep1'])
+                      }
+                    }
+                  }
                 }
               }
             }

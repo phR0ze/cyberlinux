@@ -162,7 +162,7 @@ class Reduce
 
     # Load base profile
     @loaded_profiles = []
-    load_profile('base')
+    self.load_profile('base')
   end
 
   # Load and return the given profile
@@ -178,7 +178,7 @@ class Reduce
       profile[@k.vars].each{|k,v| @vars[k.to_sym] = v} if profile[@k.vars]
 
       if base = profile[@k.base]
-        load_profile(base)
+        self.load_profile(base)
         @vars.profile = name
       else
         validate = ->(name, pred){
@@ -211,9 +211,9 @@ class Reduce
       @vars[@k.all_groups] ||= []
       @profile.deployments.each{|k,v| @vars["#{k}_src"] = File.join(@deployments_src, k)}
       @profile.deployments.each{|k,v|
-        @vars["#{k}_deployment"] = get_deployments(k) * ',' if v[@k.type] == @k.machine}
+        @vars["#{k}_deployment"] = self.get_deployments(k) * ',' if v[@k.type] == @k.machine}
       @profile.deployments.each{|k,v|
-        @vars["#{k}_groups"] = get_deployments(k).map{|x| @profile.deployments[x][@k.groups]}.flatten.compact.uniq
+        @vars["#{k}_groups"] = self.get_deployments(k).map{|x| @profile.deployments[x][@k.groups]}.flatten.compact.uniq
         @vars.all_groups = (@vars.all_groups + @vars["#{k}_groups"]).uniq
         @vars[@k.groups] = @vars.all_groups * ","}
       @vars["base_src"] = File.join(@deployments_src, 'base') if !@vars["base_src"]
@@ -433,28 +433,28 @@ class Reduce
     deployments << @k.builder if targets && targets.include?('builder')
     Log.die("target not given") if (targets.nil? or targets.empty?) && deployments.empty?
 
-    info  # required to get the current kernel version
     changed = false
-    create_dir_structure
+    self.info  # required to get the current kernel version
+    self.create_dir_structure
     Log.die("must be executed as root") unless Process.uid.zero?
 
     # Build implicated deployments
     deployments = @profile.deployments.keys if all
-    deployments.each{|deployment| changed |= build_deployments(deployment)} if deployments.any?
+    deployments.each{|deployment| changed |= self.build_deployments(deployment)} if deployments.any?
 
     # Only trigger ISO creation if we are building a machine
     if initramfs || multiboot || isofull ||
       @profile.deployments.select{|k,v| deployments.include?(k)}.any?{|k,v| v[@k.type] == @k.machine}
 
       # Build the builder container for initramfs/multiboot
-      changed |= build_deployments(@k.builder) if not deployments.include?(@k.builder)
+      changed |= self.build_deployments(@k.builder) if not deployments.include?(@k.builder)
 
       # Build early userspace ramdisk for install executed by grub
       clean(initramfs:true) if changed
-      changed |= build_initramfs_installer if [all, isofull, initramfs, changed].any?
+      changed |= self.build_initramfs_installer if [all, isofull, initramfs, changed].any?
 
       # Build GRUB UI that boots initramfs installer and in turn the real kernel
-      changed |= build_grub_multiboot if [all, isofull, multiboot].any?
+      changed |= self.build_grub_multiboot if [all, isofull, multiboot].any?
 
       # Create ISO Hybrid CD/USB bootable image
       # http://lukeluo.blogspot.co.uk/2013/06/grub-how-to-2-make-boot-able-iso-with.html
@@ -486,8 +486,8 @@ class Reduce
   # which provides the boot environment we will install from
   # @returns true on changed
   def build_initramfs_installer
-    create_dir_structure
     changed = false
+    self.create_dir_structure
     initramfs_digests = File.join(@initramfs_work, 'digests')
     initramfs_names = @profile.deployments.select{|k,v| v[@k.type] == @k.machine}
       .map{|k,v| v[@k.install][@k.kernel]}.uniq.map{|x| "#{@initramfs_prefix}-#{x}"}
@@ -536,8 +536,8 @@ class Reduce
   # https://wiki.archlinux.org/index.php/Multiboot_USB_drive#Using_GRUB_and_loopback_devices
   # @returns true on changed
   def build_grub_multiboot
-    create_dir_structure
     changed = false
+    self.create_dir_structure
     grub_digests = File.join(@grub_iso_work, 'digests')
     grub_iso_path = File.join(@grub_iso_work, 'boot/grub')
     kernels = @profile.deployments.select{|k,v| v[@k.type] == @k.machine}
@@ -641,7 +641,7 @@ class Reduce
     deployments.each do |deployment|
 
       # Remove old boxes and/or skip if current
-      image = evalimages!(@type.box, deployment:deployment, force:force)
+      image = self.evalimages!(@type.box, deployment:deployment, force:force)
       !puts("Box #{image} already exists".colorize(:green)) and next if image
 
       # Clean up build artifacts and prep for build
@@ -682,8 +682,8 @@ class Reduce
   # @param force [bool] deploy even if already exists
   def deploy(deployment, name:nil, run:nil, exec:nil, nodes:nil, ipv6:nil, vagrantfile:nil, force:nil)
     puts("Deploying deployment '#{deployment}'\n#{'-' * 80}".colorize(:light_yellow))
-    create_dir_structure
-    deployment_yml = get_deployment_yml(deployment)
+    self.create_dir_structure
+    deployment_yml = self.get_deployment_yml(deployment)
 
     # Deploy vagrant VM
     #---------------------------------------------------------------------------
@@ -696,7 +696,7 @@ class Reduce
 
       # Choose a vagrant box to use and update registry if needed
       vagrant_box = deployment
-      box = getimages(@type.box, deployment:deployment).keys.shift
+      box = self.getimages(@type.box, deployment:deployment).keys.shift
       if !box
         vagrant_box = "phR0ze/cyberlinux-#{deployment}"
         puts("Downloading '#{vagrant_box}' from vagrantup.com".colorize(:cyan))
@@ -766,12 +766,12 @@ class Reduce
       Log.die("must be executed as root") unless Process.uid.zero?
 
       # Remove old 'live' images or skip if current
-      image = evalimages!(@type.tgz, deployment:deployment, live:true, force:force)
+      image = self.evalimages!(@type.tgz, deployment:deployment, live:true, force:force)
       puts("Image #{image} already exists".colorize(:green)) if image
 
       # Load disk image if it exists
       if not image
-        image = evalimages!(@type.tgz, deployment:deployment, live:false)
+        image = self.evalimages!(@type.tgz, deployment:deployment, live:false)
         image ? puts("Image #{image} exists importing".colorize(:green)) :
           Log.die("need to first build image '#{image}'")
         Sys.exec("cat #{image} | docker import - #{File.basename(image, '.*')}:latest")
@@ -784,8 +784,8 @@ class Reduce
 
         # Get docker params
         params = []
-        deployments = get_deployments(deployment).reverse[0..-1].each{|x|
-          docker = get_deployment_yml(x)[@k.docker]
+        deployments = self.get_deployments(deployment).reverse[0..-1].each{|x|
+          docker = self.get_deployment_yml(x)[@k.docker]
           Log.die("docker field is missing from deployment yaml") if !docker
           params << docker[@k.params] if docker[@k.params]
         }
@@ -817,13 +817,13 @@ class Reduce
     end
 
     # Build in reverse order to layer deployments
-    deployments = get_deployments(target_deployment).reverse
+    deployments = self.get_deployments(target_deployment).reverse
     create_dir_structure
 
     deployments.each do |deployment|
       deployment_changed = false
       deployment_yml = get_deployment_yml(deployment)
-      deployment_deps = get_deployments(deployment)[1..-1]
+      deployment_deps = self.get_deployments(deployment)[1..-1]
       deployment_work = FileUtils.mkdir_p(File.join(@deployments_work, deployment)).shift
       deployment_image = deployment_yml[@k.type] == @k.machine ? File.join(@deployment_images_dst, "#{deployment}.sqfs") :
         File.join(@imagepaths.first, "#{deployment}-#{@vars.release}.tgz")
@@ -839,13 +839,13 @@ class Reduce
         end
 
         # Install deployment specific packages via pacman
-        deployment_changed |= installapps(deployment, deployment_image, deployment_work, deployment_yml)
+        deployment_changed |= self.installapps(deployment, deployment_image, deployment_work, deployment_yml)
 
         # Build deployment image if needed
         if deployment_changed or not File.exist?(deployment_image)
           puts("Creating #{deployment_image}...".colorize(:cyan))
           Sys.umount(deployment_work, retries:10) if deployment_yml[@k.type] == @k.machine
-          relocate_tracking_files(deployment_work)
+          self.relocate_tracking_files(deployment_work)
 
           # Create squashfs image for machine deployments
           if deployment_yml[@k.type] == @k.machine
@@ -856,7 +856,7 @@ class Reduce
           end
 
           puts("Successfully built #{deployment_image}".colorize(:green))
-          relocate_tracking_files(deployment_work, restore:true)
+          self.relocate_tracking_files(deployment_work, restore:true)
           deployment_changed |= true
         else
           puts("Image already built #{deployment_image}".colorize(:green))
@@ -883,13 +883,13 @@ class Reduce
     changed = false
     msg = "Installing apps for '#{deployment}'..."
     appfile = File.join(deployment_work, 'packages')
-    deployment_deps = get_deployments(deployment)[1..-1]
+    deployment_deps = self.get_deployments(deployment)[1..-1]
     deployment_src = [deployment].map{|x| File.join(@deployments_src, x)}
     deployment_digests = File.join(deployment_work, 'digests')
 
     # Handle packages differently based on type
     #---------------------------------------------------------------------------
-    all_apps, all_configs = getapps(deployment, deployment_yml)
+    all_apps, all_configs = self.getapps(deployment, deployment_yml)
     apps = {
       reg: all_apps.map{|x| x[@k.install] if !x[@k.ignore] and !x[@k.force] and !x[@k.nodeps]}.compact,
       nodeps: all_apps.map{|x| x[@k.install] if x[@k.nodeps]}.compact,
@@ -915,7 +915,7 @@ class Reduce
       puts("Force Apps: #{apps[:force]}")
       puts("Nodeps Apps: #{apps[:nodeps]}")
       puts("Ignore Apps: #{apps[:ignore]}")
-      puts("Conflict Apps: #{apps[:conflict]}")
+      puts("Conflict Apps: #{apps[:conflict].map{|x| x.split(':').last}}")
 
       if apps[:conflict].any? or apps[:reg].any? or apps[:force].any? or apps[:nodeps].any?
         begin

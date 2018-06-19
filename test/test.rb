@@ -29,7 +29,7 @@ end
 require_relative 'test_config'
 require_relative 'test_getapps'
 require_relative 'test_get_deployments'
-require_relative 'test_get_deployments_yml'
+require_relative 'test_get_deployment_yml'
 require_relative 'test_installapps'
 require_relative 'test_load_profiles'
 
