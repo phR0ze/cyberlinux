@@ -19,6 +19,8 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
+# Provides globally useful vars for templating
+################################################################################
 vars:
   arch: x86_64
   release: 0.2.16
@@ -32,13 +34,6 @@ vars:
   gfxmode: 1280x1024,1024x768,auto
   grub_iso_theme: /boot/grub/themes/cyberlinux
 
-  # Kernel params
-  # ----------------------------------------------------------------------------
-  # ipv6.disable=1              // don't really need or want ipv6
-  # rd.systemd.show_status=auto // reduce systemd boot logging
-  # rd.udev.log_priority=3      // reduce udev boot logging
-  kernel_params: rd.systemd.show_status=auto rd.udev.log_priority=3 ipv6.disable=1
-
   # Vagrant networking
   netname: vboxnet0
   netip: 192.168.56.1
@@ -47,6 +42,24 @@ vars:
   # NFS allowed cidr
   nfscidr: 192.168.56.0/24
 
+  # Kernel params
+  # ----------------------------------------------------------------------------
+  # ipv6.disable=1              // don't really need or want ipv6
+  # rd.systemd.show_status=auto // reduce systemd boot logging
+  # rd.udev.log_priority=3      // reduce udev boot logging
+  kernel_params: rd.systemd.show_status=auto rd.udev.log_priority=3 ipv6.disable=1
+
+# Defaults provide a base used when a value is not given for deployments
+################################################################################
+defaults:
+  type: machine
+  kernel: linux
+  multilib: true
+  vars: {fontsize: 10}
+  vagrant: {vram: 32, cpus: 2, ram: 2048}
+  groups: [lp, wheel, network, storage, users]
+
+# Container for building components for ISO
 ################################################################################
 builder:
   type: container
@@ -59,6 +72,7 @@ builder:
     - { install: linux,               desc: Linux kernel and supporting modules }
     - builder
 
+# Collection of packages and configuration needed for apps
 ################################################################################
 apps:
   kernel:

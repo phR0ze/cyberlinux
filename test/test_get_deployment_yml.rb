@@ -26,7 +26,7 @@ require 'minitest/autorun'
 reduce_path = File.join(File.dirname(File.expand_path(__FILE__)), '../reduce')
 load reduce_path
 
-class Test_getapps < Minitest::Test
+class Test_get_deployment_yml < Minitest::Test
 
   def setup
     @base = {
@@ -54,44 +54,31 @@ class Test_getapps < Minitest::Test
           { "install" => "linux", "desc" => "Linux kernel and supporting modules" }
         ]
       },
-      'deployments' => {
-        'base' => {
-          'multilib' => false,
-          'apps' => [
-            'base-apps',
-          ]
+      "deployments" => {
+        "dep1" => {
+          "type" => "machine",
+          "apps" => ["server-apps"]
         },
-        'server' => {
-          'multilib' => true,
-          'apps' => [
-            'server-apps',
-            'server-configs'
+        "dep2" => {
+          "base" => "dep1",
+          "type" => "machine",
+          "vars" => {
+            "timezone" => "Africa"
+          },
+          "apps" => [
+            {"edit" => "/etc/httpd/conf/httpd.conf", "regex" => 'timezone', "value" => '<%=timezone%>'}
           ]
         }
       },
-      'apps' => {
-        'base-apps' => [
-          'conky',
-          { 'install' => 'curl', 'desc' => 'Network download REST command line tool' },
-          { 'install' => 'gcc-libs', 'desc' => 'GCC runtime libraries', 'multilib' => false },
-          { 'install' => 'gcc-libs-multilib', 'desc' => 'GCC runtime libraries', 'multilib' => true }
-        ],
-        'server-apps' => [
-          'base-apps',
-          'phpBB'
-        ],
-        'conky' => [
-          { 'install' => 'conky', 'desc' => 'Lightweight system monitor for X' },
-          { 'exec' => 'echo 1 >> foobar' }
-        ],
-        'phpBB' => [
-          { 'install' => 'apache', 'desc' => 'Apache web server' }
+      "apps" => {
+        "server-apps" => ["conky", "config-server"],
+        "conky" => [
+          { "install" => "conky", "desc" => "Lightweight system monitor for X" }
         ]
       },
       "configs" => {
-        "server-configs" => [
-          {'chroot' => 'systemctl enable httpd.service'},
-          {"edit" => "/etc/httpd/conf/httpd.conf", "regex" => '^(Listen).*', "value" => '\1 80'}
+        "config-server" => [
+          {"edit" => "/etc/httpd/conf/httpd.conf", "regex" => 'timezone', "value" => '<%=timezone%>'}
         ]
       }
     }
@@ -109,42 +96,39 @@ class Test_getapps < Minitest::Test
     @base_mock.expect(:[], true, ['deployments'])
     @base_mock.expect(:[], @base['deployments'], ['deployments'])
 
+    Log.init(path:nil, queue: true, stdout: false)
     YAML.stub(:load_file, @base_mock){
       @reduce = Reduce.new
       @k = @reduce.instance_variable_get(:@k)
+      @vars = @reduce.instance_variable_get(:@vars)
       @profile = @reduce.instance_variable_get(:@profile)
     }
   end
 
-  def teardown
-    assert_mock(@base_mock)
+  def test_builder
+    yml = @reduce.get_deployment_yml('builder')
+    yml.delete("vars")
+    assert_equal(@base['builder'], yml)
   end
 
-  def test_pkgs
-    apache = [{ 'install' => 'apache', 'desc' => 'Apache web server' }]
-    conky = [{ 'install' => 'conky', 'desc' => 'Lightweight system monitor for X'}]
-    curl = [{ 'install' => 'curl', 'desc' => 'Network download REST command line tool' }]
-    lib = [{ 'install' => 'gcc-libs', 'desc' => 'GCC runtime libraries', 'multilib' => false }]
-    multilib = [{ 'install' => 'gcc-libs-multilib', 'desc' => 'GCC runtime libraries', 'multilib' => true }]
-
+  def test_deployment_existence
     @reduce.stub(:puts, nil){
-      pkgs, _ = @reduce.getapps('base', @base[@k.deployments]['base'])
-      assert_equal(conky + curl + lib, pkgs)
-      pkgs, _ = @reduce.getapps('server', @base[@k.deployments]['server'])
-      assert_equal(apache + conky + curl + multilib, pkgs)
+      yml = @reduce.get_deployment_yml('dep1')
+      yml.delete("vars")
+      assert_equal(@base['deployments']["dep1"], yml)
+      assert_raises(SystemExit){@reduce.get_deployment_yml('dep3')}
+      assert(Log.pop.include?("Error: invalid deployment 'dep3'!"))
     }
   end
 
-  def test_configs
-    result1 = [{ 'exec' => 'echo 1 >> foobar' }]
-    result2 = result1 + [{ 'chroot' => 'systemctl enable httpd.service' },
-    {"edit" => "/etc/httpd/conf/httpd.conf", "regex" => '^(Listen).*', "value" => '\1 80'}]
+  def test_deployment_vars_with_defaults
+    vars = @reduce.get_deployment_yml('dep1')['vars']
+    assert(vars["timezone"] == "US/Mountain")
+  end
 
-    @reduce.stub(:puts, nil){
-      _, configs = @reduce.getapps('base', @base[@k.deployments]['base'])
-      assert_equal(result1, configs)
-      _, configs = @reduce.getapps('server', @base[@k.deployments]['server'])
-      assert_equal(result2, configs)
-    }
+  def test_deployment_vars_with_overrides
+    yml = @reduce.get_deployment_yml('dep2')
+    assert(yml["vars"]["timezone"] == "Africa")
+    assert(yml["apps"].first["value"] == "Africa")
   end
 end

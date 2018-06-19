@@ -43,7 +43,7 @@ class Test_get_deployments < Minitest::Test
         "gfxmode" => "1280x1024",
         "grub_iso_theme" => "/boot/grub/themes/cyberlinux"
       },
-      "build" => {
+      "builder" => {
         "type" => "container",
         "multilib" => true,
         "docker" => {
@@ -75,8 +75,8 @@ class Test_get_deployments < Minitest::Test
     @base_mock.expect(:[], true, ['vars'])
     @base_mock.expect(:[], @base['vars'], ['vars'])
     @base_mock.expect(:[], false, ['base'])
-    @base_mock.expect(:[], true, ['build'])
-    @base_mock.expect(:[], @base['build'], ['build'])
+    @base_mock.expect(:[], true, ['builder'])
+    @base_mock.expect(:[], @base['builder'], ['builder'])
     @base_mock.expect(:[], true, ['apps'])
     @base_mock.expect(:[], @base['apps'], ['apps'])
     @base_mock.expect(:[], true, ['configs'])
@@ -84,6 +84,7 @@ class Test_get_deployments < Minitest::Test
     @base_mock.expect(:[], true, ['deployments'])
     @base_mock.expect(:[], @base['deployments'], ['deployments'])
 
+    Log.init(path:nil, queue: true, stdout: false)
     YAML.stub(:load_file, @base_mock){
       @reduce = Reduce.new
       @k = @reduce.instance_variable_get(:@k)
@@ -92,12 +93,16 @@ class Test_get_deployments < Minitest::Test
     }
   end
 
+  def test_builder
+    names = @reduce.get_deployments('builder')
+    assert_equal(['builder'], names)
+  end
+
   def test_deployment_existence
-    @reduce.stub(:exit, nil){
-      @reduce.stub(:puts, nil){
-        assert(NoMethodError){@reduce.get_deployments('dep1')}
-        assert_raises(NoMethodError){@reduce.get_deployments('dep3')}
-      }
+    @reduce.stub(:puts, nil){
+      assert_equal(["dep1"], @reduce.get_deployments('dep1'))
+      assert_raises(SystemExit){@reduce.get_deployments('dep3')}
+      assert(Log.pop.include?("Error: invalid deployment 'dep3'!"))
     }
   end
 
@@ -114,20 +119,5 @@ class Test_get_deployments < Minitest::Test
     assert_equal(2, names.size)
     # order is important here
     assert_equal(['dep2', 'dep1'], names)
-  end
-
-  def test_deployment_yml_bad_name
-    @reduce.stub(:exit, nil){
-      @reduce.stub(:puts, nil){
-        assert(NoMethodError){@reduce.get_deployments('dep1')}
-        assert_raises(NoMethodError){@reduce.get_deployments('dep3')}
-      }
-    }
-  end
-
-  def test_deployment_yml_good
-    yml = @reduce.get_deployment_yml('dep2')
-    assert(yml)
-    assert_equal('dep1', yml[@k.base])
   end
 end

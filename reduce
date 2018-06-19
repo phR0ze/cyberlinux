@@ -1243,9 +1243,10 @@ class Reduce
     yml = deployment == @k.builder ? @profile.builder : @profile.deployments[deployment]
     Log.die("invalid deployment '#{deployment}'") if !yml
 
-    # Resolve templating for the given deployment
-    vars = yml[@k.vars] ? @vars.to_h.merge(yml[@k.vars]) : @vars
-    yml = yml.erb(vars)
+    # Configure/merge deployment vars
+    vars = Hash[@vars.to_h.map{|k,v| [k.to_s, v]}]
+    yml[@k.vars] = yml[@k.vars] ? vars.merge(yml[@k.vars]) : vars
+    yml = yml.erb(yml[@k.vars])
 
     return yml
   end
