@@ -36,6 +36,7 @@ deployments:
       - base-apps
       - shell-apps
       - virtualbox-guest-nox
+
   lite:
     type: machine
     base: base
@@ -48,7 +49,58 @@ deployments:
       kernel: linux
     apps:
       - lite-apps
-        #- virtualbox-guest
+      - virtualbox-guest
 
+#  k8snode:
+#    type: machine
+#    base: base
+#    groups: [docker]
+#    vagrant: { vram: 8, cpus: 2, ram: 2048 }
+#    install:
+#      label: "Deploy <%=distro%>-k8snode                 // Shell + k8s node"
+#      kernel: linux
+#    packages:
+#      - { install: k8snode-apps }
+#    configs:
+#      - { apply: k8snode-config }
+
+  theater:
+    type: machine
+    base: lite
+    vars: { fontsize: 18, wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
+    vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
+    install:
+      order: 4
+      entry: "Deploy <%=distro%>-theater                 // Lite + media apps"
+      label: linux
+      params: autologin=1
+    packages:
+      - { install: theater-apps }
+    configs:
+      - { apply: theater-config }
+
+  desktop:
+    type: machine
+    base: lite
+    groups: [docker]
+    vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
+    vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
+    install:
+      entry: "Deploy <%=distro%>-desktop                 // Lite + more apps"
+      kernel: linux
+    packages:
+      - { install: desktop-pkgs }
+    configs:
+      - { apply: desktop-config }
+
+  live:
+    type: machine
+    base: desktop
+    vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
+    vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
+    install:
+      order: 1
+      label: "Start <%=distro%>-recovery                 // Live environment"
+      kernel: linux
 # Desktop android
 # groups: [adbusers, uucp]

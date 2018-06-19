@@ -21,7 +21,7 @@
 
 vars:
   arch: x86_64
-  release: 0.2.15
+  release: 0.2.16
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -284,11 +284,6 @@ apps:
     - { install: ruby-pry,            desc: Ruby debugger, type: CYBERLINUX }
     - { install: ruby-rest-client,    desc: Simple HTTP and REST client, depof: reduce, type: CYBERLINUX }
 
-  # Non X11 virtualbox guest tools for shell environments
-  virtualbox-guest-nox:
-    - { install: virtualbox-guest-utils-nox,    desc: VirtualBox guest drivers and utilities w/out X support }
-    - { install: virtualbox-guest-modules-arch, desc: VirtualBox guest kernel modules, conflict: virtualbox-guest-dkms }
-
   # Lite weight X11 evironment
   # ----------------------------------------------------------------------------
   lite-apps:
@@ -358,7 +353,7 @@ apps:
     - { install: xorg-xset,           desc: User preference utility for X, group: [xorg, xorg-apps]}
     - { install: xorg-xwininfo,       desc: Command-line util to print info about windows, group: [xorg, xorg-apps]}
 
-    # XWindows apps
+    # X11 apps
     - { install: audacious,           desc: Audio/Player, alt: deadbeaf, xnoise }
     - { install: chromium,            desc: Opensource project behind Chrome, type: CYBERLINUX }
     - { install: chromium-widevine,   desc: Chromium support for Netflix, type: ANTERGOS }
@@ -415,6 +410,130 @@ apps:
     - { install: ttf-ms-fonts,        desc: Microsoft core fonts, type: CYBERLINUX }
     - { install: ttf-nerd-fonts-symbols, desc: Nerd Font Symbols, type: CYBERLINUX }
     - config-lite
+
+  # https://wiki.archlinux.org/index.php/Desktop_environment
+  desktop-pkgs:
+    - docker
+    - media-apps
+    - virtualbox-host
+    - { install: asunder,             desc: A lean and friendly audio CD ripper and encoder }
+    - { install: avidemux-qt,         desc: Graphical tool to edit video (filter/re-encode/split) - Qt GUI }
+    - { install: audacity,            desc: Audio editor - cross platform, tried and tested }
+    - { install: brasero,             desc: Burning tool, alt: k3b, xfburn }
+    - { install: catfish,             desc: System/File Search - File search tool }
+    - { install: cinnamon-screensaver,desc: Screensaver for the Cinnamon desktop, type: CYBERLINUX }
+    - { install: conky,               desc: Lightweight system monitor for X }
+    - { install: devede,              desc: A program to create VideoDVDs and CDs }
+    - { install: fbreader,            desc: An e-book reader for linux }
+    - { install: freerdp,             desc: RDP client plugin for remmina }
+    - { install: gimp,                desc: Excellent image editor, alt: pinta }
+    - { install: gnome-multi-writer,  desc: Write an ISO file to multiple USB devices at once }
+    - { install: guake,               desc: Drop-down python based quake style terminal }
+    - { install: hardinfo,            desc: A system information and benchmark tool }
+    - { install: hunspell-en_US,      desc: US dictionaries for spell checking, deps: libreoffice }
+    - { install: id3v2,               desc: Utility to edit id3v2 tags }
+    - { install: inkscape,            desc: Professional vector graphics editor }
+    - { install: libreoffice-fresh,   desc: LibreOffice branch with new features/enhancements }
+    - { install: keepass,             desc: Cross platform password manager }
+    - { install: kolourpaint,         desc: Paint application that saves jpg in format for GFXBoot }
+    - { install: plank,               desc: Elegant, simple, clean dock }
+    - { install: python2-lxml,        desc: Python wrapper for libxml2, deps: Inkscape }
+    - { install: openshot,            desc: Simple powerful Video Editor, alt: pitivi, kdenlive }
+    - { install: openvpn-update-systemd-resolved, desc: OpenVPN systemd-resolved updater, type: CYBERLINUX }
+    - { install: remmina,             desc: Network/Remoting - Nice remoting UI for RDP }
+    - { install: scribus,             desc: Open Source Desktop Publishing }
+    - { install: synergy,             desc: Network/Virtual KVM }
+    - { install: veracrypt,           desc: Disk encryption with strong security based on TrueCrypt }
+
+    # Develop
+    - { install: awf-git,             desc: Widget Factory for developing GTK themes, type: CYBERLINUX }
+    - { install: glade,               desc: User Interface Builder for GTK+ applications }
+    - { install: meld,                desc: Develop/Diff Tool - Graphical diff tool cross platform }
+    - { install: ripgrep,             desc: A search tool combining the usability of ag with speed of grep, depof: vscode }
+    - { install: vscode,              desc: Editor for modern development, type: CYBERLINUX }
+
+    # OpenGL
+    - { install: lib32-mesa,          desc: OpenGL opensource implementation, depof: kodi steam }
+    - { install: lib32-mesa-vdpau,    desc: Mesa vdpau drivers, depof: kodi steam }
+    - { install: mesa-vdpau,          desc: Mesa vdpau drivers, depof: kodi steam }
+
+  server-pkgs:
+    - apache-php
+    - media-apps
+    - { install: asterisk,            desc: Free opensource telephony engine tuned for Google Voice }
+    - { install: keepass,             desc: Cross platform password manager }
+    - { install: file-roller,         desc: System/Compression integrates well in Thunar }
+    - { install: qbittorrent,         desc: Network/Bittorent, alt: deluge }
+    - { install: openvpn-pia,         desc: OpenVPN system tray with PIA integration, type: CYBERLINUX }
+
+  media-pkgs:
+    - { install: handbrake,           desc: Video/Encoding - Video encoding tool for mp4/mkv }
+    - { install: handbrake-cli,       desc: Video/Encoding - Video encoding tool for mp4/mkv }
+    - { install: mkvtoolnix-gui,      desc: Set of tools to create, edit and inspect MKV files }
+    - { install: tiny-media-manager,  desc: Cross platform media manager, type: CYBERLINUX }
+
+  theater-pkgs:
+    - media-apps
+    - { install: conky,               desc: Lightweight system monitor for X }
+    - { install: idesk,               desc: Lightweight desktop icons for X, type: CYBERLINUX }
+    - { install: kodi,                desc: Software media player and entertainment hub }
+
+    # OpenGL
+    - { install: lib32-mesa,          desc: OpenGL opensource implementation, depof: kodi steam }
+    - { install: lib32-mesa-vdpau,    desc: Mesa vdpau drivers, depof: kodi steam }
+    - { install: mesa-vdpau,          desc: Mesa vdpau drivers, depof: kodi steam }
+
+  apache-php:
+    - { install: apache,              desc: Apache web server, deb: phpBB }
+    - { install: bzip2,               desc: Compression util for the bzip2 format, depof: php-gd }
+    - { install: php,                 desc: PHP lang, depof: phpBB }
+    - { install: php-apache,          desc: PHP apache module, depof: phpBB }
+    - { install: php-sqlite,          desc: PHP sqlite module, depof: phpBB }
+    - { install: php-gd,              desc: PHP gd module, depof: phpBB }
+    - { install: curl,                desc: Network download REST command line tool, depof: php }
+    - { install: cracklib,            desc: Cryptography suite, depof: shadow }
+    - { install: e2fsprogs,           desc: Ext2/3/4 filesystem utilities, depof: shadow }
+    - { install: findutils,           desc: Util to find applications, depof: curl }
+    - { install: shadow,              desc: Account mgmt passwd/usermod/groupadd, depof: util-linux }
+    - { install: util-linux,          desc: Utilities blkid/fdisk/rename/cp etc..., depof: php-gd }
+    - { install: xz,                  desc: Compression util for xz format, depof: php-gd }
+
+  # Virtualization packages
+  #-----------------------------------------------------------------------------
+  docker:
+    - { install: docker,              desc: Run applications as containers, depof: reduce }
+
+  k8shost-pkgs:
+    - { install: bridge-utils,        desc: Ethernet bridge config utils, depof: k8s }
+    - { install: ebtables,            desc: Ethernet bridge filtering utilities, depof: k8s }
+    - { install: helm,                desc: Kubernetes package manager, type: CYBERLINUX }
+    - { install: kubernetes-kubectl,  desc: K8s cluster controller, type: CYBERLINUX }
+    - { install: socat,               desc: Multipurpose relay, depof: k8s}
+
+  k8snode-pkgs:
+    - docker
+    - { install: helm,                desc: Kubernetes package manager, type: CYBERLINUX }
+    - { install: kubernetes-kubeadm,  desc: K8s cluster bootstrap, type: CYBERLINUX }
+    - { install: kubernetes-kubectl,  desc: K8s cluster controller, type: CYBERLINUX }
+    - { install: kubernetes-kubelet,  desc: K8s node control agent, type: CYBERLINUX }
+    - { install: kubernetes-cni,      desc: K8s networking plugins, type: CYBERLINUX }
+
+  virtualbox-host:
+    - { install: packer,              desc: HashiCorp's vagrant box builder, type: CYBERLINUX }
+    - { install: vagrant,             desc: Build and distribute virtualized dev environments }
+    - { install: virtualbox,          desc: Cross platform virtualization with UI }
+    - { install: virtualbox-guest-iso, desc: VirtualBox Guest Additions ISO image }
+    - { install: virtualbox-host-modules-arch, desc: VirtualBox host kernel modules, conflict: virtualbox-host-dkms }
+
+  # X11 virtualbox guest tools for shell environments
+  virtualbox-guest:
+    - { install: virtualbox-guest-utils,        desc: VirtualBox guest drivers/utilities, conflict: virtualbox-guest-utils-nox }
+    - { install: virtualbox-guest-modules-arch, desc: VirtualBox guest kernel modules, conflict: virtualbox-guest-dkms }
+
+  # Non X11 virtualbox guest tools for shell environments
+  virtualbox-guest-nox:
+    - { install: virtualbox-guest-utils-nox,    desc: VirtualBox guest drivers/utilities w/out X support }
+    - { install: virtualbox-guest-modules-arch, desc: VirtualBox guest kernel modules, conflict: virtualbox-guest-dkms }
 
 ################################################################################
 configs:
