@@ -74,6 +74,7 @@ class Reduce
       cpus: 'cpus',
       conflict: 'conflict',
       container: 'container',
+      defaults: 'defaults',
       desc: 'desc',
       deployments: 'deployments',
       docker: 'docker',
@@ -196,13 +197,12 @@ class Reduce
         validate.call('color_dark', @vars.color_dark)
         validate.call('gfxmode', @vars.gfxmode)
         validate.call('grub_iso_theme', @vars.grub_iso_theme)
-
-        # Load variables and defaults
         @vars.label = "#{@vars.distro.upcase}_#{@vars.release.gsub('.', '')}"
       end
 
       # Load and merge profiles
       @profile = Profile.new unless defined?(@profile)
+      @profile.defaults.deep_merge!(profile[@k.defaults]) if profile[@k.defaults]
       @profile.builder.deep_merge!(profile[@k.builder]) if profile[@k.builder]
       @profile.apps.deep_merge!(profile[@k.apps]) if profile[@k.apps]
       @profile.configs.deep_merge!(profile[@k.configs]) if profile[@k.configs]

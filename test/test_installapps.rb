@@ -43,6 +43,8 @@ class Test_installapps < Minitest::Test
         "gfxmode" => "1280x1024",
         "grub_iso_theme" => "/boot/grub/themes/cyberlinux"
       },
+      "defaults" => {
+      },
       "builder" => {
         "type" => "container",
         "multilib" => true,
@@ -96,14 +98,8 @@ class Test_installapps < Minitest::Test
     @base_mock.expect(:[], true, ['vars'])
     @base_mock.expect(:[], @base['vars'], ['vars'])
     @base_mock.expect(:[], false, ['base'])
-    @base_mock.expect(:[], true, ['builder'])
-    @base_mock.expect(:[], @base['builder'], ['builder'])
-    @base_mock.expect(:[], true, ['apps'])
-    @base_mock.expect(:[], @base['apps'], ['apps'])
-    @base_mock.expect(:[], true, ['configs'])
-    @base_mock.expect(:[], @base['configs'], ['configs'])
-    @base_mock.expect(:[], true, ['deployments'])
-    @base_mock.expect(:[], @base['deployments'], ['deployments'])
+    ["defaults", "builder", "apps", "configs", "deployments"].each{|x|
+      @base_mock.expect(:[], true, [x]); @base_mock.expect(:[], @base[x], [x])}
 
     YAML.stub(:load_file, @base_mock){
       @reduce = Reduce.new

@@ -43,6 +43,8 @@ class Test_load_profiles < Minitest::Test
         "gfxmode" => "1280x1024",
         "grub_iso_theme" => "/boot/grub/themes/cyberlinux"
       },
+      "defaults" => {
+      },
       "builder" => {
         "type" => "container",
         "multilib" => true,
@@ -77,6 +79,8 @@ class Test_load_profiles < Minitest::Test
     @base_mock.expect(:[], true, ['vars'])
     @base_mock.expect(:[], @base['vars'], ['vars'])
     @base_mock.expect(:[], false, ['base'])
+    @base_mock.expect(:[], true, ['defaults'])
+    @base_mock.expect(:[], @base['defaults'], ['defaults'])
     @base_mock.expect(:[], true, ['builder'])
     @base_mock.expect(:[], @base['builder'], ['builder'])
     @base_mock.expect(:[], true, ['apps'])
@@ -102,7 +106,7 @@ class Test_load_profiles < Minitest::Test
     mock = Minitest::Mock.new
     mock.expect(:[], false, [@k.vars])
     mock.expect(:[], 'base', [@k.base])
-    [@k.builder, @k.apps, @k.configs, @k.deployments].each{|x| mock.expect(:[], false, [x])}
+    [@k.defaults, @k.builder, @k.apps, @k.configs, @k.deployments].each{|x| mock.expect(:[], false, [x])}
 
     YAML.stub(:load_file, mock){
       @reduce.load_profile('bogus')
@@ -126,7 +130,7 @@ class Test_load_profiles < Minitest::Test
     mock = Minitest::Mock.new
     mock.expect(:[], true, [@k.vars])
     mock.expect(:[], profile_data[@k.vars], [@k.vars])
-    [@k.base, @k.builder, @k.apps, @k.configs, @k.deployments].each{|x| mock.expect(:[], false, [x])}
+    [@k.base, @k.defaults, @k.builder, @k.apps, @k.configs, @k.deployments].each{|x| mock.expect(:[], false, [x])}
 
     YAML.stub(:load_file, mock){
       @reduce.load_profile('bogus')
@@ -152,8 +156,7 @@ class Test_load_profiles < Minitest::Test
     }
 
     mock = Minitest::Mock.new
-    mock.expect(:[], false, [@k.vars])
-    mock.expect(:[], false, [@k.base])
+    [@k.vars, @k.base, @k.defaults].each{|x| mock.expect(:[], false, [x])}
     mock.expect(:[], true, [@k.builder])
     mock.expect(:[], profile_data[@k.builder], [@k.builder])
     [@k.apps, @k.configs, @k.deployments].each{|x| mock.expect(:[], false, [x])}
@@ -178,7 +181,7 @@ class Test_load_profiles < Minitest::Test
     }
 
     mock = Minitest::Mock.new
-    [@k.vars, @k.base, @k.builder].each{|x| mock.expect(:[], false, [x])}
+    [@k.vars, @k.base, @k.defaults, @k.builder].each{|x| mock.expect(:[], false, [x])}
     mock.expect(:[], true, [@k.apps])
     mock.expect(:[], profile_data[@k.apps]){|x|
       assert_equal(1, @profile[@k.apps]['conky'].size)
@@ -226,18 +229,21 @@ class Test_load_profiles < Minitest::Test
     # profile0
     mock.expect(:[], false, [@k.vars])
     mock.expect(:[], 'base', [@k.base])
+    mock.expect(:[], false, [@k.defaults])
     mock.expect(:[], false, [@k.builder])
     mock.expect(:[], true, [@k.apps])
     mock.expect(:[], profile0[@k.apps], [@k.apps])
     [@k.configs, @k.deployments].each{|x| mock.expect(:[], false, [x])}
 
     # profile1
+    mock.expect(:[], false, [@k.defaults])
     mock.expect(:[], false, [@k.builder])
     mock.expect(:[], true, [@k.apps])
     mock.expect(:[], profile1[@k.apps], [@k.apps])
     [@k.configs, @k.deployments].each{|x| mock.expect(:[], false, [x])}
 
     # profile2
+    mock.expect(:[], false, [@k.defaults])
     mock.expect(:[], false, [@k.builder])
     mock.expect(:[], true, [@k.apps])
     mock.expect(:[], profile2[@k.apps], [@k.apps])
@@ -271,7 +277,7 @@ class Test_load_profiles < Minitest::Test
     }
 
     mock = Minitest::Mock.new
-    [@k.vars, @k.base, @k.builder, @k.apps, @k.configs].each{|x| mock.expect(:[], false, [x])}
+    [@k.vars, @k.base, @k.defaults, @k.builder, @k.apps, @k.configs].each{|x| mock.expect(:[], false, [x])}
     mock.expect(:[], true, [@k.deployments])
     mock.expect(:[], profile_data[@k.deployments]){|x|
       assert_equal(1, @profile[@k.deployments].size)
@@ -305,7 +311,7 @@ class Test_load_profiles < Minitest::Test
     }
 
     mock = Minitest::Mock.new
-    [@k.vars, @k.base, @k.builder, @k.apps, @k.configs].each{|x| mock.expect(:[], false, [x])}
+    [@k.vars, @k.base, @k.defaults, @k.builder, @k.apps, @k.configs].each{|x| mock.expect(:[], false, [x])}
     mock.expect(:[], true, [@k.deployments])
     mock.expect(:[], profile_data[@k.deployments], [@k.deployments])
 
