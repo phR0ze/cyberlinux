@@ -1195,10 +1195,12 @@ class Reduce
     end
 
     # Print result for single search
-    if deployment and sorted_images.any?
-      puts("Located '#{live ? 'live' : 'disk'}' image #{sorted_images.first.first}".colorize(:cyan))
-    elsif deployment and die
-      Log.die("could not find image type '#{type}' for '#{deployment}'")
+    if deployment
+      if sorted_images.any?
+        puts("Located '#{live ? 'live' : 'disk'}' image #{sorted_images.first.first}".colorize(:cyan))
+      elsif die
+        Log.die("could not find image type '#{type}' for '#{deployment}'")
+      end
     end
 
     return sorted_images

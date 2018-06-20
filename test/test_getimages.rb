@@ -20,6 +20,7 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
+require 'nub'
 require 'yaml'
 require 'minitest/autorun'
 
@@ -198,6 +199,22 @@ class Test_getimages < Minitest::Test
                 [File.join(image_path, "foo.#{type}"), 111],
               ], results)
             }
+          }
+        }
+      }
+    }
+  end
+
+  def test_deployment_image_not_found
+    image_path = "/bogus/path"
+    images = [File.join(image_path, "will-be-removed.iso")]
+    @reduce.instance_variable_set(:@imagepaths, [image_path])
+
+    File.stub(:size, 111) {
+      Dir.stub(:exist?, true) {
+        Dir.stub(:[], images) {
+          Sys.capture{assert_raises(SystemExit){
+            @reduce.getimages(@type.iso, deployment:"bar", die:true)}
           }
         }
       }
