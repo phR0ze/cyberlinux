@@ -32,7 +32,8 @@ require_relative 'lib/config'   # Programatic file editor and command runner
 
 # Gems that should already be installed
 begin
-  require 'nub'                 # Commander, logging and other utilities
+  require 'nub'
+  require 'filesize'
 rescue Exception => e
   puts("Error: missing package '#{e.message.split(' ').last.sub('/', '-')}'")
   !puts("Error: install missing packages with 'bundle install --system") and exit
@@ -359,8 +360,9 @@ class Reduce
       }
     end
 
-    # Clean given deployments
-    if !all and Dir.exist?(@deployments_work) and deployments.any?
+    # Clean given deployments or all
+    if all || (Dir.exist?(@deployments_work) && deployments.any?)
+      deployments = @profile.deployments.keys if all
       deployments.each{|deployment|
         puts("Cleaning deployment '#{deployment}'...".colorize(:cyan))
         path = File.join(@deployments_work, deployment)

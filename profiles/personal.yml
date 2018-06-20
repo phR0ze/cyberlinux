@@ -20,6 +20,8 @@
 #SOFTWARE.
 base: base
 
+# Due to the inclusion of apps with restrictive licenses the ISO/deployments
+# created from this profile can be for personal use only
 deployments:
   live:
     base: desktop

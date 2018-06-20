@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.22
+  release: 0.2.23
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -429,6 +429,7 @@ apps:
     - docker
     - media-apps
     - virtualbox-host
+    - keepass
     - { install: asunder,             desc: A lean and friendly audio CD ripper and encoder }
     - { install: avidemux-qt,         desc: Graphical tool to edit video (filter/re-encode/split) - Qt GUI }
     - { install: audacity,            desc: Audio editor - cross platform, tried and tested }
@@ -447,7 +448,6 @@ apps:
     - { install: id3v2,               desc: Utility to edit id3v2 tags }
     - { install: inkscape,            desc: Professional vector graphics editor }
     - { install: libreoffice-fresh,   desc: LibreOffice branch with new features/enhancements }
-    - { install: keepass,             desc: Cross platform password manager }
     - { install: kolourpaint,         desc: Paint application that saves jpg in format for GFXBoot }
     - { install: plank,               desc: Elegant, simple, clean dock }
     - { install: python2-lxml,        desc: Python wrapper for libxml2, deps: Inkscape }
@@ -476,8 +476,8 @@ apps:
   server-apps:
     - apache-php
     - media-apps
+    - keepass
     - { install: asterisk,            desc: Free opensource telephony engine tuned for Google Voice }
-    - { install: keepass,             desc: Cross platform password manager }
     - { install: file-roller,         desc: System/Compression integrates well in Thunar }
     - { install: qbittorrent,         desc: Network/Bittorent, alt: deluge }
     - { install: openvpn-pia,         desc: OpenVPN system tray with PIA integration, type: CYBERLINUX }
@@ -518,10 +518,34 @@ apps:
     - { install: util-linux,          desc: Utilities blkid/fdisk/rename/cp etc..., depof: php-gd }
     - { install: xz,                  desc: Compression util for xz format, depof: php-gd }
 
+  keepass:
+    - { install: keepass, desc: Cross platform password manager }
+    - { menu: Accessories, entry: KeePass, icon: /usr/share/icons/hicolor/32x32/apps/keepass.png, exec: keepass }
+
   # Virtualization packages
   #-----------------------------------------------------------------------------
   docker:
-    - { install: docker,              desc: Run applications as containers, depof: reduce }
+    - { install: docker, desc: Run applications as containers, depof: reduce }
+    - edit: /opt/<%=distro%>/bin/setproxy
+      insert: before
+      regex: 'PROXY_MARKER'
+      values:
+        - "\n# Configure docker proxy settings"
+        - 'if [ -e /usr/bin/docker ]; then'
+        - '  mkdir -p /etc/systemd/system/docker.service.d'
+        - '  proxyfile=/etc/systemd/system/docker.service.d/20-proxy.conf'
+        - '  if [ "x$cmd" == "xenable" ]; then'
+        - '    echo "[Service]" > ${proxyfile}'
+        - '    echo "Environment=\"http_proxy=${proxy}\"" >> ${proxyfile}'
+        - '    echo "Environment=\"https_proxy=${proxy}\"" >> ${proxyfile}'
+        - '    echo "Environment=\"no_proxy=${no_proxy}\"" >> ${proxyfile}'
+        - '  else'
+        - '    rm -rf $proxyfile'
+        - '  fi'
+        - '  systemctl restart docker'
+        - 'fi'
+        - ''
+    - { chroot: systemctl enable docker.service }
 
   k8shost-apps:
     - { install: bridge-utils,        desc: Ethernet bridge config utils, depof: k8s }
@@ -538,7 +562,7 @@ apps:
     - { install: kubernetes-kubectl,  desc: K8s cluster controller, type: CYBERLINUX }
     - { install: kubernetes-kubelet,  desc: K8s node control agent, type: CYBERLINUX }
     - { install: kubernetes-cni,      desc: K8s networking plugins, type: CYBERLINUX }
-    - config-k8snode
+    - { chroot: systemctl enable kubelet.service }
 
   virtualbox-host:
     - { install: packer,              desc: HashiCorp's vagrant box builder, type: CYBERLINUX }
@@ -558,6 +582,7 @@ apps:
     - { install: virtualbox-guest-modules-arch, desc: VirtualBox guest kernel modules }
 
   # Non-free licensed applications
+  # can only be used in ISOs/deployments for personal use only
   #-----------------------------------------------------------------------------
 
   # MakeMKV is free while in beta but is a commercial product required a license normally
@@ -657,7 +682,6 @@ configs:
     - config-mkinitcpio
     - config-modprobed
     - config-os-release
-      #- config-pacman
     - config-proxy
     - config-resolved
     - config-sshd
@@ -690,25 +714,18 @@ configs:
   config-laptop:
     - config-wpa-gui
     - config-conky
-    - config-keepass
     - config-menu-laptop
     - config-cinnamon-screensaver
   config-desktop:
     - config-conky
-    - config-docker
     - config-guake
-    - config-keepass
     - config-menu-desktop
     - config-plank-desktop
     - config-cinnamon-screensaver
-  config-k8snode:
-    - config-docker
-    - { chroot: systemctl enable kubelet.service }
   config-server:
     - config-nfs
     - config-thunar
     - config-apache-php
-    - config-keepass
     - config-menu-server
   config-theater:
     - config-conky
@@ -960,27 +977,6 @@ configs:
         - "    #dconf write /system/proxy/mode 'none'"
         - '  fi'
         - 'fi'
-  config-docker:
-    - edit: /opt/<%=distro%>/bin/setproxy
-      insert: before
-      regex: 'PROXY_MARKER'
-      values:
-        - "\n# Configure docker proxy settings"
-        - 'if [ -e /usr/bin/docker ]; then'
-        - '  mkdir -p /etc/systemd/system/docker.service.d'
-        - '  proxyfile=/etc/systemd/system/docker.service.d/20-proxy.conf'
-        - '  if [ "x$cmd" == "xenable" ]; then'
-        - '    echo "[Service]" > ${proxyfile}'
-        - '    echo "Environment=\"http_proxy=${proxy}\"" >> ${proxyfile}'
-        - '    echo "Environment=\"https_proxy=${proxy}\"" >> ${proxyfile}'
-        - '    echo "Environment=\"no_proxy=${no_proxy}\"" >> ${proxyfile}'
-        - '  else'
-        - '    rm -rf $proxyfile'
-        - '  fi'
-        - '  systemctl restart docker'
-        - 'fi'
-        - ''
-    - { chroot: systemctl enable docker.service }
   config-hosts:
     - { exec: 'rm -f /etc/hosts' }
     - edit: /etc/hosts
@@ -1194,8 +1190,6 @@ configs:
     - { exec: 'rm -rf /var/log/journal' }
     # Restrict journal disk size to avoid hogging the system
     - { edit: /etc/systemd/journald.conf, regex: '^#(SystemMaxUse).*', value: '\1=100M' }
-  config-keepass:
-    - { menu: Accessories, entry: KeePass, icon: /usr/share/icons/hicolor/32x32/apps/keepass.png, exec: keepass }
   config-locale:
     - edit: /etc/locale.conf
       insert: append
@@ -1344,13 +1338,13 @@ configs:
       values:
         - '# Source the user rc file if it exists'
         - '[ -r ~/.bashrc ] && source ~/.bashrc'
-  config-pacman:
-    - { exec: 'rm -f /etc/pacman.d/gnupg/dirmngr.conf' }
-    - { edit: /etc/pacman.d/gnupg/dirmngr.conf, insert: append, value: "honor-http-proxy" }
-    - { edit: /etc/pacman.d/gnupg/gpg.conf, regex: '^keyserver\s.*', value: 'keyserver http://ipv4.pool.sks-keyservers.net' }
-    - { chroot: "bash -c 'haveged -r 0 && pacman-key --init'" }
-    - { chroot: 'pacman-key --populate archlinux antergos blackarch' }
-    - { chroot: 'pacman -Sy' }
+#  config-pacman:
+#    - { exec: 'rm -f /etc/pacman.d/gnupg/dirmngr.conf' }
+#    - { edit: /etc/pacman.d/gnupg/dirmngr.conf, insert: append, value: "honor-http-proxy" }
+#    - { edit: /etc/pacman.d/gnupg/gpg.conf, regex: '^keyserver\s.*', value: 'keyserver http://ipv4.pool.sks-keyservers.net' }
+#    - { chroot: "bash -c 'haveged -r 0 && pacman-key --init'" }
+#    - { chroot: 'pacman-key --populate archlinux antergos blackarch' }
+#    - { chroot: 'pacman -Sy' }
   config-plank-desktop:
     - edit: /etc/skel/.config/autostart/plank.desktop
       insert: append
