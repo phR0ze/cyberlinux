@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.24
+  release: 0.2.25
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -53,6 +53,7 @@ vars:
 ################################################################################
 defaults:
   machine:
+    type: machine
     multilib: true
     vars:
       fontsize: 10
