@@ -584,9 +584,6 @@ class Reduce
       # Build grub components inside build container to ensure isolation
       docker(@k.builder, 'root'){|cont, home, cp, exec, execs, runuser|
 
-        # Extract GRUB boot files
-        cp.call("#{cont}:/usr/share/grub/unicode.pf2 #{grub_iso_path}")
-
         # Extract memtest and intel-ucode as well as licenses
         cp.call("#{cont}:/boot/intel-ucode.img #{@ucode_image}.img")
         cp.call("#{cont}:/usr/share/licenses/intel-ucode/LICENSE #{@ucode_image}.LICENSE")

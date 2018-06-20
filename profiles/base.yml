@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.30
+  release: 0.2.31
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -86,15 +86,21 @@ apps:
   # Packages and configs for building initramfs etc...
   # ----------------------------------------------------------------------------
   builder:
+    - core
+    - core-tools
     - { install: gptfdisk,            desc: Paritioning tools e.g. sgdisk }
     - { install: mkinitcpio,          desc: initramfs image creation utility }
     - { install: mkinitcpio-vt-colors,desc: vt console colors, type: CYBERLINUX }
     - { install: rsync,               desc: Remote file sync utility }
     - { install: systemd,             desc: System and service manager }
     - { install: sudo,                desc: Elevate some user commands to root }
-    - core
-    - core-tools
-    - grub-tools
+
+    # Grub tools
+    - { install: dosfstools,          desc: DOS filesystem utilities e.g. mkfs.fat }
+    - { install: grub,                desc: GNU GRand Unified Booloader 2 }
+    - { install: intel-ucode,         desc: Microcode update files for Intel CPUs }
+    - { install: licenses,            desc: Standard licenses distribution package }
+    - { install: memtest86+,          desc: memtest is used in the ISO creation as menu option }
 
     # Create and configure new build user and root user
     - { chroot: 'useradd -m -G lp,wheel,network,storage,users -s /bin/bash builder || true' }
@@ -158,13 +164,6 @@ apps:
   openssl-without-perl:
     - { install: openssl,             desc: Secure sockets layer and TLS, nodeps: true, depends-on: [perl], size: 6.36 MiB }
     - { install: perl,                desc: Perl language, ignore: true, depends-on: [gdbm, db, glibc], size: 52.00 MiB }
-
-  grub-tools:
-    - { install: dosfstools,          desc: DOS filesystem utilities e.g. mkfs.fat }
-    - { install: grub,                desc: GNU GRand Unified Booloader 2 }
-    - { install: intel-ucode,         desc: Microcode update files for Intel CPUs }
-    - { install: licenses,            desc: Standard licenses distribution package }
-    - { install: memtest86+,          desc: memtest is used in the ISO creation as menu option }
 
   # Base for any machine being deployed
   # ----------------------------------------------------------------------------
