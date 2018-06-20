@@ -563,28 +563,26 @@ class Reduce
       # Inject deploy entries from deployments
       motd = File.readlines(@motd_path)
       File.open(File.join(grub_iso_path, 'boot.cfg'), 'w'){|f|
-        @profile.deployments.select{|k,v| v[@k.type] == @k.machine}.map{|k,v| v[@k.name] = k; [v]}
-          .flatten.sort_by{|x| x[@k.install][@k.order]}.reverse.each{|x|
-          kernel = "#{@kernel_prefix}-#{x[@k.install][@k.kernel]}"
-          params = x[@k.install][@k.params] || ""
+        @profile.deployments.select{|k,v| v[@k.type] == @k.machine}
+          .sort_by{|k,v| v[@k.install][@k.order]}.each{|x|
+          kernel = "#{@kernel_prefix}-#{x.last[@k.install][@k.kernel]}"
+          params = x.last[@k.install][@k.params] || ""
           params = "#{params} " if !params.empty?
-          params += "kernel=#{x[@k.install][@k.kernel]}"
-          layers = @vars["#{x[@k.name]}_deployment"]
+          params += "kernel=#{x.last[@k.install][@k.kernel]}"
+          layers = @vars["#{x.first}_deployment"]
 
-          f << "    menuentry --class=deployment '#{x[@k.install][@k.label]}' {\n"
+          f << "    menuentry --class=deployment '#{x.last[@k.install][@k.label]}' {\n"
           f << "        echo\necho\n"
           motd.each{|line| f << "        echo $\"          #{line.gsub("\n", "")}\"\n" }
           f << "        linux /boot/#{kernel} efi=$efi layers=#{layers} #{@vars.kernel_params} #{params if params}\n"
-          f << "        initrd /boot/intel-ucode.img /boot/#{@initramfs_prefix}-#{x[@k.install][@k.kernel]}.img\n"
+          f << "        initrd /boot/intel-ucode.img /boot/#{@initramfs_prefix}-#{x.last[@k.install][@k.kernel]}.img\n"
           f << "    }\n"
         }
       }
       FileUtils.resolve(File.join(grub_iso_path, 'boot.cfg'), @vars)
 
-      # Build grub components inside build container to ensure isolation
+      # Extract memtest and intel-ucode as well as licenses
       docker(@k.builder, 'root'){|cont, home, cp, exec, execs, runuser|
-
-        # Extract memtest and intel-ucode as well as licenses
         cp.call("#{cont}:/boot/intel-ucode.img #{@ucode_image}.img")
         cp.call("#{cont}:/usr/share/licenses/intel-ucode/LICENSE #{@ucode_image}.LICENSE")
         cp.call("#{cont}:/boot/memtest86+/memtest.bin #{@memtest_image}")
@@ -613,8 +611,8 @@ class Reduce
   # @param disksize [int] disk size to use for pack
   # @param force [bool] pack even if already exists
   def pack(deployments, disksize:nil, force:nil)
-    _deployments = @profile.deployments.select{|x| x[@k.type] == @k.machine}
-    deployments = deployments || _deployments.reject{|x| x[@k.name] == 'live'}
+    _deployments = @profile.deployments.select{|k,v| v[@k.type] == @k.machine}
+    deployments = deployments || _deployments.reject{|k,v| k == 'live'}.keys
     puts("Packing deployments #{deployments * ','}\n#{'-' * 80}".colorize(:light_yellow))
     Log.die("must be executed as non-root user") unless not Process.uid.zero?
     create_dir_structure
@@ -641,7 +639,7 @@ class Reduce
     end
 
     # Pack implicated deployments into vagrant boxes
-    installables = _deployments.map{|x| x[@k.install][@k.label]}.reverse.flatten.compact
+    installables = _deployments.sort_by{|k,v| v[@k.install][@k.order]}
     deployments.each do |deployment|
 
       # Remove old boxes and/or skip if current
