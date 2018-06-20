@@ -1014,7 +1014,7 @@ class Reduce
         configs << entry
       end
     }
-    deployment_yml[@k.apps].each{|x| resolve.call(x)}
+    (deployment_yml[@k.apps] || []).each{|x| resolve.call(x)}
 
     # Resolve any templating
     pkgs = pkgs.uniq.sort_by{|x| x[@k.install]}.erb(deployment_yml[@k.vars])

@@ -72,6 +72,8 @@ class Test_getapps < Minitest::Test
             'server-apps',
             'server-configs'
           ]
+        },
+        'live' => {
         }
       },
       'apps' => {
@@ -145,5 +147,13 @@ class Test_getapps < Minitest::Test
       _, configs = @reduce.getapps('server', @reduce.get_deployment_yml('server'))
       assert_equal(result2, configs)
     }
+  end
+
+  def test_deployment_has_no_apps
+     @reduce.stub(:puts, nil){
+      apps, configs = @reduce.getapps('live', @reduce.get_deployment_yml('live'))
+      assert_equal([], apps)
+      assert_equal([], configs)
+    } 
   end
 end
