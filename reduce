@@ -58,11 +58,11 @@ class Reduce
 
   def initialize
     @type = OpenStruct.new({
-      img: 'img',
-      iso: 'iso',
-      box: 'box',
-      tgz: 'tgz',
-      sqfs: 'sqfs'
+      img: 'img',   # Boot images
+      iso: 'iso',   # Deployable ISO images
+      box: 'box',   # Vagrant box images
+      tgz: 'tgz',   # Container filesystem images
+      sqfs: 'sqfs'  # SquashFS filesystems for deployment from ISO
     })
     @k = OpenStruct.new({
       all: 'all',
@@ -297,9 +297,9 @@ class Reduce
     # Formatting block for images
     putimages = ->(type, live, name){
       puts("#{name.ljust(100, ' ')}Size:".colorize(:cyan))
-      getimages(type, live:live).each{|k,v|
-        size = v.to_s.count("a-zA-Z").zero? ? Filesize.from("#{v} B").to_s('MiB') : v
-        puts("#{k.ljust(100, ' ')}#{size}")
+      self.getimages(type, live:live).each{|x|
+        size = x.last.to_s.count("a-zA-Z").zero? ? Filesize.from("#{x.last} B").to_s('MiB') : x.last
+        puts("#{x.first.ljust(100, ' ')}#{size}")
       }
       puts
     }
@@ -627,7 +627,7 @@ class Reduce
     Log.die("install 'virtualbox' via 'sudo pacman -S virtualbox'") unless find_executable('vboxmanage')
 
     # Locate latest iso
-    isos = getimages(@type.iso).keys
+    isos = self.getimages(@type.iso).map{|x| x.first}
     Log.die("no ISOs found") unless isos.any?
     @vars.isofile = isos.shift
 
@@ -703,7 +703,7 @@ class Reduce
 
       # Choose a vagrant box to use and update registry if needed
       vagrant_box = deployment
-      box = self.getimages(@type.box, deployment:deployment).keys.shift
+      box = self.getimages(@type.box, deployment:deployment).map{|x| x.first}.shift
       if !box
         vagrant_box = "phR0ze/cyberlinux-#{deployment}"
         puts("Downloading '#{vagrant_box}' from vagrantup.com".colorize(:cyan))
@@ -1129,7 +1129,7 @@ class Reduce
     image_exists = nil
     curver = @vars.release.split('.').map{|x| x.to_i}
 
-    getimages(type, deployment:deployment, live:live).keys.each{|image|
+    self.getimages(type, deployment:deployment, live:live).map{|x| x.first}.each{|image|
       puts("Evaluating '#{live ? 'live' : 'disk'}' image #{image}".colorize(:cyan))
       name = live ? image[/-(.*)/, 1] : image[/-(.*?)\.#{type}/, 1]
       imagever = name.split('.').map{|x| x.to_i}
@@ -1162,17 +1162,15 @@ class Reduce
   # @param die [bool] die on error
   # @returns all images sorted by version and optionally filtered by deployment
   def getimages(type, deployment:nil, live:nil, die:false)
-    image_maps = {}
+    sorted_images = []
 
     # Get deployed image data
     #---------------------------------------------------------------------------
     if live and type == @type.tgz
-      images = {}
-      `sudo docker images --format "{{.Repository}}:{{.Size}}"`.split("\n")
-        .select{|x| deployment ? x.start_with?("#{deployment}-") : true }
-        .map{|x| x.split(':')}.each{|x| images[x.first] = x.last}
-      images.keys.sort_by{|x| (x[/-(\d+\.\d+\.\d+).*/, 1] || "<none>.").split('.').map{|y| y.to_i} }
-        .reverse!.each{|x| image_maps[x] = images[x]}
+      images = `sudo docker images --format "{{.Repository}}:{{.Size}}"`.split("\n")
+        .select{|x| deployment ? x.start_with?("#{deployment}-") : true}.map{|x| x.split(':')}
+      images.sort_by{|x| (x.first[/-(\d+\.\d+\.\d+).*/, 1] || "none.").split('.').map{|y| y.to_i}}
+        .reverse.each{|x| sorted_images << x}
 
     # Get disk image data
     #---------------------------------------------------------------------------
@@ -1180,7 +1178,7 @@ class Reduce
 
       # Get all files of the given type from the watched locations
       files = []
-      files += @imagepaths.map{|x| File.exist?(x) ? Dir[File.join(x, "*.#{type}")] : []}.flatten
+      files += @imagepaths.map{|x| Dir.exist?(x) ? Dir[File.join(x, "*.#{type}")] : []}.flatten
 
       # For isos and boxes filter on files that contain the distro name
       if [@type.box, @type.iso].include?(type)
@@ -1193,17 +1191,17 @@ class Reduce
         images.sort_by{|x| x[/-(\d+\.\d+\.\d+).*/, 1].split('.').map{|y| y.to_i}}.reverse
 
       # Add file size to each entry
-      images.each{|x| image_maps[x] = File.size(x)}
+      images.each{|x| sorted_images << [x, File.size(x)]}
     end
 
     # Print result for single search
-    if deployment and image_maps.keys.first
-      puts("Located '#{live ? 'live' : 'disk'}' image #{image_maps.keys.first}".colorize(:cyan))
+    if deployment and sorted_images.any?
+      puts("Located '#{live ? 'live' : 'disk'}' image #{sorted_images.first.first}".colorize(:cyan))
     elsif deployment and die
       Log.die("could not find image type '#{type}' for '#{deployment}'")
     end
 
-    return image_maps
+    return sorted_images
   end
 
   # Relocate the tracking files

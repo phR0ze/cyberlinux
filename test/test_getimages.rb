@@ -113,6 +113,7 @@ class Test_getimages < Minitest::Test
     YAML.stub(:load_file, @base_mock){
       @reduce = Reduce.new
       @k = @reduce.instance_variable_get(:@k)
+      @vars = @reduce.instance_variable_get(:@vars)
       @type = @reduce.instance_variable_get(:@type)
       @profile = @reduce.instance_variable_get(:@profile)
     }
@@ -122,7 +123,84 @@ class Test_getimages < Minitest::Test
     assert_mock(@base_mock)
   end
 
-  def test_get_iso_images
-    #puts(@reduce.getimages(@type.iso))
+  def test_get_live_container_images
+    images = "foo-0.2.1:2.5MB\nfoo-0.1.0:1.5MB\nbar:2.3MB\nfoo-0.3.1:3.4MB"
+    @reduce.stub(:`, images){
+      results = @reduce.getimages(@type.tgz, live:true)
+      assert_equal([
+        ["foo-0.3.1", "3.4MB"],
+        ["foo-0.2.1", "2.5MB"],
+        ["foo-0.1.0", "1.5MB"],
+        ["bar", "2.3MB"],
+      ], results)
+    }
+  end
+
+  def test_get_live_container_images_for_deployment
+    images = "foo-0.2.1:2.5MB\nfoo-0.1.0:1.5MB\nbar:2.3MB\nfoo-0.3.1:3.4MB"
+    @reduce.stub(:puts, nil) {
+      @reduce.stub(:`, images){
+        results = @reduce.getimages(@type.tgz, live:true, deployment:"foo")
+        assert_equal([
+          ["foo-0.3.1", "3.4MB"],
+          ["foo-0.2.1", "2.5MB"],
+          ["foo-0.1.0", "1.5MB"],
+        ], results)
+      }
+    }
+  end
+
+  def test_get_isos_and_boxes
+    ['iso', 'box'].each{|type|
+      image_path = "/bogus/path"
+      images = [
+        File.join(image_path, "will-be-removed.#{type}"),
+        File.join(image_path, "#{@vars.distro}-foo-0.2.0.#{type}"),
+        File.join(image_path, "#{@vars.distro}-foo-0.1.0.#{type}"),
+        File.join(image_path, "#{@vars.distro}-bogus-0.1.0.#{type}"),
+        File.join(image_path, "#{@vars.distro}-foo-0.3.1.#{type}")
+      ]
+      @reduce.instance_variable_set(:@imagepaths, [image_path])
+
+      @reduce.stub(:puts, nil) {
+        File.stub(:size, 111) {
+          Dir.stub(:exist?, true) {
+            Dir.stub(:[], images) {
+              results = @reduce.getimages(type, deployment:"foo")
+              assert_equal([
+                [File.join(image_path, "#{@vars.distro}-foo-0.3.1.#{type}"), 111],
+                [File.join(image_path, "#{@vars.distro}-foo-0.2.0.#{type}"), 111],
+                [File.join(image_path, "#{@vars.distro}-foo-0.1.0.#{type}"), 111],
+              ], results)
+            }
+          }
+        }
+      }
+    }
+  end
+
+  def test_get_sqfs_and_imgs
+    ['sqfs', 'img'].each{|type|
+      image_path = "/bogus/path"
+      images = [
+        File.join(image_path, "will-be-removed.#{type}"),
+        File.join(image_path, "foo.#{type}"),
+        File.join(image_path, "bogus.#{type}"),
+      ]
+      @reduce.instance_variable_set(:@imagepaths, [image_path])
+
+      @reduce.stub(:puts, nil) {
+        File.stub(:size, 111) {
+          Dir.stub(:exist?, true) {
+            Dir.stub(:[], images) {
+              results = @reduce.getimages(type, deployment:"foo")
+              assert_equal([
+                [File.join(image_path, "foo.#{type}"), 111],
+              ], results)
+            }
+          }
+        }
+      }
+    }
   end
 end
