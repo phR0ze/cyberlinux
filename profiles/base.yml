@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.20
+  release: 0.2.21
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -546,17 +546,17 @@ apps:
     - { install: vagrant,             desc: Build and distribute virtualized dev environments }
     - { install: virtualbox,          desc: Cross platform virtualization with UI }
     - { install: virtualbox-guest-iso, desc: VirtualBox Guest Additions ISO image }
-    - { install: virtualbox-host-modules-arch, desc: VirtualBox host kernel modules, conflict: virtualbox-host-dkms }
+    - { install: virtualbox-host-modules-arch, desc: VirtualBox host kernel modules }
 
   # X11 virtualbox guest tools for shell environments
   virtualbox-guest:
     - { install: virtualbox-guest-utils,        desc: VirtualBox guest drivers/utilities, conflict: virtualbox-guest-utils-nox }
-    - { install: virtualbox-guest-modules-arch, desc: VirtualBox guest kernel modules, conflict: virtualbox-guest-dkms }
+    - { install: virtualbox-guest-modules-arch, desc: VirtualBox guest kernel modules }
 
   # Non X11 virtualbox guest tools for shell environments
   virtualbox-guest-nox:
     - { install: virtualbox-guest-utils-nox,    desc: VirtualBox guest drivers/utilities w/out X support }
-    - { install: virtualbox-guest-modules-arch, desc: VirtualBox guest kernel modules, conflict: virtualbox-guest-dkms }
+    - { install: virtualbox-guest-modules-arch, desc: VirtualBox guest kernel modules }
 
 ################################################################################
 configs:
