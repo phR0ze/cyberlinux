@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.21
+  release: 0.2.22
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -170,8 +170,12 @@ apps:
   base-apps:
     - core
     - core-tools
-    - { install: dosfstools,          desc: DOS filesystem utilities e.g. mkfs.fat, depof: installer }
+    - shell-apps
+    - virtualbox-guest-nox
+    - { install: curl,                desc: Adding curl command to pull in packer scripts }
     - { install: dmidecode,           desc: Desktop Managment Interface table related utilities }
+    - { install: dnsutils,            desc: Network utilities dig/host/nslookup }
+    - { install: dosfstools,          desc: DOS filesystem utilities e.g. mkfs.fat, depof: installer }
     - { install: grub,                desc: GNU GRand Unified Booloader 2, depof: installer }
     - { install: efibootmgr,          desc: Tool to modify UEFI Firmware Boot Manager Variables, depof: installer }
     - { install: intel-ucode,         desc: Microcode update files for Intel CPUs }
@@ -195,53 +199,45 @@ apps:
     - { install: shadow,              desc: Account mgmt e.g. passwd/useradd/usermod/groupadd }
     - { install: sudo,                desc: Elevate some user commands to root, group: [build-devel]}
     - { install: util-linux,          desc: blkid/fdisk/rename/cp etc..., depof: php-gd, group: [build-devel]}
+    - { install: wget,                desc: Retrieve files from the Web }
     - { install: which,               desc: Show the full path of commnds, depof: .bashrc, group: [build-devel]}
     - { install: archlinux-keyring,   desc: Arch Linux GPG keys }
     - { install: antergos-keyring,    desc: Antergos GPG keyring, type: ANTERGOS }
     - { install: blackarch-keyring,   desc: Blackarch GPG keyring, type: BLACKARCH }
     - { install: cyberlinux-keyring,  desc: Blackarch GPG keyring, type: CYBERLINUX }
-    - config-base
-  shell-apps:
-    - dev-apps
-    - ruby-gems
-    - { install: cronie,              desc: Daemon for scheduling programs to run }
-    - { install: htop,                desc: Interactive process viewer, alt: top }
-    - { install: iftop,               desc: Display bandwidth usage on an interface }
-    - { install: inxi,                desc: System info display tool for CPUs/RAM/Kernel etc... }
-    - { install: lsof,                desc: Lists open files for running processes }
-    - { install: man-db,              desc: A utility for reading man pages }
-    - { install: man-pages,           desc: Linux man pages }
-    - { install: moreutils,           desc: Linux utils e.g. parallel-moreutils }
-    - { install: p7zip,               desc: Comman-line file archiver for 7zip format, depof: thunar }
-    - { install: squashfs-tools,      desc: Tooling for squashfs like mksquashfs }
-    - { install: reptyr,              desc: Attach running program to a new terminal }
-    - { install: tmux,                desc: Terminal multiplexer built off screen }
-    - { install: usbutils,            desc: USB device utilities including lsusb }
-    # Packaging
-    - { install: pkgfile,             desc: A pacman files and metadata explorer }
-    # Disk utils
-    - { install: cdrkit,              desc: CD/DVD burnig/extration and ISO creation }
-    - { install: inotify-tools,       desc: Inotify C library for watching files }
-    - { install: libisoburn,          desc: Libburn/libisofs/xorriso }
-    - { install: ntfs-3g,             desc: NTFS filesystem driver and utilities }
-    - { install: smartmontools,       desc: Control/monitor S.M.A.R.T. Drives }
-    - { install: testdisk,            desc: Undeletes files from FAT/exFAT/NTFS/ext2 filesystems }
-    - { install: udisks2,             desc: Enumerate and operate on storage devices }
     # Compression
+    - { install: p7zip,               desc: Comman-line file archiver for 7zip format, depof: thunar }
     - { install: tar,                 desc: File store backup and transport utility }
     - { install: unrar,               desc: The RAR uncompression program }
     - { install: unzip,               desc: Extract and view files in .zip archives }
     - { install: zip,                 desc: Zip file compression utilities }
+    - config-base
+  shell-apps:
+    - dev-apps
+    - ruby-gems
+    - { install: cdrkit,              desc: CD/DVD burnig/extration and ISO creation }
+    - { install: cronie,              desc: Daemon for scheduling programs to run }
+    - { install: htop,                desc: Interactive process viewer, alt: top }
+    - { install: iftop,               desc: Display bandwidth usage on an interface }
+    - { install: inxi,                desc: System info display tool for CPUs/RAM/Kernel etc... }
+    - { install: libisoburn,          desc: Libburn/libisofs/xorriso }
+    - { install: lsof,                desc: Lists open files for running processes }
+    - { install: man-db,              desc: A utility for reading man pages }
+    - { install: man-pages,           desc: Linux man pages }
+    - { install: moreutils,           desc: Linux utils e.g. parallel-moreutils }
+    - { install: pkgfile,             desc: A pacman files and metadata explorer }
+    - { install: reptyr,              desc: Attach running program to a new terminal }
+    - { install: smartmontools,       desc: Control/monitor S.M.A.R.T. Drives }
+    - { install: squashfs-tools,      desc: Tooling for squashfs like mksquashfs }
+    - { install: tmux,                desc: Terminal multiplexer built off screen }
+    - { install: udisks2,             desc: Enumerate and operate on storage devices }
+    - { install: usbutils,            desc: USB device utilities including lsusb }
     # Network
-    - { install: curl,                desc: Adding curl command to pull in packer scripts }
-    - { install: dnsutils,            desc: Network utilities dig/host/nslookup }
-    - { install: ethtool,             desc: Network drivers and hardware util, depof: k8s }
     - { install: gnu-netcat,          desc: Network piping application }
     - { install: iputils,             desc: Network utils e.g. ping/tftpd }
     - { install: nfs-utils,           desc: Support programs for Network File Systems }
     - { install: nmap,                desc: Network discovery and security auditing }
     - { install: tcpdump,             desc: Network monitoring and data acquisition }
-    - { install: wget,                desc: Retrieve files from the Web }
     - { install: wpa_supplicant,      desc: A utility providing key negotiation for WPA wireless networks }
     - config-shell
   dev-apps:
@@ -303,6 +299,7 @@ apps:
   # Lite weight X11 evironment
   # ----------------------------------------------------------------------------
   lite-apps:
+    - virtualbox-guest
     - { install: cups-pdf,            desc: System/Printer Driver with PDF print support }
     - { install: dconf,               desc: A low-level configuration system }
     - { install: dconf-editor,        desc: New configuration manager intended to replace gconf }
@@ -484,6 +481,7 @@ apps:
     - { install: file-roller,         desc: System/Compression integrates well in Thunar }
     - { install: qbittorrent,         desc: Network/Bittorent, alt: deluge }
     - { install: openvpn-pia,         desc: OpenVPN system tray with PIA integration, type: CYBERLINUX }
+    - config-server
 
   media-apps:
     - { install: handbrake,           desc: Video/Encoding - Video encoding tool for mp4/mkv }
@@ -528,6 +526,7 @@ apps:
   k8shost-apps:
     - { install: bridge-utils,        desc: Ethernet bridge config utils, depof: k8s }
     - { install: ebtables,            desc: Ethernet bridge filtering utilities, depof: k8s }
+    - { install: ethtool,             desc: Network drivers and hardware util, depof: k8s }
     - { install: helm,                desc: Kubernetes package manager, type: CYBERLINUX }
     - { install: kubernetes-kubectl,  desc: K8s cluster controller, type: CYBERLINUX }
     - { install: socat,               desc: Multipurpose relay, depof: k8s}
@@ -557,6 +556,73 @@ apps:
   virtualbox-guest-nox:
     - { install: virtualbox-guest-utils-nox,    desc: VirtualBox guest drivers/utilities w/out X support }
     - { install: virtualbox-guest-modules-arch, desc: VirtualBox guest kernel modules }
+
+  # Non-free licensed applications
+  #-----------------------------------------------------------------------------
+
+  # MakeMKV is free while in beta but is a commercial product required a license normally
+  # https://www.makemkv.com/forum2/viewtopic.php?f=5&t=1053
+  makemkv:
+    - { install: makemkv, desc: DVD and Blu-ray to MKV converter, type: CYBERLINUX }
+    - { menu: Multimedia, entry: MakeMKV, icon: /usr/share/icons/hicolor/32x32/apps/makemkv.png, exec: makemkv }
+
+  # Teamviewer is free to use for personal use
+  # https://www.teamviewer.com/en/credentials/free-for-personal-use/
+  teamviewer:
+    - { install: teamviewer, desc: All-In-One Software for Remote Support and Online Meetings, type: CYBERLINUX }
+    - { menu: Network, entry: Teamviewer, icon: /usr/share/icons/Paper/32x32/apps/teamviewer.png, exec: teamviewer }
+    - edit: /etc/skel/.config/autostart/teamviewer.desktop
+      insert: append
+      values:
+        - '[Desktop Entry]'
+        - 'Exec=sudo /opt/<%=distro%>/bin/config-teamviewer client'
+    - edit: /opt/<%=distro%>/bin/config-teamviewer
+      insert: append
+      values:
+        - '#!/bin/bash'
+        # Wait for teamviewer service to create the base config
+        - 'teamviewer_conf=/etc/teamviewer/global.conf'
+        - 'while [ ! -f $teamviewer_conf ]; do sleep 1; done'
+        - 'if [ $(grep EulaAccepted $teamviewer_conf &>/dev/null; echo $?) != 0 ]; then'
+        # Accept the personal use license
+        - '  echo "[int32] EulaAccepted = 1" >> $teamviewer_conf'
+        - '  echo "[int32] LicenseType = 10000" >> $teamviewer_conf'
+        # Allow direct LAN connections only
+        - '  echo "[int32] LanOnly = 1" >> $teamviewer_conf'
+        - '  echo "[int32] General_DirectLAN = 1" >> $teamviewer_conf'
+        # Disable logging
+        - '  echo "[int32] Logging = 0" >> $teamviewer_conf'
+        - '  echo "[int32] LogIncomingConnections = 0" >> $teamviewer_conf'
+        - '  echo "[int32] LogOutgoingConnections = 0" >> $teamviewer_conf'
+        # Disable shutdown and always run
+        - '  echo "[int32] Always_Online = 1" >> $teamviewer_conf'
+        - '  echo "[int32] Security_Disableshutdown = 1" >> $teamviewer_conf'
+        - '  echo "[int32] ACFullAccessOnLoginScreen = 1" >> $teamviewer_conf'
+        # Disable random password (for spontaneous access)
+        - '  echo "[int32] Security_PasswordStrength = 3" >> $teamviewer_conf'
+        # Clean up
+        - '  (systemctl restart teamviewerd && sleep 2)'
+        - '  systemctl disable teamviewerd'
+        - '  systemctl stop teamviewerd'
+        - 'fi'
+        # Clean up auto launch of teamviewer config script
+        - 'rm -f /home/$SUDO_USER/.config/autostart/teamviewer.desktop'
+    - { exec: chmod +x /opt/<%=distro%>/bin/config-teamviewer }
+    - { chroot: systemctl enable teamviewerd.service }
+  teamviewer-host:
+    - teamviewer
+    - { edit: /opt/<%=distro%>/bin/config-teamviewer, regex: 'systemctl disable teamviewerd', value: '  :' }
+    - { edit: /opt/<%=distro%>/bin/config-teamviewer, regex: 'systemctl stop teamviewerd', value: '  :' }
+
+  # Adobe fonts from adobe reader
+  # https://aur.archlinux.org/cgit/aur.git/tree/LICENSE?h=ttf-adobe-fonts
+  ttf-adobe-fonts:
+    - { install: ttf-adobe-fonts, desc: Adobe fonts including Myriad Minion and Courier, type: CYBERLINUX }
+
+  # The Extension Pack binaries are released under the VirtualBox Personal Use and Evaluation License (PUEL).
+  # https://www.virtualbox.org/wiki/Downloads
+  virtualbox-ext-oracle:
+    - { install: virtualbox-ext-oracle, desc: Oracle VM VirtualBox Extension Pack, type: CYBERLINUX }
 
 ################################################################################
 configs:
@@ -1178,52 +1244,6 @@ configs:
       regex: 'exec'
       values:
         - '/opt/<%=distro%>/bin/pre-xorg'
-  config-makemkv:
-    - { menu: Multimedia, entry: MakeMKV, icon: /usr/share/icons/hicolor/32x32/apps/makemkv.png, exec: makemkv }
-  config-teamviewer-client:
-    - { menu: Network, entry: Teamviewer, icon: /usr/share/icons/Paper/32x32/apps/teamviewer.png, exec: teamviewer }
-    - edit: /etc/skel/.config/autostart/teamviewer.desktop
-      insert: append
-      values:
-        - '[Desktop Entry]'
-        - 'Exec=sudo /opt/<%=distro%>/bin/config-teamviewer client'
-    - edit: /opt/<%=distro%>/bin/config-teamviewer
-      insert: append
-      values:
-        - '#!/bin/bash'
-        # Wait for teamviewer service to create the base config
-        - 'teamviewer_conf=/etc/teamviewer/global.conf'
-        - 'while [ ! -f $teamviewer_conf ]; do sleep 1; done'
-        - 'if [ $(grep EulaAccepted $teamviewer_conf &>/dev/null; echo $?) != 0 ]; then'
-        # Accept the personal use license
-        - '  echo "[int32] EulaAccepted = 1" >> $teamviewer_conf'
-        - '  echo "[int32] LicenseType = 10000" >> $teamviewer_conf'
-        # Allow direct LAN connections only
-        - '  echo "[int32] LanOnly = 1" >> $teamviewer_conf'
-        - '  echo "[int32] General_DirectLAN = 1" >> $teamviewer_conf'
-        # Disable logging
-        - '  echo "[int32] Logging = 0" >> $teamviewer_conf'
-        - '  echo "[int32] LogIncomingConnections = 0" >> $teamviewer_conf'
-        - '  echo "[int32] LogOutgoingConnections = 0" >> $teamviewer_conf'
-        # Disable shutdown and always run
-        - '  echo "[int32] Always_Online = 1" >> $teamviewer_conf'
-        - '  echo "[int32] Security_Disableshutdown = 1" >> $teamviewer_conf'
-        - '  echo "[int32] ACFullAccessOnLoginScreen = 1" >> $teamviewer_conf'
-        # Disable random password (for spontaneous access)
-        - '  echo "[int32] Security_PasswordStrength = 3" >> $teamviewer_conf'
-        # Clean up
-        - '  (systemctl restart teamviewerd && sleep 2)'
-        - '  systemctl disable teamviewerd'
-        - '  systemctl stop teamviewerd'
-        - 'fi'
-        # Clean up auto launch of teamviewer config script
-        - 'rm -f /home/$SUDO_USER/.config/autostart/teamviewer.desktop'
-    - { exec: chmod +x /opt/<%=distro%>/bin/config-teamviewer }
-    - { chroot: systemctl enable teamviewerd.service }
-  config-teamviewer-host:
-    - config-teamviewer-client
-    - { edit: /opt/<%=distro%>/bin/config-teamviewer, regex: 'systemctl disable teamviewerd', value: '  :' }
-    - { edit: /opt/<%=distro%>/bin/config-teamviewer, regex: 'systemctl stop teamviewerd', value: '  :' }
   config-makepkg:
     - { edit: /etc/makepkg.conf, regex: '^#(MAKEFLAGS)=.*', value: '\1="-j8"' }
     - { edit: /etc/makepkg.conf, regex: '^(COMPRESSXZ)=.*', value: '\1=(xz -c -z - --threads=0)' }
