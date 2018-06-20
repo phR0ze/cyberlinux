@@ -7,8 +7,8 @@ which are bundled as a bootable ISO. Many common use cases are available as depl
 right out of the box, but the option to build your own infinitely flexible deployment is yours
 for the taking.
 
-[![Build Status](https://travis-ci.org/phR0ze/cyberlinux.svg)](https://travis-ci.org/phR0ze/cyberlinux)
-[![Coverage Status](https://coveralls.io/repos/github/phR0ze/cyberlinux/badge.svg?branch=apps)](https://coveralls.io/github/phR0ze/cyberlinux?branch=apps)
+[![Build Status](https://travis-ci.org/phR0ze/cyberlinux.svg)](https://travis-ci.org/phR0ze/cyberlinux?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/phR0ze/cyberlinux/badge.svg?branch=master)](https://coveralls.io/github/phR0ze/cyberlinux?branch=master)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 ### Disclaimer
