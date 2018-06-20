@@ -54,10 +54,12 @@ vars:
 defaults:
   machine:
     multilib: true
-    vars: {fontsize: 10}
-    vagrant: {vram: 32, cpus: 2, ram: 2048}
-    groups: [lp, wheel, network, storage, users]
+    vars:
+      fontsize: 10
+      wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg
     install: {kernel: linux}
+    groups: [lp, wheel, network, storage, users]
+    vagrant: {vram: 32, cpus: 2, ram: 2048, v3d: 'on'}
 
 # Container for building components for ISO
 ################################################################################
@@ -426,7 +428,7 @@ apps:
     - config-lite
 
   # https://wiki.archlinux.org/index.php/Desktop_environment
-  desktop-pkgs:
+  desktop-apps:
     - docker
     - media-apps
     - virtualbox-host
@@ -471,7 +473,10 @@ apps:
     - { install: lib32-mesa-vdpau,    desc: Mesa vdpau drivers, depof: kodi steam }
     - { install: mesa-vdpau,          desc: Mesa vdpau drivers, depof: kodi steam }
 
-  server-pkgs:
+    # Configs
+    - config-desktop
+
+  server-apps:
     - apache-php
     - media-apps
     - { install: asterisk,            desc: Free opensource telephony engine tuned for Google Voice }
@@ -480,13 +485,13 @@ apps:
     - { install: qbittorrent,         desc: Network/Bittorent, alt: deluge }
     - { install: openvpn-pia,         desc: OpenVPN system tray with PIA integration, type: CYBERLINUX }
 
-  media-pkgs:
+  media-apps:
     - { install: handbrake,           desc: Video/Encoding - Video encoding tool for mp4/mkv }
     - { install: handbrake-cli,       desc: Video/Encoding - Video encoding tool for mp4/mkv }
     - { install: mkvtoolnix-gui,      desc: Set of tools to create, edit and inspect MKV files }
     - { install: tiny-media-manager,  desc: Cross platform media manager, type: CYBERLINUX }
 
-  theater-pkgs:
+  theater-apps:
     - media-apps
     - { install: conky,               desc: Lightweight system monitor for X }
     - { install: idesk,               desc: Lightweight desktop icons for X, type: CYBERLINUX }
@@ -496,6 +501,9 @@ apps:
     - { install: lib32-mesa,          desc: OpenGL opensource implementation, depof: kodi steam }
     - { install: lib32-mesa-vdpau,    desc: Mesa vdpau drivers, depof: kodi steam }
     - { install: mesa-vdpau,          desc: Mesa vdpau drivers, depof: kodi steam }
+
+    # Configs
+    - config-theater
 
   apache-php:
     - { install: apache,              desc: Apache web server, deb: phpBB }
@@ -517,20 +525,21 @@ apps:
   docker:
     - { install: docker,              desc: Run applications as containers, depof: reduce }
 
-  k8shost-pkgs:
+  k8shost-apps:
     - { install: bridge-utils,        desc: Ethernet bridge config utils, depof: k8s }
     - { install: ebtables,            desc: Ethernet bridge filtering utilities, depof: k8s }
     - { install: helm,                desc: Kubernetes package manager, type: CYBERLINUX }
     - { install: kubernetes-kubectl,  desc: K8s cluster controller, type: CYBERLINUX }
     - { install: socat,               desc: Multipurpose relay, depof: k8s}
 
-  k8snode-pkgs:
+  k8snode-apps:
     - docker
     - { install: helm,                desc: Kubernetes package manager, type: CYBERLINUX }
     - { install: kubernetes-kubeadm,  desc: K8s cluster bootstrap, type: CYBERLINUX }
     - { install: kubernetes-kubectl,  desc: K8s cluster controller, type: CYBERLINUX }
     - { install: kubernetes-kubelet,  desc: K8s node control agent, type: CYBERLINUX }
     - { install: kubernetes-cni,      desc: K8s networking plugins, type: CYBERLINUX }
+    - config-k8snode
 
   virtualbox-host:
     - { install: packer,              desc: HashiCorp's vagrant box builder, type: CYBERLINUX }

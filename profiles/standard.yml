@@ -21,81 +21,51 @@
 base: base
 
 deployments:
-  base:
+  live:
+    type: machine
+    base: desktop
     install:
       order: 1
+      label: "Start <%=distro%>-recovery                 // Live environment"
+  desktop:
+    base: lite
+    groups: [docker, adbusers, uucp]
+    install:
+      order: 2
+      label: "Deploy <%=distro%>-desktop                 // Lite + more apps"
+    apps:
+      - desktop-apps
+  theater:
+    base: lite
+    install:
+      order: 3
+      label: "Deploy <%=distro%>-theater                 // Lite + media apps"
+      params: autologin=1
+    apps:
+      - theater-apps
+  lite:
+    base: base
+    groups: [video, audio]
+    install:
+      order: 4
+      label: "Deploy <%=distro%>-lite                    // Shell + min X11"
+    apps:
+      - lite-apps
+      - virtualbox-guest
+  k8snode:
+    base: base
+    groups: [docker]
+    install:
+      order: 5
+      label: "Deploy <%=distro%>-k8snode                 // Shell + k8s node"
+    apps:
+      - k8snode-apps
+  base:
+    install:
+      order: 6
       label: "Deploy <%=distro%>-base                    // Base shell env"
     apps:
       - kernel
       - base-apps
       - shell-apps
       - virtualbox-guest-nox
-#
-#  lite:
-#    type: machine
-#    base: base
-#    groups: [video, audio]
-#    vars: {wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg}
-#    vagrant: {vram: 32, cpus: 2, ram: 2048, v3d: 'on'}
-#    install:
-#      order: 2
-#      label: "Deploy <%=distro%>-lite                    // Shell + min X11"
-#      kernel: linux
-#    apps:
-#      - lite-apps
-#      - virtualbox-guest
-#
-#  k8snode:
-#    type: machine
-#    base: base
-#    groups: [docker]
-#    vagrant: { vram: 8, cpus: 2, ram: 2048 }
-#    install:
-#      label: "Deploy <%=distro%>-k8snode                 // Shell + k8s node"
-#      kernel: linux
-#    packages:
-#      - { install: k8snode-apps }
-#    configs:
-#      - { apply: k8snode-config }
-#
-#  theater:
-#    type: machine
-#    base: lite
-#    vars: { fontsize: 18, wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
-#    vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
-#    install:
-#      order: 3
-#      label: "Deploy <%=distro%>-theater                 // Lite + media apps"
-#      kernel: linux
-#      params: autologin=1
-#    packages:
-#      - { install: theater-apps }
-#    configs:
-#      - { apply: theater-config }
-#
-#  desktop:
-#    type: machine
-#    base: lite
-#    groups: [docker]
-#    vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
-#    vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
-#    install:
-#      order: 2
-#      label: "Deploy <%=distro%>-desktop                 // Lite + more apps"
-#      kernel: linux
-#    packages:
-#      - { install: desktop-pkgs }
-#    configs:
-#      - { apply: desktop-config }
-#
-#  live:
-#    type: machine
-#    base: desktop
-#    vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
-#    vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
-#    install:
-#      order: 1
-#      label: "Start <%=distro%>-recovery                 // Live environment"
-#      kernel: linux
-# Desktop android
-# groups: [adbusers, uucp]
