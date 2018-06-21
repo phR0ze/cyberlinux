@@ -141,7 +141,7 @@ class Test_getimages < Minitest::Test
     images = "foo-0.2.1:2.5MB\nfoo-0.1.0:1.5MB\nbar:2.3MB\nfoo-0.3.1:3.4MB"
     @reduce.stub(:puts, nil) {
       @reduce.stub(:`, images){
-        results = @reduce.getimages(@type.tgz, live:true, deployment:"foo")
+        results = @reduce.getimages(@type.tgz, live:true, filter:"foo")
         assert_equal([
           ["foo-0.3.1", "3.4MB"],
           ["foo-0.2.1", "2.5MB"],
@@ -167,7 +167,7 @@ class Test_getimages < Minitest::Test
         File.stub(:size, 111) {
           Dir.stub(:exist?, true) {
             Dir.stub(:[], images) {
-              results = @reduce.getimages(type, deployment:"foo")
+              results = @reduce.getimages(type, filter:"foo")
               assert_equal([
                 [File.join(image_path, "#{@vars.distro}-foo-0.3.1.#{type}"), 111],
                 [File.join(image_path, "#{@vars.distro}-foo-0.2.0.#{type}"), 111],
@@ -194,7 +194,7 @@ class Test_getimages < Minitest::Test
         File.stub(:size, 111) {
           Dir.stub(:exist?, true) {
             Dir.stub(:[], images) {
-              results = @reduce.getimages(type, deployment:"foo")
+              results = @reduce.getimages(type, filter:"foo")
               assert_equal([
                 [File.join(image_path, "foo.#{type}"), 111],
               ], results)
@@ -214,7 +214,7 @@ class Test_getimages < Minitest::Test
       Dir.stub(:exist?, true) {
         Dir.stub(:[], images) {
           Sys.capture{assert_raises(SystemExit){
-            @reduce.getimages(@type.iso, deployment:"bar", die:true)}
+            @reduce.getimages(@type.iso, filter:"bar", die:true)}
           }
         }
       }

@@ -73,8 +73,8 @@ getinput()
     local silent=$4                                 # Don't echo when set
 
     echo -en "   Enter ${input} (default=${cyan}${result}${none}): "
-    [ "x$vagrant" == "x1" ] && echo ''
-    if [ "x$vagrant" != "x1" ]; then
+    [ "x$vagrant" != "x0" ] && echo ''
+    if [ "x$vagrant" == "x0" ]; then
         if [ $silent ]; then
             read -s value
             echo ''
@@ -100,7 +100,7 @@ getsel()
     done
     while true; do
         echo -en "   Enter a number (default=${cyan}1${none}): "
-        [ "x$vagrant" == "x1" ] && echo '' || read choice
+        [ "x$vagrant" != "x0" ] && echo '' || read choice
         [ "$choice" == "exit" ] && exit_to_shell
         [ "x$choice" == "x" ] && choice=1
         if [ $choice -gt 0 ] && [ $choice -le $out_of_bounds ]; then
@@ -185,6 +185,46 @@ mount_iso()
         let "i+1"
         [ $i -eq 40 ] && fail_to_shell
     done
+}
+
+get_disks()
+{
+    disks=""
+    disk_details=""
+
+    ifs=$IFS
+    IFS=$'\n'
+    local i=0
+    local alldisks=$(lsblk -dn -o NAME,SIZE,VENDOR,MODEL,TYPE -x NAME | grep disk)
+    for x in $alldisks; do
+        local details=""
+        local disk=$(echo $x | awk '{print $1}')
+        local size=$(echo $x | awk '{print $2}')
+        local vendor=$(echo $x | awk '{print $3}')
+        local model=$(echo $x | awk '{print $4}')
+        [ "x${size}" != "x" ] && details="${size}"
+        [ "x${vendor}" != "x" ] && details="${details} ${vendor}"
+        [ "x${model}" != "x" ] && details="${details} ${model}"
+
+        # Limit to disks over 4GB in size
+        local factor=1
+        [ "${size#*G}" != "${size}" ] && factor=1024
+        size=${size//M}         # Drop M suffix
+        size=${size//G}         # Drop G suffix
+        size=${size%.*}         # Drop decimal suffix
+        size=$((size*factor))
+        if [ ${size} -gt 4096 ]; then
+
+            # Exclude the device the iso was mounted from
+            local dev=/dev/${disk}
+            if [ "${isodev#*$dev}" == "${isodev}" ]; then
+                local i=$((i+1))
+                disks="${disks} /dev/${disk}"
+                disk_details="${disk_details} '${details}'"
+            fi
+        fi
+    done
+    IFS=$ifs
 }
 
 # Partition disk and mount for install at ${rootmnt}
@@ -468,7 +508,7 @@ config_system()
 
     # Autologin if lxdm exists and parameter is set
     if [ -e "${rootmnt}/etc/lxdm/lxdm.conf" ]; then
-        if [ "$autologin" == "1" ]; then
+        if [ "x$autologin" == "x1" ]; then
             echo -en ":: Enable autologin for LXDM..."
             sed -i -e "s/^#\s*\(autologin\)=.*/\1=${user}/" "${rootmnt}/etc/lxdm/lxdm.conf"
             check_status
@@ -496,82 +536,79 @@ installer()
     #---------------------------------------------------------------------------
     mount_iso
 
-    # Default live configuration
-    if [ "$target_layer" == 'live' ]; then
-       user='vagrant'
-       pass='vagrant'
-       netip='DHCP'
-       hostname="${distro}-${target_layer}"
-    else
-        # Collect install destination device
-        #-----------------------------------------------------------------------
-        ifs=$IFS
-        IFS=$'\n'
-        local i=0
-        echo -e "\n${cyan}:: Select a disk as your install destination:${none}"
-        local disks=''
-        local alldisks=$(lsblk -dn -o NAME,SIZE,VENDOR,MODEL,TYPE -x NAME | grep disk)
-        for x in $alldisks; do
-            local details=""
-            local disk=$(echo $x | awk '{print $1}')
-            local size=$(echo $x | awk '{print $2}')
-            local vendor=$(echo $x | awk '{print $3}')
-            local model=$(echo $x | awk '{print $4}')
-            [ "x${size}" != "x" ] && details="${size}"
-            [ "x${vendor}" != "x" ] && details="${details} ${vendor}"
-            [ "x${model}" != "x" ] && details="${details} ${model}"
+    # Set defaults for live or vagrant deployments
+    #---------------------------------------------------------------------------
+    vagrant=0
+    hostname="${distro}-${target_layer}"
+    netip='DHCP'
+    proxy='None'
+    no_proxy='localhost,127.0.0.1'
+    user='vagrant'
+    pass=$(mkpasswd -m sha 'vagrant')
 
-            # Limit to disks over 4GB in size
-            local factor=1
-            [ "${size#*G}" != "${size}" ] && factor=1024
-            size=${size//M}         # Drop M suffix
-            size=${size//G}         # Drop G suffix
-            size=${size%.*}         # Drop decimal suffix
-            size=$((size*factor))
-            if [ ${size} -gt 4096 ]; then
+    # Ask for user input if not live deployment
+    #---------------------------------------------------------------------------
+    if [ "$target_layer" != 'live' ]; then
+        get_disks
+        install_dev=$(echo $disks | awk '{print $1}')
 
-                # Exclude the device the iso was mounted from
-                local dev=/dev/${disk}
-                if [ "${isodev#*$dev}" == "${isodev}" ]; then
-                    local i=$((i+1))
-                    local disks="${disks} /dev/${disk}"
-                    echo -e "   ${i}) [${cyan}/dev/${disk}${none}] - ${details}"
-                fi
-            fi
-        done
-        IFS=$ifs
-        getsel install_dev $disks
+        # Determine if this is a vagrant deployment
+        echo -e "\n${cyan}:: Vagrant deployment?${none}"
+        getinput vagrant 'vagrant mode' 0
+        if [ "x$vagrant" != "x0" ]; then
+            autologin=1
+            echo -e "\n${cyan}:: Vagrant deployment mode selected...${none}"
+            echo -e "   vagrant=${vagrant}"
+            echo -e "   hostname=${hostname}"
+            echo -e "   networking=${netip}"
+            echo -e "   proxy=${proxy}"
+            echo -e "   no_proxy=${no_proxy}"
+            echo -e "   user=${user}"
+            echo -e "   pass='vagrant'"
+            echo -e "   install_dev=${install_dev}"
+        else
+            # Collect install destination device
+            #----------------------------------------------------------------------- 
+            echo -e "\n${cyan}:: Select a disk as your install destination:${none}"
+            local i=0
+            for disk in $disks; do
+                local i=$((i+1))
+                local details=$(echo "$disk_details" | awk -F\' "{print \$${i}}")
+                echo -e "   ${i}) [${cyan}${disk}${none}] - ${details}"
+            done
+            getsel install_dev $disks
 
-        # Determine if this is a chromebook
-        [ ${install_dev//mmc} != ${install_dev} ] && chromebook=1 || chromebook=0
+            # Determine if this is a chromebook
+            [ ${install_dev//mmc} != ${install_dev} ] && chromebook=1 || chromebook=0
 
-        # Configure networking
-        #----------------------------------------------------------------------
-        echo -e "\n${cyan}:: Configure networking:${none}"
-        getinput hostname 'hostname' "${distro}-${target_layer}"
-        getinput netip 'static IP' 'DHCP'
-        getinput proxy 'proxy, url:port format' 'None'
-        [ "x${proxy}" != "xNone" ] && getinput no_proxy 'no_proxy, comma delim' 'localhost,127.0.0.1'
+            # Configure networking
+            #----------------------------------------------------------------------
+            echo -e "\n${cyan}:: Configure networking:${none}"
+            getinput hostname 'hostname' $hostname
+            getinput netip 'static IP' 'DHCP'
+            getinput proxy 'proxy, url:port format' $proxy
+            [ "x${proxy}" != "xNone" ] && getinput no_proxy 'no_proxy, comma delim' $no_proxy
 
-        # Configure timezone
-        #----------------------------------------------------------------------
-        echo -e "\n${cyan}:: Configure timezone:${none}"
-        getinput timezone 'timezone' $timezone
+            # Configure timezone
+            #----------------------------------------------------------------------
+            echo -e "\n${cyan}:: Configure timezone:${none}"
+            getinput timezone 'timezone' $timezone
 
-        # Create new user account
-        #----------------------------------------------------------------------
-        echo -e "\n${cyan}:: Create new user account:${none}"
-        getinput user 'new username' 'vagrant'
-        while true; do
-            getinput pass 'new password' 'vagrant' 1
-            getinput pass2 'password again' 'vagrant' 1
-            if [ "x$pass" != "x$pass2" ]; then
-                echo -e "   ${red}Passwords don't match, please try again${none}"
-            else
-                break
-           fi
-        done
-        pass=$(mkpasswd -m sha $pass)
+            # Create new user account
+            #----------------------------------------------------------------------
+            echo -e "\n${cyan}:: Create new user account:${none}"
+            getinput user 'new username' $user
+            while true; do
+                getinput pass 'new password' 'vagrant' 1
+                getinput pass2 'password again' 'vagrant' 1
+                if [ "x$pass" != "x$pass2" ]; then
+                    echo -e "   ${red}Passwords don't match, please try again${none}"
+                else
+                    break
+               fi
+            done
+            pass=$(mkpasswd -m sha $pass)
+        fi
     fi
 
     # Mount live system or Install to local disk
@@ -646,7 +683,6 @@ run_hook()
             'efi'=*) efi=${x//efi=} ;;
             'kernel'=*) kernel=${x//kernel=} ;;
             'layers'=*) layers=${x//layers=} ;;
-            'vagrant'=*) vagrant=${x//vagrant=} ;;
             'autologin'=*) autologin=${x//autologin=} ;;
             *) continue ;;
         esac
@@ -665,7 +701,6 @@ run_hook()
     all_groups="<%=groups%>"
 
     target_layer=$(echo $layers | awk -F, '{print $1}')
-    [ "x$vagrant" == "x1" ] && autologin=1
     [ "$target_layer" == "live" ] && autologin=1
 
     # Custom handler defined above.

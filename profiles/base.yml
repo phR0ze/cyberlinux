@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.44
+  release: 0.2.45
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -90,7 +90,6 @@ apps:
     - core-boot
     - kernel
     - mkinitcpio
-    - sudo
     - {install: gptfdisk,            desc: Paritioning tools e.g. sgdisk }
     - {install: rsync,               desc: Remote file sync utility }
 
@@ -176,16 +175,16 @@ apps:
   core-boot:
     - core
     - core-tools
+    - sudo
     - systemd
     - {install: cyberlinux-grub,     desc: GNU GRand Unified Booloader 2, type: CYBERLINUX }
 
   # Full shell environment
   # ----------------------------------------------------------------------------
-  shell-apps:
+  shell:
     - core-boot
     - cronie
     - sshd
-    - sudo
     - dev-apps
     - mkinitcpio
     - ruby-gems
@@ -438,6 +437,7 @@ apps:
 
   # https://wiki.archlinux.org/index.php/Desktop_environment
   desktop-apps:
+    - cinnamon-screensaver
     - docker
     - media-apps
     - virtualbox-host
@@ -447,7 +447,6 @@ apps:
     - {install: audacity,            desc: Audio editor - cross platform, tried and tested }
     - {install: brasero,             desc: Burning tool, alt: k3b, xfburn }
     - {install: catfish,             desc: System/File Search - File search tool }
-    - {install: cinnamon-screensaver,desc: Screensaver for the Cinnamon desktop, type: CYBERLINUX }
     - {install: conky,               desc: Lightweight system monitor for X }
     - {install: devede,              desc: A program to create VideoDVDs and CDs }
     - {install: fbreader,            desc: An e-book reader for linux }
@@ -530,6 +529,39 @@ apps:
     - {install: util-linux,          desc: Utilities blkid/fdisk/rename/cp etc..., depof: php-gd }
     - {install: xz,                  desc: Compression util for xz format, depof: php-gd }
 
+  cinnamon-screensaver:
+    - {install: cinnamon-screensaver, desc: Screensaver for the Cinnamon desktop, type: CYBERLINUX }
+    - edit: /etc/skel/.config/autostart/cinnamon-screensaver.desktop
+      insert: append
+      values:
+        - '[Desktop Entry]'
+        - 'Name=Cinnamon Screensaver'
+        - 'Comment=Desktop screensaver and lock'
+        - 'Exec=cinnamon-screensaver'
+        - 'Icon=cinnamon-screensaver'
+        - 'Terminal=false'
+        - 'StartupNotify=true'
+        - 'Type=Application'
+        - 'Categories=System;Utility;'
+    - edit: /etc/dconf/db/local.d/04-cinnamon
+      insert: append
+      values:
+        - "[org/cinnamon/desktop/screensaver]\n"
+        - "use-custom-format=true\n"
+        - "time-format='%I:%M%P'\n\n"
+        - "[org/cinnamon/desktop/background]\n"
+        - "picture-uri='file://<%=wallpaper%>'\n"
+    - {chroot: dconf update }
+    # This file edit is an ugly hack to fix cinnamon-screensaver as it broke in a recent version
+    - edit: /usr/share/glib-2.0/schemas/org.cinnamon.desktop.screensaver.gschema.xml
+      insert: before
+      regex: '</schema>'
+      values:
+        - "    <key type=\"b\" name=\"logout-enabled\"><default>false</default></key>\n"
+        - "    <key type=\"s\" name=\"logout-command\"><default>''</default></key>\n"
+        - "    <key type=\"u\" name=\"logout-delay\"><default>7200</default></key>\n"
+    - {chroot: glib-compile-schemas /usr/share/glib-2.0/schemas }
+
   cronie:
     - {install: cronie, desc: Daemon for scheduling programs to run}
     - {chroot: systemctl enable cronie.service}
@@ -570,6 +602,7 @@ apps:
   k8s-node:
     - sshd
     - docker
+    - virtualbox-guest-nox
     - {install: kubeadm,             desc: K8s cluster bootstrap, type: CYBERLINUX}
     - {install: kubectl,             desc: K8s cluster controller, type: CYBERLINUX}
     - {install: kubelet,             desc: K8s node control agent, type: CYBERLINUX}
@@ -739,13 +772,11 @@ configs:
     - config-wpa-gui
     - config-conky
     - config-menu-laptop
-    - config-cinnamon-screensaver
   config-desktop:
     - config-conky
     - config-guake
     - config-menu-desktop
     - config-plank-desktop
-    - config-cinnamon-screensaver
   config-server:
     - config-nfs
     - config-thunar
@@ -909,37 +940,6 @@ configs:
   config-bash:
     - {edit: /root/.bashrc, regex: '^(export PATH.*)', value: '\1:/opt/<%=distro%>/bin' }
     - {edit: /etc/skel/.bashrc, regex: '^(export PATH.*)', value: '\1:/opt/<%=distro%>/bin' }
-  config-cinnamon-screensaver:
-    - edit: /etc/skel/.config/autostart/cinnamon-screensaver.desktop
-      insert: append
-      values:
-        - '[Desktop Entry]'
-        - 'Name=Cinnamon Screensaver'
-        - 'Comment=Desktop screensaver and lock'
-        - 'Exec=cinnamon-screensaver'
-        - 'Icon=cinnamon-screensaver'
-        - 'Terminal=false'
-        - 'StartupNotify=true'
-        - 'Type=Application'
-        - 'Categories=System;Utility;'
-    - edit: /etc/dconf/db/local.d/04-cinnamon
-      insert: append
-      values:
-        - "[org/cinnamon/desktop/screensaver]\n"
-        - "use-custom-format=true\n"
-        - "time-format='%I:%M%P'\n\n"
-        - "[org/cinnamon/desktop/background]\n"
-        - "picture-uri='file://<%=wallpaper%>'\n"
-    - {chroot: dconf update }
-    # This file edit is an ugly hack to fix cinnamon-screensaver as it broke in a recent version
-    - edit: /usr/share/glib-2.0/schemas/org.cinnamon.desktop.screensaver.gschema.xml
-      insert: before
-      regex: '</schema>'
-      values:
-        - "    <key type=\"b\" name=\"logout-enabled\"><default>false</default></key>\n"
-        - "    <key type=\"s\" name=\"logout-command\"><default>''</default></key>\n"
-        - "    <key type=\"u\" name=\"logout-delay\"><default>7200</default></key>\n"
-    - {chroot: glib-compile-schemas /usr/share/glib-2.0/schemas }
   config-conky:
     - {menu: Settings, entry: Conky RC, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.conkyrc }
     - edit: /etc/lxdm/PostLogout

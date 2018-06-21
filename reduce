@@ -599,7 +599,8 @@ class Reduce
   # @param disksize [int] disk size to use for pack
   # @param force [bool] pack even if already exists
   def pack(deployments, disksize:nil, force:nil)
-    _deployments = @profile.deployments.select{|k,v| v[@k.type] == @k.machine}
+    _deployments = @profile.deployments
+      .select{|k,v| v[@k.type] == @k.machine && v[@k.install] && v[@k.install][@k.order]}
     deployments = deployments || _deployments.reject{|k,v| k == 'live'}.keys
     puts("Packing deployments #{deployments * ','}\n#{'-' * 80}".colorize(:light_yellow))
     Log.die("must be executed as non-root user") unless not Process.uid.zero?
@@ -609,12 +610,12 @@ class Reduce
     Log.die("ensure 'packer' https://www.packer.io/downloads.html is in the path") unless find_executable('packer')
     Log.die("install 'virtualbox' via 'sudo pacman -S virtualbox'") unless find_executable('vboxmanage')
 
-    # Locate latest iso
-    isos = self.getimages(@type.iso).map{|x| x.first}
+    # Locate latest iso for profile
+    isos = self.getimages(@type.iso, filter:@vars.profile).map{|x| x.first}
     Log.die("no ISOs found") unless isos.any?
     @vars.isofile = isos.shift
 
-    @vars.release = @vars.isofile[/-(.*?)-/, 1]
+    @vars.release = @vars.isofile[/#{@vars.profile}-(.*?)-/, 1]
     puts("Release: #{@vars.release}".colorize(:cyan))
     puts("ISO: #{@vars.isofile}".colorize(:cyan))
 
@@ -627,8 +628,9 @@ class Reduce
     end
 
     # Pack implicated deployments into vagrant boxes
-    installables = _deployments.sort_by{|k,v| v[@k.install][@k.order]}
+    installables = _deployments.sort_by{|k,v| v[@k.install][@k.order]}.map{|x| x.first}
     deployments.each do |deployment|
+      i = installables.index(deployment)
 
       # Remove old boxes and/or skip if current
       image = self.evalimages!(@type.box, deployment:deployment, force:force)
@@ -643,6 +645,7 @@ class Reduce
       # Copy over and resolve packer template and scripts
       puts("Copy over and resolve packer template and scripts".colorize(:cyan))
       Dir.glob(File.join(@packer_src, '*.sh')).each{|x|
+        puts("Copying: #{x} => #{@packer_work}")
         FileUtils.cp(x, @packer_work)
         FileUtils.resolve(File.join(@packer_work, File.basename(x)), @vars)
       }
@@ -651,7 +654,9 @@ class Reduce
       FileUtils.cp(File.join(@packer_src, 'packer.json'), template)
       @vars.deployment = deployment
       @vars.disksize = disksize || '40000'
-      @vars.downs = ['"<down>"'] * installables.index(deployment) * ','
+      commands = ['"<enter>"', '"<wait"']
+      commands = ['"<down>"'] * i + commands if i > 0
+      @vars.vagrant_boot_commands = commands * ","
       FileUtils.resolve(template, @vars)
 
       # Create a new vagrant image for the given deployment
@@ -686,7 +691,7 @@ class Reduce
 
       # Choose a vagrant box to use and update registry if needed
       vagrant_box = deployment
-      box = self.getimages(@type.box, deployment:deployment).map{|x| x.first}.shift
+      box = self.getimages(@type.box, filter:deployment).map{|x| x.first}.shift
       if !box
         vagrant_box = "phR0ze/cyberlinux-#{deployment}"
         puts("Downloading '#{vagrant_box}' from vagrantup.com".colorize(:cyan))
@@ -1112,7 +1117,7 @@ class Reduce
     image_exists = nil
     curver = @vars.release.split('.').map{|x| x.to_i}
 
-    self.getimages(type, deployment:deployment, live:live).map{|x| x.first}.each{|image|
+    self.getimages(type, filter:deployment, live:live).map{|x| x.first}.each{|image|
       puts("Evaluating '#{live ? 'live' : 'disk'}' image #{image}".colorize(:cyan))
       name = live ? image[/-(.*)/, 1] : image[/-(.*?)\.#{type}/, 1]
       imagever = name.split('.').map{|x| x.to_i}
@@ -1140,18 +1145,18 @@ class Reduce
 
   # Get all images sorted newest to oldest
   # @param type [string] image type to get
-  # @param deployment [string] deployment to get image for or all
+  # @param filter[string] deployment to get image for or all
   # @param live [bool] get live(true) vs disk(false)
   # @param die [bool] die on error
   # @returns all images sorted by version and optionally filtered by deployment
-  def getimages(type, deployment:nil, live:nil, die:false)
+  def getimages(type, filter:nil, live:nil, die:false)
     sorted_images = []
 
     # Get deployed image data
     #---------------------------------------------------------------------------
     if live and type == @type.tgz
       images = `sudo docker images --format "{{.Repository}}:{{.Size}}"`.split("\n")
-        .select{|x| deployment ? x.start_with?("#{deployment}-") : true}.map{|x| x.split(':')}
+        .select{|x| filter ? x.start_with?("#{filter}-") : true}.map{|x| x.split(':')}
       images.sort_by{|x| (x.first[/-(\d+\.\d+\.\d+).*/, 1] || "none.").split('.').map{|y| y.to_i}}
         .reverse.each{|x| sorted_images << x}
 
@@ -1169,7 +1174,7 @@ class Reduce
       end
 
       # Sort the resulting list by version
-      images = deployment ? files.select{|x| x.include?(deployment)} : files
+      images = filter ? files.select{|x| x.include?(filter)} : files
       images = [@type.sqfs, @type.img].include?(type) ? images.sort :
         images.sort_by{|x| x[/-(\d+\.\d+\.\d+).*/, 1].split('.').map{|y| y.to_i}}.reverse
 
@@ -1178,11 +1183,11 @@ class Reduce
     end
 
     # Print result for single search
-    if deployment
+    if filter 
       if sorted_images.any?
         puts("Located '#{live ? 'live' : 'disk'}' image #{sorted_images.first.first}".colorize(:cyan))
       elsif die
-        Log.die("could not find image type '#{type}' for '#{deployment}'")
+        Log.die("could not find image type '#{type}' for '#{filter}'")
       end
     end
 
@@ -1317,7 +1322,7 @@ if __FILE__ == $0
 
   # Load target profile
   reduce.load_profile(cmdr[:global][:profile]) if cmdr[:global][:profile]
-  if !reduce.vars.profile && (cmdr[:build] || cmdr[:deploy])
+  if !reduce.vars.profile && (cmdr[:build] || cmdr[:deploy] || cmdr[:pack])
     Log.die("profile must be given")
   end
 

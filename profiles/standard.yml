@@ -44,17 +44,20 @@ deployments:
     apps:
       - theater-apps
   lite:
-    base: base
+    base: shell
     groups: [video, audio]
     install:
       order: 4
       label: "Deploy <%=distro%>-lite                    // Shell + min X11"
     apps:
       - lite-apps
-  base:
+  shell:
+    base: core
     install:
       order: 6
-      label: "Deploy <%=distro%>-base                    // Base shell env"
+      label: "Deploy <%=distro%>-shell                    // Shell env"
+    apps:
+      - shell
+  core:
     apps:
       - kernel-full
-      - base-apps
