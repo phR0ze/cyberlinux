@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.37
+  release: 0.2.38
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -96,8 +96,8 @@ apps:
     - { install: sudo,                desc: Elevate some user commands to root }
 
     # Grub tools
-    - { install: dosfstools,          desc: DOS filesystem utilities e.g. mkfs.fat }
     - { install: cyberlinux-grub,     desc: GNU GRand Unified Booloader 2, type: CYBERLINUX }
+    - { install: dosfstools,          desc: DOS filesystem utilities e.g. mkfs.fat }
     - { install: intel-ucode,         desc: Microcode update files for Intel CPUs }
     - { install: licenses,            desc: Standard licenses distribution package }
     - { install: memtest86+,          desc: memtest is used in the ISO creation as menu option }
@@ -172,11 +172,11 @@ apps:
     - core-tools
     - shell-apps
     - virtualbox-guest-nox
+    - { install: cyberlinux-grub,     desc: GNU GRand Unified Booloader 2, type: CYBERLINUX }
     - { install: curl,                desc: Adding curl command to pull in packer scripts }
     - { install: dmidecode,           desc: Desktop Managment Interface table related utilities }
     - { install: dnsutils,            desc: Network utilities dig/host/nslookup }
     - { install: dosfstools,          desc: DOS filesystem utilities e.g. mkfs.fat, depof: installer }
-    - { install: grub,                desc: GNU GRand Unified Booloader 2, depof: installer }
     - { install: efibootmgr,          desc: Tool to modify UEFI Firmware Boot Manager Variables, depof: installer }
     - { install: intel-ucode,         desc: Microcode update files for Intel CPUs }
     - { install: lsb-release,         desc: LSB version query program }

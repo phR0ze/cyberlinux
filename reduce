@@ -134,14 +134,12 @@ class Reduce
     @vagrantpath = File.join(@rootpath, 'vagrant')
 
     @motd_path = File.join(@deployments_src, 'base/etc/motd')
-    @pacman_conf = File.join(@pacman_path, 'pacman.conf')
     @pacman_src_conf = File.join(@deployments_src, 'base/etc/pacman.conf')
     @pacman_src_mirrors = Dir[File.join(@deployments_src, "base/etc/pacman.d/*.mirrorlist")]
 
     @boot_dst = File.join(@isopath, 'boot')
     @deployment_images_dst = File.join(@isopath, 'images')
     @grub_iso_dst = File.join(@boot_dst, 'grub')
-    @grub_iso_src = File.join(@rootpath, 'boot/grub_iso')
     @grub_iso_work = File.join(@workpath, 'boot/grub_iso')
 
     @kernel_path = @boot_dst
@@ -238,7 +236,7 @@ class Reduce
     changed = false
     uid, gid = User.drop_privileges
 
-    changed |= !Dir.exist?(@pacman_path)
+    changed |= !Dir.exist?(@pacman_cache)
     changed |= !Dir.exist?(@workpath)
     changed |= !Dir.exist?(@tmp_dir)
     changed |= !Dir.exist?(@isopath)
@@ -253,7 +251,7 @@ class Reduce
     changed |= !Dir.exist?(@vagrantpath)
     puts("Creating directory structure") if changed
 
-    FileUtils.mkdir_p(@pacman_path)
+    FileUtils.mkdir_p(@pacman_cache)
     FileUtils.mkdir_p(@workpath)
     FileUtils.mkdir_p(@tmp_dir)
     FileUtils.mkdir_p(@isopath)
@@ -378,19 +376,10 @@ class Reduce
     end
 
     # Clean pacman
-    if pacman or cache
-      puts("Cleaning pacman repos...".colorize(:cyan))
-      puts("Cleaning pacman cache...".colorize(:cyan)) if cache
-      if pacman
-        puts("Deleting repo files except cache".colorize(:red))
-        Sys.rm_rf(File.join(@pacman_path, 'gnupg'))
-        Dir[File.join(@pacman_path, '*.mirrorlist')].each{|f| File.delete(f)}
-        Dir[File.join(@pacman_path, '*.conf')].each{|f| File.delete(f)}
-        Dir[File.join(@pacman_path, '*.log')].each{|f| File.delete(f)}
-      elsif cache
-        puts("Deleting #{@pacman_cache}".colorize(:red)) if Dir.exist?(@pacman_cache)
-        Sys.rm_rf(@pacman_cache)
-      end
+    if cache
+      puts("Cleaning pacman cache...".colorize(:cyan))
+      puts("Deleting #{@pacman_cache}".colorize(:red)) if Dir.exist?(@pacman_cache)
+      Sys.rm_rf(@pacman_cache)
     end
 
     # Clean iso path
@@ -545,20 +534,14 @@ class Reduce
   def build_multiboot
     changed = false
     self.create_dir_structure
-    grub_digests = File.join(@grub_iso_work, 'digests')
     grub_iso_path = File.join(@grub_iso_work, 'boot/grub')
     kernels = @profile.deployments.select{|k,v| v[@k.type] == @k.machine}
       .map{|k,v| v[@k.install][@k.kernel]}.compact.uniq.map{|x| "#{@kernel_prefix}-#{x}"}
 
     FileUtils.mkdir_p(grub_iso_path)
     puts("Building multiboot...\n#{'-' * 80}".colorize(:light_yellow))
-    if syncfiles(File.basename(@grub_iso_work), @grub_iso_src, grub_iso_path, grub_digests) or
-        not Dir[File.join(@kernel_path, "#{@kernel_prefix}*")].any?
+    if !Dir[File.join(@kernel_path, "#{@kernel_prefix}*")].any?
       changed |= true
-
-      # Resolve templates
-      #FileUtils.resolve(File.join(grub_iso_path, 'grub.cfg'), @vars)
-      #FileUtils.resolve(File.join(grub_iso_path, "themes/#{@vars.distro}/theme.txt"), @vars)
 
       # Inject deploy entries from deployments
       motd = File.readlines(@motd_path)
@@ -581,8 +564,13 @@ class Reduce
       }
       FileUtils.resolve(File.join(grub_iso_path, 'boot.cfg'), @vars)
 
-      # Extract memtest and intel-ucode as well as licenses
+      # Extract grub boot files, memtest and intel-ucode with licenses
       docker(@k.builder, 'root'){|cont, home, cp, exec, execs, runuser|
+        cp.call("#{cont}:/usr/share/grub/grub.cfg #{grub_iso_path}")
+        cp.call("#{cont}:/usr/share/grub/loopback.cfg #{grub_iso_path}")
+        cp.call("#{cont}:/usr/share/grub/unicode.pf2 #{grub_iso_path}")
+        cp.call("#{cont}:/usr/share/grub/themes #{grub_iso_path}")
+
         cp.call("#{cont}:/boot/intel-ucode.img #{@ucode_image}.img")
         cp.call("#{cont}:/usr/share/licenses/intel-ucode/LICENSE #{@ucode_image}.LICENSE")
         cp.call("#{cont}:/boot/memtest86+/memtest.bin #{@memtest_image}")
@@ -592,7 +580,7 @@ class Reduce
 
       puts("Copying grub multiboot to destination...".colorize(:cyan))
       Dir.glob(File.join(@grub_iso_work, '**/*'), File::FNM_DOTMATCH).each{|x|
-        if !['digests', 'efi.img'].any?{|y| y == File.basename(x)} and File.file?(x)
+        if File.file?(x) && File.basename(x) != 'efi.img'
           dst = x.sub(@grub_iso_work, @isopath)
           puts("Copying: ...to #{dst}")
           FileUtils.mkdir_p(File.dirname(dst))
@@ -1295,8 +1283,7 @@ if __FILE__ == $0
       iso: 'Clean bootable ISO',
       isofull: 'Clean initramfs, multiboot and iso'
     }),
-    Option.new('--pacman', "Clean pacman repos"),
-    Option.new('--cache', "Clean pacman/ruby package cache"),
+    Option.new('--cache', "Clean pacman package cache"),
     Option.new('--vms', "Clean VMs that are no longer deployed"),
     Option.new('-d|--deployments=DEPLOYMENTS', "Deployments to clean", type:Array)
   ])
