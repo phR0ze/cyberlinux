@@ -21,36 +21,14 @@
 base: base
 
 deployments:
-  live:
-    base: desktop
-    install:
-      order: 1
-      label: "Start <%=distro%>-recovery                 // Live environment"
-  desktop:
-    base: lite
-    groups: [docker, adbusers, uucp]
-    install:
-      order: 2
-      label: "Deploy <%=distro%>-desktop                 // Lite + more apps"
-    apps:
-      - desktop-apps
-  theater:
-    base: lite
-    vars: { fontsize: 18 }
-    install:
-      order: 3
-      label: "Deploy <%=distro%>-theater                 // Lite + media apps"
-      params: autologin=1
-    apps:
-      - theater-apps
-  lite:
+  k8snode:
     base: base
-    groups: [video, audio]
+    groups: [docker]
     install:
-      order: 4
-      label: "Deploy <%=distro%>-lite                    // Shell + min X11"
+      order: 5
+      label: "Deploy <%=distro%>-k8snode                 // Shell + k8s node"
     apps:
-      - lite-apps
+      - k8snode-apps
   base:
     install:
       order: 6
