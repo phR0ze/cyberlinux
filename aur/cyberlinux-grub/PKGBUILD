@@ -30,90 +30,30 @@ arch=('any')
 url="https://github.com/phR0ze/cyberlinux-grub"
 license=('MIT')
 depends=('grub')
-makedepends=(imagemagick)
-install=$pkgname.install
 
-source=("git+https://github.com/phR0ze/$pkgname.git#tag=$pkgver"
-        "https://www.privateinternetaccess.com/openvpn/openvpn-ip.zip"
-        "https://www.privateinternetaccess.com/openvpn/openvpn-strong.zip"
-        "openvpn-pia.desktop")
-
-sha256sums=('SKIP'
-            '8d7d75b7cc7b5a40dc26f778eb646c348011657bba90e137a359d18332c4bdad'
-            '4897c3a8dd988e87c4c53db2dd1522a0a7112d58a0357425c09d1ce5f9f5a1b5'
-            'd8eec410a02854ba4dd392e48a56129764ebd5b7307296d8d3dd968ebdcb0721')
-
-build()
-{
-  cd $srcdir
-  msg "Building $pkgname..."
-
-  # Rename PIA configuration files
-  # openvpn doesn't do well with spaces
-  for ovpn in $srcdir/*.ovpn; do
-    dir=$(dirname "$ovpn")
-    base=$(basename "$ovpn")
-    x="${base}"
-    x="${x// /-}"
-    x="${x,,}"
-    if [ "${x}" != "${base}" ]; then
-      msg2 "Renaming: $base => $x"
-      mv "$ovpn" "$dir/$x"
-    fi
-  done
-
-  # Generate install icons from scalables
-  for svg in $srcdir/$pkgname/images/*.svg; do
-    base=$(basename "$svg")
-    x="${base//svg/png}"
-    if [ ! -e $srcdir/$x ]; then
-      msg2 "Generating icon $x"
-      convert -background none -density 384 -resize x32 $svg $srcdir/$x
-    fi
-  done
-}
+source=("git+https://github.com/phR0ze/$pkgname.git#tag=$pkgver")
+sha256sums=('SKIP')
 
 package()
 {
-  cd $srcdir
   msg "Packaging $pkgname..."
 
   # Package license and documentation
   msg2 "Packaging license and docs..."
-  install -dm750 $pkgdir/usr/share/doc/$pkgname
+  install -dm755 $pkgdir/usr/share/doc/$pkgname
   install -Dm644 $srcdir/$pkgname/LICENSE -t $pkgdir/usr/share/doc/$pkgname
   install -Dm644 $srcdir/$pkgname/README.md -t $pkgdir/usr/share/doc/$pkgname
 
   # Package data files
   msg2 "Packaging data files"
-  install -Dm644 $srcdir/$pkgname/$pkgname-settings.ui -t $pkgdir/usr/share/$pkgname
-  for x in $srcdir/$pkgname/images/*.png; do
-    msg2 "Packaging images: $x"
-    install -Dm644 $x -t $pkgdir/usr/share/$pkgname/images
-  done
+  install -Dm644 $srcdir/$pkgname/grub.cfg -t $pkgdir/usr/share/grub
+  install -Dm644 $srcdir/$pkgname/loopback.cfg -t $pkgdir/usr/share/grub
+  install -Dm644 $srcdir/$pkgname/unicode.pf2 -t $pkgdir/usr/share/grub
 
-  # Package executables
-  msg2 "Packaging executables"
-  install -Dm755 $srcdir/$pkgname/$pkgname -t $pkgdir/usr/bin
-  install -Dm755 $srcdir/$pkgname/$pkgname-cli -t $pkgdir/usr/bin
-
-  # Package generated icons
-  for x in $srcdir/$pkgname*.png; do
-    msg2 "Packaging generated icon: $x"
-    install -Dm644 $x -t $pkgdir/usr/share/icons/hicolor/32x32/apps
-    rm $x
-  done
-
-  # Package launch files
-  msg2 "Packaging desktop launch file"
-  install -Dm644 $pkgname.desktop -t $pkgdir/usr/share/applications
-
-  # Package PIA configuration
-  install -dm750 $pkgdir/etc/openvpn/client
-  for x in $srcdir/*.ovpn $srcdir/*.crt $srcdir/*.pem; do
-    msg2 "Packaging pia config file: $x"
-    install -Dm600 -t $pkgdir/etc/openvpn/client "$x"
-  done
+  cd $srcdir/$pkgname/themes
+  install -dm755 $pkgdir/usr/share/grub/themes
+  find . -type d -exec install -dm755 $pkgdir/usr/share/grub/themes/{} \;
+  find . -type f -exec install -Dm644 {} $pkgdir/usr/share/grub/themes/{} \;
 }
 
 # vim: ts=2:sw=2:sts=2

@@ -461,7 +461,7 @@ class Reduce
       changed |= self.build_initramfs_installer if [all, isofull, initramfs, changed].any?
 
       # Build GRUB UI that boots initramfs installer and in turn the real kernel
-      changed |= self.build_grub_multiboot if [all, isofull, multiboot].any?
+      changed |= self.build_multiboot if [all, isofull, multiboot].any?
 
       # Create ISO Hybrid CD/USB bootable image
       # http://lukeluo.blogspot.co.uk/2013/06/grub-how-to-2-make-boot-able-iso-with.html
@@ -542,7 +542,7 @@ class Reduce
   # https://www.rodsbooks.com/efi-bootloaders/index.html
   # https://wiki.archlinux.org/index.php/Multiboot_USB_drive#Using_GRUB_and_loopback_devices
   # @returns true on changed
-  def build_grub_multiboot
+  def build_multiboot
     changed = false
     self.create_dir_structure
     grub_digests = File.join(@grub_iso_work, 'digests')
@@ -551,14 +551,14 @@ class Reduce
       .map{|k,v| v[@k.install][@k.kernel]}.compact.uniq.map{|x| "#{@kernel_prefix}-#{x}"}
 
     FileUtils.mkdir_p(grub_iso_path)
-    puts("Building grub multiboot...\n#{'-' * 80}".colorize(:light_yellow))
+    puts("Building multiboot...\n#{'-' * 80}".colorize(:light_yellow))
     if syncfiles(File.basename(@grub_iso_work), @grub_iso_src, grub_iso_path, grub_digests) or
         not Dir[File.join(@kernel_path, "#{@kernel_prefix}*")].any?
       changed |= true
 
       # Resolve templates
-      FileUtils.resolve(File.join(grub_iso_path, 'grub.cfg'), @vars)
-      FileUtils.resolve(File.join(grub_iso_path, "themes/#{@vars.distro}/theme.txt"), @vars)
+      #FileUtils.resolve(File.join(grub_iso_path, 'grub.cfg'), @vars)
+      #FileUtils.resolve(File.join(grub_iso_path, "themes/#{@vars.distro}/theme.txt"), @vars)
 
       # Inject deploy entries from deployments
       motd = File.readlines(@motd_path)
