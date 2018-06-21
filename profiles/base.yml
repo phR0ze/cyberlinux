@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.39
+  release: 0.2.40
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -72,42 +72,42 @@ builder:
     params: '-e TERM=xterm -v /var/run/docker.sock:/var/run/docker.sock --privileged=true'
     command: 'bash -c "while :; do sleep 5; done"'
   apps:
-    - { install: linux,               desc: Linux kernel and supporting modules }
+    - {install: linux,               desc: Linux kernel and supporting modules }
     - builder
 
 # Collection of packages and configuration needed for apps
 ################################################################################
 apps:
   kernel:
-    - { install: linux,               desc: Linux kernel and supporting modules }
-    - { install: linux-docs,          desc: Linux kernel docs }
-    - { install: linux-headers,       desc: Linux kernel headers }
+    - {install: linux,               desc: Linux kernel and supporting modules }
+    - {install: linux-docs,          desc: Linux kernel docs }
+    - {install: linux-headers,       desc: Linux kernel headers }
 
   # Packages and configs for building initramfs etc...
   # ----------------------------------------------------------------------------
   builder:
     - core
     - core-tools
-    - { install: gptfdisk,            desc: Paritioning tools e.g. sgdisk }
-    - { install: mkinitcpio,          desc: initramfs image creation utility }
-    - { install: mkinitcpio-vt-colors,desc: vt console colors, type: CYBERLINUX }
-    - { install: rsync,               desc: Remote file sync utility }
-    - { install: systemd,             desc: System and service manager }
-    - { install: sudo,                desc: Elevate some user commands to root }
+    - {install: gptfdisk,            desc: Paritioning tools e.g. sgdisk }
+    - {install: mkinitcpio,          desc: initramfs image creation utility }
+    - {install: mkinitcpio-vt-colors,desc: vt console colors, type: CYBERLINUX }
+    - {install: rsync,               desc: Remote file sync utility }
+    - {install: systemd,             desc: System and service manager }
+    - {install: sudo,                desc: Elevate some user commands to root }
 
     # Grub tools
-    - { install: cyberlinux-grub,     desc: GNU GRand Unified Booloader 2, type: CYBERLINUX }
-    - { install: dosfstools,          desc: DOS filesystem utilities e.g. mkfs.fat }
-    - { install: intel-ucode,         desc: Microcode update files for Intel CPUs }
-    - { install: licenses,            desc: Standard licenses distribution package }
-    - { install: memtest86+,          desc: memtest is used in the ISO creation as menu option }
+    - {install: cyberlinux-grub,     desc: GNU GRand Unified Booloader 2, type: CYBERLINUX }
+    - {install: dosfstools,          desc: DOS filesystem utilities e.g. mkfs.fat }
+    - {install: intel-ucode,         desc: Microcode update files for Intel CPUs }
+    - {install: licenses,            desc: Standard licenses distribution package }
+    - {install: memtest86+,          desc: memtest is used in the ISO creation as menu option }
 
     # Create and configure new build user and root user
-    - { chroot: 'useradd -m -G lp,wheel,network,storage,users -s /bin/bash builder || true' }
-    - { exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /home/builder' }
-    - { exec: "echo 'TERM=xterm' > /etc/environment" }
-    - { exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /root' }
-    - { edit: /etc/sudoers, insert: append, value: "builder ALL=(ALL) NOPASSWD: ALL" }
+    - {chroot: 'useradd -m -G lp,wheel,network,storage,users -s /bin/bash builder || true' }
+    - {exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /home/builder' }
+    - {exec: "echo 'TERM=xterm' > /etc/environment" }
+    - {exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /root' }
+    - {edit: /etc/sudoers, insert: append, value: "builder ALL=(ALL) NOPASSWD: ALL" }
     - config-core
     - config-mkinitcpio
 
@@ -115,313 +115,313 @@ apps:
   # bash is a dependency of gdbm which is a dependency of ruby so ruby-core builds off core
   # Size: 63.39 MiB
   # ----------------------------------------------------------------------------
-  ruby-core:
+  ruby:
     - core
     - openssl-without-perl
-    - { install: ruby,                desc: Ruby, depends-on: [gdbm, openssl, libffi, libyaml, gmp, zlib], size: 11.15 MiB }
-    - { install: gdbm,                desc: GNU database library, depends-on: [glibc, bash], size: 443.00 KiB }
-    - { install: gmp,                 desc: Library for precision arithmetic, depends-on: [gcc-libs, bash], size: 945.00 KiB }
-    - { install: libffi,              desc: Portable foreign function interface, depends-on: [glibc], size: 64.00 KiB }
-    - { install: libyaml,             desc: YAML 1.1 library, size: 177.00 KiB }
-    - { install: rubygems,            desc: Package management framework for Ruby, depends-on: [ruby], size: 1026.00 KiB }
-    - { install: zlib,                desc: Compression got gzip and pkzip, depends-on: [glibc], size: 326.00 KiB }
+    - {install: ruby,                desc: Ruby, depends-on: [gdbm, openssl, libffi, libyaml, gmp, zlib], size: 11.15 MiB }
+    - {install: gdbm,                desc: GNU database library, depends-on: [glibc, bash], size: 443.00 KiB }
+    - {install: gmp,                 desc: Library for precision arithmetic, depends-on: [gcc-libs, bash], size: 945.00 KiB }
+    - {install: libffi,              desc: Portable foreign function interface, depends-on: [glibc], size: 64.00 KiB }
+    - {install: libyaml,             desc: YAML 1.1 library, size: 177.00 KiB }
+    - {install: rubygems,            desc: Package management framework for Ruby, depends-on: [ruby], size: 1026.00 KiB }
+    - {install: zlib,                desc: Compression got gzip and pkzip, depends-on: [glibc], size: 326.00 KiB }
 
   # Smallest set of packages possible for a functioning container with bash
   # Size: 53.14 MiB
   # ----------------------------------------------------------------------------
   core:
-    - { install: bash,                desc: GNU Bourne Again shell, depends-on: [readline, glibc, ncurses], size: 7321.00 KiB }
-    - { install: gcc-libs,            desc: GCC runtime libraries, depends-on: [glibc], size: 105.27 MiB }
-    - { install: glibc,               desc: GNU C Library, depends-on: [linux-api-headers, tzdata, filesystem], size: 41.40 MiB }
-    - { install: filesystem,          desc: Base Arch Linux files, depends-on: [iana-etc], size: 9.00 KiB }
-    - { install: iana-etc,            desc: /etc/protocols and /etc/services provided by IANA, size: 3941.00 KiB }
-    - { install: linux-api-headers,   desc: Kernel headers sanitized for use in userspace, size: 4168.00 KiB }
-    - { install: ncurses,             desc: System V curses emulation library, depends-on: [glibc, gcc-libs], size: 3645.00 KiB }
-    - { install: readline,            desc: GNU readline library, depends-on: [glibc, ncurses], size: 731.00 KiB }
-    - { install: tzdata,              desc: Sources for time zone and daylight savings time data, size: 1861.00 KiB }
+    - {install: bash,                desc: GNU Bourne Again shell, depends-on: [readline, glibc, ncurses], size: 7321.00 KiB }
+    - {install: gcc-libs,            desc: GCC runtime libraries, depends-on: [glibc], size: 105.27 MiB }
+    - {install: glibc,               desc: GNU C Library, depends-on: [linux-api-headers, tzdata, filesystem], size: 41.40 MiB }
+    - {install: filesystem,          desc: Base Arch Linux files, depends-on: [iana-etc], size: 9.00 KiB }
+    - {install: iana-etc,            desc: /etc/protocols and /etc/services provided by IANA, size: 3941.00 KiB }
+    - {install: linux-api-headers,   desc: Kernel headers sanitized for use in userspace, size: 4168.00 KiB }
+    - {install: ncurses,             desc: System V curses emulation library, depends-on: [glibc, gcc-libs], size: 3645.00 KiB }
+    - {install: readline,            desc: GNU readline library, depends-on: [glibc, ncurses], size: 731.00 KiB }
+    - {install: tzdata,              desc: Sources for time zone and daylight savings time data, size: 1861.00 KiB }
 
-  # Standard linux shell tools e.g. ls, cp, mv, hostname, gzip, tar and vim
+  # Most basic linux shell tools e.g. ls, cp, mv, hostname, gzip, tar and vim
   # ----------------------------------------------------------------------------
   core-tools:
     - openssl-with-perl
-    - { install: coreutils,           desc: Utils ls/cp/mv, depends-on: [glibc, acl, attr, gmp, libcap, openssl], size: 13.79 MiB }
-    - { install: gzip,                desc: GNU compression utility, depof: locale-gen, group: [build-devel]}
-    - { install: inetutils,           desc: hostname, ftp, telnet }
-    - { install: iproute2,            desc: ifcfg/ip other networking tools }
-    - { install: net-tools,           desc: arp/ifconfig/iptunnel/netstat }
-    - { install: procps-ng,           desc: pidof/pkill/ps/top/uptime etc..., size: 1MB }
-    - { install: sed,                 desc: GNU stream editor, depof: locale-gen, group: [build-devel], size: 1MB }
-    - { install: tar,                 desc: File store backup and transport utility, depof: k8s cp }
-    - { install: vim,                 desc: Improved version of vi text editor, size: 28MB }
-    - { install: vim-systemd,         desc: Vim syntax highlighting for systemd }
-    - { install: vundle,              desc: Plug-in manager for Vim, type: CYBERLINUX }
+    - {install: coreutils,           desc: Utils ls/cp/mv, depends-on: [glibc, acl, attr, gmp, libcap, openssl], size: 13.79 MiB }
+    - {install: gzip,                desc: GNU compression utility, depof: locale-gen, group: [build-devel]}
+    - {install: inetutils,           desc: hostname, ftp, telnet }
+    - {install: iproute2,            desc: ifcfg/ip other networking tools }
+    - {install: net-tools,           desc: arp/ifconfig/iptunnel/netstat }
+    - {install: procps-ng,           desc: pidof/pkill/ps/top/uptime etc..., size: 1MB }
+    - {install: sed,                 desc: GNU stream editor, depof: locale-gen, group: [build-devel], size: 1MB }
+    - {install: tar,                 desc: File store backup and transport utility, depof: k8s cp }
+    - {install: vim,                 desc: Improved version of vi text editor, size: 28MB }
+    - {install: vim-systemd,         desc: Vim syntax highlighting for systemd }
+    - {install: vundle,              desc: Plug-in manager for Vim, type: CYBERLINUX }
 
   # perl is huge, slow, outdated and useless, however some packages still use it.
   # containers should use the without-perl option to reduce size while machines will need to use with to behave normally
   openssl-with-perl:
-    - { install: openssl,             desc: Secure sockets layer and TLS, depends-on: [perl], size: 6.36 MiB }
-    - { install: perl,                desc: Perl language, depends-on: [gdbm, db, glibc], size: 52.00 MiB }
+    - {install: openssl,             desc: Secure sockets layer and TLS, depends-on: [perl], size: 6.36 MiB }
+    - {install: perl,                desc: Perl language, depends-on: [gdbm, db, glibc], size: 52.00 MiB }
   openssl-without-perl:
-    - { install: openssl,             desc: Secure sockets layer and TLS, nodeps: true, depends-on: [perl], size: 6.36 MiB }
-    - { install: perl,                desc: Perl language, ignore: true, depends-on: [gdbm, db, glibc], size: 52.00 MiB }
+    - {install: openssl,             desc: Secure sockets layer and TLS, nodeps: true, depends-on: [perl], size: 6.36 MiB }
+    - {install: perl,                desc: Perl language, ignore: true, depends-on: [gdbm, db, glibc], size: 52.00 MiB }
 
-  # Base for any machine being deployed
+  # Base for any machine
   # ----------------------------------------------------------------------------
   base-apps:
     - core
     - core-tools
     - shell-apps
     - virtualbox-guest-nox
-    - { install: cyberlinux-grub,     desc: GNU GRand Unified Booloader 2, type: CYBERLINUX }
-    - { install: curl,                desc: Adding curl command to pull in packer scripts }
-    - { install: dmidecode,           desc: Desktop Managment Interface table related utilities }
-    - { install: dnsutils,            desc: Network utilities dig/host/nslookup }
-    - { install: dosfstools,          desc: DOS filesystem utilities e.g. mkfs.fat, depof: installer }
-    - { install: efibootmgr,          desc: Tool to modify UEFI Firmware Boot Manager Variables, depof: installer }
-    - { install: intel-ucode,         desc: Microcode update files for Intel CPUs }
-    - { install: lsb-release,         desc: LSB version query program }
-    - { install: mkinitcpio,          desc: initramfs image creation utility }
-    - { install: mkinitcpio-vt-colors,desc: vt console colors, type: CYBERLINUX }
-    - { install: systemd,             desc: System and service manager }
-    - { install: systemd-sysvcompat,  desc: Sysinit compat for systemd }
-    - { install: bash-completion,     desc: Bash tab completion }
-    - { install: e2fsprogs,           desc: Ext2/3/4 filesystem utilities }
-    - { install: findutils,           desc: find/xargs, depof: curl, group: [build-devel]}
-    - { install: gcc,                 desc: GNU Compiler Collection, multilib: false, group: [base-devel]}
-    - { install: gcc-multilib,        desc: GNU Compiler Collection, multilib: true, group: [base-devel]}
-    - { install: grep,                desc: search text util, group: [build-devel]}
-    - { install: gptfdisk,            desc: Text-mode paritioning tools e.g. sgdisk }
-    - { install: haveged,             desc: Entropy harvesting, depof: pacman-key --init }
-    - { install: logrotate,           desc: Rotates system logs automatically }
-    - { install: openssh,             desc: Open source SSH implementation }
-    - { install: pacman,              desc: Package manager with dependency support, group: [build-devel]}
-    - { install: rsync,               desc: Remote file transfer sync utility }
-    - { install: shadow,              desc: Account mgmt e.g. passwd/useradd/usermod/groupadd }
-    - { install: sudo,                desc: Elevate some user commands to root, group: [build-devel]}
-    - { install: util-linux,          desc: blkid/fdisk/rename/cp etc..., depof: php-gd, group: [build-devel]}
-    - { install: wget,                desc: Retrieve files from the Web }
-    - { install: which,               desc: Show the full path of commnds, depof: .bashrc, group: [build-devel]}
-    - { install: archlinux-keyring,   desc: Arch Linux GPG keys }
-    - { install: antergos-keyring,    desc: Antergos GPG keyring, type: ANTERGOS }
-    - { install: blackarch-keyring,   desc: Blackarch GPG keyring, type: BLACKARCH }
-    - { install: cyberlinux-keyring,  desc: Blackarch GPG keyring, type: CYBERLINUX }
+    - {install: cyberlinux-grub,     desc: GNU GRand Unified Booloader 2, type: CYBERLINUX }
+    - {install: curl,                desc: Adding curl command to pull in packer scripts }
+    - {install: dmidecode,           desc: Desktop Managment Interface table related utilities }
+    - {install: dnsutils,            desc: Network utilities dig/host/nslookup }
+    - {install: dosfstools,          desc: DOS filesystem utilities e.g. mkfs.fat, depof: installer }
+    - {install: efibootmgr,          desc: Tool to modify UEFI Firmware Boot Manager Variables, depof: installer }
+    - {install: intel-ucode,         desc: Microcode update files for Intel CPUs }
+    - {install: lsb-release,         desc: LSB version query program }
+    - {install: mkinitcpio,          desc: initramfs image creation utility }
+    - {install: mkinitcpio-vt-colors,desc: vt console colors, type: CYBERLINUX }
+    - {install: systemd,             desc: System and service manager }
+    - {install: systemd-sysvcompat,  desc: Sysinit compat for systemd }
+    - {install: bash-completion,     desc: Bash tab completion }
+    - {install: e2fsprogs,           desc: Ext2/3/4 filesystem utilities }
+    - {install: findutils,           desc: find/xargs, depof: curl, group: [build-devel]}
+    - {install: gcc,                 desc: GNU Compiler Collection, multilib: false, group: [base-devel]}
+    - {install: gcc-multilib,        desc: GNU Compiler Collection, multilib: true, group: [base-devel]}
+    - {install: grep,                desc: search text util, group: [build-devel]}
+    - {install: gptfdisk,            desc: Text-mode paritioning tools e.g. sgdisk }
+    - {install: haveged,             desc: Entropy harvesting, depof: pacman-key --init }
+    - {install: logrotate,           desc: Rotates system logs automatically }
+    - {install: openssh,             desc: Open source SSH implementation }
+    - {install: pacman,              desc: Package manager with dependency support, group: [build-devel]}
+    - {install: rsync,               desc: Remote file transfer sync utility }
+    - {install: shadow,              desc: Account mgmt e.g. passwd/useradd/usermod/groupadd }
+    - {install: sudo,                desc: Elevate some user commands to root, group: [build-devel]}
+    - {install: util-linux,          desc: blkid/fdisk/rename/cp etc..., depof: php-gd, group: [build-devel]}
+    - {install: wget,                desc: Retrieve files from the Web }
+    - {install: which,               desc: Show the full path of commnds, depof: .bashrc, group: [build-devel]}
+    - {install: archlinux-keyring,   desc: Arch Linux GPG keys }
+    - {install: antergos-keyring,    desc: Antergos GPG keyring, type: ANTERGOS }
+    - {install: blackarch-keyring,   desc: Blackarch GPG keyring, type: BLACKARCH }
+    - {install: cyberlinux-keyring,  desc: Blackarch GPG keyring, type: CYBERLINUX }
     # Compression
-    - { install: p7zip,               desc: Comman-line file archiver for 7zip format, depof: thunar }
-    - { install: tar,                 desc: File store backup and transport utility }
-    - { install: unrar,               desc: The RAR uncompression program }
-    - { install: unzip,               desc: Extract and view files in .zip archives }
-    - { install: zip,                 desc: Zip file compression utilities }
+    - {install: p7zip,               desc: Comman-line file archiver for 7zip format, depof: thunar }
+    - {install: tar,                 desc: File store backup and transport utility }
+    - {install: unrar,               desc: The RAR uncompression program }
+    - {install: unzip,               desc: Extract and view files in .zip archives }
+    - {install: zip,                 desc: Zip file compression utilities }
     - config-base
   shell-apps:
     - dev-apps
     - ruby-gems
-    - { install: cdrkit,              desc: CD/DVD burnig/extration and ISO creation }
-    - { install: cronie,              desc: Daemon for scheduling programs to run }
-    - { install: htop,                desc: Interactive process viewer, alt: top }
-    - { install: iftop,               desc: Display bandwidth usage on an interface }
-    - { install: inxi,                desc: System info display tool for CPUs/RAM/Kernel etc... }
-    - { install: libisoburn,          desc: Libburn/libisofs/xorriso }
-    - { install: lsof,                desc: Lists open files for running processes }
-    - { install: man-db,              desc: A utility for reading man pages }
-    - { install: man-pages,           desc: Linux man pages }
-    - { install: moreutils,           desc: Linux utils e.g. parallel-moreutils }
-    - { install: pkgfile,             desc: A pacman files and metadata explorer }
-    - { install: reptyr,              desc: Attach running program to a new terminal }
-    - { install: smartmontools,       desc: Control/monitor S.M.A.R.T. Drives }
-    - { install: squashfs-tools,      desc: Tooling for squashfs like mksquashfs }
-    - { install: tmux,                desc: Terminal multiplexer built off screen }
-    - { install: udisks2,             desc: Enumerate and operate on storage devices }
-    - { install: usbutils,            desc: USB device utilities including lsusb }
+    - {install: cdrkit,              desc: CD/DVD burnig/extration and ISO creation }
+    - {install: cronie,              desc: Daemon for scheduling programs to run }
+    - {install: htop,                desc: Interactive process viewer, alt: top }
+    - {install: iftop,               desc: Display bandwidth usage on an interface }
+    - {install: inxi,                desc: System info display tool for CPUs/RAM/Kernel etc... }
+    - {install: libisoburn,          desc: Libburn/libisofs/xorriso }
+    - {install: lsof,                desc: Lists open files for running processes }
+    - {install: man-db,              desc: A utility for reading man pages }
+    - {install: man-pages,           desc: Linux man pages }
+    - {install: moreutils,           desc: Linux utils e.g. parallel-moreutils }
+    - {install: pkgfile,             desc: A pacman files and metadata explorer }
+    - {install: reptyr,              desc: Attach running program to a new terminal }
+    - {install: smartmontools,       desc: Control/monitor S.M.A.R.T. Drives }
+    - {install: squashfs-tools,      desc: Tooling for squashfs like mksquashfs }
+    - {install: tmux,                desc: Terminal multiplexer built off screen }
+    - {install: udisks2,             desc: Enumerate and operate on storage devices }
+    - {install: usbutils,            desc: USB device utilities including lsusb }
     # Network
-    - { install: gnu-netcat,          desc: Network piping application }
-    - { install: iputils,             desc: Network utils e.g. ping/tftpd }
-    - { install: nfs-utils,           desc: Support programs for Network File Systems }
-    - { install: nmap,                desc: Network discovery and security auditing }
-    - { install: tcpdump,             desc: Network monitoring and data acquisition }
-    - { install: wpa_supplicant,      desc: A utility providing key negotiation for WPA wireless networks }
+    - {install: gnu-netcat,          desc: Network piping application }
+    - {install: iputils,             desc: Network utils e.g. ping/tftpd }
+    - {install: nfs-utils,           desc: Support programs for Network File Systems }
+    - {install: nmap,                desc: Network discovery and security auditing }
+    - {install: tcpdump,             desc: Network monitoring and data acquisition }
+    - {install: wpa_supplicant,      desc: A utility providing key negotiation for WPA wireless networks }
     - config-shell
   dev-apps:
-    - { install: arch-install-scripts, desc: arch-chroot/genfstab/pacstrap }
-    - { install: autoconf,            desc: Automatically configure source code, group: [base-devel]}
-    - { install: automake,            desc: Automatically create Makefiles, group: [base-devel]}
-    - { install: binutils,            desc: Manipulate binary and object files, group: [base-devel]}
-    - { install: bison,               desc: General purpose parser generator, group: [base-devel]}
-    - { install: clang,               desc: C language family frontend for LLVM, depof: chromium }
-    - { install: delve,               desc: A debugger for the Go Programming Language }
-    - { install: devtools,            desc: Misc development tools including makepkg conf, depof: reduce }
-    - { install: diffutils,           desc: Patch file utility programs }
-    - { install: dos2unix,            desc: Text file format converter }
-    - { install: fakeroot,            desc: Tool for simulating supersuer privileges, group: [base-devel]}
-    - { install: file,                desc: File type identification utility, group: [base-devel]}
-    - { install: flex,                desc: Generate text-scanning programs, group: [base-devel]}
-    - { install: gdb,                 desc: The GNU debugger }
-    - { install: gawk,                desc: GNU version of awk, group: [base-devel]}
-    - { install: gettext,             desc: GNU internationalization library, group: [base-devel]}
-    - { install: git,                 desc: Fast distributed version control system }
-    - { install: go,                  desc: Compiler and tools for the Go programming lang }
-    - { install: go-bindata,          desc: Embed any file as Go code }
-    - { install: go-tools,            desc: Developer tools for the Go programming lang }
-    - { install: glide,               desc: Package management for the Go programing lang }
-    - { install: groff,               desc: GNU trof text-formatting system, group: [base-devel]}
-    - { install: jq,                  desc: Command line JSON processor, depof: kubectl }
-    - { install: libtool,             desc: Generic library support script, group: [base-devel]}
-    - { install: lld,                 desc: Linker from the LLVM project, depof: chromium }
-    - { install: llvm,                desc: Low Level compiler infrastructure, depof: chromium }
-    - { install: ltrace,              desc: Tracks runtime library calls in dynamically linked programs }
-    - { install: m4,                  desc: GNU macro processor, group: [base-devel]}
-    - { install: make,                desc: GNU utility to build programs, group: [base-devel]}
-    - { install: patch,               desc: Utility to apply patches to files, group: [base-devel]}
-    - { install: pkg-config,          desc: System for managing library flags, group: [base-devel]}
-    - { install: powerline,           desc: Status line plugin for bash }
-    - { install: powerline-gitstatus, desc: Powerline plugin for git status, type: CYBERLINUX }
-    - { install: powerline-fonts,     desc: Powerline font symbols }
-    - { install: psmisc,              desc: fuser/killall/pstree }
-    - { install: python-pip,          desc: The PyPA recommended tool for installing Python packages }
-    - { install: ruby,                desc: Ruby lang quick and easy programming }
-    - { install: strace,              desc: A diagnostic, debugging and instructional userspace tracer }
-    - { install: texinfo,             desc: Documentation for online information, group: [base-devel]}
-    - { install: yaourt,              desc: Pacman wrapper with support for AUR, type: ANTERGOS }
+    - {install: arch-install-scripts, desc: arch-chroot/genfstab/pacstrap }
+    - {install: autoconf,            desc: Automatically configure source code, group: [base-devel]}
+    - {install: automake,            desc: Automatically create Makefiles, group: [base-devel]}
+    - {install: binutils,            desc: Manipulate binary and object files, group: [base-devel]}
+    - {install: bison,               desc: General purpose parser generator, group: [base-devel]}
+    - {install: clang,               desc: C language family frontend for LLVM, depof: chromium }
+    - {install: delve,               desc: A debugger for the Go Programming Language }
+    - {install: devtools,            desc: Misc development tools including makepkg conf, depof: reduce }
+    - {install: diffutils,           desc: Patch file utility programs }
+    - {install: dos2unix,            desc: Text file format converter }
+    - {install: fakeroot,            desc: Tool for simulating supersuer privileges, group: [base-devel]}
+    - {install: file,                desc: File type identification utility, group: [base-devel]}
+    - {install: flex,                desc: Generate text-scanning programs, group: [base-devel]}
+    - {install: gdb,                 desc: The GNU debugger }
+    - {install: gawk,                desc: GNU version of awk, group: [base-devel]}
+    - {install: gettext,             desc: GNU internationalization library, group: [base-devel]}
+    - {install: git,                 desc: Fast distributed version control system }
+    - {install: go,                  desc: Compiler and tools for the Go programming lang }
+    - {install: go-bindata,          desc: Embed any file as Go code }
+    - {install: go-tools,            desc: Developer tools for the Go programming lang }
+    - {install: glide,               desc: Package management for the Go programing lang }
+    - {install: groff,               desc: GNU trof text-formatting system, group: [base-devel]}
+    - {install: jq,                  desc: Command line JSON processor, depof: kubectl }
+    - {install: libtool,             desc: Generic library support script, group: [base-devel]}
+    - {install: lld,                 desc: Linker from the LLVM project, depof: chromium }
+    - {install: llvm,                desc: Low Level compiler infrastructure, depof: chromium }
+    - {install: ltrace,              desc: Tracks runtime library calls in dynamically linked programs }
+    - {install: m4,                  desc: GNU macro processor, group: [base-devel]}
+    - {install: make,                desc: GNU utility to build programs, group: [base-devel]}
+    - {install: patch,               desc: Utility to apply patches to files, group: [base-devel]}
+    - {install: pkg-config,          desc: System for managing library flags, group: [base-devel]}
+    - {install: powerline,           desc: Status line plugin for bash }
+    - {install: powerline-gitstatus, desc: Powerline plugin for git status, type: CYBERLINUX }
+    - {install: powerline-fonts,     desc: Powerline font symbols }
+    - {install: psmisc,              desc: fuser/killall/pstree }
+    - {install: python-pip,          desc: The PyPA recommended tool for installing Python packages }
+    - {install: ruby,                desc: Ruby lang quick and easy programming }
+    - {install: strace,              desc: A diagnostic, debugging and instructional userspace tracer }
+    - {install: texinfo,             desc: Documentation for online information, group: [base-devel]}
+    - {install: yaourt,              desc: Pacman wrapper with support for AUR, type: ANTERGOS }
   ruby-gems:
-    - { install: ruby-amatch,         desc: Fuzzy string matching, depof: watchman, type: CYBERLINUX }
-    - { install: ruby-bundler,        desc: Gem management, depof: reduce }
-    - { install: ruby-colorize,       desc: Colorized output, depof: reduce }
-    - { install: ruby-filesize,       desc: Filesize to string maipulations, depof: reduce, type: CYBERLINUX }
-    - { install: ruby-gtk3,           desc: Ruby binding of GTK3, depof: openvpn-pia, type: CYBERLINUX }
-    - { install: ruby-net-scp,        desc: Pure Ruby SCP client protocol, depof: reduce, type: CYBERLINUX }
-    - { install: ruby-net-sftp,       desc: Pure Ruby SFTP client protocol, depof: reduce, type: CYBERLINUX }
-    - { install: ruby-net-ssh,        desc: Pure Ruby SSH2 client protocol, depof: reduce, type: CYBERLINUX }
-    - { install: ruby-nokogiri,       desc: HTML parser, depof: chromium build, type: CYBERLINUX }
-    - { install: ruby-nub,            desc: Collection of useful Ruby utils, depof: vpnctl, type: CYBERLINUX }
-    - { install: ruby-mechanize,      desc: Automate interation with websites, depof: chromium build, type: CYBERLINUX }
-    - { install: ruby-pry,            desc: Ruby debugger, type: CYBERLINUX }
-    - { install: ruby-rest-client,    desc: Simple HTTP and REST client, depof: reduce, type: CYBERLINUX }
+    - {install: ruby-amatch,         desc: Fuzzy string matching, depof: watchman, type: CYBERLINUX }
+    - {install: ruby-bundler,        desc: Gem management, depof: reduce }
+    - {install: ruby-colorize,       desc: Colorized output, depof: reduce }
+    - {install: ruby-filesize,       desc: Filesize to string maipulations, depof: reduce, type: CYBERLINUX }
+    - {install: ruby-gtk3,           desc: Ruby binding of GTK3, depof: openvpn-pia, type: CYBERLINUX }
+    - {install: ruby-net-scp,        desc: Pure Ruby SCP client protocol, depof: reduce, type: CYBERLINUX }
+    - {install: ruby-net-sftp,       desc: Pure Ruby SFTP client protocol, depof: reduce, type: CYBERLINUX }
+    - {install: ruby-net-ssh,        desc: Pure Ruby SSH2 client protocol, depof: reduce, type: CYBERLINUX }
+    - {install: ruby-nokogiri,       desc: HTML parser, depof: chromium build, type: CYBERLINUX }
+    - {install: ruby-nub,            desc: Collection of useful Ruby utils, depof: vpnctl, type: CYBERLINUX }
+    - {install: ruby-mechanize,      desc: Automate interation with websites, depof: chromium build, type: CYBERLINUX }
+    - {install: ruby-pry,            desc: Ruby debugger, type: CYBERLINUX }
+    - {install: ruby-rest-client,    desc: Simple HTTP and REST client, depof: reduce, type: CYBERLINUX }
 
   # Lite weight X11 evironment
   # ----------------------------------------------------------------------------
   lite-apps:
     - virtualbox-guest
-    - { install: cups-pdf,            desc: System/Printer Driver with PDF print support }
-    - { install: dconf,               desc: A low-level configuration system }
-    - { install: dconf-editor,        desc: New configuration manager intended to replace gconf }
-    - { install: desktop-file-utils,  desc: Command line utilities for working with desktop entries }
-    - { install: dmenu,               desc: Super light weight application runner }
-    - { install: gconf-editor,        desc: Old Gnome configuration manager separate dconf-editor db }
-    - { install: gtk-engines,         desc: GTK theme engines for cyberlinux theme }
-    - { install: gtk-engine-murrine,  desc: GTK theme engine for cyberlinux theme }
-    - { install: lxappearance-obconf, desc: Openbox support for lxappearance }
-    - { install: lxdm-gtk3,           desc: Lightweight X11 Display Manager }
-    - { install: lxinput,             desc: Keyboard and mouse config for LXDE }
-    - { install: lxrandr,             desc: Monitor configuration tool for LXDE }
-    - { install: lxterminal,          desc: Terminal for LXDE, alt: terminator }
-    - { install: oblogout,            desc: Openbox logout script }
-    - { install: openbox,             desc: Lightweight X11 window manager }
-    - { install: mesa,                desc: Open-source OpenGL implementation }
-    - { install: mesa-demos,          desc: Mesa demos and tools e.g glxinfo/glxgears }
-    - { install: mesa-vdpau,          desc: Mesa VDPAU drivers }
-    - { install: numix-frost-themes,  desc: Numix frost GTK2, GTK3 and OpenBox themes, type: ANTERGOS }
-    - { install: paper-icon-theme,    desc: Paper icon theme, type: CYBERLINUX }
-    - { install: pavucontrol,         desc: PulseAudio Volume Control }
-    - { install: pulseaudio-alsa,     desc: ALSA Configuration for PulseAudio }
-    - { install: python2-xdg,         desc: Enable use of .desktop files in /etc/xdg in openbox }
-    - { install: wmctrl,              desc: Control your EWMH compliant window manager from command line }
-    - { install: wpa_gui,             desc: Qt4 GUI for WPA Supplicant, type: CYBERLINUX }
-    - { install: xcursor-numix-frost, desc: Numix frost cursor theme, type: CYBERLINUX }
-    - { install: xdg-user-dirs,       desc: Manage user directories like ~/Desktop }
-    - { install: xdg-utils,           desc: Desktop integration utilities }
-    - { install: xfce4-screenshooter, desc: Plugin that makes screenshots for the Xfce panel }
-    - { install: xsel,                desc: Tool for getting/setting X selection }
-    - { install: xterm,               desc: X terminal emulator }
+    - {install: cups-pdf,            desc: System/Printer Driver with PDF print support }
+    - {install: dconf,               desc: A low-level configuration system }
+    - {install: dconf-editor,        desc: New configuration manager intended to replace gconf }
+    - {install: desktop-file-utils,  desc: Command line utilities for working with desktop entries }
+    - {install: dmenu,               desc: Super light weight application runner }
+    - {install: gconf-editor,        desc: Old Gnome configuration manager separate dconf-editor db }
+    - {install: gtk-engines,         desc: GTK theme engines for cyberlinux theme }
+    - {install: gtk-engine-murrine,  desc: GTK theme engine for cyberlinux theme }
+    - {install: lxappearance-obconf, desc: Openbox support for lxappearance }
+    - {install: lxdm-gtk3,           desc: Lightweight X11 Display Manager }
+    - {install: lxinput,             desc: Keyboard and mouse config for LXDE }
+    - {install: lxrandr,             desc: Monitor configuration tool for LXDE }
+    - {install: lxterminal,          desc: Terminal for LXDE, alt: terminator }
+    - {install: oblogout,            desc: Openbox logout script }
+    - {install: openbox,             desc: Lightweight X11 window manager }
+    - {install: mesa,                desc: Open-source OpenGL implementation }
+    - {install: mesa-demos,          desc: Mesa demos and tools e.g glxinfo/glxgears }
+    - {install: mesa-vdpau,          desc: Mesa VDPAU drivers }
+    - {install: numix-frost-themes,  desc: Numix frost GTK2, GTK3 and OpenBox themes, type: ANTERGOS }
+    - {install: paper-icon-theme,    desc: Paper icon theme, type: CYBERLINUX }
+    - {install: pavucontrol,         desc: PulseAudio Volume Control }
+    - {install: pulseaudio-alsa,     desc: ALSA Configuration for PulseAudio }
+    - {install: python2-xdg,         desc: Enable use of .desktop files in /etc/xdg in openbox }
+    - {install: wmctrl,              desc: Control your EWMH compliant window manager from command line }
+    - {install: wpa_gui,             desc: Qt4 GUI for WPA Supplicant, type: CYBERLINUX }
+    - {install: xcursor-numix-frost, desc: Numix frost cursor theme, type: CYBERLINUX }
+    - {install: xdg-user-dirs,       desc: Manage user directories like ~/Desktop }
+    - {install: xdg-utils,           desc: Desktop integration utilities }
+    - {install: xfce4-screenshooter, desc: Plugin that makes screenshots for the Xfce panel }
+    - {install: xsel,                desc: Tool for getting/setting X selection }
+    - {install: xterm,               desc: X terminal emulator }
 
     # Xorg breakdown rather than using xorg group to remove un-needed packages
     # Removing: xorg-docs, xorg-server-xdmx, xorg-server-xephyr, xorg-server-xnest, xorg-server-xwayland,
     # xorg-server-devel, xorg-sessreg, xorg-smproxy, xorg-xdriinfo, xorg-xgamma, xorg-xcmsdb, xorg-xhost,
     # xorg-xlsatoms, xorg-xlsclients, xorg-xrdb, xorg-xrefresh, xorg-xsetroot, xorg-x11perf, xorg-xpr,
     # xorg-xvinfo, xorg-xwud, xorg-iceauth, xorg-xwd
-    - { install: xf86-input-libinput, desc: X.Org generic input driver, group: [xorg-drivers]}
-    - { install: xf86-video-vesa,     desc: X.org vesa video driver, group: [xorg, xorg-drivers]}
-    - { install: xorg-bdftopcf,       desc: Convert X font from Bitmap to PNG, group: [xorg, xorg-apps]}
-    - { install: xorg-font-util,      desc: X.org font utilities, group: [xorg]}
-    - { install: xorg-fonts-75dpi,    desc: X.org 75dpi fonts, group: [xorg]}
-    - { install: xorg-fonts-100dpi,   desc: X.org 100dpi fonts, group: [xorg]}
-    - { install: xorg-fonts-encodings,desc: X.org font encoding files, group: [xorg]}
-    - { install: xorg-mkfontdir,      desc: Create an index of X font files in a directory, group: [xorg, xorg-apps]}
-    - { install: xorg-mkfontscale,    desc: Create an index of scalable font files for X, group: [xorg, xorg-apps]}
-    - { install: xorg-server,         desc: Xorg X server, group: [xorg]}
-    - { install: xorg-server-common,  desc: Xorg server common files, group: [xorg]}
-    - { install: xorg-server-xvfb,    desc: Virtual framebuffer X server, group: [xorg]}
-    - { install: xorg-setxkbmap,      desc: Set the keyboard using the X Keyboard Extension, group: [xorg, xorg-apps]}
-    - { install: xorg-xauth,          desc: X.Org authorization settings program, group: [xorg, xorg-apps]}
-    - { install: xorg-xbacklight,     desc: RandR-based backlight control application, group: [xorg, xorg-apps]}
-    - { install: xorg-xcursorgen,     desc: Create an X cursor file from PNG images, group: [xorg, xorg-apps]}
-    - { install: xorg-xdpyinfo,       desc: Display information utility for X, group: [xorg, xorg-apps]}
-    - { install: xorg-xev,            desc: Print contents of X events, group: [xorg, xorg-apps]}
-    - { install: xorg-xinput,         desc: Small commandline tool to configure devices, group: [xorg, xorg-apps]}
-    - { install: xorg-xkbcomp,        desc: X Keyboard description compiler, group: [xorg, xorg-apps]}
-    - { install: xorg-xkbevd,         desc: XKB event daemon, group: [xorg, xorg-apps]}
-    - { install: xorg-xkbutils,       desc: XKB utility demos, group: [xorg, xorg-apps]}
-    - { install: xorg-xkill,          desc: Kill a client by its X resource, group: [xorg, xorg-apps]}
-    - { install: xorg-xmodmap,        desc: Utility for modifying keymaps and button mappings, group: [xorg, xorg-apps]}
-    - { install: xorg-xprop,          desc: Property displayer for X, group: [xorg, xorg-apps]}
-    - { install: xorg-xrandr,         desc: Primitive command line interface to RandR extension, group: [xorg, xorg-apps]}
-    - { install: xorg-xset,           desc: User preference utility for X, group: [xorg, xorg-apps]}
-    - { install: xorg-xwininfo,       desc: Command-line util to print info about windows, group: [xorg, xorg-apps]}
+    - {install: xf86-input-libinput, desc: X.Org generic input driver, group: [xorg-drivers]}
+    - {install: xf86-video-vesa,     desc: X.org vesa video driver, group: [xorg, xorg-drivers]}
+    - {install: xorg-bdftopcf,       desc: Convert X font from Bitmap to PNG, group: [xorg, xorg-apps]}
+    - {install: xorg-font-util,      desc: X.org font utilities, group: [xorg]}
+    - {install: xorg-fonts-75dpi,    desc: X.org 75dpi fonts, group: [xorg]}
+    - {install: xorg-fonts-100dpi,   desc: X.org 100dpi fonts, group: [xorg]}
+    - {install: xorg-fonts-encodings,desc: X.org font encoding files, group: [xorg]}
+    - {install: xorg-mkfontdir,      desc: Create an index of X font files in a directory, group: [xorg, xorg-apps]}
+    - {install: xorg-mkfontscale,    desc: Create an index of scalable font files for X, group: [xorg, xorg-apps]}
+    - {install: xorg-server,         desc: Xorg X server, group: [xorg]}
+    - {install: xorg-server-common,  desc: Xorg server common files, group: [xorg]}
+    - {install: xorg-server-xvfb,    desc: Virtual framebuffer X server, group: [xorg]}
+    - {install: xorg-setxkbmap,      desc: Set the keyboard using the X Keyboard Extension, group: [xorg, xorg-apps]}
+    - {install: xorg-xauth,          desc: X.Org authorization settings program, group: [xorg, xorg-apps]}
+    - {install: xorg-xbacklight,     desc: RandR-based backlight control application, group: [xorg, xorg-apps]}
+    - {install: xorg-xcursorgen,     desc: Create an X cursor file from PNG images, group: [xorg, xorg-apps]}
+    - {install: xorg-xdpyinfo,       desc: Display information utility for X, group: [xorg, xorg-apps]}
+    - {install: xorg-xev,            desc: Print contents of X events, group: [xorg, xorg-apps]}
+    - {install: xorg-xinput,         desc: Small commandline tool to configure devices, group: [xorg, xorg-apps]}
+    - {install: xorg-xkbcomp,        desc: X Keyboard description compiler, group: [xorg, xorg-apps]}
+    - {install: xorg-xkbevd,         desc: XKB event daemon, group: [xorg, xorg-apps]}
+    - {install: xorg-xkbutils,       desc: XKB utility demos, group: [xorg, xorg-apps]}
+    - {install: xorg-xkill,          desc: Kill a client by its X resource, group: [xorg, xorg-apps]}
+    - {install: xorg-xmodmap,        desc: Utility for modifying keymaps and button mappings, group: [xorg, xorg-apps]}
+    - {install: xorg-xprop,          desc: Property displayer for X, group: [xorg, xorg-apps]}
+    - {install: xorg-xrandr,         desc: Primitive command line interface to RandR extension, group: [xorg, xorg-apps]}
+    - {install: xorg-xset,           desc: User preference utility for X, group: [xorg, xorg-apps]}
+    - {install: xorg-xwininfo,       desc: Command-line util to print info about windows, group: [xorg, xorg-apps]}
 
     # X11 apps
-    - { install: audacious,           desc: Audio/Player, alt: deadbeaf, xnoise }
-    - { install: chromium,            desc: Opensource project behind Chrome, type: CYBERLINUX }
-    - { install: chromium-widevine,   desc: Chromium support for Netflix, type: ANTERGOS }
-    - { install: evince,              desc: Document viewer (PDF,Postscript,djvu,tiff,dvi,XPS,cbr,cbz,cb7 and cbt) }
-    - { install: ffmpegthumbnailer,   desc: Lightweight video thumbnailer that can be used by file managers }
-    - { install: file-roller,         desc: System/Compression integrates well in Thunar }
-    - { install: filezilla,           desc: Network/Transfer }
-    - { install: flashplugin,         desc: Adobe Flash Player NPAPI }
-    - { install: galculator,          desc: Office/Calculator }
-    - { install: gpicview,            desc: Image viewer, alt: shotwell/viewnior }
-    - { install: gsimplecal,          desc: Simple calendar like windows systray calendar }
-    - { install: gvfs,                desc: Support for Trash and USB, depof: thunar-volman }
-    - { install: gvim,                desc: Improved version of vi text editor, conflict: vim }
-    - { install: leafpad,             desc: Office/Notepad - Simple notepad knock off }
-    - { install: libx264-10bit,       desc: Library for encoding H264/AVC video streams, depof: smplayer }
-    - { install: nitrogen,            desc: System wallpaper manager }
-    - { install: pepper-flash,        desc: Chromium flash support }
-    - { install: pnmixer,             desc: Volume controls in system tray, type: CYBERLINUX }
-    - { install: qt4,                 desc: A cross-platform application and UI framework, deps: vlc }
-    - { install: qt5-base,            desc: A cross-platform application and UI framework, deps: mkvtoolnix-gui }
-    - { install: smplayer,            desc: UI wrapper around mplayer with click to pause, alt: vlc }
-    - { install: smplayer-skins,      desc: Skins for SMPlayer }
-    - { install: smplayer-themes,     desc: Themes for SMPlayer }
-    - { install: system-config-printer, desc: A CUPS printer configuration tool and status applet }
-    - { install: thunar,              desc: Lightweight File Manager from Xfce }
-    - { install: thunar-archive-plugin, desc: Thunar integration with file-roller }
-    - { install: thunar-media-tags-plugin, desc: Thunar plugin to view media details }
-    - { install: thunar-volman,       desc: Thunar plugin to automatically manage removeable devices }
-    - { install: tint2,               desc: Lightweight taskmanager and system tray }
-    - { install: tumbler,             desc: D-Bus thumbnail service for apps (e.g. Thunar) }
-    - { install: vlc,                 desc: Multi-platform MPEG, VCD/DVD, and DivX player }
-    - { install: winff,               desc: GUI for ffmpeg, type: CYBERLINUX }
-    - { install: xnviewmp,            desc: A digital photo organizer, type: CYBERLINUX }
+    - {install: audacious,           desc: Audio/Player, alt: deadbeaf, xnoise }
+    - {install: chromium,            desc: Opensource project behind Chrome, type: CYBERLINUX }
+    - {install: chromium-widevine,   desc: Chromium support for Netflix, type: ANTERGOS }
+    - {install: evince,              desc: Document viewer (PDF,Postscript,djvu,tiff,dvi,XPS,cbr,cbz,cb7 and cbt) }
+    - {install: ffmpegthumbnailer,   desc: Lightweight video thumbnailer that can be used by file managers }
+    - {install: file-roller,         desc: System/Compression integrates well in Thunar }
+    - {install: filezilla,           desc: Network/Transfer }
+    - {install: flashplugin,         desc: Adobe Flash Player NPAPI }
+    - {install: galculator,          desc: Office/Calculator }
+    - {install: gpicview,            desc: Image viewer, alt: shotwell/viewnior }
+    - {install: gsimplecal,          desc: Simple calendar like windows systray calendar }
+    - {install: gvfs,                desc: Support for Trash and USB, depof: thunar-volman }
+    - {install: gvim,                desc: Improved version of vi text editor, conflict: vim }
+    - {install: leafpad,             desc: Office/Notepad - Simple notepad knock off }
+    - {install: libx264-10bit,       desc: Library for encoding H264/AVC video streams, depof: smplayer }
+    - {install: nitrogen,            desc: System wallpaper manager }
+    - {install: pepper-flash,        desc: Chromium flash support }
+    - {install: pnmixer,             desc: Volume controls in system tray, type: CYBERLINUX }
+    - {install: qt4,                 desc: A cross-platform application and UI framework, deps: vlc }
+    - {install: qt5-base,            desc: A cross-platform application and UI framework, deps: mkvtoolnix-gui }
+    - {install: smplayer,            desc: UI wrapper around mplayer with click to pause, alt: vlc }
+    - {install: smplayer-skins,      desc: Skins for SMPlayer }
+    - {install: smplayer-themes,     desc: Themes for SMPlayer }
+    - {install: system-config-printer, desc: A CUPS printer configuration tool and status applet }
+    - {install: thunar,              desc: Lightweight File Manager from Xfce }
+    - {install: thunar-archive-plugin, desc: Thunar integration with file-roller }
+    - {install: thunar-media-tags-plugin, desc: Thunar plugin to view media details }
+    - {install: thunar-volman,       desc: Thunar plugin to automatically manage removeable devices }
+    - {install: tint2,               desc: Lightweight taskmanager and system tray }
+    - {install: tumbler,             desc: D-Bus thumbnail service for apps (e.g. Thunar) }
+    - {install: vlc,                 desc: Multi-platform MPEG, VCD/DVD, and DivX player }
+    - {install: winff,               desc: GUI for ffmpeg, type: CYBERLINUX }
+    - {install: xnviewmp,            desc: A digital photo organizer, type: CYBERLINUX }
 
     # Media Codecs
-    - { install: gst-libav,           desc: GStreamer libav Plugin }
-    - { install: gst-plugins-bad,     desc: GStreamer Bad Plugins }
-    - { install: gst-plugins-base,    desc: GStreamer Base Plugins }
-    - { install: gst-plugins-good,    desc: GStreamer Good Plugins }
-    - { install: gst-plugins-ugly,    desc: GStreamer Ugly Plugins }
-    - { install: libdvdcss,           desc: DVD media codec support }
+    - {install: gst-libav,           desc: GStreamer libav Plugin }
+    - {install: gst-plugins-bad,     desc: GStreamer Bad Plugins }
+    - {install: gst-plugins-base,    desc: GStreamer Base Plugins }
+    - {install: gst-plugins-good,    desc: GStreamer Good Plugins }
+    - {install: gst-plugins-ugly,    desc: GStreamer Ugly Plugins }
+    - {install: libdvdcss,           desc: DVD media codec support }
 
     # X11 Fonts
-    - { install: adobe-source-code-pro-fonts, desc: Mono-spaced coding environments }
-    - { install: terminus-font,       desc: Monospace bitmap font for consoles }
-    - { install: ttf-bitstream-vera,  desc: Bitstream vera fonts }
-    - { install: ttf-dejavu,          desc: Bitstream Vera Fonts w/more characters }
-    - { install: ttf-droid,           desc: Google Android general purpose fonts }
-    - { install: ttf-google-fonts-typewolf, desc: Typewolf's 40 best fonts from the Google Fonts project, type: ANTERGOS }
-    - { install: ttf-hack,            desc: Hand groomed/optically balanced typeface based on Bitstream Vera Mono }
-    - { install: ttf-inconsolata-g,   desc: Best monospace terminal font, type: CYBERLINUX }
-    - { install: ttf-indic-otf,       desc: Indic Opentype Fonts collection }
-    - { install: ttf-liberation,      desc: Red Hats Liberation fonts.  }
-    - { install: ttf-ms-fonts,        desc: Microsoft core fonts, type: CYBERLINUX }
-    - { install: ttf-nerd-fonts-symbols, desc: Nerd Font Symbols, type: CYBERLINUX }
+    - {install: adobe-source-code-pro-fonts, desc: Mono-spaced coding environments }
+    - {install: terminus-font,       desc: Monospace bitmap font for consoles }
+    - {install: ttf-bitstream-vera,  desc: Bitstream vera fonts }
+    - {install: ttf-dejavu,          desc: Bitstream Vera Fonts w/more characters }
+    - {install: ttf-droid,           desc: Google Android general purpose fonts }
+    - {install: ttf-google-fonts-typewolf, desc: Typewolf's 40 best fonts from the Google Fonts project, type: ANTERGOS }
+    - {install: ttf-hack,            desc: Hand groomed/optically balanced typeface based on Bitstream Vera Mono }
+    - {install: ttf-inconsolata-g,   desc: Best monospace terminal font, type: CYBERLINUX }
+    - {install: ttf-indic-otf,       desc: Indic Opentype Fonts collection }
+    - {install: ttf-liberation,      desc: Red Hats Liberation fonts.  }
+    - {install: ttf-ms-fonts,        desc: Microsoft core fonts, type: CYBERLINUX }
+    - {install: ttf-nerd-fonts-symbols, desc: Nerd Font Symbols, type: CYBERLINUX }
     - config-lite
 
   # https://wiki.archlinux.org/index.php/Desktop_environment
@@ -430,45 +430,45 @@ apps:
     - media-apps
     - virtualbox-host
     - keepass
-    - { install: asunder,             desc: A lean and friendly audio CD ripper and encoder }
-    - { install: avidemux-qt,         desc: Graphical tool to edit video (filter/re-encode/split) - Qt GUI }
-    - { install: audacity,            desc: Audio editor - cross platform, tried and tested }
-    - { install: brasero,             desc: Burning tool, alt: k3b, xfburn }
-    - { install: catfish,             desc: System/File Search - File search tool }
-    - { install: cinnamon-screensaver,desc: Screensaver for the Cinnamon desktop, type: CYBERLINUX }
-    - { install: conky,               desc: Lightweight system monitor for X }
-    - { install: devede,              desc: A program to create VideoDVDs and CDs }
-    - { install: fbreader,            desc: An e-book reader for linux }
-    - { install: freerdp,             desc: RDP client plugin for remmina }
-    - { install: gimp,                desc: Excellent image editor, alt: pinta }
-    - { install: gnome-multi-writer,  desc: Write an ISO file to multiple USB devices at once }
-    - { install: guake,               desc: Drop-down python based quake style terminal }
-    - { install: hardinfo,            desc: A system information and benchmark tool }
-    - { install: hunspell-en_US,      desc: US dictionaries for spell checking, deps: libreoffice }
-    - { install: id3v2,               desc: Utility to edit id3v2 tags }
-    - { install: inkscape,            desc: Professional vector graphics editor }
-    - { install: libreoffice-fresh,   desc: LibreOffice branch with new features/enhancements }
-    - { install: kolourpaint,         desc: Paint application that saves jpg in format for GFXBoot }
-    - { install: plank,               desc: Elegant, simple, clean dock }
-    - { install: python2-lxml,        desc: Python wrapper for libxml2, deps: Inkscape }
-    - { install: openshot,            desc: Simple powerful Video Editor, alt: pitivi, kdenlive }
-    - { install: openvpn-update-systemd-resolved, desc: OpenVPN systemd-resolved updater, type: CYBERLINUX }
-    - { install: remmina,             desc: Network/Remoting - Nice remoting UI for RDP }
-    - { install: scribus,             desc: Open Source Desktop Publishing }
-    - { install: synergy,             desc: Network/Virtual KVM }
-    - { install: veracrypt,           desc: Disk encryption with strong security based on TrueCrypt }
+    - {install: asunder,             desc: A lean and friendly audio CD ripper and encoder }
+    - {install: avidemux-qt,         desc: Graphical tool to edit video (filter/re-encode/split) - Qt GUI }
+    - {install: audacity,            desc: Audio editor - cross platform, tried and tested }
+    - {install: brasero,             desc: Burning tool, alt: k3b, xfburn }
+    - {install: catfish,             desc: System/File Search - File search tool }
+    - {install: cinnamon-screensaver,desc: Screensaver for the Cinnamon desktop, type: CYBERLINUX }
+    - {install: conky,               desc: Lightweight system monitor for X }
+    - {install: devede,              desc: A program to create VideoDVDs and CDs }
+    - {install: fbreader,            desc: An e-book reader for linux }
+    - {install: freerdp,             desc: RDP client plugin for remmina }
+    - {install: gimp,                desc: Excellent image editor, alt: pinta }
+    - {install: gnome-multi-writer,  desc: Write an ISO file to multiple USB devices at once }
+    - {install: guake,               desc: Drop-down python based quake style terminal }
+    - {install: hardinfo,            desc: A system information and benchmark tool }
+    - {install: hunspell-en_US,      desc: US dictionaries for spell checking, deps: libreoffice }
+    - {install: id3v2,               desc: Utility to edit id3v2 tags }
+    - {install: inkscape,            desc: Professional vector graphics editor }
+    - {install: libreoffice-fresh,   desc: LibreOffice branch with new features/enhancements }
+    - {install: kolourpaint,         desc: Paint application that saves jpg in format for GFXBoot }
+    - {install: plank,               desc: Elegant, simple, clean dock }
+    - {install: python2-lxml,        desc: Python wrapper for libxml2, deps: Inkscape }
+    - {install: openshot,            desc: Simple powerful Video Editor, alt: pitivi, kdenlive }
+    - {install: openvpn-update-systemd-resolved, desc: OpenVPN systemd-resolved updater, type: CYBERLINUX }
+    - {install: remmina,             desc: Network/Remoting - Nice remoting UI for RDP }
+    - {install: scribus,             desc: Open Source Desktop Publishing }
+    - {install: synergy,             desc: Network/Virtual KVM }
+    - {install: veracrypt,           desc: Disk encryption with strong security based on TrueCrypt }
 
     # Develop
-    - { install: awf-git,             desc: Widget Factory for developing GTK themes, type: CYBERLINUX }
-    - { install: glade,               desc: User Interface Builder for GTK+ applications }
-    - { install: meld,                desc: Develop/Diff Tool - Graphical diff tool cross platform }
-    - { install: ripgrep,             desc: A search tool combining the usability of ag with speed of grep, depof: vscode }
-    - { install: vscode,              desc: Editor for modern development, type: CYBERLINUX }
+    - {install: awf-git,             desc: Widget Factory for developing GTK themes, type: CYBERLINUX }
+    - {install: glade,               desc: User Interface Builder for GTK+ applications }
+    - {install: meld,                desc: Develop/Diff Tool - Graphical diff tool cross platform }
+    - {install: ripgrep,             desc: A search tool combining the usability of ag with speed of grep, depof: vscode }
+    - {install: vscode,              desc: Editor for modern development, type: CYBERLINUX }
 
     # OpenGL
-    - { install: lib32-mesa,          desc: OpenGL opensource implementation, depof: kodi steam }
-    - { install: lib32-mesa-vdpau,    desc: Mesa vdpau drivers, depof: kodi steam }
-    - { install: mesa-vdpau,          desc: Mesa vdpau drivers, depof: kodi steam }
+    - {install: lib32-mesa,          desc: OpenGL opensource implementation, depof: kodi steam }
+    - {install: lib32-mesa-vdpau,    desc: Mesa vdpau drivers, depof: kodi steam }
+    - {install: mesa-vdpau,          desc: Mesa vdpau drivers, depof: kodi steam }
 
     # Configs
     - config-desktop
@@ -477,55 +477,55 @@ apps:
     - apache-php
     - media-apps
     - keepass
-    - { install: asterisk,            desc: Free opensource telephony engine tuned for Google Voice }
-    - { install: file-roller,         desc: System/Compression integrates well in Thunar }
-    - { install: qbittorrent,         desc: Network/Bittorent, alt: deluge }
-    - { install: openvpn-pia,         desc: OpenVPN system tray with PIA integration, type: CYBERLINUX }
+    - {install: asterisk,            desc: Free opensource telephony engine tuned for Google Voice }
+    - {install: file-roller,         desc: System/Compression integrates well in Thunar }
+    - {install: qbittorrent,         desc: Network/Bittorent, alt: deluge }
+    - {install: openvpn-pia,         desc: OpenVPN system tray with PIA integration, type: CYBERLINUX }
     - config-server
 
   media-apps:
-    - { install: handbrake,           desc: Video/Encoding - Video encoding tool for mp4/mkv }
-    - { install: handbrake-cli,       desc: Video/Encoding - Video encoding tool for mp4/mkv }
-    - { install: mkvtoolnix-gui,      desc: Set of tools to create, edit and inspect MKV files }
-    - { install: tiny-media-manager,  desc: Cross platform media manager, type: CYBERLINUX }
+    - {install: handbrake,           desc: Video/Encoding - Video encoding tool for mp4/mkv }
+    - {install: handbrake-cli,       desc: Video/Encoding - Video encoding tool for mp4/mkv }
+    - {install: mkvtoolnix-gui,      desc: Set of tools to create, edit and inspect MKV files }
+    - {install: tiny-media-manager,  desc: Cross platform media manager, type: CYBERLINUX }
 
   theater-apps:
     - media-apps
-    - { install: conky,               desc: Lightweight system monitor for X }
-    - { install: idesk,               desc: Lightweight desktop icons for X, type: CYBERLINUX }
-    - { install: kodi,                desc: Software media player and entertainment hub }
+    - {install: conky,               desc: Lightweight system monitor for X }
+    - {install: idesk,               desc: Lightweight desktop icons for X, type: CYBERLINUX }
+    - {install: kodi,                desc: Software media player and entertainment hub }
 
     # OpenGL
-    - { install: lib32-mesa,          desc: OpenGL opensource implementation, depof: kodi steam }
-    - { install: lib32-mesa-vdpau,    desc: Mesa vdpau drivers, depof: kodi steam }
-    - { install: mesa-vdpau,          desc: Mesa vdpau drivers, depof: kodi steam }
+    - {install: lib32-mesa,          desc: OpenGL opensource implementation, depof: kodi steam }
+    - {install: lib32-mesa-vdpau,    desc: Mesa vdpau drivers, depof: kodi steam }
+    - {install: mesa-vdpau,          desc: Mesa vdpau drivers, depof: kodi steam }
 
     # Configs
     - config-theater
 
   apache-php:
-    - { install: apache,              desc: Apache web server, deb: phpBB }
-    - { install: bzip2,               desc: Compression util for the bzip2 format, depof: php-gd }
-    - { install: php,                 desc: PHP lang, depof: phpBB }
-    - { install: php-apache,          desc: PHP apache module, depof: phpBB }
-    - { install: php-sqlite,          desc: PHP sqlite module, depof: phpBB }
-    - { install: php-gd,              desc: PHP gd module, depof: phpBB }
-    - { install: curl,                desc: Network download REST command line tool, depof: php }
-    - { install: cracklib,            desc: Cryptography suite, depof: shadow }
-    - { install: e2fsprogs,           desc: Ext2/3/4 filesystem utilities, depof: shadow }
-    - { install: findutils,           desc: Util to find applications, depof: curl }
-    - { install: shadow,              desc: Account mgmt passwd/usermod/groupadd, depof: util-linux }
-    - { install: util-linux,          desc: Utilities blkid/fdisk/rename/cp etc..., depof: php-gd }
-    - { install: xz,                  desc: Compression util for xz format, depof: php-gd }
+    - {install: apache,              desc: Apache web server, deb: phpBB }
+    - {install: bzip2,               desc: Compression util for the bzip2 format, depof: php-gd }
+    - {install: php,                 desc: PHP lang, depof: phpBB }
+    - {install: php-apache,          desc: PHP apache module, depof: phpBB }
+    - {install: php-sqlite,          desc: PHP sqlite module, depof: phpBB }
+    - {install: php-gd,              desc: PHP gd module, depof: phpBB }
+    - {install: curl,                desc: Network download REST command line tool, depof: php }
+    - {install: cracklib,            desc: Cryptography suite, depof: shadow }
+    - {install: e2fsprogs,           desc: Ext2/3/4 filesystem utilities, depof: shadow }
+    - {install: findutils,           desc: Util to find applications, depof: curl }
+    - {install: shadow,              desc: Account mgmt passwd/usermod/groupadd, depof: util-linux }
+    - {install: util-linux,          desc: Utilities blkid/fdisk/rename/cp etc..., depof: php-gd }
+    - {install: xz,                  desc: Compression util for xz format, depof: php-gd }
 
   keepass:
-    - { install: keepass, desc: Cross platform password manager }
-    - { menu: Accessories, entry: KeePass, icon: /usr/share/icons/hicolor/32x32/apps/keepass.png, exec: keepass }
+    - {install: keepass, desc: Cross platform password manager }
+    - {menu: Accessories, entry: KeePass, icon: /usr/share/icons/hicolor/32x32/apps/keepass.png, exec: keepass }
 
   # Virtualization packages
   #-----------------------------------------------------------------------------
   docker:
-    - { install: docker, desc: Run applications as containers, depof: reduce }
+    - {install: docker, desc: Run applications as containers, depof: reduce }
     - edit: /opt/<%=distro%>/bin/setproxy
       insert: before
       regex: 'PROXY_MARKER'
@@ -545,41 +545,41 @@ apps:
         - '  systemctl restart docker'
         - 'fi'
         - ''
-    - { chroot: systemctl enable docker.service }
+    - {chroot: systemctl enable docker.service }
 
-  k8shost-apps:
-    - { install: bridge-utils,        desc: Ethernet bridge config utils, depof: k8s }
-    - { install: ebtables,            desc: Ethernet bridge filtering utilities, depof: k8s }
-    - { install: ethtool,             desc: Network drivers and hardware util, depof: k8s }
-    - { install: helm,                desc: Kubernetes package manager, type: CYBERLINUX }
-    - { install: kubernetes-kubectl,  desc: K8s cluster controller, type: CYBERLINUX }
-    - { install: socat,               desc: Multipurpose relay, depof: k8s}
+  k8s-host:
+    - {install: bridge-utils,        desc: Ethernet bridge config utils, depof: k8s}
+    - {install: ebtables,            desc: Ethernet bridge filtering utilities, depof: k8s}
+    - {install: ethtool,             desc: Network drivers and hardware util, depof: k8s}
+    - {install: helm,                desc: Kubernetes package manager, type: CYBERLINUX}
+    - {install: kubernetes-kubectl,  desc: K8s cluster controller, type: CYBERLINUX}
+    - {install: socat,               desc: Multipurpose relay, depof: k8s}
 
-  k8snode-apps:
-    #- docker use an alternative containerd or crio
-    - { install: helm,                desc: Kubernetes package manager, type: CYBERLINUX }
-    - { install: kubernetes-kubeadm,  desc: K8s cluster bootstrap, type: CYBERLINUX }
-    - { install: kubernetes-kubectl,  desc: K8s cluster controller, type: CYBERLINUX }
-    - { install: kubernetes-kubelet,  desc: K8s node control agent, type: CYBERLINUX }
-    - { install: kubernetes-cni,      desc: K8s networking plugins, type: CYBERLINUX }
-    - { chroot: systemctl enable kubelet.service }
+  k8s-node:
+    - core
+    - docker
+    - {install: kubeadm,             desc: K8s cluster bootstrap, type: CYBERLINUX}
+    - {install: kubectl,             desc: K8s cluster controller, type: CYBERLINUX}
+    - {install: kubelet,             desc: K8s node control agent, type: CYBERLINUX}
+    - {install: kubecni,             desc: K8s networking plugins, type: CYBERLINUX}
+    - {chroot: systemctl enable kubelet.service }
 
   virtualbox-host:
-    - { install: packer,              desc: HashiCorp's vagrant box builder, type: CYBERLINUX }
-    - { install: vagrant,             desc: Build and distribute virtualized dev environments }
-    - { install: virtualbox,          desc: Cross platform virtualization with UI }
-    - { install: virtualbox-guest-iso, desc: VirtualBox Guest Additions ISO image }
-    - { install: virtualbox-host-modules-arch, desc: VirtualBox host kernel modules }
+    - {install: packer,              desc: HashiCorp's vagrant box builder, type: CYBERLINUX }
+    - {install: vagrant,             desc: Build and distribute virtualized dev environments }
+    - {install: virtualbox,          desc: Cross platform virtualization with UI }
+    - {install: virtualbox-guest-iso, desc: VirtualBox Guest Additions ISO image }
+    - {install: virtualbox-host-modules-arch, desc: VirtualBox host kernel modules }
 
   # X11 virtualbox guest tools for shell environments
   virtualbox-guest:
-    - { install: virtualbox-guest-utils,        desc: VirtualBox guest drivers/utilities, conflict: virtualbox-guest-utils-nox }
-    - { install: virtualbox-guest-modules-arch, desc: VirtualBox guest kernel modules }
+    - {install: virtualbox-guest-utils,        desc: VirtualBox guest drivers/utilities, conflict: virtualbox-guest-utils-nox }
+    - {install: virtualbox-guest-modules-arch, desc: VirtualBox guest kernel modules }
 
   # Non X11 virtualbox guest tools for shell environments
   virtualbox-guest-nox:
-    - { install: virtualbox-guest-utils-nox,    desc: VirtualBox guest drivers/utilities w/out X support }
-    - { install: virtualbox-guest-modules-arch, desc: VirtualBox guest kernel modules }
+    - {install: virtualbox-guest-utils-nox,    desc: VirtualBox guest drivers/utilities w/out X support }
+    - {install: virtualbox-guest-modules-arch, desc: VirtualBox guest kernel modules }
 
   # Non-free licensed applications
   # can only be used in ISOs/deployments for personal use only
@@ -588,14 +588,14 @@ apps:
   # MakeMKV is free while in beta but is a commercial product required a license normally
   # https://www.makemkv.com/forum2/viewtopic.php?f=5&t=1053
   makemkv:
-    - { install: makemkv, desc: DVD and Blu-ray to MKV converter, type: CYBERLINUX }
-    - { menu: Multimedia, entry: MakeMKV, icon: /usr/share/icons/hicolor/32x32/apps/makemkv.png, exec: makemkv }
+    - {install: makemkv, desc: DVD and Blu-ray to MKV converter, type: CYBERLINUX }
+    - {menu: Multimedia, entry: MakeMKV, icon: /usr/share/icons/hicolor/32x32/apps/makemkv.png, exec: makemkv }
 
   # Teamviewer is free to use for personal use
   # https://www.teamviewer.com/en/credentials/free-for-personal-use/
   teamviewer:
-    - { install: teamviewer, desc: All-In-One Software for Remote Support and Online Meetings, type: CYBERLINUX }
-    - { menu: Network, entry: Teamviewer, icon: /usr/share/icons/Paper/32x32/apps/teamviewer.png, exec: teamviewer }
+    - {install: teamviewer, desc: All-In-One Software for Remote Support and Online Meetings, type: CYBERLINUX }
+    - {menu: Network, entry: Teamviewer, icon: /usr/share/icons/Paper/32x32/apps/teamviewer.png, exec: teamviewer }
     - edit: /etc/skel/.config/autostart/teamviewer.desktop
       insert: append
       values:
@@ -632,22 +632,22 @@ apps:
         - 'fi'
         # Clean up auto launch of teamviewer config script
         - 'rm -f /home/$SUDO_USER/.config/autostart/teamviewer.desktop'
-    - { exec: chmod +x /opt/<%=distro%>/bin/config-teamviewer }
-    - { chroot: systemctl enable teamviewerd.service }
+    - {exec: chmod +x /opt/<%=distro%>/bin/config-teamviewer }
+    - {chroot: systemctl enable teamviewerd.service }
   teamviewer-host:
     - teamviewer
-    - { edit: /opt/<%=distro%>/bin/config-teamviewer, regex: 'systemctl disable teamviewerd', value: '  :' }
-    - { edit: /opt/<%=distro%>/bin/config-teamviewer, regex: 'systemctl stop teamviewerd', value: '  :' }
+    - {edit: /opt/<%=distro%>/bin/config-teamviewer, regex: 'systemctl disable teamviewerd', value: '  :' }
+    - {edit: /opt/<%=distro%>/bin/config-teamviewer, regex: 'systemctl stop teamviewerd', value: '  :' }
 
   # Adobe fonts from adobe reader
   # https://aur.archlinux.org/cgit/aur.git/tree/LICENSE?h=ttf-adobe-fonts
   ttf-adobe-fonts:
-    - { install: ttf-adobe-fonts, desc: Adobe fonts including Myriad Minion and Courier, type: CYBERLINUX }
+    - {install: ttf-adobe-fonts, desc: Adobe fonts including Myriad Minion and Courier, type: CYBERLINUX }
 
   # The Extension Pack binaries are released under the VirtualBox Personal Use and Evaluation License (PUEL).
   # https://www.virtualbox.org/wiki/Downloads
   virtualbox-ext-oracle:
-    - { install: virtualbox-ext-oracle, desc: Oracle VM VirtualBox Extension Pack, type: CYBERLINUX }
+    - {install: virtualbox-ext-oracle, desc: Oracle VM VirtualBox Extension Pack, type: CYBERLINUX }
 
 ################################################################################
 configs:
@@ -691,14 +691,14 @@ configs:
     - config-user-dirs
     - config-vconsole
     - remove-machine-waste
-    - { chroot: systemctl enable sshd.service }
-    - { chroot: systemctl enable systemd-networkd.service }
-    - { chroot: systemctl enable systemd-networkd-wait-online.service }
-    - { chroot: systemctl enable systemd-resolved.service }
-    - { chroot: systemctl enable systemd-timesyncd.service }
+    - {chroot: systemctl enable sshd.service }
+    - {chroot: systemctl enable systemd-networkd.service }
+    - {chroot: systemctl enable systemd-networkd-wait-online.service }
+    - {chroot: systemctl enable systemd-resolved.service }
+    - {chroot: systemctl enable systemd-timesyncd.service }
   config-shell:
     - config-wpa
-    - { chroot: systemctl enable cronie.service }
+    - {chroot: systemctl enable cronie.service }
   config-lite:
     - config-lxdm
     - config-fonts
@@ -733,111 +733,111 @@ configs:
     - config-theater-resolution
     - config-menu-theater
   config-menu-lite:
-    - { menu: Root, insert: append, entry: Thunar, icon: /usr/share/icons/Paper/32x32/apps/Thunar.png, exec: thunar }
-    - { menu: Root, insert: append, entry: LXTerminal, icon: /usr/share/icons/Paper/32x32/apps/lxterminal.png, exec: lxterminal }
-    - { menu: Root, insert: append, entry: Nitrogen, icon: /usr/share/icons/hicolor/32x32/apps/nitrogen.png, exec: nitrogen }
-    - { menu: Root, insert: append, entry: Screenshot, icon: /usr/share/icons/Paper/32x32/apps/gnome-screenshot.png, exec: xfce4-screenshooter }
-    - { menu: Accessories, icon: /usr/share/icons/Paper/32x32/categories/applications-utilities.png }
-    - { menu: Accessories, entry: Archive Manager, icon: /usr/share/icons/Paper/32x32/apps/file-roller.png, exec: file-roller }
-    - { menu: Accessories, entry: Bulk Rename, icon: /usr/share/icons/Paper/32x32/apps/Thunar.png, exec: /usr/lib/Thunar/ThunarBulkRename }
-    - { menu: Accessories, entry: Galculator, icon: /usr/share/icons/Paper/32x32/apps/galculator.png, exec: galculator }
-    - { menu: Accessories, entry: Leafpad, icon: /usr/share/icons/hicolor/32x32/apps/leafpad.png, exec: leafpad }
-    - { menu: Accessories, entry: Screenshot, icon: /usr/share/icons/Paper/32x32/apps/applets-screenshooter.png, exec: xfce4-screenshooter }
-    - { menu: Development, icon: /usr/share/icons/Paper/32x32/categories/applications-development.png }
-    - { menu: Development, entry: GVim, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim -f }
-    - { menu: Graphics, icon: /usr/share/icons/Paper/32x32/categories/applications-graphics.png }
-    - { menu: Graphics, entry: Image Viewer, icon: /usr/share/icons/Paper/32x32/apps/gpicview.png, exec: gpicview }
-    - { menu: Graphics, entry: XnViewMP, icon: /opt/xnviewmp/xnview.png, exec: xnviewmp }
-    - { menu: Graphics, entry: Nitrogen, icon: /usr/share/icons/hicolor/32x32/apps/nitrogen.png, exec: nitrogen }
-    - { menu: Multimedia, icon: /usr/share/icons/Paper/32x32/categories/applications-multimedia.png }
-    - { menu: Multimedia, entry: Audacious, icon: /usr/share/icons/hicolor/32x32/apps/audacious.png, exec: audacious }
-    - { menu: Multimedia, entry: Pulse Audio, icon: /usr/share/icons/Paper/32x32/apps/multimedia-volume-control.png, exec: pavucontrol }
-    - { menu: Multimedia, entry: SMPlayer, icon: /usr/share/icons/hicolor/32x32/apps/smplayer.png, exec: smplayer }
-    - { menu: Multimedia, entry: VLC, icon: /usr/share/icons/hicolor/32x32/apps/vlc.png, exec: vlc }
-    - { menu: Multimedia, entry: WinFF, icon: /usr/share/icons/hicolor/32x32/apps/winff.png, exec: winff }
-    - { menu: Network, icon: /usr/share/icons/Paper/32x32/categories/applications-internet.png }
-    - { menu: Network, entry: Chromium, icon: /usr/share/icons/Paper/32x32/apps/chromium.png, exec: chromium }
-    - { menu: Network, entry: FileZilla, icon: /usr/share/icons/Paper/32x32/apps/filezilla.png, exec: filezilla }
-    - { menu: Network, entry: Zenmap, icon: /usr/share/zenmap/pixmaps/zenmap.png, exec: sudo zenmap }
-    - { menu: Office, icon: /usr/share/icons/Paper/32x32/categories/applications-office.png }
-    - { menu: Office, entry: Evince, icon: /usr/share/icons/Paper/32x32/apps/evince.png, exec: evince }
-    - { menu: Settings, icon: /usr/share/icons/Paper/32x32/categories/applications-accessories.png }
-    - { menu: Settings>Desktop/Login, icon: /usr/share/icons/Paper/32x32/apps/preferences-system-login.png }
-    - { menu: Settings>Desktop/Login, entry: Reconfigure Openbox, icon: /usr/share/icons/Paper/32x32/apps/update-manager.png, exec: openbox --reconfigure }
-    - { menu: Settings>Desktop/Login, entry: LXDM Config, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: sudo gvim /etc/lxdm/lxdm.conf }
-    - { menu: Settings>Desktop/Login, entry: Openbox Autostart, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.config/openbox/autostart }
-    - { menu: Settings>Desktop/Login, entry: Openbox RC, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.config/openbox/rc.xml }
-    - { menu: Settings>Desktop/Login, entry: Openbox Menu, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.config/openbox/menu.xml }
-    - { menu: Settings>Desktop/Login, entry: Oblogout, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: sudo gvim /etc/oblogout.conf }
-    - { menu: Settings>Desktop/Login, entry: Tint2 Panel, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.config/tint2/tint2rc }
-    - { menu: Settings>Pacman/Servers, icon: /usr/share/icons/Paper/32x32/apps/software-center.png }
-    - { menu: Settings>Pacman/Servers, entry: Pacman Config, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: sudo gvim /etc/pacman.conf }
-    - { menu: Settings>Pacman/Servers, entry: Pacman Mirrorlist, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: sudo gvim /etc/pacman.d/mirrorlist }
-    - { menu: Settings, entry: Dconf Editor, icon: /usr/share/icons/Paper/32x32/apps/dconf-editor.png, exec: dconf-editor }
-    - { menu: Settings, entry: Gconf Editor, icon: /usr/share/icons/Paper/32x32/apps/gconf-editor.png, exec: gconf-editor }
-    - { menu: Settings, entry: LXAppearance, icon: /usr/share/icons/Paper/32x32/apps/preferences-desktop-theme.png, exec: lxappearance }
-    - { menu: Settings, entry: LXInput, icon: /usr/share/icons/Paper/32x32/apps/preferences-desktop-keyboard.png, exec: lxinput }
-    - { menu: Settings, entry: LXRandR, icon: /usr/share/icons/Paper/32x32/apps/preferences-desktop-display.png, exec: lxrandr }
-    - { menu: Settings, entry: Thunar Settings, icon: /usr/share/icons/Paper/32x32/apps/system-file-manager.png, exec: thunar-settings }
-    - { menu: Settings, entry: Tint2 Themes, icon: /usr/share/icons/Paper/32x32/apps/tint2conf.png, exec: tint2conf }
-    - { menu: Settings, entry: Printer Preferences, icon: /usr/share/icons/Paper/32x32/devices/preferences-desktop-printer.png, exec: sudo system-config-printer }
-    - { menu: Settings, entry: Thunar Volman, icon: /usr/share/icons/Paper/32x32/devices/drive-removable-media.png, exec: thunar-volman-settings }
-    - { menu: System, icon: /usr/share/icons/Paper/32x32/categories/applications-system.png }
-    - { menu: System, entry: Htop, icon: /usr/share/icons/Paper/32x32/apps/htop.png, exec: lxterminal -e htop }
-    - { menu: Session, insert: append, entry: Run..., icon: /usr/share/icons/Paper/32x32/mimetypes/application-x-executable.png, exec: "dmenu_run -fn -misc-fixed-*-*-*-*-20-200-*-*-*-*-*-*  -i -nb '#000000' -nf '#efefef' -sf '#000000' -sb '#3cb0fd'" }
-    - { menu: Session, insert: append, entry: Logout, icon: /usr/share/icons/Paper/32x32/actions/exit.png, exec: openbox --exit }
-    - { menu: Session, insert: append, entry: Reboot, icon: /usr/share/icons/hicolor/32x32/actions/system-reboot.png, exec: sudo reboot }
-    - { menu: Session, insert: append, entry: Shutdown, icon: /usr/share/icons/hicolor/32x32/actions/system-shutdown.png, exec: sudo poweroff }
+    - {menu: Root, insert: append, entry: Thunar, icon: /usr/share/icons/Paper/32x32/apps/Thunar.png, exec: thunar }
+    - {menu: Root, insert: append, entry: LXTerminal, icon: /usr/share/icons/Paper/32x32/apps/lxterminal.png, exec: lxterminal }
+    - {menu: Root, insert: append, entry: Nitrogen, icon: /usr/share/icons/hicolor/32x32/apps/nitrogen.png, exec: nitrogen }
+    - {menu: Root, insert: append, entry: Screenshot, icon: /usr/share/icons/Paper/32x32/apps/gnome-screenshot.png, exec: xfce4-screenshooter }
+    - {menu: Accessories, icon: /usr/share/icons/Paper/32x32/categories/applications-utilities.png }
+    - {menu: Accessories, entry: Archive Manager, icon: /usr/share/icons/Paper/32x32/apps/file-roller.png, exec: file-roller }
+    - {menu: Accessories, entry: Bulk Rename, icon: /usr/share/icons/Paper/32x32/apps/Thunar.png, exec: /usr/lib/Thunar/ThunarBulkRename }
+    - {menu: Accessories, entry: Galculator, icon: /usr/share/icons/Paper/32x32/apps/galculator.png, exec: galculator }
+    - {menu: Accessories, entry: Leafpad, icon: /usr/share/icons/hicolor/32x32/apps/leafpad.png, exec: leafpad }
+    - {menu: Accessories, entry: Screenshot, icon: /usr/share/icons/Paper/32x32/apps/applets-screenshooter.png, exec: xfce4-screenshooter }
+    - {menu: Development, icon: /usr/share/icons/Paper/32x32/categories/applications-development.png }
+    - {menu: Development, entry: GVim, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim -f }
+    - {menu: Graphics, icon: /usr/share/icons/Paper/32x32/categories/applications-graphics.png }
+    - {menu: Graphics, entry: Image Viewer, icon: /usr/share/icons/Paper/32x32/apps/gpicview.png, exec: gpicview }
+    - {menu: Graphics, entry: XnViewMP, icon: /opt/xnviewmp/xnview.png, exec: xnviewmp }
+    - {menu: Graphics, entry: Nitrogen, icon: /usr/share/icons/hicolor/32x32/apps/nitrogen.png, exec: nitrogen }
+    - {menu: Multimedia, icon: /usr/share/icons/Paper/32x32/categories/applications-multimedia.png }
+    - {menu: Multimedia, entry: Audacious, icon: /usr/share/icons/hicolor/32x32/apps/audacious.png, exec: audacious }
+    - {menu: Multimedia, entry: Pulse Audio, icon: /usr/share/icons/Paper/32x32/apps/multimedia-volume-control.png, exec: pavucontrol }
+    - {menu: Multimedia, entry: SMPlayer, icon: /usr/share/icons/hicolor/32x32/apps/smplayer.png, exec: smplayer }
+    - {menu: Multimedia, entry: VLC, icon: /usr/share/icons/hicolor/32x32/apps/vlc.png, exec: vlc }
+    - {menu: Multimedia, entry: WinFF, icon: /usr/share/icons/hicolor/32x32/apps/winff.png, exec: winff }
+    - {menu: Network, icon: /usr/share/icons/Paper/32x32/categories/applications-internet.png }
+    - {menu: Network, entry: Chromium, icon: /usr/share/icons/Paper/32x32/apps/chromium.png, exec: chromium }
+    - {menu: Network, entry: FileZilla, icon: /usr/share/icons/Paper/32x32/apps/filezilla.png, exec: filezilla }
+    - {menu: Network, entry: Zenmap, icon: /usr/share/zenmap/pixmaps/zenmap.png, exec: sudo zenmap }
+    - {menu: Office, icon: /usr/share/icons/Paper/32x32/categories/applications-office.png }
+    - {menu: Office, entry: Evince, icon: /usr/share/icons/Paper/32x32/apps/evince.png, exec: evince }
+    - {menu: Settings, icon: /usr/share/icons/Paper/32x32/categories/applications-accessories.png }
+    - {menu: Settings>Desktop/Login, icon: /usr/share/icons/Paper/32x32/apps/preferences-system-login.png }
+    - {menu: Settings>Desktop/Login, entry: Reconfigure Openbox, icon: /usr/share/icons/Paper/32x32/apps/update-manager.png, exec: openbox --reconfigure }
+    - {menu: Settings>Desktop/Login, entry: LXDM Config, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: sudo gvim /etc/lxdm/lxdm.conf }
+    - {menu: Settings>Desktop/Login, entry: Openbox Autostart, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.config/openbox/autostart }
+    - {menu: Settings>Desktop/Login, entry: Openbox RC, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.config/openbox/rc.xml }
+    - {menu: Settings>Desktop/Login, entry: Openbox Menu, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.config/openbox/menu.xml }
+    - {menu: Settings>Desktop/Login, entry: Oblogout, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: sudo gvim /etc/oblogout.conf }
+    - {menu: Settings>Desktop/Login, entry: Tint2 Panel, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.config/tint2/tint2rc }
+    - {menu: Settings>Pacman/Servers, icon: /usr/share/icons/Paper/32x32/apps/software-center.png }
+    - {menu: Settings>Pacman/Servers, entry: Pacman Config, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: sudo gvim /etc/pacman.conf }
+    - {menu: Settings>Pacman/Servers, entry: Pacman Mirrorlist, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: sudo gvim /etc/pacman.d/mirrorlist }
+    - {menu: Settings, entry: Dconf Editor, icon: /usr/share/icons/Paper/32x32/apps/dconf-editor.png, exec: dconf-editor }
+    - {menu: Settings, entry: Gconf Editor, icon: /usr/share/icons/Paper/32x32/apps/gconf-editor.png, exec: gconf-editor }
+    - {menu: Settings, entry: LXAppearance, icon: /usr/share/icons/Paper/32x32/apps/preferences-desktop-theme.png, exec: lxappearance }
+    - {menu: Settings, entry: LXInput, icon: /usr/share/icons/Paper/32x32/apps/preferences-desktop-keyboard.png, exec: lxinput }
+    - {menu: Settings, entry: LXRandR, icon: /usr/share/icons/Paper/32x32/apps/preferences-desktop-display.png, exec: lxrandr }
+    - {menu: Settings, entry: Thunar Settings, icon: /usr/share/icons/Paper/32x32/apps/system-file-manager.png, exec: thunar-settings }
+    - {menu: Settings, entry: Tint2 Themes, icon: /usr/share/icons/Paper/32x32/apps/tint2conf.png, exec: tint2conf }
+    - {menu: Settings, entry: Printer Preferences, icon: /usr/share/icons/Paper/32x32/devices/preferences-desktop-printer.png, exec: sudo system-config-printer }
+    - {menu: Settings, entry: Thunar Volman, icon: /usr/share/icons/Paper/32x32/devices/drive-removable-media.png, exec: thunar-volman-settings }
+    - {menu: System, icon: /usr/share/icons/Paper/32x32/categories/applications-system.png }
+    - {menu: System, entry: Htop, icon: /usr/share/icons/Paper/32x32/apps/htop.png, exec: lxterminal -e htop }
+    - {menu: Session, insert: append, entry: Run..., icon: /usr/share/icons/Paper/32x32/mimetypes/application-x-executable.png, exec: "dmenu_run -fn -misc-fixed-*-*-*-*-20-200-*-*-*-*-*-*  -i -nb '#000000' -nf '#efefef' -sf '#000000' -sb '#3cb0fd'" }
+    - {menu: Session, insert: append, entry: Logout, icon: /usr/share/icons/Paper/32x32/actions/exit.png, exec: openbox --exit }
+    - {menu: Session, insert: append, entry: Reboot, icon: /usr/share/icons/hicolor/32x32/actions/system-reboot.png, exec: sudo reboot }
+    - {menu: Session, insert: append, entry: Shutdown, icon: /usr/share/icons/hicolor/32x32/actions/system-shutdown.png, exec: sudo poweroff }
   config-menu-laptop:
-    - { menu: Network, entry: WPA Gui, icon: /usr/share/icons/hicolor/32x32/apps/wpa_gui.png, exec: sudo wpa_gui }
+    - {menu: Network, entry: WPA Gui, icon: /usr/share/icons/hicolor/32x32/apps/wpa_gui.png, exec: sudo wpa_gui }
 
   config-menu-desktop:
-    - { menu: Accessories, entry: Catfish File Search, icon: /usr/share/icons/Paper/32x32/apps/system-search.png, exec: catfish }
-    - { menu: Accessories, entry: Multi Writer, icon: /usr/share/icons/Paper/32x32/devices/drive-harddisk-usb.png, exec: sudo gnome-multi-writer}
-    - { menu: Development, entry: Meld, icon: /usr/share/icons/Paper/32x32/apps/meld.png, exec: meld }
-    - { menu: Development, entry: Visual Studio Code, icon: /usr/share/icons/Paper/32x32/apps/visual-studio-code.png, exec: code }
-    - { menu: Graphics, entry: Gimp, icon: /usr/share/icons/Paper/32x32/apps/gimp.png, exec: gimp }
-    - { menu: Graphics, entry: Inkscape, icon: /usr/share/icons/Paper/32x32/apps/inkscape.png, exec: inkscape }
-    - { menu: Graphics, entry: Kolour, icon: /usr/share/icons/Paper/32x32/apps/kolourpaint.png, exec: kolourpaint }
-    - { menu: Graphics, entry: LibreOffice Draw, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-draw.png, exec: libreoffice --draw }
-    - { menu: Multimedia, entry: Asunder, icon: /usr/share/icons/hicolor/32x32/apps/brasero.png, exec: asunder }
-    - { menu: Multimedia, entry: Audacity, icon: /usr/share/icons/hicolor/32x32/apps/audacity.png, exec: env UBUNTU_MENUPROXY=0 audacity }
-    - { menu: Multimedia, entry: Brasero, icon: /usr/share/icons/Paper/32x32/apps/brasero.png, exec: brasero }
-    - { menu: Multimedia, entry: DeVeDe, icon: /usr/share/devedeng/devedeng.png, exec: devede_ng.py }
-    - { menu: Multimedia, entry: HandBrake, icon: /usr/share/icons/hicolor/scalable/apps/hb-icon.svg, exec: ghb }
-    - { menu: Multimedia, entry: MKVToolNix, icon: /usr/share/icons/hicolor/32x32/apps/mkvtoolnix-gui.png, exec: mkvtoolnix-gui }
-    - { menu: Multimedia, entry: OpenShot, icon: /usr/share/icons/Paper/32x32/apps/openshot.png, exec: openshot-qt }
-    - { menu: Multimedia, entry: Tiny Media Manager, icon: /usr/share/icons/hicolor/32x32/apps/tiny-media-manager.png, exec: tiny-media-manager }
-    - { menu: Network, entry: Remmina, icon: /usr/share/icons/Paper/32x32/apps/remmina.png, exec: remmina }
-    - { menu: Network, entry: Synergy, icon: /usr/share/icons/Paper/32x32/apps/synergy.png, exec: synergy }
-    - { menu: Network, entry: WPA Gui, icon: /usr/share/icons/hicolor/32x32/apps/wpa_gui.png, exec: sudo wpa_gui }
-    - { menu: Office, entry: LibreOffice Base, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-base.png, exec: libreoffice --base }
-    - { menu: Office, entry: LibreOffice Calc, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-calc.png, exec: libreoffice --calc }
-    - { menu: Office, entry: LibreOffice Draw, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-draw.png, exec: libreoffice --draw }
-    - { menu: Office, entry: LibreOffice Impress, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-impress.png, exec: libreoffice --impress }
-    - { menu: Office, entry: LibreOffice Math, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-math.png, exec: libreoffice --math }
-    - { menu: Office, entry: LibreOffice Writer, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-writer.png, exec: libreoffice --writer }
-    - { menu: Office, entry: LibreOffice, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-startcenter.png, exec: libreoffice }
-    - { menu: Office, entry: Scribus, icon: /usr/share/icons/Paper/32x32/apps/scribus.png, exec: scribus }
-    - { menu: System, entry: HardInfo, icon: /usr/share/hardinfo/pixmaps/logo.png, exec: hardinfo }
-    - { menu: Settings, entry: Guake Preferences, icon: /usr/share/icons/Paper/32x32/apps/guake-prefs.png, exec: guake-prefs }
-    - { menu: Settings, entry: VirtualBox, icon: /usr/share/icons/Paper/32x32/apps/virtualbox.png, exec: VirtualBox }
+    - {menu: Accessories, entry: Catfish File Search, icon: /usr/share/icons/Paper/32x32/apps/system-search.png, exec: catfish }
+    - {menu: Accessories, entry: Multi Writer, icon: /usr/share/icons/Paper/32x32/devices/drive-harddisk-usb.png, exec: sudo gnome-multi-writer}
+    - {menu: Development, entry: Meld, icon: /usr/share/icons/Paper/32x32/apps/meld.png, exec: meld }
+    - {menu: Development, entry: Visual Studio Code, icon: /usr/share/icons/Paper/32x32/apps/visual-studio-code.png, exec: code }
+    - {menu: Graphics, entry: Gimp, icon: /usr/share/icons/Paper/32x32/apps/gimp.png, exec: gimp }
+    - {menu: Graphics, entry: Inkscape, icon: /usr/share/icons/Paper/32x32/apps/inkscape.png, exec: inkscape }
+    - {menu: Graphics, entry: Kolour, icon: /usr/share/icons/Paper/32x32/apps/kolourpaint.png, exec: kolourpaint }
+    - {menu: Graphics, entry: LibreOffice Draw, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-draw.png, exec: libreoffice --draw }
+    - {menu: Multimedia, entry: Asunder, icon: /usr/share/icons/hicolor/32x32/apps/brasero.png, exec: asunder }
+    - {menu: Multimedia, entry: Audacity, icon: /usr/share/icons/hicolor/32x32/apps/audacity.png, exec: env UBUNTU_MENUPROXY=0 audacity }
+    - {menu: Multimedia, entry: Brasero, icon: /usr/share/icons/Paper/32x32/apps/brasero.png, exec: brasero }
+    - {menu: Multimedia, entry: DeVeDe, icon: /usr/share/devedeng/devedeng.png, exec: devede_ng.py }
+    - {menu: Multimedia, entry: HandBrake, icon: /usr/share/icons/hicolor/scalable/apps/hb-icon.svg, exec: ghb }
+    - {menu: Multimedia, entry: MKVToolNix, icon: /usr/share/icons/hicolor/32x32/apps/mkvtoolnix-gui.png, exec: mkvtoolnix-gui }
+    - {menu: Multimedia, entry: OpenShot, icon: /usr/share/icons/Paper/32x32/apps/openshot.png, exec: openshot-qt }
+    - {menu: Multimedia, entry: Tiny Media Manager, icon: /usr/share/icons/hicolor/32x32/apps/tiny-media-manager.png, exec: tiny-media-manager }
+    - {menu: Network, entry: Remmina, icon: /usr/share/icons/Paper/32x32/apps/remmina.png, exec: remmina }
+    - {menu: Network, entry: Synergy, icon: /usr/share/icons/Paper/32x32/apps/synergy.png, exec: synergy }
+    - {menu: Network, entry: WPA Gui, icon: /usr/share/icons/hicolor/32x32/apps/wpa_gui.png, exec: sudo wpa_gui }
+    - {menu: Office, entry: LibreOffice Base, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-base.png, exec: libreoffice --base }
+    - {menu: Office, entry: LibreOffice Calc, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-calc.png, exec: libreoffice --calc }
+    - {menu: Office, entry: LibreOffice Draw, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-draw.png, exec: libreoffice --draw }
+    - {menu: Office, entry: LibreOffice Impress, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-impress.png, exec: libreoffice --impress }
+    - {menu: Office, entry: LibreOffice Math, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-math.png, exec: libreoffice --math }
+    - {menu: Office, entry: LibreOffice Writer, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-writer.png, exec: libreoffice --writer }
+    - {menu: Office, entry: LibreOffice, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-startcenter.png, exec: libreoffice }
+    - {menu: Office, entry: Scribus, icon: /usr/share/icons/Paper/32x32/apps/scribus.png, exec: scribus }
+    - {menu: System, entry: HardInfo, icon: /usr/share/hardinfo/pixmaps/logo.png, exec: hardinfo }
+    - {menu: Settings, entry: Guake Preferences, icon: /usr/share/icons/Paper/32x32/apps/guake-prefs.png, exec: guake-prefs }
+    - {menu: Settings, entry: VirtualBox, icon: /usr/share/icons/Paper/32x32/apps/virtualbox.png, exec: VirtualBox }
   config-menu-server:
-    - { menu: Accessories, entry: Archive Manager, icon: /usr/share/icons/Paper/32x32/apps/file-roller.png, exec: file-roller }
-    - { menu: Multimedia, entry: HandBrake, icon: /usr/share/icons/hicolor/scalable/apps/hb-icon.svg, exec: ghb }
-    - { menu: Multimedia, entry: MKVToolNix, icon: /usr/share/icons/hicolor/32x32/apps/mkvtoolnix-gui.png, exec: mkvtoolnix-gui }
-    - { menu: Multimedia, entry: Tiny Media Manager, icon: /usr/share/icons/hicolor/32x32/apps/tiny-media-manager.png, exec: tiny-media-manager }
-    - { menu: Network, entry: OpenVPN PIA, icon: /usr/share/icons/hicolor/32x32/apps/openvpn-pia.png, exec: sudo openvpn-pia }
-    - { menu: Network, entry: qBittorrent, icon: /usr/share/icons/hicolor/32x32/apps/qbittorrent.png, exec: qbittorrent }
+    - {menu: Accessories, entry: Archive Manager, icon: /usr/share/icons/Paper/32x32/apps/file-roller.png, exec: file-roller }
+    - {menu: Multimedia, entry: HandBrake, icon: /usr/share/icons/hicolor/scalable/apps/hb-icon.svg, exec: ghb }
+    - {menu: Multimedia, entry: MKVToolNix, icon: /usr/share/icons/hicolor/32x32/apps/mkvtoolnix-gui.png, exec: mkvtoolnix-gui }
+    - {menu: Multimedia, entry: Tiny Media Manager, icon: /usr/share/icons/hicolor/32x32/apps/tiny-media-manager.png, exec: tiny-media-manager }
+    - {menu: Network, entry: OpenVPN PIA, icon: /usr/share/icons/hicolor/32x32/apps/openvpn-pia.png, exec: sudo openvpn-pia }
+    - {menu: Network, entry: qBittorrent, icon: /usr/share/icons/hicolor/32x32/apps/qbittorrent.png, exec: qbittorrent }
   config-menu-theater:
-    - { menu: Multimedia, entry: HandBrake, icon: /usr/share/icons/hicolor/scalable/apps/hb-icon.svg, exec: ghb }
-    - { menu: Multimedia, entry: MKVToolNix, icon: /usr/share/icons/hicolor/32x32/apps/mkvtoolnix-gui.png, exec: mkvtoolnix-gui }
-    - { menu: Multimedia, entry: Tiny Media Manager, icon: /usr/share/icons/hicolor/32x32/apps/tiny-media-manager.png, exec: tiny-media-manager }
+    - {menu: Multimedia, entry: HandBrake, icon: /usr/share/icons/hicolor/scalable/apps/hb-icon.svg, exec: ghb }
+    - {menu: Multimedia, entry: MKVToolNix, icon: /usr/share/icons/hicolor/32x32/apps/mkvtoolnix-gui.png, exec: mkvtoolnix-gui }
+    - {menu: Multimedia, entry: Tiny Media Manager, icon: /usr/share/icons/hicolor/32x32/apps/tiny-media-manager.png, exec: tiny-media-manager }
   config-apache-php:
-    - { edit: /etc/httpd/conf/httpd.conf, regex: '^(Listen).*', value: '\1 80' }
-    - { edit: /etc/httpd/conf/httpd.conf, regex: '^(DocumentRoot).*', value: '\1 /srv/http' }
-    - { edit: /etc/httpd/conf/httpd.conf, regex: '^(.*DirectoryIndex index.html).*', value: '\1 index.php' }
-    - { edit: /etc/httpd/conf/httpd.conf, regex: '^(LoadModule mpm_event.*)', value: '#\1' }
+    - {edit: /etc/httpd/conf/httpd.conf, regex: '^(Listen).*', value: '\1 80' }
+    - {edit: /etc/httpd/conf/httpd.conf, regex: '^(DocumentRoot).*', value: '\1 /srv/http' }
+    - {edit: /etc/httpd/conf/httpd.conf, regex: '^(.*DirectoryIndex index.html).*', value: '\1 index.php' }
+    - {edit: /etc/httpd/conf/httpd.conf, regex: '^(LoadModule mpm_event.*)', value: '#\1' }
     - edit: /etc/httpd/conf/httpd.conf
       insert: before
       regex: '<IfModule mpm_prefork'
@@ -872,19 +872,19 @@ configs:
         - "            SetHandler application/x-httpd-php-source"
         - "        </FilesMatch>"
         - "    </IfModule>"
-    - { edit: /etc/php/php.ini, regex: '^(max_execution_time).*', value: '\1 = 6000' }
-    - { edit: /etc/php/php.ini, regex: '^(max_input_time).*', value: '\1 = 6000' }
-    - { edit: /etc/php/php.ini, regex: '^(memory_limit).*', value: '\1 = 128M' }
-    - { edit: /etc/php/php.ini, regex: '^(post_max_size).*', value: '\1 = 210M' }
-    - { edit: /etc/php/php.ini, regex: '^(upload_max_filesize).*', value: '\1 = 200M' }
-    - { edit: /etc/php/php.ini, regex: '^;(extension=gd.so.*)', value: '\1' }
-    - { edit: /etc/php/php.ini, regex: '^;(extension=gettext.so.*)', value: '\1' }
-    - { edit: /etc/php/php.ini, regex: '^;(extension=pdo_sqlite.so.*)', value: '\1' }
-    - { edit: /etc/php/php.ini, regex: '^;(extension=sqlite3.so.*)', value: '\1' }
-    - { chroot: systemctl enable httpd.service }
+    - {edit: /etc/php/php.ini, regex: '^(max_execution_time).*', value: '\1 = 6000' }
+    - {edit: /etc/php/php.ini, regex: '^(max_input_time).*', value: '\1 = 6000' }
+    - {edit: /etc/php/php.ini, regex: '^(memory_limit).*', value: '\1 = 128M' }
+    - {edit: /etc/php/php.ini, regex: '^(post_max_size).*', value: '\1 = 210M' }
+    - {edit: /etc/php/php.ini, regex: '^(upload_max_filesize).*', value: '\1 = 200M' }
+    - {edit: /etc/php/php.ini, regex: '^;(extension=gd.so.*)', value: '\1' }
+    - {edit: /etc/php/php.ini, regex: '^;(extension=gettext.so.*)', value: '\1' }
+    - {edit: /etc/php/php.ini, regex: '^;(extension=pdo_sqlite.so.*)', value: '\1' }
+    - {edit: /etc/php/php.ini, regex: '^;(extension=sqlite3.so.*)', value: '\1' }
+    - {chroot: systemctl enable httpd.service }
   config-bash:
-    - { edit: /root/.bashrc, regex: '^(export PATH.*)', value: '\1:/opt/<%=distro%>/bin' }
-    - { edit: /etc/skel/.bashrc, regex: '^(export PATH.*)', value: '\1:/opt/<%=distro%>/bin' }
+    - {edit: /root/.bashrc, regex: '^(export PATH.*)', value: '\1:/opt/<%=distro%>/bin' }
+    - {edit: /etc/skel/.bashrc, regex: '^(export PATH.*)', value: '\1:/opt/<%=distro%>/bin' }
   config-cinnamon-screensaver:
     - edit: /etc/skel/.config/autostart/cinnamon-screensaver.desktop
       insert: append
@@ -906,7 +906,7 @@ configs:
         - "time-format='%I:%M%P'\n\n"
         - "[org/cinnamon/desktop/background]\n"
         - "picture-uri='file://<%=wallpaper%>'\n"
-    - { chroot: dconf update }
+    - {chroot: dconf update }
     # This file edit is an ugly hack to fix cinnamon-screensaver as it broke in a recent version
     - edit: /usr/share/glib-2.0/schemas/org.cinnamon.desktop.screensaver.gschema.xml
       insert: before
@@ -915,9 +915,9 @@ configs:
         - "    <key type=\"b\" name=\"logout-enabled\"><default>false</default></key>\n"
         - "    <key type=\"s\" name=\"logout-command\"><default>''</default></key>\n"
         - "    <key type=\"u\" name=\"logout-delay\"><default>7200</default></key>\n"
-    - { chroot: glib-compile-schemas /usr/share/glib-2.0/schemas }
+    - {chroot: glib-compile-schemas /usr/share/glib-2.0/schemas }
   config-conky:
-    - { menu: Settings, entry: Conky RC, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.conkyrc }
+    - {menu: Settings, entry: Conky RC, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.conkyrc }
     - edit: /etc/lxdm/PostLogout
       insert: append
       values:
@@ -978,7 +978,7 @@ configs:
         - '  fi'
         - 'fi'
   config-hosts:
-    - { exec: 'rm -f /etc/hosts' }
+    - {exec: 'rm -f /etc/hosts' }
     - edit: /etc/hosts
       insert: append
       values:
@@ -1040,14 +1040,14 @@ configs:
         - '    <edit mode="assign" name="antialias"><bool>true</bool></edit>'
         - '  </match>'
         - '</fontconfig>'
-    - { chroot: fc-cache }
+    - {chroot: fc-cache }
   config-gtk:
     - edit: /etc/dconf/db/local.d/02-gtk
       insert: append
       values:
         - "[org/gtk/settings/file-chooser]\n"
         - "sort-directories-first=true\n"
-    - { chroot: dconf update }
+    - {chroot: dconf update }
     - edit: /etc/skel/.gtkrc-2.0
       insert: append
       values:
@@ -1104,8 +1104,8 @@ configs:
         - 'StartupNotify=true'
         - 'Type=Application'
         - 'Categories=System;Utility;TerminalEmulator;'
-    - { chroot: 'mkdir -p /etc/skel/.config/gconf/apps/guake/{general,style/{background,font}}' }
-    - { chroot: 'touch /etc/skel/.config/gconf/apps/guake/%gconf.xml' }
+    - {chroot: 'mkdir -p /etc/skel/.config/gconf/apps/guake/{general,style/{background,font}}' }
+    - {chroot: 'touch /etc/skel/.config/gconf/apps/guake/%gconf.xml' }
     - edit: /etc/skel/.config/gconf/apps/guake/general/%gconf.xml
       insert: append
       values:
@@ -1115,7 +1115,7 @@ configs:
         - '  <entry name="history_size" mtime="1478548706" type="int" value="10000"/>'
         - '  <entry name="use_default_font" mtime="1476881725" type="bool" value="false"/>'
         - '</gconf>'
-    - { chroot: 'touch /etc/skel/.config/gconf/apps/guake/style/%gconf.xml' }
+    - {chroot: 'touch /etc/skel/.config/gconf/apps/guake/style/%gconf.xml' }
     - edit: /etc/skel/.config/gconf/apps/guake/style/background/%gconf.xml
       insert: append
       values:
@@ -1143,13 +1143,13 @@ configs:
         - 'Terminal=false'
         - 'Type=Application'
         - 'Categories=Utility;'
-    - { exec: mkdir -p /usr/share/icons/hicolor/196x196/apps }
-    - { exec: convert /usr/share/icons/hicolor/256x256/apps/kodi.png -resize 196x196 /usr/share/icons/hicolor/196x196/apps/kodi.png }
-    - { exec: convert /usr/share/icons/hicolor/256x256/apps/chromium.png -resize 96x96 /usr/share/icons/hicolor/96x96/apps/chromium.png }
-    - { exec: convert /usr/share/icons/hicolor/256x256/apps/smplayer.png -resize 96x96 /usr/share/icons/hicolor/96x96/apps/smplayer.png }
-    - { exec: convert /usr/share/icons/hicolor/72x72/actions/system-reboot.png -resize 96x96 /usr/share/icons/hicolor/96x96/actions/system-reboot.png }
-    - { exec: convert /usr/share/icons/hicolor/72x72/actions/system-shutdown.png -resize 96x96 /usr/share/icons/hicolor/96x96/actions/system-shutdown.png }
-    - { exec: convert -background none -density 384 -resize x96 /usr/share/icons/hicolor/scalable/apps/audacious.svg /usr/share/icons/hicolor/96x96/apps/audacious.png }
+    - {exec: mkdir -p /usr/share/icons/hicolor/196x196/apps }
+    - {exec: convert /usr/share/icons/hicolor/256x256/apps/kodi.png -resize 196x196 /usr/share/icons/hicolor/196x196/apps/kodi.png }
+    - {exec: convert /usr/share/icons/hicolor/256x256/apps/chromium.png -resize 96x96 /usr/share/icons/hicolor/96x96/apps/chromium.png }
+    - {exec: convert /usr/share/icons/hicolor/256x256/apps/smplayer.png -resize 96x96 /usr/share/icons/hicolor/96x96/apps/smplayer.png }
+    - {exec: convert /usr/share/icons/hicolor/72x72/actions/system-reboot.png -resize 96x96 /usr/share/icons/hicolor/96x96/actions/system-reboot.png }
+    - {exec: convert /usr/share/icons/hicolor/72x72/actions/system-shutdown.png -resize 96x96 /usr/share/icons/hicolor/96x96/actions/system-shutdown.png }
+    - {exec: convert -background none -density 384 -resize x96 /usr/share/icons/hicolor/scalable/apps/audacious.svg /usr/share/icons/hicolor/96x96/apps/audacious.png }
     - edit: /etc/skel/.idesktop/kodi.lnk
       insert: append
       values:
@@ -1187,9 +1187,9 @@ configs:
         - "  X: 110\n  Y: 193\n  Command[0]: smplayer\nend"
   config-journald:
     # Avoid "Failed to start Create Volatile Files and Directories"
-    - { exec: 'rm -rf /var/log/journal' }
+    - {exec: 'rm -rf /var/log/journal' }
     # Restrict journal disk size to avoid hogging the system
-    - { edit: /etc/systemd/journald.conf, regex: '^#(SystemMaxUse).*', value: '\1=100M' }
+    - {edit: /etc/systemd/journald.conf, regex: '^#(SystemMaxUse).*', value: '\1=100M' }
   config-locale:
     - edit: /etc/locale.conf
       insert: append
@@ -1197,18 +1197,18 @@ configs:
         - 'LANG=<%=language%>.<%=character_set%>'
         - 'LANGUAGE=<%=language%>.<%=character_set%>'
         - 'LC_ALL=<%=language%>.<%=character_set%>'
-    - { edit: /etc/locale.gen, regex: '^#(<%=language%>\..*)', value: '\1' }
-    - { chroot: locale-gen }
-    - { edit: /etc/profile.d/locale.sh, insert: append, value: "export LC_COLLATE=C" }
+    - {edit: /etc/locale.gen, regex: '^#(<%=language%>\..*)', value: '\1' }
+    - {chroot: locale-gen }
+    - {edit: /etc/profile.d/locale.sh, insert: append, value: "export LC_COLLATE=C" }
   config-logind:
-    - { edit: /etc/systemd/logind.conf, regex: '^#(KillUserProcesses)=.*', value: '\1=yes' }
-    - { edit: /etc/systemd/logind.conf, regex: '^#(HandlePowerKey)=.*', value: '\1=poweroff' }
-    - { edit: /etc/systemd/logind.conf, regex: '^#(HandleSuspendKey)=.*', value: '\1=suspend' }
-    - { edit: /etc/systemd/logind.conf, regex: '^#(HandleHibernateKey)=.*', value: '\1=hibernate' }
-    - { edit: /etc/systemd/logind.conf, regex: '^#(HandleLidSwitch)=.*', value: '\1=suspend' }
-    - { edit: /etc/systemd/logind.conf, regex: '^#(HandleLidSwitchDocked)=.*', value: '\1=ignore' }
+    - {edit: /etc/systemd/logind.conf, regex: '^#(KillUserProcesses)=.*', value: '\1=yes' }
+    - {edit: /etc/systemd/logind.conf, regex: '^#(HandlePowerKey)=.*', value: '\1=poweroff' }
+    - {edit: /etc/systemd/logind.conf, regex: '^#(HandleSuspendKey)=.*', value: '\1=suspend' }
+    - {edit: /etc/systemd/logind.conf, regex: '^#(HandleHibernateKey)=.*', value: '\1=hibernate' }
+    - {edit: /etc/systemd/logind.conf, regex: '^#(HandleLidSwitch)=.*', value: '\1=suspend' }
+    - {edit: /etc/systemd/logind.conf, regex: '^#(HandleLidSwitchDocked)=.*', value: '\1=ignore' }
   config-lsb-release:
-    - { exec: 'rm -f /etc/lsb-release' }
+    - {exec: 'rm -f /etc/lsb-release' }
     - edit: /etc/lsb-release
       insert: append
       values:
@@ -1217,17 +1217,17 @@ configs:
         - 'DISTRIB_RELEASE=rolling'
         - 'DISTRIB_DESCRIPTION=<%=distro%>'
   config-lxdm:
-    - { exec: ln -sf //usr/lib/systemd/system/lxdm.service /etc/systemd/system/display-manager.service }
-    - { edit: /usr/share/lxdm/themes/Industrial/gtk.css, regex: '^(\s*font: Sans).*', value: '\1 18;' }
-    - { edit: /usr/share/lxdm/themes/Industrial/gtk.css, regex: '^(\s*color:) #000000.*', value: '\1 #ffffff;' }
-    - { edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(session)=.*', value: '\1=/usr/bin/openbox-session' }
-    - { edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(numlock)=.*', value: '\1=1' }
-    - { edit: /etc/lxdm/lxdm.conf, regex: '^(gtk_theme)=.*', value: '\1=<%=distro%>' }
-    - { edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(bg)=.*', value: '\1=<%=wallpaper%>' }
-    - { edit: /etc/lxdm/lxdm.conf, regex: '^(bottom_pane)=.*', value: '\1=0' }
-    - { edit: /etc/lxdm/lxdm.conf, regex: '^(theme)=.*', value: '\1=Industrial' }
-    - { edit: /etc/lxdm/lxdm.conf, regex: '^(disable)=.*', value: '\1=1' }
-    - { exec: rm -f /etc/lxdm/PostLogout }
+    - {exec: ln -sf //usr/lib/systemd/system/lxdm.service /etc/systemd/system/display-manager.service }
+    - {edit: /usr/share/lxdm/themes/Industrial/gtk.css, regex: '^(\s*font: Sans).*', value: '\1 18;' }
+    - {edit: /usr/share/lxdm/themes/Industrial/gtk.css, regex: '^(\s*color:) #000000.*', value: '\1 #ffffff;' }
+    - {edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(session)=.*', value: '\1=/usr/bin/openbox-session' }
+    - {edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(numlock)=.*', value: '\1=1' }
+    - {edit: /etc/lxdm/lxdm.conf, regex: '^(gtk_theme)=.*', value: '\1=<%=distro%>' }
+    - {edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(bg)=.*', value: '\1=<%=wallpaper%>' }
+    - {edit: /etc/lxdm/lxdm.conf, regex: '^(bottom_pane)=.*', value: '\1=0' }
+    - {edit: /etc/lxdm/lxdm.conf, regex: '^(theme)=.*', value: '\1=Industrial' }
+    - {edit: /etc/lxdm/lxdm.conf, regex: '^(disable)=.*', value: '\1=1' }
+    - {exec: rm -f /etc/lxdm/PostLogout }
     - edit: /etc/lxdm/PostLogout
       insert: append
       values:
@@ -1239,8 +1239,8 @@ configs:
       values:
         - '/opt/<%=distro%>/bin/pre-xorg'
   config-makepkg:
-    - { edit: /etc/makepkg.conf, regex: '^#(MAKEFLAGS)=.*', value: '\1="-j8"' }
-    - { edit: /etc/makepkg.conf, regex: '^(COMPRESSXZ)=.*', value: '\1=(xz -c -z - --threads=0)' }
+    - {edit: /etc/makepkg.conf, regex: '^#(MAKEFLAGS)=.*', value: '\1="-j8"' }
+    - {edit: /etc/makepkg.conf, regex: '^(COMPRESSXZ)=.*', value: '\1=(xz -c -z - --threads=0)' }
   config-mimeapps:
     - edit: /etc/skel/.config/mimeapps.list
       insert: append
@@ -1279,7 +1279,7 @@ configs:
       regex: '^(HOOKS).*'
       value: '\1="base udev autodetect vt-colors modconf block filesystems keyboard"'
   config-modprobed:
-    - { edit: /etc/modprobe.d/pcspkr.conf, insert: append, value: "blacklist pcspkr" }
+    - {edit: /etc/modprobe.d/pcspkr.conf, insert: append, value: "blacklist pcspkr" }
   config-nfs:
     - edit: /etc/exports
       insert: append
@@ -1290,13 +1290,13 @@ configs:
         - '/srv/nfs/Media       <%=nfscidr%>(rw,no_subtree_check,nohide)'
         - '/srv/nfs/Pictures    <%=nfscidr%>(rw,no_subtree_check,nohide)'
         - '/srv/nfs/Other       <%=nfscidr%>(rw,no_subtree_check,nohide)'
-    - { chroot: 'mkdir -p /srv/nfs/{Cache,Documents,Install,Media,Pictures,Other}' }
-    - { chroot: "echo 'options nfs nfs4_disable_idmapping=0' > /etc/modprobe.d/nfs.conf" }
+    - {chroot: 'mkdir -p /srv/nfs/{Cache,Documents,Install,Media,Pictures,Other}' }
+    - {chroot: "echo 'options nfs nfs4_disable_idmapping=0' > /etc/modprobe.d/nfs.conf" }
     # Share pacman cache with other machines on the LAN
-    - { edit: /etc/fstab, insert: append, value: "/var/cache/pacman/pkg /srv/nfs/Cache none bind 0 0" }
+    - {edit: /etc/fstab, insert: append, value: "/var/cache/pacman/pkg /srv/nfs/Cache none bind 0 0" }
     # Manually mount on client side with this
-    #- { edit: /etc/fstab, insert: append, value: serverip:/srv/nfs/Cache /var/cache/pacman/pkg nfs auto,noatime,rsize=8192,wsize=8192,timeo=14,_netdev 0 0
-    - { chroot: systemctl enable nfs-server.service }
+    #- {edit: /etc/fstab, insert: append, value: serverip:/srv/nfs/Cache /var/cache/pacman/pkg nfs auto,noatime,rsize=8192,wsize=8192,timeo=14,_netdev 0 0
+    - {chroot: systemctl enable nfs-server.service }
   config-oblogout:
     - edit: /etc/oblogout.conf
       insert: append
@@ -1339,12 +1339,12 @@ configs:
         - '# Source the user rc file if it exists'
         - '[ -r ~/.bashrc ] && source ~/.bashrc'
 #  config-pacman:
-#    - { exec: 'rm -f /etc/pacman.d/gnupg/dirmngr.conf' }
-#    - { edit: /etc/pacman.d/gnupg/dirmngr.conf, insert: append, value: "honor-http-proxy" }
-#    - { edit: /etc/pacman.d/gnupg/gpg.conf, regex: '^keyserver\s.*', value: 'keyserver http://ipv4.pool.sks-keyservers.net' }
-#    - { chroot: "bash -c 'haveged -r 0 && pacman-key --init'" }
-#    - { chroot: 'pacman-key --populate archlinux antergos blackarch' }
-#    - { chroot: 'pacman -Sy' }
+#    - {exec: 'rm -f /etc/pacman.d/gnupg/dirmngr.conf' }
+#    - {edit: /etc/pacman.d/gnupg/dirmngr.conf, insert: append, value: "honor-http-proxy" }
+#    - {edit: /etc/pacman.d/gnupg/gpg.conf, regex: '^keyserver\s.*', value: 'keyserver http://ipv4.pool.sks-keyservers.net' }
+#    - {chroot: "bash -c 'haveged -r 0 && pacman-key --init'" }
+#    - {chroot: 'pacman-key --populate archlinux antergos blackarch' }
+#    - {chroot: 'pacman -Sy' }
   config-plank-desktop:
     - edit: /etc/skel/.config/autostart/plank.desktop
       insert: append
@@ -1369,18 +1369,18 @@ configs:
         - "lock-items=true"
         - "pinned-only=true"
         - "theme='Transparent'"
-    - { edit: /etc/skel/.config/plank/dock1/launchers/lxterminal.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/lxterminal.desktop"]}
-    - { edit: /etc/skel/.config/plank/dock1/launchers/thunar.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/Thunar.desktop"]}
-    - { edit: /etc/skel/.config/plank/dock1/launchers/xnviewmp.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/xnviewmp.desktop"]}
-    - { edit: /etc/skel/.config/plank/dock1/launchers/smplayer.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/smplayer.desktop"]}
-    - { edit: /etc/skel/.config/plank/dock1/launchers/vlc.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/vlc.desktop"]}
-    - { edit: /etc/skel/.config/plank/dock1/launchers/ghb.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/ghb.desktop"]}
-    - { edit: /etc/skel/.config/plank/dock1/launchers/filezilla.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/filezilla.desktop"]}
-    - { edit: /etc/skel/.config/plank/dock1/launchers/chromium.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/chromium.desktop"]}
-    - { edit: /etc/skel/.config/plank/dock1/launchers/calc.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/libreoffice-calc.desktop"]}
-    - { edit: /etc/skel/.config/plank/dock1/launchers/writer.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/libreoffice-writer.desktop"]}
-    - { edit: /etc/skel/.config/plank/dock1/launchers/virtualbox.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/virtualbox.desktop"]}
-    - { chroot: dconf update }
+    - {edit: /etc/skel/.config/plank/dock1/launchers/lxterminal.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/lxterminal.desktop"]}
+    - {edit: /etc/skel/.config/plank/dock1/launchers/thunar.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/Thunar.desktop"]}
+    - {edit: /etc/skel/.config/plank/dock1/launchers/xnviewmp.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/xnviewmp.desktop"]}
+    - {edit: /etc/skel/.config/plank/dock1/launchers/smplayer.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/smplayer.desktop"]}
+    - {edit: /etc/skel/.config/plank/dock1/launchers/vlc.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/vlc.desktop"]}
+    - {edit: /etc/skel/.config/plank/dock1/launchers/ghb.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/ghb.desktop"]}
+    - {edit: /etc/skel/.config/plank/dock1/launchers/filezilla.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/filezilla.desktop"]}
+    - {edit: /etc/skel/.config/plank/dock1/launchers/chromium.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/chromium.desktop"]}
+    - {edit: /etc/skel/.config/plank/dock1/launchers/calc.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/libreoffice-calc.desktop"]}
+    - {edit: /etc/skel/.config/plank/dock1/launchers/writer.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/libreoffice-writer.desktop"]}
+    - {edit: /etc/skel/.config/plank/dock1/launchers/virtualbox.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/virtualbox.desktop"]}
+    - {chroot: dconf update }
   config-openvpn-pia:
     - edit: /etc/skel/.config/autostart/openvpn-pia.desktop
       insert: append
@@ -1395,7 +1395,7 @@ configs:
         - 'Type=Application'
         - 'Categories=Network;'
   config-os-release:
-    - { exec: 'rm -f /etc/os-release' }
+    - {exec: 'rm -f /etc/os-release' }
     - edit: /etc/os-release
       insert: append
       values:
@@ -1447,18 +1447,18 @@ configs:
         - "  echo -e \"${red}Removed proxy file '${proxyfile}'${none}\""
         - 'fi'
         - "# PROXY_MARKER"
-    - { exec: chmod +x /opt/<%=distro%>/bin/setproxy }
+    - {exec: chmod +x /opt/<%=distro%>/bin/setproxy }
   remove-core-waste:
-    - { exec: 'find /var/log -type f -delete' }
-    - { exec: 'rm -rf /usr/share/{man,doc}' }
-    - { exec: 'rm -rf /etc/pacman.d/mirrorlist' }
-    - { exec: 'rm -rf /var/tmp/*' }
-    - { exec: 'rm -rf /tmp/*' }
+    - {exec: 'find /var/log -type f -delete' }
+    - {exec: 'rm -rf /usr/share/{man,doc}' }
+    - {exec: 'rm -rf /etc/pacman.d/mirrorlist' }
+    - {exec: 'rm -rf /var/tmp/*' }
+    - {exec: 'rm -rf /tmp/*' }
   remove-machine-waste:
-    - { exec: 'find /var/log -type f -delete' }
-    - { exec: 'rm -rf /etc/pacman.d/mirrorlist' }
-    - { exec: 'rm -rf /var/tmp/*' }
-    - { exec: 'rm -rf /tmp/*' }
+    - {exec: 'find /var/log -type f -delete' }
+    - {exec: 'rm -rf /etc/pacman.d/mirrorlist' }
+    - {exec: 'rm -rf /var/tmp/*' }
+    - {exec: 'rm -rf /tmp/*' }
   config-theater-resolution:
     - edit: /etc/X11/xorg.conf.d/10-display.conf
       insert: append
@@ -1471,24 +1471,24 @@ configs:
         - '    EndSubSection'
         - 'EndSection'
   config-resolved:
-    - { exec: ln -sf //run/systemd/resolve/resolv.conf /etc/resolv.conf }
+    - {exec: ln -sf //run/systemd/resolve/resolv.conf /etc/resolv.conf }
   config-sshd:
-    - { edit: /etc/ssh/sshd_config, regex: '^#(PermitRootLogin).*', value: '\1 no' }
-    - { edit: /etc/ssh/sshd_config, regex: '^#(PermitEmptyPasswords).*', value: '\1 no' }
-    - { edit: /etc/ssh/sshd_config, regex: '^#(UsePrivilegeSeparation).*', value: '\1 sandbox' }
+    - {edit: /etc/ssh/sshd_config, regex: '^#(PermitRootLogin).*', value: '\1 no' }
+    - {edit: /etc/ssh/sshd_config, regex: '^#(PermitEmptyPasswords).*', value: '\1 no' }
+    - {edit: /etc/ssh/sshd_config, regex: '^#(UsePrivilegeSeparation).*', value: '\1 sandbox' }
   config-sudo-vars:
     - edit: /etc/sudoers
       insert: append
       value: 'Defaults env_keep += "ftp_proxy http_proxy https_proxy no_proxy"'
   config-sysctld:
     # Minimal amount of swapping without disabling it entirely
-    - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "vm.swappiness = 1" }
+    - {edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "vm.swappiness = 1" }
     # Enable kernel ipv4 forwarding for containers
-    - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "net.ipv4.ip_forward = 1" }
+    - {edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "net.ipv4.ip_forward = 1" }
     # Disable ipv6 forwarding
-    - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "net.ipv6.conf.all.forwarding = 0" }
+    - {edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "net.ipv6.conf.all.forwarding = 0" }
     # Increase the number of user file watches to max
-    - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "fs.inotify.max_user_watches = 524288" }
+    - {edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "fs.inotify.max_user_watches = 524288" }
   config-thunar:
     - edit: /etc/skel/.config/autostart/thunar.desktop
       insert: append
@@ -1504,7 +1504,7 @@ configs:
         - 'Type=Application'
         - 'Categories=System;Utility;Core;GTK;FileTools;FileManager;'
   config-timesyncd:
-    - { exec: 'rm -f /etc/systemd/timesyncd.conf' }
+    - {exec: 'rm -f /etc/systemd/timesyncd.conf' }
     - edit: /etc/systemd/timesyncd.conf
       insert: append
       values:
@@ -1512,7 +1512,7 @@ configs:
         - 'NTP=0.arch.pool.ntp.org 1.arch.pool.ntp.org 2.arch.pool.ntp.org 3.arch.pool.ntp.org'
         - 'FallbackNTP=0.pool.ntp.org 1.pool.ntp.org 0.fr.pool.ntp.org'
   config-user-dirs:
-    - { exec: 'rm -f /etc/xdg/user-dirs.defaults' }
+    - {exec: 'rm -f /etc/xdg/user-dirs.defaults' }
     - edit: /etc/xdg/user-dirs.defaults
       insert: append
       values:
@@ -1547,9 +1547,9 @@ configs:
         - 'dirs=/usr/share/wallpaper;'
   config-wpa-gui:
     # Autostart WPA Gui
-    - { exec: 'cp /usr/share/applications/wpa_gui.desktop /etc/skel/.config/autostart' }
+    - {exec: 'cp /usr/share/applications/wpa_gui.desktop /etc/skel/.config/autostart' }
     # Enable wpa_supplicant out of the box so we have WiFi running
-    - { chroot: systemctl enable wpa_supplicant@wlp2s0 }
+    - {chroot: systemctl enable wpa_supplicant@wlp2s0 }
   config-wpa:
     - edit: /etc/wpa_supplicant/wpa_supplicant-wlp2s0.conf
       insert: append
@@ -1581,7 +1581,7 @@ configs:
         - "    echo 'EndSection' >> $display_conf"
         - '  fi'
         - 'fi'
-    - { exec: chmod +x /opt/<%=distro%>/bin/pre-xorg }
+    - {exec: chmod +x /opt/<%=distro%>/bin/pre-xorg }
     - edit: /etc/X11/xorg.conf.d/20-dpms.conf
       insert: append
       values:

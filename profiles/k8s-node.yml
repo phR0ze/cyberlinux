@@ -25,14 +25,8 @@ deployments:
     base: base
     groups: [docker]
     install:
-      order: 5
-      label: "Deploy <%=distro%>-k8snode                 // Shell + k8s node"
-    apps:
-      - k8snode-apps
-  base:
-    install:
-      order: 6
-      label: "Deploy <%=distro%>-base                    // Base shell env"
+      order: 1
+      label: "Deploy <%=distro%>-k8snode"
     apps:
       - kernel
-      - base-apps
+      - k8s-node

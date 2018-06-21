@@ -158,8 +158,8 @@ class Reduce
     @imagepaths = [
       File.join(@outpath, 'images'),
       @deployment_images_dst,
-      File.expand_path('~').include?('root') ? "/home/#{@user}/Downloads/images" :
-        File.join(File.expand_path('~'), 'Downloads', 'images')]
+      "/home/#{User.name}/Downloads/images"
+    ]
 
     # Load base profile
     @loaded_profiles = []
