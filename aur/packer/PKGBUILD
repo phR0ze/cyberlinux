@@ -1,5 +1,5 @@
 #MIT License
-#Copyright (c) 2017 phR0ze
+#Copyright (c) 2017-2018 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,7 @@
 # Maintainer: phR0ze
 #-------------------------------------------------------------------------------
 pkgname=packer
-pkgver=1.0.3
+pkgver=1.2.4
 pkgrel=1
 pkgdesc="Build Automated Machine Images"
 url="http://www.packer.io"
@@ -31,7 +31,7 @@ arch=('x86_64')
 license=('MPL2')
 depends=('glibc')
 source=("${pkgname}-${pkgver}.zip::https://releases.hashicorp.com/packer/${pkgver}/packer_${pkgver}_linux_amd64.zip")
-sha256sums=('0e10169ef9cf3fd55dcc9dc213b9995170f7712e8a162ca2f5109d62bfbe7529')
+sha256sums=('258d1baa23498932baede9b40f2eca4ac363b86b32487b36f48f5102630e9fbb')
 
 package()
 {
