@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.34
+  release: 0.2.35
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -97,7 +97,7 @@ apps:
 
     # Grub tools
     - { install: dosfstools,          desc: DOS filesystem utilities e.g. mkfs.fat }
-    - { install: grub,                desc: GNU GRand Unified Booloader 2 }
+    - { install: cyberlinux-grub,     desc: GNU GRand Unified Booloader 2, type: CYBERLINUX }
     - { install: intel-ucode,         desc: Microcode update files for Intel CPUs }
     - { install: licenses,            desc: Standard licenses distribution package }
     - { install: memtest86+,          desc: memtest is used in the ISO creation as menu option }
