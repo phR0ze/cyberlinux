@@ -56,5 +56,5 @@ deployments:
       order: 6
       label: "Deploy <%=distro%>-base                    // Base shell env"
     apps:
-      - kernel
+      - kernel-full
       - base-apps

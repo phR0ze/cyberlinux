@@ -546,7 +546,7 @@ class Reduce
       # Inject deploy entries from deployments
       motd = File.readlines(@motd_path)
       File.open(File.join(grub_iso_path, 'boot.cfg'), 'w'){|f|
-        @profile.deployments.select{|k,v| v[@k.type] == @k.machine}
+        @profile.deployments.select{|k,v| v[@k.type] == @k.machine && v[@k.install] && v[@k.install][@k.order]}
           .sort_by{|k,v| v[@k.install][@k.order]}.each{|x|
           kernel = "#{@kernel_prefix}-#{x.last[@k.install][@k.kernel]}"
           params = x.last[@k.install][@k.params] || ""

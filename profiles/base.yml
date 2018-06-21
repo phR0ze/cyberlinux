@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.43
+  release: 0.2.44
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -72,7 +72,6 @@ builder:
     params: '-e TERM=xterm -v /var/run/docker.sock:/var/run/docker.sock --privileged=true'
     command: 'bash -c "while :; do sleep 5; done"'
   apps:
-    - {install: linux,               desc: Linux kernel and supporting modules }
     - builder
 
 # Collection of packages and configuration needed for apps
@@ -80,23 +79,22 @@ builder:
 apps:
   kernel:
     - {install: linux,               desc: Linux kernel and supporting modules }
+  kernel-full:
+    - kernel
     - {install: linux-docs,          desc: Linux kernel docs }
     - {install: linux-headers,       desc: Linux kernel headers }
 
   # Packages and configs for building initramfs etc...
   # ----------------------------------------------------------------------------
   builder:
-    - core
-    - core-tools
+    - core-boot
+    - kernel
+    - mkinitcpio
+    - sudo
     - {install: gptfdisk,            desc: Paritioning tools e.g. sgdisk }
-    - {install: mkinitcpio,          desc: initramfs image creation utility }
-    - {install: mkinitcpio-vt-colors,desc: vt console colors, type: CYBERLINUX }
     - {install: rsync,               desc: Remote file sync utility }
-    - {install: systemd,             desc: System and service manager }
-    - {install: sudo,                desc: Elevate some user commands to root }
 
     # Grub tools
-    - {install: cyberlinux-grub,     desc: GNU GRand Unified Booloader 2, type: CYBERLINUX }
     - {install: dosfstools,          desc: DOS filesystem utilities e.g. mkfs.fat }
     - {install: intel-ucode,         desc: Microcode update files for Intel CPUs }
     - {install: licenses,            desc: Standard licenses distribution package }
@@ -104,12 +102,10 @@ apps:
 
     # Create and configure new build user and root user
     - {chroot: 'useradd -m -G lp,wheel,network,storage,users -s /bin/bash builder || true' }
-    - {exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /home/builder' }
+    - {exec: 'find /<%=core_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /home/builder' }
     - {exec: "echo 'TERM=xterm' > /etc/environment" }
-    - {exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /root' }
+    - {exec: 'find /<%=core_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /root' }
     - {edit: /etc/sudoers, insert: append, value: "builder ALL=(ALL) NOPASSWD: ALL" }
-    - config-core
-    - config-mkinitcpio
 
   # Smallest set of packages required to have a ruby container
   # bash is a dependency of gdbm which is a dependency of ruby so ruby-core builds off core
@@ -130,15 +126,26 @@ apps:
   # Size: 53.14 MiB
   # ----------------------------------------------------------------------------
   core:
-    - {install: bash,                desc: GNU Bourne Again shell, depends-on: [readline, glibc, ncurses], size: 7321.00 KiB }
-    - {install: gcc-libs,            desc: GCC runtime libraries, depends-on: [glibc], size: 105.27 MiB }
-    - {install: glibc,               desc: GNU C Library, depends-on: [linux-api-headers, tzdata, filesystem], size: 41.40 MiB }
-    - {install: filesystem,          desc: Base Arch Linux files, depends-on: [iana-etc], size: 9.00 KiB }
-    - {install: iana-etc,            desc: /etc/protocols and /etc/services provided by IANA, size: 3941.00 KiB }
-    - {install: linux-api-headers,   desc: Kernel headers sanitized for use in userspace, size: 4168.00 KiB }
-    - {install: ncurses,             desc: System V curses emulation library, depends-on: [glibc, gcc-libs], size: 3645.00 KiB }
-    - {install: readline,            desc: GNU readline library, depends-on: [glibc, ncurses], size: 731.00 KiB }
-    - {install: tzdata,              desc: Sources for time zone and daylight savings time data, size: 1861.00 KiB }
+    - {install: bash,                desc: GNU Bourne Again shell, depends-on: [readline, glibc, ncurses], size: 7321.00 KiB}
+    - {install: bash-completion,     desc: Bash tab completion, size: 799.00 KiB}
+    - {install: gcc-libs,            desc: GCC runtime libraries, depends-on: [glibc], size: 105.27 MiB}
+    - {install: glibc,               desc: GNU C Library, depends-on: [linux-api-headers, tzdata, filesystem], size: 41.40 MiB}
+    - {install: filesystem,          desc: Base Arch Linux files, depends-on: [iana-etc], size: 9.00 KiB}
+    - {install: iana-etc,            desc: /etc/protocols and /etc/services provided by IANA, size: 3941.00 KiB}
+    - {install: linux-api-headers,   desc: Kernel headers sanitized for use in userspace, size: 4168.00 KiB}
+    - {install: ncurses,             desc: System V curses emulation library, depends-on: [glibc, gcc-libs], size: 3645.00 KiB}
+    - {install: readline,            desc: GNU readline library, depends-on: [glibc, ncurses], size: 731.00 KiB}
+    - {install: tzdata,              desc: Sources for time zone and daylight savings time data, size: 1861.00 KiB}
+    - config-bash
+    - config-hosts
+    - config-locale
+    - config-lsb-release
+    - config-os-release
+    - config-proxy
+    - config-sysctld
+    - config-user-dirs
+    - remove-container-waste
+    - {edit: /etc/vconsole.conf, insert: append, value: 'KEYMAP=us' }
 
   # Most basic linux shell tools e.g. ls, cp, mv, hostname, gzip, tar and vim
   # ----------------------------------------------------------------------------
@@ -163,14 +170,26 @@ apps:
     - {install: openssl,             desc: Secure sockets layer and TLS, nodeps: true, depends-on: [perl], size: 6.36 MiB }
     - {install: perl,                desc: Perl language, ignore: true, depends-on: [gdbm, db, glibc], size: 52.00 MiB }
 
-  # Base for any machine
+  # Minimal bootable base for any machine
+  # Still requires a kernel is chosen in the deployment yaml e.g. - kernel
   # ----------------------------------------------------------------------------
-  base-apps:
+  core-boot:
     - core
     - core-tools
-    - shell-apps
-    - virtualbox-guest-nox
+    - systemd
     - {install: cyberlinux-grub,     desc: GNU GRand Unified Booloader 2, type: CYBERLINUX }
+
+  # Full shell environment
+  # ----------------------------------------------------------------------------
+  shell-apps:
+    - core-boot
+    - cronie
+    - sshd
+    - sudo
+    - dev-apps
+    - mkinitcpio
+    - ruby-gems
+    - virtualbox-guest-nox
     - {install: curl,                desc: Adding curl command to pull in packer scripts }
     - {install: dmidecode,           desc: Desktop Managment Interface table related utilities }
     - {install: dnsutils,            desc: Network utilities dig/host/nslookup }
@@ -178,11 +197,6 @@ apps:
     - {install: efibootmgr,          desc: Tool to modify UEFI Firmware Boot Manager Variables, depof: installer }
     - {install: intel-ucode,         desc: Microcode update files for Intel CPUs }
     - {install: lsb-release,         desc: LSB version query program }
-    - {install: mkinitcpio,          desc: initramfs image creation utility }
-    - {install: mkinitcpio-vt-colors,desc: vt console colors, type: CYBERLINUX }
-    - {install: systemd,             desc: System and service manager }
-    - {install: systemd-sysvcompat,  desc: Sysinit compat for systemd }
-    - {install: bash-completion,     desc: Bash tab completion }
     - {install: e2fsprogs,           desc: Ext2/3/4 filesystem utilities }
     - {install: findutils,           desc: find/xargs, depof: curl, group: [build-devel]}
     - {install: gcc,                 desc: GNU Compiler Collection, multilib: false, group: [base-devel]}
@@ -191,16 +205,15 @@ apps:
     - {install: gptfdisk,            desc: Text-mode paritioning tools e.g. sgdisk }
     - {install: haveged,             desc: Entropy harvesting, depof: pacman-key --init }
     - {install: logrotate,           desc: Rotates system logs automatically }
-    - {install: openssh,             desc: Open source SSH implementation }
     - {install: pacman,              desc: Package manager with dependency support, group: [build-devel]}
     - {install: rsync,               desc: Remote file transfer sync utility }
     - {install: shadow,              desc: Account mgmt e.g. passwd/useradd/usermod/groupadd }
-    - {install: sudo,                desc: Elevate some user commands to root, group: [build-devel]}
     - {install: util-linux,          desc: blkid/fdisk/rename/cp etc..., depof: php-gd, group: [build-devel]}
     - {install: vim-systemd,         desc: Vim syntax highlighting for systemd }
     - {install: vundle,              desc: Plug-in manager for Vim, type: CYBERLINUX }
     - {install: wget,                desc: Retrieve files from the Web }
     - {install: which,               desc: Show the full path of commnds, depof: .bashrc, group: [build-devel]}
+    # Keyrings
     - {install: archlinux-keyring,   desc: Arch Linux GPG keys }
     - {install: antergos-keyring,    desc: Antergos GPG keyring, type: ANTERGOS }
     - {install: blackarch-keyring,   desc: Blackarch GPG keyring, type: BLACKARCH }
@@ -211,12 +224,8 @@ apps:
     - {install: unrar,               desc: The RAR uncompression program }
     - {install: unzip,               desc: Extract and view files in .zip archives }
     - {install: zip,                 desc: Zip file compression utilities }
-    - config-base
-  shell-apps:
-    - dev-apps
-    - ruby-gems
+    # Filesystem 
     - {install: cdrkit,              desc: CD/DVD burnig/extration and ISO creation }
-    - {install: cronie,              desc: Daemon for scheduling programs to run }
     - {install: htop,                desc: Interactive process viewer, alt: top }
     - {install: iftop,               desc: Display bandwidth usage on an interface }
     - {install: inxi,                desc: System info display tool for CPUs/RAM/Kernel etc... }
@@ -239,7 +248,10 @@ apps:
     - {install: nmap,                desc: Network discovery and security auditing }
     - {install: tcpdump,             desc: Network monitoring and data acquisition }
     - {install: wpa_supplicant,      desc: A utility providing key negotiation for WPA wireless networks }
-    - config-shell
+    - config-makepkg
+    - config-modprobed
+    - config-wpa
+    - remove-machine-waste
   dev-apps:
     - {install: arch-install-scripts, desc: arch-chroot/genfstab/pacstrap }
     - {install: autoconf,            desc: Automatically configure source code, group: [base-devel]}
@@ -518,12 +530,10 @@ apps:
     - {install: util-linux,          desc: Utilities blkid/fdisk/rename/cp etc..., depof: php-gd }
     - {install: xz,                  desc: Compression util for xz format, depof: php-gd }
 
-  keepass:
-    - {install: keepass, desc: Cross platform password manager }
-    - {menu: Accessories, entry: KeePass, icon: /usr/share/icons/hicolor/32x32/apps/keepass.png, exec: keepass }
+  cronie:
+    - {install: cronie, desc: Daemon for scheduling programs to run}
+    - {chroot: systemctl enable cronie.service}
 
-  # Virtualization packages
-  #-----------------------------------------------------------------------------
   docker:
     - {install: docker, desc: Run applications as containers, depof: reduce }
     - edit: /opt/<%=distro%>/bin/setproxy
@@ -555,12 +565,76 @@ apps:
     - {install: kubernetes-kubectl,  desc: K8s cluster controller, type: CYBERLINUX}
     - {install: socat,               desc: Multipurpose relay, depof: k8s}
 
+  # Apps needed for a kubernetes node
+  # i.e. standard terminal tools, ssh and k8s tools
   k8s-node:
+    - sshd
     - docker
     - {install: kubeadm,             desc: K8s cluster bootstrap, type: CYBERLINUX}
     - {install: kubectl,             desc: K8s cluster controller, type: CYBERLINUX}
     - {install: kubelet,             desc: K8s node control agent, type: CYBERLINUX}
     - {chroot: systemctl enable kubelet.service }
+
+  keepass:
+    - {install: keepass, desc: Cross platform password manager }
+    - {menu: Accessories, entry: KeePass, icon: /usr/share/icons/hicolor/32x32/apps/keepass.png, exec: keepass }
+
+  # Tools required for building initramfs for early boot environment
+  mkinitcpio:
+    - {install: mkinitcpio, desc: initramfs image creation utility }
+    - {install: mkinitcpio-vt-colors, desc: vt console colors, type: CYBERLINUX }
+    - edit: /etc/mkinitcpio.conf
+      regex: '^(HOOKS).*'
+      value: '\1="base udev autodetect vt-colors modconf block filesystems keyboard"'
+
+  sshd:
+    - {install: openssh, desc: Open source SSH implementation }
+    - {edit: /etc/ssh/sshd_config, regex: '^#(PermitRootLogin).*', value: '\1 no' }
+    - {edit: /etc/ssh/sshd_config, regex: '^#(PermitEmptyPasswords).*', value: '\1 no' }
+    - {edit: /etc/ssh/sshd_config, regex: '^#(UsePrivilegeSeparation).*', value: '\1 sandbox' }
+    - {chroot: systemctl enable sshd.service }
+
+  sudo:
+    - {install: sudo, desc: Elevate some user commands to root }
+    - edit: /etc/sudoers
+      insert: append
+      value: 'Defaults env_keep += "ftp_proxy http_proxy https_proxy no_proxy"'
+
+  systemd:
+    - {install: systemd, desc: System and service manager }
+    - {install: systemd-sysvcompat, desc: Sysinit compat for systemd }
+
+    # Configure journald
+    # Avoid "Failed to start Create Volatile Files and Directories"
+    - {exec: 'rm -rf /var/log/journal' }
+    # Restrict journal disk size to avoid filling disks and crashing system
+    - {edit: /etc/systemd/journald.conf, regex: '^#(SystemMaxUse).*', value: '\1=100M' }
+
+    # Configure logind
+    - {edit: /etc/systemd/logind.conf, regex: '^#(KillUserProcesses)=.*', value: '\1=yes' }
+    - {edit: /etc/systemd/logind.conf, regex: '^#(HandlePowerKey)=.*', value: '\1=poweroff' }
+    - {edit: /etc/systemd/logind.conf, regex: '^#(HandleSuspendKey)=.*', value: '\1=suspend' }
+    - {edit: /etc/systemd/logind.conf, regex: '^#(HandleHibernateKey)=.*', value: '\1=hibernate' }
+    - {edit: /etc/systemd/logind.conf, regex: '^#(HandleLidSwitch)=.*', value: '\1=suspend' }
+    - {edit: /etc/systemd/logind.conf, regex: '^#(HandleLidSwitchDocked)=.*', value: '\1=ignore' }
+
+    # Cofigure resolved
+    - {exec: ln -sf //run/systemd/resolve/resolv.conf /etc/resolv.conf }
+
+    # Configure timesyncd:
+    - {exec: 'rm -f /etc/systemd/timesyncd.conf' }
+    - edit: /etc/systemd/timesyncd.conf
+      insert: append
+      values:
+        - '[Time]'
+        - 'NTP=0.arch.pool.ntp.org 1.arch.pool.ntp.org 2.arch.pool.ntp.org 3.arch.pool.ntp.org'
+        - 'FallbackNTP=0.pool.ntp.org 1.pool.ntp.org 0.fr.pool.ntp.org'
+
+    # Enable systemd services
+    - {chroot: systemctl enable systemd-networkd.service }
+    - {chroot: systemctl enable systemd-networkd-wait-online.service }
+    - {chroot: systemctl enable systemd-resolved.service }
+    - {chroot: systemctl enable systemd-timesyncd.service }
 
   virtualbox-host:
     - {install: packer,              desc: HashiCorp's vagrant box builder, type: CYBERLINUX }
@@ -649,54 +723,6 @@ apps:
 
 ################################################################################
 configs:
-
-  # Core configuration for any container
-  #-----------------------------------------------------------------------------
-  config-core:
-    - config-bash
-    - config-hosts
-    - config-locale
-    - config-lsb-release
-    - config-journald
-    - config-os-release
-    - config-proxy
-    - config-resolved
-    - config-sudo-vars
-    - config-sysctld
-    - config-user-dirs
-    - config-vconsole
-    - remove-core-waste
-
-  # Core configuration for any machine
-  #-----------------------------------------------------------------------------
-  config-base:
-    - config-bash
-    - config-hosts
-    - config-locale
-    - config-logind
-    - config-lsb-release
-    - config-journald
-    - config-makepkg
-    - config-mkinitcpio
-    - config-modprobed
-    - config-os-release
-    - config-proxy
-    - config-resolved
-    - config-sshd
-    - config-sudo-vars
-    - config-sysctld
-    - config-timesyncd
-    - config-user-dirs
-    - config-vconsole
-    - remove-machine-waste
-    - {chroot: systemctl enable sshd.service }
-    - {chroot: systemctl enable systemd-networkd.service }
-    - {chroot: systemctl enable systemd-networkd-wait-online.service }
-    - {chroot: systemctl enable systemd-resolved.service }
-    - {chroot: systemctl enable systemd-timesyncd.service }
-  config-shell:
-    - config-wpa
-    - {chroot: systemctl enable cronie.service }
   config-lite:
     - config-lxdm
     - config-fonts
@@ -1183,11 +1209,6 @@ configs:
       values:
         - "table Icon\n  Icon: /usr/share/icons/hicolor/96x96/apps/smplayer.png"
         - "  X: 110\n  Y: 193\n  Command[0]: smplayer\nend"
-  config-journald:
-    # Avoid "Failed to start Create Volatile Files and Directories"
-    - {exec: 'rm -rf /var/log/journal' }
-    # Restrict journal disk size to avoid hogging the system
-    - {edit: /etc/systemd/journald.conf, regex: '^#(SystemMaxUse).*', value: '\1=100M' }
   config-locale:
     - edit: /etc/locale.conf
       insert: append
@@ -1198,13 +1219,6 @@ configs:
     - {edit: /etc/locale.gen, regex: '^#(<%=language%>\..*)', value: '\1' }
     - {chroot: locale-gen }
     - {edit: /etc/profile.d/locale.sh, insert: append, value: "export LC_COLLATE=C" }
-  config-logind:
-    - {edit: /etc/systemd/logind.conf, regex: '^#(KillUserProcesses)=.*', value: '\1=yes' }
-    - {edit: /etc/systemd/logind.conf, regex: '^#(HandlePowerKey)=.*', value: '\1=poweroff' }
-    - {edit: /etc/systemd/logind.conf, regex: '^#(HandleSuspendKey)=.*', value: '\1=suspend' }
-    - {edit: /etc/systemd/logind.conf, regex: '^#(HandleHibernateKey)=.*', value: '\1=hibernate' }
-    - {edit: /etc/systemd/logind.conf, regex: '^#(HandleLidSwitch)=.*', value: '\1=suspend' }
-    - {edit: /etc/systemd/logind.conf, regex: '^#(HandleLidSwitchDocked)=.*', value: '\1=ignore' }
   config-lsb-release:
     - {exec: 'rm -f /etc/lsb-release' }
     - edit: /etc/lsb-release
@@ -1272,10 +1286,6 @@ configs:
         - 'video/x-matroska=smplayer.desktop;'
         - 'video/mp4=smplayer.desktop;'
         - 'video/mpeg=smplayer.desktop;'
-  config-mkinitcpio:
-    - edit: /etc/mkinitcpio.conf
-      regex: '^(HOOKS).*'
-      value: '\1="base udev autodetect vt-colors modconf block filesystems keyboard"'
   config-modprobed:
     - {edit: /etc/modprobe.d/pcspkr.conf, insert: append, value: "blacklist pcspkr" }
   config-nfs:
@@ -1446,7 +1456,7 @@ configs:
         - 'fi'
         - "# PROXY_MARKER"
     - {exec: chmod +x /opt/<%=distro%>/bin/setproxy }
-  remove-core-waste:
+  remove-container-waste:
     - {exec: 'find /var/log -type f -delete' }
     - {exec: 'rm -rf /usr/share/{man,doc}' }
     - {exec: 'rm -rf /etc/pacman.d/mirrorlist' }
@@ -1468,16 +1478,6 @@ configs:
         - '        Modes "1920x1080"'
         - '    EndSubSection'
         - 'EndSection'
-  config-resolved:
-    - {exec: ln -sf //run/systemd/resolve/resolv.conf /etc/resolv.conf }
-  config-sshd:
-    - {edit: /etc/ssh/sshd_config, regex: '^#(PermitRootLogin).*', value: '\1 no' }
-    - {edit: /etc/ssh/sshd_config, regex: '^#(PermitEmptyPasswords).*', value: '\1 no' }
-    - {edit: /etc/ssh/sshd_config, regex: '^#(UsePrivilegeSeparation).*', value: '\1 sandbox' }
-  config-sudo-vars:
-    - edit: /etc/sudoers
-      insert: append
-      value: 'Defaults env_keep += "ftp_proxy http_proxy https_proxy no_proxy"'
   config-sysctld:
     # Minimal amount of swapping without disabling it entirely
     - {edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "vm.swappiness = 1" }
@@ -1501,14 +1501,6 @@ configs:
         - 'StartupNotify=true'
         - 'Type=Application'
         - 'Categories=System;Utility;Core;GTK;FileTools;FileManager;'
-  config-timesyncd:
-    - {exec: 'rm -f /etc/systemd/timesyncd.conf' }
-    - edit: /etc/systemd/timesyncd.conf
-      insert: append
-      values:
-        - '[Time]'
-        - 'NTP=0.arch.pool.ntp.org 1.arch.pool.ntp.org 2.arch.pool.ntp.org 3.arch.pool.ntp.org'
-        - 'FallbackNTP=0.pool.ntp.org 1.pool.ntp.org 0.fr.pool.ntp.org'
   config-user-dirs:
     - {exec: 'rm -f /etc/xdg/user-dirs.defaults' }
     - edit: /etc/xdg/user-dirs.defaults
@@ -1519,8 +1511,6 @@ configs:
         - 'DOWNLOAD=Downloads'
         - 'PROJECTS=Projects'
         - 'SCRIPTS=bin'
-  config-vconsole:
-    - {edit: /etc/vconsole.conf, insert: append, value: 'KEYMAP=us' }
   config-wallpaper:
     - edit: /etc/skel/.config/nitrogen/bg-saved.cfg
       insert: append

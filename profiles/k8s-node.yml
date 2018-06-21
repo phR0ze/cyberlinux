@@ -31,6 +31,5 @@ deployments:
       - k8s-node
   core:
     apps:
-      - core
       - kernel
-      - core-tools
+      - core-boot
