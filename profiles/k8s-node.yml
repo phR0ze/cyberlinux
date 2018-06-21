@@ -22,11 +22,15 @@ base: base
 
 deployments:
   k8snode:
-    base: base
+    base: core
     groups: [docker]
     install:
       order: 1
       label: "Deploy <%=distro%>-k8snode"
     apps:
-      - kernel
       - k8s-node
+  core:
+    apps:
+      - core
+      - kernel
+      - core-tools

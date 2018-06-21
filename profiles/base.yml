@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.42
+  release: 0.2.43
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -153,8 +153,6 @@ apps:
     - {install: sed,                 desc: GNU stream editor, depof: locale-gen, group: [build-devel], size: 1MB }
     - {install: tar,                 desc: File store backup and transport utility, depof: k8s cp }
     - {install: vim,                 desc: Improved version of vi text editor, size: 28MB }
-    - {install: vim-systemd,         desc: Vim syntax highlighting for systemd }
-    - {install: vundle,              desc: Plug-in manager for Vim, type: CYBERLINUX }
 
   # perl is huge, slow, outdated and useless, however some packages still use it.
   # containers should use the without-perl option to reduce size while machines will need to use with to behave normally
@@ -199,6 +197,8 @@ apps:
     - {install: shadow,              desc: Account mgmt e.g. passwd/useradd/usermod/groupadd }
     - {install: sudo,                desc: Elevate some user commands to root, group: [build-devel]}
     - {install: util-linux,          desc: blkid/fdisk/rename/cp etc..., depof: php-gd, group: [build-devel]}
+    - {install: vim-systemd,         desc: Vim syntax highlighting for systemd }
+    - {install: vundle,              desc: Plug-in manager for Vim, type: CYBERLINUX }
     - {install: wget,                desc: Retrieve files from the Web }
     - {install: which,               desc: Show the full path of commnds, depof: .bashrc, group: [build-devel]}
     - {install: archlinux-keyring,   desc: Arch Linux GPG keys }
@@ -556,12 +556,10 @@ apps:
     - {install: socat,               desc: Multipurpose relay, depof: k8s}
 
   k8s-node:
-    - core
     - docker
     - {install: kubeadm,             desc: K8s cluster bootstrap, type: CYBERLINUX}
     - {install: kubectl,             desc: K8s cluster controller, type: CYBERLINUX}
     - {install: kubelet,             desc: K8s node control agent, type: CYBERLINUX}
-    - {install: kubecni,             desc: K8s networking plugins, type: CYBERLINUX}
     - {chroot: systemctl enable kubelet.service }
 
   virtualbox-host:
