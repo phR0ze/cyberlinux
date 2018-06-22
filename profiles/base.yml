@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.54
+  release: 0.2.55
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -399,97 +399,94 @@ apps:
     - {install: xfce4-screenshooter, desc: Plugin that makes screenshots for the Xfce panel }
     - {install: xsel,               desc: Tool for getting/setting X selection }
     - {install: xterm,              desc: X terminal emulator }
-
     # Xorg breakdown rather than using xorg group to remove un-needed packages
     # Removing: xorg-docs, xorg-server-xdmx, xorg-server-xephyr, xorg-server-xnest, xorg-server-xwayland,
     # xorg-server-devel, xorg-sessreg, xorg-smproxy, xorg-xdriinfo, xorg-xgamma, xorg-xcmsdb, xorg-xhost,
     # xorg-xlsatoms, xorg-xlsclients, xorg-xrdb, xorg-xrefresh, xorg-xsetroot, xorg-x11perf, xorg-xpr,
     # xorg-xvinfo, xorg-xwud, xorg-iceauth, xorg-xwd
-    - {install: xf86-input-libinput, desc: X.Org generic input driver, group: [xorg-drivers]}
-    - {install: xf86-video-vesa,    desc: X.org vesa video driver, group: [xorg, xorg-drivers]}
-    - {install: xorg-bdftopcf,      desc: Convert X font from Bitmap to PNG, group: [xorg, xorg-apps]}
-    - {install: xorg-font-util,     desc: X.org font utilities, group: [xorg]}
-    - {install: xorg-fonts-75dpi,   desc: X.org 75dpi fonts, group: [xorg]}
-    - {install: xorg-fonts-100dpi,  desc: X.org 100dpi fonts, group: [xorg]}
-    - {install: xorg-fonts-encodings, desc: X.org font encoding files, group: [xorg]}
-    - {install: xorg-mkfontdir,     desc: Create an index of X font files in a directory, group: [xorg, xorg-apps]}
-    - {install: xorg-mkfontscale,   desc: Create an index of scalable font files for X, group: [xorg, xorg-apps]}
-    - {install: xorg-server,        desc: Xorg X server, group: [xorg]}
-    - {install: xorg-server-common, desc: Xorg server common files, group: [xorg]}
-    - {install: xorg-server-xvfb,   desc: Virtual framebuffer X server, group: [xorg]}
-    - {install: xorg-setxkbmap,     desc: Set the keyboard using the X Keyboard Extension, group: [xorg, xorg-apps]}
-    - {install: xorg-xauth,         desc: X.Org authorization settings program, group: [xorg, xorg-apps]}
-    - {install: xorg-xbacklight,    desc: RandR-based backlight control application, group: [xorg, xorg-apps]}
-    - {install: xorg-xcursorgen,    desc: Create an X cursor file from PNG images, group: [xorg, xorg-apps]}
-    - {install: xorg-xdpyinfo,      desc: Display information utility for X, group: [xorg, xorg-apps]}
-    - {install: xorg-xev,           desc: Print contents of X events, group: [xorg, xorg-apps]}
-    - {install: xorg-xinput,        desc: Small commandline tool to configure devices, group: [xorg, xorg-apps]}
-    - {install: xorg-xkbcomp,       desc: X Keyboard description compiler, group: [xorg, xorg-apps]}
-    - {install: xorg-xkbevd,        desc: XKB event daemon, group: [xorg, xorg-apps]}
-    - {install: xorg-xkbutils,      desc: XKB utility demos, group: [xorg, xorg-apps]}
-    - {install: xorg-xkill,         desc: Kill a client by its X resource, group: [xorg, xorg-apps]}
-    - {install: xorg-xmodmap,       desc: Utility for modifying keymaps and button mappings, group: [xorg, xorg-apps]}
-    - {install: xorg-xprop,         desc: Property displayer for X, group: [xorg, xorg-apps]}
-    - {install: xorg-xrandr,        desc: Primitive command line interface to RandR extension, group: [xorg, xorg-apps]}
-    - {install: xorg-xset,          desc: User preference utility for X, group: [xorg, xorg-apps]}
-    - {install: xorg-xwininfo,      desc: Command-line util to print info about windows, group: [xorg, xorg-apps]}
-
-    # X11 apps
-    - {install: audacious,          desc: Audio/Player, alt: deadbeaf, xnoise }
-    - {install: chromium,           desc: Opensource project behind Chrome, type: CYBERLINUX }
-    - {install: chromium-widevine,  desc: Chromium support for Netflix, type: ANTERGOS }
-    - {install: evince,             desc: Document viewer (PDF,Postscript,djvu,tiff,dvi,XPS,cbr,cbz,cb7 and cbt) }
-    - {install: ffmpegthumbnailer,  desc: Lightweight video thumbnailer that can be used by file managers }
-    - {install: file-roller,        desc: System/Compression integrates well in Thunar }
-    - {install: filezilla,          desc: Network/Transfer }
-    - {install: flashplugin,        desc: Adobe Flash Player NPAPI }
-    - {install: galculator,         desc: Office/Calculator }
-    - {install: gpicview,           desc: Image viewer, alt: shotwell/viewnior }
-    - {install: gsimplecal,         desc: Simple calendar like windows systray calendar }
-    - {install: gvfs,               desc: Support for Trash and USB, depof: thunar-volman }
-    - {install: gvim,               desc: Improved version of vi text editor, conflict: vim }
-    - {install: leafpad,            desc: Office/Notepad - Simple notepad knock off }
-    - {install: libx264-10bit,      desc: Library for encoding H264/AVC video streams, depof: smplayer }
-    - {install: nitrogen,           desc: System wallpaper manager }
-    - {install: pepper-flash,       desc: Chromium flash support }
-    - {install: pnmixer,            desc: Volume controls in system tray, type: CYBERLINUX }
-    - {install: qt4,                desc: A cross-platform application and UI framework, deps: vlc }
-    - {install: qt5-base,           desc: A cross-platform application and UI framework, deps: mkvtoolnix-gui }
-    - {install: smplayer,           desc: UI wrapper around mplayer with click to pause, alt: vlc }
-    - {install: smplayer-skins,     desc: Skins for SMPlayer }
-    - {install: smplayer-themes,    desc: Themes for SMPlayer }
-    - {install: system-config-printer, desc: A CUPS printer configuration tool and status applet }
-    - {install: thunar,             desc: Lightweight File Manager from Xfce }
-    - {install: thunar-archive-plugin, desc: Thunar integration with file-roller }
-    - {install: thunar-media-tags-plugin, desc: Thunar plugin to view media details }
-    - {install: thunar-volman,      desc: Thunar plugin to automatically manage removeable devices }
-    - {install: tint2,              desc: Lightweight taskmanager and system tray }
-    - {install: tumbler,            desc: D-Bus thumbnail service for apps (e.g. Thunar) }
-    - {install: vlc,                desc: Multi-platform MPEG, VCD/DVD, and DivX player }
-    - {install: winff,              desc: GUI for ffmpeg, type: CYBERLINUX }
-    - {install: xnviewmp,           desc: A digital photo organizer, type: CYBERLINUX }
-
-    # Media Codecs
-    - {install: gst-libav,          desc: GStreamer libav Plugin }
-    - {install: gst-plugins-bad,    desc: GStreamer Bad Plugins }
-    - {install: gst-plugins-base,   desc: GStreamer Base Plugins }
-    - {install: gst-plugins-good,   desc: GStreamer Good Plugins }
-    - {install: gst-plugins-ugly,   desc: GStreamer Ugly Plugins }
-    - {install: libdvdcss,          desc: DVD media codec support }
-
-    # X11 Fonts
-    - {install: adobe-source-code-pro-fonts, desc: Mono-spaced coding environments }
-    - {install: terminus-font,      desc: Monospace bitmap font for consoles }
-    - {install: ttf-bitstream-vera, desc: Bitstream vera fonts }
-    - {install: ttf-dejavu,         desc: Bitstream Vera Fonts w/more characters }
-    - {install: ttf-droid,          desc: Google Android general purpose fonts }
-    - {install: ttf-google-fonts-typewolf, desc: Typewolf's 40 best fonts from the Google Fonts project, type: ANTERGOS }
-    - {install: ttf-hack,           desc: Hand groomed/optically balanced typeface based on Bitstream Vera Mono }
-    - {install: ttf-inconsolata-g,  desc: Best monospace terminal font, type: CYBERLINUX }
-    - {install: ttf-indic-otf,      desc: Indic Opentype Fonts collection }
-    - {install: ttf-liberation,     desc: Red Hats Liberation fonts.  }
-    - {install: ttf-ms-fonts,       desc: Microsoft core fonts, type: CYBERLINUX }
-    - {install: ttf-nerd-fonts-symbols, desc: Nerd Font Symbols, type: CYBERLINUX }
+    - xorg:
+      - {install: xf86-input-libinput, desc: X.Org generic input driver, group: [xorg-drivers]}
+      - {install: xf86-video-vesa,    desc: X.org vesa video driver, group: [xorg, xorg-drivers]}
+      - {install: xorg-bdftopcf,      desc: Convert X font from Bitmap to PNG, group: [xorg, xorg-apps]}
+      - {install: xorg-font-util,     desc: X.org font utilities, group: [xorg]}
+      - {install: xorg-fonts-75dpi,   desc: X.org 75dpi fonts, group: [xorg]}
+      - {install: xorg-fonts-100dpi,  desc: X.org 100dpi fonts, group: [xorg]}
+      - {install: xorg-fonts-encodings, desc: X.org font encoding files, group: [xorg]}
+      - {install: xorg-mkfontdir,     desc: Create an index of X font files in a directory, group: [xorg, xorg-apps]}
+      - {install: xorg-mkfontscale,   desc: Create an index of scalable font files for X, group: [xorg, xorg-apps]}
+      - {install: xorg-server,        desc: Xorg X server, group: [xorg]}
+      - {install: xorg-server-common, desc: Xorg server common files, group: [xorg]}
+      - {install: xorg-server-xvfb,   desc: Virtual framebuffer X server, group: [xorg]}
+      - {install: xorg-setxkbmap,     desc: Set the keyboard using the X Keyboard Extension, group: [xorg, xorg-apps]}
+      - {install: xorg-xauth,         desc: X.Org authorization settings program, group: [xorg, xorg-apps]}
+      - {install: xorg-xbacklight,    desc: RandR-based backlight control application, group: [xorg, xorg-apps]}
+      - {install: xorg-xcursorgen,    desc: Create an X cursor file from PNG images, group: [xorg, xorg-apps]}
+      - {install: xorg-xdpyinfo,      desc: Display information utility for X, group: [xorg, xorg-apps]}
+      - {install: xorg-xev,           desc: Print contents of X events, group: [xorg, xorg-apps]}
+      - {install: xorg-xinput,        desc: Small commandline tool to configure devices, group: [xorg, xorg-apps]}
+      - {install: xorg-xkbcomp,       desc: X Keyboard description compiler, group: [xorg, xorg-apps]}
+      - {install: xorg-xkbevd,        desc: XKB event daemon, group: [xorg, xorg-apps]}
+      - {install: xorg-xkbutils,      desc: XKB utility demos, group: [xorg, xorg-apps]}
+      - {install: xorg-xkill,         desc: Kill a client by its X resource, group: [xorg, xorg-apps]}
+      - {install: xorg-xmodmap,       desc: Utility for modifying keymaps and button mappings, group: [xorg, xorg-apps]}
+      - {install: xorg-xprop,         desc: Property displayer for X, group: [xorg, xorg-apps]}
+      - {install: xorg-xrandr,        desc: Primitive command line interface to RandR extension, group: [xorg, xorg-apps]}
+      - {install: xorg-xset,          desc: User preference utility for X, group: [xorg, xorg-apps]}
+      - {install: xorg-xwininfo,      desc: Command-line util to print info about windows, group: [xorg, xorg-apps]}
+    - xorg-apps:
+      - {install: audacious,        desc: Audio/Player, alt: deadbeaf, xnoise }
+      - {install: chromium,         desc: Opensource project behind Chrome, type: CYBERLINUX }
+      - {install: chromium-widevine, desc: Chromium support for Netflix, type: ANTERGOS }
+      - {install: evince,           desc: Document viewer (PDF,Postscript,djvu,tiff,dvi,XPS,cbr,cbz,cb7 and cbt) }
+      - {install: ffmpegthumbnailer, desc: Lightweight video thumbnailer that can be used by file managers }
+      - {install: file-roller,      desc: System/Compression integrates well in Thunar }
+      - {install: filezilla,        desc: Network/Transfer }
+      - {install: flashplugin,      desc: Adobe Flash Player NPAPI }
+      - {install: galculator,       desc: Office/Calculator }
+      - {install: gpicview,         desc: Image viewer, alt: shotwell/viewnior }
+      - {install: gsimplecal,       desc: Simple calendar like windows systray calendar }
+      - {install: gvfs,             desc: Support for Trash and USB, depof: thunar-volman }
+      - {install: gvim,             desc: Improved version of vi text editor, conflict: vim }
+      - {install: leafpad,          desc: Office/Notepad - Simple notepad knock off }
+      - {install: libx264-10bit,    desc: Library for encoding H264/AVC video streams, depof: smplayer }
+      - {install: nitrogen,         desc: System wallpaper manager }
+      - {install: pepper-flash,     desc: Chromium flash support }
+      - {install: pnmixer,          desc: Volume controls in system tray, type: CYBERLINUX }
+      - {install: qt4,              desc: A cross-platform application and UI framework, deps: vlc }
+      - {install: qt5-base,         desc: A cross-platform application and UI framework, deps: mkvtoolnix-gui }
+      - {install: smplayer,         desc: UI wrapper around mplayer with click to pause, alt: vlc }
+      - {install: smplayer-skins,   desc: Skins for SMPlayer }
+      - {install: smplayer-themes,  desc: Themes for SMPlayer }
+      - {install: system-config-printer, desc: A CUPS printer configuration tool and status applet }
+      - {install: thunar,           desc: Lightweight File Manager from Xfce }
+      - {install: thunar-archive-plugin, desc: Thunar integration with file-roller }
+      - {install: thunar-media-tags-plugin, desc: Thunar plugin to view media details }
+      - {install: thunar-volman,    desc: Thunar plugin to automatically manage removeable devices }
+      - {install: tint2,            desc: Lightweight taskmanager and system tray }
+      - {install: tumbler,          desc: D-Bus thumbnail service for apps (e.g. Thunar) }
+      - {install: vlc,              desc: Multi-platform MPEG, VCD/DVD, and DivX player }
+      - {install: winff,            desc: GUI for ffmpeg, type: CYBERLINUX }
+      - {install: xnviewmp,         desc: A digital photo organizer, type: CYBERLINUX }
+    - media-codecs:
+      - {install: gst-libav,        desc: GStreamer libav Plugin }
+      - {install: gst-plugins-bad,  desc: GStreamer Bad Plugins }
+      - {install: gst-plugins-base, desc: GStreamer Base Plugins }
+      - {install: gst-plugins-good, desc: GStreamer Good Plugins }
+      - {install: gst-plugins-ugly, desc: GStreamer Ugly Plugins }
+      - {install: libdvdcss,        desc: DVD media codec support }
+    - x11-fonts:
+      - {install: adobe-source-code-pro-fonts, desc: Mono-spaced coding environments }
+      - {install: terminus-font,    desc: Monospace bitmap font for consoles }
+      - {install: ttf-bitstream-vera, desc: Bitstream vera fonts }
+      - {install: ttf-dejavu,       desc: Bitstream Vera Fonts w/more characters }
+      - {install: ttf-droid,        desc: Google Android general purpose fonts }
+      - {install: ttf-google-fonts-typewolf, desc: Typewolf's 40 best fonts from the Google Fonts project, type: ANTERGOS }
+      - {install: ttf-hack,         desc: Hand groomed/optically balanced typeface based on Bitstream Vera Mono }
+      - {install: ttf-inconsolata-g, desc: Best monospace terminal font, type: CYBERLINUX }
+      - {install: ttf-indic-otf,    desc: Indic Opentype Fonts collection }
+      - {install: ttf-liberation,   desc: Red Hats Liberation fonts.  }
+      - {install: ttf-ms-fonts,     desc: Microsoft core fonts, type: CYBERLINUX }
+      - {install: ttf-nerd-fonts-symbols, desc: Nerd Font Symbols, type: CYBERLINUX }
     - config-user-dirs
     - config-lite
 
@@ -500,6 +497,7 @@ apps:
     - media
     - virtualbox-host
     - keepass
+    - opengl
     - {install: asunder,            desc: A lean and friendly audio CD ripper and encoder }
     - {install: avidemux-qt,        desc: Graphical tool to edit video (filter/re-encode/split) - Qt GUI }
     - {install: audacity,           desc: Audio editor - cross platform, tried and tested }
@@ -526,66 +524,44 @@ apps:
     - {install: scribus,            desc: Open Source Desktop Publishing }
     - {install: synergy,            desc: Network/Virtual KVM }
     - {install: veracrypt,          desc: Disk encryption with strong security based on TrueCrypt }
-
-    # Develop
-    - {install: awf-git,            desc: Widget Factory for developing GTK themes, type: CYBERLINUX }
-    - {install: glade,              desc: User Interface Builder for GTK+ applications }
-    - {install: meld,               desc: Develop/Diff Tool - Graphical diff tool cross platform }
-    - {install: ripgrep,            desc: A search tool combining the usability of ag with speed of grep, depof: vscode }
-    - {install: vscode,             desc: Editor for modern development, type: CYBERLINUX }
-
-    # OpenGL
-    - {install: lib32-mesa,         desc: OpenGL opensource implementation, depof: kodi steam }
-    - {install: lib32-mesa-vdpau,   desc: Mesa vdpau drivers, depof: kodi steam }
-    - {install: mesa-vdpau,         desc: Mesa vdpau drivers, depof: kodi steam }
-
-    # Configs
+    - develop:
+      - {install: awf-git,            desc: Widget Factory for developing GTK themes, type: CYBERLINUX }
+      - {install: glade,              desc: User Interface Builder for GTK+ applications }
+      - {install: meld,               desc: Develop/Diff Tool - Graphical diff tool cross platform }
+      - {install: ripgrep,            desc: A search tool combining the usability of ag with speed of grep, depof: vscode }
+      - {install: visual-studio-code-bin, desc: Editor for modern development, type: CYBERLINUX }
     - config-desktop
 
   server:
-    - apache-php
     - media
     - keepass
     - {install: asterisk,           desc: Free opensource telephony engine tuned for Google Voice }
     - {install: file-roller,        desc: System/Compression integrates well in Thunar }
     - {install: qbittorrent,        desc: Network/Bittorent, alt: deluge }
     - {install: openvpn-pia,        desc: OpenVPN system tray with PIA integration, type: CYBERLINUX }
+    - apache-php:
+      - {install: apache,           desc: Apache web server, deb: phpBB }
+      - {install: bzip2,            desc: Compression util for the bzip2 format, depof: php-gd }
+      - {install: php,              desc: PHP lang, depof: phpBB }
+      - {install: php-apache,       desc: PHP apache module, depof: phpBB }
+      - {install: php-sqlite,       desc: PHP sqlite module, depof: phpBB }
+      - {install: php-gd,           desc: PHP gd module, depof: phpBB }
+      - {install: curl,             desc: Network download REST command line tool, depof: php }
+      - {install: cracklib,         desc: Cryptography suite, depof: shadow }
+      - {install: e2fsprogs,        desc: Ext2/3/4 filesystem utilities, depof: shadow }
+      - {install: findutils,        desc: Util to find applications, depof: curl }
+      - {install: shadow,           desc: Account mgmt passwd/usermod/groupadd, depof: util-linux }
+      - {install: util-linux,       desc: Utilities blkid/fdisk/rename/cp etc..., depof: php-gd }
+      - {install: xz,               desc: Compression util for xz format, depof: php-gd }
     - config-server
-
-  media:
-    - {install: handbrake,          desc: Video/Encoding - Video encoding tool for mp4/mkv }
-    - {install: handbrake-cli,      desc: Video/Encoding - Video encoding tool for mp4/mkv }
-    - {install: mkvtoolnix-gui,     desc: Set of tools to create, edit and inspect MKV files }
-    - {install: tiny-media-manager, desc: Cross platform media manager, type: CYBERLINUX }
 
   theater:
     - media
+    - opengl
     - {install: conky,              desc: Lightweight system monitor for X }
     - {install: idesk,              desc: Lightweight desktop icons for X, type: CYBERLINUX }
     - {install: kodi,               desc: Software media player and entertainment hub }
-
-    # OpenGL
-    - {install: lib32-mesa,         desc: OpenGL opensource implementation, depof: kodi steam }
-    - {install: lib32-mesa-vdpau,   desc: Mesa vdpau drivers, depof: kodi steam }
-    - {install: mesa-vdpau,         desc: Mesa vdpau drivers, depof: kodi steam }
-
-    # Configs
     - config-theater
-
-  apache-php:
-    - {install: apache,             desc: Apache web server, deb: phpBB }
-    - {install: bzip2,              desc: Compression util for the bzip2 format, depof: php-gd }
-    - {install: php,                desc: PHP lang, depof: phpBB }
-    - {install: php-apache,         desc: PHP apache module, depof: phpBB }
-    - {install: php-sqlite,         desc: PHP sqlite module, depof: phpBB }
-    - {install: php-gd,             desc: PHP gd module, depof: phpBB }
-    - {install: curl,               desc: Network download REST command line tool, depof: php }
-    - {install: cracklib,           desc: Cryptography suite, depof: shadow }
-    - {install: e2fsprogs,          desc: Ext2/3/4 filesystem utilities, depof: shadow }
-    - {install: findutils,          desc: Util to find applications, depof: curl }
-    - {install: shadow,             desc: Account mgmt passwd/usermod/groupadd, depof: util-linux }
-    - {install: util-linux,         desc: Utilities blkid/fdisk/rename/cp etc..., depof: php-gd }
-    - {install: xz,                 desc: Compression util for xz format, depof: php-gd }
 
   cinnamon-screensaver:
     - {install: cinnamon-screensaver, desc: Screensaver for the Cinnamon desktop, type: CYBERLINUX }
@@ -667,6 +643,12 @@ apps:
     - install: keepass
     - {menu: Accessories, entry: KeePass, icon: /usr/share/icons/hicolor/32x32/apps/keepass.png, exec: keepass }
 
+  media:
+    - {install: handbrake,          desc: Video/Encoding - Video encoding tool for mp4/mkv }
+    - {install: handbrake-cli,      desc: Video/Encoding - Video encoding tool for mp4/mkv }
+    - {install: mkvtoolnix-gui,     desc: Set of tools to create, edit and inspect MKV files }
+    - {install: tiny-media-manager, desc: Cross platform media manager, type: CYBERLINUX }
+
   # Tools required for building initramfs for early boot environment
   mkinitcpio:
     - install: mkinitcpio
@@ -674,6 +656,11 @@ apps:
     - edit: /etc/mkinitcpio.conf
       regex: '^(HOOKS).*'
       value: '\1="base udev autodetect vt-colors modconf block filesystems keyboard"'
+
+  opengl:
+    - {install: lib32-mesa,         desc: OpenGL opensource implementation, depof: kodi steam }
+    - {install: lib32-mesa-vdpau,   desc: Mesa vdpau drivers, depof: kodi steam }
+    - {install: mesa-vdpau,         desc: Mesa vdpau drivers, depof: kodi steam }
 
   # Open source SSH server/client
   sshd:
