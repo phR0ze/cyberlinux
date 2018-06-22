@@ -81,7 +81,8 @@ class Test_getapps < Minitest::Test
           'conky',
           { 'install' => 'curl', 'desc' => 'Network download REST command line tool' },
           { 'install' => 'gcc-libs', 'desc' => 'GCC runtime libraries', 'multilib' => false },
-          { 'install' => 'gcc-libs-multilib', 'desc' => 'GCC runtime libraries', 'multilib' => true }
+          { 'install' => 'gcc-libs-multilib', 'desc' => 'GCC runtime libraries', 'multilib' => true },
+          { 'install-nested' => [{'install' => 'foo'}, {'exec' => 'foo'}]}
         ],
         'server-apps' => [
           'base-apps',
@@ -125,25 +126,27 @@ class Test_getapps < Minitest::Test
     apache = [{ 'install' => 'apache', 'desc' => 'Apache web server' }]
     conky = [{ 'install' => 'conky', 'desc' => 'Lightweight system monitor for X'}]
     curl = [{ 'install' => 'curl', 'desc' => 'Network download REST command line tool' }]
+    foo = [{ 'install' => 'foo'}]
     lib = [{ 'install' => 'gcc-libs', 'desc' => 'GCC runtime libraries', 'multilib' => false }]
     multilib = [{ 'install' => 'gcc-libs-multilib', 'desc' => 'GCC runtime libraries', 'multilib' => true }]
 
     @reduce.stub(:puts, nil){
       pkgs, _ = @reduce.getapps('base', @reduce.get_deployment_yml('base'))
-      assert_equal(conky + curl + lib, pkgs)
+      assert_equal(conky + curl + foo + lib, pkgs)
       pkgs, _ = @reduce.getapps('server', @reduce.get_deployment_yml('server'))
-      assert_equal(apache + conky + curl + multilib, pkgs)
+      assert_equal(apache + conky + curl + foo + multilib, pkgs)
     }
   end
 
   def test_configs
-    result1 = [{ 'exec' => 'echo 1 >> United_States' }]
-    result2 = result1 + [{ 'chroot' => 'systemctl enable httpd.service' },
+    country = [{ 'exec' => 'echo 1 >> United_States' }]
+    foo = [{ 'exec' => 'foo' }]
+    result2 = country + foo + [{ 'chroot' => 'systemctl enable httpd.service' },
     {"edit" => "/etc/httpd/conf/httpd.conf", "regex" => '^(timezone).*', "value" => 'Africa'}]
 
     @reduce.stub(:puts, nil){
       _, configs = @reduce.getapps('base', @reduce.get_deployment_yml('base'))
-      assert_equal(result1, configs)
+      assert_equal(country + foo, configs)
       _, configs = @reduce.getapps('server', @reduce.get_deployment_yml('server'))
       assert_equal(result2, configs)
     }

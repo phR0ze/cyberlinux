@@ -27,9 +27,19 @@ require 'nub'
 module Config
   extend self
 
+  # Get ops
+  # @returns list of all the operations allowed
+  def ops
+    return [self.keys.chroot,
+            self.keys.edit,
+            self.keys.exec,
+            self.keys.menu,
+            self.keys.resolve,
+    ]
+  end
+
   # Get config keys
-  # Params:
-  # +returns+:: OpenStruct of all the string keys being used for configs
+  # @returns OpenStruct of all the string keys being used for configs
   def keys
     return OpenStruct.new({
       after: 'after',

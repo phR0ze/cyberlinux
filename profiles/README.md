@@ -258,18 +258,18 @@ vars).
 
 | Function | Params | Description |
 | -------- | ------ | ----------- |
-| install | pkg name | install the given packag for the encompassing ***deployment*** |
 | chroot | bash script | Variation of ***exec*** but executes in a chroot of the encompassing ***deployment*** |
 | edit | append, value | Append the given value to the implicated file |
 | edit | append, values | Append the given values to the implicated file |
 | edit | regex, value | Use regular expressions to match and replace with the given value |
 | edit | regex, append, values | Use regular expressions to location an insertion point for the values  |
 | exec | bash script | Executes the given bash script in the context of the encompassing ***layer*** |
+| menu | category, name, icon, exec | Create a menu entry in the right click menu |
+| install | pkg name | install the given packag for the encompassing ***deployment*** |
 | resolve | filepath | Resolves ERB templating for the given file in the context of the encompassing ***layer*** |
 
 **Examples**
 ```YAML
-- { install: linux-celes, desc: Linux kernel and supporting modules, type: CYBERLINUX }
 - { chroot: systemctl enable sshd.service }
 - { edit: /etc/foo/bar, append: true, value: 'Lorem ipsum de foo bar'}
 - { edit: /etc/foo/bar, append: true, values: ['Lorem ipsum', 'de foo bar'] }
@@ -277,5 +277,7 @@ vars).
 - { edit: /etc/foo/bar, append: after, regex: 'Foo', value: 'Lorem ipsum de foo bar'}
 - { edit: /etc/foo/bar, append: after, regex: 'Foo', values: ['Lorem ipsum', 'de foo bar'] }
 - { exec: 'ln -sf //usr/share/zoneinfo/Zulu /etc/localtime' }
+- { install: linux-celes, desc: Linux kernel and supporting modules, type: CYBERLINUX }
+- { menu: Accessories, entry: KeePass, icon: /usr/share/icons/hicolor/32x32/apps/keepass.png, exec: keepass }
 - { resolve: /etc/os-release }
 ```

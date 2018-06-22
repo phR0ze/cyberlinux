@@ -105,7 +105,6 @@ class Reduce
       v3d: 'v3d',
       x86_64: 'x86_64',
     })
-
     @vars = OpenStruct.new
     @rootpath = File.dirname(File.expand_path(__FILE__))
     @sudoinv = User.root? ? "sudo -Hu #{User.name} " : ''
@@ -993,6 +992,10 @@ class Reduce
         Log.die("invalid entry reference '#{entry}'") unless _entry
         _entry.each{|x| resolve.call(x)}
 
+      # Drill in on grouper
+      elsif entry.size == 1 && !(Config.ops + [@k.install]).any?{|x| entry[x]}
+        entry.first.last.each{|x| resolve.call(x)}
+
       # Get entry pkgs
       elsif entry[@k.install]
         pkgs << entry if entry[@k.multilib] == nil || entry[@k.multilib] == multilib
@@ -1261,11 +1264,6 @@ if __FILE__ == $0
   examples = "Full ISO Build: sudo ./#{app} clean build all -p personal\n".colorize(:green)
   examples += "Rebuild initramfs: sudo ./#{app} clean build initramfs,iso -p personal\n".colorize(:green)
   examples += "Rebuild multiboot: sudo ./#{app} clean build multiboot,iso -p personal\n".colorize(:green)
-  examples += "Clean pacman dbs: sudo ./#{app} clean --pacman\n".colorize(:green)
-  examples += "Build k8snode deployment: sudo ./#{app} clean build iso -d k8snode -p personal\n".colorize(:green)
-  examples += "Pack k8snode deployment: ./#{app} pack k8snode\n".colorize(:green)
-  examples += "Deploy nodes: sudo ./#{app} deploy k8snode 10,11,12\n".colorize(:green)
-  examples += "Deploy container: sudo ./#{app} deploy build --run\n".colorize(:green)
 
   cmdr = Commander.new(app:app, version:version, examples:examples)
   cmdr.add_global('-p|--profile=PROFILE', 'Profile to use', type:String)
@@ -1291,7 +1289,7 @@ if __FILE__ == $0
     Option.new('--cache', "Clean pacman package cache"),
     Option.new('--vms', "Clean VMs that are no longer deployed"),
     Option.new('-d|--deployments=DEPLOYMENTS', "Deployments to clean", type:Array)
-  ])
+  ], examples: "Clean pacman cache: sudo ./#{app} clean --cache")
   cmdr.add('build', 'Build ISO components', nodes:[
     Option.new(nil, 'Components to build', type:Array, allowed:{
       all: 'Build all components including deployments',
@@ -1302,12 +1300,12 @@ if __FILE__ == $0
       isofull: 'Build initramfs, multiboot and iso'
     }),
     Option.new('-d|--deployments=DEPLOYMENTS', "Deployments to build", type:Array)
-  ])
+  ], examples: "Build shell deployment: sudo ./#{app} clean build isofull -d shell -p standard")
   cmdr.add('pack', 'Pack ISO deployments into vagrant boxes', nodes:[
     Option.new(nil, "Deployments to pack", type:Array, required:true),
     Option.new('--disksize=DISKSIZE', "Set the disk size in MB e.g. 10000", type:String),
     Option.new('--force', "Pack the given deployment/s even if they already exist")
-  ])
+  ], examples: "Pack k8snode machine: ./#{app} pack k8snode -p k8snode")
   cmdr.add('deploy', 'Deploy VMs or containers', nodes:[
     Option.new(nil, "Deployment to deploy", type:String, required:true),
     Option.new(nil, "Comma delimited list of last octet IPs (e.g. 10,11,12", type:Array),
@@ -1317,7 +1315,8 @@ if __FILE__ == $0
     Option.new('-e|--exec=CMD', "Specific command to run in container", type:String),
     Option.new('--ipv6', "Enable IPv6 on the given nodes"),
     Option.new('--vagrantfile', "Export the Vagrantfile only"),
-  ], examples:"deploy core")
+  ], examples:"Deploy core container: sudo ./#{app} deploy core -p containers\n" +
+              "Deploy k8snode machine: sudo ./#{app} deploy k8snode 10,11,12 -p k8snode")
   cmdr.parse!
 
   # Load target profile
