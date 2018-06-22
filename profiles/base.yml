@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.55
+  release: 0.2.56
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -94,13 +94,12 @@ apps:
     - install: licenses             # require Standard licenses for ISO installer
     - install: memtest86+           # require memtest.bin for ISO install menu
     - install: rsync                # require rsync for installing ISO deployments
-
-    # Create and configure new build user and root user
-    - chroot: 'useradd -m -G lp,wheel,network,storage,users -s /bin/bash builder || true'
-    - exec: 'find /<%=core_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /home/builder'
-    - exec: "echo 'TERM=xterm' > /etc/environment"
-    - exec: 'find /<%=core_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /root'
-    - {edit: /etc/sudoers, insert: append, value: "builder ALL=(ALL) NOPASSWD: ALL"}
+    - config-build-user:
+      - chroot: 'useradd -m -G lp,wheel,network,storage,users -s /bin/bash builder || true'
+      - exec: 'find /<%=core_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /home/builder'
+      - exec: "echo 'TERM=xterm' > /etc/environment"
+      - exec: 'find /<%=core_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /root'
+      - {edit: /etc/sudoers, insert: append, value: "builder ALL=(ALL) NOPASSWD: ALL"}
 
   # Smallest set of packages required to have a ruby container
   # bash is a dependency of gdbm which is a dependency of ruby so ruby-core builds off core
@@ -217,6 +216,7 @@ apps:
     - mkinitcpio                    # require need mkinitcpio-vtcolors to be coo
     - sudo                          # require sudo to do anything in a boot env
     - systemd                       # require an init system to boot
+    - install: gettext              # required by grub
     - install: intel-ucode          # require Intel Microcode update files to boot
     - {install: cyberlinux-grub, type: CYBERLINUX} # require Grub Booloader to boot
 
@@ -234,18 +234,13 @@ apps:
     - {install: dnsutils,           desc: Network utilities dig/host/nslookup }
     - {install: dosfstools,         desc: DOS filesystem utilities e.g. mkfs.fat, depof: installer }
     - {install: efibootmgr,         desc: Tool to modify UEFI Firmware Boot Manager Variables, depof: installer }
-    - {install: e2fsprogs,          desc: Ext2/3/4 filesystem utilities }
-    - {install: findutils,          desc: find/xargs, depof: curl, group: [build-devel]}
     - {install: gcc,                desc: GNU Compiler Collection, multilib: false, group: [base-devel]}
     - {install: gcc-multilib,       desc: GNU Compiler Collection, multilib: true, group: [base-devel]}
-    - {install: grep,               desc: search text util, group: [build-devel]}
     - {install: gptfdisk,           desc: Text-mode paritioning tools e.g. sgdisk }
     - {install: haveged,            desc: Entropy harvesting, depof: pacman-key --init }
     - {install: logrotate,          desc: Rotates system logs automatically }
     - {install: pacman,             desc: Package manager with dependency support, group: [build-devel]}
     - {install: rsync,              desc: Remote file transfer sync utility }
-    - {install: shadow,             desc: Account mgmt e.g. passwd/useradd/usermod/groupadd }
-    - {install: util-linux,         desc: blkid/fdisk/rename/cp etc..., depof: php-gd, group: [build-devel]}
     - {install: vim-systemd,        desc: Vim syntax highlighting for systemd }
     - {install: vundle,             desc: Plug-in manager for Vim, type: CYBERLINUX }
     - {install: wget,               desc: Retrieve files from the Web }
@@ -323,8 +318,6 @@ apps:
     - {install: file,               desc: File type identification utility, group: [base-devel]}
     - {install: flex,               desc: Generate text-scanning programs, group: [base-devel]}
     - {install: gdb,                desc: The GNU debugger }
-    - {install: gawk,               desc: GNU version of awk, group: [base-devel]}
-    - {install: gettext,            desc: GNU internationalization library, group: [base-devel]}
     - {install: git,                desc: Fast distributed version control system }
     - {install: go,                 desc: Compiler and tools for the Go programming lang }
     - {install: go-bindata,         desc: Embed any file as Go code }
@@ -547,11 +540,6 @@ apps:
       - {install: php-sqlite,       desc: PHP sqlite module, depof: phpBB }
       - {install: php-gd,           desc: PHP gd module, depof: phpBB }
       - {install: curl,             desc: Network download REST command line tool, depof: php }
-      - {install: cracklib,         desc: Cryptography suite, depof: shadow }
-      - {install: e2fsprogs,        desc: Ext2/3/4 filesystem utilities, depof: shadow }
-      - {install: findutils,        desc: Util to find applications, depof: curl }
-      - {install: shadow,           desc: Account mgmt passwd/usermod/groupadd, depof: util-linux }
-      - {install: util-linux,       desc: Utilities blkid/fdisk/rename/cp etc..., depof: php-gd }
       - {install: xz,               desc: Compression util for xz format, depof: php-gd }
     - config-server
 
@@ -634,6 +622,9 @@ apps:
     - docker
     - k8shost
     - virtualbox-guest-nox
+    - install: bridge-utils         # required by k8s
+    - install: ebtables             # required by k8s
+    - install: ethtool              # required by k8s
     - {install: kubeadm,            desc: K8s cluster bootstrap, type: CYBERLINUX}
     - {install: kubelet,            desc: K8s node control agent, type: CYBERLINUX}
     - chroot: systemctl enable kubelet.service
@@ -651,8 +642,15 @@ apps:
 
   # Tools required for building initramfs for early boot environment
   mkinitcpio:
+    - {install: cracklib,           desc: Cryptography suite, depof: [shadow] }
+    - {install: e2fsprogs,          desc: Ext2/3/4 filesystem utilities, depof: [shadow] }
+    - {install: gawk,               desc: GNU version of awk, depof: [mkinitcpio], group: [base-devel]}
+    - {install: grep,               desc: search text util, depof: [mkinitcpio], group: [build-devel]}
+    - {install: findutils,          desc: find/xargs, depof: [mkinicpio, curl], group: [base-devel]}
     - install: mkinitcpio
     - {install: mkinitcpio-vt-colors, type: CYBERLINUX } # vt console colors
+    - {install: shadow,             desc: Account mgmt e.g. passwd/useradd/usermod/groupadd, depof: [util-linux] }
+    - {install: util-linux,         desc: blkid/fdisk/rename/cp etc..., depof: [mkinicpio, php-gd], group: [build-devel]}
     - edit: /etc/mkinitcpio.conf
       regex: '^(HOOKS).*'
       value: '\1="base udev autodetect vt-colors modconf block filesystems keyboard"'
