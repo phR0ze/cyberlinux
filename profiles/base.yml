@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.48
+  release: 0.2.49
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -79,28 +79,28 @@ builder:
 ################################################################################
 apps:
   kernel:
-    - {install: linux}              # Linux kernel and supporting modules
+    - install: linux                # Linux kernel and supporting modules
   kernel-full:
     - kernel
-    - {install: linux-docs}         # Linux kernel docs
-    - {install: linux-headers}      # Linux kernel headers
+    - install: linux-docs           # Linux kernel docs
+    - install: linux-headers        # Linux kernel headers
 
   # Packages and configs for building initramfs etc...
   # ----------------------------------------------------------------------------
   builder:
     - core-boot
-    - {install: dosfstools}         # require mkfs.vfat
-    - {install: gptfdisk}           # require sgdisk for ISO installer
-    - {install: licenses}           # require Standard licenses for ISO installer
-    - {install: memtest86+}         # require memtest.bin for ISO install menu
-    - {install: rsync}              # require rsync for installing ISO deployments
+    - install: dosfstools           # require mkfs.vfat
+    - install: gptfdisk             # require sgdisk for ISO installer
+    - install: licenses             # require Standard licenses for ISO installer
+    - install: memtest86+           # require memtest.bin for ISO install menu
+    - install: rsync                # require rsync for installing ISO deployments
 
     # Create and configure new build user and root user
-    - {chroot: 'useradd -m -G lp,wheel,network,storage,users -s /bin/bash builder || true' }
-    - {exec: 'find /<%=core_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /home/builder' }
-    - {exec: "echo 'TERM=xterm' > /etc/environment" }
-    - {exec: 'find /<%=core_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /root' }
-    - {edit: /etc/sudoers, insert: append, value: "builder ALL=(ALL) NOPASSWD: ALL" }
+    - chroot: 'useradd -m -G lp,wheel,network,storage,users -s /bin/bash builder || true'
+    - exec: 'find /<%=core_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /home/builder'
+    - exec: "echo 'TERM=xterm' > /etc/environment"
+    - exec: 'find /<%=core_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /root'
+    - {edit: /etc/sudoers, insert: append, value: "builder ALL=(ALL) NOPASSWD: ALL"}
 
   # Smallest set of packages required to have a ruby container
   # bash is a dependency of gdbm which is a dependency of ruby so ruby-core builds off core
@@ -217,7 +217,7 @@ apps:
     - mkinitcpio                    # require need mkinitcpio-vtcolors to be coo
     - sudo                          # require sudo to do anything in a boot env
     - systemd                       # require an init system to boot
-    - {install: intel-ucode}        # require Intel Microcode update files to boot
+    - install: intel-ucode          # require Intel Microcode update files to boot
     - {install: cyberlinux-grub, type: CYBERLINUX} # require Grub Booloader to boot
 
   # Full shell environment
@@ -250,45 +250,64 @@ apps:
     - {install: vundle,             desc: Plug-in manager for Vim, type: CYBERLINUX }
     - {install: wget,               desc: Retrieve files from the Web }
     - {install: which,              desc: Show the full path of commnds, depof: .bashrc, group: [build-devel]}
-    # Keyrings
-    - {install: archlinux-keyring,  desc: Arch Linux GPG keys }
-    - {install: antergos-keyring,   desc: Antergos GPG keyring, type: ANTERGOS }
-    - {install: blackarch-keyring,  desc: Blackarch GPG keyring, type: BLACKARCH }
-    - {install: cyberlinux-keyring, desc: Blackarch GPG keyring, type: CYBERLINUX }
-    # Compression
-    - {install: p7zip,              desc: Comman-line file archiver for 7zip format, depof: thunar }
-    - {install: tar,                desc: File store backup and transport utility }
-    - {install: unrar,              desc: The RAR uncompression program }
-    - {install: unzip,              desc: Extract and view files in .zip archives }
-    - {install: zip,                desc: Zip file compression utilities }
-    # Filesystem 
-    - {install: cdrkit,             desc: CD/DVD burnig/extration and ISO creation }
-    - {install: htop,               desc: Interactive process viewer, alt: top }
-    - {install: iftop,              desc: Display bandwidth usage on an interface }
-    - {install: inxi,               desc: System info display tool for CPUs/RAM/Kernel etc... }
-    - {install: libisoburn,         desc: Libburn/libisofs/xorriso }
-    - {install: lsof,               desc: Lists open files for running processes }
-    - {install: man-db,             desc: A utility for reading man pages }
-    - {install: man-pages,          desc: Linux man pages }
-    - {install: moreutils,          desc: Linux utils e.g. parallel-moreutils }
-    - {install: pkgfile,            desc: A pacman files and metadata explorer }
-    - {install: reptyr,             desc: Attach running program to a new terminal }
-    - {install: smartmontools,      desc: Control/monitor S.M.A.R.T. Drives }
-    - {install: squashfs-tools,     desc: Tooling for squashfs like mksquashfs }
-    - {install: tmux,               desc: Terminal multiplexer built off screen }
-    - {install: udisks2,            desc: Enumerate and operate on storage devices }
-    - {install: usbutils,           desc: USB device utilities including lsusb }
-    # Network
-    - {install: gnu-netcat,         desc: Network piping application }
-    - {install: iputils,            desc: Network utils e.g. ping/tftpd }
-    - {install: nfs-utils,          desc: Support programs for Network File Systems }
-    - {install: nmap,               desc: Network discovery and security auditing }
-    - {install: tcpdump,            desc: Network monitoring and data acquisition }
-    - {install: wpa_supplicant,     desc: A utility providing key negotiation for WPA wireless networks }
-    - config-makepkg
-    - config-modprobed
-    - config-wpa
-    - remove-machine-waste
+    - keyrings:
+      - install: archlinux-keyring
+      - {install: antergos-keyring, type: ANTERGOS}
+      - {install: blackarch-keyring, type: BLACKARCH}
+      - {install: cyberlinux-keyring, type: CYBERLINUX}
+    - compression:
+      - {install: p7zip,            desc: Comman-line file archiver for 7zip format, depof: thunar }
+      - {install: tar,              desc: File store backup and transport utility }
+      - {install: unrar,            desc: The RAR uncompression program }
+      - {install: unzip,            desc: Extract and view files in .zip archives }
+      - {install: zip,              desc: Zip file compression utilities }
+    - filesystem:
+      - {install: cdrkit,           desc: CD/DVD burnig/extration and ISO creation }
+      - {install: htop,             desc: Interactive process viewer, alt: top }
+      - {install: iftop,            desc: Display bandwidth usage on an interface }
+      - {install: inxi,             desc: System info display tool for CPUs/RAM/Kernel etc... }
+      - {install: libisoburn,       desc: Libburn/libisofs/xorriso }
+      - {install: lsof,             desc: Lists open files for running processes }
+      - {install: man-db,           desc: A utility for reading man pages }
+      - {install: man-pages,        desc: Linux man pages }
+      - {install: moreutils,        desc: Linux utils e.g. parallel-moreutils }
+      - {install: pkgfile,          desc: A pacman files and metadata explorer }
+      - {install: reptyr,           desc: Attach running program to a new terminal }
+      - {install: smartmontools,    desc: Control/monitor S.M.A.R.T. Drives }
+      - {install: squashfs-tools,   desc: Tooling for squashfs like mksquashfs }
+      - {install: tmux,             desc: Terminal multiplexer built off screen }
+      - {install: udisks2,          desc: Enumerate and operate on storage devices }
+      - {install: usbutils,         desc: USB device utilities including lsusb }
+    - network:
+      - {install: gnu-netcat,         desc: Network piping application }
+      - {install: iputils,            desc: Network utils e.g. ping/tftpd }
+      - {install: nfs-utils,          desc: Support programs for Network File Systems }
+      - {install: nmap,               desc: Network discovery and security auditing }
+      - {install: tcpdump,            desc: Network monitoring and data acquisition }
+      - {install: wpa_supplicant,     desc: A utility providing key negotiation for WPA wireless networks }
+    - config-makepkg:
+      - {edit: /etc/makepkg.conf, regex: '^#(MAKEFLAGS)=.*', value: '\1="-j8"'}
+      - {edit: /etc/makepkg.conf, regex: '^(COMPRESSXZ)=.*', value: '\1=(xz -c -z - --threads=0)'}
+    - config-modprobed:
+      - {edit: /etc/modprobe.d/pcspkr.conf, insert: append, value: "blacklist pcspkr"}
+    - config-wpa:
+      - edit: /etc/wpa_supplicant/wpa_supplicant-wlp2s0.conf
+        insert: append
+        values:
+          # Set permissions for wpa_supplicant
+          - 'ctrl_interface=/run/wpa_supplicant'
+          - 'ctrl_interface_group=wheel'
+          # Allow WPA GUI to update this file with persistent changes
+          - 'update_config=1'
+          # Completely disable P2P/Direct WiFi - security hole
+          - 'p2p_disabled=1'
+          # Automatically scan and select networks matching saved ones
+          - 'ap_scan=1'
+    - remove-machine-waste:
+      - exec: find /var/log -type f -delete
+      - exec: rm -rf /etc/pacman.d/mirrorlist
+      - exec: rm -rf /var/tmp/*
+      - exec: rm -rf /tmp/*
   dev-apps:
     - {install: arch-install-scripts, desc: arch-chroot/genfstab/pacstrap }
     - {install: autoconf,           desc: Automatically configure source code, group: [base-devel]}
@@ -1260,9 +1279,6 @@ configs:
       regex: 'exec'
       values:
         - '/opt/<%=distro%>/bin/pre-xorg'
-  config-makepkg:
-    - {edit: /etc/makepkg.conf, regex: '^#(MAKEFLAGS)=.*', value: '\1="-j8"' }
-    - {edit: /etc/makepkg.conf, regex: '^(COMPRESSXZ)=.*', value: '\1=(xz -c -z - --threads=0)' }
   config-mimeapps:
     - edit: /etc/skel/.config/mimeapps.list
       insert: append
@@ -1296,8 +1312,6 @@ configs:
         - 'video/x-matroska=smplayer.desktop;'
         - 'video/mp4=smplayer.desktop;'
         - 'video/mpeg=smplayer.desktop;'
-  config-modprobed:
-    - {edit: /etc/modprobe.d/pcspkr.conf, insert: append, value: "blacklist pcspkr" }
   config-nfs:
     - edit: /etc/exports
       insert: append
@@ -1457,11 +1471,6 @@ configs:
         - 'fi'
         - "# PROXY_MARKER"
     - {exec: chmod +x /opt/<%=distro%>/bin/setproxy }
-  remove-machine-waste:
-    - {exec: 'find /var/log -type f -delete' }
-    - {exec: 'rm -rf /etc/pacman.d/mirrorlist' }
-    - {exec: 'rm -rf /var/tmp/*' }
-    - {exec: 'rm -rf /tmp/*' }
   config-theater-resolution:
     - edit: /etc/X11/xorg.conf.d/10-display.conf
       insert: append
@@ -1524,19 +1533,6 @@ configs:
     - {exec: 'cp /usr/share/applications/wpa_gui.desktop /etc/skel/.config/autostart' }
     # Enable wpa_supplicant out of the box so we have WiFi running
     - {chroot: systemctl enable wpa_supplicant@wlp2s0 }
-  config-wpa:
-    - edit: /etc/wpa_supplicant/wpa_supplicant-wlp2s0.conf
-      insert: append
-      values:
-        # Set permissions for wpa_supplicant
-        - 'ctrl_interface=/run/wpa_supplicant'
-        - 'ctrl_interface_group=wheel'
-        # Allow WPA GUI to update this file with persistent changes
-        - 'update_config=1'
-        # Completely disable P2P/Direct WiFi - security hole
-        - 'p2p_disabled=1'
-        # Automatically scan and select networks matching saved ones
-        - 'ap_scan=1'
   config-xorg:
     - edit: /opt/<%=distro%>/bin/pre-xorg
       insert: append
