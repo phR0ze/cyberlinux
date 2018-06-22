@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.50
+  release: 0.2.51
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -666,7 +666,7 @@ apps:
     - {install: kubelet,            desc: K8s node control agent, type: CYBERLINUX}
     - chroot: systemctl enable kubelet.service
 
-  # Cross platform password manager 
+  # Cross platform password manager
   keepass:
     - install: keepass
     - {menu: Accessories, entry: KeePass, icon: /usr/share/icons/hicolor/32x32/apps/keepass.png, exec: keepass }
