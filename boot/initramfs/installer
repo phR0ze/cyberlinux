@@ -220,7 +220,11 @@ get_disks()
             if [ "${isodev#*$dev}" == "${isodev}" ]; then
                 local i=$((i+1))
                 disks="${disks} /dev/${disk}"
-                disk_details="${disk_details} '${details}'"
+                if [ "$disk_details" == "" ]; then
+                    disk_details="$details"
+                else
+                    disk_details="${disk_details},${detail}"
+                fi
             fi
         fi
     done
@@ -506,6 +510,15 @@ config_system()
         check_status
     fi
 
+    # Configure root access for sshd if vagrant deployment
+    if [ -e "${rootmnt}/etc/ssh/sshd_config" ]; then
+        if [ "x$vagrant" != "x0" ]; then
+            echo -en ":: Enable sshd root access for vagrant..."
+            sed -i -e 's/^PermitRootLogin.*/PermitRootLogin yes/' "${rootmnt}/etc/ssh/sshd_config"
+            check_status
+        fi
+    fi
+
     # Autologin if lxdm exists and parameter is set
     if [ -e "${rootmnt}/etc/lxdm/lxdm.conf" ]; then
         if [ "x$autologin" == "x1" ]; then
@@ -539,6 +552,7 @@ installer()
     # Set defaults for live or vagrant deployments
     #---------------------------------------------------------------------------
     vagrant=0
+    chromebook=0
     hostname="${distro}-${target_layer}"
     netip='DHCP'
     proxy='None'
@@ -564,22 +578,22 @@ installer()
             echo -e "   proxy=${proxy}"
             echo -e "   no_proxy=${no_proxy}"
             echo -e "   user=${user}"
-            echo -e "   pass='vagrant'"
+            echo -e "   pass=vagrant"
             echo -e "   install_dev=${install_dev}"
         else
             # Collect install destination device
-            #----------------------------------------------------------------------- 
+            #-----------------------------------------------------------------------
             echo -e "\n${cyan}:: Select a disk as your install destination:${none}"
             local i=0
             for disk in $disks; do
                 local i=$((i+1))
-                local details=$(echo "$disk_details" | awk -F\' "{print \$${i}}")
+                local details=$(echo "$disk_details" | awk -F, "{print \$${i}}")
                 echo -e "   ${i}) [${cyan}${disk}${none}] - ${details}"
             done
             getsel install_dev $disks
 
             # Determine if this is a chromebook
-            [ ${install_dev//mmc} != ${install_dev} ] && chromebook=1 || chromebook=0
+            [ ${install_dev//mmc} != ${install_dev} ] && chromebook=1
 
             # Configure networking
             #----------------------------------------------------------------------

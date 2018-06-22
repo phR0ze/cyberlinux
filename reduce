@@ -654,7 +654,7 @@ class Reduce
       FileUtils.cp(File.join(@packer_src, 'packer.json'), template)
       @vars.deployment = deployment
       @vars.disksize = disksize || '40000'
-      commands = ['"<enter>"', '"<wait"']
+      commands = ['"<enter>"', '"<wait4s>"', '"1<enter>"']
       commands = ['"<down>"'] * i + commands if i > 0
       @vars.vagrant_boot_commands = commands * ","
       FileUtils.resolve(template, @vars)

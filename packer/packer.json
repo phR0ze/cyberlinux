@@ -7,7 +7,7 @@
             "guest_os_type": "ArchLinux_64",
             "guest_additions_mode": "disable",
             "http_directory": ".",
-            "boot_wait": "8s",
+            "boot_wait": "4s",
             "boot_command": [
                 <%=vagrant_boot_commands%>
             ],
