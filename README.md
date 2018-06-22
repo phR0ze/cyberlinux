@@ -67,7 +67,7 @@ Full shell development environment
 
 ### Kubernetes <a name="kubernetes-deployment"/></a>
 Slimmed down shell environment with Kubernetes dependencies baked in. It includes ***kubectl***,
-  ***kubelet***, ***kubeadm***, ***docker*** and ***helm*** to easly and quickly setup a K8s cluster.
+  ***kubelet***, ***kubeadm***, ***docker*** and ***helm*** to easily and quickly setup a K8s cluster.
 
 ![K8snode](doc/images/k8snode-virtualbox.png)
 

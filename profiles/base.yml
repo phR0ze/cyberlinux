@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.53
+  release: 0.2.54
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -648,21 +648,17 @@ apps:
     - {chroot: systemctl enable docker.service }
 
   k8shost:
-    - {install: bridge-utils,       desc: Ethernet bridge config utils, depof: k8s}
-    - {install: ebtables,           desc: Ethernet bridge filtering utilities, depof: k8s}
-    - {install: ethtool,            desc: Network drivers and hardware util, depof: k8s}
     - {install: helm,               desc: Kubernetes package manager, type: CYBERLINUX}
-    - {install: kubernetes-kubectl, desc: K8s cluster controller, type: CYBERLINUX}
-    - {install: socat,              desc: Multipurpose relay, depof: k8s}
+    - {install: kubectl,            desc: K8s cluster controller, type: CYBERLINUX}
 
   # Apps needed for a kubernetes node
   # i.e. standard terminal tools, ssh and k8s tools
   k8snode:
     - sshd
     - docker
+    - k8shost
     - virtualbox-guest-nox
     - {install: kubeadm,            desc: K8s cluster bootstrap, type: CYBERLINUX}
-    - {install: kubectl,            desc: K8s cluster controller, type: CYBERLINUX}
     - {install: kubelet,            desc: K8s node control agent, type: CYBERLINUX}
     - chroot: systemctl enable kubelet.service
 
