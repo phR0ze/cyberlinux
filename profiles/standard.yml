@@ -33,7 +33,7 @@ deployments:
       order: 2
       label: "Deploy <%=distro%>-desktop                 // Lite + more apps"
     apps:
-      - desktop-apps
+      - desktop
   theater:
     base: lite
     vars: { fontsize: 18 }
@@ -42,7 +42,7 @@ deployments:
       label: "Deploy <%=distro%>-theater                 // Lite + media apps"
       params: autologin=1
     apps:
-      - theater-apps
+      - theater
   lite:
     base: shell
     groups: [video, audio]
@@ -50,7 +50,7 @@ deployments:
       order: 4
       label: "Deploy <%=distro%>-lite                    // Shell + min X11"
     apps:
-      - lite-apps
+      - lite
   shell:
     base: core
     install:

@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.49
+  release: 0.2.50
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -226,7 +226,7 @@ apps:
     - core-boot
     - cronie
     - sshd
-    - dev-apps
+    - develop
     - ruby-gems
     - virtualbox-guest-nox
     - {install: curl,               desc: Adding curl command to pull in packer scripts }
@@ -308,7 +308,7 @@ apps:
       - exec: rm -rf /etc/pacman.d/mirrorlist
       - exec: rm -rf /var/tmp/*
       - exec: rm -rf /tmp/*
-  dev-apps:
+  develop:
     - {install: arch-install-scripts, desc: arch-chroot/genfstab/pacstrap }
     - {install: autoconf,           desc: Automatically configure source code, group: [base-devel]}
     - {install: automake,           desc: Automatically create Makefiles, group: [base-devel]}
@@ -366,7 +366,7 @@ apps:
 
   # Lite weight X11 evironment
   # ----------------------------------------------------------------------------
-  lite-apps:
+  lite:
     - virtualbox-guest
     - {install: cups-pdf,           desc: System/Printer Driver with PDF print support }
     - {install: dconf,              desc: A low-level configuration system }
@@ -494,10 +494,10 @@ apps:
     - config-lite
 
   # https://wiki.archlinux.org/index.php/Desktop_environment
-  desktop-apps:
+  desktop:
     - cinnamon-screensaver
     - docker
-    - media-apps
+    - media
     - virtualbox-host
     - keepass
     - {install: asunder,            desc: A lean and friendly audio CD ripper and encoder }
@@ -542,9 +542,9 @@ apps:
     # Configs
     - config-desktop
 
-  server-apps:
+  server:
     - apache-php
-    - media-apps
+    - media
     - keepass
     - {install: asterisk,           desc: Free opensource telephony engine tuned for Google Voice }
     - {install: file-roller,        desc: System/Compression integrates well in Thunar }
@@ -552,14 +552,14 @@ apps:
     - {install: openvpn-pia,        desc: OpenVPN system tray with PIA integration, type: CYBERLINUX }
     - config-server
 
-  media-apps:
+  media:
     - {install: handbrake,          desc: Video/Encoding - Video encoding tool for mp4/mkv }
     - {install: handbrake-cli,      desc: Video/Encoding - Video encoding tool for mp4/mkv }
     - {install: mkvtoolnix-gui,     desc: Set of tools to create, edit and inspect MKV files }
     - {install: tiny-media-manager, desc: Cross platform media manager, type: CYBERLINUX }
 
-  theater-apps:
-    - media-apps
+  theater:
+    - media
     - {install: conky,              desc: Lightweight system monitor for X }
     - {install: idesk,              desc: Lightweight desktop icons for X, type: CYBERLINUX }
     - {install: kodi,               desc: Software media player and entertainment hub }
@@ -647,7 +647,7 @@ apps:
         - ''
     - {chroot: systemctl enable docker.service }
 
-  k8s-host:
+  k8shost:
     - {install: bridge-utils,       desc: Ethernet bridge config utils, depof: k8s}
     - {install: ebtables,           desc: Ethernet bridge filtering utilities, depof: k8s}
     - {install: ethtool,            desc: Network drivers and hardware util, depof: k8s}
@@ -657,7 +657,7 @@ apps:
 
   # Apps needed for a kubernetes node
   # i.e. standard terminal tools, ssh and k8s tools
-  k8s-node:
+  k8snode:
     - sshd
     - docker
     - virtualbox-guest-nox

@@ -28,7 +28,7 @@ deployments:
       order: 1
       label: "Deploy <%=distro%>-k8snode"
     apps:
-      - k8s-node
+      - k8snode
   core:
     apps:
       - kernel
