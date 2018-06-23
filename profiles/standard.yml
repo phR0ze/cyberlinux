@@ -55,6 +55,7 @@ deployments:
     install:
       order: 5
       label: "Deploy <%=distro%>-shell                    // Shell env"
+    source: [core, shell]
     apps:
       - kernel-full
       - core-boot

@@ -208,11 +208,13 @@ class Reduce
 
       # Merging deployment over the top of defaults so it takes precedents
       @profile.deployments.each{|k,v|
-        v.deep_merge!((@profile.defaults[v[@k.type] || @k.machine] || {}).deep_merge(v))}
+        v.deep_merge!((@profile.defaults[v[@k.type] || @k.machine] || {}).deep_merge(v))
+        v[@k.source] = (v[@k.source] || [k]).map{|x| File.join(@deployments_src, x)}
+      }
+      @profile.builder[@k.source] = @profile.builder[@k.source].map{|x| File.join(@deployments_src, x)}
 
       # Set variables as needed
       @vars[@k.all_groups] ||= []
-      @profile.deployments.each{|k,v| @vars["#{k}_src"] = File.join(@deployments_src, k)}
       @profile.deployments.each{|k,v|
         @vars["#{k}_deployment"] = self.get_deployments(k) * ',' if v[@k.type] == @k.machine}
       @profile.deployments.each{|k,v|
@@ -544,7 +546,7 @@ class Reduce
       # Inject deploy entries from deployments
       motd = File.readlines(@motd_path)
       File.open(File.join(grub_iso_path, 'boot.cfg'), 'w'){|f|
-        @profile.deployments.select{|k,v| v[@k.type] == @k.machine && v[@k.install] && v[@k.install][@k.order]}
+        @profile.deployments.select{|k,v| v[@k.type] == @k.machine}
           .sort_by{|k,v| v[@k.install][@k.order]}.each{|x|
           kernel = "#{@kernel_prefix}-#{x.last[@k.install][@k.kernel]}"
           params = x.last[@k.install][@k.params] || ""
@@ -598,7 +600,7 @@ class Reduce
   # @param force [bool] pack even if already exists
   def pack(deployments, disksize:nil, force:nil)
     _deployments = @profile.deployments
-      .select{|k,v| v[@k.type] == @k.machine && v[@k.install] && v[@k.install][@k.order]}
+      .select{|k,v| v[@k.type] == @k.machine}
     deployments = deployments || _deployments.reject{|k,v| k == 'live'}.keys
     puts("Packing deployments #{deployments * ','}\n#{'-' * 80}".colorize(:light_yellow))
     Log.die("must be executed as non-root user") unless not Process.uid.zero?
@@ -877,7 +879,6 @@ class Reduce
     msg = "Installing apps for '#{deployment}'..."
     appfile = File.join(deployment_work, 'packages')
     deployment_deps = self.get_deployments(deployment)[1..-1]
-    deployment_src = [deployment].map{|x| File.join(@deployments_src, x)}
     deployment_digests = File.join(deployment_work, 'digests')
 
     # Handle packages differently based on type
@@ -957,7 +958,7 @@ class Reduce
 
     # Copy over all deployment data if it exists
     #---------------------------------------------------------------------------
-    changed |= syncfiles(deployment, deployment_src, deployment_work, deployment_digests)
+    changed |= syncfiles(deployment, deployment_yml[@k.source], deployment_work, deployment_digests)
 
     # Apply app configuration changes
     #---------------------------------------------------------------------------
