@@ -26,6 +26,7 @@ fork it and make their own configuration ***profiles***
 * [cyberlinux Deployments](#cyberlinux-deployments)
     * [Desktop](#desktop-deployment)
     * [Theater](#theater-deployment)
+    * [Server](#server-deployment)
     * [Lite](#lite-deployment)
     * [Shell](shell-deployment)
     * [Kubernetes](#k8s-deployment)
@@ -33,7 +34,7 @@ fork it and make their own configuration ***profiles***
     * [Bare metal deployment](#bare-metal-deployment)
     * [Virtual box deployment](#virtual-box-deployment)
     * [Vagrant box deployment](#vagrant-box-deployment)
-    * [Deployment Options](#deployment-options)
+    * [Brown field deployment](#brown-field-deployment)
 * [Configure cyberlinux](#configure-cyberlinux)
     * [Enable Proxy](#enable-proxy)
     * [Disable Proxy](#disable-proxy)
@@ -54,10 +55,30 @@ There are a number of pre-built/released deploymets available for use as either 
 boxes that were useful for my needs.  I'll describe them as follows:
 
 ### Desktop <a name="desktop-deployment"/></a>
-Full Xorg desktop environment
+The ***desktop*** deployment was created to serve as a full developer environment and daily runner.
+It is an amalgam of most other deployment options. Although it is the heaviest of the deployments,
+resource wise, it is still built with speed and efficiency in mind.
+
+**Requirements:** 
+* Development (vscode, go, ruby, python)
+* File Sharing (NFS, Torrent, SFTP, FTP)
+* Productivity and Office (libreoffice, pdfs)
+* Virtual Machines and Containers (virtualbox, docker)
+* Media Processing/Consumption (vlc, smplayer, mvp, handbrake, makemkv)
 
 ### Theater <a name="theater-deployment"/></a>
 Xorg desktop environment focusing on media playback
+
+#### Server <a name="server-deployment"/></a>
+The ***server*** deployment was created to serve as a light weight web and file server that would
+be run on lower end headless hardware. As such many of the desktop widgets and such have been left
+out to facilitate efficient remote desktop sessions.
+
+**Requirements:** 
+* Web Server (PHP)
+* Telephony Engine (FreeSWITCH, Blink)
+* File Sharing (NFS, Torrent, SFTP, FTP)
+* Media Processing (Handbrake, makemkv-cli)
 
 ### Lite <a name="lite-deployment"/></a>
 Slimmed down minimal Xorg desktop environment
@@ -70,6 +91,11 @@ Slimmed down shell environment with Kubernetes dependencies baked in. It include
   ***kubelet***, ***kubeadm***, ***docker*** and ***helm*** to easily and quickly setup a K8s cluster.
 
 ![K8snode](doc/images/k8snode-virtualbox.png)
+
+```bash
+# Deploys a k8snode with ip address of 192.168.56.10
+sudo ./reduce deploy k8snode 10 -p k8snode
+```
 
 ## Deploy cyberlinux <a name="deploy-cyberlinux"/></a>
 There are a number of ways to get up and running quickly with ***cyberlinux***
@@ -137,38 +163,16 @@ git clone git@github.com:phR0ze/cyberlinux.git
 
 # Deploy cyberlinux vagrant box via reduce
 cd cyberlinux
-sudo ./reduce deploy --layer=desktop
+sudo ./reduce deploy desktop -p standard
 ```
 
-### Deployment Options <a name="deployment-options"/></a>
+### Brown field deployment <a name="brown-field-deployment"/></a>
+Using an existing arch linux system to deploy cyberlinux is more complicated as it requires a few
+dependencies. I'll be documenting them here:
 
-#### Desktop Deployment <a name="desktop-deployment"/></a>
-The ***desktop*** deployment was created to serve as a full developer environment and daily runner.
-It is an amalgam of most other deployment options. Although it is the heaviest of the deployments,
-resource wise, it is still built with speed and efficiency in mind.
-
-**Requirements:** 
-* Development (vscode, go, ruby, python)
-* File Sharing (NFS, Torrent, SFTP, FTP)
-* Productivity and Office (libreoffice, pdfs)
-* Virtual Machines and Containers (virtualbox, docker)
-* Media Processing/Consumption (vlc, smplayer, mvp, handbrake, makemkv)
-
-#### Server Deployment <a name="server-deployment"/></a>
-The ***server*** deployment was created to serve as a light weight web and file server that would
-be run on lower end headless hardware. As such many of the desktop widgets and such have been left
-out to facilitate efficient remote desktop sessions.
-
-**Requirements:** 
-* Web Server (PHP)
-* Telephony Engine (FreeSWITCH, Blink)
-* File Sharing (NFS, Torrent, SFTP, FTP)
-* Media Processing (Handbrake, makemkv-cli)
-
-```bash
-# Deploys a k8snode with ip address of 192.168.56.10
-sudo ./reduce deploy --layer=k8snode --nodes=10
-```
+* cyberlinux-grub
+* ruby
+* docker
 
 ## Configure cyberlinux <a name="configure-cyberlinux"/></a>
 ### Enable Proxy <a name="enable-proxy"/></a>
