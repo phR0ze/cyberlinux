@@ -943,6 +943,8 @@ class Reduce
             Pacman.install(apps[:force], flags: flags)
           end
         ensure
+          # Kill gpg-agent as for some reason it doesn't stop itself
+          Process.killall("gpg-agent --homedir #{deployment_work}")
           Sys.umount(File.join(deployment_work, 'dev'), retries: 10)
         end
 
