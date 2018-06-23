@@ -52,12 +52,10 @@ deployments:
     apps:
       - lite
   shell:
-    base: core
     install:
-      order: 6
+      order: 5
       label: "Deploy <%=distro%>-shell                    // Shell env"
     apps:
-      - shell
-  core:
-    apps:
       - kernel-full
+      - core-boot
+      - shell

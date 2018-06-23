@@ -132,9 +132,9 @@ class Reduce
     @deployments_work = File.join(@workpath, 'deployments')
     @vagrantpath = File.join(@rootpath, 'vagrant')
 
-    @motd_path = File.join(@deployments_src, 'base/etc/motd')
-    @pacman_src_conf = File.join(@deployments_src, 'base/etc/pacman.conf')
-    @pacman_src_mirrors = Dir[File.join(@deployments_src, "base/etc/pacman.d/*.mirrorlist")]
+    @motd_path = File.join(@deployments_src, 'shell/etc/motd')
+    @pacman_src_conf = File.join(@deployments_src, 'shell/etc/pacman.conf')
+    @pacman_src_mirrors = Dir[File.join(@deployments_src, "shell/etc/pacman.d/*.mirrorlist")]
 
     @boot_dst = File.join(@isopath, 'boot')
     @deployment_images_dst = File.join(@isopath, 'images')
@@ -219,7 +219,6 @@ class Reduce
         @vars["#{k}_groups"] = self.get_deployments(k).map{|x| @profile.deployments[x][@k.groups]}.flatten.compact.uniq
         @vars.all_groups = (@vars.all_groups + @vars["#{k}_groups"]).uniq
         @vars[@k.groups] = @vars.all_groups * ","}
-      @vars["base_src"] = File.join(@deployments_src, 'base') if !@vars["base_src"]
 
     rescue Exception => e
       puts("Error: invalid yaml in '#{profile_path}'".colorize(:red))
