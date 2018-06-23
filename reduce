@@ -209,9 +209,10 @@ class Reduce
       # Merging deployment over the top of defaults so it takes precedents
       @profile.deployments.each{|k,v|
         v.deep_merge!((@profile.defaults[v[@k.type] || @k.machine] || {}).deep_merge(v))
-        v[@k.source] = (v[@k.source] || [k]).map{|x| File.join(@deployments_src, x)}
-      }
-      @profile.builder[@k.source] = @profile.builder[@k.source].map{|x| File.join(@deployments_src, x)}
+        v[@k.source] = (v[@k.source] || [k])
+          .map{|x| x.include?(@deployments_src) ? x : File.join(@deployments_src, x)}}
+      @profile.builder[@k.source] = @profile.builder[@k.source]
+        .map{|x| x.include?(@deployments_src) ? x : File.join(@deployments_src, x)}
 
       # Set variables as needed
       @vars[@k.all_groups] ||= []
@@ -489,7 +490,7 @@ class Reduce
       .map{|k,v| v[@k.install][@k.kernel]}.uniq.map{|x| "#{@initramfs_prefix}-#{x}"}
 
     puts("Building initramfs images...\n#{'-' * 80}".colorize(:light_yellow))
-    if syncfiles(File.basename(@initramfs_work), @initramfs_src, @initramfs_work, initramfs_digests) or
+    if self.syncfiles(File.basename(@initramfs_work), @initramfs_src, @initramfs_work, initramfs_digests) or
         not Dir[File.join(@initramfs_path, "#{@initramfs_prefix}*")].any?
       changed |= true
       installer = File.join(@initramfs_work, 'installer')
@@ -958,7 +959,7 @@ class Reduce
 
     # Copy over all deployment data if it exists
     #---------------------------------------------------------------------------
-    changed |= syncfiles(deployment, deployment_yml[@k.source], deployment_work, deployment_digests)
+    changed |= self.syncfiles(deployment, deployment_yml[@k.source], deployment_work, deployment_digests)
 
     # Apply app configuration changes
     #---------------------------------------------------------------------------
@@ -972,6 +973,11 @@ class Reduce
     end
 
     return changed
+  end
+
+  def foo
+    puts("FREAKING MONKEY ASS".colorize(:red))
+    return true
   end
 
   # Get app configuration for the given deployment
@@ -1057,8 +1063,7 @@ class Reduce
   # @param deployment_src [path or paths] deployment source directories to work with
   # @param deployment_work [path] deployment work directory to work with
   # @param deployment_digests [path] deployment digests file
-  # @param block [block] block of code to execute
-  def syncfiles(deployment, deployment_src, deployment_work, deployment_digests, &block)
+  def syncfiles(deployment, deployment_src, deployment_work, deployment_digests)
     changed = false
     deployment_src = [deployment_src] if deployment_src.is_a?(String)
     return changed if !deployment_src.any?{|x| Dir.exist?(x)}
@@ -1097,9 +1102,6 @@ class Reduce
         FileUtils.mkdir_p(File.dirname(target.sub('etc/skel', 'root')))
         FileUtils.cp(x, target.sub('etc/skel', 'root'))
       }
-
-      # Execute block
-      block.call if block
 
       # Update digests
       FileUtils.update_digests(deployment, deployment_digests, files)

@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.62
+  release: 0.2.63
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -67,7 +67,7 @@ defaults:
 builder:
   type: container
   multilib: true
-  source: [core, shell]
+  source: [shell, core] # intentionally ordering this way to get core .vimrc
   docker:
     # Note: need privileged=true to allow mount to work inside container
     params: '-e TERM=xterm -v /var/run/docker.sock:/var/run/docker.sock --privileged=true'
@@ -97,7 +97,6 @@ apps:
     - install: rsync                # require rsync for installing ISO deployments
     - config-build-user:
       - chroot: 'useradd -m -G lp,wheel,network,storage,users -s /bin/bash builder || true'
-      - chroot: 'find /etc/skel -maxdepth 1 -type f | xargs cp -t /home/builder'
       - exec: "echo 'TERM=xterm' > /etc/environment"
       - {edit: /etc/sudoers, insert: append, value: "builder ALL=(ALL) NOPASSWD: ALL"}
 
