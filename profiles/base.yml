@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.59
+  release: 0.2.60
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -223,7 +223,6 @@ apps:
   # Full shell environment
   # ----------------------------------------------------------------------------
   shell:
-    - core-boot
     - cronie
     - sshd
     - develop
