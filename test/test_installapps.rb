@@ -147,9 +147,11 @@ class Test_installapps < Minitest::Test
               Dir.stub(:[], []){
                 Sys.stub(:exec, validate_cmd){
                   Sys.stub(:umount, nil){
-                    @reduce.stub(:puts, nil){
-                      @reduce.stub(:rm_rf, nil){
-                        @reduce.installapps('dep1', 'dep1.sqfs', '.', @reduce.get_deployment_yml('dep1'))
+                    Process.stub(:killall, nil){
+                      @reduce.stub(:puts, nil){
+                        @reduce.stub(:rm_rf, nil){
+                          @reduce.installapps('dep1', 'dep1.sqfs', '.', @reduce.get_deployment_yml('dep1'))
+                        }
                       }
                     }
                   }
