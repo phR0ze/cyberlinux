@@ -393,7 +393,7 @@ class Reduce
     # Clean iso image
     if all or deployments.any? or iso or isofull
       puts("Cleaning iso image...".colorize(:cyan))
-      Dir[File.join(@imagepaths.first, '*.iso')].each{|x|
+        Dir[File.join(@imagepaths.first, "*-#{@vars.profile}-*.iso")].each{|x|
         puts("Deleting #{x}".colorize(:red))
         File.delete(x)
       }
