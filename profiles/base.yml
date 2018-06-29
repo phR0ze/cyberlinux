@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.66
+  release: 0.2.67
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -331,9 +331,6 @@ apps:
     - {install: make,               desc: GNU utility to build programs, group: [base-devel]}
     - {install: patch,              desc: Utility to apply patches to files, group: [base-devel]}
     - {install: pkg-config,         desc: System for managing library flags, group: [base-devel]}
-    - {install: powerline,          desc: Status line plugin for bash }
-    - {install: powerline-gitstatus, desc: Powerline plugin for git status, type: CYBERLINUX }
-    - {install: powerline-fonts,    desc: Powerline font symbols }
     - {install: psmisc,             desc: fuser/killall/pstree }
     - {install: python-pip,         desc: The PyPA recommended tool for installing Python packages }
     - {install: ruby,               desc: Ruby lang quick and easy programming }
@@ -380,6 +377,9 @@ apps:
     - {install: numix-frost-themes, desc: Numix frost GTK2, GTK3 and OpenBox themes, type: ANTERGOS }
     - {install: paper-icon-theme,   desc: Paper icon theme, type: CYBERLINUX }
     - {install: pavucontrol,        desc: PulseAudio Volume Control }
+    - {install: powerline,          desc: Status line plugin for bash }
+    - {install: powerline-gitstatus, desc: Powerline plugin for git status, type: CYBERLINUX }
+    - {install: powerline-fonts,    desc: Powerline font symbols }
     - {install: pulseaudio-alsa,    desc: ALSA Configuration for PulseAudio }
     - {install: python2-xdg,        desc: Enable use of .desktop files in /etc/xdg in openbox }
     - {install: wmctrl,             desc: Control your EWMH compliant window manager from command line }
