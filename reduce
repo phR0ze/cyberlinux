@@ -211,7 +211,7 @@ class Reduce
         v.deep_merge!((@profile.defaults[v[@k.type] || @k.machine] || {}).deep_merge(v))
         v[@k.source] = (v[@k.source] || [k])
           .map{|x| x.include?(@deployments_src) ? x : File.join(@deployments_src, x)}}
-      @profile.builder[@k.source] = @profile.builder[@k.source]
+      @profile.builder[@k.source] = (@profile.builder[@k.source] || [@k.builder])
         .map{|x| x.include?(@deployments_src) ? x : File.join(@deployments_src, x)}
 
       # Set variables as needed

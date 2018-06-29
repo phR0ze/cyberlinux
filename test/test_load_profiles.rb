@@ -97,6 +97,9 @@ class Test_load_profiles < Minitest::Test
       @vars = @reduce.instance_variable_get(:@vars)
       @profile = @reduce.instance_variable_get(:@profile)
     }
+
+    @source_path = File.expand_path(File.join(File.dirname(__FILE__), '../source'))
+    @base['builder']['source'] = [File.join(@source_path, 'builder')]
   end
 
   def teardown
@@ -153,7 +156,7 @@ class Test_load_profiles < Minitest::Test
 
 
   def test_builder_base
-    assert_equal(@profile.builder, @base['builder'])
+    assert_equal(@base['builder'], @profile.builder)
   end
 
   def test_builder_child

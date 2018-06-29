@@ -98,6 +98,9 @@ class Test_get_deployment_yml < Minitest::Test
       @k = @reduce.instance_variable_get(:@k)
       @profile = @reduce.instance_variable_get(:@profile)
     }
+
+    @source_path = File.expand_path(File.join(File.dirname(__FILE__), '../source'))
+    @base['builder']['source'] = [File.join(@source_path, 'builder')]
   end
 
   def test_builder
