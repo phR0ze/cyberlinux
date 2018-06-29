@@ -23,7 +23,7 @@
 # Maintained by phR0ze
 #-------------------------------------------------------------------------------
 pkgname=cyberlinux-grub
-pkgver=0.0.2
+pkgver=0.0.3
 pkgrel=1
 pkgdesc="Grub boog files and themes for cyberlinux"
 arch=('any')
@@ -48,7 +48,7 @@ package()
   msg2 "Packaging data files"
   install -Dm644 $srcdir/$pkgname/grub.cfg -t $pkgdir/usr/share/grub
   install -Dm644 $srcdir/$pkgname/loopback.cfg -t $pkgdir/usr/share/grub
-  install -Dm644 $srcdir/$pkgname/unicode.pf2 -t $pkgdir/usr/share/grub
+  #install -Dm644 $srcdir/$pkgname/unicode.pf2 -t $pkgdir/usr/share/grub
 
   cd $srcdir/$pkgname/themes
   install -dm755 $pkgdir/usr/share/grub/themes

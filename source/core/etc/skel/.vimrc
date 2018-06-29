@@ -1,70 +1,109 @@
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Author: phR0ze
-" Updated: Jan. 14 2014
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Copyright {{{
+"MIT License
+"Copyright (c) 2018 phR0ze
+"
+"Permission is hereby granted, free of charge, to any person obtaining a copy
+"of this software and associated documentation files (the 'Software'), to deal
+"in the Software without restriction, including without limitation the rights
+"to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+"copies of the Software, and to permit persons to whom the Software is
+"furnished to do so, subject to the following conditions:
+"
+"The above copyright notice and this permission notice shall be included in all
+"copies or substantial portions of the Software.
+"
+"THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+"IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+"FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+"AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+"LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+"OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+"SOFTWARE.
+" }}}
 
-" Command Help
+" General settings
+" Examples:
+" https://github.com/EricFalkenberg/dotfiles/blob/master/.vimrc
+" https://github.com/zeorin/dotfiles/blob/e01cebf/.vimrc#L864-L900
+" https://github.com/ryanoasis/vim-devicons/issues/158
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" set <var>?                " Show current value of specified variable
-" verbose set modeline?     " Show modeline value and when last set
-" General Options
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-set autochdir               "    Automatically switch working directory to current file
-set autoindent              "ai  Enables automatic C program indenting
-set backspace=2             "bs  Configure backspace to work as normal same as =indent,eol,start
-set cindent                 "cin Enables automatic C program indenting
-set clipboard=unnamedplus   "    Set all yanks to be copied to register * as well as register +
-set expandtab		            "et  Hitting tab in insert mode will produce the appropriate number of spaces
-set formatoptions+=tqw      "    Text formatting, a=auto formatting for t=text and w=paragraphs
-set ignorecase              "ic  Ignore case in search patterns. Also used when searching in the tags file.
-set laststatus=2	          "ls  Always include the status line at the bottom of the screen
-set mouse=a                 "    Enable mouse for all modes
-set mousehide               "    Hide the mouse when typing text
-set modeline                "    Honor modelines in files as overrides
-set modelines=5             "    Number of lines at begining of file to check for modelines
-set nobackup                "bk  Don't make a backup of a file when overwriting it
-set nocompatible  	        "cp  Use current VIM syntax and not old VI syntax
-set nohlsearch              "hls Don't highlight matches with last search pattern
-set number			            "nu  Shows line numbers
-set ruler 			            "ru  Shows current position (row and column) at the bottom of srceen
-set shiftwidth=4	          "sw  Specifies how many columns text is indented with the rindent operations << and >>
-set showmatch		            "sm  When typing a closing parenthesis, bracket, or brace, shows match
-set showmode                "smd Show if you are in insert mode or command mode at the bottom of the screen
-set smartindent		          "    Indents according to blocks of code, 'nosmartindent'
-set spell spelllang=en_us   "    Set spelling options
-set nospell                 "    Turn spelling off by default
-set softtabstop=4           "sts How many columns a tab counts for, only used when expandtab is not set
-set tabstop=4		            "ts  How many columns a tab counts for
-set textwidth=100	          "tw  Maximum line length before wrapping; 0 means don't do this
-set wrapmargin=10	          "wm  If you get within this many spaces from right margin it will wrap; doesn't work unless text width is 0
-set wildmode=longest,list   "    Sets tab completion for command line similar to bash
 
-" Load filetype specific plugins and indent rules
-filetype plugin indent on
+augroup GeneralSettings
+  autocmd!
+  set title                     " Sets the window title to your current buffer name
+  set encoding=UTF-8            " Required for vim-devicons to work correctly
+  set autochdir                 " Automatically switch working directory to current file
+  set backspace=2               " Configure backspace to work as normal same as =indent,eol,start
+  set clipboard=unnamedplus     " Set all yanks to be copied to register * as well as register +
+  set formatoptions+=tqw        " Text formatting, a=auto formatting for t=text and w=paragraphs
+  set nobackup                  " Don't make a backup of a file when overwriting it
+  set noerrorbells              " Turn off incessant beeping
 
-" Override filetype detection for *.smali files
-au BufNewFile,BufRead *.smali set filetype=smali
+  " Search
+  set nohlsearch                " Don't highlight matches with last search pattern
+  set ignorecase                " Ignore case in search patterns. Also used when searching in the tags file.
+  set smartcase                 " With ignorecase this searches case sensitive when capital is given
 
-" Override configs for specific file types
-au FileType make setl noexpandtab
-au FileType yaml setl ts=2 sw=2 sts=2
+  " Mouse
+  set mouse=a                   " Enable mouse for all modes
+  set mousehide                 " Hide the mouse when typing text
 
-" Plugin settings
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Jedi: Turn off pop up call signatures
-let g:jedi#show_call_signatures = "2"
+  " Set numbering/status
+  set number			              " Shows line numbers
+  set ruler 			              " Shows current position (row and column) at the bottom of srceen
+  set modeline                  " Honor modelines in files as overrides
+  set laststatus=2	            " Always include the status line at the bottom of the screen
+  set modelines=5               " Number of lines at begining of file to check for modelines
 
-" Jedi: Turn off auto completion
-let g:jedi#popup_on_dot = 0
+  " Set tabbing/indenting
+  set tabstop=4		              " How many columns a tab counts for
+  set shiftwidth=4	            " Specifies how many columns text is indented with the rindent operations << and >>
+  set softtabstop=4             " How many columns a tab counts for, only used when expandtab is not set
+  set expandtab		              " Hitting tab in insert mode will produce the appropriate number of spaces
+  set cindent                   " Enables automatic C program indenting
+  set autoindent                " Enables automatic C program indenting
+  set smartindent		            " Indents according to blocks of code, 'nosmartindent'
 
-" Jedi: Turn off docstring preview window
-au FileType python setl completeopt-=preview
+  set showmatch		              " When typing a closing parenthesis, bracket, or brace, shows match
+  set showmode                  " Show if you are in insert mode or command mode at the bottom of the screen
+  set spell spelllang=en_us     " Set spelling options
+  set nospell                   " Turn spelling off by default
+  set textwidth=100	            " Maximum line length before wrapping; 0 means don't do this
+  set wrapmargin=10	            " When width 0, this wraps if within this many spaces from right margin
+  set wildmode=longest,list     " Sets tab completion for command line similar to bash
 
-" SuperTab: Enable menu filtering as you type
-set completeopt=menuone,longest,preview
+augroup END
 
-" SuperTab: Select first instead of last autocomplete
-let g:SuperTabDefaultCompletionType = "<c-n>"
+augroup PluginSettings
+  autocmd!
+
+  set nocompatible  	          " Use current VIM syntax and not old VI syntax
+  filetype plugin indent on     " Load filetype specific plugins and indent rules
+
+  " Override filetype detection
+  au BufNewFile,BufRead *.smali set filetype=smali
+  au BufNewFile,BufRead *conkyrc set filetype=conkyrc
+
+  " Override file type configs
+  au FileType make setl noexpandtab
+  au FileType vim setl foldmethod=marker
+  au FileType yaml setl ts=2 sw=2 sts=2
+
+  " Jedi: Turn off pop up call signatures
+  let g:jedi#show_call_signatures = "2"
+
+  " Jedi: Turn off auto completion
+  let g:jedi#popup_on_dot = 0
+
+  " Jedi: Turn off docstring preview window
+  au FileType python setl completeopt-=preview
+
+  " SuperTab: Enable menu filtering as you type
+  set completeopt=menuone,longest,preview
+
+  " SuperTab: Select first instead of last autocomplete
+  let g:SuperTabDefaultCompletionType = "<c-n>"
+augroup END
 
 " Key Mappings
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -97,7 +136,7 @@ fun ColorGroup()
     echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
 endfun
 
-if has("gui_running") 
+if has("gui_running")
     if has("win32") || has("win64")
         source $VIMRUNTIME/mswin.vim    " Add Windows copy/paste support
         autocmd GUIEnter * simalt ~x    " Start GUI maximized
