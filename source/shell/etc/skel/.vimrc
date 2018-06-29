@@ -48,24 +48,24 @@ augroup GeneralSettings
   set mousehide                 " Hide the mouse when typing text
 
   " Set numbering/status
-  set number			              " Shows line numbers
-  set ruler 			              " Shows current position (row and column) at the bottom of srceen
+  set number                    " Shows line numbers
+  set ruler                     " Shows current position (row and column) at the bottom of srceen
 
   " Set tabbing/indenting
-  set tabstop=2		              " How many columns a tab counts for
-  set shiftwidth=2	            " Specifies how many columns text is indented with the rindent operations << and >>
+  set tabstop=2                 " How many columns a tab counts for
+  set shiftwidth=2              " Specifies how many columns text is indented with the rindent operations << and >>
   set softtabstop=2             " How many columns a tab counts for, only used when expandtab is not set
-  set expandtab		              " Hitting tab in insert mode will produce the appropriate number of spaces
+  set expandtab                 " Hitting tab in insert mode will produce the appropriate number of spaces
   set cindent                   " Enables automatic C program indenting
   set autoindent                " Enables automatic C program indenting
-  set smartindent		            " Indents according to blocks of code, 'nosmartindent'
+  set smartindent               " Indents according to blocks of code, 'nosmartindent'
 
-  set showmatch		              " When typing a closing parenthesis, bracket, or brace, shows match
+  set showmatch                 " When typing a closing parenthesis, bracket, or brace, shows match
   set showmode                  " Show if you are in insert/command mode at the bottom of the screen
   set spell spelllang=en_us     " Set spelling options
   set nospell                   " Turn spelling off by default
-  set textwidth=100	            " Maximum line length before wrapping; 0 means don't do this
-  set wrapmargin=10	            " When width 0, this wraps if within this many spaces from right margin
+  set textwidth=100             " Maximum line length before wrapping; 0 means don't do this
+  set wrapmargin=10             " When width 0, this wraps if within this many spaces from right margin
   set wildmode=longest,list     " Sets tab completion for command line similar to bash
 
   " Code folding
@@ -87,7 +87,7 @@ augroup END
 augroup PluginInstall
   autocmd!
 
-  set nocompatible  	                        " Use modern VIM syntax, required by Vundle
+  set nocompatible                            " Use modern VIM syntax, required by Vundle
   filetype off                                " Required for Vundle
   set rtp+=~/.vim/bundle/Vundle.vim           " Add Vundle to runtime path
   call vundle#begin()                         " Initialize Vundle
@@ -134,13 +134,13 @@ augroup PluginInstall
   Plugin 'ryanoasis/vim-devicons'             " Sweet folder/file icons for nerd tree
 
   " ColorSchemes
-  Plugin 'vim-scripts/CycleColor' 			      " Color scheme cycler
-  Plugin 'ajmwagar/vim-deus' 				          " deus
+  Plugin 'vim-scripts/CycleColor'             " Color scheme cycler
+  Plugin 'ajmwagar/vim-deus'                  " deus
   Plugin 'YorickPeterse/happy_hacking.vim'    " happy_hacking
-  Plugin 'w0ng/vim-hybrid' 				            " hybrid
+  Plugin 'w0ng/vim-hybrid'                    " hybrid
   Plugin 'kristijanhusak/vim-hybrid-material' " hybrid_material
-  Plugin 'nanotech/jellybeans.vim' 			      " jellybeans
-  Plugin 'dikiaap/minimalist' 				        " minimalist
+  Plugin 'nanotech/jellybeans.vim'            " jellybeans
+  Plugin 'dikiaap/minimalist'                 " minimalist
   Plugin 'marcopaganini/termschool-vim-theme' " termschool
 
   " Programming

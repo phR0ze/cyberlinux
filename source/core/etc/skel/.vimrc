@@ -49,27 +49,27 @@ augroup GeneralSettings
   set mousehide                 " Hide the mouse when typing text
 
   " Set numbering/status
-  set number			              " Shows line numbers
-  set ruler 			              " Shows current position (row and column) at the bottom of srceen
+  set number                    " Shows line numbers
+  set ruler                     " Shows current position (row and column) at the bottom of srceen
   set modeline                  " Honor modelines in files as overrides
-  set laststatus=2	            " Always include the status line at the bottom of the screen
+  set laststatus=2              " Always include the status line at the bottom of the screen
   set modelines=5               " Number of lines at begining of file to check for modelines
 
   " Set tabbing/indenting
-  set tabstop=4		              " How many columns a tab counts for
-  set shiftwidth=4	            " Specifies how many columns text is indented with the rindent operations << and >>
+  set tabstop=4                 " How many columns a tab counts for
+  set shiftwidth=4              " Specifies how many columns text is indented with the rindent operations << and >>
   set softtabstop=4             " How many columns a tab counts for, only used when expandtab is not set
-  set expandtab		              " Hitting tab in insert mode will produce the appropriate number of spaces
+  set expandtab                 " Hitting tab in insert mode will produce the appropriate number of spaces
   set cindent                   " Enables automatic C program indenting
   set autoindent                " Enables automatic C program indenting
-  set smartindent		            " Indents according to blocks of code, 'nosmartindent'
+  set smartindent               " Indents according to blocks of code, 'nosmartindent'
 
-  set showmatch		              " When typing a closing parenthesis, bracket, or brace, shows match
+  set showmatch                 " When typing a closing parenthesis, bracket, or brace, shows match
   set showmode                  " Show if you are in insert mode or command mode at the bottom of the screen
   set spell spelllang=en_us     " Set spelling options
   set nospell                   " Turn spelling off by default
-  set textwidth=100	            " Maximum line length before wrapping; 0 means don't do this
-  set wrapmargin=10	            " When width 0, this wraps if within this many spaces from right margin
+  set textwidth=100             " Maximum line length before wrapping; 0 means don't do this
+  set wrapmargin=10             " When width 0, this wraps if within this many spaces from right margin
   set wildmode=longest,list     " Sets tab completion for command line similar to bash
 
 augroup END
@@ -77,7 +77,7 @@ augroup END
 augroup PluginSettings
   autocmd!
 
-  set nocompatible  	          " Use current VIM syntax and not old VI syntax
+  set nocompatible              " Use current VIM syntax and not old VI syntax
   filetype plugin indent on     " Load filetype specific plugins and indent rules
 
   " Override filetype detection
@@ -236,18 +236,18 @@ call SetColor(["PmenuSel"], xWhite, xBlueDusk)
 call SetColor(["StatusLine"], xWhite, xBlueDusk)
 call SetColor(["StatusLineNC"], xBlack, xBlueDusk)
 "
-"hi DiffAdd          cterm=none              ctermfg=none        ctermbg=239
-"hi DiffChange       cterm=none              ctermfg=none        ctermbg=170
-"hi DiffDelete       cterm=bold              ctermfg=239         ctermbg=66
-"hi DiffText         cterm=bold              ctermfg=15         	ctermbg=none
+"hi DiffAdd           cterm=none          ctermfg=none   ctermbg=239
+"hi DiffChange        cterm=none          ctermfg=none   ctermbg=170
+"hi DiffDelete        cterm=bold          ctermfg=239    ctermbg=66
+"hi DiffText          cterm=bold          ctermfg=15     ctermbg=none
 "
 call SetColor(["Visual", "VisualNOS"], xBlueDusk, xGrayLight)
 
-"hi Folded           cterm=none              ctermfg=244 		ctermbg=235
-"hi FoldColumn       cterm=none              ctermfg=15          ctermbg=237
+"hi Folded            cterm=none          ctermfg=244    ctermbg=235
+"hi FoldColumn        cterm=none          ctermfg=15     ctermbg=237
 "
-"hi IncSearch        cterm=none              ctermfg=15          ctermbg=149
-"hi Search           cterm=none              ctermfg=15          ctermbg=149
+"hi IncSearch         cterm=none          ctermfg=15     ctermbg=149
+"hi Search            cterm=none          ctermfg=15     ctermbg=149
 "
 " Code Syntax
 "******************************************************************************
@@ -270,14 +270,14 @@ call SetColor(["markdownItalic", "markdownLinkText", "markdownListMarker", "mark
 
 " XML/HTML Syntax
 "******************************************************************************
-"hi xmlTagName       cterm=none			    ctermfg=149			ctermbg=none
-"hi xmlCdata         cterm=none			    ctermfg=246			ctermbg=none
-"hi xmlAttrib        cterm=none			    ctermfg=110			ctermbg=none
-"hi htmlTagName      cterm=none			    ctermfg=149			ctermbg=none
-"hi htmlArg          cterm=none			    ctermfg=110			ctermbg=none
-"hi htmlItalic		cterm=none				ctermfg=253		    ctermbg=235
+"hi xmlTagName        cterm=none         ctermfg=149     ctermbg=none
+"hi xmlCdata          cterm=none         ctermfg=246     ctermbg=none
+"hi xmlAttrib         cterm=none         ctermfg=110     ctermbg=none
+"hi htmlTagName       cterm=none         ctermfg=149     ctermbg=none
+"hi htmlArg           cterm=none         ctermfg=110     ctermbg=none
+"hi htmlItalic        cterm=none         ctermfg=253     ctermbg=235
 "
-"hi Ignore           cterm=none              ctermfg=15          ctermbg=none
+"hi Ignore            cterm=none         ctermfg=15      ctermbg=none
 "
 " Clean up
 "******************************************************************************
