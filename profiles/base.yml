@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.70
+  release: 0.2.71
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -224,25 +224,24 @@ apps:
   shell:
     - cronie
     - sshd
-    - develop
-    - ruby-gems
     - virtualbox-guest-nox
-    - {install: curl,               desc: Adding curl command to pull in packer scripts }
-    - {install: dmidecode,          desc: Desktop Managment Interface table related utilities }
-    - {install: dnsutils,           desc: Network utilities dig/host/nslookup }
-    - {install: dosfstools,         desc: DOS filesystem utilities e.g. mkfs.fat, depof: installer }
-    - {install: efibootmgr,         desc: Tool to modify UEFI Firmware Boot Manager Variables, depof: installer }
-    - {install: gcc,                desc: GNU Compiler Collection, multilib: false, group: [base-devel]}
-    - {install: gcc-multilib,       desc: GNU Compiler Collection, multilib: true, group: [base-devel]}
-    - {install: gptfdisk,           desc: Text-mode paritioning tools e.g. sgdisk }
-    - {install: haveged,            desc: Entropy harvesting, depof: pacman-key --init }
-    - {install: logrotate,          desc: Rotates system logs automatically }
-    - {install: pacman,             desc: Package manager with dependency support, group: [build-devel]}
-    - {install: rsync,              desc: Remote file transfer sync utility }
-    - {install: vim-systemd,        desc: Vim syntax highlighting for systemd }
-    - {install: vundle,             desc: Plug-in manager for Vim, type: CYBERLINUX }
-    - {install: wget,               desc: Retrieve files from the Web }
-    - {install: which,              desc: Show the full path of commnds, depof: .bashrc, group: [build-devel]}
+    - system:
+      - {install: curl,             desc: Adding curl command to pull in packer scripts }
+      - {install: dmidecode,        desc: Desktop Managment Interface table related utilities }
+      - {install: dnsutils,         desc: Network utilities dig/host/nslookup }
+      - {install: dosfstools,       desc: DOS filesystem utilities e.g. mkfs.fat, depof: installer }
+      - {install: efibootmgr,       desc: Tool to modify UEFI Firmware Boot Manager Variables, depof: installer }
+      - {install: gcc,              desc: GNU Compiler Collection, multilib: false, group: [base-devel]}
+      - {install: gcc-multilib,     desc: GNU Compiler Collection, multilib: true, group: [base-devel]}
+      - {install: gptfdisk,         desc: Text-mode paritioning tools e.g. sgdisk }
+      - {install: haveged,          desc: Entropy harvesting, depof: pacman-key --init }
+      - {install: logrotate,        desc: Rotates system logs automatically }
+      - {install: pacman,           desc: Package manager with dependency support, group: [build-devel]}
+      - {install: rsync,            desc: Remote file transfer sync utility }
+      - {install: vim-systemd,      desc: Vim syntax highlighting for systemd }
+      - {install: vundle,           desc: Plug-in manager for Vim, type: CYBERLINUX }
+      - {install: wget,             desc: Retrieve files from the Web }
+      - {install: which,            desc: Show the full path of commnds, depof: .bashrc, group: [build-devel]}
     - keyrings:
       - install: archlinux-keyring
       - {install: antergos-keyring, type: ANTERGOS}
@@ -272,12 +271,62 @@ apps:
       - {install: udisks2,          desc: Enumerate and operate on storage devices }
       - {install: usbutils,         desc: USB device utilities including lsusb }
     - network:
-      - {install: gnu-netcat,         desc: Network piping application }
-      - {install: iputils,            desc: Network utils e.g. ping/tftpd }
-      - {install: nfs-utils,          desc: Support programs for Network File Systems }
-      - {install: nmap,               desc: Network discovery and security auditing }
-      - {install: tcpdump,            desc: Network monitoring and data acquisition }
-      - {install: wpa_supplicant,     desc: A utility providing key negotiation for WPA wireless networks }
+      - {install: gnu-netcat,       desc: Network piping application }
+      - {install: iputils,          desc: Network utils e.g. ping/tftpd }
+      - {install: nfs-utils,        desc: Support programs for Network File Systems }
+      - {install: nmap,             desc: Network discovery and security auditing }
+      - {install: tcpdump,          desc: Network monitoring and data acquisition }
+      - {install: wpa_supplicant,   desc: A utility providing key negotiation for WPA wireless networks }
+    - develop:
+      - {install: arch-install-scripts, desc: arch-chroot/genfstab/pacstrap }
+      - {install: autoconf,         desc: Automatically configure source code, group: [base-devel]}
+      - {install: automake,         desc: Automatically create Makefiles, group: [base-devel]}
+      - {install: binutils,         desc: Manipulate binary and object files, group: [base-devel]}
+      - {install: bison,            desc: General purpose parser generator, group: [base-devel]}
+      - {install: clang,            desc: C language family frontend for LLVM, depof: chromium }
+      - {install: delve,            desc: A debugger for the Go Programming Language }
+      - {install: devtools,         desc: Misc development tools including makepkg conf, depof: reduce }
+      - {install: diffutils,        desc: Patch file utility programs }
+      - {install: dos2unix,         desc: Text file format converter }
+      - {install: fakeroot,         desc: Tool for simulating supersuer privileges, group: [base-devel]}
+      - {install: file,             desc: File type identification utility, group: [base-devel]}
+      - {install: flex,             desc: Generate text-scanning programs, group: [base-devel]}
+      - {install: gdb,              desc: The GNU debugger }
+      - {install: git,              desc: Fast distributed version control system }
+      - {install: go,               desc: Compiler and tools for the Go programming lang }
+      - {install: go-bindata,       desc: Embed any file as Go code }
+      - {install: go-tools,         desc: Developer tools for the Go programming lang }
+      - {install: glide,            desc: Package management for the Go programing lang }
+      - {install: groff,            desc: GNU trof text-formatting system, group: [base-devel]}
+      - {install: jq,               desc: Command line JSON processor, depof: kubectl }
+      - {install: libtool,          desc: Generic library support script, group: [base-devel]}
+      - {install: lld,              desc: Linker from the LLVM project, depof: chromium }
+      - {install: llvm,             desc: Low Level compiler infrastructure, depof: chromium }
+      - {install: ltrace,           desc: Tracks runtime library calls in dynamically linked programs }
+      - {install: m4,               desc: GNU macro processor, group: [base-devel]}
+      - {install: make,             desc: GNU utility to build programs, group: [base-devel]}
+      - {install: patch,            desc: Utility to apply patches to files, group: [base-devel]}
+      - {install: pkg-config,       desc: System for managing library flags, group: [base-devel]}
+      - {install: psmisc,           desc: fuser/killall/pstree }
+      - {install: python-pip,       desc: The PyPA recommended tool for installing Python packages }
+      - {install: ruby,             desc: Ruby lang quick and easy programming }
+      - {install: strace,           desc: A diagnostic, debugging and instructional userspace tracer }
+      - {install: texinfo,          desc: Documentation for online information, group: [base-devel]}
+      - {install: yaourt,           desc: Pacman wrapper with support for AUR, type: ANTERGOS }
+    - ruby-gems:
+      - {install: ruby-amatch,      desc: Fuzzy string matching, depof: watchman, type: CYBERLINUX }
+      - {install: ruby-bundler,     desc: Gem management, depof: reduce }
+      - {install: ruby-colorize,    desc: Colorized output, depof: reduce }
+      - {install: ruby-filesize,    desc: Filesize to string maipulations, depof: reduce, type: CYBERLINUX }
+      - {install: ruby-gtk3,        desc: Ruby binding of GTK3, depof: openvpn-pia, type: CYBERLINUX }
+      - {install: ruby-net-scp,     desc: Pure Ruby SCP client protocol, depof: reduce, type: CYBERLINUX }
+      - {install: ruby-net-sftp,    desc: Pure Ruby SFTP client protocol, depof: reduce, type: CYBERLINUX }
+      - {install: ruby-net-ssh,     desc: Pure Ruby SSH2 client protocol, depof: reduce, type: CYBERLINUX }
+      - {install: ruby-nokogiri,    desc: HTML parser, depof: chromium build, type: CYBERLINUX }
+      - {install: ruby-nub,         desc: Collection of useful Ruby utils, depof: vpnctl, type: CYBERLINUX }
+      - {install: ruby-mechanize,   desc: Automate interation with websites, depof: chromium build, type: CYBERLINUX }
+      - {install: ruby-pry,         desc: Ruby debugger, type: CYBERLINUX }
+      - {install: ruby-rest-client, desc: Simple HTTP and REST client, depof: reduce, type: CYBERLINUX }
     - config-makepkg:
       - {edit: /etc/makepkg.conf, regex: '^#(MAKEFLAGS)=.*', value: '\1="-j8"'}
       - {edit: /etc/makepkg.conf, regex: '^(COMPRESSXZ)=.*', value: '\1=(xz -c -z - --threads=0)'}
@@ -301,56 +350,6 @@ apps:
       - exec: rm -rf /etc/pacman.d/mirrorlist
       - exec: rm -rf /var/tmp/*
       - exec: rm -rf /tmp/*
-  develop:
-    - {install: arch-install-scripts, desc: arch-chroot/genfstab/pacstrap }
-    - {install: autoconf,           desc: Automatically configure source code, group: [base-devel]}
-    - {install: automake,           desc: Automatically create Makefiles, group: [base-devel]}
-    - {install: binutils,           desc: Manipulate binary and object files, group: [base-devel]}
-    - {install: bison,              desc: General purpose parser generator, group: [base-devel]}
-    - {install: clang,              desc: C language family frontend for LLVM, depof: chromium }
-    - {install: delve,              desc: A debugger for the Go Programming Language }
-    - {install: devtools,           desc: Misc development tools including makepkg conf, depof: reduce }
-    - {install: diffutils,          desc: Patch file utility programs }
-    - {install: dos2unix,           desc: Text file format converter }
-    - {install: fakeroot,           desc: Tool for simulating supersuer privileges, group: [base-devel]}
-    - {install: file,               desc: File type identification utility, group: [base-devel]}
-    - {install: flex,               desc: Generate text-scanning programs, group: [base-devel]}
-    - {install: gdb,                desc: The GNU debugger }
-    - {install: git,                desc: Fast distributed version control system }
-    - {install: go,                 desc: Compiler and tools for the Go programming lang }
-    - {install: go-bindata,         desc: Embed any file as Go code }
-    - {install: go-tools,           desc: Developer tools for the Go programming lang }
-    - {install: glide,              desc: Package management for the Go programing lang }
-    - {install: groff,              desc: GNU trof text-formatting system, group: [base-devel]}
-    - {install: jq,                 desc: Command line JSON processor, depof: kubectl }
-    - {install: libtool,            desc: Generic library support script, group: [base-devel]}
-    - {install: lld,                desc: Linker from the LLVM project, depof: chromium }
-    - {install: llvm,               desc: Low Level compiler infrastructure, depof: chromium }
-    - {install: ltrace,             desc: Tracks runtime library calls in dynamically linked programs }
-    - {install: m4,                 desc: GNU macro processor, group: [base-devel]}
-    - {install: make,               desc: GNU utility to build programs, group: [base-devel]}
-    - {install: patch,              desc: Utility to apply patches to files, group: [base-devel]}
-    - {install: pkg-config,         desc: System for managing library flags, group: [base-devel]}
-    - {install: psmisc,             desc: fuser/killall/pstree }
-    - {install: python-pip,         desc: The PyPA recommended tool for installing Python packages }
-    - {install: ruby,               desc: Ruby lang quick and easy programming }
-    - {install: strace,             desc: A diagnostic, debugging and instructional userspace tracer }
-    - {install: texinfo,            desc: Documentation for online information, group: [base-devel]}
-    - {install: yaourt,             desc: Pacman wrapper with support for AUR, type: ANTERGOS }
-  ruby-gems:
-    - {install: ruby-amatch,        desc: Fuzzy string matching, depof: watchman, type: CYBERLINUX }
-    - {install: ruby-bundler,       desc: Gem management, depof: reduce }
-    - {install: ruby-colorize,      desc: Colorized output, depof: reduce }
-    - {install: ruby-filesize,      desc: Filesize to string maipulations, depof: reduce, type: CYBERLINUX }
-    - {install: ruby-gtk3,          desc: Ruby binding of GTK3, depof: openvpn-pia, type: CYBERLINUX }
-    - {install: ruby-net-scp,       desc: Pure Ruby SCP client protocol, depof: reduce, type: CYBERLINUX }
-    - {install: ruby-net-sftp,      desc: Pure Ruby SFTP client protocol, depof: reduce, type: CYBERLINUX }
-    - {install: ruby-net-ssh,       desc: Pure Ruby SSH2 client protocol, depof: reduce, type: CYBERLINUX }
-    - {install: ruby-nokogiri,      desc: HTML parser, depof: chromium build, type: CYBERLINUX }
-    - {install: ruby-nub,           desc: Collection of useful Ruby utils, depof: vpnctl, type: CYBERLINUX }
-    - {install: ruby-mechanize,     desc: Automate interation with websites, depof: chromium build, type: CYBERLINUX }
-    - {install: ruby-pry,           desc: Ruby debugger, type: CYBERLINUX }
-    - {install: ruby-rest-client,   desc: Simple HTTP and REST client, depof: reduce, type: CYBERLINUX }
 
   # Lite weight X11 evironment
   # ----------------------------------------------------------------------------
@@ -396,34 +395,35 @@ apps:
     # xorg-xlsatoms, xorg-xlsclients, xorg-xrdb, xorg-xrefresh, xorg-xsetroot, xorg-x11perf, xorg-xpr,
     # xorg-xvinfo, xorg-xwud, xorg-iceauth, xorg-xwd
     - xorg:
-      - {install: xf86-input-libinput, desc: X.Org generic input driver, group: [xorg-drivers]}
-      - {install: xf86-video-vesa,    desc: X.org vesa video driver, group: [xorg, xorg-drivers]}
-      - {install: xorg-bdftopcf,      desc: Convert X font from Bitmap to PNG, group: [xorg, xorg-apps]}
-      - {install: xorg-font-util,     desc: X.org font utilities, group: [xorg]}
-      - {install: xorg-fonts-75dpi,   desc: X.org 75dpi fonts, group: [xorg]}
-      - {install: xorg-fonts-100dpi,  desc: X.org 100dpi fonts, group: [xorg]}
-      - {install: xorg-fonts-encodings, desc: X.org font encoding files, group: [xorg]}
-      - {install: xorg-mkfontdir,     desc: Create an index of X font files in a directory, group: [xorg, xorg-apps]}
-      - {install: xorg-mkfontscale,   desc: Create an index of scalable font files for X, group: [xorg, xorg-apps]}
-      - {install: xorg-server,        desc: Xorg X server, group: [xorg]}
-      - {install: xorg-server-common, desc: Xorg server common files, group: [xorg]}
-      - {install: xorg-server-xvfb,   desc: Virtual framebuffer X server, group: [xorg]}
-      - {install: xorg-setxkbmap,     desc: Set the keyboard using the X Keyboard Extension, group: [xorg, xorg-apps]}
-      - {install: xorg-xauth,         desc: X.Org authorization settings program, group: [xorg, xorg-apps]}
-      - {install: xorg-xbacklight,    desc: RandR-based backlight control application, group: [xorg, xorg-apps]}
-      - {install: xorg-xcursorgen,    desc: Create an X cursor file from PNG images, group: [xorg, xorg-apps]}
-      - {install: xorg-xdpyinfo,      desc: Display information utility for X, group: [xorg, xorg-apps]}
-      - {install: xorg-xev,           desc: Print contents of X events, group: [xorg, xorg-apps]}
-      - {install: xorg-xinput,        desc: Small commandline tool to configure devices, group: [xorg, xorg-apps]}
-      - {install: xorg-xkbcomp,       desc: X Keyboard description compiler, group: [xorg, xorg-apps]}
-      - {install: xorg-xkbevd,        desc: XKB event daemon, group: [xorg, xorg-apps]}
-      - {install: xorg-xkbutils,      desc: XKB utility demos, group: [xorg, xorg-apps]}
-      - {install: xorg-xkill,         desc: Kill a client by its X resource, group: [xorg, xorg-apps]}
-      - {install: xorg-xmodmap,       desc: Utility for modifying keymaps and button mappings, group: [xorg, xorg-apps]}
-      - {install: xorg-xprop,         desc: Property displayer for X, group: [xorg, xorg-apps]}
-      - {install: xorg-xrandr,        desc: Primitive command line interface to RandR extension, group: [xorg, xorg-apps]}
-      - {install: xorg-xset,          desc: User preference utility for X, group: [xorg, xorg-apps]}
-      - {install: xorg-xwininfo,      desc: Command-line util to print info about windows, group: [xorg, xorg-apps]}
+      - {install: xorg}
+#      - {install: xf86-input-libinput, desc: X.Org generic input driver, group: [xorg-drivers]}
+#      - {install: xf86-video-vesa,    desc: X.org vesa video driver, group: [xorg, xorg-drivers]}
+#      - {install: xorg-bdftopcf,      desc: Convert X font from Bitmap to PNG, group: [xorg, xorg-apps]}
+#      - {install: xorg-font-util,     desc: X.org font utilities, group: [xorg]}
+#      - {install: xorg-fonts-75dpi,   desc: X.org 75dpi fonts, group: [xorg]}
+#      - {install: xorg-fonts-100dpi,  desc: X.org 100dpi fonts, group: [xorg]}
+#      - {install: xorg-fonts-encodings, desc: X.org font encoding files, group: [xorg]}
+#      - {install: xorg-mkfontdir,     desc: Create an index of X font files in a directory, group: [xorg, xorg-apps]}
+#      - {install: xorg-mkfontscale,   desc: Create an index of scalable font files for X, group: [xorg, xorg-apps]}
+#      - {install: xorg-server,        desc: Xorg X server, group: [xorg]}
+#      - {install: xorg-server-common, desc: Xorg server common files, group: [xorg]}
+#      - {install: xorg-server-xvfb,   desc: Virtual framebuffer X server, group: [xorg]}
+#      - {install: xorg-setxkbmap,     desc: Set the keyboard using the X Keyboard Extension, group: [xorg, xorg-apps]}
+#      - {install: xorg-xauth,         desc: X.Org authorization settings program, group: [xorg, xorg-apps]}
+#      - {install: xorg-xbacklight,    desc: RandR-based backlight control application, group: [xorg, xorg-apps]}
+#      - {install: xorg-xcursorgen,    desc: Create an X cursor file from PNG images, group: [xorg, xorg-apps]}
+#      - {install: xorg-xdpyinfo,      desc: Display information utility for X, group: [xorg, xorg-apps]}
+#      - {install: xorg-xev,           desc: Print contents of X events, group: [xorg, xorg-apps]}
+#      - {install: xorg-xinput,        desc: Small commandline tool to configure devices, group: [xorg, xorg-apps]}
+#      - {install: xorg-xkbcomp,       desc: X Keyboard description compiler, group: [xorg, xorg-apps]}
+#      - {install: xorg-xkbevd,        desc: XKB event daemon, group: [xorg, xorg-apps]}
+#      - {install: xorg-xkbutils,      desc: XKB utility demos, group: [xorg, xorg-apps]}
+#      - {install: xorg-xkill,         desc: Kill a client by its X resource, group: [xorg, xorg-apps]}
+#      - {install: xorg-xmodmap,       desc: Utility for modifying keymaps and button mappings, group: [xorg, xorg-apps]}
+#      - {install: xorg-xprop,         desc: Property displayer for X, group: [xorg, xorg-apps]}
+#      - {install: xorg-xrandr,        desc: Primitive command line interface to RandR extension, group: [xorg, xorg-apps]}
+#      - {install: xorg-xset,          desc: User preference utility for X, group: [xorg, xorg-apps]}
+#      - {install: xorg-xwininfo,      desc: Command-line util to print info about windows, group: [xorg, xorg-apps]}
     - xorg-apps:
       - {install: audacious,        desc: Audio/Player, alt: deadbeaf, xnoise }
       - {install: chromium,         desc: Opensource project behind Chrome, type: CYBERLINUX }
