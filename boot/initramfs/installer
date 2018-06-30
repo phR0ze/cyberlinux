@@ -523,7 +523,7 @@ config_system()
     if [ -e "${rootmnt}/etc/lxdm/lxdm.conf" ]; then
         if [ "x$autologin" == "x1" ]; then
             echo -en ":: Enable autologin for LXDM..."
-            sed -i -e "s/^#\s*\(autologin\)=.*/\1=${user}/" "${rootmnt}/etc/lxdm/lxdm.conf"
+            sed -i -e "s/^#\s*autologin=.*/autologin=${user}/" "${rootmnt}/etc/lxdm/lxdm.conf"
             check_status
         fi
     fi

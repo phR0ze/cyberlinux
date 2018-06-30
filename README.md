@@ -59,7 +59,7 @@ The ***desktop*** deployment was created to serve as a full developer environmen
 It is an amalgam of most other deployment options. Although it is the heaviest of the deployments,
 resource wise, it is still built with speed and efficiency in mind.
 
-**Requirements:** 
+**Features:** 
 * Development (vscode, go, ruby, python)
 * File Sharing (NFS, Torrent, SFTP, FTP)
 * Productivity and Office (libreoffice, pdfs)
@@ -74,14 +74,23 @@ The ***server*** deployment was created to serve as a light weight web and file 
 be run on lower end headless hardware. As such many of the desktop widgets and such have been left
 out to facilitate efficient remote desktop sessions.
 
-**Requirements:** 
+**Features:** 
 * Web Server (PHP)
 * Telephony Engine (FreeSWITCH, Blink)
 * File Sharing (NFS, Torrent, SFTP, FTP)
 * Media Processing (Handbrake, makemkv-cli)
 
 ### Lite <a name="lite-deployment"/></a>
-Slimmed down minimal Xorg desktop environment
+Slimmed down minimal Xorg desktop environment with selected light weight apps
+
+**Features:**
+* Thunar - File Manager
+* LXTerminal - Terminal emulator
+* Nitrogen - Wallpaper manager
+* Xfce4 Screenshooter - Screenshots
+* File Roller - Archive manager 
+
+<a href="doc/images/lite-desktop.png"><img width="640" height="480" src="doc/images/lite-desktop.png"></a>
 
 ### Shell <a name="shell-deployment"/></a>
 Full shell development environment
