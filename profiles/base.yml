@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.72
+  release: 0.2.73
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -487,12 +487,6 @@ apps:
 
   # https://wiki.archlinux.org/index.php/Desktop_environment
   desktop:
-    - cinnamon-screensaver
-    - docker
-    - media
-    - virtualbox-host
-    - keepass
-    - opengl
     - {install: asunder,            desc: A lean and friendly audio CD ripper and encoder }
     - {install: avidemux-qt,        desc: Graphical tool to edit video (filter/re-encode/split) - Qt GUI }
     - {install: audacity,           desc: Audio editor - cross platform, tried and tested }
@@ -504,7 +498,6 @@ apps:
     - {install: freerdp,            desc: RDP client plugin for remmina }
     - {install: gimp,               desc: Excellent image editor, alt: pinta }
     - {install: gnome-multi-writer, desc: Write an ISO file to multiple USB devices at once }
-    - {install: guake,              desc: Drop-down python based quake style terminal }
     - {install: hardinfo,           desc: A system information and benchmark tool }
     - {install: hunspell-en_US,     desc: US dictionaries for spell checking, deps: libreoffice }
     - {install: id3v2,              desc: Utility to edit id3v2 tags }
@@ -525,6 +518,13 @@ apps:
       - {install: meld,             desc: Develop/Diff Tool - Graphical diff tool cross platform }
       - {install: ripgrep,          desc: A search tool combining the usability of ag with speed of grep, depof: vscode }
       - {install: visual-studio-code-bin, desc: Editor for modern development, type: CYBERLINUX }
+    - cinnamon-screensaver
+    - docker
+    - guake
+    - media
+    - keepass
+    - opengl
+    - virtualbox-host
     - config-desktop
 
   server:
@@ -612,6 +612,49 @@ apps:
         - 'fi'
         - ''
     - {chroot: systemctl enable docker.service }
+
+  # Drop-down python based quake style terminal
+  guake:
+    - install: guake
+    # Had to rename to 'guake-term' avoid stupid autodelete of launch file if not set in guake preferences
+    - edit: /etc/skel/.config/autostart/guake-term.desktop
+      insert: append
+      values:
+        - '[Desktop Entry]'
+        - 'Name=Guake Terminal'
+        - 'Comment=Quake like drop down term'
+        - 'Exec=guake'
+        - 'Icon=guake'
+        - 'StartupNotify=true'
+        - 'Type=Application'
+        - 'Categories=System;Utility;TerminalEmulator;'
+    - {chroot: 'mkdir -p /etc/skel/.config/gconf/apps/guake/{general,style/{background,font}}' }
+    - {chroot: 'touch /etc/skel/.config/gconf/apps/guake/%gconf.xml' }
+    - edit: /etc/skel/.config/gconf/apps/guake/general/%gconf.xml
+      insert: append
+      values:
+        - '<?xml version="1.0"?>'
+        - '<gconf>'
+        - '  <entry name="use_popup" mtime="1476881725" type="bool" value="false"/>'
+        - '  <entry name="history_size" mtime="1478548706" type="int" value="10000"/>'
+        - '  <entry name="use_default_font" mtime="1476881725" type="bool" value="false"/>'
+        - '</gconf>'
+    - {chroot: 'touch /etc/skel/.config/gconf/apps/guake/style/%gconf.xml' }
+    - edit: /etc/skel/.config/gconf/apps/guake/style/background/%gconf.xml
+      insert: append
+      values:
+        - '<?xml version="1.0"?>'
+        - '<gconf>'
+        - '  <entry name="transparency" mtime="1478548706" type="int" value="10"/>'
+        - '</gconf>'
+    - edit: /etc/skel/.config/gconf/apps/guake/style/font/%gconf.xml
+      insert: append
+      values:
+        - '<?xml version="1.0"?>'
+        - '<gconf>'
+        - '  <entry name="style" mtime="1476881725" type="string"><stringvalue>Inconsolata-g Medium 11</stringvalue></entry>'
+        - '  <entry name="color" mtime="1476881725" type="string"><stringvalue>#D4D4D4D4D4D4</stringvalue></entry>'
+        - '</gconf>'
 
   k8shost:
     - {install: helm,               desc: Kubernetes package manager, type: CYBERLINUX}
@@ -814,7 +857,6 @@ configs:
     - config-menu-laptop
   config-desktop:
     - config-conky
-    - config-guake
     - config-menu-desktop
     - config-plank-desktop
   config-server:
@@ -1147,45 +1189,6 @@ configs:
         - 'Name=Default'
         - 'Comment=Default Cursor Theme'
         - 'Inherits=xcursor-numix-frost'
-  config-guake:
-    - edit: /etc/skel/.config/autostart/guake.desktop
-      insert: append
-      values:
-        - '[Desktop Entry]'
-        - 'Name=Guake Terminal'
-        - 'Comment=Quake like terminal'
-        - 'Exec=guake'
-        - 'Icon=guake'
-        - 'StartupNotify=true'
-        - 'Type=Application'
-        - 'Categories=System;Utility;TerminalEmulator;'
-    - {chroot: 'mkdir -p /etc/skel/.config/gconf/apps/guake/{general,style/{background,font}}' }
-    - {chroot: 'touch /etc/skel/.config/gconf/apps/guake/%gconf.xml' }
-    - edit: /etc/skel/.config/gconf/apps/guake/general/%gconf.xml
-      insert: append
-      values:
-        - '<?xml version="1.0"?>'
-        - '<gconf>'
-        - '  <entry name="use_popup" mtime="1476881725" type="bool" value="false"/>'
-        - '  <entry name="history_size" mtime="1478548706" type="int" value="10000"/>'
-        - '  <entry name="use_default_font" mtime="1476881725" type="bool" value="false"/>'
-        - '</gconf>'
-    - {chroot: 'touch /etc/skel/.config/gconf/apps/guake/style/%gconf.xml' }
-    - edit: /etc/skel/.config/gconf/apps/guake/style/background/%gconf.xml
-      insert: append
-      values:
-        - '<?xml version="1.0"?>'
-        - '<gconf>'
-        - '  <entry name="transparency" mtime="1478548706" type="int" value="10"/>'
-        - '</gconf>'
-    - edit: /etc/skel/.config/gconf/apps/guake/style/font/%gconf.xml
-      insert: append
-      values:
-        - '<?xml version="1.0"?>'
-        - '<gconf>'
-        - '  <entry name="style" mtime="1476881725" type="string"><stringvalue>Inconsolata-g Medium 11</stringvalue></entry>'
-        - '  <entry name="color" mtime="1476881725" type="string"><stringvalue>#D4D4D4D4D4D4</stringvalue></entry>'
-        - '</gconf>'
   config-idesk:
     - edit: /etc/skel/.config/autostart/idesk.desktop
       insert: append
@@ -1549,22 +1552,29 @@ configs:
         - '    Option     "StandbyTime" "0"'
         - '    Option     "SuspendTime" "0"'
         - 'EndSection'
-    - edit: /etc/X11/xorg.conf.d/30-mouse.conf
+    - edit: /etc/X11/xorg.conf.d/40-input.conf
       insert: append
       values:
         - 'Section "InputClass"'
         - '    Identifier "Mouse"'
         - '    Driver "libinput"'
         - '    MatchIsPointer "on"'
+        - '    MatchDevicePath "/dev/input/event*"'
         - '    Option "AccelSpeed" "0.3"'
         - 'EndSection'
-    - edit: /etc/X11/xorg.conf.d/40-touchpad.conf
-      insert: append
-      values:
+        - ''
+        - 'Section "InputClass"'
+        - '    Identifier "Keyboard"'
+        - '    Driver "libinput"'
+        - '    MatchIsKeyboard "on"'
+        - '    MatchDevicePath "/dev/input/event*"'
+        - 'EndSection'
+        - ''
         - 'Section "InputClass"'
         - '    Identifier "Touchpad"'
         - '    Driver "libinput"'
         - '    MatchIsTouchpad "on"'
+        - '    MatchDevicePath "/dev/input/event*"'
         - '    Option "Tapping" "on"'
         - '    Option "AccelSpeed" "1"'
         - '    Option "NaturalScrolling" "on"'

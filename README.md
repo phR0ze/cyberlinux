@@ -213,7 +213,7 @@ Disable proxy:
 
 ## Arch Help <a name="arch-help"/></a>
 The [arch wiki](https://wiki.archlinux.org/) is the best place to go for help. I've just collected a
-few things here that I seem to referre to a lot.
+few things here that were useful for me.
 
 ### Certificates <a name="certificates"/></a>
 
