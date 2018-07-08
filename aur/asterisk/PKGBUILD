@@ -23,17 +23,17 @@
 # Maintained by phR0ze
 #-------------------------------------------------------------------------------
 pkgname=asterisk
-pkgver=15.0.0
-pkgrel=3
+pkgver=15.4.1
+pkgrel=1
 pkgdesc="Free opensource telephony engine tuned for Google Voice"
 arch=('i686' 'x86_64')
 url="http://www.asterisk.org"
 license=('GPL')
-depends=('alsa-lib' 'speex' 'popt' 'libvorbis' 'curl' 'libxml2' 'jansson' 'libxslt' 'pjproject' 'opus' 'termcap')
-makedepends=('sqlite3' 'gsm' 'iksemel')
+depends=(alsa-lib speex popt libvorbis curl libxml2 jansson libxslt opus termcap)
+makedepends=(sqlite3 gsm iksemel)
 source=("http://downloads.asterisk.org/pub/telephony/asterisk/releases/${pkgname}-${pkgver}.tar.gz"
  "${pkgname}.service" "${pkgname}.tmpfile")
-sha256sums=('a1bc713df0530ffdaa9cb197b9c31bcdb5650383638cd27993ce861389765f2a'
+sha256sums=('33c940f275590934aa5c97d4399beaf6927b1cc00ab342c2996c53a8f7298ead'
             '94acb6e68424195a12fd9d406b3fb586f264a550e75801f6e020a86e800dd42c'
             '673c0c55bce8068c297f9cdd389402c2d5d5a25e2cf84732cb071198bd6fa78a')
 install=${pkgname}.install
@@ -41,13 +41,14 @@ install=${pkgname}.install
 # Modules requird for a SIP/Google solution
 enable_modules=(
   chan_motif          # Google voice channel driver
+  chan_pjsip          # New modular sip chanel driver (more complicated)
   codec_a_mu          # A-law and Mulaw direct
   codec_adpcm         # Adaptive Differential PCM Coder/Decoder
-  chan_sip            # Old outdated sip channel driver (simpler)
   codec_alaw          # G.711 audio codec PCMA
   codec_ulaw          # G.711 audio codec PCMU
   codec_gsm           # GSM codec, needed to play back prompts and such
   res_xmpp            # Google talk resource used by chan_motif
+  res_pjsip           # PJSIP resource used by chan_pjsip
 )
 
 # Module not needed for a SIP/Google solution
@@ -71,7 +72,7 @@ disable_modules=(
   chan_mgcp           # Media Gateway Control Protocol
   chan_oss            # OSS Console Channel Driver (i.e. dial from Asterisk CLI)
   chan_phone          # Generic Linux Telephony API Support
-  chan_pjsip          # New modular sip chanel driver (more complicated)
+  chan_sip            # Old outdated sip channel driver (simpler)
   chan_skinny         # Skinny Client Control Protocol
   chan_unistim        # Unified Networks IP Stimulus channel driver for Nortel
 
@@ -93,12 +94,14 @@ build()
 {
   cd $srcdir/$pkgname-$pkgver
 
+  # Use bundled pjproject for compatibility
   msg "Configuring Asterisk"
   PKG_CONFIG_PATH=/usr/lib/openssl-1.0/pkgconfig ./configure \
     --prefix=/usr \
     --sysconfdir=/etc \
     --localstatedir=/var \
-    --sbindir=/usr/bin
+    --sbindir=/usr/bin \
+    --with-pjproject-bundled
 
   msg "Selecting Asterisk Modules"
   msg2 "Items in menuselect.makeopts will not be built"
