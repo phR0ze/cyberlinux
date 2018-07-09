@@ -127,7 +127,7 @@ Deploy ***cyberlinux*** via a USB directly onto a machine
     sudo pacman -S gnome-multi-writer
 
     # Launch MultiWriter
-    gnome-multi-writer
+    sudo gnome-multi-writer
 
     # Add the ISO and point it at your USB and click start  
     ```
