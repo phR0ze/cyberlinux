@@ -40,7 +40,7 @@ conky.config = {
 
     -- Position
     alignment = 'top_right',                -- Align window on the desktop
-    maximum_width = 320,                    -- Maximum width of conky window
+    maximum_width = 325,                    -- Maximum width of conky window
     gap_x = 20,                             -- Gap in pixels between right or left border of screen
     gap_y = 20,                             -- Gap in pixels between top or bottom of screen
 
