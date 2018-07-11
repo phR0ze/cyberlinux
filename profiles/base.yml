@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.86
+  release: 0.2.87
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -576,7 +576,7 @@ apps:
         - "time-format='%I:%M%P'\n\n"
         - "[org/cinnamon/desktop/background]\n"
         - "picture-uri='file://<%=wallpaper%>'\n"
-    - {chroot: dconf update }
+    - chroot: dconf update
     # This file edit is an ugly hack to fix cinnamon-screensaver as it broke in a recent version
     - edit: /usr/share/glib-2.0/schemas/org.cinnamon.desktop.screensaver.gschema.xml
       insert: before
@@ -721,7 +721,7 @@ apps:
         - 'NoDisplay=false'
         - 'Type=Application'
         - 'Categories=Utility;'
-    - edit: /etc/skel/.config/dconf/plank.dconf
+    - edit: /etc/dconf/db/local.d/03-plank
       insert: append
       values:
         - '[net/launchpad/plank/docks/dock1]'
@@ -743,7 +743,7 @@ apps:
     - {edit: /etc/skel/.config/plank/dock1/launchers/calc.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/libreoffice-calc.desktop"]}
     - {edit: /etc/skel/.config/plank/dock1/launchers/writer.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/libreoffice-writer.desktop"]}
     - {edit: /etc/skel/.config/plank/dock1/launchers/virtualbox.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/virtualbox.desktop"]}
-    - chroot: cat /etc/skel/.config/dconf/plank.dconf | dconf load /
+    - chroot: dconf update
 
   # Open source SSH server/client
   sshd:
@@ -1183,7 +1183,7 @@ configs:
       values:
         - "[org/gtk/settings/file-chooser]\n"
         - "sort-directories-first=true\n"
-    - {chroot: dconf update }
+    - chroot: dconf update
     - edit: /etc/skel/.gtkrc-2.0
       insert: append
       values:
