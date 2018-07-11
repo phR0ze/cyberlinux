@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.85
+  release: 0.2.86
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -534,7 +534,7 @@ apps:
     - {install: asterisk,           desc: Free opensource telephony engine tuned for Google Voice }
     - {install: file-roller,        desc: System/Compression integrates well in Thunar }
     - {install: qbittorrent,        desc: Network/Bittorent, alt: deluge }
-    - {install: openvpn-pia,        desc: OpenVPN system tray with PIA integration, type: CYBERLINUX }
+      #- {install: openvpn-pia,        desc: OpenVPN system tray with PIA integration, type: CYBERLINUX }
     - apache-php:
       - {install: apache,           desc: Apache web server, deb: phpBB }
       - {install: bzip2,            desc: Compression util for the bzip2 format, depof: php-gd }

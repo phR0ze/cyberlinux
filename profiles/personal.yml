@@ -35,7 +35,7 @@ deployments:
       order: 2
       label: "Deploy <%=distro%>-desktop                 // Lite + more apps"
     apps:
-      - desktop-apps
+      - desktop
       - makemkv
       - teamviewer-host
       - virtualbox-ext-oracle
@@ -47,7 +47,7 @@ deployments:
       label: "Deploy <%=distro%>-theater                 // Lite + media apps"
       params: autologin=1
     apps:
-      - theater-apps
+      - theater
       - makemkv
       - teamviewer-host
   server:
@@ -56,22 +56,24 @@ deployments:
       order: 4
       label: "Deploy <%=distro%>-server                  // Lite + services"
     apps:
-      - server-apps
+      - server
       - makemkv
       - teamviewer-host
   lite:
-    base: base
+    base: shell
     groups: [video, audio]
     install:
       order: 5
       label: "Deploy <%=distro%>-lite                    // Shell + min X11"
     apps:
-      - lite-apps
+      - lite
       - ttf-adobe-fonts
-  base:
+  shell:
     install:
       order: 6
-      label: "Deploy <%=distro%>-base                    // Base shell env"
+      label: "Deploy <%=distro%>-base                    // Shell env"
+    source: [core, shell]
     apps:
-      - kernel
-      - base-apps
+      - kernel-full
+      - core-boot
+      - shell
