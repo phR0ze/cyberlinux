@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.87
+  release: 0.2.86
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -721,7 +721,7 @@ apps:
         - 'NoDisplay=false'
         - 'Type=Application'
         - 'Categories=Utility;'
-    - edit: /etc/skel/.conf/dconf/plank.dconf
+    - edit: /etc/skel/.config/dconf/plank.dconf
       insert: append
       values:
         - '[net/launchpad/plank/docks/dock1]'
@@ -743,7 +743,7 @@ apps:
     - {edit: /etc/skel/.config/plank/dock1/launchers/calc.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/libreoffice-calc.desktop"]}
     - {edit: /etc/skel/.config/plank/dock1/launchers/writer.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/libreoffice-writer.desktop"]}
     - {edit: /etc/skel/.config/plank/dock1/launchers/virtualbox.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/virtualbox.desktop"]}
-    - chroot: cat /etc/skel/.config/dconf/plank.dconf | dconf load //
+    - chroot: cat /etc/skel/.config/dconf/plank.dconf | dconf load /
 
   # Open source SSH server/client
   sshd:
