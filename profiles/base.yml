@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.86
+  release: 0.2.87
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -505,7 +505,6 @@ apps:
     - {install: inkscape,           desc: Professional vector graphics editor }
     - {install: libreoffice-fresh,  desc: LibreOffice branch with new features/enhancements }
     - {install: kolourpaint,        desc: Paint application that saves jpg in format for GFXBoot }
-    - {install: plank,              desc: Elegant, simple, clean dock }
     - {install: python2-lxml,       desc: Python wrapper for libxml2, deps: Inkscape }
     - {install: openshot,           desc: Simple powerful Video Editor, alt: pitivi, kdenlive }
     - {install: openvpn-update-systemd-resolved, desc: OpenVPN systemd-resolved updater, type: CYBERLINUX }
@@ -522,9 +521,10 @@ apps:
     - cinnamon-screensaver
     - docker
     - guake
-    - media
     - keepass
+    - media
     - opengl
+    - plank
     - virtualbox-host
     - config-desktop
 
@@ -706,6 +706,45 @@ apps:
     - {install: lib32-mesa-vdpau,   desc: Mesa vdpau drivers, depof: kodi steam }
     - {install: mesa-vdpau,         desc: Mesa vdpau drivers, depof: kodi steam }
 
+  # Light weight, simple clean app dock
+  plank:
+    - install: plank
+    - edit: /etc/skel/.config/autostart/plank.desktop
+      insert: append
+      values:
+        - '[Desktop Entry]'
+        - 'Name=Plank'
+        - 'Comment=Dock'
+        - 'Exec=plank'
+        - 'Icon=plank'
+        - 'Terminal=false'
+        - 'NoDisplay=false'
+        - 'Type=Application'
+        - 'Categories=Utility;'
+    - edit: /etc/skel/.conf/dconf/plank.dconf
+      insert: append
+      values:
+        - '[net/launchpad/plank/docks/dock1]'
+        - "hide-mode='window-dodge'"
+        - 'icon-size=36'
+        - "position='top'"
+        - "dock-items=['lxterminal.dockitem','thunar.dockitem','xnviewmp.dockitem','smplayer.dockitem','vlc.dockitem','ghb.dockitem','filezilla.dockitem','chromium.dockitem','calc.dockitem','writer.dockitem','virtual.dockitem']"
+        - "lock-items=true"
+        - 'pinned-only=true'
+        - "theme='Transparent'"
+    - {edit: /etc/skel/.config/plank/dock1/launchers/lxterminal.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/lxterminal.desktop"]}
+    - {edit: /etc/skel/.config/plank/dock1/launchers/thunar.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/Thunar.desktop"]}
+    - {edit: /etc/skel/.config/plank/dock1/launchers/xnviewmp.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/xnviewmp.desktop"]}
+    - {edit: /etc/skel/.config/plank/dock1/launchers/smplayer.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/smplayer.desktop"]}
+    - {edit: /etc/skel/.config/plank/dock1/launchers/vlc.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/vlc.desktop"]}
+    - {edit: /etc/skel/.config/plank/dock1/launchers/ghb.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/ghb.desktop"]}
+    - {edit: /etc/skel/.config/plank/dock1/launchers/filezilla.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/filezilla.desktop"]}
+    - {edit: /etc/skel/.config/plank/dock1/launchers/chromium.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/chromium.desktop"]}
+    - {edit: /etc/skel/.config/plank/dock1/launchers/calc.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/libreoffice-calc.desktop"]}
+    - {edit: /etc/skel/.config/plank/dock1/launchers/writer.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/libreoffice-writer.desktop"]}
+    - {edit: /etc/skel/.config/plank/dock1/launchers/virtualbox.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/virtualbox.desktop"]}
+    - chroot: cat /etc/skel/.config/dconf/plank.dconf | dconf load //
+
   # Open source SSH server/client
   sshd:
     - install: openssh
@@ -859,7 +898,6 @@ configs:
   config-desktop:
     - config-conky
     - config-menu-desktop
-    - config-plank-desktop
   config-server:
     - config-nfs
     - config-thunar
@@ -1364,42 +1402,6 @@ configs:
 #    - {chroot: "bash -c 'haveged -r 0 && pacman-key --init'" }
 #    - {chroot: 'pacman-key --populate archlinux antergos blackarch' }
 #    - {chroot: 'pacman -Sy' }
-  config-plank-desktop:
-    - edit: /etc/skel/.config/autostart/plank.desktop
-      insert: append
-      values:
-        - '[Desktop Entry]'
-        - 'Name=Plank'
-        - 'Comment=Dock'
-        - 'Exec=plank'
-        - 'Icon=plank'
-        - 'Terminal=false'
-        - 'NoDisplay=false'
-        - 'Type=Application'
-        - 'Categories=Utility;'
-    - edit: /etc/dconf/db/local.d/03-plank
-      insert: append
-      values:
-        - '[net/launchpad/plank/docks/dock1]'
-        - "hide-mode='window-dodge'"
-        - 'icon-size=36'
-        - "position='top'"
-        - "dock-items=['lxterminal.dockitem','thunar.dockitem','xnviewmp.dockitem','smplayer.dockitem','vlc.dockitem','ghb.dockitem','filezilla.dockitem','chromium.dockitem','calc.dockitem','writer.dockitem','virtual.dockitem']"
-        - "lock-items=true"
-        - "pinned-only=true"
-        - "theme='Transparent'"
-    - {edit: /etc/skel/.config/plank/dock1/launchers/lxterminal.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/lxterminal.desktop"]}
-    - {edit: /etc/skel/.config/plank/dock1/launchers/thunar.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/Thunar.desktop"]}
-    - {edit: /etc/skel/.config/plank/dock1/launchers/xnviewmp.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/xnviewmp.desktop"]}
-    - {edit: /etc/skel/.config/plank/dock1/launchers/smplayer.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/smplayer.desktop"]}
-    - {edit: /etc/skel/.config/plank/dock1/launchers/vlc.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/vlc.desktop"]}
-    - {edit: /etc/skel/.config/plank/dock1/launchers/ghb.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/ghb.desktop"]}
-    - {edit: /etc/skel/.config/plank/dock1/launchers/filezilla.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/filezilla.desktop"]}
-    - {edit: /etc/skel/.config/plank/dock1/launchers/chromium.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/chromium.desktop"]}
-    - {edit: /etc/skel/.config/plank/dock1/launchers/calc.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/libreoffice-calc.desktop"]}
-    - {edit: /etc/skel/.config/plank/dock1/launchers/writer.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/libreoffice-writer.desktop"]}
-    - {edit: /etc/skel/.config/plank/dock1/launchers/virtualbox.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/virtualbox.desktop"]}
-    - {chroot: dconf update }
   config-openvpn-pia:
     - edit: /etc/skel/.config/autostart/openvpn-pia.desktop
       insert: append
