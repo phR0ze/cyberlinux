@@ -468,7 +468,7 @@ class Reduce
           # Set the volume label
           cmd += "-volid #{@vars.label} "
 
-          # Create the ISO from @isopath
+          # Create the ISO from @isopath named as the -o specifies
           cmd += "-o #{@vars.isofile} #{@isopath}"
 
           msg = "ISO Hybrid CD/USB bootable image:\n#{@vars.isofile}"
@@ -547,7 +547,8 @@ class Reduce
     if !Dir[File.join(@kernel_path, "#{@kernel_prefix}*")].any?
       changed |= true
 
-      # Inject deploy entries from deployments
+      # Inject deploy entries from deployments into
+      # i.e. cyberlinux/temp/work/boot/grub_iso/boot/grub/boot.cfg
       motd = File.readlines(@motd_path)
       File.open(File.join(grub_iso_path, 'boot.cfg'), 'w'){|f|
         @profile.deployments.select{|k,v| v[@k.type] == @k.machine}
@@ -568,12 +569,17 @@ class Reduce
       }
       FileUtils.resolve(File.join(grub_iso_path, 'boot.cfg'), @vars)
 
+      # Create themes directory in advance to only copy out cyberlinux theme
+      # i.e. cyberlinux/temp/work/boot/grub_iso/boot/grub/themes
+      themes_dir = File.join(grub_iso_path, 'themes')
+      FileUtils.mkdir_p(themes_dir)
+
       # Extract grub boot files, memtest and intel-ucode with licenses
       docker(@k.builder, 'root'){|cont, home, cp, exec, execs, runuser|
         cp.call("#{cont}:/usr/share/grub/grub.cfg #{grub_iso_path}")
         cp.call("#{cont}:/usr/share/grub/loopback.cfg #{grub_iso_path}")
         cp.call("#{cont}:/usr/share/grub/unicode.pf2 #{grub_iso_path}")
-        cp.call("#{cont}:/usr/share/grub/themes #{grub_iso_path}")
+        cp.call("#{cont}:/usr/share/grub/themes/#{@vars.distro} #{themes_dir}")
 
         cp.call("#{cont}:/boot/intel-ucode.img #{@ucode_image}.img")
         cp.call("#{cont}:/usr/share/licenses/intel-ucode/LICENSE #{@ucode_image}.LICENSE")
