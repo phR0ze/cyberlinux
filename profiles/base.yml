@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.94
+  release: 0.2.95
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -728,6 +728,11 @@ apps:
         - 'NoDisplay=false'
         - 'Type=Application'
         - 'Categories=Utility;'
+    - edit: /etc/dconf/db/local.d/03-plank
+      insert: append
+      values:
+        - '[net/launchpad/plank/docks/dock1]'
+        - "dock-items=['lxterminal.dockitem','thunar.dockitem','xnviewmp.dockitem','smplayer.dockitem','vlc.dockitem','ghb.dockitem','filezilla.dockitem','chromium.dockitem','calc.dockitem','writer.dockitem','virtual.dockitem']"
     - {edit: /etc/skel/.config/plank/dock1/launchers/00-lxterminal.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/lxterminal.desktop"]}
     - {edit: /etc/skel/.config/plank/dock1/launchers/01-thunar.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/Thunar.desktop"]}
     - {edit: /etc/skel/.config/plank/dock1/launchers/02-xnviewmp.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/xnviewmp.desktop"]}
