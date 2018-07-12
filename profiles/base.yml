@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.92
+  release: 0.2.93
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -432,7 +432,6 @@ apps:
       - {install: system-config-printer, desc: A CUPS printer configuration tool and status applet }
       - {install: xfce4-screenshooter, desc: Plugin that makes screenshots for the Xfce panel }
     - media:
-      - {install: audacious,        desc: Audio/Player, alt: deadbeaf, xnoise }
       - {install: gpicview,         desc: Image viewer, alt: shotwell/viewnior }
       - {install: qt4,              desc: A cross-platform application and UI framework, deps: vlc }
       - {install: qt5-base,         desc: A cross-platform application and UI framework, deps: mkvtoolnix-gui }
@@ -442,6 +441,7 @@ apps:
       - {install: vlc,              desc: Multi-platform MPEG, VCD/DVD, and DivX player }
       - {install: winff,            desc: GUI for ffmpeg, type: CYBERLINUX }
       - {install: xnviewmp,         desc: A digital photo organizer, type: CYBERLINUX }
+      - audacious
     - network:
       - {install: chromium,         desc: Opensource project behind Chrome, type: CYBERLINUX }
       - {install: chromium-widevine, desc: Chromium support for Netflix, type: ANTERGOS }
@@ -553,6 +553,13 @@ apps:
     - {install: idesk,              desc: Lightweight desktop icons for X, type: CYBERLINUX }
     - {install: kodi,               desc: Software media player and entertainment hub }
     - config-theater
+
+  # Audio/Player, alt: deadbeaf, xnoise
+  audacious:
+    - install: audacious
+    - {exec: convert -background none -density 384 -resize x32 /usr/share/icons/hicolor/scalable/apps/audacious.svg /usr/share/icons/hicolor/32x32/apps/audacious.png }
+    - {menu: Multimedia, icon: /usr/share/icons/Paper/32x32/categories/applications-multimedia.png }
+    - {menu: Multimedia, entry: Audacious, icon: /usr/share/icons/hicolor/32x32/apps/audacious.png, exec: audacious }
 
   cinnamon-screensaver:
     - {install: cinnamon-screensaver, desc: Screensaver for the Cinnamon desktop, type: CYBERLINUX }
@@ -914,7 +921,6 @@ configs:
     - {menu: Graphics, entry: XnViewMP, icon: /opt/xnviewmp/xnview.png, exec: xnviewmp }
     - {menu: Graphics, entry: Nitrogen, icon: /usr/share/icons/hicolor/32x32/apps/nitrogen.png, exec: nitrogen }
     - {menu: Multimedia, icon: /usr/share/icons/Paper/32x32/categories/applications-multimedia.png }
-    - {menu: Multimedia, entry: Audacious, icon: /usr/share/icons/hicolor/32x32/apps/audacious.png, exec: audacious }
     - {menu: Multimedia, entry: Pulse Audio, icon: /usr/share/icons/Paper/32x32/apps/multimedia-volume-control.png, exec: pavucontrol }
     - {menu: Multimedia, entry: SMPlayer, icon: /usr/share/icons/hicolor/32x32/apps/smplayer.png, exec: smplayer }
     - {menu: Multimedia, entry: VLC, icon: /usr/share/icons/hicolor/32x32/apps/vlc.png, exec: vlc }
