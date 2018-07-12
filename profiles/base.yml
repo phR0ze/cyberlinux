@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.88
+  release: 0.2.89
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -217,7 +217,7 @@ apps:
     - systemd                       # require an init system to boot
     - install: gettext              # required by grub
     - install: intel-ucode          # require Intel Microcode update files to boot
-    - {install: cyberlinux-grub, type: CYBERLINUX} # require Grub Booloader to boot
+    - install: cyberlinux-grub      # require Grub Booloader to boot
 
   # Full shell environment
   # ----------------------------------------------------------------------------
@@ -708,7 +708,7 @@ apps:
 
   # Light weight, simple clean app dock
   plank:
-    - install: plank
+    - install: cyberlinux-plank
     - edit: /etc/skel/.config/autostart/plank.desktop
       insert: append
       values:
@@ -725,13 +725,7 @@ apps:
       insert: append
       values:
         - '[net/launchpad/plank/docks/dock1]'
-        - "hide-mode='window-dodge'"
-        - 'icon-size=36'
-        - "position='top'"
         - "dock-items=['lxterminal.dockitem','thunar.dockitem','xnviewmp.dockitem','smplayer.dockitem','vlc.dockitem','ghb.dockitem','filezilla.dockitem','chromium.dockitem','calc.dockitem','writer.dockitem','virtual.dockitem']"
-        - "lock-items=true"
-        - 'pinned-only=true'
-        - "theme='Transparent'"
     - {edit: /etc/skel/.config/plank/dock1/launchers/lxterminal.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/lxterminal.desktop"]}
     - {edit: /etc/skel/.config/plank/dock1/launchers/thunar.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/Thunar.desktop"]}
     - {edit: /etc/skel/.config/plank/dock1/launchers/xnviewmp.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/xnviewmp.desktop"]}
