@@ -1,0 +1,176 @@
+#MIT License
+#Copyright (c) 2018 phR0ze
+#
+#Permission is hereby granted, free of charge, to any person obtaining a copy
+#of this software and associated documentation files (the "Software"), to deal
+#in the Software without restriction, including without limitation the rights
+#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#copies of the Software, and to permit persons to whom the Software is
+#furnished to do so, subject to the following conditions:
+#
+#The above copyright notice and this permission notice shall be included in all
+#copies or substantial portions of the Software.
+#
+#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+#SOFTWARE.
+
+#-------------------------------------------------------------------------------
+# Maintained by phR0ze
+#-------------------------------------------------------------------------------
+pkgname=cyberlinux-vim-plugins
+pkgver=0.0.1
+pkgrel=1
+pkgdesc="Base bundle of vim plugins used for cyberlinux deployments"
+arch=('any')
+url="https://github.com/phR0ze/cyberlinux/aur/cyberlinux-vim-plugins"
+license=('MIT')
+
+plugins=(
+  VundleVim/Vundle.vim                # Manage Vundle with Vundle
+
+  # Utilities
+  aserebryakov/vim-todo-lists         # Manage TODOs
+  #Plug  yegappan/mru
+  #Plug  junegunn/fzf , {  dir :  ~/.fzf ,  do :  ./install --all   }
+  #Plug  junegunn/fzf.vim
+  #Plug  ctrlpvim/ctrlp.vim
+  #
+  #Plug  Shougo/neocomplete.vim
+  #Plug  tommcdo/vim-exchange
+  #Plug  ntpeters/vim-better-whitespace
+  #Plug  tpope/vim-surround
+  #Plug  tpope/vim-repeat
+  #Plug  jiangmiao/auto-pairs
+  #Plug  vim-scripts/CursorLineCurrentWindow
+  #Plug  victormours/better-writing.vim
+  #Plug  janko-m/vim-test
+  #Plug  skywind3000/asyncrun.vim
+  #Plug  w0rp/ale
+  #Plugin  scrooloose/nerdtree
+  #Plugin  majutsushi/tagbar
+  #Plugin  ervandew/supertab
+  #Plugin  BufOnly.vim
+  #Plugin  wesQ3/vim-windowswap
+  #Plugin  SirVer/ultisnips
+  #Plugin  junegunn/fzf.vim
+  #Plugin  junegunn/fzf
+  #Plugin  godlygeek/tabular
+  #Plugin  ctrlpvim/ctrlp.vim
+  #Plugin  benmills/vimux
+  #Plugin  jeetsukumaran/vim-buffergator
+  #Plugin  gilsondev/searchtasks.vim
+  #Plugin  Shougo/neocomplete.vim
+  #Plugin  tpope/vim-dispatch
+
+  # Interface
+  scrooloose/nerdtree                 # File explorer sidebar
+  vim-airline/vim-airline             # Awesome status bar at bottom with git support
+  vim-airline/vim-airline-themes      # Vim Airline themes
+  ryanoasis/vim-devicons              # Sweet folder/file icons for nerd tree
+
+  # ColorSchemes
+  vim-scripts/CycleColor  			      # Color scheme cycler
+  ajmwagar/vim-deus  				          # deus
+  YorickPeterse/happy_hacking.vim     # happy_hacking
+  w0ng/vim-hybrid  				            # hybrid
+  kristijanhusak/vim-hybrid-material  # hybrid_material
+  nanotech/jellybeans.vim  			      # jellybeans
+  dikiaap/minimalist  				        # minimalist
+  marcopaganini/termschool-vim-theme  # termschool
+
+  # Programming
+  airblade/vim-gitgutter              # Git integration in gutter
+  tpope/vim-fugitive                  # Git integration
+  #Plugin  kablamo/vim-git-log
+  #Plugin  gregsexton/gitv
+  #Plugin  jakedouglas/exuberant-ctags
+  #Plugin  honza/vim-snippets
+  #Plugin  Townk/vim-autoclose
+  #Plugin  tomtom/tcomment_vim
+  #Plugin  tobyS/vmustache
+  #Plugin  janko-m/vim-test
+  #Plugin  maksimr/vim-jsbeautify
+  #Plugin  vim-syntastic/syntastic
+  #Plugin  neomake/neomake
+  #Plugin  artur-shaik/vim-javacomplete2
+  #Bundle  jalcine/cmake.vim
+
+  # Syntax highlighting
+  zzeroo/vim-vala
+  stephpy/vim-yaml                   # yaml
+  hail2u/vim-css3-syntax             # css3
+  kurayama/systemd-vim-syntax        # systemd
+
+  # Markdown / Writting
+  #Plugin  reedes/vim-pencil
+  #Plugin  tpope/vim-markdown
+  #Plugin  jtratner/vim-flavored-markdown
+  #Plugin  LanguageTool
+
+  # HTML
+  #Plug  mattn/emmet-vim
+  #Plug  slim-template/vim-slim
+  #Plug  mustache/vim-mustache-handlebars
+
+  # Javascript
+  #Plug  pangloss/vim-javascript
+  #Plug  mxw/vim-jsx
+  #Plug  othree/yajs.vim
+  #Plug  othree/javascript-libraries-syntax.vim
+  #Plug  claco/jasmine.vim
+  #Plug  kchmck/vim-coffee-script
+  #Plug  lfilho/cosco.vim
+
+  # Ruby
+  #Plug  Keithbsmiley/rspec.vim
+  #Plug  tpope/vim-rails
+  #Plug  tpope/vim-endwise
+  #Plug  ecomba/vim-ruby-refactoring
+  #Plug  vim-ruby/vim-ruby
+  #Plug  emilsoman/spec-outline.vim
+  #Plug  victormours/vim-rspec
+  #Plug  nelstrom/vim-textobj-rubyblock
+  #Plug  kana/vim-textobj-user
+  #Plug  jgdavey/vim-blockle
+  #Plug  KurtPreston/vim-autoformat-rails
+  #Plug  ngmy/vim-rubocop
+
+  # Colorize last to ensure overriding
+  phR0ze/vim-colorize                # Colorize various plugins
+)
+
+prepare()
+{
+  cd $srcdir
+  msg "Prepare $pkgname..."
+
+  for plugin in ${plugins[@]}; do
+    msg2 "Cloning plugin '$plugin'"
+    [ ! -d $(basename $plugin) ] && git clone "https://github.com/${plugin}"
+  done
+  return 0
+}
+
+package()
+{
+  cd $srcdir
+  bundle="etc/skel/.vim/bundle"
+
+  msg "Packaging plugins..."
+  install -dm750 $pkgdir/$bundle
+  for plugin in ${plugins[@]}; do
+    plugin_name=$(basename $plugin)
+    msg2 "Packaging plugin '$plugin'"
+    install -dm750 $pkgdir/$bundle/$plugin_name
+    cd $srcdir/$plugin_name
+    find . -type d -exec install -dm755 $pkgdir/$bundle/$plugin_name/{} \;
+    find . -type f -exec install -Dm644 {} $pkgdir/$bundle/$plugin_name/{} \;
+  done
+}
+
+# vim: ts=2:sw=2:sts=2

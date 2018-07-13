@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.96
+  release: 0.2.97
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -226,6 +226,7 @@ apps:
     - sshd
     - virtualbox-guest-nox
     - system:
+      - install: cyberlinux-vim-plugins
       - {install: curl,             desc: Adding curl command to pull in packer scripts }
       - {install: dmidecode,        desc: Desktop Managment Interface table related utilities }
       - {install: dnsutils,         desc: Network utilities dig/host/nslookup }
@@ -239,8 +240,6 @@ apps:
       - {install: pacman,           desc: Package manager with dependency support, group: [build-devel]}
       - {install: pacman-contrib,   desc: Pacman support configuration, depof: rankmirrors}
       - {install: rsync,            desc: Remote file transfer sync utility }
-      - {install: vim-systemd,      desc: Vim syntax highlighting for systemd }
-      - {install: vundle,           desc: Plug-in manager for Vim, type: CYBERLINUX }
       - {install: wget,             desc: Retrieve files from the Web }
       - {install: which,            desc: Show the full path of commnds, depof: .bashrc, group: [build-devel]}
     - keyrings:
