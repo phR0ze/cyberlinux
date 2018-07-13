@@ -981,12 +981,18 @@ class Reduce
       File.open(changedfile, 'w'){|f|}
     end
 
-    return changed
-  end
+    # Sync user files with root to have a seamless experience
+    #---------------------------------------------------------------------------
+    puts("Sync user files with root files for seamless experience...".colorize(:cyan))
+    skel = File.join(deployment_work, 'etc/skel')
+    Dir.glob(File.join(skel, '*'), File::FNM_DOTMATCH)
+      .reject{|x| ['.', '..'].include?(File.basename(x))}.each{|x|
+      target = File.join(deployment_work, 'root', x.split(skel).last)
+      puts("Recursive copy: #{x} => #{target}")
+      FileUtils.cp_r(x, File.join(deployment_work, 'root'))
+    }
 
-  def foo
-    puts("FREAKING MONKEY ASS".colorize(:red))
-    return true
+    return changed
   end
 
   # Get app configuration for the given deployment
@@ -1103,15 +1109,6 @@ class Reduce
         FileUtils.cp(x, target)
       }
 
-      # Copy user files to root as well
-      files.select{|x| x.include?("etc/skel")}.each{|x|
-        mask = reversed.find{|y| x.include?(y)}
-        target = File.join(deployment_work, x.split(mask).last)
-        puts("Copying: #{x} => #{target.sub('etc/skel', 'root')}")
-        FileUtils.mkdir_p(File.dirname(target.sub('etc/skel', 'root')))
-        FileUtils.cp(x, target.sub('etc/skel', 'root'))
-      }
-
       # Update digests
       FileUtils.update_digests(deployment, deployment_digests, files)
     else
@@ -1199,7 +1196,7 @@ class Reduce
     end
 
     # Print result for single search
-    if filter 
+    if filter
       if sorted_images.any?
         puts("Located '#{live ? 'live' : 'disk'}' image #{sorted_images.first.first}".colorize(:cyan))
       elsif die

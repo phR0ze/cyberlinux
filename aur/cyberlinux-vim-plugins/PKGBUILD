@@ -23,7 +23,7 @@
 # Maintained by phR0ze
 #-------------------------------------------------------------------------------
 pkgname=cyberlinux-vim-plugins
-pkgver=0.0.1
+pkgver=0.0.2
 pkgrel=1
 pkgdesc="Base bundle of vim plugins used for cyberlinux deployments"
 arch=('any')
@@ -162,11 +162,11 @@ package()
   bundle="etc/skel/.vim/bundle"
 
   msg "Packaging plugins..."
-  install -dm750 $pkgdir/$bundle
+  install -dm755 $pkgdir/$bundle
   for plugin in ${plugins[@]}; do
     plugin_name=$(basename $plugin)
     msg2 "Packaging plugin '$plugin'"
-    install -dm750 $pkgdir/$bundle/$plugin_name
+    install -dm755 $pkgdir/$bundle/$plugin_name
     cd $srcdir/$plugin_name
     find . -type d -exec install -dm755 $pkgdir/$bundle/$plugin_name/{} \;
     find . -type f -exec install -Dm644 {} $pkgdir/$bundle/$plugin_name/{} \;
