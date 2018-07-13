@@ -24,7 +24,7 @@
 #-------------------------------------------------------------------------------
 pkgname=cyberlinux-plank
 pkgver=0.11.4
-pkgrel=2
+pkgrel=3
 pkgdesc='Light weight, simple, clean launcher'
 arch=('x86_64')
 url='https://launchpad.net/plank'
@@ -34,7 +34,7 @@ makedepends=('gnome-common' 'intltool' 'vala')
 source=("https://launchpad.net/plank/1.0/${pkgver}/+download/plank-${pkgver}.tar.xz"
   cyberlinux.patch)
 sha256sums=('88b5cd6a84e67395df5e7cc1869521126830be0e8a509b28ee12e2db0b8981b8'
-  '215f9e8ff90dad9f4c72dbcecfabe612b75fb730953693823e42403965aa375f')
+  'a80b9fb6812183b6239cacd4c9fd5c0931b66093aa8b8be80afe9042af513029')
 
 prepare()
 {

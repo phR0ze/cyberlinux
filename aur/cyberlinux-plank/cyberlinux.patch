@@ -1,6 +1,6 @@
 diff '--color=auto' -ruN a/data/net.launchpad.plank.gschema.xml.in.in b/data/net.launchpad.plank.gschema.xml.in.in
 --- a/data/net.launchpad.plank.gschema.xml.in.in	2016-03-09 01:48:47.000000000 -0700
-+++ b/data/net.launchpad.plank.gschema.xml.in.in	2018-07-13 09:00:05.299534088 -0600
++++ b/data/net.launchpad.plank.gschema.xml.in.in	2018-07-13 13:34:14.871370800 -0600
 @@ -61,13 +61,13 @@
  			<_description>Length of the delay before hiding the dock, in milliseconds.</_description>
  		</key>
@@ -52,7 +52,7 @@ diff '--color=auto' -ruN a/data/net.launchpad.plank.gschema.xml.in.in b/data/net
  		</key>
 diff '--color=auto' -ruN a/lib/Factories/ItemFactory.vala b/lib/Factories/ItemFactory.vala
 --- a/lib/Factories/ItemFactory.vala	2016-06-01 23:21:40.000000000 -0600
-+++ b/lib/Factories/ItemFactory.vala	2018-07-13 09:03:09.913576303 -0600
++++ b/lib/Factories/ItemFactory.vala	2018-07-13 13:34:14.874704206 -0600
 @@ -175,6 +175,7 @@
  
  			debug ("Loading dock elements from '%s'", source_dir.get_path ());
@@ -74,7 +74,7 @@ diff '--color=auto' -ruN a/lib/Factories/ItemFactory.vala b/lib/Factories/ItemFa
  			}
  			
 -			if (ordering != null)
-+			if (ordering == null) {
++			if (ordering == null || ordering.length == 0) {
 +				keys.sort();
 +				foreach (string key in keys) {
 +					DockElement? element;
