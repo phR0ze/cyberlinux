@@ -45,8 +45,8 @@ class Test_load_profiles < Minitest::Test
       },
       "defaults" => {
         "machine" => {
+          "type" => "machine",
           "multilib" => false,
-          "groups" => ["lp", "docker"],
           "vars" => {"fontsize" => 10},
           "install" => {
             "kernel" => "linux"
@@ -60,28 +60,32 @@ class Test_load_profiles < Minitest::Test
           "params" => '-e TERM=xterm -v /var/run/docker.sock:/var/run/docker.sock --privileged=true',
           "command" => 'bash -c "while :; do sleep 5; done"',
         },
-        "apps" => [
-          { "install" => "linux", "desc" => "Linux kernel and supporting modules" }
-        ]
+        "apps" => ["core"]
       },
       "deployments" => {
-        "base" => {
-          "type" => "machine",
-          "multilib" => true,
-          "groups" => ["group1"]
+        "shell" => {
+          "apps" => [
+            "core",
+            "conky"
+          ]
         }
       },
       "apps" => {
-        "server-apps" => ["conky"],
+        "core" => [
+          {"groups" => ["lp", "wheel"]},
+          {"install" => "linux"}
+        ],
+        "server" => [
+          "conky",
+          {"groups" => ["server_group"]},
+          {"edit" => "/etc/httpd/conf/httpd.conf", "regex" => '^(Listen).*', "value" => '\1 80'}
+        ],
         "conky" => [
+          {"groups" => ["conky_group"]},
           { "install" => "conky", "desc" => "Lightweight system monitor for X" }
         ]
       },
-      "configs" => {
-        "server-configs" => [
-          {"edit" => "/etc/httpd/conf/httpd.conf", "regex" => '^(Listen).*', "value" => '\1 80'}
-        ]
-      }
+      "configs" => {}
     }
 
     @base_mock = Minitest::Mock.new
@@ -107,12 +111,13 @@ class Test_load_profiles < Minitest::Test
   end
 
   def test_defaults
-    base = @profile.deployments['base']
-    assert(base[@k.multilib])
-    assert_equal("linux", base[@k.install][@k.kernel])
-    assert_equal(["group1"], base[@k.groups])
-    assert_equal(["lp", "docker"], @profile.defaults[@k.machine][@k.groups])
-    assert_equal(10, base[@k.vars]['fontsize'])
+    shell = @profile.deployments['shell']
+    assert(!shell[@k.multilib])
+    assert_equal("linux", shell[@k.install][@k.kernel])
+    assert_equal(["lp", "wheel", "conky_group"], @vars.shell_groups)
+    assert_equal("lp,wheel,conky_group", @vars.groups)
+    assert_equal(["lp", "wheel", "conky_group"], @vars.all_groups)
+    assert_equal(10, shell[@k.vars]['fontsize'])
   end
 
   def test_recurse_set
@@ -157,17 +162,17 @@ class Test_load_profiles < Minitest::Test
 
   def test_builder_base
     assert_equal(@base['builder'], @profile.builder)
+    assert_equal(1, @profile.builder['apps'].size)
+    assert_equal(["core"], @profile.builder['apps'])
+    assert_equal(["lp", "wheel"], @vars.builder_groups)
   end
 
   def test_builder_child
     profile_data = {
       'builder' => {
-        'apps' => [
-          { 'install' => 'linux-celes'},
-        ]
+        'apps' => ['conky']
       }
     }
-
     mock = Minitest::Mock.new
     [@k.vars, @k.base, @k.defaults].each{|x| mock.expect(:[], false, [x])}
     mock.expect(:[], true, [@k.builder])
@@ -175,17 +180,18 @@ class Test_load_profiles < Minitest::Test
     [@k.apps, @k.configs, @k.deployments].each{|x| mock.expect(:[], false, [x])}
 
     expected_builder = @base[@k.builder]
-    expected_builder[@k.apps] = [{ 'install' => 'linux-celes'}]
+    expected_builder[@k.apps] = ['conky']
     YAML.stub(:load_file, mock){
       @reduce.load_profile('bogus')
       assert_equal(expected_builder, @profile.builder)
+      assert_equal(["conky_group"], @vars.builder_groups)
     }
   end
 
   def test_apps_base
     profile_data = {
       'apps' => {
-        'lite-apps' => ['conky'],
+        'lite' => ['conky'],
         'conky' => [
           { 'install' => 'conky', 'desc' => 'Lightweight system monitor for X' },
           { 'menu' => 'Settings', 'entry' => 'Conky RC', 'icon' => 'gvim.png', 'exec' => 'gvim ~/.conkyrc' }
@@ -197,15 +203,16 @@ class Test_load_profiles < Minitest::Test
     [@k.vars, @k.base, @k.defaults, @k.builder].each{|x| mock.expect(:[], false, [x])}
     mock.expect(:[], true, [@k.apps])
     mock.expect(:[], profile_data[@k.apps]){|x|
-      assert_equal(1, @profile[@k.apps]['conky'].size)
-      assert(@profile[@k.apps]['conky'].any?{|y| y['install']})
-      assert(!@profile[@k.apps]['conky'].any?{|y| y['menu']})
+      assert_equal(2, @profile.apps['conky'].size)
+      assert(@profile.apps['conky'].any?{|y| y['groups']})
+      assert(@profile.apps['conky'].any?{|y| y['install']})
+      assert(!@profile.apps['conky'].any?{|y| y['menu']})
     }
     [@k.configs, @k.deployments].each{|x| mock.expect(:[], false, [x])}
 
     YAML.stub(:load_file, mock){
       @reduce.load_profile('bogus')
-      assert(1, @profile[@k.apps]['conky'].size)
+      assert(1, @profile.apps['conky'].size)
     }
   end
 
@@ -224,7 +231,7 @@ class Test_load_profiles < Minitest::Test
     profile2 = {
       "base" => "profile1",
       "apps" => {
-        "server-apps" => ["conky"],
+        "server" => ["conky"],
         "conky" => [{"install" => "profile2-pkg"}]
       }
     }
@@ -267,7 +274,11 @@ class Test_load_profiles < Minitest::Test
       assert_equal('profile2', @vars.profile)
       assert_equal(['base', 'profile0', 'profile1', 'profile2'], @reduce.instance_variable_get(:@loaded_profiles))
       assert_equal({
-        "server-apps" => ["conky"],
+        "core" => [
+          {"groups" => ["lp", "wheel"]},
+          {"install" => "linux"}
+        ],
+        "server" => ["conky"],
         "conky" => [{"install" => "profile2-pkg"}],
         "profile0-app" => [{"install" => "profile0-pkg"}],
         "profile1-app" => [{"install" => "profile1-pkg"}]
@@ -278,47 +289,48 @@ class Test_load_profiles < Minitest::Test
   def test_deployments
     profile_data = {
       'deployments' => {
-        'base' => {
-          'type' => 'machine',
-          'groups' => ['group1']
+        'shell' => {
+          'apps' => ['server']
         },
         'lite' => {
           'type' => 'container',
-          'groups' => ['group2']
         }
       }
     }
 
     mock = Minitest::Mock.new
     [@k.vars, @k.base, @k.defaults, @k.builder, @k.apps, @k.configs].each{|x| mock.expect(:[], false, [x])}
+
+    # Validate base
     mock.expect(:[], true, [@k.deployments])
     mock.expect(:[], profile_data[@k.deployments]){|x|
-      assert_equal(1, @profile[@k.deployments].size)
-      assert(@profile[@k.deployments]['base'])
+      assert_equal(1, @profile.deployments.size)
+      assert(@profile.deployments['shell'])
+      assert_equal(["core", "conky"], @profile.deployments['shell']['apps'])
       assert(!@profile[@k.deployments]['lite'])
     }
 
+    # Validate child
     YAML.stub(:load_file, mock){
       @reduce.load_profile('bogus')
-      assert_equal(2, @profile[@k.deployments].size)
+      assert_equal(2, @profile.deployments.size)
+      assert(@profile.deployments['shell'])
+      assert_equal(["server"], @profile.deployments['shell']['apps'])
+      assert(@profile[@k.deployments]['lite'])
     }
   end
 
   def test_deployment_vars
    profile_data = {
       'deployments' => {
-        'base' => {
-          'type' => 'machine',
-          'groups' => ['group1']
+        'shell' => {
+          'apps' => ["conky"]
         },
-        'lite' => {
-          'type' => 'container',
-          'groups' => ['group2']
+        'server' => {
+          'apps' => ["server"]
         },
         'heavy' => {
-          'type' => 'machine',
-          'base' => 'base',
-          'groups' => ['group3', 'group4']
+          'base' => 'shell'
         }
       }
     }
@@ -330,13 +342,13 @@ class Test_load_profiles < Minitest::Test
 
     YAML.stub(:load_file, mock){
       @reduce.load_profile('bogus')
-      assert_equal('base', @vars.base_deployment)
+      assert_equal(["lp", "wheel"], @vars.builder_groups)
+      assert_nil(@profile.deployments['shell']['base'])
+      assert_equal('shell', @vars.shell_deployment)
       assert_nil(@vars.lite_deployment)
-      assert_equal('heavy,base', @vars.heavy_deployment)
-      assert_equal(["group1"], @vars.base_groups)
-      assert_equal(["group2"], @vars.lite_groups)
-      assert_equal(["group3", "group4", "group1"], @vars.heavy_groups)
+      assert_equal('heavy,shell', @vars.heavy_deployment)
+      assert_equal(["conky_group"], @vars.shell_groups)
+      assert(@vars.heavy_groups.empty?)
     }
   end
-
 end

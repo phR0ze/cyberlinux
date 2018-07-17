@@ -33,6 +33,7 @@ module Config
     return [self.keys.chroot,
             self.keys.edit,
             self.keys.exec,
+            self.keys.groups,
             self.keys.menu,
             self.keys.resolve,
     ]
@@ -49,6 +50,7 @@ module Config
       edit: 'edit',
       entry: 'entry',
       exec: 'exec',
+      groups: 'groups',
       icon: 'icon',
       insert: 'insert',
       label: 'label',
@@ -120,6 +122,10 @@ module Config
       # Resolve template
       elsif config[k.resolve]
         changed |= FileUtils.resolve(config[k.resolve], ctx.vars)
+
+      # Ignore groups for now as they are handled by reduce directly
+      elsif config[k.groups]
+        # do nothing
       end
     }
 

@@ -28,7 +28,6 @@ deployments:
       label: "Start <%=distro%>-recovery                 // Live environment"
   desktop:
     base: lite
-    groups: [docker, adbusers, uucp]
     install:
       order: 2
       label: "Deploy <%=distro%>-desktop                 // Lite + more apps"
@@ -45,7 +44,6 @@ deployments:
       - theater
   lite:
     base: shell
-    groups: [video, audio]
     install:
       order: 4
       label: "Deploy <%=distro%>-lite                    // Shell + min X11"

@@ -222,9 +222,10 @@ class Reduce
       @profile.deployments.each{|k,v|
         @vars["#{k}_deployment"] = self.get_deployments(k) * ',' if v[@k.type] == @k.machine}
       @profile.deployments.each{|k,v|
-        @vars["#{k}_groups"] = self.get_deployments(k).map{|x| @profile.deployments[x][@k.groups]}.flatten.compact.uniq
+        @vars["#{k}_groups"] = self.getapps(k, @profile.deployments[k])[1].map{|x| x[@k.groups]}.compact.flatten.uniq
         @vars.all_groups = (@vars.all_groups + @vars["#{k}_groups"]).uniq
         @vars[@k.groups] = @vars.all_groups * ","}
+      @vars["#{@k.builder}_groups"] = self.getapps(@k.builder, @profile.builder)[1].map{|x| x[@k.groups]}.compact.flatten.uniq
 
     rescue Exception => e
       puts("Error: invalid yaml in '#{profile_path}'".colorize(:red))
@@ -1031,8 +1032,9 @@ class Reduce
     (deployment_yml[@k.apps] || []).each{|x| resolve.call(x)}
 
     # Resolve any templating
-    pkgs = pkgs.uniq.sort_by{|x| x[@k.install]}.erb(deployment_yml[@k.vars])
-    configs = configs.uniq.erb(deployment_yml[@k.vars])
+    vars = deployment_yml[@k.vars] ? @vars.to_h.merge(deployment_yml[@k.vars]) : @vars
+    pkgs = pkgs.uniq.sort_by{|x| x[@k.install]}.erb(vars)
+    configs = configs.uniq.erb(vars)
 
     return pkgs, configs
   end

@@ -51,7 +51,6 @@ deployments:
   base:
     type: machine
     multilib: true
-    groups: [lp, wheel, network, storage, users]
     vars: { fontsize: 10 }
     vagrant: { vram: 32, cpus: 2, ram: 2048 }
     install:
@@ -122,7 +121,6 @@ deployments:
     type: machine
     base: base
     source: [lite, lite-celes, desktop, desktop-celes]
-    groups: [video, audio]
     vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
     vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
     install:

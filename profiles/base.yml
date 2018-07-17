@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.104
+  release: 0.2.105
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -59,7 +59,6 @@ defaults:
       fontsize: 10
       wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg
     install: {kernel: linux}
-    groups: [lp, wheel, network, storage, users]
     vagrant: {vram: 32, cpus: 2, ram: 2048, v3d: 'on'}
 
 # Container for building components for ISO
@@ -119,6 +118,7 @@ apps:
   # Size: 53.14 MiB
   # ----------------------------------------------------------------------------
   core:
+    - groups: [lp, wheel, network, storage, users]
     - {install: bash,               desc: GNU Bourne Again shell, depends-on: [readline, glibc, ncurses], size: 7321.00 KiB}
     - {install: bash-completion,    desc: Bash tab completion, size: 799.00 KiB}
     - {install: gcc-libs,           desc: GCC runtime libraries, depends-on: [glibc], size: 105.27 MiB}
@@ -340,6 +340,7 @@ apps:
   # Lite weight X11 evironment
   # ----------------------------------------------------------------------------
   lite:
+    - groups: [video, audio]
     - config-lite
     - opengl
     - virtualbox-guest
@@ -529,6 +530,7 @@ apps:
 
   # Android tooling
   android:
+    - groups: [adbusers, uucp]
     - {install: android-tools, desc: Android platform tools }
     - {install: gvfs-mtp, desc: Virtual filesystem implementation for GIO Android MTP }
     - {install: libmtp, desc: Library implementation of the Media Transfer Protocol }
@@ -599,6 +601,7 @@ apps:
     - {chroot: systemctl enable cronie.service}
 
   docker:
+    - groups: [docker]
     - {install: docker, desc: Run applications as containers, depof: reduce }
     - edit: /opt/<%=distro%>/bin/setproxy
       insert: before

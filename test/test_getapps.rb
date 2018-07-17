@@ -89,6 +89,7 @@ class Test_getapps < Minitest::Test
           'phpBB'
         ],
         'conky' => [
+          { 'groups' => ['conky_group']},
           { 'install' => 'conky', 'desc' => 'Lightweight system monitor for X' },
           { 'exec' => 'echo 1 >> <%=country%>' }
         ],
@@ -98,6 +99,7 @@ class Test_getapps < Minitest::Test
       },
       "configs" => {
         "server-configs" => [
+          { 'groups' => ['server_group']},
           {'chroot' => 'systemctl enable httpd.service'},
           {"edit" => "/etc/httpd/conf/httpd.conf", "regex" => '^(timezone).*', "value" => '<%=timezone%>'}
         ]
@@ -114,6 +116,7 @@ class Test_getapps < Minitest::Test
     YAML.stub(:load_file, @base_mock){
       @reduce = Reduce.new
       @k = @reduce.instance_variable_get(:@k)
+      @vars = @reduce.instance_variable_get(:@vars)
       @profile = @reduce.instance_variable_get(:@profile)
     }
   end
@@ -139,14 +142,17 @@ class Test_getapps < Minitest::Test
   end
 
   def test_configs
+    groups = [{'groups' => ['conky_group']}]
     country = [{ 'exec' => 'echo 1 >> United_States' }]
     foo = [{ 'exec' => 'foo' }]
-    result2 = country + foo + [{ 'chroot' => 'systemctl enable httpd.service' },
-    {"edit" => "/etc/httpd/conf/httpd.conf", "regex" => '^(timezone).*', "value" => 'Africa'}]
+    result2 = groups + country + foo + [
+      {'groups' => ['server_group']},
+      { 'chroot' => 'systemctl enable httpd.service' },
+      {"edit" => "/etc/httpd/conf/httpd.conf", "regex" => '^(timezone).*', "value" => 'Africa'}]
 
     @reduce.stub(:puts, nil){
       _, configs = @reduce.getapps('base', @reduce.get_deployment_yml('base'))
-      assert_equal(country + foo, configs)
+      assert_equal(groups + country + foo, configs)
       _, configs = @reduce.getapps('server', @reduce.get_deployment_yml('server'))
       assert_equal(result2, configs)
     }
@@ -157,6 +163,6 @@ class Test_getapps < Minitest::Test
       apps, configs = @reduce.getapps('live', @reduce.get_deployment_yml('live'))
       assert_equal([], apps)
       assert_equal([], configs)
-    } 
+    }
   end
 end

@@ -30,7 +30,6 @@ deployments:
       label: "Start <%=distro%>-recovery                 // Live environment"
   desktop:
     base: laptop
-    groups: [docker]
     install:
       order: 2
       label: "Deploy <%=distro%>-desktop                 // Laptop + more apps"
@@ -41,7 +40,6 @@ deployments:
       - virtualbox-ext-oracle
   laptop:
     base: lite
-    groups: [adbusers, uucp]
     install:
       order: 3
       label: "Deploy <%=distro%>-laptop                 // Lite + more apps"
@@ -70,7 +68,6 @@ deployments:
       - teamviewer-host
   lite:
     base: shell
-    groups: [video, audio]
     install:
       order: 6
       label: "Deploy <%=distro%>-lite                    // Shell + min X11"
