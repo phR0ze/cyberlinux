@@ -78,7 +78,7 @@ module Config
       config = config.erb(ctx.vars)
 
       # Redirect paths as required
-      config = Config.redirect(config, ctx, k) if not config[k.chroot]
+      config = Config.redirect(config, ctx, k) if not [config[k.chroot], config[k.groups]].any?
 
       # Apply bash scripts
       if config[k.chroot]
