@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.106
+  release: 0.2.107
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -66,7 +66,12 @@ defaults:
 builder:
   type: container
   multilib: true
-  source: [shell, core] # intentionally ordering this way to get core .vimrc
+
+  # Source is applied top to bottom
+  # Ordered it this way to get get the .vimrc from core not shell
+  source:
+    - shell
+    - core
   docker:
     # Note: need privileged=true to allow mount to work inside container
     params: '-e TERM=xterm -v /var/run/docker.sock:/var/run/docker.sock --privileged=true'
@@ -980,7 +985,7 @@ apps:
   # xorg-server-devel, xorg-sessreg, xorg-smproxy, xorg-xdriinfo, xorg-xgamma, xorg-xcmsdb, xorg-xhost,
   # xorg-xlsatoms, xorg-xlsclients, xorg-xrdb, xorg-xrefresh, xorg-xsetroot, xorg-x11perf, xorg-xpr,
   # xorg-xvinfo, xorg-xwud, xorg-iceauth, xorg-xwd
-  - xorg:
+  xorg:
     - {install: xf86-input-libinput, desc: X.Org generic input driver, group: [xorg-drivers]}
     - {install: xf86-video-vesa,  desc: X.org vesa video driver, group: [xorg, xorg-drivers]}
     - {install: xorg-bdftopcf,    desc: Convert X font from Bitmap to PNG, group: [xorg, xorg-apps]}
