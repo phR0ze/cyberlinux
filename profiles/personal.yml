@@ -29,21 +29,30 @@ deployments:
       order: 1
       label: "Start <%=distro%>-recovery                 // Live environment"
   desktop:
-    base: lite
-    groups: [docker, adbusers, uucp]
+    base: laptop
+    groups: [docker]
     install:
       order: 2
-      label: "Deploy <%=distro%>-desktop                 // Lite + more apps"
+      label: "Deploy <%=distro%>-desktop                 // Laptop + more apps"
     apps:
       - desktop
       - makemkv
       - teamviewer-host
       - virtualbox-ext-oracle
+  laptop:
+    base: lite
+    groups: [adbusers, uucp]
+    install:
+      order: 3
+      label: "Deploy <%=distro%>-laptop                 // Lite + more apps"
+    apps:
+      - laptop
+
   theater:
     base: lite
     vars: { fontsize: 18 }
     install:
-      order: 3
+      order: 4
       label: "Deploy <%=distro%>-theater                 // Lite + media apps"
       params: autologin=1
     apps:
@@ -53,7 +62,7 @@ deployments:
   server:
     base: lite
     install:
-      order: 4
+      order: 5
       label: "Deploy <%=distro%>-server                  // Lite + services"
     apps:
       - server
@@ -63,14 +72,14 @@ deployments:
     base: shell
     groups: [video, audio]
     install:
-      order: 5
+      order: 6
       label: "Deploy <%=distro%>-lite                    // Shell + min X11"
     apps:
       - lite
       - ttf-adobe-fonts
   shell:
     install:
-      order: 6
+      order: 7
       label: "Deploy <%=distro%>-base                    // Shell env"
     source: [core, shell]
     apps:

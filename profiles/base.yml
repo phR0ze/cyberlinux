@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.102
+  release: 0.2.103
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -276,7 +276,6 @@ apps:
       - {install: nfs-utils,        desc: Support programs for Network File Systems }
       - {install: nmap,             desc: Network discovery and security auditing }
       - {install: tcpdump,          desc: Network monitoring and data acquisition }
-      - {install: wpa_supplicant,   desc: A utility providing key negotiation for WPA wireless networks }
     - develop:
       - {install: arch-install-scripts, desc: arch-chroot/genfstab/pacstrap }
       - {install: autoconf,         desc: Automatically configure source code, group: [base-devel]}
@@ -332,19 +331,6 @@ apps:
       - {edit: /etc/makepkg.conf, regex: '^(COMPRESSXZ)=.*', value: '\1=(xz -c -z - --threads=0)'}
     - config-modprobed:
       - {edit: /etc/modprobe.d/pcspkr.conf, insert: append, value: "blacklist pcspkr"}
-    - config-wpa:
-      - edit: /etc/wpa_supplicant/wpa_supplicant-wlp2s0.conf
-        insert: append
-        values:
-          # Set permissions for wpa_supplicant
-          - 'ctrl_interface=/run/wpa_supplicant'
-          - 'ctrl_interface_group=wheel'
-          # Allow WPA GUI to update this file with persistent changes
-          - 'update_config=1'
-          # Completely disable P2P/Direct WiFi - security hole
-          - 'p2p_disabled=1'
-          # Automatically scan and select networks matching saved ones
-          - 'ap_scan=1'
     - remove-machine-waste:
       - exec: find /var/log -type f -delete
       - exec: rm -rf /etc/pacman.d/mirrorlist
@@ -354,40 +340,10 @@ apps:
   # Lite weight X11 evironment
   # ----------------------------------------------------------------------------
   lite:
-    # Xorg breakdown rather than using xorg group to remove un-needed packages
-    # Removing: xorg-docs, xorg-server-xdmx, xorg-server-xephyr, xorg-server-xnest, xorg-server-xwayland,
-    # xorg-server-devel, xorg-sessreg, xorg-smproxy, xorg-xdriinfo, xorg-xgamma, xorg-xcmsdb, xorg-xhost,
-    # xorg-xlsatoms, xorg-xlsclients, xorg-xrdb, xorg-xrefresh, xorg-xsetroot, xorg-x11perf, xorg-xpr,
-    # xorg-xvinfo, xorg-xwud, xorg-iceauth, xorg-xwd
-    - xorg:
-      - {install: xf86-input-libinput, desc: X.Org generic input driver, group: [xorg-drivers]}
-      - {install: xf86-video-vesa,  desc: X.org vesa video driver, group: [xorg, xorg-drivers]}
-      - {install: xorg-bdftopcf,    desc: Convert X font from Bitmap to PNG, group: [xorg, xorg-apps]}
-      - {install: xorg-font-util,   desc: X.org font utilities, group: [xorg]}
-      - {install: xorg-fonts-75dpi, desc: X.org 75dpi fonts, group: [xorg]}
-      - {install: xorg-fonts-100dpi, desc: X.org 100dpi fonts, group: [xorg]}
-      - {install: xorg-fonts-encodings, desc: X.org font encoding files, group: [xorg]}
-      - {install: xorg-mkfontdir,   desc: Create an index of X font files in a directory, group: [xorg, xorg-apps]}
-      - {install: xorg-mkfontscale, desc: Create an index of scalable font files for X, group: [xorg, xorg-apps]}
-      - {install: xorg-server,      desc: Xorg X server, group: [xorg]}
-      - {install: xorg-server-common, desc: Xorg server common files, group: [xorg]}
-      - {install: xorg-server-xvfb, desc: Virtual framebuffer X server, group: [xorg]}
-      - {install: xorg-setxkbmap,   desc: Set the keyboard using the X Keyboard Extension, group: [xorg, xorg-apps]}
-      - {install: xorg-xauth,       desc: X.Org authorization settings program, group: [xorg, xorg-apps]}
-      - {install: xorg-xbacklight,  desc: RandR-based backlight control application, group: [xorg, xorg-apps]}
-      - {install: xorg-xcursorgen,  desc: Create an X cursor file from PNG images, group: [xorg, xorg-apps]}
-      - {install: xorg-xdpyinfo,    desc: Display information utility for X, group: [xorg, xorg-apps]}
-      - {install: xorg-xev,         desc: Print contents of X events, group: [xorg, xorg-apps]}
-      - {install: xorg-xinput,      desc: Small commandline tool to configure devices, group: [xorg, xorg-apps]}
-      - {install: xorg-xkbcomp,     desc: X Keyboard description compiler, group: [xorg, xorg-apps]}
-      - {install: xorg-xkbevd,      desc: XKB event daemon, group: [xorg, xorg-apps]}
-      - {install: xorg-xkbutils,    desc: XKB utility demos, group: [xorg, xorg-apps]}
-      - {install: xorg-xkill,       desc: Kill a client by its X resource, group: [xorg, xorg-apps]}
-      - {install: xorg-xmodmap,     desc: Utility for modifying keymaps and button mappings, group: [xorg, xorg-apps]}
-      - {install: xorg-xprop,       desc: Property displayer for X, group: [xorg, xorg-apps]}
-      - {install: xorg-xrandr,      desc: Primitive command line interface to RandR extension, group: [xorg, xorg-apps]}
-      - {install: xorg-xset,        desc: User preference utility for X, group: [xorg, xorg-apps]}
-      - {install: xorg-xwininfo,    desc: Command-line util to print info about windows, group: [xorg, xorg-apps]}
+    - config-lite
+    - opengl
+    - virtualbox-guest
+    - xorg
     - system:
       - {install: dconf,            desc: A low-level configuration system }
       - {install: dconf-editor,     desc: New configuration manager intended to replace gconf }
@@ -401,9 +357,6 @@ apps:
       - {install: lxrandr,          desc: Monitor configuration tool for LXDE }
       - {install: oblogout,         desc: Openbox logout script }
       - {install: openbox,          desc: Lightweight X11 window manager }
-      - {install: mesa,             desc: Open-source OpenGL implementation }
-      - {install: mesa-demos,       desc: Mesa demos and tools e.g glxinfo/glxgears }
-      - {install: mesa-vdpau,       desc: Mesa VDPAU drivers }
       - {install: numix-frost-themes, desc: Numix frost GTK2, GTK3 and OpenBox themes, type: ANTERGOS }
       - {install: paper-icon-theme, desc: Paper icon theme, type: CYBERLINUX }
       - {install: pavucontrol,      desc: PulseAudio Volume Control }
@@ -412,7 +365,6 @@ apps:
       - {install: python2-xdg,      desc: Enable use of .desktop files in /etc/xdg in openbox }
       - {install: tint2,            desc: Lightweight taskmanager and system tray }
       - {install: wmctrl,           desc: Control your EWMH compliant window manager from command line }
-      - {install: wpa_gui,          desc: Qt4 GUI for WPA Supplicant, type: CYBERLINUX }
       - {install: xcursor-numix-frost, desc: Numix frost cursor theme, type: CYBERLINUX }
       - {install: xdg-user-dirs,    desc: Manage user directories like ~/Desktop }
       - {install: xdg-utils,        desc: Desktop integration utilities }
@@ -481,52 +433,57 @@ apps:
       - {install: ttf-liberation,   desc: Red Hats Liberation fonts.  }
       - {install: ttf-ms-fonts,     desc: Microsoft core fonts, type: CYBERLINUX }
       - {install: ttf-nerd-fonts-symbols, desc: Nerd Font Symbols, type: CYBERLINUX }
-    - virtualbox-guest
-    - config-user-dirs
-    - config-lite
 
   # https://wiki.archlinux.org/index.php/Desktop_environment
   desktop:
+    - docker
+    - guake
+    - media
+    - plank
+    - virtualbox-host
+    - config-menu-desktop
     - {install: asunder,            desc: A lean and friendly audio CD ripper and encoder }
     - {install: avidemux-qt,        desc: Graphical tool to edit video (filter/re-encode/split) - Qt GUI }
     - {install: audacity,           desc: Audio editor - cross platform, tried and tested }
     - {install: brasero,            desc: Burning tool, alt: k3b, xfburn }
     - {install: catfish,            desc: System/File Search - File search tool }
-    - {install: conky,              desc: Lightweight system monitor for X }
     - {install: devede,             desc: A program to create VideoDVDs and CDs }
     - {install: fbreader,           desc: An e-book reader for linux }
     - {install: freerdp,            desc: RDP client plugin for remmina }
-    - {install: gimp,               desc: Excellent image editor, alt: pinta }
     - {install: gnome-multi-writer, desc: Write an ISO file to multiple USB devices at once }
     - {install: hardinfo,           desc: A system information and benchmark tool }
-    - {install: hunspell-en_US,     desc: US dictionaries for spell checking, deps: libreoffice }
     - {install: id3v2,              desc: Utility to edit id3v2 tags }
     - {install: inkscape,           desc: Professional vector graphics editor }
-    - {install: libreoffice-fresh,  desc: LibreOffice branch with new features/enhancements }
     - {install: kolourpaint,        desc: Paint application that saves jpg in format for GFXBoot }
     - {install: python2-lxml,       desc: Python wrapper for libxml2, deps: Inkscape }
     - {install: openshot,           desc: Simple powerful Video Editor, alt: pitivi, kdenlive }
-    - {install: openvpn-update-systemd-resolved, desc: OpenVPN systemd-resolved updater, type: CYBERLINUX }
-    - {install: remmina,            desc: Network/Remoting - Nice remoting UI for RDP }
     - {install: scribus,            desc: Open Source Desktop Publishing }
-    - {install: synergy,            desc: Network/Virtual KVM }
-    - {install: veracrypt,          desc: Disk encryption with strong security based on TrueCrypt }
     - develop:
       - {install: awf-git,          desc: Widget Factory for developing GTK themes, type: CYBERLINUX }
       - {install: glade,            desc: User Interface Builder for GTK+ applications }
       - {install: meld,             desc: Develop/Diff Tool - Graphical diff tool cross platform }
       - {install: ripgrep,          desc: A search tool combining the usability of ag with speed of grep, depof: vscode }
       - {install: visual-studio-code-bin, desc: Editor for modern development, type: CYBERLINUX }
-    - cinnamon-screensaver
-    - docker
-    - guake
-    - keepass
-    - media
-    - opengl
-    - plank
-    - virtualbox-host
-    - config-desktop
 
+    # Disable wifi by default
+    - chroot: systemctl disable wpa_supplicant@wlp2s0
+    - exec: rm /etc/skel/.config/autostart/wpa_gui.desktop
+
+  # Laptop specific configuration
+  laptop:
+    - android
+    - cinnamon-screensaver
+    - conky
+    - keepass
+    - libreoffice
+    - wpa-supplicant
+    - {install: gimp, desc: Excellent image editor, alt: pinta }
+    - {install: openvpn-update-systemd-resolved, desc: OpenVPN systemd-resolved updater, type: CYBERLINUX }
+    - {install: remmina, desc: Network/Remoting - Nice remoting UI for RDP }
+    - {install: synergy, desc: Network/Virtual KVM }
+    - {install: veracrypt, desc: Disk encryption with strong security based on TrueCrypt }
+
+  # Server configuration
   server:
     - docker
     - media
@@ -552,13 +509,29 @@ apps:
       # sudo mount <%=nfscidr%>:/srv/nfs/Install /mnt/Install
       - {chroot: systemctl enable nfs-server.service }
 
+  # Lean back media players and entertainment
   theater:
+    - conky
+    - idesk
     - media
-    - opengl
-    - {install: conky,              desc: Lightweight system monitor for X }
-    - {install: idesk,              desc: Lightweight desktop icons for X, type: CYBERLINUX }
-    - {install: kodi,               desc: Software media player and entertainment hub }
-    - config-theater
+    - install: kodi
+    - config-theater-resolution:
+      - edit: /etc/X11/xorg.conf.d/10-display.conf
+        insert: append
+        values:
+          - 'Section "Screen"'
+          - '    Identifier "Screen0"'
+          - '    SubSection "Display"'
+          - '        Depth 24'
+          - '        Modes "1920x1080"'
+          - '    EndSubSection'
+          - 'EndSection'
+
+  # Android tooling
+  android:
+    - {install: android-tools, desc: Android platform tools }
+    - {install: gvfs-mtp, desc: Virtual filesystem implementation for GIO Android MTP }
+    - {install: libmtp, desc: Library implementation of the Media Transfer Protocol }
 
   # Audio/Player, alt: deadbeaf, xnoise
   audacious:
@@ -599,6 +572,27 @@ apps:
         - "    <key type=\"s\" name=\"logout-command\"><default>''</default></key>\n"
         - "    <key type=\"u\" name=\"logout-delay\"><default>7200</default></key>\n"
     - {chroot: glib-compile-schemas /usr/share/glib-2.0/schemas }
+
+  # Lightweight system monitor for X
+  conky:
+    - install: conky
+    - edit: /etc/lxdm/PostLogout
+      insert: append
+      values:
+        - 'killall conky'
+    - edit: /etc/skel/.config/autostart/conky.desktop
+      insert: append
+      values:
+        - '[Desktop Entry]'
+        - 'Name=Conky'
+        - 'Comment=Desktop widgets'
+        - 'Exec=conky'
+        - 'Icon=conky'
+        - 'Terminal=false'
+        - 'StartupNotify=true'
+        - 'Type=Application'
+        - 'Categories=System;Utility;'
+    - {menu: Settings, entry: Conky RC, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.conkyrc }
 
   cronie:
     - {install: cronie, desc: Daemon for scheduling programs to run}
@@ -670,6 +664,64 @@ apps:
         - '  <entry name="color" mtime="1476881725" type="string"><stringvalue>#D4D4D4D4D4D4</stringvalue></entry>'
         - '</gconf>'
 
+  # Lightweight desktop icons for X
+  idesk:
+    - {install: idesk, type: CYBERLINUX }
+    - edit: /etc/skel/.config/autostart/idesk.desktop
+      insert: append
+      values:
+        - '[Desktop Entry]'
+        - 'Name=idesk'
+        - 'Comment=Desktop icons'
+        - 'Exec=idesk'
+        - 'Icon=idesk'
+        - 'Terminal=false'
+        - 'Type=Application'
+        - 'Categories=Utility;'
+    - {exec: mkdir -p /usr/share/icons/hicolor/196x196/apps }
+    - {exec: convert /usr/share/icons/hicolor/256x256/apps/kodi.png -resize 196x196 /usr/share/icons/hicolor/196x196/apps/kodi.png }
+    - {exec: convert /usr/share/icons/hicolor/256x256/apps/chromium.png -resize 96x96 /usr/share/icons/hicolor/96x96/apps/chromium.png }
+    - {exec: convert /usr/share/icons/hicolor/256x256/apps/smplayer.png -resize 96x96 /usr/share/icons/hicolor/96x96/apps/smplayer.png }
+    - {exec: convert /usr/share/icons/hicolor/72x72/actions/system-reboot.png -resize 96x96 /usr/share/icons/hicolor/96x96/actions/system-reboot.png }
+    - {exec: convert /usr/share/icons/hicolor/72x72/actions/system-shutdown.png -resize 96x96 /usr/share/icons/hicolor/96x96/actions/system-shutdown.png }
+    - {exec: convert -background none -density 384 -resize x96 /usr/share/icons/hicolor/scalable/apps/audacious.svg /usr/share/icons/hicolor/96x96/apps/audacious.png }
+    - edit: /etc/skel/.idesktop/kodi.lnk
+      insert: append
+      values:
+        - "table Icon\n  Icon: /usr/share/icons/hicolor/196x196/apps/kodi.png"
+        - "  X: 1\n  Y: 1\n  Command[0]: kodi\nend"
+    - edit: /etc/skel/.idesktop/audio-player.lnk
+      insert: append
+      values:
+        - "table Icon\n  Icon: /usr/share/icons/hicolor/96x96/apps/audacious.png"
+        - "  X: 18\n  Y: 226\n  Command[0]: audacious\nend"
+    - edit: /etc/skel/.idesktop/browser.lnk
+      insert: append
+      values:
+        - "table Icon\n  Icon: /usr/share/icons/hicolor/96x96/apps/chromium.png"
+        - "  X: 186\n  Y: 105\n  Command[0]: chromium\nend"
+    - edit: /etc/skel/.idesktop/pandora.lnk
+      insert: append
+      values:
+        - "table Icon\n  Icon: /usr/share/icons/hicolor/96x96/apps/pandora.png"
+        - "  X: 217\n  Y: 4\n  Command[0]: chromium pandora.com\nend"
+    - edit: /etc/skel/.idesktop/reboot.lnk
+      insert: append
+      values:
+        - "table Icon\n  Icon: /usr/share/icons/hicolor/96x96/actions/system-reboot.png"
+        - "  X: 112\n  Y: 946\n  Command[0]: sudo reboot\nend"
+    - edit: /etc/skel/.idesktop/shutdown.lnk
+      insert: append
+      values:
+        - "table Icon\n  Icon: /usr/share/icons/hicolor/96x96/actions/system-shutdown.png"
+        - "  X: 10\n  Y: 946\n  Command[0]: sudo poweroff\nend"
+    - edit: /etc/skel/.idesktop/video-player.lnk
+      insert: append
+      values:
+        - "table Icon\n  Icon: /usr/share/icons/hicolor/96x96/apps/smplayer.png"
+        - "  X: 110\n  Y: 193\n  Command[0]: smplayer\nend"
+
+  # Packages needed to host manage a kubernetes cluster
   k8shost:
     - {install: helm,               desc: Kubernetes package manager, type: CYBERLINUX}
     - {install: kubectl,            desc: K8s cluster controller, type: CYBERLINUX}
@@ -692,6 +744,18 @@ apps:
   keepass:
     - install: keepass
     - {menu: Accessories, entry: KeePass, icon: /usr/share/icons/hicolor/32x32/apps/keepass.png, exec: keepass }
+
+  libreoffice:
+    - {install: hunspell-en_US,     desc: US dictionaries for spell checking, deps: libreoffice }
+    - {install: libreoffice-fresh,  desc: LibreOffice branch with new features/enhancements }
+    - {menu: Graphics, entry: LibreOffice Draw, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-draw.png, exec: libreoffice --draw }
+    - {menu: Office, entry: LibreOffice Base, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-base.png, exec: libreoffice --base }
+    - {menu: Office, entry: LibreOffice Calc, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-calc.png, exec: libreoffice --calc }
+    - {menu: Office, entry: LibreOffice Draw, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-draw.png, exec: libreoffice --draw }
+    - {menu: Office, entry: LibreOffice Impress, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-impress.png, exec: libreoffice --impress }
+    - {menu: Office, entry: LibreOffice Math, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-math.png, exec: libreoffice --math }
+    - {menu: Office, entry: LibreOffice Writer, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-writer.png, exec: libreoffice --writer }
+    - {menu: Office, entry: LibreOffice, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-startcenter.png, exec: libreoffice }
 
   media:
     - {install: handbrake,          desc: Video/Encoding - Video encoding tool for mp4/mkv }
@@ -720,6 +784,8 @@ apps:
   opengl:
     - {install: lib32-mesa,         desc: OpenGL opensource implementation, depof: kodi steam }
     - {install: lib32-mesa-vdpau,   desc: Mesa vdpau drivers, depof: kodi steam }
+    - {install: mesa,               desc: Open-source OpenGL implementation }
+    - {install: mesa-demos,         desc: Mesa demos and tools e.g glxinfo/glxgears }
     - {install: mesa-vdpau,         desc: Mesa vdpau drivers, depof: kodi steam }
 
   # Light weight, simple clean app dock
@@ -886,6 +952,120 @@ apps:
   virtualbox-ext-oracle:
     - {install: virtualbox-ext-oracle, desc: Oracle VM VirtualBox Extension Pack, type: CYBERLINUX }
 
+  # Utilities supporting WPA wireless networks
+  wpa-supplicant:
+    - install: wpa_supplicant
+    - {install: wpa_gui, type: CYBERLINUX }
+    - edit: /etc/wpa_supplicant/wpa_supplicant-wlp2s0.conf
+      insert: append
+      values:
+        # Set permissions for wpa_supplicant
+        - 'ctrl_interface=/run/wpa_supplicant'
+        - 'ctrl_interface_group=wheel'
+        # Allow WPA GUI to update this file with persistent changes
+        - 'update_config=1'
+        # Completely disable P2P/Direct WiFi - security hole
+        - 'p2p_disabled=1'
+        # Automatically scan and select networks matching saved ones
+        - 'ap_scan=1'
+    - chroot: systemctl enable wpa_supplicant@wlp2s0
+    - exec: cp /usr/share/applications/wpa_gui.desktop /etc/skel/.config/autostart
+    - {menu: Network, entry: WPA Gui, icon: /usr/share/icons/hicolor/32x32/apps/wpa_gui.png, exec: sudo wpa_gui }
+
+  # Xorg breakdown rather than using xorg group to remove un-needed packages
+  # Removing: xorg-docs, xorg-server-xdmx, xorg-server-xephyr, xorg-server-xnest, xorg-server-xwayland,
+  # xorg-server-devel, xorg-sessreg, xorg-smproxy, xorg-xdriinfo, xorg-xgamma, xorg-xcmsdb, xorg-xhost,
+  # xorg-xlsatoms, xorg-xlsclients, xorg-xrdb, xorg-xrefresh, xorg-xsetroot, xorg-x11perf, xorg-xpr,
+  # xorg-xvinfo, xorg-xwud, xorg-iceauth, xorg-xwd
+  - xorg:
+    - {install: xf86-input-libinput, desc: X.Org generic input driver, group: [xorg-drivers]}
+    - {install: xf86-video-vesa,  desc: X.org vesa video driver, group: [xorg, xorg-drivers]}
+    - {install: xorg-bdftopcf,    desc: Convert X font from Bitmap to PNG, group: [xorg, xorg-apps]}
+    - {install: xorg-font-util,   desc: X.org font utilities, group: [xorg]}
+    - {install: xorg-fonts-75dpi, desc: X.org 75dpi fonts, group: [xorg]}
+    - {install: xorg-fonts-100dpi, desc: X.org 100dpi fonts, group: [xorg]}
+    - {install: xorg-fonts-encodings, desc: X.org font encoding files, group: [xorg]}
+    - {install: xorg-mkfontdir,   desc: Create an index of X font files in a directory, group: [xorg, xorg-apps]}
+    - {install: xorg-mkfontscale, desc: Create an index of scalable font files for X, group: [xorg, xorg-apps]}
+    - {install: xorg-server,      desc: Xorg X server, group: [xorg]}
+    - {install: xorg-server-common, desc: Xorg server common files, group: [xorg]}
+    - {install: xorg-server-xvfb, desc: Virtual framebuffer X server, group: [xorg]}
+    - {install: xorg-setxkbmap,   desc: Set the keyboard using the X Keyboard Extension, group: [xorg, xorg-apps]}
+    - {install: xorg-xauth,       desc: X.Org authorization settings program, group: [xorg, xorg-apps]}
+    - {install: xorg-xbacklight,  desc: RandR-based backlight control application, group: [xorg, xorg-apps]}
+    - {install: xorg-xcursorgen,  desc: Create an X cursor file from PNG images, group: [xorg, xorg-apps]}
+    - {install: xorg-xdpyinfo,    desc: Display information utility for X, group: [xorg, xorg-apps]}
+    - {install: xorg-xev,         desc: Print contents of X events, group: [xorg, xorg-apps]}
+    - {install: xorg-xinput,      desc: Small commandline tool to configure devices, group: [xorg, xorg-apps]}
+    - {install: xorg-xkbcomp,     desc: X Keyboard description compiler, group: [xorg, xorg-apps]}
+    - {install: xorg-xkbevd,      desc: XKB event daemon, group: [xorg, xorg-apps]}
+    - {install: xorg-xkbutils,    desc: XKB utility demos, group: [xorg, xorg-apps]}
+    - {install: xorg-xkill,       desc: Kill a client by its X resource, group: [xorg, xorg-apps]}
+    - {install: xorg-xmodmap,     desc: Utility for modifying keymaps and button mappings, group: [xorg, xorg-apps]}
+    - {install: xorg-xprop,       desc: Property displayer for X, group: [xorg, xorg-apps]}
+    - {install: xorg-xrandr,      desc: Primitive command line interface to RandR extension, group: [xorg, xorg-apps]}
+    - {install: xorg-xset,        desc: User preference utility for X, group: [xorg, xorg-apps]}
+    - {install: xorg-xwininfo,    desc: Command-line util to print info about windows, group: [xorg, xorg-apps]}
+    - edit: /opt/<%=distro%>/bin/pre-xorg
+      insert: append
+      values:
+        - '#!/bin/bash'
+        - '# Set resolution for virtuabox deployment'
+        - 'display_conf=/etc/X11/xorg.conf.d/10-display.conf'
+        - 'if [ ! -f $display_conf ]; then'
+        - '  if [ $(lsmod | grep "vboxvideo" &>/dev/null; echo $?) == 0 ]; then'
+        - "    echo 'Section \"Screen\"' > $display_conf"
+        - "    echo '    Identifier \"Screen0\"' >> $display_conf"
+        - "    echo '    SubSection \"Display\"' >> $display_conf"
+        - "    echo '        Depth 24' >> $display_conf"
+        - "    echo '        Modes \"1280x1024\"' >> $display_conf"
+        - "    echo '    EndSubSection' >> $display_conf"
+        - "    echo 'EndSection' >> $display_conf"
+        - '  fi'
+        - 'fi'
+    - {exec: chmod +x /opt/<%=distro%>/bin/pre-xorg }
+    - edit: /etc/X11/xorg.conf.d/20-dpms.conf
+      insert: append
+      values:
+        - 'Section "Monitor"'
+        - '    Identifier "Monitor0"'
+        - '    Option     "DPMS" "0"'
+        - 'EndSection'
+        - 'Section "ServerLayout"'
+        - '    Identifier "ServerLayout0"'
+        - '    Option     "OffTime" "0"'
+        - '    Option     "BlankTime" "0"'
+        - '    Option     "StandbyTime" "0"'
+        - '    Option     "SuspendTime" "0"'
+        - 'EndSection'
+    - edit: /etc/X11/xorg.conf.d/40-input.conf
+      insert: append
+      values:
+        - 'Section "InputClass"'
+        - '    Identifier "Mouse"'
+        - '    Driver "libinput"'
+        - '    MatchIsPointer "on"'
+        - '    MatchDevicePath "/dev/input/event*"'
+        - '    Option "AccelSpeed" "0.3"'
+        - 'EndSection'
+        - ''
+        - 'Section "InputClass"'
+        - '    Identifier "Keyboard"'
+        - '    Driver "libinput"'
+        - '    MatchIsKeyboard "on"'
+        - '    MatchDevicePath "/dev/input/event*"'
+        - 'EndSection'
+        - ''
+        - 'Section "InputClass"'
+        - '    Identifier "Touchpad"'
+        - '    Driver "libinput"'
+        - '    MatchIsTouchpad "on"'
+        - '    MatchDevicePath "/dev/input/event*"'
+        - '    Option "Tapping" "on"'
+        - '    Option "AccelSpeed" "1"'
+        - '    Option "NaturalScrolling" "on"'
+        - 'EndSection'
+
 ################################################################################
 configs:
   config-lite:
@@ -897,21 +1077,9 @@ configs:
     - config-oblogout
     - config-mimeapps
     - config-wallpaper
-    - config-xorg
     - config-thunar
     - config-menu-lite
-  config-laptop:
-    - config-wpa-gui
-    - config-conky
-    - config-menu-laptop
-  config-desktop:
-    - config-conky
-    - config-menu-desktop
-  config-theater:
-    - config-conky
-    - config-idesk
-    - config-theater-resolution
-    - config-menu-theater
+    - config-user-dirs
   config-menu-lite:
     - {menu: Root, insert: append, entry: Thunar, icon: /usr/share/icons/Paper/32x32/apps/Thunar.png, exec: thunar }
     - {menu: Root, insert: append, entry: LXTerminal, icon: /usr/share/icons/Paper/32x32/apps/lxterminal.png, exec: lxterminal }
@@ -967,8 +1135,6 @@ configs:
     - {menu: Session, insert: append, entry: Logout, icon: /usr/share/icons/Paper/32x32/actions/exit.png, exec: openbox --exit }
     - {menu: Session, insert: append, entry: Reboot, icon: /usr/share/icons/hicolor/32x32/actions/system-reboot.png, exec: sudo reboot }
     - {menu: Session, insert: append, entry: Shutdown, icon: /usr/share/icons/hicolor/32x32/actions/system-shutdown.png, exec: sudo poweroff }
-  config-menu-laptop:
-    - {menu: Network, entry: WPA Gui, icon: /usr/share/icons/hicolor/32x32/apps/wpa_gui.png, exec: sudo wpa_gui }
 
   config-menu-desktop:
     - {menu: Accessories, entry: Catfish File Search, icon: /usr/share/icons/Paper/32x32/apps/system-search.png, exec: catfish }
@@ -978,7 +1144,6 @@ configs:
     - {menu: Graphics, entry: Gimp, icon: /usr/share/icons/Paper/32x32/apps/gimp.png, exec: gimp }
     - {menu: Graphics, entry: Inkscape, icon: /usr/share/icons/Paper/32x32/apps/inkscape.png, exec: inkscape }
     - {menu: Graphics, entry: Kolour, icon: /usr/share/icons/Paper/32x32/apps/kolourpaint.png, exec: kolourpaint }
-    - {menu: Graphics, entry: LibreOffice Draw, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-draw.png, exec: libreoffice --draw }
     - {menu: Multimedia, entry: Asunder, icon: /usr/share/icons/hicolor/32x32/apps/brasero.png, exec: asunder }
     - {menu: Multimedia, entry: Audacity, icon: /usr/share/icons/hicolor/32x32/apps/audacity.png, exec: env UBUNTU_MENUPROXY=0 audacity }
     - {menu: Multimedia, entry: Brasero, icon: /usr/share/icons/Paper/32x32/apps/brasero.png, exec: brasero }
@@ -986,36 +1151,10 @@ configs:
     - {menu: Multimedia, entry: OpenShot, icon: /usr/share/icons/Paper/32x32/apps/openshot.png, exec: openshot-qt }
     - {menu: Network, entry: Remmina, icon: /usr/share/icons/Paper/32x32/apps/remmina.png, exec: remmina }
     - {menu: Network, entry: Synergy, icon: /usr/share/icons/Paper/32x32/apps/synergy.png, exec: synergy }
-    - {menu: Network, entry: WPA Gui, icon: /usr/share/icons/hicolor/32x32/apps/wpa_gui.png, exec: sudo wpa_gui }
-    - {menu: Office, entry: LibreOffice Base, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-base.png, exec: libreoffice --base }
-    - {menu: Office, entry: LibreOffice Calc, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-calc.png, exec: libreoffice --calc }
-    - {menu: Office, entry: LibreOffice Draw, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-draw.png, exec: libreoffice --draw }
-    - {menu: Office, entry: LibreOffice Impress, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-impress.png, exec: libreoffice --impress }
-    - {menu: Office, entry: LibreOffice Math, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-math.png, exec: libreoffice --math }
-    - {menu: Office, entry: LibreOffice Writer, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-writer.png, exec: libreoffice --writer }
-    - {menu: Office, entry: LibreOffice, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-startcenter.png, exec: libreoffice }
     - {menu: Office, entry: Scribus, icon: /usr/share/icons/Paper/32x32/apps/scribus.png, exec: scribus }
     - {menu: System, entry: HardInfo, icon: /usr/share/hardinfo/pixmaps/logo.png, exec: hardinfo }
     - {menu: Settings, entry: Guake Preferences, icon: /usr/share/icons/Paper/32x32/apps/guake-prefs.png, exec: guake-prefs }
     - {menu: Settings, entry: VirtualBox, icon: /usr/share/icons/Paper/32x32/apps/virtualbox.png, exec: VirtualBox }
-  config-conky:
-    - {menu: Settings, entry: Conky RC, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.conkyrc }
-    - edit: /etc/lxdm/PostLogout
-      insert: append
-      values:
-        - 'killall conky'
-    - edit: /etc/skel/.config/autostart/conky.desktop
-      insert: append
-      values:
-        - '[Desktop Entry]'
-        - 'Name=Conky'
-        - 'Comment=Desktop widgets'
-        - 'Exec=conky'
-        - 'Icon=conky'
-        - 'Terminal=false'
-        - 'StartupNotify=true'
-        - 'Type=Application'
-        - 'Categories=System;Utility;'
   config-dconf:
     - edit: /etc/dconf/profile/user
       insert: append
@@ -1168,60 +1307,6 @@ configs:
         - 'Name=Default'
         - 'Comment=Default Cursor Theme'
         - 'Inherits=xcursor-numix-frost'
-  config-idesk:
-    - edit: /etc/skel/.config/autostart/idesk.desktop
-      insert: append
-      values:
-        - '[Desktop Entry]'
-        - 'Name=idesk'
-        - 'Comment=Desktop icons'
-        - 'Exec=idesk'
-        - 'Icon=idesk'
-        - 'Terminal=false'
-        - 'Type=Application'
-        - 'Categories=Utility;'
-    - {exec: mkdir -p /usr/share/icons/hicolor/196x196/apps }
-    - {exec: convert /usr/share/icons/hicolor/256x256/apps/kodi.png -resize 196x196 /usr/share/icons/hicolor/196x196/apps/kodi.png }
-    - {exec: convert /usr/share/icons/hicolor/256x256/apps/chromium.png -resize 96x96 /usr/share/icons/hicolor/96x96/apps/chromium.png }
-    - {exec: convert /usr/share/icons/hicolor/256x256/apps/smplayer.png -resize 96x96 /usr/share/icons/hicolor/96x96/apps/smplayer.png }
-    - {exec: convert /usr/share/icons/hicolor/72x72/actions/system-reboot.png -resize 96x96 /usr/share/icons/hicolor/96x96/actions/system-reboot.png }
-    - {exec: convert /usr/share/icons/hicolor/72x72/actions/system-shutdown.png -resize 96x96 /usr/share/icons/hicolor/96x96/actions/system-shutdown.png }
-    - {exec: convert -background none -density 384 -resize x96 /usr/share/icons/hicolor/scalable/apps/audacious.svg /usr/share/icons/hicolor/96x96/apps/audacious.png }
-    - edit: /etc/skel/.idesktop/kodi.lnk
-      insert: append
-      values:
-        - "table Icon\n  Icon: /usr/share/icons/hicolor/196x196/apps/kodi.png"
-        - "  X: 1\n  Y: 1\n  Command[0]: kodi\nend"
-    - edit: /etc/skel/.idesktop/audio-player.lnk
-      insert: append
-      values:
-        - "table Icon\n  Icon: /usr/share/icons/hicolor/96x96/apps/audacious.png"
-        - "  X: 18\n  Y: 226\n  Command[0]: audacious\nend"
-    - edit: /etc/skel/.idesktop/browser.lnk
-      insert: append
-      values:
-        - "table Icon\n  Icon: /usr/share/icons/hicolor/96x96/apps/chromium.png"
-        - "  X: 186\n  Y: 105\n  Command[0]: chromium\nend"
-    - edit: /etc/skel/.idesktop/pandora.lnk
-      insert: append
-      values:
-        - "table Icon\n  Icon: /usr/share/icons/hicolor/96x96/apps/pandora.png"
-        - "  X: 217\n  Y: 4\n  Command[0]: chromium pandora.com\nend"
-    - edit: /etc/skel/.idesktop/reboot.lnk
-      insert: append
-      values:
-        - "table Icon\n  Icon: /usr/share/icons/hicolor/96x96/actions/system-reboot.png"
-        - "  X: 112\n  Y: 946\n  Command[0]: sudo reboot\nend"
-    - edit: /etc/skel/.idesktop/shutdown.lnk
-      insert: append
-      values:
-        - "table Icon\n  Icon: /usr/share/icons/hicolor/96x96/actions/system-shutdown.png"
-        - "  X: 10\n  Y: 946\n  Command[0]: sudo poweroff\nend"
-    - edit: /etc/skel/.idesktop/video-player.lnk
-      insert: append
-      values:
-        - "table Icon\n  Icon: /usr/share/icons/hicolor/96x96/apps/smplayer.png"
-        - "  X: 110\n  Y: 193\n  Command[0]: smplayer\nend"
   config-lxdm:
     - {exec: ln -sf //usr/lib/systemd/system/lxdm.service /etc/systemd/system/display-manager.service }
     - {edit: /usr/share/lxdm/themes/Industrial/gtk.css, regex: '^(\s*font: Sans).*', value: '\1 18;' }
@@ -1363,17 +1448,6 @@ configs:
         - 'fi'
         - "# PROXY_MARKER"
     - {exec: chmod +x /opt/<%=distro%>/bin/setproxy }
-  config-theater-resolution:
-    - edit: /etc/X11/xorg.conf.d/10-display.conf
-      insert: append
-      values:
-        - 'Section "Screen"'
-        - '    Identifier "Screen0"'
-        - '    SubSection "Display"'
-        - '        Depth 24'
-        - '        Modes "1920x1080"'
-        - '    EndSubSection'
-        - 'EndSection'
   config-thunar:
     - edit: /etc/skel/.config/autostart/thunar.desktop
       insert: append
@@ -1420,68 +1494,3 @@ configs:
         - 'sort=alpha'
         - 'icon_caps=false'
         - 'dirs=/usr/share/wallpaper;'
-  config-wpa-gui:
-    # Autostart WPA Gui
-    - {exec: 'cp /usr/share/applications/wpa_gui.desktop /etc/skel/.config/autostart' }
-    # Enable wpa_supplicant out of the box so we have WiFi running
-    - {chroot: systemctl enable wpa_supplicant@wlp2s0 }
-  config-xorg:
-    - edit: /opt/<%=distro%>/bin/pre-xorg
-      insert: append
-      values:
-        - '#!/bin/bash'
-        - '# Set resolution for virtuabox deployment'
-        - 'display_conf=/etc/X11/xorg.conf.d/10-display.conf'
-        - 'if [ ! -f $display_conf ]; then'
-        - '  if [ $(lsmod | grep "vboxvideo" &>/dev/null; echo $?) == 0 ]; then'
-        - "    echo 'Section \"Screen\"' > $display_conf"
-        - "    echo '    Identifier \"Screen0\"' >> $display_conf"
-        - "    echo '    SubSection \"Display\"' >> $display_conf"
-        - "    echo '        Depth 24' >> $display_conf"
-        - "    echo '        Modes \"1280x1024\"' >> $display_conf"
-        - "    echo '    EndSubSection' >> $display_conf"
-        - "    echo 'EndSection' >> $display_conf"
-        - '  fi'
-        - 'fi'
-    - {exec: chmod +x /opt/<%=distro%>/bin/pre-xorg }
-    - edit: /etc/X11/xorg.conf.d/20-dpms.conf
-      insert: append
-      values:
-        - 'Section "Monitor"'
-        - '    Identifier "Monitor0"'
-        - '    Option     "DPMS" "0"'
-        - 'EndSection'
-        - 'Section "ServerLayout"'
-        - '    Identifier "ServerLayout0"'
-        - '    Option     "OffTime" "0"'
-        - '    Option     "BlankTime" "0"'
-        - '    Option     "StandbyTime" "0"'
-        - '    Option     "SuspendTime" "0"'
-        - 'EndSection'
-    - edit: /etc/X11/xorg.conf.d/40-input.conf
-      insert: append
-      values:
-        - 'Section "InputClass"'
-        - '    Identifier "Mouse"'
-        - '    Driver "libinput"'
-        - '    MatchIsPointer "on"'
-        - '    MatchDevicePath "/dev/input/event*"'
-        - '    Option "AccelSpeed" "0.3"'
-        - 'EndSection'
-        - ''
-        - 'Section "InputClass"'
-        - '    Identifier "Keyboard"'
-        - '    Driver "libinput"'
-        - '    MatchIsKeyboard "on"'
-        - '    MatchDevicePath "/dev/input/event*"'
-        - 'EndSection'
-        - ''
-        - 'Section "InputClass"'
-        - '    Identifier "Touchpad"'
-        - '    Driver "libinput"'
-        - '    MatchIsTouchpad "on"'
-        - '    MatchDevicePath "/dev/input/event*"'
-        - '    Option "Tapping" "on"'
-        - '    Option "AccelSpeed" "1"'
-        - '    Option "NaturalScrolling" "on"'
-        - 'EndSection'
