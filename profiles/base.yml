@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.101
+  release: 0.2.102
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -531,20 +531,26 @@ apps:
     - docker
     - media
     - keepass
-#    - {install: asterisk,           desc: Free opensource telephony engine tuned for Google Voice }
-    - {install: file-roller,        desc: System/Compression integrates well in Thunar }
-    - {install: qbittorrent,        desc: Network/Bittorent, alt: deluge }
-      #- {install: openvpn-pia,        desc: OpenVPN system tray with PIA integration, type: CYBERLINUX }
-#    - apache-php:
-#      - {install: apache,           desc: Apache web server, deb: phpBB }
-#      - {install: bzip2,            desc: Compression util for the bzip2 format, depof: php-gd }
-#      - {install: php,              desc: PHP lang, depof: phpBB }
-#      - {install: php-apache,       desc: PHP apache module, depof: phpBB }
-#      - {install: php-sqlite,       desc: PHP sqlite module, depof: phpBB }
-#      - {install: php-gd,           desc: PHP gd module, depof: phpBB }
-#      - {install: curl,             desc: Network download REST command line tool, depof: php }
-#      - {install: xz,               desc: Compression util for xz format, depof: php-gd }
-    - config-server
+    - qbittorrent
+    - config-nfs:
+      - edit: /etc/exports
+        insert: append
+        values:
+          - '/srv/nfs/Cache       <%=nfscidr%>(rw,no_subtree_check,nohide,no_root_squash)'
+          - '/srv/nfs/Documents   <%=nfscidr%>(rw,no_subtree_check,nohide)'
+          - '/srv/nfs/Install     <%=nfscidr%>(rw,no_subtree_check,nohide)'
+          - '/srv/nfs/Media       <%=nfscidr%>(rw,no_subtree_check,nohide)'
+          - '/srv/nfs/Pictures    <%=nfscidr%>(rw,no_subtree_check,nohide)'
+          - '/srv/nfs/Other       <%=nfscidr%>(rw,no_subtree_check,nohide)'
+      - {chroot: 'mkdir -p /srv/nfs/{Cache,Documents,Install,Media,Pictures,Other}' }
+      - {chroot: "echo 'options nfs nfs4_disable_idmapping=0' > /etc/modprobe.d/nfs.conf" }
+
+      # Share pacman cache with other machines on the LAN
+      - {edit: /etc/fstab, insert: append, value: "/var/cache/pacman/pkg /srv/nfs/Cache none bind 0 0" }
+
+      # Manually mount on client side with this
+      # sudo mount <%=nfscidr%>:/srv/nfs/Install /mnt/Install
+      - {chroot: systemctl enable nfs-server.service }
 
   theater:
     - media
@@ -692,6 +698,9 @@ apps:
     - {install: handbrake-cli,      desc: Video/Encoding - Video encoding tool for mp4/mkv }
     - {install: mkvtoolnix-gui,     desc: Set of tools to create, edit and inspect MKV files }
     - {install: tiny-media-manager, desc: Cross platform media manager, type: CYBERLINUX }
+    - {menu: Multimedia, entry: HandBrake, icon: /usr/share/icons/hicolor/scalable/apps/hb-icon.svg, exec: ghb }
+    - {menu: Multimedia, entry: MKVToolNix, icon: /usr/share/icons/hicolor/32x32/apps/mkvtoolnix-gui.png, exec: mkvtoolnix-gui }
+    - {menu: Multimedia, entry: Tiny Media Manager, icon: /usr/share/icons/hicolor/32x32/apps/tiny-media-manager.png, exec: tiny-media-manager }
 
   # Tools required for building initramfs for early boot environment
   mkinitcpio:
@@ -739,6 +748,11 @@ apps:
     - {edit: /etc/skel/.config/plank/dock1/launchers/08-calc.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/libreoffice-calc.desktop"]}
     - {edit: /etc/skel/.config/plank/dock1/launchers/09-writer.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/libreoffice-writer.desktop"]}
     - {edit: /etc/skel/.config/plank/dock1/launchers/10-virtualbox.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/virtualbox.desktop"]}
+
+  # Excellent torrent client
+  qbittorrent:
+    - install: qbittorrent
+    - {menu: Network, entry: qBittorrent, icon: /usr/share/icons/hicolor/32x32/apps/qbittorrent.png, exec: qbittorrent }
 
   # Open source SSH server/client
   sshd:
@@ -893,11 +907,6 @@ configs:
   config-desktop:
     - config-conky
     - config-menu-desktop
-  config-server:
-    - config-nfs
-    - config-thunar
-    - config-apache-php
-    - config-menu-server
   config-theater:
     - config-conky
     - config-idesk
@@ -974,10 +983,7 @@ configs:
     - {menu: Multimedia, entry: Audacity, icon: /usr/share/icons/hicolor/32x32/apps/audacity.png, exec: env UBUNTU_MENUPROXY=0 audacity }
     - {menu: Multimedia, entry: Brasero, icon: /usr/share/icons/Paper/32x32/apps/brasero.png, exec: brasero }
     - {menu: Multimedia, entry: DeVeDe, icon: /usr/share/devedeng/devedeng.png, exec: devede_ng.py }
-    - {menu: Multimedia, entry: HandBrake, icon: /usr/share/icons/hicolor/scalable/apps/hb-icon.svg, exec: ghb }
-    - {menu: Multimedia, entry: MKVToolNix, icon: /usr/share/icons/hicolor/32x32/apps/mkvtoolnix-gui.png, exec: mkvtoolnix-gui }
     - {menu: Multimedia, entry: OpenShot, icon: /usr/share/icons/Paper/32x32/apps/openshot.png, exec: openshot-qt }
-    - {menu: Multimedia, entry: Tiny Media Manager, icon: /usr/share/icons/hicolor/32x32/apps/tiny-media-manager.png, exec: tiny-media-manager }
     - {menu: Network, entry: Remmina, icon: /usr/share/icons/Paper/32x32/apps/remmina.png, exec: remmina }
     - {menu: Network, entry: Synergy, icon: /usr/share/icons/Paper/32x32/apps/synergy.png, exec: synergy }
     - {menu: Network, entry: WPA Gui, icon: /usr/share/icons/hicolor/32x32/apps/wpa_gui.png, exec: sudo wpa_gui }
@@ -992,66 +998,6 @@ configs:
     - {menu: System, entry: HardInfo, icon: /usr/share/hardinfo/pixmaps/logo.png, exec: hardinfo }
     - {menu: Settings, entry: Guake Preferences, icon: /usr/share/icons/Paper/32x32/apps/guake-prefs.png, exec: guake-prefs }
     - {menu: Settings, entry: VirtualBox, icon: /usr/share/icons/Paper/32x32/apps/virtualbox.png, exec: VirtualBox }
-  config-menu-server:
-    - {menu: Accessories, entry: Archive Manager, icon: /usr/share/icons/Paper/32x32/apps/file-roller.png, exec: file-roller }
-    - {menu: Multimedia, entry: HandBrake, icon: /usr/share/icons/hicolor/scalable/apps/hb-icon.svg, exec: ghb }
-    - {menu: Multimedia, entry: MKVToolNix, icon: /usr/share/icons/hicolor/32x32/apps/mkvtoolnix-gui.png, exec: mkvtoolnix-gui }
-    - {menu: Multimedia, entry: Tiny Media Manager, icon: /usr/share/icons/hicolor/32x32/apps/tiny-media-manager.png, exec: tiny-media-manager }
-    - {menu: Network, entry: OpenVPN PIA, icon: /usr/share/icons/hicolor/32x32/apps/openvpn-pia.png, exec: sudo openvpn-pia }
-    - {menu: Network, entry: qBittorrent, icon: /usr/share/icons/hicolor/32x32/apps/qbittorrent.png, exec: qbittorrent }
-  config-menu-theater:
-    - {menu: Multimedia, entry: HandBrake, icon: /usr/share/icons/hicolor/scalable/apps/hb-icon.svg, exec: ghb }
-    - {menu: Multimedia, entry: MKVToolNix, icon: /usr/share/icons/hicolor/32x32/apps/mkvtoolnix-gui.png, exec: mkvtoolnix-gui }
-    - {menu: Multimedia, entry: Tiny Media Manager, icon: /usr/share/icons/hicolor/32x32/apps/tiny-media-manager.png, exec: tiny-media-manager }
-  config-apache-php:
-    - {edit: /etc/httpd/conf/httpd.conf, regex: '^(Listen).*', value: '\1 80' }
-    - {edit: /etc/httpd/conf/httpd.conf, regex: '^(DocumentRoot).*', value: '\1 /srv/http' }
-    - {edit: /etc/httpd/conf/httpd.conf, regex: '^(.*DirectoryIndex index.html).*', value: '\1 index.php' }
-    - {edit: /etc/httpd/conf/httpd.conf, regex: '^(LoadModule mpm_event.*)', value: '#\1' }
-    - edit: /etc/httpd/conf/httpd.conf
-      insert: before
-      regex: '<IfModule mpm_prefork'
-      values:
-        - "MaxMemFree 2048"
-        - "LoadModule php7_module modules/libphp7.so"
-        - "LoadModule mpm_prefork_module modules/mod_mpm_prefork.so"
-    - edit: /etc/httpd/conf/httpd.conf
-      insert: after
-      regex: '<IfModule mpm_prefork'
-      values:
-        # StartServers: number of server processes to start, default (5)
-        - "    StartServers           5"
-        # MinSpareServers: minimum number of server processes which are kept spare, default (5)
-        - "    MinSpareServers        5"
-        # MaxSpareServers: maximum number of server processes which are kept spare, default (10)
-        - "    MaxSpareServers        5"
-        # MaxRequestWorkers: maximum number of server processes allowed to start, default (256)
-        - "    MaxRequestWorkers     100"
-        # MaxConnectionsPerChild: max num of connections a server process serves before term, default (0)
-        - "    MaxConnectionsPerChild 0"
-    - edit: /etc/httpd/conf/httpd.conf
-      insert: after
-      regex: 'DirectoryIndex index.html'
-      values:
-        - "    <IfModule php7_module>"
-        - "        DirectoryIndex index.html index.php"
-        - "        <FilesMatch \"\\.php$\">"
-        - "            SetHandler application/x-httpd-php"
-        - "        </FilesMatch>"
-        - "        <FilesMatch \"\\.phps$\">"
-        - "            SetHandler application/x-httpd-php-source"
-        - "        </FilesMatch>"
-        - "    </IfModule>"
-    - {edit: /etc/php/php.ini, regex: '^(max_execution_time).*', value: '\1 = 6000' }
-    - {edit: /etc/php/php.ini, regex: '^(max_input_time).*', value: '\1 = 6000' }
-    - {edit: /etc/php/php.ini, regex: '^(memory_limit).*', value: '\1 = 128M' }
-    - {edit: /etc/php/php.ini, regex: '^(post_max_size).*', value: '\1 = 210M' }
-    - {edit: /etc/php/php.ini, regex: '^(upload_max_filesize).*', value: '\1 = 200M' }
-    - {edit: /etc/php/php.ini, regex: '^;(extension=gd.so.*)', value: '\1' }
-    - {edit: /etc/php/php.ini, regex: '^;(extension=gettext.so.*)', value: '\1' }
-    - {edit: /etc/php/php.ini, regex: '^;(extension=pdo_sqlite.so.*)', value: '\1' }
-    - {edit: /etc/php/php.ini, regex: '^;(extension=sqlite3.so.*)', value: '\1' }
-    - {chroot: systemctl enable httpd.service }
   config-conky:
     - {menu: Settings, entry: Conky RC, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.conkyrc }
     - edit: /etc/lxdm/PostLogout
@@ -1331,23 +1277,6 @@ configs:
         - 'video/x-matroska=smplayer.desktop;'
         - 'video/mp4=smplayer.desktop;'
         - 'video/mpeg=smplayer.desktop;'
-  config-nfs:
-    - edit: /etc/exports
-      insert: append
-      values:
-        - '/srv/nfs/Cache       <%=nfscidr%>(rw,no_subtree_check,nohide,no_root_squash)'
-        - '/srv/nfs/Documents   <%=nfscidr%>(rw,no_subtree_check,nohide)'
-        - '/srv/nfs/Install     <%=nfscidr%>(rw,no_subtree_check,nohide)'
-        - '/srv/nfs/Media       <%=nfscidr%>(rw,no_subtree_check,nohide)'
-        - '/srv/nfs/Pictures    <%=nfscidr%>(rw,no_subtree_check,nohide)'
-        - '/srv/nfs/Other       <%=nfscidr%>(rw,no_subtree_check,nohide)'
-    - {chroot: 'mkdir -p /srv/nfs/{Cache,Documents,Install,Media,Pictures,Other}' }
-    - {chroot: "echo 'options nfs nfs4_disable_idmapping=0' > /etc/modprobe.d/nfs.conf" }
-    # Share pacman cache with other machines on the LAN
-    - {edit: /etc/fstab, insert: append, value: "/var/cache/pacman/pkg /srv/nfs/Cache none bind 0 0" }
-    # Manually mount on client side with this
-    #- {edit: /etc/fstab, insert: append, value: serverip:/srv/nfs/Cache /var/cache/pacman/pkg nfs auto,noatime,rsize=8192,wsize=8192,timeo=14,_netdev 0 0
-    - {chroot: systemctl enable nfs-server.service }
   config-oblogout:
     - edit: /etc/oblogout.conf
       insert: append
@@ -1389,26 +1318,6 @@ configs:
       values:
         - '# Source the user rc file if it exists'
         - '[ -r ~/.bashrc ] && source ~/.bashrc'
-#  config-pacman:
-#    - {exec: 'rm -f /etc/pacman.d/gnupg/dirmngr.conf' }
-#    - {edit: /etc/pacman.d/gnupg/dirmngr.conf, insert: append, value: "honor-http-proxy" }
-#    - {edit: /etc/pacman.d/gnupg/gpg.conf, regex: '^keyserver\s.*', value: 'keyserver http://ipv4.pool.sks-keyservers.net' }
-#    - {chroot: "bash -c 'haveged -r 0 && pacman-key --init'" }
-#    - {chroot: 'pacman-key --populate archlinux antergos blackarch' }
-#    - {chroot: 'pacman -Sy' }
-  config-openvpn-pia:
-    - edit: /etc/skel/.config/autostart/openvpn-pia.desktop
-      insert: append
-      values:
-        - '[Desktop Entry]'
-        - 'Name=OpenVPN PIA'
-        - 'Comment=Private Internet Access OpenVPN automation and UI'
-        - 'Exec=sudo openvpn-pia'
-        - 'Icon=openvpn-pia'
-        - 'Terminal=false'
-        - 'StartupNotify=true'
-        - 'Type=Application'
-        - 'Categories=Network;'
   config-proxy:
     - edit: /opt/<%=distro%>/bin/setproxy
       insert: append
