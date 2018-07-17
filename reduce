@@ -1005,7 +1005,6 @@ class Reduce
 
     # Detect multilib value
     multilib = deployment_yml[@k.multilib] || false
-    puts("Multilib: #{multilib} for deployment '#{deployment}'".colorize(:cyan))
 
     # Get all packages for given app
     resolve = ->(entry){
