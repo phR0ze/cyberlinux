@@ -474,13 +474,15 @@ config_system()
     check_status
 
     # Configure networking
+    # https://www.freedesktop.org/software/systemd/man/systemd.network.html#
     netmatch='en* eth*'
     if [ "x${netip}" != "xDHCP" ]; then
         # Static LAN
         local conf="${rootmnt}/etc/systemd/network/10-static.network"
         echo -en ":: Configuring static networking..."
         echo -e "[Match]\nName=${netmatch}\n" > $conf
-        echo -e "[Network]\nAddress=${netip}\nIPForward=kernel\n" >> $conf
+        echo -e "[Network]\nAddress=${netip}\nGateway=${gateway}\nDNS=${dns1}\nDNS=${dns2}" >> $conf
+        echo -e "IPForward=kernel" >> $conf
         check_status
     else
         # DHCP LAN
@@ -488,7 +490,7 @@ config_system()
         echo -en ":: Configuring dhcp networking..."
         echo -e "[Match]\nName=${netmatch}\n" > $conf
         echo -e "[Network]\nDHCP=ipv4\nIPForward=kernel\n" >> $conf
-        echo -e "[DHCP]\nUseDomains=true\n" >> $conf
+        echo -e "[DHCP]\nUseDomains=true" >> $conf
         check_status
     fi
 
@@ -497,7 +499,7 @@ config_system()
     echo -en ":: Configuring dhcp wireless networking..."
     echo -e "[Match]\nName=wl*\n" > $conf
     echo -e "[Network]\nDHCP=ipv4\nIPForward=kernel\n" >> $conf
-    echo -e "[DHCP]\nRouteMetric=20\nUseDomains=true\n" >> $conf
+    echo -e "[DHCP]\nRouteMetric=20\nUseDomains=true" >> $conf
     check_status
 
     if [ $proxy ] && [ "x$proxy" != "xNone" ]; then
@@ -599,7 +601,10 @@ installer()
             #----------------------------------------------------------------------
             echo -e "\n${cyan}:: Configure networking:${none}"
             getinput hostname 'hostname' $hostname
-            getinput netip 'static IP' 'DHCP'
+            getinput netip 'static IP, e.g. 192.168.1.2/24' 'DHCP'
+            if [ "x${netip}" != "xDHCP" ]; then
+                getinput gateway 'gateway' $(echo $netip | awk -F. '{print $1"."$2"."$3".1"}')
+            fi
             getinput proxy 'proxy, url:port format' $proxy
             [ "x${proxy}" != "xNone" ] && getinput no_proxy 'no_proxy, comma delim' $no_proxy
 
@@ -622,6 +627,11 @@ installer()
                fi
             done
             pass=$(mkpasswd -m sha $pass)
+
+            # Prompt for autologin
+            if [ "x$autologin" != "x1" ]; then
+                getinput autologin 'autologin' 0
+            fi
         fi
     fi
 
@@ -713,6 +723,8 @@ run_hook()
     distro="<%=distro%>"
     timezone="<%=timezone%>"
     all_groups="<%=groups%>"
+    dns1="<%=dns1%>"
+    dns2="<%=dns2%>"
 
     target_layer=$(echo $layers | awk -F, '{print $1}')
     [ "$target_layer" == "live" ] && autologin=1
