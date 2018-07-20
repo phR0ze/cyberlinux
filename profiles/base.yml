@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.109
+  release: 0.2.110
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -152,10 +152,10 @@ apps:
         values:
           - 'LANG=<%=language%>.<%=character_set%>'
           - 'LANGUAGE=<%=language%>.<%=character_set%>'
-          - 'LC_ALL=<%=language%>.<%=character_set%>'
       - {edit: /etc/locale.gen, regex: '^#(<%=language%>\..*)', value: '\1'}
-      - {chroot: locale-gen }
-      - {edit: /etc/profile.d/locale.sh, insert: append, value: "export LC_COLLATE=C"}
+      - chroot: locale-gen
+      - {edit: /etc/profile.d/locale.sh, insert: append, value: 'export LC_COLLATE=C'}
+      - {edit: /etc/profile.d/locale.sh, insert: append, value: 'export LC_ALL=<%=language%>.<%=character_set%>'}
     - config-lsb-release:
       - exec: 'rm -f /etc/lsb-release'
       - edit: /etc/lsb-release
