@@ -464,10 +464,51 @@ class Reduce
       if [iso, isofull, all].any?
         puts("Building ISO Hybrid CD/USB bootable image...\n#{'-' * 80}".colorize(:light_yellow))
         if changed or not File.exist?(@vars.isofile)
-          cmd = "grub-mkrescue "
 
-          # Set the volume label
+          # Use -as mkisofs to support options how grub-mkrescue does it
+          cmd = "xorriso -as mkisofs"
+
+          # Set meta data including volume label
+          cmd += "--modification-date=#{Time.now.strftime("%Y%m%d%H%M%S00")} "
           cmd += "-volid #{@vars.label} "
+          cmd += "-appid \"#{@vars.distro} Install\Live\Recovery Image\" "
+          cmd += "-publisher \"#{@vars.distro} Reduce\" "
+          cmd += "-preparer \"Prepared by #{@vars.distro} Reduce\" "
+
+          # General configuration
+          cmd += "-no-pad "
+          cmd += "-graft-points "               # Filenames are divided ?
+          cmd += "--sort-weight 0 / "           # Store files other than /boot further away from center of CD
+          cmd += "--sort-weight 1 /boot "       # Store /boot files closer to center of CD
+
+          # Configure ISO as USB bootable
+          #cmd += "--grub2-mbr ${iso_root}/boot/grub/i386-pc/boot_hybrid.img "
+          #cmd += "-partition_offset 16 "
+
+          # El Torito
+          # The El Torito Bootable CD Specification is an extension to the ISO 9660 CD-ROM
+          # specification designed to allow a computer to boot from a CD-ROM. Typically a bootable
+          # USB is created containing the old MBR BIOS bootable Eltorito image as well as a newer EFI
+          # bootable Eltorito image
+
+          # Configure the BIOS boot image
+          cmd += "-b boot/grub/i386-pc/eltorito.img "             # Start the Eltorito boot section with given image
+          cmd += "--protective-msdos-label "                      # Generate partition table to preserve space for MBR
+          cmd += "--embedded-boot "
+          #cmd += "-c boot.catalog "                              # Sets filename of boot catalog to create
+          #cmd += "-boot-load-size 4 "                            # Typical load size is 4
+          cmd += "-boot-info-table "                              # GRUB2: Write boot info table into boot image
+          #cmd += "--grub2-boot-info "
+          cmd += "-no-emul-boot "                                 # GRUB2 requires this
+
+          # Configure the UEFI boot image
+          #cmd += "-eltorito-alt-boot "                           # Start a new Eltorito boot section
+          #cmd += "-append_partition 2 0xef ${iso_root}/efi.img " # Specify image and type
+          #cmd += "-e --interval:appended_partition_2:all:: "     # 
+          #cmd += "-no-emul-boot "                                # GRUB2 requires this
+
+          # Use Rock Ridge and best iso level for standard USB/CDROM ISO features
+          cmd += "-r -iso-level 3 "
 
           # Create the ISO from @isopath named as the -o specifies
           cmd += "-o #{@vars.isofile} #{@isopath}"
