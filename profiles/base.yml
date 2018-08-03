@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.113
+  release: 0.2.114
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -236,20 +236,17 @@ apps:
     - virtualbox-guest-nox
     - system:
       - install: cyberlinux-vim-plugins
-      - {install: curl,             desc: Adding curl command to pull in packer scripts }
       - {install: dmidecode,        desc: Desktop Managment Interface table related utilities }
-      - {install: dnsutils,         desc: Network utilities dig/host/nslookup }
-      - {install: dosfstools,       desc: DOS filesystem utilities e.g. mkfs.fat, depof: installer }
       - {install: efibootmgr,       desc: Tool to modify UEFI Firmware Boot Manager Variables, depof: installer }
       - {install: gcc,              desc: GNU Compiler Collection, multilib: false, group: [base-devel]}
       - {install: gcc-multilib,     desc: GNU Compiler Collection, multilib: true, group: [base-devel]}
       - {install: gptfdisk,         desc: Text-mode paritioning tools e.g. sgdisk }
       - {install: haveged,          desc: Entropy harvesting, depof: pacman-key --init }
+      - {install: htop,             desc: Interactive process viewer, alt: top }
+      - {install: iftop,            desc: Display bandwidth usage on an interface }
       - {install: logrotate,        desc: Rotates system logs automatically }
       - {install: pacman,           desc: Package manager with dependency support, group: [build-devel]}
       - {install: pacman-contrib,   desc: Pacman support configuration, depof: rankmirrors}
-      - {install: rsync,            desc: Remote file transfer sync utility }
-      - {install: wget,             desc: Retrieve files from the Web }
       - {install: which,            desc: Show the full path of commnds, depof: .bashrc, group: [build-devel]}
     - keyrings:
       - install: archlinux-keyring
@@ -264,8 +261,7 @@ apps:
       - {install: zip,              desc: Zip file compression utilities }
     - filesystem:
       - {install: cdrkit,           desc: CD/DVD burnig/extration and ISO creation }
-      - {install: htop,             desc: Interactive process viewer, alt: top }
-      - {install: iftop,            desc: Display bandwidth usage on an interface }
+      - {install: dosfstools,       desc: DOS filesystem utilities e.g. mkfs.fat, depof: installer }
       - {install: inxi,             desc: System info display tool for CPUs/RAM/Kernel etc... }
       - {install: libisoburn,       desc: Libburn/libisofs/xorriso }
       - {install: lsof,             desc: Lists open files for running processes }
@@ -280,11 +276,15 @@ apps:
       - {install: udisks2,          desc: Enumerate and operate on storage devices }
       - {install: usbutils,         desc: USB device utilities including lsusb }
     - network:
+      - {install: curl,             desc: Adding curl command to pull in packer scripts }
+      - {install: dnsutils,         desc: Network utilities dig/host/nslookup }
       - {install: gnu-netcat,       desc: Network piping application }
       - {install: iputils,          desc: Network utils e.g. ping/tftpd }
       - {install: nfs-utils,        desc: Support programs for Network File Systems }
       - {install: nmap,             desc: Network discovery and security auditing }
+      - {install: rsync,            desc: Remote file transfer sync utility }
       - {install: tcpdump,          desc: Network monitoring and data acquisition }
+      - {install: wget,             desc: Retrieve files from the Web }
     - develop:
       - {install: arch-install-scripts, desc: arch-chroot/genfstab/pacstrap }
       - {install: autoconf,         desc: Automatically configure source code, group: [base-devel]}

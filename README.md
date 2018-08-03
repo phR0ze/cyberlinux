@@ -93,7 +93,18 @@ Slimmed down minimal Xorg desktop environment with selected light weight apps
 <a href="doc/images/lite-desktop.png"><img width="640" height="480" src="doc/images/lite-desktop.png"></a>
 
 ### Shell <a name="shell-deployment"/></a>
-Full shell development environment
+Intended as a full shell development environment the ***Shell*** deployment provides:
+
+* Filesystem utilities
+    * dosfstools, efibootmgr, gptfdisk, cdrkit, pkgfile, squashfs-tools etc...
+* Compression utilities
+    * p7zip, tar, unrar, unzip, zip
+* Networking utilities
+    * curl, dnsutils, wget, rsync, 
+* Development utilities
+    * C, C++, Go, Ruby, Python
+* System utilities
+    * htop, iftop
 
 ### Kubernetes <a name="kubernetes-deployment"/></a>
 Slimmed down shell environment with Kubernetes dependencies baked in. It includes ***kubectl***,

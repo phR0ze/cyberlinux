@@ -77,7 +77,7 @@ deployments:
   shell:
     install:
       order: 7
-      label: "Deploy <%=distro%>-base                    // Shell env"
+      label: "Deploy <%=distro%>-shell                    // Shell env"
     source: [core, shell]
     apps:
       - kernel-full
