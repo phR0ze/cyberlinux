@@ -47,6 +47,8 @@ fork it and make their own configuration ***profiles***
     * [Git-Hook Version Increment](#git-hook-version-increment)
 * [Licenses](#licenses)
 
+<a href="doc/images/cyberlinux-deployment.jpg"><img width="639" height="480" src="doc/images/cyberlinux-deployment.jpg"></a>
+
 ## cyberlinux Profiles <a name="cyberlinux-profiles"/></a>
 There are serveral predefined profiles to choose from and the possibility of making endless.
 
