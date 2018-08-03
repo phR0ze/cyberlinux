@@ -23,13 +23,10 @@ with my desires will be accepted. Typically I would expect those looking to leve
 fork it and make their own configuration ***profiles***
 
 ### Table of Contents
-* [cyberlinux Deployments](#cyberlinux-deployments)
-    * [Desktop](#desktop-deployment)
-    * [Theater](#theater-deployment)
-    * [Server](#server-deployment)
-    * [Lite](#lite-deployment)
-    * [Shell](shell-deployment)
-    * [Kubernetes](#k8s-deployment)
+* [cyberlinux Profiles](#cyberlinux-profiles)
+    * [Standard Profile](#standard-profile)
+    * [Personal Use Profile](#personal-profile)
+    * [Kubernetes Profile](#kubernetes-profile)
 * [Deploy cyberlinux](#deploy-cyberlinux)
     * [Bare metal deployment](#bare-metal-deployment)
     * [Virtual box deployment](#virtual-box-deployment)
@@ -50,72 +47,21 @@ fork it and make their own configuration ***profiles***
     * [Git-Hook Version Increment](#git-hook-version-increment)
 * [Licenses](#licenses)
 
-## cyberlinux Deployments <a name="cyberlinux-deployments"/></a>
-There are a number of pre-built/released deploymets available for use as either ISOs or vagrant
-boxes that were useful for my needs.  I'll describe them as follows:
+## cyberlinux Profiles <a name="cyberlinux-profiles"/></a>
+There are serveral predefined profiles to choose from and the possibility of making endless.
 
-### Desktop <a name="desktop-deployment"/></a>
-The ***desktop*** deployment was created to serve as a full developer environment and daily runner.
-It is an amalgam of most other deployment options. Although it is the heaviest of the deployments,
-resource wise, it is still built with speed and efficiency in mind.
+### Standard Profile <a name="standard-profile"/></a>
+The [Standard profile](profiles/standard.md) was developed carefully to exclude any applications
+that were not free to use for commercial purposes.
 
-**Features:** 
-* Development (vscode, go, ruby, python)
-* File Sharing (NFS, Torrent, SFTP, FTP)
-* Productivity and Office (libreoffice, pdfs)
-* Virtual Machines and Containers (virtualbox, docker)
-* Media Processing/Consumption (vlc, smplayer, mvp, handbrake, makemkv)
+## Personal Use Profile <a name="personal-profile"/></a>
+The [Personal profile](profiles/personal.md) was developed to allow the distribution of applications
+for personal use that are not allowed due to licensing restrictions for commercial use.
 
-### Theater <a name="theater-deployment"/></a>
-Xorg desktop environment focusing on media playback
-
-#### Server <a name="server-deployment"/></a>
-The ***server*** deployment was created to serve as a light weight web and file server that would
-be run on lower end headless hardware. As such many of the desktop widgets and such have been left
-out to facilitate efficient remote desktop sessions.
-
-**Features:** 
-* Web Server (PHP)
-* Telephony Engine (FreeSWITCH, Blink)
-* File Sharing (NFS, Torrent, SFTP, FTP)
-* Media Processing (Handbrake, makemkv-cli)
-
-### Lite <a name="lite-deployment"/></a>
-Slimmed down minimal Xorg desktop environment with selected light weight apps
-
-**Features:**
-* Thunar - File Manager
-* LXTerminal - Terminal emulator
-* Nitrogen - Wallpaper manager
-* Xfce4 Screenshooter - Screenshots
-* File Roller - Archive manager 
-
-<a href="doc/images/lite-desktop.png"><img width="640" height="480" src="doc/images/lite-desktop.png"></a>
-
-### Shell <a name="shell-deployment"/></a>
-Intended as a full shell development environment the ***Shell*** deployment provides:
-
-* Filesystem utilities
-    * dosfstools, efibootmgr, gptfdisk, cdrkit, pkgfile, squashfs-tools etc...
-* Compression utilities
-    * p7zip, tar, unrar, unzip, zip
-* Networking utilities
-    * curl, dnsutils, wget, rsync, 
-* Development utilities
-    * C, C++, Go, Ruby, Python
-* System utilities
-    * htop, iftop
-
-### Kubernetes <a name="kubernetes-deployment"/></a>
-Slimmed down shell environment with Kubernetes dependencies baked in. It includes ***kubectl***,
-  ***kubelet***, ***kubeadm***, ***docker*** and ***helm*** to easily and quickly setup a K8s cluster.
-
-![K8snode](doc/images/k8snode-virtualbox.png)
-
-```bash
-# Deploys a k8snode with ip address of 192.168.56.10
-sudo ./reduce deploy k8snode 10 -p k8snode
-```
+## Kubernetes Profile <a name="kubernetes-profile"/></a>
+The [Kubernetes profile](profiles/kubernetes.md) was developed as a slimmed down shell environment
+with Kubernetes dependencies baked in. It includes ***kubectl***, ***kubelet***, ***kubeadm***,
+***docker*** and ***helm*** to easily and quickly setup a K8s cluster.
 
 ## Deploy cyberlinux <a name="deploy-cyberlinux"/></a>
 There are a number of ways to get up and running quickly with ***cyberlinux***
