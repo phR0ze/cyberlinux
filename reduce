@@ -138,6 +138,7 @@ class Reduce
     @pacman_src_mirrors = Dir[File.join(@deployments_src, "shell/etc/pacman.d/*.mirrorlist")]
 
     @boot_dst = File.join(@isopath, 'boot')
+    @efi_dst = File.join(@isopath, 'efi/boot')
     @deployment_images_dst = File.join(@isopath, 'images')
     @grub_iso_dst = File.join(@boot_dst, 'grub')
     @grub_iso_work = File.join(@workpath, 'boot/grub_iso')
@@ -247,6 +248,7 @@ class Reduce
     changed |= !Dir.exist?(@isopath)
     changed |= !Dir.exist?(@deployment_images_dst)
     changed |= !Dir.exist?(@boot_dst)
+    changed |= !Dir.exist?(@efi_dst)
     changed |= !Dir.exist?(@grub_iso_dst)
     changed |= !Dir.exist?(@grub_iso_work)
     changed |= !Dir.exist?(@deployments_work)
@@ -262,6 +264,7 @@ class Reduce
     FileUtils.mkdir_p(@isopath)
     FileUtils.mkdir_p(@deployment_images_dst)
     FileUtils.mkdir_p(@boot_dst)
+    FileUtils.mkdir_p(@efi_dst)
     FileUtils.mkdir_p(@grub_iso_dst)
     FileUtils.mkdir_p(@grub_iso_work)
     FileUtils.mkdir_p(@deployments_work)
@@ -392,6 +395,8 @@ class Reduce
       puts("Cleaning iso path except for images...".colorize(:cyan))
       puts("Deleting #{@boot_dst}".colorize(:red)) if File.exist?(@boot_dst)
       Sys.rm_rf(@boot_dst)
+      puts("Deleting #{@efi_dst}".colorize(:red)) if File.exist?(@efi_dst)
+      Sys.rm_rf(@efi_dst)
     end
 
     # Clean iso image
@@ -459,6 +464,8 @@ class Reduce
 
       # Create ISO Hybrid CD/USB bootable image
       # http://lukeluo.blogspot.co.uk/2013/06/grub-how-to-2-make-boot-able-iso-with.html
+      # Test as USB: sudo qemu-system-x86_64 -usb image.iso
+      # Test as CD-ROM: sudo qemu-system-x86_64 -cdrom image.iso
       @vars.isofile = File.join(@imagepaths.first,
         "#{@vars.distro.downcase}-#{@vars.profile.downcase}-#{@vars.release}-#{@vars.kernel}-#{@vars.arch}.iso")
       if [iso, isofull, all].any?
@@ -466,43 +473,27 @@ class Reduce
         if changed or not File.exist?(@vars.isofile)
 
           # Use -as mkisofs to support options how grub-mkrescue does it
-          cmd = "xorriso -as mkisofs"
-
-          # Set meta data including volume label
+          cmd = "xorriso -as mkisofs "
           cmd += "--modification-date=#{Time.now.strftime("%Y%m%d%H%M%S00")} "
-          cmd += "-volid #{@vars.label} "
-          cmd += "-appid \"#{@vars.distro} Install\Live\Recovery Image\" "
-          cmd += "-publisher \"#{@vars.distro} Reduce\" "
-          cmd += "-preparer \"Prepared by #{@vars.distro} Reduce\" "
 
           # General configuration
-          cmd += "-no-pad "
-          cmd += "-graft-points "               # Filenames are divided ?
+          cmd += "-volid #{@vars.label} "       # Identifier for installer to use to find install medium
+          cmd += "-graft-points "               # Interpret target path in ISO together with input path
           cmd += "--sort-weight 0 / "           # Store files other than /boot further away from center of CD
           cmd += "--sort-weight 1 /boot "       # Store /boot files closer to center of CD
 
-          # Configure ISO as USB bootable
-          #cmd += "--grub2-mbr ${iso_root}/boot/grub/i386-pc/boot_hybrid.img "
-          #cmd += "-partition_offset 16 "
-
-          # El Torito
-          # The El Torito Bootable CD Specification is an extension to the ISO 9660 CD-ROM
-          # specification designed to allow a computer to boot from a CD-ROM. Typically a bootable
-          # USB is created containing the old MBR BIOS bootable Eltorito image as well as a newer EFI
-          # bootable Eltorito image
-
-          # Configure the BIOS boot image
-          cmd += "-b boot/grub/i386-pc/eltorito.img "             # Start the Eltorito boot section with given image
-          cmd += "--protective-msdos-label "                      # Generate partition table to preserve space for MBR
-          cmd += "--embedded-boot "
-          #cmd += "-c boot.catalog "                              # Sets filename of boot catalog to create
-          #cmd += "-boot-load-size 4 "                            # Typical load size is 4
-          cmd += "-boot-info-table "                              # GRUB2: Write boot info table into boot image
-          #cmd += "--grub2-boot-info "
+          # Configure BIOS/UEFI CD-ROM/USB bootable images
+          embedded_img_path = File.join(@grub_iso_work, 'embedded.img')
+          cmd += "-b boot/grub/i386-pc/eltorito.img "             # Boot from BIOS CD-ROMs
           cmd += "-no-emul-boot "                                 # GRUB2 requires this
+          cmd += "-boot-info-table "                              # GRUB2: Write boot info table into boot image
+          cmd += "--embedded-boot #{embedded_img_path} "          # Boot from USB
+          cmd += "--protective-msdos-label "                      # Generate partition table to preserve space for MBR
 
-          # Configure the UEFI boot image
-          #cmd += "-eltorito-alt-boot "                           # Start a new Eltorito boot section
+          # Configure the UEFI boot image for CD-ROM/USB
+          #cmd += "-eltorito-alt-boot "                            # Start a new Eltorito boot section
+          #cmd += "-no-emul-boot "                                # GRUB2 requires this
+          #cmd += "--efi-boot /efi/boot/bootx64.efi "              # EFI boot image
           #cmd += "-append_partition 2 0xef ${iso_root}/efi.img " # Specify image and type
           #cmd += "-e --interval:appended_partition_2:all:: "     # 
           #cmd += "-no-emul-boot "                                # GRUB2 requires this
@@ -557,7 +548,7 @@ class Reduce
         # Build an initramfs for each installed kernel
         `#{execs} ls /lib/modules`.split(" ").compact.reject{|x| x.include?('extra')}.each{|kernel|
           name = "-" + kernel.split("-").last
-          name = '' if name == "-ARCH"
+          name = '' if name.upcase.include?("ARCH")
           initramfs_name = initramfs_names.find{|x| x == "#{@initramfs_prefix}-linux#{name}"}
           puts("Creating #{initramfs_name}...".colorize(:cyan))
           puts("Using kernel: #{kernel}".colorize(:green))
@@ -573,7 +564,7 @@ class Reduce
     return changed
   end
 
-  # Build bootable GRUB image with both BIOS and UEFI support
+  # Build bootable GRUB images for BIOS/UEFI support
   # https://www.rodsbooks.com/efi-bootloaders/index.html
   # https://wiki.archlinux.org/index.php/Multiboot_USB_drive#Using_GRUB_and_loopback_devices
   # @returns true on changed
@@ -615,24 +606,62 @@ class Reduce
       # i.e. cyberlinux/temp/work/boot/grub_iso/boot/grub/themes
       themes_dir = File.join(grub_iso_path, 'themes')
       FileUtils.mkdir_p(themes_dir)
-
-      # Extract grub boot files, memtest and intel-ucode with licenses
       docker(@k.builder, 'root'){|cont, home, cp, exec, execs, runuser|
+
+        # Extract Grub boot configs and themes
+        # i.e. cyberlinux/temp/work/boot/grub_iso/boot/grub
         cp.call("#{cont}:/usr/share/grub/grub.cfg #{grub_iso_path}")
         cp.call("#{cont}:/usr/share/grub/loopback.cfg #{grub_iso_path}")
         cp.call("#{cont}:/usr/share/grub/unicode.pf2 #{grub_iso_path}")
         cp.call("#{cont}:/usr/share/grub/themes/#{@vars.distro} #{themes_dir}")
 
+        # Extract kernel, intel ucode patch, memtest etc...
+        # i.e. cyberlinux/temp/work/_iso_/boot
         cp.call("#{cont}:/boot/intel-ucode.img #{@ucode_image}.img")
         cp.call("#{cont}:/usr/share/licenses/intel-ucode/LICENSE #{@ucode_image}.LICENSE")
         cp.call("#{cont}:/boot/memtest86+/memtest.bin #{@memtest_image}")
         cp.call("#{cont}:/usr/share/licenses/common/GPL2/license.txt #{@memtest_image}.LICENSE")
         kernels.each{|kernel| cp.call("#{cont}:/boot/#{kernel} #{@kernel_path}")}
+
+        # Build and extract BIOS boot files
+        # i.e. cyberlinux/temp/work/boot/grub_iso/boot/grub/i386-pc
+        i386pc = "/usr/lib/grub/i386-pc/"
+        shared_modules = "iso9660 fat ext2 part_msdos part_gpt all_video font gfxterm"
+        exec.call("mkdir -p /root/iso/boot/grub")
+
+        #exec.call("cp -r #{i386pc} /root/iso/boot/grub")
+        #exec.call("rm /root/iso/boot/grub/i386-pc/*.img")
+        #exec.call("cd ~/;grub-mkimage -O i386-pc -d #{i386pc} -o core.img -p /boot/grub biosdisk #{shared_modules}")
+        #exec.call("cat #{File.join(i386pc, 'cdboot.img')} /root/core.img > /root/iso/boot/grub/i386-pc/eltorito.img")
+        #exec.call("cat #{File.join(i386pc, 'boot.img')} /root/core.img > /root/embedded.img")
+        #cp.call("#{cont}:/root/embedded.img #{@grub_iso_work}")
+        #cp.call("#{cont}:/root/iso/boot/grub/i386-pc #{grub_iso_path}")
+
+        part_types = ['acorn', 'amiga', 'apple', 'bsd', 'dvh', 'gpt', 'msdos', 'plan', 'sun', 'sunpc']
+        exec.call("cp -r #{i386pc} /root/iso/boot/grub")
+        exec.call("rm /root/iso/boot/grub/i386-pc/*.img")
+        exec.call("echo -e '#{part_types.map{|x| "insmod part_#{x}"} * '\n'}' >> /root/load_cfg")
+        exec.call("cd ~/;grub-mkimage -O i386-pc -d #{i386pc} -o core.img -c load_cfg --prefix=/boot/grub iso9660 biosdisk")
+        exec.call("cat #{File.join(i386pc, 'cdboot.img')} /root/core.img > /root/iso/boot/grub/i386-pc/eltorito.img")
+        exec.call("cat #{File.join(i386pc, 'boot.img')} /root/core.img > /root/embedded.img")
+        cp.call("#{cont}:/root/embedded.img #{@grub_iso_work}")
+        cp.call("#{cont}:/root/iso/boot/grub/i386-pc #{grub_iso_path}")
+
+        # Build and extract UEFI boot files
+        # i.e. cyberlinux/temp/work/boot/grub_iso/boot/grub/x86_64-efi
+        x86_64efi = "/usr/lib/grub/x86_64-efi/"
+        exec.call("cp -r #{x86_64efi} /root/iso/boot/grub")
+        exec.call("rm /root/iso/boot/grub/x86_64-efi/*.img")
+        exec.call("cd ~/;grub-mkimage -O x86_64-efi -d #{x86_64efi} -o efi.img -p /boot/grub efi_gop efi_uga #{shared_modules}")
+        cp.call("#{cont}:/root/efi.img #{@grub_iso_work}/bootx64.efi")
+        cp.call("#{cont}:/root/iso/boot/grub/x86_64-efi #{grub_iso_path}")
       }
 
       puts("Copying grub multiboot to destination...".colorize(:cyan))
-      Dir.glob(File.join(@grub_iso_work, '**/*'), File::FNM_DOTMATCH).each{|x|
-        if File.file?(x) && File.basename(x) != 'efi.img'
+      puts("Copying: ...to #{@efi_dst}")
+      FileUtils.cp(File.join(@grub_iso_work, 'bootx64.efi'), @efi_dst)
+      Dir.glob(File.join(@grub_iso_work, 'boot', '**/*'), File::FNM_DOTMATCH).each{|x|
+        if File.file?(x)
           dst = x.sub(@grub_iso_work, @isopath)
           puts("Copying: ...to #{dst}")
           FileUtils.mkdir_p(File.dirname(dst))
