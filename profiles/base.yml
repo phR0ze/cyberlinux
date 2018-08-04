@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.115
+  release: 0.2.116
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -249,6 +249,9 @@ apps:
       - {install: pacman-contrib,   desc: Pacman support configuration, depof: rankmirrors}
       - {install: screenfetch,      desc: CLI bash script to show system theme for screenshots }
       - {install: which,            desc: Show the full path of commnds, depof: .bashrc, group: [build-devel]}
+    - recovery:
+      - {install: ddrescue,         desc: GNU data recovery tool }
+      - {install: testdisk,         desc: Checks and undeletes partitions + photorec }
     - keyrings:
       - install: archlinux-keyring
       - {install: antergos-keyring, type: ANTERGOS}
