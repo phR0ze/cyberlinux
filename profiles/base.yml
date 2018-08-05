@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.117
+  release: 0.2.118
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -968,7 +968,15 @@ apps:
   wpa-supplicant:
     - install: wpa_supplicant
     - {install: wpa_gui, type: CYBERLINUX }
-    - edit: /etc/wpa_supplicant/wpa_supplicant-default.conf
+    - edit: /etc/systemd/network/10-wlo1.link
+      insert: append
+      values:
+        # Set a deterministic name for wifi nic
+        - "[Match]"
+        - "OriginalName=wl*\n"
+        - "[Link]"
+        - "Name=wlo1"
+    - edit: /etc/wpa_supplicant/wpa_supplicant-wlo1.conf
       insert: append
       values:
         # Set permissions for wpa_supplicant
@@ -980,7 +988,7 @@ apps:
         - 'p2p_disabled=1'
         # Automatically scan and select networks matching saved ones
         - 'ap_scan=1'
-    - chroot: systemctl enable wpa_supplicant@default
+    - chroot: systemctl enable wpa_supplicant@wlo1
     - exec: cp /usr/share/applications/wpa_gui.desktop /etc/skel/.config/autostart
     - {menu: Network, entry: WPA Gui, icon: /usr/share/icons/hicolor/32x32/apps/wpa_gui.png, exec: sudo wpa_gui }
 
