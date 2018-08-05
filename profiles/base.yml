@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.116
+  release: 0.2.117
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -478,10 +478,6 @@ apps:
       - {install: meld,             desc: Develop/Diff Tool - Graphical diff tool cross platform }
       - {install: ripgrep,          desc: A search tool combining the usability of ag with speed of grep, depof: vscode }
       - {install: visual-studio-code-bin, desc: Editor for modern development, type: CYBERLINUX }
-
-    # Disable wifi by default
-    - chroot: systemctl disable wpa_supplicant@wlp2s0
-    - exec: rm /etc/skel/.config/autostart/wpa_gui.desktop
 
   # Laptop specific configuration
   laptop:
@@ -972,7 +968,7 @@ apps:
   wpa-supplicant:
     - install: wpa_supplicant
     - {install: wpa_gui, type: CYBERLINUX }
-    - edit: /etc/wpa_supplicant/wpa_supplicant-wlp2s0.conf
+    - edit: /etc/wpa_supplicant/wpa_supplicant-default.conf
       insert: append
       values:
         # Set permissions for wpa_supplicant
@@ -984,7 +980,7 @@ apps:
         - 'p2p_disabled=1'
         # Automatically scan and select networks matching saved ones
         - 'ap_scan=1'
-    - chroot: systemctl enable wpa_supplicant@wlp2s0
+    - chroot: systemctl enable wpa_supplicant@default
     - exec: cp /usr/share/applications/wpa_gui.desktop /etc/skel/.config/autostart
     - {menu: Network, entry: WPA Gui, icon: /usr/share/icons/hicolor/32x32/apps/wpa_gui.png, exec: sudo wpa_gui }
 
