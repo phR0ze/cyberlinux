@@ -89,7 +89,7 @@ ${color lightgrey} Kernel: $color${kernel}
 ${voffset 8}${color lightgrey} WiFi:      $color${exec ~/bin/conky_radio.rb wifi}
 ${color lightgrey} Bluetooth: $color${exec ~/bin/conky_radio.rb bluetooth}
 ${voffset 8}${color lightgrey} SSID:      $color ${wireless_essid}
-${color lightgrey} Private IP:$color ${addrs wlp2s0}
+${color lightgrey} Private IP:$color ${addrs wlo1}
 ${color lightgrey} Public  IP:$color ${curl ipinfo.io/ip 5}
 ${voffset -4}${color lightgrey} Battery: $color${battery_percent}% (${battery_time})
 ${color} ${battery_bar}
@@ -185,8 +185,8 @@ ${offset 350}${color lightgrey} ${top_mem name 10} ${top_mem pid 10} ${top_mem m
 #-------------------------------------------------------------------------------
 ${voffset -319}
 ${offset 700}${color2}${font Liberation Mono:size=20}UP/DOWN SPEED${font Liberation Mono:size=12}
-${offset 700}${color lightgrey} Up Speed: $color${upspeed wlp2s0}
-${offset 700} $color${upspeedgraph wlp2s0}
-${voffset 4}${offset 700}${color lightgrey} Down Speed: $color${downspeed wlp2s0}
-${offset 700} $color${downspeedgraph wlp2s0}
+${offset 700}${color lightgrey} Up Speed: $color${upspeed wlo1}
+${offset 700} $color${upspeedgraph wlo1}
+${voffset 4}${offset 700}${color lightgrey} Down Speed: $color${downspeed wlo1}
+${offset 700} $color${downspeedgraph wlo1}
 ]];
