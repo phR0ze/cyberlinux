@@ -513,7 +513,7 @@ config_system()
     fi
 
     # Configure wifi
-    if [ "x$enable_wifi" != "x0" ]; then
+    if [ "x$enable_wifi" == "x1" ]; then
         echo -en ":: Enable Wifi..."
         #chroot ${rootmnt} cp /usr/share/applications/wpa_gui.desktop /etc/skel/.config/autostart &>/dev/null
         #chroot ${rootmnt} ln -sf /etc/wpa_supplicant/wpa_supplicant-wlo1.conf /etc/systemd/system/wpa_supplicant@wlo1 &>/dev/null
@@ -563,6 +563,7 @@ installer()
     #---------------------------------------------------------------------------
     vagrant=0
     chromebook=0
+    enable_wifi=0
     hostname="${distro}-${target_layer}"
     netip='DHCP'
     proxy='None'
@@ -615,7 +616,7 @@ installer()
             fi
             getinput proxy 'proxy, url:port format' $proxy
             [ "x${proxy}" != "xNone" ] && getinput no_proxy 'no_proxy, comma delim' $no_proxy
-            getinput enable_wifi 'enable wifi' 0
+            getinput enable_wifi 'wifi state' 0
 
             # Configure timezone
             #----------------------------------------------------------------------
