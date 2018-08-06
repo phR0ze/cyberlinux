@@ -103,6 +103,24 @@ sudo systemctl start bluetooth
 ### Keyboard/Touchpad <a name="keyboard-touchpad"/></a>
 Keyboard and Touchpad support required kernel changes see [linux-celes](https://github.com/phR0ze/cyberlinux/tree/master/aur/linux-cele)
 
+The Keyboard has been flawless, but the touchpad driver has been iffy seem Crash Note below. The
+touchpad driver is a port of the ChromeOS mouse driver.
+
+**Touchpad freezes:**
+* https://github.com/GalliumOS/galliumos-distro/issues/415
+* https://github.com/GalliumOS/linux/blob/v4.9.4-galliumos/galliumos/diffs/fix-celes-touchpad.diff
+* https://github.com/GalliumOS/linux/blob/v4.16.13-galliumos/galliumos/diffs/sequence
+
+Touchpad seems to occasionally freez when using Chrome or Libre Office and I assume others though
+I've only noticed it with those two. When I close either application the touchpad driver seems to
+recover.
+
+```bash
+# Temporary fix
+sudo modprobe -r atmel_mxt_ts
+sudo modprobe atmel_mxt_ts
+```
+
 ### Sound Output <a name="sound-output"/></a>
 Audio required using the [GalliumOS Braswell Config](https://aur.archlinux.org/packages/galliumos-braswell-config/), but after that seems to work well for both the speakers as well as headphones with jack detection working correctly.
 

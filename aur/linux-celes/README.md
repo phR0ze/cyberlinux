@@ -1,5 +1,5 @@
 # Kernel for the Samsung Chromebook 3 (a.k.a. CELES)
-Arch Linux based Kernel for the Samsung Chromebook 2 (CELES)
+Arch Linux based Kernel for the Samsung Chromebook 3 (a.k.a CELES)
 
 I'm borrowing from the execellent Arch, Manjaro and GalliumOS projects as well as some other
 sources.
@@ -10,7 +10,7 @@ sources.
 * https://git.archlinux.org/svntogit/packages.git/tree/trunk?h=packages/linux
 
 ## Kernel Config
-Starting with the Arch Linux kernel config I'm making specific changes for celes
+Starting with the Arch Linux kernel config I'm making specific changes for CELES
 
 ### Kernel compression
 Typically disk I/O is the slowest component on a pc. By loading a decompressed kernel then
@@ -92,7 +92,7 @@ This patch was created to prevent errors when partitioning MMC storage. It has b
 * https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=808044;msg=5
 
 ### Arch vs. Ubuntu
-I was attempting to compare teh Arch Linux kernel and the Ubuntu kernels but found they differ so
+I was attempting to compare the Arch Linux kernel and the Ubuntu kernels but found they differ so
 much it isn't really practicle.
 
 http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.15.5/
@@ -103,5 +103,3 @@ ar xv linux-headers-4.15.5-041505-generic_4.15.5-041505.201802261304_amd64.deb
 tar xf data.tar.xz
 vim usr/src/linux-headers-4.15.5-041505-generic/.config
 ```
-
-
