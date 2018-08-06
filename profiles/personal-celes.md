@@ -44,7 +44,7 @@ Once you have a compatible enviroment setup:
     ```
 2. Build ***personal-celes*** profile
     ```bash
-    sudo ./reduce clean build --iso-full --profile=personal-celes
+    sudo ./reduce clean build all -p personal-celes
     ```
 
 ## Deploy ISO from bootable USB drive <a name="deploy-iso-from-bootable-usb-drive"/></a>
@@ -70,7 +70,7 @@ in the community to make Chromebooks behave like normal Linux netbooks.
 ## License <a name="license"/></a>
 As called out in the [README.md](https://github.com/phR0ze/cyberlinux/tree/master/profiles) this
 profile prefixed with ***personal*** uses applications with various restrictions and can not be used
-commercial purposes. It is only to be used for personal use only.
+for commercial purposes. It is only to be used for personal use.
 
 ## Configuration <a name="configuration"/></a>
 Documenting various configuration changes that I made to support the ***celes*** platform here.
