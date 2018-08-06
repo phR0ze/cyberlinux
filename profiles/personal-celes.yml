@@ -18,53 +18,33 @@
 #LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
+base: base
 
-build:
-  type: container
-  multilib: true
-  docker:
-    # Note: need privileged=true to allow mount to work inside container
-    params: '-e TERM=xterm -v /var/run/docker.sock:/var/run/docker.sock --privileged=true'
-    command: 'bash -c "while :; do sleep 5; done"'
-  packages:
-    - { pkg: linux-celes,                     desc: Linux kernel and supporting modules, type: CYBERLINUX }
-    - { pkg: gptfdisk,                        desc: Paritioning tools e.g. sgdisk }
-    - { pkg: mkinitcpio,                      desc: initramfs image creation utility }
-    - { pkg: mkinitcpio-vt-colors,            desc: vt console colors, type: CYBERLINUX }
-    - { pkg: rsync,                           desc: Remote file sync utility }
-    - { pkg: systemd,                         desc: System and service manager }
-    - { pkg: sudo,                            desc: Elevate some user commands to root }
-    - { install: core-pkgs }
-    - { install: core-tools }
-    - { install: grub-pkgs }
-  configs:
-    # Create and configure new build user and root user
-    - { chroot: 'useradd -m -G lp,wheel,network,storage,users -s /bin/bash build || true' }
-    - { exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /home/build' }
-    - { exec: "echo 'TERM=xterm' > /etc/environment" }
-    - { exec: 'find /<%=base_src%>/etc/skel -maxdepth 1 -type f | xargs cp -t /root' }
-    - { edit: /etc/sudoers, insert: append, value: "build ALL=(ALL) NOPASSWD: ALL" }
-    - { apply: core-config }
-    - { apply: mkinitcpio-config }
+builder:
+  apps:
+    - {install: linux-celes,                  desc: Linux kernel and supporting modules, type: CYBERLINUX }
+    - builder
 
 deployments:
-  base:
-    type: machine
-    multilib: true
-    vars: { fontsize: 10 }
-    vagrant: { vram: 32, cpus: 2, ram: 2048 }
+  live:
+    base: desktop
     install:
-      entry: "Deploy <%=distro%>-base                    // Minimal shell"
+      order: 1
+      label: "Start <%=distro%>-recovery                 // Live environment"
       kernel: linux-celes
-    packages:
-      - { pkg: linux-celes,                   desc: Linux kernel and supporting modules, type: CYBERLINUX }
-      - { pkg: linux-celes-headers,           desc: Linux kernel headers }
-      - { install: base-pkgs }
-      - { install: base-tools }
-      - { install: shell-pkgs }
-    configs:
-      - { apply: base-config }
-      - { apply: shell-config }
+
+  shell:
+    install:
+      order: 2
+      label: "Deploy <%=distro%>-shell                   // Minimal shell"
+      kernel: linux-celes
+    source: [core, shell]
+    apps:
+      - {install: linux-celes,                  desc: Linux kernel and supporting modules, type: CYBERLINUX }
+      - {install: linux-celes-headers,          desc: Linux kernel headers }
+      - {install: galliumos-braswell-config,    desc: GalliumOS configuration files for braswell, force: true, type: CYBERLINUX }
+      - core-boot
+      - shell
 
       # Memory pages that have been cached/queued to be async written to disk are said to be dirty.
       # Lower the dirty values to decrease the use of async disk write outs stored in cache
@@ -76,80 +56,23 @@ deployments:
       - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "kernel.watchdog = 0" }
       - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "kernel.rr_interval = 6" }
 
-      # Toggle radios to save power
-      - edit: /usr/bin/toggle
-        insert: append
-        values:
-          - "#!/usr/bin/env ruby\n"
-          - "if ARGV.first == 'wifi'"
-          - "  val = `rfkill | grep wlan`[/unblocked|blocked/]"
-          - "  `rfkill block wlan` if val == 'unblocked'"
-          - "  `rfkill unblock wlan` if val == 'blocked'"
-          - "elsif ARGV.first == 'bluetooth'"
-          - "  val = `rfkill | grep bluetooth`[/unblocked|blocked/]"
-          - "  `rfkill block bluetooth` if val == 'unblocked'"
-          - "  `rfkill unblock bluetooth` if val == 'blocked'"
-          - "end"
-      - { exec: 'chmod +x /usr/bin/toggle'}
-
-      # Backlight configuration script
-      # Workaround as xranrd doesn't seem to recognize intel_backlight
-      - edit: /usr/bin/backlight
-        insert: append
-        values:
-          - "#!/usr/bin/env ruby\n"
-          - "max = 1200"
-          - "intel_backlight = '/sys/class/backlight/intel_backlight/brightness'"
-          - "level = File.read(intel_backlight).to_i\n"
-          - "if ARGV.first[0] == '+'"
-          - "  val = ARGV.first.split('+').last.to_i"
-          - "  level += val"
-          - "  level = max if level > max"
-          - "else"
-          - "  val = ARGV.first.split('-').last.to_i"
-          - "  level -= val"
-          - "  level = 0 if val < 0"
-          - "end"
-          - "`echo '#{level}' > #{intel_backlight}`"
-      - { exec: 'chmod +x /usr/bin/backlight'}
-
       # Work around issues in the iwlwifi driver for celes' Intel 7265D wifi card
       - { exec: 'rm -f /etc/modprobe.d/iwlwifi.conf'}
       - { edit: /etc/modprobe.d/iwlwifi.conf, insert: append, values: ['options iwlwifi 11n_disable=8 bt_coex_active=0 swcrypto=1']}
 
   desktop:
-    type: machine
-    base: base
-    source: [lite, lite-celes, desktop, desktop-celes]
-    vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
-    vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
+    base: shell
     install:
-      entry: "Deploy <%=distro%>-desktop                 // Full X11 env."
+      order: 3
+      label: "Deploy <%=distro%>-desktop                 // Full X11 env."
       kernel: linux-celes
-    packages:
-      - { install: lite-pkgs }
-      - { pkg: cinnamon-screensaver,          desc: Screensaver for the Cinnamon desktop, type: CYBERLINUX }
-      - { pkg: conky,                         desc: Lightweight system monitor for X }
-      - { pkg: galliumos-braswell-config,     desc: GalliumOS configuration files for braswell, force: true, type: CYBERLINUX }
-      - { pkg: gimp,                          desc: Excellent image editor, alt: pinta }
-      - { pkg: gvfs-mtp,                      desc: Virtual filesystem implementation for GIO Android MTP }
-      - { pkg: hunspell-en_US,                desc: US dictionaries for spell checking, deps: libreoffice }
-      - { pkg: libreoffice-fresh,             desc: LibreOffice branch with new features/enhancements }
-      - { pkg: libmtp,                        desc: Library implementation of the Media Transfer Protocol }
-      - { pkg: keepass,                       desc: Cross platform password manager }
-      - { pkg: openvpn-update-systemd-resolved, desc: OpenVPN systemd-resolved updater, type: CYBERLINUX }
-
-      # Adobe fonts from adobe reader
-      # https://aur.archlinux.org/cgit/aur.git/tree/LICENSE?h=ttf-adobe-fonts
-      - { pkg: ttf-adobe-fonts,               desc: Adobe fonts including Myriad Minion and Courier, type: CYBERLINUX }
-
-      # Teamviewer is free to use for personal use
-      # https://www.teamviewer.com/en/credentials/free-for-personal-use/
-      - { pkg: teamviewer,                    desc: All-In-One Software for Remote Support and Online Meetings, type: CYBERLINUX }
-    configs:
-      - { apply: lite-config }
-      - { apply: laptop-config }
-      - { apply: teamviewer-client-config }
+    source: [lite, desktop, desktop-celes]
+    apps:
+      - lite
+      - laptop
+      - makemkv
+      - teamviewer
+      - ttf-adobe-fonts
 
       - edit: /etc/X11/xorg.conf.d/10-display.conf
         insert: append
@@ -172,12 +95,3 @@ deployments:
       - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'xbacklight +10', value: 'sudo backlight +100' }
       - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'XF86MonBrightnessDown', value: 'W-F6' }
       - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'xbacklight -10', value: 'sudo backlight -100' }
-
-  live:
-    type: machine
-    base: desktop
-    vars: { wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg }
-    vagrant: { vram: 32, cpus: 2, ram: 2048, v3d: 'on' }
-    install:
-      entry: "Start <%=distro%>-recovery                 // Live environment"
-      kernel: linux-celes

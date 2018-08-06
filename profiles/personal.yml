@@ -43,8 +43,10 @@ deployments:
     install:
       order: 3
       label: "Deploy <%=distro%>-laptop                  // Lite + more apps"
+    source: [desktop]
     apps:
       - laptop
+      - teamviewer
   theater:
     base: lite
     vars: { fontsize: 18 }

@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.120
+  release: 0.2.121
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -483,19 +483,63 @@ apps:
     - chroot: systemctl disable wpa_supplicant@wlo1
     - exec: rm /etc/skel/.config/autostart/wpa_gui.desktop
 
-  # Laptop specific configuration
+  # Laptop configuration
   laptop:
     - android
     - cinnamon-screensaver
     - conky
+    - gimp
     - keepass
     - libreoffice
     - wpa-supplicant
-    - {install: gimp, desc: Excellent image editor, alt: pinta }
     - {install: openvpn-update-systemd-resolved, desc: OpenVPN systemd-resolved updater, type: CYBERLINUX }
     - {install: remmina, desc: Network/Remoting - Nice remoting UI for RDP }
     - {install: synergy, desc: Network/Virtual KVM }
     - {install: veracrypt, desc: Disk encryption with strong security based on TrueCrypt }
+
+    # Toggle radios to save power
+    - config-rfkill:
+      - edit: /usr/bin/toggle
+        insert: append
+        values:
+          - "#!/usr/bin/env ruby\n"
+          - "if ARGV.first == 'wifi'"
+          - "  val = `rfkill | grep wlan`[/unblocked|blocked/]"
+          - "  `rfkill block wlan` if val == 'unblocked'"
+          - "  `rfkill unblock wlan` if val == 'blocked'"
+          - "elsif ARGV.first == 'bluetooth'"
+          - "  val = `rfkill | grep bluetooth`[/unblocked|blocked/]"
+          - "  `rfkill block bluetooth` if val == 'unblocked'"
+          - "  `rfkill unblock bluetooth` if val == 'blocked'"
+          - "end"
+      - { exec: 'chmod +x /usr/bin/toggle'}
+
+    # Backlight configuration script
+    # Workaround as xranrd doesn't seem to recognize intel_backlight
+    - config-backlight:
+      - edit: /usr/bin/backlight
+        insert: append
+        values:
+          - "#!/usr/bin/env ruby\n"
+          - "max = 1200"
+          - "intel_backlight = '/sys/class/backlight/intel_backlight/brightness'"
+          - "level = File.read(intel_backlight).to_i\n"
+          - "if ARGV.first[0] == '+'"
+          - "  val = ARGV.first.split('+').last.to_i"
+          - "  level += val"
+          - "  level = max if level > max"
+          - "else"
+          - "  val = ARGV.first.split('-').last.to_i"
+          - "  level -= val"
+          - "  level = 0 if val < 0"
+          - "end"
+          - "`echo '#{level}' > #{intel_backlight}`"
+      - { exec: 'chmod +x /usr/bin/backlight'}
+
+    # Performance improvements in for the iwlwifi driver
+    - config-iwlwifi:
+      - { exec: 'rm -f /etc/modprobe.d/iwlwifi.conf'}
+      - { edit: /etc/modprobe.d/iwlwifi.conf, insert: append, values: ['options iwlwifi 11n_disable=8']}
 
   # Server configuration
   server:
@@ -636,6 +680,11 @@ apps:
         - 'fi'
         - ''
     - {chroot: systemctl enable docker.service }
+
+  # Excellent image editor, alt: pinta
+  gimp:
+    - install: gimp
+    - {menu: Graphics, entry: Gimp, icon: /usr/share/icons/Paper/32x32/apps/gimp.png, exec: gimp }
 
   # Drop-down python based quake style terminal
   guake:
@@ -910,7 +959,7 @@ apps:
     - {install: makemkv, desc: DVD and Blu-ray to MKV converter, type: CYBERLINUX }
     - {menu: Multimedia, entry: MakeMKV, icon: /usr/share/icons/hicolor/32x32/apps/makemkv.png, exec: makemkv }
 
-  # Teamviewer is free to use for personal use
+  # Teamviewer is free for personal use but not for commercial use
   # https://www.teamviewer.com/en/credentials/free-for-personal-use/
   teamviewer:
     - {install: teamviewer, desc: All-In-One Software for Remote Support and Online Meetings, type: CYBERLINUX }
@@ -1165,7 +1214,6 @@ configs:
     - {menu: Accessories, entry: Multi Writer, icon: /usr/share/icons/Paper/32x32/devices/drive-harddisk-usb.png, exec: sudo gnome-multi-writer}
     - {menu: Development, entry: Meld, icon: /usr/share/icons/Paper/32x32/apps/meld.png, exec: meld }
     - {menu: Development, entry: Visual Studio Code, icon: /usr/share/icons/Paper/32x32/apps/visual-studio-code.png, exec: code }
-    - {menu: Graphics, entry: Gimp, icon: /usr/share/icons/Paper/32x32/apps/gimp.png, exec: gimp }
     - {menu: Graphics, entry: Inkscape, icon: /usr/share/icons/Paper/32x32/apps/inkscape.png, exec: inkscape }
     - {menu: Graphics, entry: Kolour, icon: /usr/share/icons/Paper/32x32/apps/kolourpaint.png, exec: kolourpaint }
     - {menu: Multimedia, entry: Asunder, icon: /usr/share/icons/hicolor/32x32/apps/brasero.png, exec: asunder }
