@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.127
+  release: 0.2.128
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -449,21 +449,15 @@ apps:
       - {install: ttf-ms-fonts,     desc: Microsoft core fonts, type: CYBERLINUX }
       - {install: ttf-nerd-fonts-symbols, desc: Nerd Font Symbols, type: CYBERLINUX }
 
+  # Desktop configuration
   # https://wiki.archlinux.org/index.php/Desktop_environment
   desktop:
-    # Desktop is based on laptop so disable wifi by default
-    - chroot: systemctl disable wpa_supplicant@wlo1
-    - exec: rm /etc/skel/.config/autostart/wpa_gui.desktop
-
-  # Laptop configuration
-  # Built on top of netbook providing full desktop experience for a portable machine
-  laptop:
     - docker
     - guake
     - media
     - plank
     - virtualbox-host
-    - config-menu-laptop
+    - config-menu-desktop
     - {install: asunder,            desc: A lean and friendly audio CD ripper and encoder }
     - {install: avidemux-qt,        desc: Graphical tool to edit video (filter/re-encode/split) - Qt GUI }
     - {install: audacity,           desc: Audio editor - cross platform, tried and tested }
@@ -1054,8 +1048,6 @@ apps:
         - 'p2p_disabled=1'
         # Automatically scan and select networks matching saved ones
         - 'ap_scan=1'
-    - chroot: systemctl enable wpa_supplicant@wlo1
-    - exec: cp /usr/share/applications/wpa_gui.desktop /etc/skel/.config/autostart
     - {menu: Network, entry: WPA Gui, icon: /usr/share/icons/hicolor/32x32/apps/wpa_gui.png, exec: sudo wpa_gui }
 
   # Xorg breakdown rather than using xorg group to remove un-needed packages
@@ -1222,7 +1214,7 @@ configs:
     - {menu: Session, insert: append, entry: Reboot, icon: /usr/share/icons/hicolor/32x32/actions/system-reboot.png, exec: sudo reboot }
     - {menu: Session, insert: append, entry: Shutdown, icon: /usr/share/icons/hicolor/32x32/actions/system-shutdown.png, exec: sudo poweroff }
 
-  config-menu-laptop:
+  config-menu-desktop:
     - {menu: Accessories, entry: Catfish File Search, icon: /usr/share/icons/Paper/32x32/apps/system-search.png, exec: catfish }
     - {menu: Accessories, entry: Multi Writer, icon: /usr/share/icons/Paper/32x32/devices/drive-harddisk-usb.png, exec: sudo gnome-multi-writer}
     - {menu: Development, entry: Meld, icon: /usr/share/icons/Paper/32x32/apps/meld.png, exec: meld }

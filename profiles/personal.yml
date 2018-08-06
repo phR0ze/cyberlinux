@@ -29,26 +29,18 @@ deployments:
       order: 1
       label: "Start <%=distro%>-recovery                 // Live environment"
   desktop:
-    base: laptop
-    install:
-      order: 2
-      label: "Deploy <%=distro%>-desktop                 // Laptop + more apps"
-    apps:
-      - desktop
-  laptop:
     base: netbook
     install:
-      order: 3
-      label: "Deploy <%=distro%>-laptop                  // Netbook + more apps"
-    source: [desktop]
+      order: 2
+      label: "Deploy <%=distro%>-desktop                 // Netbook + more apps"
     apps:
-      - laptop
+      - desktop
       - teamviewer-host
       - virtualbox-ext-oracle
   netbook:
     base: lite
     install:
-      order: 4
+      order: 3
       label: "Deploy <%=distro%>-netbook                 // Lite + more apps"
     source: [desktop]
     apps:
@@ -59,7 +51,7 @@ deployments:
     base: lite
     vars: { fontsize: 18 }
     install:
-      order: 5
+      order: 4
       label: "Deploy <%=distro%>-theater                 // Lite + media apps"
       params: autologin=1
     apps:
@@ -69,7 +61,7 @@ deployments:
   server:
     base: lite
     install:
-      order: 6
+      order: 5
       label: "Deploy <%=distro%>-server                  // Lite + services"
     apps:
       - server
@@ -78,15 +70,15 @@ deployments:
   lite:
     base: shell
     install:
-      order: 7
+      order: 6
       label: "Deploy <%=distro%>-lite                    // Shell + min X11"
     apps:
       - lite
       - ttf-adobe-fonts
   shell:
     install:
-      order: 8
-      label: "Deploy <%=distro%>-shell                    // Shell env"
+      order: 7
+      label: "Deploy <%=distro%>-shell                   // Shell env"
     source: [core, shell]
     apps:
       - kernel-full
