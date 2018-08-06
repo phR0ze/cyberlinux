@@ -32,44 +32,16 @@ deployments:
       order: 1
       label: "Start <%=distro%>-recovery                 // Live environment"
       kernel: linux-celes
-
-  shell:
-    install:
-      order: 2
-      label: "Deploy <%=distro%>-shell                   // Minimal shell"
-      kernel: linux-celes
-    source: [core, shell]
-    apps:
-      - {install: linux-celes,                  desc: Linux kernel and supporting modules, type: CYBERLINUX }
-      - {install: linux-celes-headers,          desc: Linux kernel headers }
-      - {install: galliumos-braswell-config,    desc: GalliumOS configuration files for braswell, force: true, type: CYBERLINUX }
-      - core-boot
-      - shell
-
-      # Memory pages that have been cached/queued to be async written to disk are said to be dirty.
-      # Lower the dirty values to decrease the use of async disk write outs stored in cache
-      - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "vm.dirty_ratio = 20" }
-      - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "vm.dirty_background_ratio = 10" }
-      # How often should pdflush/flush/kdmflush processes wake up and check to see if work needs to be done
-      - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "vm.dirty_writeback_centisecs = 1500" }
-      # The watchdog timer is meant for embedded/mission critical systems and is not needed for normal desktop use
-      - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "kernel.watchdog = 0" }
-      - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "kernel.rr_interval = 6" }
-
-      # Work around issues in the iwlwifi driver for celes' Intel 7265D wifi card
-      - { exec: 'rm -f /etc/modprobe.d/iwlwifi.conf'}
-      - { edit: /etc/modprobe.d/iwlwifi.conf, insert: append, values: ['options iwlwifi 11n_disable=8 bt_coex_active=0 swcrypto=1']}
-
-  desktop:
+  netbook:
     base: shell
     install:
-      order: 3
-      label: "Deploy <%=distro%>-desktop                 // Full X11 env."
+      order: 2
+      label: "Deploy <%=distro%>-netbook                 // Full X11 env."
       kernel: linux-celes
-    source: [lite, desktop, desktop-celes]
+    source: [lite, desktop, celes]
     apps:
       - lite
-      - laptop
+      - netbook
       - makemkv
       - teamviewer
       - ttf-adobe-fonts
@@ -95,3 +67,29 @@ deployments:
       - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'xbacklight +10', value: 'sudo backlight +100' }
       - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'XF86MonBrightnessDown', value: 'W-F6' }
       - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'xbacklight -10', value: 'sudo backlight -100' }
+  shell:
+    install:
+      order: 3
+      label: "Deploy <%=distro%>-shell                   // Minimal shell"
+      kernel: linux-celes
+    source: [core, shell]
+    apps:
+      - {install: linux-celes,                  desc: Linux kernel and supporting modules, type: CYBERLINUX }
+      - {install: linux-celes-headers,          desc: Linux kernel headers }
+      - {install: galliumos-braswell-config,    desc: GalliumOS configuration files for braswell, force: true, type: CYBERLINUX }
+      - core-boot
+      - shell
+
+      # Memory pages that have been cached/queued to be async written to disk are said to be dirty.
+      # Lower the dirty values to decrease the use of async disk write outs stored in cache
+      - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "vm.dirty_ratio = 20" }
+      - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "vm.dirty_background_ratio = 10" }
+      # How often should pdflush/flush/kdmflush processes wake up and check to see if work needs to be done
+      - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "vm.dirty_writeback_centisecs = 1500" }
+      # The watchdog timer is meant for embedded/mission critical systems and is not needed for normal desktop use
+      - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "kernel.watchdog = 0" }
+      - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "kernel.rr_interval = 6" }
+
+      # Work around issues in the iwlwifi driver for celes' Intel 7265D wifi card
+      - { exec: 'rm -f /etc/modprobe.d/iwlwifi.conf'}
+      - { edit: /etc/modprobe.d/iwlwifi.conf, insert: append, values: ['options iwlwifi 11n_disable=8 bt_coex_active=0 swcrypto=1']}

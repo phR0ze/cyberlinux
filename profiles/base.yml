@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.126
+  release: 0.2.127
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -451,12 +451,19 @@ apps:
 
   # https://wiki.archlinux.org/index.php/Desktop_environment
   desktop:
+    # Desktop is based on laptop so disable wifi by default
+    - chroot: systemctl disable wpa_supplicant@wlo1
+    - exec: rm /etc/skel/.config/autostart/wpa_gui.desktop
+
+  # Laptop configuration
+  # Built on top of netbook providing full desktop experience for a portable machine
+  laptop:
     - docker
     - guake
     - media
     - plank
     - virtualbox-host
-    - config-menu-desktop
+    - config-menu-laptop
     - {install: asunder,            desc: A lean and friendly audio CD ripper and encoder }
     - {install: avidemux-qt,        desc: Graphical tool to edit video (filter/re-encode/split) - Qt GUI }
     - {install: audacity,           desc: Audio editor - cross platform, tried and tested }
@@ -480,12 +487,9 @@ apps:
       - {install: ripgrep,          desc: A search tool combining the usability of ag with speed of grep, depof: vscode }
       - {install: visual-studio-code-bin, desc: Editor for modern development, type: CYBERLINUX }
 
-    # Desktop is based on laptop so disable wifi by default
-    - chroot: systemctl disable wpa_supplicant@wlo1
-    - exec: rm /etc/skel/.config/autostart/wpa_gui.desktop
-
-  # Laptop configuration
-  laptop:
+  # Netbook configuration
+  # Lighter deployment for smaller, less powerfull mobile devices
+  netbook:
     - android
     - cinnamon-screensaver
     - conky
@@ -695,6 +699,7 @@ apps:
   # Drop-down python based quake style terminal
   guake:
     - install: guake
+
     # Had to rename to 'guake-term' avoid stupid autodelete of launch file if not set in guake preferences
     - edit: /etc/skel/.config/autostart/guake-term.desktop
       insert: append
@@ -734,6 +739,7 @@ apps:
         - '  <entry name="style" mtime="1476881725" type="string"><stringvalue>Inconsolata-g Medium 11</stringvalue></entry>'
         - '  <entry name="color" mtime="1476881725" type="string"><stringvalue>#D4D4D4D4D4D4</stringvalue></entry>'
         - '</gconf>'
+    - {menu: Settings, entry: Guake Preferences, icon: /usr/share/icons/Paper/32x32/apps/guake-prefs.png, exec: guake-prefs }
 
   # Lightweight desktop icons for X
   idesk:
@@ -944,6 +950,7 @@ apps:
     - {install: virtualbox,         desc: Cross platform virtualization with UI }
     - {install: virtualbox-guest-iso, desc: VirtualBox Guest Additions ISO image }
     - {install: virtualbox-host-modules-arch, desc: VirtualBox host kernel modules }
+    - {menu: Settings, entry: VirtualBox, icon: /usr/share/icons/Paper/32x32/apps/virtualbox.png, exec: VirtualBox }
 
   # X11 virtualbox guest tools for shell environments
   virtualbox-guest:
@@ -1215,7 +1222,7 @@ configs:
     - {menu: Session, insert: append, entry: Reboot, icon: /usr/share/icons/hicolor/32x32/actions/system-reboot.png, exec: sudo reboot }
     - {menu: Session, insert: append, entry: Shutdown, icon: /usr/share/icons/hicolor/32x32/actions/system-shutdown.png, exec: sudo poweroff }
 
-  config-menu-desktop:
+  config-menu-laptop:
     - {menu: Accessories, entry: Catfish File Search, icon: /usr/share/icons/Paper/32x32/apps/system-search.png, exec: catfish }
     - {menu: Accessories, entry: Multi Writer, icon: /usr/share/icons/Paper/32x32/devices/drive-harddisk-usb.png, exec: sudo gnome-multi-writer}
     - {menu: Development, entry: Meld, icon: /usr/share/icons/Paper/32x32/apps/meld.png, exec: meld }
@@ -1231,8 +1238,6 @@ configs:
     - {menu: Network, entry: Synergy, icon: /usr/share/icons/Paper/32x32/apps/synergy.png, exec: synergy }
     - {menu: Office, entry: Scribus, icon: /usr/share/icons/Paper/32x32/apps/scribus.png, exec: scribus }
     - {menu: System, entry: HardInfo, icon: /usr/share/hardinfo/pixmaps/logo.png, exec: hardinfo }
-    - {menu: Settings, entry: Guake Preferences, icon: /usr/share/icons/Paper/32x32/apps/guake-prefs.png, exec: guake-prefs }
-    - {menu: Settings, entry: VirtualBox, icon: /usr/share/icons/Paper/32x32/apps/virtualbox.png, exec: VirtualBox }
   config-dconf:
     - edit: /etc/dconf/profile/user
       insert: append
