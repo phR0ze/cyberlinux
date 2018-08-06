@@ -38,6 +38,7 @@ fork it and make their own configuration ***profiles***
     * [Disable Proxy](#disable-proxy)
 * [Roll your own cyberlinux](#build-cyberlinux)
 * [Arch Help](#arch-help)
+    * [Apps to use](#apps-to-use)
     * [Certificates](#certificates)
     * [BlackArch Signature issue](#blackarch-signature-issue)
 * [Background](#background)
@@ -181,6 +182,9 @@ The [arch wiki](https://wiki.archlinux.org/) is the best place to go for help. I
 few things here that were useful for me.
 
 ### Certificates <a name="certificates"/></a>
+
+#### Apps to use <a name="apps-to-use"/></a>
+[List of apps to use from Arch Linux Wiki](https://wiki.archlinux.org/index.php/List_of_applications/Utilities)
 
 #### Add Root CA <a name="add-root-ca"/></a>
 ```bash
