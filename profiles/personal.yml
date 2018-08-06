@@ -45,7 +45,6 @@ deployments:
       label: "Deploy <%=distro%>-laptop                  // Lite + more apps"
     apps:
       - laptop
-
   theater:
     base: lite
     vars: { fontsize: 18 }

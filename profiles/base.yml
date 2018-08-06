@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.119
+  release: 0.2.120
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -478,6 +478,10 @@ apps:
       - {install: meld,             desc: Develop/Diff Tool - Graphical diff tool cross platform }
       - {install: ripgrep,          desc: A search tool combining the usability of ag with speed of grep, depof: vscode }
       - {install: visual-studio-code-bin, desc: Editor for modern development, type: CYBERLINUX }
+
+    # Desktop is based on laptop so disable wifi by default
+    - chroot: systemctl disable wpa_supplicant@wlo1
+    - exec: rm /etc/skel/.config/autostart/wpa_gui.desktop
 
   # Laptop specific configuration
   laptop:
