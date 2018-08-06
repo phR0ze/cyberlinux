@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.125
+  release: 0.2.126
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -422,6 +422,7 @@ apps:
       - {install: thunar-media-tags-plugin, desc: Thunar plugin to view media details }
       - {install: thunar-volman,    desc: Thunar plugin to automatically manage removeable devices }
       - {install: tumbler,          desc: D-Bus thumbnail service for apps (e.g. Thunar) }
+      - filelight
     - office:
       - {install: evince,           desc: Document viewer (PDF,Postscript,djvu,tiff,dvi,XPS,cbr,cbz,cb7 and cbt) }
       - {install: gvim,             desc: Improved version of vi text editor, conflict: vim }
@@ -680,6 +681,11 @@ apps:
         - 'fi'
         - ''
     - {chroot: systemctl enable docker.service }
+
+  # View disk usage information
+  filelight:
+    - install: filelight
+    - {menu: Accessories, entry: FileLight, icon: /usr/share/icons/hicolor/32x32/apps/filelight.png, exec: filelight }
 
   # Excellent image editor, alt: pinta
   gimp:
