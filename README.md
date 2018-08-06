@@ -26,6 +26,7 @@ fork it and make their own configuration ***profiles***
 * [cyberlinux Profiles](#cyberlinux-profiles)
     * [Standard Profile](#standard-profile)
     * [Personal Use Profile](#personal-profile)
+    * [Personal Use Celes Profile](#personal-celes-profile)
     * [Kubernetes Profile](#kubernetes-profile)
 * [Deploy cyberlinux](#deploy-cyberlinux)
     * [Bare metal deployment](#bare-metal-deployment)
@@ -59,6 +60,11 @@ that were not free to use for commercial purposes.
 ## Personal Use Profile <a name="personal-profile"/></a>
 The [Personal profile](profiles/personal.md) was developed to allow the distribution of applications
 for personal use that are not allowed due to licensing restrictions for commercial use.
+
+## Personal Use Celes Profile <a name="personal-celes-profile"/></a>
+The [Personal Celes profile](profiles/personal-celes.md) was developed specifically for the Samsung
+Chromebook 3 (a.k.a celes) with personal use in mind meaning that it includes apps that are not
+allowed due to licensing restrictions for commercial use.
 
 ## Kubernetes Profile <a name="kubernetes-profile"/></a>
 The [Kubernetes profile](profiles/kubernetes.md) was developed as a slimmed down shell environment
