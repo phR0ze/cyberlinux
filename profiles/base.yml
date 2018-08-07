@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.137
+  release: 0.2.138
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -609,7 +609,7 @@ apps:
         - 'StartupNotify=true'
         - 'Type=Application'
         - 'Categories=System;Utility;'
-    - {menu: Settings, entry: Conky RC, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.conkyrc }
+    - {menu: Settings>Desktop/Login, entry: Conky RC, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.conkyrc }
 
   cronie:
     - {install: cronie, desc: Daemon for scheduling programs to run}
@@ -884,11 +884,11 @@ apps:
       - {menu: Settings, entry: LXInput, icon: /usr/share/icons/Paper/32x32/apps/preferences-desktop-keyboard.png, exec: lxinput }
       - {menu: Settings, entry: LXRandR, icon: /usr/share/icons/Paper/32x32/apps/preferences-desktop-display.png, exec: lxrandr }
       - {menu: Settings, entry: Tint2 Themes, icon: /usr/share/icons/Paper/32x32/apps/tint2conf.png, exec: tint2conf }
-      - {menu: Settings, entry: Reconfigure Openbox, icon: /usr/share/icons/Paper/32x32/apps/update-manager.png, exec: openbox --reconfigure }
       - {menu: Settings>Desktop/Login, entry: Openbox Autostart, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.config/openbox/autostart }
       - {menu: Settings>Desktop/Login, entry: Openbox RC, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.config/openbox/rc.xml }
       - {menu: Settings>Desktop/Login, entry: Openbox Menu, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.config/openbox/menu.xml }
       - {menu: Settings>Desktop/Login, entry: Oblogout, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: sudo gvim /etc/oblogout.conf }
+      - {menu: System, entry: Reconfigure Openbox, icon: /usr/share/icons/Paper/32x32/apps/update-manager.png, exec: openbox --reconfigure }
 
   media:
     - {install: handbrake,          desc: Video/Encoding - Video encoding tool for mp4/mkv }
@@ -1087,7 +1087,7 @@ apps:
     - {install: virtualbox,         desc: Cross platform virtualization with UI }
     - {install: virtualbox-guest-iso, desc: VirtualBox Guest Additions ISO image }
     - {install: virtualbox-host-modules-arch, desc: VirtualBox host kernel modules }
-    - {menu: Settings, entry: VirtualBox, icon: /usr/share/icons/Paper/32x32/apps/virtualbox.png, exec: VirtualBox }
+    - {menu: System, entry: VirtualBox, icon: /usr/share/icons/Paper/32x32/apps/virtualbox.png, exec: VirtualBox }
 
   # X11 virtualbox guest tools for shell environments
   virtualbox-guest:
