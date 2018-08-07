@@ -229,14 +229,23 @@ module Config
       end
 
       # Add entry to identified menu
+      # Insert in sorted order by default unless insert exists in which case we append by default
       if !menu.include?(app_entry)
-        i = nil
-        i = menu.index{|x| x[/label="(.*)"/, 1] > config[k.entry]} if not config[k.insert]
-        if not i or (i - 1 < 0)
-          menu << app_entry
+
+        # Determine sorted index order, append if not found
+        if not config[k.insert]
+          i = menu.index{|x| x[/label="(.*)"/, 1] > config[k.entry]}
+          i = -1 if i.nil?
+
+        # Determine insert, append if invalid
         else
-          menu.insert(i - 1)
+          i = -1 if config[k.insert] == 'append'
+          i = 0 if config[k.insert] == 'prepend'
+          i = config[k.insert].to_i if !['append', 'prepend'].any?{|x| x == config[k.insert]}
+          i = -1 if not menu[i]
         end
+
+        menu.insert(i, app_entry)
       end
     end
 

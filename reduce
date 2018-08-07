@@ -298,7 +298,8 @@ class Reduce
     boxes = items && items.include?('boxes') || false
     isos = items && items.include?('isos') || false
     images = items && items.include?('images') || false
-    all = items && items.include?('all') || ![boxes, isos, images].any?
+    menus = items && items.include?('menus') || false
+    all = items && items.include?('all') || ![boxes, isos, images, menus].any?
 
     # Formatting block for images
     putimages = ->(type, live, name){
@@ -316,6 +317,19 @@ class Reduce
     putimages.call(@type.sqfs, false, 'Machine Images:') if isos or all
     putimages.call(@type.tgz, false, 'Container Images:') if images or all
     putimages.call(@type.tgz, true, 'Container Deployed Images:') if images or all
+
+    # List out menus
+    if menus
+      @profile.deployments.each{|deployment,v|
+        deployment_yml = self.get_deployment_yml(deployment)
+        _, configs = self.getapps(deployment, deployment_yml)
+        menu_entries = configs.select{|x| x['menu']}
+        if menu_entries.any?
+          puts("Menu for #{deployment}\n#{'-' * 80}".colorize(:light_yellow))
+          puts(menu_entries * ",\n")
+        end
+      }
+    end
   end
 
   # Clean components as directed
@@ -1337,10 +1351,10 @@ if __FILE__ == $0
       all: 'List all components',
       boxes: 'List all boxes',
       isos: 'List all isos',
-      images: 'List all docker images'
-    }),
-    Option.new('--raw', "Produce output suitable for automation"),
-  ])
+      images: 'List all docker images',
+      menus: 'List all menus'
+    })
+  ], examples: "List all menus: ./#{app} list menus -p personal")
   cmdr.add('clean', 'Clean ISO components', nodes:[
     Option.new(nil, 'Components to clean', type:Array, allowed:{
       all: 'Clean all components including deployments',

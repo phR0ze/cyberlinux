@@ -290,8 +290,8 @@ class TestMenu < Minitest::Test
     mock.expect(:puts, nil){|x|
       entries = x.select{|y| y.include?("item")}
       assert(entries.size == 2)
-      assert(entries.last.include?("Alpha"))
-      assert(entries.first.include?("Beta"))
+      assert(entries.first.include?("Alpha"))
+      assert(entries.last.include?("Beta"))
     }
 
     Config.stub(:puts, nil){
@@ -360,8 +360,8 @@ class TestMenu < Minitest::Test
     mock.expect(:puts, nil){|x|
       entries = x.select{|y| y.include?("item")}
       assert(entries.size == 2)
-      assert(entries.last.include?("Alpha"))
-      assert(entries.first.include?("Beta"))
+      assert(entries.first.include?("Alpha"))
+      assert(entries.last.include?("Beta"))
     }
 
     Config.stub(:puts, nil){
@@ -525,7 +525,6 @@ class TestMenu < Minitest::Test
     assert_mock(mock)
   end
 
-
   def test_add_menu_apps_subs_root_entry
     data = ["<?xml version=\"1.0\" encoding=\"utf-8\"?>", "<openbox_menu xmlns=\"http://openbox.org/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://openbox.org/\">", "  <menu id=\"root-menu\" label=\"Applications\">", "    <separator label=\"--= FOOBAR =--\"/>", "    <separator/>", "    <menu id=\"Settings\" icon=\"settings.png\" label=\"Settings\">", "      <menu id=\"System\" icon=\"system.png\" label=\"System\">", "      </menu>", "    </menu>", "    <separator/>", "  </menu>", "</openbox_menu>"]
 
@@ -552,6 +551,120 @@ class TestMenu < Minitest::Test
     assert_mock(mock)
   end
 
+  def test_lite_menu
+    configs = [
+      {"menu"=>"Root", "insert"=>"append", "entry"=>"Thunar", "icon"=>"/usr/share/icons/Paper/32x32/apps/Thunar.png", "exec"=>"thunar"},
+      {"menu"=>"Root", "insert"=>"append", "entry"=>"LXTerminal", "icon"=>"/usr/share/icons/Paper/32x32/apps/lxterminal.png", "exec"=>"lxterminal"},
+      {"menu"=>"Root", "insert"=>"append", "entry"=>"Screenshot", "icon"=>"/usr/share/icons/Paper/32x32/apps/gnome-screenshot.png", "exec"=>"xfce4-screenshooter"},
+      {"menu"=>"Root", "insert"=>"append", "entry"=>"Nitrogen", "icon"=>"/usr/share/icons/hicolor/32x32/apps/nitrogen.png", "exec"=>"nitrogen"},
+      {"menu"=>"Accessories", "icon"=>"/usr/share/icons/Paper/32x32/categories/applications-utilities.png"},
+      {"menu"=>"Development", "icon"=>"/usr/share/icons/Paper/32x32/categories/applications-development.png"},
+      {"menu"=>"Graphics", "icon"=>"/usr/share/icons/Paper/32x32/categories/applications-graphics.png"},
+      {"menu"=>"Multimedia", "icon"=>"/usr/share/icons/Paper/32x32/categories/applications-multimedia.png"},
+      {"menu"=>"Network", "icon"=>"/usr/share/icons/Paper/32x32/categories/applications-internet.png"},
+      {"menu"=>"Office", "icon"=>"/usr/share/icons/Paper/32x32/categories/applications-office.png"},
+      {"menu"=>"Settings", "icon"=>"/usr/share/icons/Paper/32x32/categories/applications-accessories.png"},
+      {"menu"=>"Settings>Desktop/Login", "icon"=>"/usr/share/icons/Paper/32x32/apps/preferences-system-login.png"},
+      {"menu"=>"Settings>Pacman/Servers", "icon"=>"/usr/share/icons/Paper/32x32/apps/software-center.png"},
+      {"menu"=>"System", "icon"=>"/usr/share/icons/Paper/32x32/categories/applications-system.png"},
+      {"menu"=>"Session", "insert"=>"append", "entry"=>"Run...", "icon"=>"/usr/share/icons/Paper/32x32/mimetypes/application-x-executable.png", "exec"=>"dmenu_run -fn -misc-fixed-*-*-*-*-20-200-*-*-*-*-*-*  -i -nb '#000000' -nf '#efefef' -sf '#000000' -sb '#3cb0fd'"},
+      {"menu"=>"Session", "insert"=>"append", "entry"=>"Logout", "icon"=>"/usr/share/icons/Paper/32x32/actions/exit.png", "exec"=>"openbox --exit"},
+      {"menu"=>"Session", "insert"=>"append", "entry"=>"Reboot", "icon"=>"/usr/share/icons/hicolor/32x32/actions/system-reboot.png", "exec"=>"sudo reboot"},
+      {"menu"=>"Session", "insert"=>"append", "entry"=>"Shutdown", "icon"=>"/usr/share/icons/hicolor/32x32/actions/system-shutdown.png", "exec"=>"sudo poweroff"},
+      {"menu"=>"Graphics", "entry"=>"Nitrogen", "icon"=>"/usr/share/icons/hicolor/32x32/apps/nitrogen.png", "exec"=>"nitrogen"},
+      {"menu"=>"Accessories", "entry"=>"Archive Manager", "icon"=>"/usr/share/icons/Paper/32x32/apps/file-roller.png", "exec"=>"file-roller"},
+      {"menu"=>"Accessories", "entry"=>"Bulk Rename", "icon"=>"/usr/share/icons/Paper/32x32/apps/Thunar.png", "exec"=>"/usr/lib/Thunar/ThunarBulkRename"},
+      {"menu"=>"Settings", "entry"=>"Thunar Settings", "icon"=>"/usr/share/icons/Paper/32x32/apps/system-file-manager.png", "exec"=>"thunar-settings"},
+      {"menu"=>"Settings", "entry"=>"Thunar Volman", "icon"=>"/usr/share/icons/Paper/32x32/devices/drive-removable-media.png", "exec"=>"thunar-volman-settings"},
+      {"menu"=>"Settings>Desktop/Login", "entry"=>"LXDM Config", "icon"=>"/usr/share/icons/Paper/32x32/apps/gvim.png", "exec"=>"sudo gvim /etc/lxdm/lxdm.conf"},
+      {"menu"=>"Settings>Desktop/Login", "entry"=>"Tint2 Panel", "icon"=>"/usr/share/icons/Paper/32x32/apps/gvim.png", "exec"=>"gvim ~/.config/tint2/tint2rc"},
+      {"menu"=>"Settings>Pacman/Servers", "entry"=>"Pacman Config", "icon"=>"/usr/share/icons/Paper/32x32/apps/gvim.png", "exec"=>"sudo gvim /etc/pacman.conf"},
+      {"menu"=>"Settings>Pacman/Servers", "entry"=>"Pacman Mirrorlist", "icon"=>"/usr/share/icons/Paper/32x32/apps/gvim.png", "exec"=>"sudo gvim /etc/pacman.d/mirrorlist"},
+      {"menu"=>"Settings", "entry"=>"Dconf Editor", "icon"=>"/usr/share/icons/Paper/32x32/apps/dconf-editor.png", "exec"=>"dconf-editor"},
+      {"menu"=>"Settings", "entry"=>"Gconf Editor", "icon"=>"/usr/share/icons/Paper/32x32/apps/gconf-editor.png", "exec"=>"gconf-editor"},
+      {"menu"=>"Settings", "entry"=>"LXAppearance", "icon"=>"/usr/share/icons/Paper/32x32/apps/preferences-desktop-theme.png", "exec"=>"lxappearance"},
+      {"menu"=>"Settings", "entry"=>"LXInput", "icon"=>"/usr/share/icons/Paper/32x32/apps/preferences-desktop-keyboard.png", "exec"=>"lxinput"},
+      {"menu"=>"Settings", "entry"=>"LXRandR", "icon"=>"/usr/share/icons/Paper/32x32/apps/preferences-desktop-display.png", "exec"=>"lxrandr"},
+      {"menu"=>"Settings", "entry"=>"Tint2 Themes", "icon"=>"/usr/share/icons/Paper/32x32/apps/tint2conf.png", "exec"=>"tint2conf"},
+      {"menu"=>"Settings", "entry"=>"Reconfigure Openbox", "icon"=>"/usr/share/icons/Paper/32x32/apps/update-manager.png", "exec"=>"openbox --reconfigure"},
+      {"menu"=>"Settings>Desktop/Login", "entry"=>"Openbox Autostart", "icon"=>"/usr/share/icons/Paper/32x32/apps/gvim.png", "exec"=>"gvim ~/.config/openbox/autostart"},
+      {"menu"=>"Settings>Desktop/Login", "entry"=>"Openbox RC", "icon"=>"/usr/share/icons/Paper/32x32/apps/gvim.png", "exec"=>"gvim ~/.config/openbox/rc.xml"},
+      {"menu"=>"Settings>Desktop/Login", "entry"=>"Openbox Menu", "icon"=>"/usr/share/icons/Paper/32x32/apps/gvim.png", "exec"=>"gvim ~/.config/openbox/menu.xml"},
+      {"menu"=>"Settings>Desktop/Login", "entry"=>"Oblogout", "icon"=>"/usr/share/icons/Paper/32x32/apps/gvim.png", "exec"=>"sudo gvim /etc/oblogout.conf"},
+      {"menu"=>"Accessories", "entry"=>"FileLight", "icon"=>"/usr/share/icons/hicolor/32x32/apps/filelight.png", "exec"=>"filelight"},
+      {"menu"=>"Multimedia", "entry"=>"Audacious", "icon"=>"/usr/share/icons/hicolor/32x32/apps/audacious.png", "exec"=>"audacious"},
+      {"menu"=>"Accessories", "entry"=>"Galculator", "icon"=>"/usr/share/icons/Paper/32x32/apps/galculator.png", "exec"=>"galculator"},
+      {"menu"=>"Accessories", "entry"=>"Leafpad", "icon"=>"/usr/share/icons/hicolor/32x32/apps/leafpad.png", "exec"=>"leafpad"},
+      {"menu"=>"Accessories", "entry"=>"Screenshot", "icon"=>"/usr/share/icons/Paper/32x32/apps/applets-screenshooter.png", "exec"=>"xfce4-screenshooter"},
+      {"menu"=>"Development", "entry"=>"GVim", "icon"=>"/usr/share/icons/Paper/32x32/apps/gvim.png", "exec"=>"gvim -f"},
+      {"menu"=>"Graphics", "entry"=>"Image Viewer", "icon"=>"/usr/share/icons/Paper/32x32/apps/gpicview.png", "exec"=>"gpicview"},
+      {"menu"=>"Graphics", "entry"=>"XnViewMP", "icon"=>"/opt/xnviewmp/xnview.png", "exec"=>"xnviewmp"},
+      {"menu"=>"Multimedia", "entry"=>"Pulse Audio", "icon"=>"/usr/share/icons/Paper/32x32/apps/multimedia-volume-control.png", "exec"=>"pavucontrol"},
+      {"menu"=>"Multimedia", "entry"=>"SMPlayer", "icon"=>"/usr/share/icons/hicolor/32x32/apps/smplayer.png", "exec"=>"smplayer"},
+      {"menu"=>"Multimedia", "entry"=>"VLC", "icon"=>"/usr/share/icons/hicolor/32x32/apps/vlc.png", "exec"=>"vlc"},
+      {"menu"=>"Multimedia", "entry"=>"WinFF", "icon"=>"/usr/share/icons/hicolor/32x32/apps/winff.png", "exec"=>"winff"},
+      {"menu"=>"Network", "entry"=>"Chromium", "icon"=>"/usr/share/icons/Paper/32x32/apps/chromium.png", "exec"=>"chromium"},
+      {"menu"=>"Network", "entry"=>"FileZilla", "icon"=>"/usr/share/icons/Paper/32x32/apps/filezilla.png", "exec"=>"filezilla"},
+      {"menu"=>"Network", "entry"=>"Zenmap", "icon"=>"/usr/share/zenmap/pixmaps/zenmap.png", "exec"=>"sudo zenmap"},
+      {"menu"=>"Office", "entry"=>"Evince", "icon"=>"/usr/share/icons/Paper/32x32/apps/evince.png", "exec"=>"evince"},
+      {"menu"=>"Settings", "entry"=>"Printer Preferences", "icon"=>"/usr/share/icons/Paper/32x32/devices/preferences-desktop-printer.png", "exec"=>"sudo system-config-printer"},
+      {"menu"=>"System", "entry"=>"Htop", "icon"=>"/usr/share/icons/Paper/32x32/apps/htop.png", "exec"=>"lxterminal -e htop"}
+    ]
+
+    data = []
+    @ctx = OpenStruct.new({ root: '/tmp', vars: { distro: 'cracken' } })
+
+    # First entry test, save off data for later use
+    mock1 = Minitest::Mock.new
+    mock1.expect(:puts, nil){|x| data = x}
+    Config.stub(:puts, nil){
+      File.stub(:exist?, false, @file){
+        File.stub(:open, true, mock1){
+          Config.apply(configs.first, @ctx)
+        }
+      }
+    }
+    assert(data.any?{|x| x.include?('CRACKEN')})
+    assert_mock(mock1)
+
+    # Test the rest of the menu entries, saving off the data between tests
+    configs[1..-1].each{|config|
+      mock = Minitest::Mock.new
+      mock.expect(:puts, nil){|x|
+        data = x
+        assert(x.find{|y| y.include?("label=\"#{config['entry']}\"")}) if config['entry']
+        true
+      }
+
+      Config.stub(:puts, nil){
+        File.stub(:exist?, true, @file){
+          File.stub(:readlines, data){
+            File.stub(:open, true, mock){
+              assert(Config.apply(config, @ctx))
+            }
+          }
+        }
+      }
+
+      assert_mock(mock)
+    }
+
+    # Test root menu order
+    assert_equal(4, data.index{|x| x.include?('label="Thunar"')})
+    assert_equal(5, data.index{|x| x.include?('label="LXTerminal"')})
+    assert_equal(6, data.index{|x| x.include?('label="Screenshot"')})
+    assert_equal(7, data.index{|x| x.include?('label="Nitrogen"')})
+
+    # Test Desktop/Login order
+    assert_equal(42, data.index{|x| x.include?('label="LXDM Config"')})
+    assert_equal(43, data.index{|x| x.include?('label="Oblogout"')})
+    assert_equal(44, data.index{|x| x.include?('label="Openbox Autostart"')})
+    assert_equal(45, data.index{|x| x.include?('label="Openbox Menu"')})
+    assert_equal(46, data.index{|x| x.include?('label="Openbox RC"')})
+    assert_equal(47, data.index{|x| x.include?('label="Tint2 Panel"')})
+
+    #puts(data)
+  end
 end
 
 # vim: ft=ruby:ts=2:sw=2:sts=2

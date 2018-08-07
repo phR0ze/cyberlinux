@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.136
+  release: 0.2.137
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -354,10 +354,9 @@ apps:
   # ----------------------------------------------------------------------------
   lite:
     - groups: [video, audio]
-    - config-lite
+    - lxde
     - opengl
     - virtualbox-guest
-    - lxde
     - utils:
       - {install: dmenu,            desc: Super light weight application runner }
       - {install: cups-pdf,         desc: System/Printer Driver with PDF print support }
@@ -411,6 +410,7 @@ apps:
       - {install: ttf-liberation,   desc: Red Hats Liberation fonts.  }
       - {install: ttf-ms-fonts,     desc: Microsoft core fonts, type: CYBERLINUX }
       - {install: ttf-nerd-fonts-symbols, desc: Nerd Font Symbols, type: CYBERLINUX }
+    - config-lite
 
   # Desktop configuration
   # https://wiki.archlinux.org/index.php/Desktop_environment
@@ -790,6 +790,7 @@ apps:
   # Lightweight Desktop Environment
   lxde:
     - xorg
+    - menu-structure
     - system:
       - install: lxinput              # Keyboard and mouse config for LXDE
       - install: lxrandr              # Monitor configuration tool for LXDE
@@ -873,6 +874,32 @@ apps:
       - install: lxappearance-obconf # Openbox support for lxappearance
       - {install: numix-frost-themes, desc: Numix frost GTK2, GTK3 and OpenBox themes, type: ANTERGOS }
       - {install: paper-icon-theme, desc: Paper icon theme, type: CYBERLINUX }
+    - menu-lxde:
+      - {menu: Settings>Desktop/Login, entry: Tint2 Panel, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.config/tint2/tint2rc }
+      - {menu: Settings>Pacman/Servers, entry: Pacman Config, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: sudo gvim /etc/pacman.conf }
+      - {menu: Settings>Pacman/Servers, entry: Pacman Mirrorlist, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: sudo gvim /etc/pacman.d/mirrorlist }
+      - {menu: Settings, entry: Dconf Editor, icon: /usr/share/icons/Paper/32x32/apps/dconf-editor.png, exec: dconf-editor }
+      - {menu: Settings, entry: Gconf Editor, icon: /usr/share/icons/Paper/32x32/apps/gconf-editor.png, exec: gconf-editor }
+      - {menu: Settings, entry: LXAppearance, icon: /usr/share/icons/Paper/32x32/apps/preferences-desktop-theme.png, exec: lxappearance }
+      - {menu: Settings, entry: LXInput, icon: /usr/share/icons/Paper/32x32/apps/preferences-desktop-keyboard.png, exec: lxinput }
+      - {menu: Settings, entry: LXRandR, icon: /usr/share/icons/Paper/32x32/apps/preferences-desktop-display.png, exec: lxrandr }
+      - {menu: Settings, entry: Tint2 Themes, icon: /usr/share/icons/Paper/32x32/apps/tint2conf.png, exec: tint2conf }
+      - {menu: Settings, entry: Reconfigure Openbox, icon: /usr/share/icons/Paper/32x32/apps/update-manager.png, exec: openbox --reconfigure }
+      - {menu: Settings>Desktop/Login, entry: Openbox Autostart, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.config/openbox/autostart }
+      - {menu: Settings>Desktop/Login, entry: Openbox RC, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.config/openbox/rc.xml }
+      - {menu: Settings>Desktop/Login, entry: Openbox Menu, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.config/openbox/menu.xml }
+      - {menu: Settings>Desktop/Login, entry: Oblogout, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: sudo gvim /etc/oblogout.conf }
+
+  media:
+    - {install: handbrake,          desc: Video/Encoding - Video encoding tool for mp4/mkv }
+    - {install: handbrake-cli,      desc: Video/Encoding - Video encoding tool for mp4/mkv }
+    - {install: mkvtoolnix-gui,     desc: Set of tools to create, edit and inspect MKV files }
+    - {install: tiny-media-manager, desc: Cross platform media manager, type: CYBERLINUX }
+    - {menu: Multimedia, entry: HandBrake, icon: /usr/share/icons/hicolor/scalable/apps/hb-icon.svg, exec: ghb }
+    - {menu: Multimedia, entry: MKVToolNix, icon: /usr/share/icons/hicolor/32x32/apps/mkvtoolnix-gui.png, exec: mkvtoolnix-gui }
+    - {menu: Multimedia, entry: Tiny Media Manager, icon: /usr/share/icons/hicolor/32x32/apps/tiny-media-manager.png, exec: tiny-media-manager }
+
+  menu-structure:
     - menu-header:
       - {menu: Root, insert: append, entry: Thunar, icon: /usr/share/icons/Paper/32x32/apps/Thunar.png, exec: thunar }
       - {menu: Root, insert: append, entry: LXTerminal, icon: /usr/share/icons/Paper/32x32/apps/lxterminal.png, exec: lxterminal }
@@ -889,35 +916,12 @@ apps:
       - {menu: Settings>Desktop/Login, icon: /usr/share/icons/Paper/32x32/apps/preferences-system-login.png }
       - {menu: Settings>Pacman/Servers, icon: /usr/share/icons/Paper/32x32/apps/software-center.png }
       - {menu: System, icon: /usr/share/icons/Paper/32x32/categories/applications-system.png }
-    - menu-lxde:
-      - {menu: Settings>Desktop/Login, entry: Tint2 Panel, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.config/tint2/tint2rc }
-      - {menu: Settings>Pacman/Servers, entry: Pacman Config, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: sudo gvim /etc/pacman.conf }
-      - {menu: Settings>Pacman/Servers, entry: Pacman Mirrorlist, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: sudo gvim /etc/pacman.d/mirrorlist }
-      - {menu: Settings, entry: Dconf Editor, icon: /usr/share/icons/Paper/32x32/apps/dconf-editor.png, exec: dconf-editor }
-      - {menu: Settings, entry: Gconf Editor, icon: /usr/share/icons/Paper/32x32/apps/gconf-editor.png, exec: gconf-editor }
-      - {menu: Settings, entry: LXAppearance, icon: /usr/share/icons/Paper/32x32/apps/preferences-desktop-theme.png, exec: lxappearance }
-      - {menu: Settings, entry: LXInput, icon: /usr/share/icons/Paper/32x32/apps/preferences-desktop-keyboard.png, exec: lxinput }
-      - {menu: Settings, entry: LXRandR, icon: /usr/share/icons/Paper/32x32/apps/preferences-desktop-display.png, exec: lxrandr }
-      - {menu: Settings, entry: Tint2 Themes, icon: /usr/share/icons/Paper/32x32/apps/tint2conf.png, exec: tint2conf }
-      - {menu: Settings>Desktop/Login, entry: Reconfigure Openbox, icon: /usr/share/icons/Paper/32x32/apps/update-manager.png, exec: openbox --reconfigure }
-      - {menu: Settings>Desktop/Login, entry: Openbox Autostart, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.config/openbox/autostart }
-      - {menu: Settings>Desktop/Login, entry: Openbox RC, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.config/openbox/rc.xml }
-      - {menu: Settings>Desktop/Login, entry: Openbox Menu, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.config/openbox/menu.xml }
-      - {menu: Settings>Desktop/Login, entry: Oblogout, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: sudo gvim /etc/oblogout.conf }
+
     - menu-footer:
       - {menu: Session, insert: append, entry: Run..., icon: /usr/share/icons/Paper/32x32/mimetypes/application-x-executable.png, exec: "dmenu_run -fn -misc-fixed-*-*-*-*-20-200-*-*-*-*-*-*  -i -nb '#000000' -nf '#efefef' -sf '#000000' -sb '#3cb0fd'" }
       - {menu: Session, insert: append, entry: Logout, icon: /usr/share/icons/Paper/32x32/actions/exit.png, exec: openbox --exit }
       - {menu: Session, insert: append, entry: Reboot, icon: /usr/share/icons/hicolor/32x32/actions/system-reboot.png, exec: sudo reboot }
       - {menu: Session, insert: append, entry: Shutdown, icon: /usr/share/icons/hicolor/32x32/actions/system-shutdown.png, exec: sudo poweroff }
-
-  media:
-    - {install: handbrake,          desc: Video/Encoding - Video encoding tool for mp4/mkv }
-    - {install: handbrake-cli,      desc: Video/Encoding - Video encoding tool for mp4/mkv }
-    - {install: mkvtoolnix-gui,     desc: Set of tools to create, edit and inspect MKV files }
-    - {install: tiny-media-manager, desc: Cross platform media manager, type: CYBERLINUX }
-    - {menu: Multimedia, entry: HandBrake, icon: /usr/share/icons/hicolor/scalable/apps/hb-icon.svg, exec: ghb }
-    - {menu: Multimedia, entry: MKVToolNix, icon: /usr/share/icons/hicolor/32x32/apps/mkvtoolnix-gui.png, exec: mkvtoolnix-gui }
-    - {menu: Multimedia, entry: Tiny Media Manager, icon: /usr/share/icons/hicolor/32x32/apps/tiny-media-manager.png, exec: tiny-media-manager }
 
   # Tools required for building initramfs for early boot environment
   mkinitcpio:
