@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.133
+  release: 0.2.134
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -357,40 +357,12 @@ apps:
     - config-lite
     - opengl
     - virtualbox-guest
-    - xorg
-    - system:
-      - lxdm
-      - {install: dconf,            desc: A low-level configuration system }
-      - {install: dconf-editor,     desc: New configuration manager intended to replace gconf }
-      - {install: desktop-file-utils, desc: Command line utilities for working with desktop entries }
-      - {install: gconf-editor,     desc: Old Gnome configuration manager separate dconf-editor db }
-      - {install: gtk-engines,      desc: GTK theme engines for cyberlinux theme }
-      - {install: gtk-engine-murrine, desc: GTK theme engine for cyberlinux theme }
-      - {install: lxappearance-obconf, desc: Openbox support for lxappearance }
-      - {install: lxinput,          desc: Keyboard and mouse config for LXDE }
-      - {install: lxrandr,          desc: Monitor configuration tool for LXDE }
-      - {install: oblogout,         desc: Openbox logout script }
-      - {install: openbox,          desc: Lightweight X11 window manager }
-      - {install: numix-frost-themes, desc: Numix frost GTK2, GTK3 and OpenBox themes, type: ANTERGOS }
-      - {install: paper-icon-theme, desc: Paper icon theme, type: CYBERLINUX }
-      - {install: pavucontrol,      desc: PulseAudio Volume Control }
-      - {install: pnmixer,          desc: Volume controls in system tray, type: CYBERLINUX }
-      - {install: pulseaudio-alsa,  desc: ALSA Configuration for PulseAudio }
-      - {install: python2-xdg,      desc: Enable use of .desktop files in /etc/xdg in openbox }
-      - {install: tint2,            desc: Lightweight taskmanager and system tray }
-      - {install: wmctrl,           desc: Control your EWMH compliant window manager from command line }
-      - {install: xcursor-numix-frost, desc: Numix frost cursor theme, type: CYBERLINUX }
-      - {install: xdg-user-dirs,    desc: Manage user directories like ~/Desktop }
-      - {install: xdg-utils,        desc: Desktop integration utilities }
-      - {install: xsel,             desc: Tool for getting/setting X selection }
-      - {install: xterm,            desc: X terminal emulator }
+    - lxde
     - utils:
       - {install: dmenu,            desc: Super light weight application runner }
       - {install: cups-pdf,         desc: System/Printer Driver with PDF print support }
       - {install: galculator,       desc: Office/Calculator }
       - {install: gsimplecal,       desc: Simple calendar like windows systray calendar }
-      - {install: lxterminal,       desc: Terminal for LXDE, alt: terminator }
-      - {install: nitrogen,         desc: System wallpaper manager }
       - {install: powerline,        desc: Status line plugin for bash }
       - {install: powerline-gitstatus, desc: Powerline plugin for git status, type: CYBERLINUX }
       - {install: powerline-fonts,  desc: Powerline font symbols }
@@ -413,15 +385,6 @@ apps:
       - {install: flashplugin,      desc: Adobe Flash Player NPAPI }
       - {install: pepper-flash,     desc: Chromium flash support }
       - {install: filezilla,        desc: Network/Transfer }
-    - file-management:
-      - {install: gvfs,             desc: Support for Trash and USB, depof: thunar-volman }
-      - {install: file-roller,      desc: System/Compression integrates well in Thunar }
-      - {install: ffmpegthumbnailer, desc: Lightweight video thumbnailer that can be used by file managers }
-      - {install: thunar,           desc: Lightweight File Manager from Xfce }
-      - {install: thunar-archive-plugin, desc: Thunar integration with file-roller }
-      - {install: thunar-media-tags-plugin, desc: Thunar plugin to view media details }
-      - {install: thunar-volman,    desc: Thunar plugin to automatically manage removeable devices }
-      - {install: tumbler,          desc: D-Bus thumbnail service for apps (e.g. Thunar) }
       - filelight
     - office:
       - {install: evince,           desc: Document viewer (PDF,Postscript,djvu,tiff,dvi,XPS,cbr,cbz,cb7 and cbt) }
@@ -824,21 +787,128 @@ apps:
     - {menu: Office, entry: LibreOffice Writer, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-writer.png, exec: libreoffice --writer }
     - {menu: Office, entry: LibreOffice, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-startcenter.png, exec: libreoffice }
 
-  # Lightweight X11 Display Manager
-  lxdm:
-    - install: lxdm-gtk3
-    - {exec: ln -sf //usr/lib/systemd/system/lxdm.service /etc/systemd/system/display-manager.service }
-    - {edit: /usr/share/lxdm/themes/Industrial/gtk.css, regex: '^(\s*font: Sans).*', value: '\1 18;' }
-    - {edit: /usr/share/lxdm/themes/Industrial/gtk.css, regex: '^(\s*color:) #000000.*', value: '\1 #ffffff;' }
-    - {edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(session)=.*', value: '\1=/usr/bin/openbox-session' }
-    - {edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(numlock)=.*', value: '\1=1' }
-    - {edit: /etc/lxdm/lxdm.conf, regex: '^(gtk_theme)=.*', value: '\1=<%=distro%>' }
-    - {edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(bg)=.*', value: '\1=<%=wallpaper%>' }
-    - {edit: /etc/lxdm/lxdm.conf, regex: '^(bottom_pane)=.*', value: '\1=0' }
-    - {edit: /etc/lxdm/lxdm.conf, regex: '^(theme)=.*', value: '\1=Industrial' }
-    - {edit: /etc/lxdm/lxdm.conf, regex: '^(disable)=.*', value: '\1=1' }
-    - {edit: /usr/sbin/lxdm, insert: before, regex: 'exec', values: ['/opt/<%=distro%>/bin/pre-xorg']
-    - {menu: Settings>Desktop/Login, entry: LXDM Config, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: sudo gvim /etc/lxdm/lxdm.conf }
+  # Lightweight Desktop Environment
+  lxde:
+    - xorg
+    - system:
+      - install: lxinput              # Keyboard and mouse config for LXDE
+      - install: lxrandr              # Monitor configuration tool for LXDE
+      - install: lxterminal           # Terminal for LXDE, alt: terminator
+      - install: dconf                # A low-level configuration system
+      - install: dconf-editor         # New configuration manager intended to replace gconf
+      - install: desktop-file-utils   # Command line utilities for working with desktop entries
+      - install: gconf-editor         # Old Gnome configuration manager separate dconf-editor db
+      - install: gtk-engines          # GTK theme engines for cyberlinux theme
+      - install: gtk-engine-murrine   # GTK theme engine for cyberlinux theme
+      - install: pavucontrol          # PulseAudio Volume Control
+      - install: pulseaudio-alsa      # ALSA Configuration for PulseAudio
+      - install: tint2                # Lightweight taskmanager and system tray
+      - install: wmctrl               # Control your EWMH compliant window manager from command line
+      - install: xdg-user-dirs        # Manage user directories like ~/Desktop
+      - install: xdg-utils            # Desktop integration utilities
+      - install: xsel                 # Tool for getting/setting X selection
+      - install: xterm                # X terminal emulator
+      - {install: pnmixer,          desc: Volume controls in system tray, type: CYBERLINUX }
+      - {install: xcursor-numix-frost, desc: Numix frost cursor theme, type: CYBERLINUX }
+      - nitrogen
+      - thunar
+    - lxdm:
+      - install: lxdm-gtk3          # Lightweight display manager
+      - {exec: ln -sf //usr/lib/systemd/system/lxdm.service /etc/systemd/system/display-manager.service }
+      - {edit: /usr/share/lxdm/themes/Industrial/gtk.css, regex: '^(\s*font: Sans).*', value: '\1 18;' }
+      - {edit: /usr/share/lxdm/themes/Industrial/gtk.css, regex: '^(\s*color:) #000000.*', value: '\1 #ffffff;' }
+      - {edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(session)=.*', value: '\1=/usr/bin/openbox-session' }
+      - {edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(numlock)=.*', value: '\1=1' }
+      - {edit: /etc/lxdm/lxdm.conf, regex: '^(gtk_theme)=.*', value: '\1=<%=distro%>' }
+      - {edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(bg)=.*', value: '\1=<%=wallpaper%>' }
+      - {edit: /etc/lxdm/lxdm.conf, regex: '^(bottom_pane)=.*', value: '\1=0' }
+      - {edit: /etc/lxdm/lxdm.conf, regex: '^(theme)=.*', value: '\1=Industrial' }
+      - {edit: /etc/lxdm/lxdm.conf, regex: '^(disable)=.*', value: '\1=1' }
+      - {edit: /usr/sbin/lxdm, insert: before, regex: 'exec', values: ['/opt/<%=distro%>/bin/pre-xorg']
+      - {menu: Settings>Desktop/Login, entry: LXDM Config, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: sudo gvim /etc/lxdm/lxdm.conf }
+    - openbox:
+      - install: oblogout           # Openbox logout script
+      - install: openbox            # Lightweight X11 window manager
+      - install: python2-xdg        # Enable use of .desktop files in /etc/xdg in openbox
+      - edit: /etc/oblogout.conf
+        insert: append
+        values:
+          - '[settings]'
+          - 'usehal = false'
+          - '[looks]'
+          - 'opacity = 70'
+          - 'bgcolor = black'
+          - 'buttontheme = foom'
+          - 'buttons = logout, restart, shutdown, lock'
+          - '[shortcuts]'
+          - 'cancel = Escape'
+          - 'logout = E'
+          - 'restart = R'
+          - 'shutdown = S'
+          - 'lock = L'
+          - '[commands]'
+          - 'logout = openbox --exit'
+          - 'restart = systemctl reboot'
+          - 'shutdown = systemctl poweroff'
+          - 'lock = cinnamon-screensaver-command --lock'
+      - edit: /etc/skel/.config/openbox/autostart
+        insert: append
+        values:
+          - '## Autostart file'
+          - 'export GTK2_RC_FILES="$HOME/.gtkrc-2.0" '
+          - "\n# Ensure D-Bus Communication for file management, auth, and other system processes"
+          - 'if which dbus-launch >/dev/null && test -z "$DBUS_SESSION_BUS_ADDRESS"; then'
+          - '    eval "$(dbus-launch --sh-syntax --exit-with-session)"'
+          - 'fi'
+          - "\n# Generate home directories if they don't exist"
+          - '[ -x /usr/bin/xdg-user-dirs-update ] && /usr/bin/xdg-user-dirs-update'
+          - "\n# Configure X resources"
+          - 'xrdb -merge ~/.Xresources'
+      - edit: /etc/skel/.config/openbox/environment
+        insert: append
+        values:
+          - '# Source the user rc file if it exists'
+          - '[ -r ~/.bashrc ] && source ~/.bashrc'
+    - themes:
+      - install: lxappearance-obconf # Openbox support for lxappearance
+      - {install: numix-frost-themes, desc: Numix frost GTK2, GTK3 and OpenBox themes, type: ANTERGOS }
+      - {install: paper-icon-theme, desc: Paper icon theme, type: CYBERLINUX }
+    - menu-header:
+      - {menu: Root, insert: append, entry: Thunar, icon: /usr/share/icons/Paper/32x32/apps/Thunar.png, exec: thunar }
+      - {menu: Root, insert: append, entry: LXTerminal, icon: /usr/share/icons/Paper/32x32/apps/lxterminal.png, exec: lxterminal }
+      - {menu: Root, insert: append, entry: Screenshot, icon: /usr/share/icons/Paper/32x32/apps/gnome-screenshot.png, exec: xfce4-screenshooter }
+      - {menu: Root, insert: append, entry: Nitrogen, icon: /usr/share/icons/hicolor/32x32/apps/nitrogen.png, exec: nitrogen }
+    - menu-groups:
+      - {menu: Accessories, icon: /usr/share/icons/Paper/32x32/categories/applications-utilities.png }
+      - {menu: Development, icon: /usr/share/icons/Paper/32x32/categories/applications-development.png }
+      - {menu: Graphics, icon: /usr/share/icons/Paper/32x32/categories/applications-graphics.png }
+      - {menu: Multimedia, icon: /usr/share/icons/Paper/32x32/categories/applications-multimedia.png }
+      - {menu: Network, icon: /usr/share/icons/Paper/32x32/categories/applications-internet.png }
+      - {menu: Office, icon: /usr/share/icons/Paper/32x32/categories/applications-office.png }
+      - {menu: Settings, icon: /usr/share/icons/Paper/32x32/categories/applications-accessories.png }
+      - {menu: Settings>Desktop/Login, icon: /usr/share/icons/Paper/32x32/apps/preferences-system-login.png }
+      - {menu: Settings>Pacman/Servers, icon: /usr/share/icons/Paper/32x32/apps/software-center.png }
+      - {menu: System, icon: /usr/share/icons/Paper/32x32/categories/applications-system.png }
+    - menu-lxde:
+      - {menu: Settings>Desktop/Login, entry: Tint2 Panel, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.config/tint2/tint2rc }
+      - {menu: Settings>Pacman/Servers, entry: Pacman Config, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: sudo gvim /etc/pacman.conf }
+      - {menu: Settings>Pacman/Servers, entry: Pacman Mirrorlist, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: sudo gvim /etc/pacman.d/mirrorlist }
+      - {menu: Settings, entry: Dconf Editor, icon: /usr/share/icons/Paper/32x32/apps/dconf-editor.png, exec: dconf-editor }
+      - {menu: Settings, entry: Gconf Editor, icon: /usr/share/icons/Paper/32x32/apps/gconf-editor.png, exec: gconf-editor }
+      - {menu: Settings, entry: LXAppearance, icon: /usr/share/icons/Paper/32x32/apps/preferences-desktop-theme.png, exec: lxappearance }
+      - {menu: Settings, entry: LXInput, icon: /usr/share/icons/Paper/32x32/apps/preferences-desktop-keyboard.png, exec: lxinput }
+      - {menu: Settings, entry: LXRandR, icon: /usr/share/icons/Paper/32x32/apps/preferences-desktop-display.png, exec: lxrandr }
+      - {menu: Settings, entry: Tint2 Themes, icon: /usr/share/icons/Paper/32x32/apps/tint2conf.png, exec: tint2conf }
+      - {menu: Settings>Desktop/Login, entry: Reconfigure Openbox, icon: /usr/share/icons/Paper/32x32/apps/update-manager.png, exec: openbox --reconfigure }
+      - {menu: Settings>Desktop/Login, entry: Openbox Autostart, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.config/openbox/autostart }
+      - {menu: Settings>Desktop/Login, entry: Openbox RC, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.config/openbox/rc.xml }
+      - {menu: Settings>Desktop/Login, entry: Openbox Menu, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.config/openbox/menu.xml }
+      - {menu: Settings>Desktop/Login, entry: Oblogout, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: sudo gvim /etc/oblogout.conf }
+    - menu-footer:
+      - {menu: Session, insert: append, entry: Run..., icon: /usr/share/icons/Paper/32x32/mimetypes/application-x-executable.png, exec: "dmenu_run -fn -misc-fixed-*-*-*-*-20-200-*-*-*-*-*-*  -i -nb '#000000' -nf '#efefef' -sf '#000000' -sb '#3cb0fd'" }
+      - {menu: Session, insert: append, entry: Logout, icon: /usr/share/icons/Paper/32x32/actions/exit.png, exec: openbox --exit }
+      - {menu: Session, insert: append, entry: Reboot, icon: /usr/share/icons/hicolor/32x32/actions/system-reboot.png, exec: sudo reboot }
+      - {menu: Session, insert: append, entry: Shutdown, icon: /usr/share/icons/hicolor/32x32/actions/system-shutdown.png, exec: sudo poweroff }
 
   media:
     - {install: handbrake,          desc: Video/Encoding - Video encoding tool for mp4/mkv }
@@ -863,6 +933,33 @@ apps:
     - edit: /etc/mkinitcpio.conf
       regex: '^(HOOKS).*'
       value: '\1="base udev autodetect vt-colors modconf block filesystems keyboard"'
+
+  # Lightweight wallpaper manager
+  nitrogen:
+    - install: nitrogen
+    - config-wallpaper:
+      - edit: /etc/skel/.config/nitrogen/bg-saved.cfg
+        insert: append
+        values:
+          - '[xin_-1]'
+          - 'file=<%=wallpaper%>'
+          - 'mode=4'
+          - 'bgcolor=#000000'
+      - edit: /etc/skel/.config/nitrogen/nitrogen.cfg
+        insert: append
+        values:
+          - '[geometry]'
+          - 'posx=89'
+          - 'posy=70'
+          - 'sizex=839'
+          - "sizey=643\n"
+          - '[nitrogen]'
+          - 'view=icon'
+          - 'recurse=true'
+          - 'sort=alpha'
+          - 'icon_caps=false'
+          - 'dirs=/usr/share/wallpaper;'
+    - {menu: Graphics, entry: Nitrogen, icon: /usr/share/icons/hicolor/32x32/apps/nitrogen.png, exec: nitrogen }
 
   opengl:
     - {install: lib32-mesa,         desc: OpenGL opensource implementation, depof: kodi steam }
@@ -952,6 +1049,33 @@ apps:
       - chroot: systemctl enable systemd-networkd-wait-online.service
       - chroot: systemctl enable systemd-resolved.service
       - chroot: systemctl enable systemd-timesyncd.service
+
+  thunar:
+    - install: gvfs                     # Support for Trash and USB, depof: thunar-volman
+    - install: file-roller              # System/Compression integrates well in Thunar
+    - install: ffmpegthumbnailer        # Lightweight video thumbnailer that can be used by file managers
+    - install: thunar                   # Lightweight File Manager from Xfce
+    - install: thunar-archive-plugin    # Thunar integration with file-roller
+    - install: thunar-media-tags-plugin # Thunar plugin to view media details
+    - install: thunar-volman            # Thunar plugin to automatically manage removeable devices
+    - install: tumbler                  # D-Bus thumbnail service for apps (e.g. Thunar)
+    - edit: /etc/skel/.config/autostart/thunar.desktop
+      insert: append
+      values:
+        - '[Desktop Entry]'
+        - 'Name=Thunar File Manager'
+        - 'Comment=Browse the filesystem with the file manager'
+        - 'GenericName=File Manager'
+        - 'Exec=thunar --daemon'
+        - 'Icon=Thunar'
+        - 'Terminal=false'
+        - 'StartupNotify=true'
+        - 'Type=Application'
+        - 'Categories=System;Utility;Core;GTK;FileTools;FileManager;'
+    - {menu: Accessories, entry: Archive Manager, icon: /usr/share/icons/Paper/32x32/apps/file-roller.png, exec: file-roller }
+    - {menu: Accessories, entry: Bulk Rename, icon: /usr/share/icons/Paper/32x32/apps/Thunar.png, exec: /usr/lib/Thunar/ThunarBulkRename }
+    - {menu: Settings, entry: Thunar Settings, icon: /usr/share/icons/Paper/32x32/apps/system-file-manager.png, exec: thunar-settings }
+    - {menu: Settings, entry: Thunar Volman, icon: /usr/share/icons/Paper/32x32/devices/drive-removable-media.png, exec: thunar-volman-settings }
 
   virtualbox-host:
     - {install: packer,             desc: HashiCorp's vagrant box builder, type: CYBERLINUX }
@@ -1165,68 +1289,26 @@ configs:
     - config-fonts
     - config-dconf
     - config-gtk
-    - config-openbox
-    - config-oblogout
     - config-mimeapps
-    - config-wallpaper
-    - config-thunar
     - config-menu-lite
     - config-user-dirs
   config-menu-lite:
-    - {menu: Root, insert: append, entry: Thunar, icon: /usr/share/icons/Paper/32x32/apps/Thunar.png, exec: thunar }
-    - {menu: Root, insert: append, entry: LXTerminal, icon: /usr/share/icons/Paper/32x32/apps/lxterminal.png, exec: lxterminal }
-    - {menu: Root, insert: append, entry: Nitrogen, icon: /usr/share/icons/hicolor/32x32/apps/nitrogen.png, exec: nitrogen }
-    - {menu: Root, insert: append, entry: Screenshot, icon: /usr/share/icons/Paper/32x32/apps/gnome-screenshot.png, exec: xfce4-screenshooter }
-    - {menu: Accessories, icon: /usr/share/icons/Paper/32x32/categories/applications-utilities.png }
-    - {menu: Accessories, entry: Archive Manager, icon: /usr/share/icons/Paper/32x32/apps/file-roller.png, exec: file-roller }
-    - {menu: Accessories, entry: Bulk Rename, icon: /usr/share/icons/Paper/32x32/apps/Thunar.png, exec: /usr/lib/Thunar/ThunarBulkRename }
     - {menu: Accessories, entry: Galculator, icon: /usr/share/icons/Paper/32x32/apps/galculator.png, exec: galculator }
     - {menu: Accessories, entry: Leafpad, icon: /usr/share/icons/hicolor/32x32/apps/leafpad.png, exec: leafpad }
     - {menu: Accessories, entry: Screenshot, icon: /usr/share/icons/Paper/32x32/apps/applets-screenshooter.png, exec: xfce4-screenshooter }
-    - {menu: Development, icon: /usr/share/icons/Paper/32x32/categories/applications-development.png }
     - {menu: Development, entry: GVim, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim -f }
-    - {menu: Graphics, icon: /usr/share/icons/Paper/32x32/categories/applications-graphics.png }
     - {menu: Graphics, entry: Image Viewer, icon: /usr/share/icons/Paper/32x32/apps/gpicview.png, exec: gpicview }
     - {menu: Graphics, entry: XnViewMP, icon: /opt/xnviewmp/xnview.png, exec: xnviewmp }
-    - {menu: Graphics, entry: Nitrogen, icon: /usr/share/icons/hicolor/32x32/apps/nitrogen.png, exec: nitrogen }
-    - {menu: Multimedia, icon: /usr/share/icons/Paper/32x32/categories/applications-multimedia.png }
     - {menu: Multimedia, entry: Pulse Audio, icon: /usr/share/icons/Paper/32x32/apps/multimedia-volume-control.png, exec: pavucontrol }
     - {menu: Multimedia, entry: SMPlayer, icon: /usr/share/icons/hicolor/32x32/apps/smplayer.png, exec: smplayer }
     - {menu: Multimedia, entry: VLC, icon: /usr/share/icons/hicolor/32x32/apps/vlc.png, exec: vlc }
     - {menu: Multimedia, entry: WinFF, icon: /usr/share/icons/hicolor/32x32/apps/winff.png, exec: winff }
-    - {menu: Network, icon: /usr/share/icons/Paper/32x32/categories/applications-internet.png }
     - {menu: Network, entry: Chromium, icon: /usr/share/icons/Paper/32x32/apps/chromium.png, exec: chromium }
     - {menu: Network, entry: FileZilla, icon: /usr/share/icons/Paper/32x32/apps/filezilla.png, exec: filezilla }
     - {menu: Network, entry: Zenmap, icon: /usr/share/zenmap/pixmaps/zenmap.png, exec: sudo zenmap }
-    - {menu: Office, icon: /usr/share/icons/Paper/32x32/categories/applications-office.png }
     - {menu: Office, entry: Evince, icon: /usr/share/icons/Paper/32x32/apps/evince.png, exec: evince }
-    - {menu: Settings, icon: /usr/share/icons/Paper/32x32/categories/applications-accessories.png }
-    - {menu: Settings>Desktop/Login, icon: /usr/share/icons/Paper/32x32/apps/preferences-system-login.png }
-    - {menu: Settings>Desktop/Login, entry: Reconfigure Openbox, icon: /usr/share/icons/Paper/32x32/apps/update-manager.png, exec: openbox --reconfigure }
-    - {menu: Settings>Desktop/Login, entry: Openbox Autostart, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.config/openbox/autostart }
-    - {menu: Settings>Desktop/Login, entry: Openbox RC, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.config/openbox/rc.xml }
-    - {menu: Settings>Desktop/Login, entry: Openbox Menu, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.config/openbox/menu.xml }
-    - {menu: Settings>Desktop/Login, entry: Oblogout, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: sudo gvim /etc/oblogout.conf }
-    - {menu: Settings>Desktop/Login, entry: Tint2 Panel, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.config/tint2/tint2rc }
-    - {menu: Settings>Pacman/Servers, icon: /usr/share/icons/Paper/32x32/apps/software-center.png }
-    - {menu: Settings>Pacman/Servers, entry: Pacman Config, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: sudo gvim /etc/pacman.conf }
-    - {menu: Settings>Pacman/Servers, entry: Pacman Mirrorlist, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: sudo gvim /etc/pacman.d/mirrorlist }
-    - {menu: Settings, entry: Dconf Editor, icon: /usr/share/icons/Paper/32x32/apps/dconf-editor.png, exec: dconf-editor }
-    - {menu: Settings, entry: Gconf Editor, icon: /usr/share/icons/Paper/32x32/apps/gconf-editor.png, exec: gconf-editor }
-    - {menu: Settings, entry: LXAppearance, icon: /usr/share/icons/Paper/32x32/apps/preferences-desktop-theme.png, exec: lxappearance }
-    - {menu: Settings, entry: LXInput, icon: /usr/share/icons/Paper/32x32/apps/preferences-desktop-keyboard.png, exec: lxinput }
-    - {menu: Settings, entry: LXRandR, icon: /usr/share/icons/Paper/32x32/apps/preferences-desktop-display.png, exec: lxrandr }
-    - {menu: Settings, entry: Thunar Settings, icon: /usr/share/icons/Paper/32x32/apps/system-file-manager.png, exec: thunar-settings }
-    - {menu: Settings, entry: Tint2 Themes, icon: /usr/share/icons/Paper/32x32/apps/tint2conf.png, exec: tint2conf }
     - {menu: Settings, entry: Printer Preferences, icon: /usr/share/icons/Paper/32x32/devices/preferences-desktop-printer.png, exec: sudo system-config-printer }
-    - {menu: Settings, entry: Thunar Volman, icon: /usr/share/icons/Paper/32x32/devices/drive-removable-media.png, exec: thunar-volman-settings }
-    - {menu: System, icon: /usr/share/icons/Paper/32x32/categories/applications-system.png }
     - {menu: System, entry: Htop, icon: /usr/share/icons/Paper/32x32/apps/htop.png, exec: lxterminal -e htop }
-    - {menu: Session, insert: append, entry: Run..., icon: /usr/share/icons/Paper/32x32/mimetypes/application-x-executable.png, exec: "dmenu_run -fn -misc-fixed-*-*-*-*-20-200-*-*-*-*-*-*  -i -nb '#000000' -nf '#efefef' -sf '#000000' -sb '#3cb0fd'" }
-    - {menu: Session, insert: append, entry: Logout, icon: /usr/share/icons/Paper/32x32/actions/exit.png, exec: openbox --exit }
-    - {menu: Session, insert: append, entry: Reboot, icon: /usr/share/icons/hicolor/32x32/actions/system-reboot.png, exec: sudo reboot }
-    - {menu: Session, insert: append, entry: Shutdown, icon: /usr/share/icons/hicolor/32x32/actions/system-shutdown.png, exec: sudo poweroff }
-
   config-menu-desktop:
     - {menu: Accessories, entry: Catfish File Search, icon: /usr/share/icons/Paper/32x32/apps/system-search.png, exec: catfish }
     - {menu: Accessories, entry: Multi Writer, icon: /usr/share/icons/Paper/32x32/devices/drive-harddisk-usb.png, exec: sudo gnome-multi-writer}
@@ -1428,47 +1510,6 @@ configs:
         - 'video/x-matroska=smplayer.desktop;'
         - 'video/mp4=smplayer.desktop;'
         - 'video/mpeg=smplayer.desktop;'
-  config-oblogout:
-    - edit: /etc/oblogout.conf
-      insert: append
-      values:
-        - '[settings]'
-        - 'usehal = false'
-        - '[looks]'
-        - 'opacity = 70'
-        - 'bgcolor = black'
-        - 'buttontheme = foom'
-        - 'buttons = logout, restart, shutdown, lock'
-        - '[shortcuts]'
-        - 'cancel = Escape'
-        - 'logout = E'
-        - 'restart = R'
-        - 'shutdown = S'
-        - 'lock = L'
-        - '[commands]'
-        - 'logout = openbox --exit'
-        - 'restart = systemctl reboot'
-        - 'shutdown = systemctl poweroff'
-        - 'lock = cinnamon-screensaver-command --lock'
-  config-openbox:
-    - edit: /etc/skel/.config/openbox/autostart
-      insert: append
-      values:
-        - '## Autostart file'
-        - 'export GTK2_RC_FILES="$HOME/.gtkrc-2.0" '
-        - "\n# Ensure D-Bus Communication for file management, auth, and other system processes"
-        - 'if which dbus-launch >/dev/null && test -z "$DBUS_SESSION_BUS_ADDRESS"; then'
-        - '    eval "$(dbus-launch --sh-syntax --exit-with-session)"'
-        - 'fi'
-        - "\n# Generate home directories if they don't exist"
-        - '[ -x /usr/bin/xdg-user-dirs-update ] && /usr/bin/xdg-user-dirs-update'
-        - "\n# Configure X resources"
-        - 'xrdb -merge ~/.Xresources'
-    - edit: /etc/skel/.config/openbox/environment
-      insert: append
-      values:
-        - '# Source the user rc file if it exists'
-        - '[ -r ~/.bashrc ] && source ~/.bashrc'
   config-proxy:
     - edit: /opt/<%=distro%>/bin/setproxy
       insert: append
@@ -1514,20 +1555,6 @@ configs:
         - 'fi'
         - "# PROXY_MARKER"
     - {exec: chmod +x /opt/<%=distro%>/bin/setproxy }
-  config-thunar:
-    - edit: /etc/skel/.config/autostart/thunar.desktop
-      insert: append
-      values:
-        - '[Desktop Entry]'
-        - 'Name=Thunar File Manager'
-        - 'Comment=Browse the filesystem with the file manager'
-        - 'GenericName=File Manager'
-        - 'Exec=thunar --daemon'
-        - 'Icon=Thunar'
-        - 'Terminal=false'
-        - 'StartupNotify=true'
-        - 'Type=Application'
-        - 'Categories=System;Utility;Core;GTK;FileTools;FileManager;'
   config-user-dirs:
     - {exec: 'rm -f /etc/xdg/user-dirs.defaults' }
     - edit: /etc/xdg/user-dirs.defaults
@@ -1538,25 +1565,3 @@ configs:
         - 'DOWNLOAD=Downloads'
         - 'PROJECTS=Projects'
         - 'SCRIPTS=bin'
-  config-wallpaper:
-    - edit: /etc/skel/.config/nitrogen/bg-saved.cfg
-      insert: append
-      values:
-        - '[xin_-1]'
-        - 'file=<%=wallpaper%>'
-        - 'mode=4'
-        - 'bgcolor=#000000'
-    - edit: /etc/skel/.config/nitrogen/nitrogen.cfg
-      insert: append
-      values:
-        - '[geometry]'
-        - 'posx=89'
-        - 'posy=70'
-        - 'sizex=839'
-        - "sizey=643\n"
-        - '[nitrogen]'
-        - 'view=icon'
-        - 'recurse=true'
-        - 'sort=alpha'
-        - 'icon_caps=false'
-        - 'dirs=/usr/share/wallpaper;'
