@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.132
+  release: 0.2.133
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -922,6 +922,9 @@ apps:
   systemd:
     - install: systemd              # System and service manager
     - install: systemd-sysvcompat   # Sysinit compat for systemd
+    # Change the default timeout values from 90s. Nothing takes that long its annoying
+    - {edit: /etc/systemd/system.conf, regex: '^#(DefaultTimeoutStopSec)=.*', value: '\1=10s'}
+    - {edit: /etc/systemd/system.conf, regex: '^#(DefaultTimeoutStartSec)=.*', value: '\1=10s'}
     - config-journald:
       # Avoid "Failed to start Create Volatile Files and Directories"
       - exec: 'rm -rf /var/log/journal'

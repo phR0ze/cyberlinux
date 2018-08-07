@@ -41,6 +41,7 @@ fork it and make their own configuration ***profiles***
     * [Apps to use](#apps-to-use)
     * [Certificates](#certificates)
     * [BlackArch Signature issue](#blackarch-signature-issue)
+    * [Systemd Debug Shell](#systemd-debug-shell)
 * [Background](#background)
    * [Evolution](#evolution)
    * [My take on Arch](#my-take-on-arch)
@@ -181,10 +182,10 @@ Disable proxy:
 The [arch wiki](https://wiki.archlinux.org/) is the best place to go for help. I've just collected a
 few things here that were useful for me.
 
-### Certificates <a name="certificates"/></a>
-
-#### Apps to use <a name="apps-to-use"/></a>
+### Apps to use <a name="apps-to-use"/></a>
 [List of apps to use from Arch Linux Wiki](https://wiki.archlinux.org/index.php/List_of_applications/Utilities)
+
+### Certificates <a name="certificates"/></a>
 
 #### Add Root CA <a name="add-root-ca"/></a>
 ```bash
@@ -204,6 +205,14 @@ Example:
 error: blackarch: signature from "Levon 'noptrix' Kayan (BlackArch Developer) <noptrix@nullsecurity.net>" is invalid
 error: failed to update blackarch (invalid or corrupted database (PGP signature))
 error: database 'blackarch' is not valid (invalid or corrupted database (PGP signature))
+```
+
+### Systemd Debug Shell <a name="systemd-debug-shell"/></a>
+```bash
+sudo systemctl enable debug-shell
+# Logout then switch to debug shell with Ctl+F9
+systemctl status
+# See which apps are hanging
 ```
 
 ## Background <a name="background"></a>
