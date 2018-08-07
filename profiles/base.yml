@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.131
+  release: 0.2.132
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -359,6 +359,7 @@ apps:
     - virtualbox-guest
     - xorg
     - system:
+      - lxdm
       - {install: dconf,            desc: A low-level configuration system }
       - {install: dconf-editor,     desc: New configuration manager intended to replace gconf }
       - {install: desktop-file-utils, desc: Command line utilities for working with desktop entries }
@@ -366,7 +367,6 @@ apps:
       - {install: gtk-engines,      desc: GTK theme engines for cyberlinux theme }
       - {install: gtk-engine-murrine, desc: GTK theme engine for cyberlinux theme }
       - {install: lxappearance-obconf, desc: Openbox support for lxappearance }
-      - {install: lxdm-gtk3,        desc: Lightweight X11 Display Manager }
       - {install: lxinput,          desc: Keyboard and mouse config for LXDE }
       - {install: lxrandr,          desc: Monitor configuration tool for LXDE }
       - {install: oblogout,         desc: Openbox logout script }
@@ -634,10 +634,6 @@ apps:
   # Lightweight system monitor for X
   conky:
     - install: conky
-    - edit: /etc/lxdm/PostLogout
-      insert: append
-      values:
-        - 'killall conky'
     - edit: /etc/skel/.config/autostart/conky.desktop
       insert: append
       values:
@@ -827,6 +823,22 @@ apps:
     - {menu: Office, entry: LibreOffice Math, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-math.png, exec: libreoffice --math }
     - {menu: Office, entry: LibreOffice Writer, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-writer.png, exec: libreoffice --writer }
     - {menu: Office, entry: LibreOffice, icon: /usr/share/icons/Paper/32x32/apps/libreoffice-startcenter.png, exec: libreoffice }
+
+  # Lightweight X11 Display Manager
+  lxdm:
+    - install: lxdm-gtk3
+    - {exec: ln -sf //usr/lib/systemd/system/lxdm.service /etc/systemd/system/display-manager.service }
+    - {edit: /usr/share/lxdm/themes/Industrial/gtk.css, regex: '^(\s*font: Sans).*', value: '\1 18;' }
+    - {edit: /usr/share/lxdm/themes/Industrial/gtk.css, regex: '^(\s*color:) #000000.*', value: '\1 #ffffff;' }
+    - {edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(session)=.*', value: '\1=/usr/bin/openbox-session' }
+    - {edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(numlock)=.*', value: '\1=1' }
+    - {edit: /etc/lxdm/lxdm.conf, regex: '^(gtk_theme)=.*', value: '\1=<%=distro%>' }
+    - {edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(bg)=.*', value: '\1=<%=wallpaper%>' }
+    - {edit: /etc/lxdm/lxdm.conf, regex: '^(bottom_pane)=.*', value: '\1=0' }
+    - {edit: /etc/lxdm/lxdm.conf, regex: '^(theme)=.*', value: '\1=Industrial' }
+    - {edit: /etc/lxdm/lxdm.conf, regex: '^(disable)=.*', value: '\1=1' }
+    - {edit: /usr/sbin/lxdm, insert: before, regex: 'exec', values: ['/opt/<%=distro%>/bin/pre-xorg']
+    - {menu: Settings>Desktop/Login, entry: LXDM Config, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: sudo gvim /etc/lxdm/lxdm.conf }
 
   media:
     - {install: handbrake,          desc: Video/Encoding - Video encoding tool for mp4/mkv }
@@ -1147,7 +1159,6 @@ apps:
 ################################################################################
 configs:
   config-lite:
-    - config-lxdm
     - config-fonts
     - config-dconf
     - config-gtk
@@ -1189,7 +1200,6 @@ configs:
     - {menu: Settings, icon: /usr/share/icons/Paper/32x32/categories/applications-accessories.png }
     - {menu: Settings>Desktop/Login, icon: /usr/share/icons/Paper/32x32/apps/preferences-system-login.png }
     - {menu: Settings>Desktop/Login, entry: Reconfigure Openbox, icon: /usr/share/icons/Paper/32x32/apps/update-manager.png, exec: openbox --reconfigure }
-    - {menu: Settings>Desktop/Login, entry: LXDM Config, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: sudo gvim /etc/lxdm/lxdm.conf }
     - {menu: Settings>Desktop/Login, entry: Openbox Autostart, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.config/openbox/autostart }
     - {menu: Settings>Desktop/Login, entry: Openbox RC, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.config/openbox/rc.xml }
     - {menu: Settings>Desktop/Login, entry: Openbox Menu, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.config/openbox/menu.xml }
@@ -1382,28 +1392,6 @@ configs:
         - 'Name=Default'
         - 'Comment=Default Cursor Theme'
         - 'Inherits=xcursor-numix-frost'
-  config-lxdm:
-    - {exec: ln -sf //usr/lib/systemd/system/lxdm.service /etc/systemd/system/display-manager.service }
-    - {edit: /usr/share/lxdm/themes/Industrial/gtk.css, regex: '^(\s*font: Sans).*', value: '\1 18;' }
-    - {edit: /usr/share/lxdm/themes/Industrial/gtk.css, regex: '^(\s*color:) #000000.*', value: '\1 #ffffff;' }
-    - {edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(session)=.*', value: '\1=/usr/bin/openbox-session' }
-    - {edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(numlock)=.*', value: '\1=1' }
-    - {edit: /etc/lxdm/lxdm.conf, regex: '^(gtk_theme)=.*', value: '\1=<%=distro%>' }
-    - {edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(bg)=.*', value: '\1=<%=wallpaper%>' }
-    - {edit: /etc/lxdm/lxdm.conf, regex: '^(bottom_pane)=.*', value: '\1=0' }
-    - {edit: /etc/lxdm/lxdm.conf, regex: '^(theme)=.*', value: '\1=Industrial' }
-    - {edit: /etc/lxdm/lxdm.conf, regex: '^(disable)=.*', value: '\1=1' }
-    - {exec: rm -f /etc/lxdm/PostLogout }
-    - edit: /etc/lxdm/PostLogout
-      insert: append
-      values:
-        - '#!/bin/sh'
-        - "ps --user $USER | awk 'NR > 1 {print $1}' | xargs -t kill"
-    - edit: /usr/sbin/lxdm
-      insert: before
-      regex: 'exec'
-      values:
-        - '/opt/<%=distro%>/bin/pre-xorg'
   config-mimeapps:
     - edit: /etc/skel/.config/mimeapps.list
       insert: append
