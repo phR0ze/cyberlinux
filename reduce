@@ -1325,6 +1325,7 @@ if __FILE__ == $0
   reduce = Reduce.new
   version = reduce.vars.release
   examples = "Full ISO Build: sudo ./#{app} clean build all -p personal\n".colorize(:green)
+  examples += "Single Deployment: sudo ./#{app} clean build isofull -d lite -p personal\n".colorize(:green)
   examples += "Rebuild initramfs: sudo ./#{app} clean build initramfs,iso -p personal\n".colorize(:green)
   examples += "Rebuild multiboot: sudo ./#{app} clean build multiboot,iso -p personal\n".colorize(:green)
 

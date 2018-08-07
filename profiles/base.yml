@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.135
+  release: 0.2.136
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -368,6 +368,7 @@ apps:
       - {install: powerline-fonts,  desc: Powerline font symbols }
       - {install: system-config-printer, desc: A CUPS printer configuration tool and status applet }
       - {install: xfce4-screenshooter, desc: Plugin that makes screenshots for the Xfce panel }
+      - filelight
     - media:
       - {install: gpicview,         desc: Image viewer, alt: shotwell/viewnior }
       - {install: qt4,              desc: A cross-platform application and UI framework, deps: vlc }
@@ -385,7 +386,6 @@ apps:
       - {install: flashplugin,      desc: Adobe Flash Player NPAPI }
       - {install: pepper-flash,     desc: Chromium flash support }
       - {install: filezilla,        desc: Network/Transfer }
-      - filelight
     - office:
       - {install: evince,           desc: Document viewer (PDF,Postscript,djvu,tiff,dvi,XPS,cbr,cbz,cb7 and cbt) }
       - {install: gvim,             desc: Improved version of vi text editor, conflict: vim }
