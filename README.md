@@ -39,10 +39,12 @@ fork it and make their own configuration ***profiles***
 * [Roll your own cyberlinux](#build-cyberlinux)
 * [Arch Linux Help](#arch-linux-help)
     * [Apps to use](#apps-to-use)
-    * [Certificates](#certificates)
+    * [Backlight](#backlight)
     * [BlackArch Signature issue](#blackarch-signature-issue)
+    * [Certificates](#certificates)
     * [Systemd Debug Shell](#systemd-debug-shell)
     * [VeraCrypt](#veracrypt)
+    * [Video Cards](#video-cards)
 * [Background](#background)
    * [Evolution](#evolution)
    * [My take on Arch](#my-take-on-arch)
@@ -186,6 +188,18 @@ few things here that were useful for me.
 ### Apps to use <a name="apps-to-use"/></a>
 [List of apps to use from Arch Linux Wiki](https://wiki.archlinux.org/index.php/List_of_applications/Utilities)
 
+### Backlight <a name="backlight"/></a>
+
+
+### BlackArch Signature issue <a name="blackarch-signature-issue"/></a>
+To fix the issue below delete ***/var/lib/pacman/sync/*.sig***
+
+Example: 
+```
+error: blackarch: signature from "Levon 'noptrix' Kayan (BlackArch Developer) <noptrix@nullsecurity.net>" is invalid
+error: failed to update blackarch (invalid or corrupted database (PGP signature))
+error: database 'blackarch' is not valid (invalid or corrupted database (PGP signature))
+```
 ### Certificates <a name="certificates"/></a>
 
 #### Add Root CA <a name="add-root-ca"/></a>
@@ -198,15 +212,6 @@ unzip CA1.zip && rename CA1.cer CA1.crt
 sudo trust anchor CA1.crt
 ```
 
-### BlackArch Signature issue <a name="blackarch-signature-issue"/></a>
-To fix the issue below delete ***/var/lib/pacman/sync/*.sig***
-
-Example: 
-```
-error: blackarch: signature from "Levon 'noptrix' Kayan (BlackArch Developer) <noptrix@nullsecurity.net>" is invalid
-error: failed to update blackarch (invalid or corrupted database (PGP signature))
-error: database 'blackarch' is not valid (invalid or corrupted database (PGP signature))
-```
 
 ### Systemd Debug Shell <a name="systemd-debug-shell"/></a>
 ```bash
@@ -250,6 +255,24 @@ Create a new ***100GB Volume***
     ```
 5. Create a Thunar Shortcut  
    a. Browse to ***/mnt/veracrypt1*** and drage and drop it to ***Places***  
+
+### Video Cards <a name="video-cards"/></a>
+
+#### Nvidia Proprietary <a name="nvidia-proprietary"/></a>
+1. Determine Graphics Card
+    ```bash
+    inxi -G
+    #Graphics:  Card-1: NVIDIA GK106GLM [Quadro K2100M] driver: nouveau v: kernel 
+    #       Display: server: X.Org 1.20.0 driver: modesetting unloaded: vesa resolution: 1920x1080~60Hz 
+    #       OpenGL: renderer: NVE6 v: 4.3 Mesa 18.1.5 
+    ```
+2. Determine driver version  
+    a. Navigate to https://nouveau.freedesktop.org/wiki/CodeNames/  
+    b. Search for ***Quadro K2100M*** finding ***NVE6*** as the code 
+    c. Navigate to https://wiki.archlinux.org/index.php/NVIDIA#Installation  
+    d. Find the driver package related to ***NVE6***  
+    e. Install driver: ***sudo pacman -S nvidia***  
+    f. Reboot  
 
 ## Background <a name="background"></a>
 ***cyberlinux*** is an evolution of an idea come to fruition.  The origin was the need for an
