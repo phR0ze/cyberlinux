@@ -34,16 +34,16 @@ fork it and make their own configuration ***profiles***
     * [Vagrant box deployment](#vagrant-box-deployment)
     * [Brown field deployment](#brown-field-deployment)
 * [Configure cyberlinux](#configure-cyberlinux)
-    * [Enable Proxy](#enable-proxy)
-    * [Disable Proxy](#disable-proxy)
+    * [Configure Proxy](#configure-proxy)
+    * [Configure Backlight](#configure-backlight)
+    * [Toggle Wireless Devices](#toggle-wireless-devices)
 * [Roll your own cyberlinux](#build-cyberlinux)
 * [Arch Linux Help](#arch-linux-help)
     * [Apps to use](#apps-to-use)
-    * [Backlight](#backlight)
     * [BlackArch Signature issue](#blackarch-signature-issue)
     * [Certificates](#certificates)
     * [Network](#network)
-    * [Systemd Debug Shell](#systemd-debug-shell)
+    * [Systemd](#systemd)
     * [VeraCrypt](#veracrypt)
     * [Video Cards](#video-cards)
 * [Background](#background)
@@ -117,11 +117,11 @@ Deploy ***cyberlinux*** via a VM using Virtual Box
 
 1. Create a VM named ***cyberlinux-desktop*** with ***4GB RAM, 40GB HDD***  
 2. Once created edit ***Settings***  
-    a. Set ***System >Processor = 4***  
-    b. Set ***Display >Video = 32***  
-    c. Set ***Network >Bridged Adapter***  
-    d. Set ***Storage >IDE Empty*** to ***cyberlinux-0.0.159-4.12.13-1-x86_64.iso***  
-    e. Click ***OK***  
+  a. Set ***System >Processor = 4***  
+  b. Set ***Display >Video = 32***  
+  c. Set ***Network >Bridged Adapter***  
+  d. Set ***Storage >IDE Empty*** to ***cyberlinux-0.0.159-4.12.13-1-x86_64.iso***  
+  e. Click ***OK***  
 2.	Once booted to the ISO choose the ***cyberlinux-desktop*** deployment option
 
 ### Vagrant box deployment <a name="vagrant-box-deployment"/></a>
@@ -155,7 +155,10 @@ dependencies. I'll be documenting them here:
 * docker
 
 ## Configure cyberlinux <a name="configure-cyberlinux"/></a>
-### Enable Proxy <a name="enable-proxy"/></a>
+
+### Configure Proxy <a name="configure-proxy"/></a>
+
+#### Enable Proxy <a name="enable-proxy"/></a>
 cyberlinux uses the ***/opt/cyberlinux/bin/setproxy*** script to configure the proxy given during install for:
 
 1. Shells via ***/etc/profile.d/setproxy.sh***
@@ -178,10 +181,40 @@ Enable proxy:
 1. Run: `sudo setproxy enable http://example.com:8080 localhost,127.0.0.1`
 2. Logout and back in
 
-### Disable Proxy <a name="disable-proxy"/></a>
+#### Disable Proxy <a name="disable-proxy"/></a>
 Disable proxy:
 1. Run: `sudo setproxy disable`
 2. Logout and back in
+
+### Configure Backlight <a name="configure-backlight"/></a>
+cyberlinux uses the ***/opt/cyberlinux/bin/backlight*** script to configure the
+***intel_backlight***. It takes two different arguments, either increment or decrement as follows:
+
+```bash
+# Increment backlight brightness by 10%
+sudo backlight +10
+
+# Decrement backlight brightness by 10%
+sudo backlight -10
+```
+
+#### HP ZBook 15 <a name="HP ZBook 15"/></a>
+The ***HP ZBook 15*** laptop has hybrid graphics, using the intel chipset to conserve power and the
+Nvidia discrete graphics for power. I've always run with this disabled and just used the discrete
+graphics. However Linux doesn't create the backlight controls unless it is enabled thus generating
+the desired ***/sys/class/backlight/intel_backlight*** files.
+
+### Toggle Wireless Devices <a name="toggle-wireless-devices"/></a>
+cyberlinux uses the ***/opt/cyberlinux/bin/toggle*** script to toggle wifi and bluetooth radios on
+and off as follows:
+
+```bash
+# Toggle wifi
+sudo toggle wifi
+
+# Toggle bluetooth
+sudo toggle bluetooth
+```
 
 ## Roll your own cyberlinux <a name="build-cyberlinux"/></a>
 [See => profiles/README.md](https://github.com/phR0ze/cyberlinux/blob/master/profiles)
@@ -192,12 +225,6 @@ few things here that were useful for me here for quick reference.
 
 ### Apps to use <a name="apps-to-use"/></a>
 [List of apps to use from Arch Linux Wiki](https://wiki.archlinux.org/index.php/List_of_applications/Utilities)
-
-### Backlight <a name="backlight"/></a>
-The ***HP ZBook 15*** laptop has hybrid graphics, using the intel chipset to conserve power and the
-Nvidia discrete graphics for power. I've always run with this disabled and just used the discrete
-graphics. However Linux doesn't create the backlight controls unless it is enabled thus generating
-the desired ***/sys/class/backlight/intel_backlight*** files.
 
 ### BlackArch Signature issue <a name="blackarch-signature-issue"/></a>
 To fix the issue below delete ***/var/lib/pacman/sync/*.sig***
@@ -282,7 +309,48 @@ inxi -N
 #Card-2: Intel Centrino Advanced-N 6235 driver: iwlwifi 
 ```
 
-### Systemd Debug Shell <a name="systemd-debug-shell"/></a>
+#### Synergy <a name="synergy"/></a>
+Synergy allows you to share a keyboard and mouse between machines (e.g. desktop and laptop).
+
+Note: if synergy starts up before xrandr has positioned the windows and thus mousing over to the
+other desktop doesn't work due to inaccurate display layout I've found this can be solved by using
+the Nvidia drivers rather than the free ones.
+
+1. Configure Master Node  
+  a. Install: `sudo pacman -S synergy`  
+  b. Run ***synergy*** from the ***Accessories*** menu  
+  c. Work through the wizard  
+  d. Select ***Server (share this computer's mouse and keyboard)*** and click ***Finish***  
+     Note: ignore the ***Failed to get local IP address...*** errror and click ***OK***  
+  e. Select ***Configure interactively*** and then click ***Configure Server...***  
+  f. Drage a new monitor from top left down to be to the right of ***cyberlinux-desktop***  
+  g. Double click the new monitor and name it ***cyberlinux-laptop*** and click ***OK***  
+  i. Navigate to ***File >Save configuration as...*** and save ***synergy.conf*** in your home dir  
+  j. Now move it to etc: `sudo mv ~/synergy.conf /etc`
+2. Configure systemd unit  
+  Synergy needs to attach to your user's X session which means it needs to run as your user. Synergy
+  provides ***/usr/lib/systemd/user/synergys.service*** which when run with ***systemctl --user
+  enable synergys*** will create the link ***~/.config/systemd/user/default.target.wants/synergys.service***  
+  a. Enable synergy: `systemctl --user enable synergys`  
+  b. Start synergy: `systemctl --user start synergys`  
+3. Configure Slave Node  
+  a. Launch: `synergy`  
+  b. Click ***Next*** to accept ***English*** as the default language  
+  c. Select ***Client (use another computer's mouse and keyboard)*** then ***Finish***  
+  d. Uncheck ***Auto config***  
+  e. Enter server hostname e.g. ***cyberlinux-desktop***  
+  f. Click ***Start***  
+  g. Navigate to ***Edit >Settings*** and check ***Hide on startup*** then ***OK***  
+  h. Click ***File >Save configuration as...*** and save as ***~/.config/synergy.conf***  
+  i. Create autostart for client: `cp /usr/share/applications/synergy.desktop ~/.config/autostart`
+4. Configure AutoLogin with Lock  
+  Display refreshes don't seem to happen normally after this  
+  a. Autologin: `echo "autologin=$USER" | sudo tee -a /etc/lxdm/lxdm.conf`  
+  b. Lock immediately: `echo 'sleep 2 && cinnamon-screensaver-command --lock' | sudo tee -a /etc/lxdm/PostLogin`  
+
+### Systemd <a name="systemd"/></a>
+
+#### Systemd Debug Shell <a name="systemd-debug-shell"/></a>
 ```bash
 sudo systemctl enable debug-shell
 # Logout then switch to debug shell with Ctl+F9
@@ -297,51 +365,53 @@ fixed.
 
 Create a new ***100GB Volume***  
 1. Install, run:   
-   `sudo pacman -S veracrypt`
+  `sudo pacman -S veracrypt`
 2. Create Encrypted Volume  
-    a. Launch: `veracrypt`  
-    b. Select ***Slot 1*** and hit ***Create Volume***   
-    c. Select ***Create an encrypted file container*** and click ***Next***
-    d. Select ***Standard VeraCrypt volume*** and click ***Next***  
-    e. Click ***Select File...*** and choose e.g. ***~/.local/data*** and click ***Next***  
-    f. Choose ***AES*** and ***SHA-512*** and click ***Next***  
-    g. Set ***100 GB*** and click ***Next***  
-    h. Set Password and click ***Next***  
-    i. Choose ***I will not store files larger than 4GB on the volume*** and click ***Next***  
-    j. Select ***Linux Ext4*** as the file system and click ***Next***
-    k. Select ***I will mount the volume only on Linux*** and click ***Next***  
-    l. Move mouse randomly then click ***Format***
+  a. Launch: `veracrypt`  
+  b. Select ***Slot 1*** and hit ***Create Volume***   
+  c. Select ***Create an encrypted file container*** and click ***Next***
+  d. Select ***Standard VeraCrypt volume*** and click ***Next***  
+  e. Click ***Select File...*** and choose e.g. ***~/.local/data*** and click ***Next***  
+  f. Choose ***AES*** and ***SHA-512*** and click ***Next***  
+  g. Set ***100 GB*** and click ***Next***  
+  h. Set Password and click ***Next***  
+  i. Choose ***I will not store files larger than 4GB on the volume*** and click ***Next***  
+  j. Select ***Linux Ext4*** as the file system and click ***Next***
+  k. Select ***I will mount the volume only on Linux*** and click ***Next***  
+  l. Move mouse randomly then click ***Format***
 3. Mount encrypted volume  
-    a. Launch: `veracrypt`  
-    b. Select ***Slot 1*** and click ***Select File...*** then select your data file  
-    d. Click ***Mount*** then punch in your password and walla  
-    c. Veracrypt will automatically create ***/mnt/veracrypt1*** as your mount point  
+  a. Launch: `veracrypt`  
+  b. Select ***Slot 1*** and click ***Select File...*** then select your data file  
+  d. Click ***Mount*** then punch in your password and walla  
+  c. Veracrypt will automatically create ***/mnt/veracrypt1*** as your mount point  
 4. Create a shell link and ownership  
-    ```bash
-    ln -sf /mnt/veracrypt1 ~/veracrypt1
-    cd ~/veracrypt
-    sudo chown pcrumm: -R .
-    ```
+  ```bash
+  ln -sf /mnt/veracrypt1 ~/veracrypt1
+  cd ~/veracrypt
+  sudo chown pcrumm: -R .
+  ```
 5. Create a Thunar Shortcut  
-   a. Browse to ***/mnt/veracrypt1*** and drage and drop it to ***Places***  
+  a. Browse to ***/mnt/veracrypt1*** and drage and drop it to ***Places***  
+6. Configure autostart for veracrypt  
+  `cp /usr/share/applications/veracrypt.desktop ~/.config/autostart`
 
 ### Video Cards <a name="video-cards"/></a>
 
 #### Nvidia Proprietary <a name="nvidia-proprietary"/></a>
 1. Determine Graphics Card
-    ```bash
-    inxi -G
-    #Graphics:  Card-1: NVIDIA GK106GLM [Quadro K2100M] driver: nouveau v: kernel 
-    #       Display: server: X.Org 1.20.0 driver: modesetting unloaded: vesa resolution: 1920x1080~60Hz 
-    #       OpenGL: renderer: NVE6 v: 4.3 Mesa 18.1.5 
-    ```
+  ```bash
+  inxi -G
+  #Graphics:  Card-1: NVIDIA GK106GLM [Quadro K2100M] driver: nouveau v: kernel 
+  #       Display: server: X.Org 1.20.0 driver: modesetting unloaded: vesa resolution: 1920x1080~60Hz 
+  #       OpenGL: renderer: NVE6 v: 4.3 Mesa 18.1.5 
+  ```
 2. Determine driver version  
-    a. Navigate to https://nouveau.freedesktop.org/wiki/CodeNames/  
-    b. Search for ***Quadro K2100M*** finding ***NVE6*** as the code 
-    c. Navigate to https://wiki.archlinux.org/index.php/NVIDIA#Installation  
-    d. Find the driver package related to ***NVE6***  
-    e. Install driver: ***sudo pacman -S nvidia***  
-    f. Reboot  
+  a. Navigate to https://nouveau.freedesktop.org/wiki/CodeNames/  
+  b. Search for ***Quadro K2100M*** finding ***NVE6*** as the code 
+  c. Navigate to https://wiki.archlinux.org/index.php/NVIDIA#Installation  
+  d. Find the driver package related to ***NVE6***  
+  e. Install driver: ***sudo pacman -S nvidia***  
+  f. Reboot  
 
 ## Background <a name="background"></a>
 ***cyberlinux*** is an evolution of an idea come to fruition.  The origin was the need for an
