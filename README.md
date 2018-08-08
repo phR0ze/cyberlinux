@@ -348,6 +348,31 @@ the Nvidia drivers rather than the free ones.
   a. Autologin: `echo "autologin=$USER" | sudo tee -a /etc/lxdm/lxdm.conf`  
   b. Lock immediately: `echo 'sleep 2 && cinnamon-screensaver-command --lock' | sudo tee -a /etc/lxdm/PostLogin`  
 
+#### Configure Multiple IPs <a name="configure-multiple-ips"/></a>
+In Linux its easy to add more than one ip address to a given NIC. But if your service binds to all
+NICs then your not going to get an open port.
+
+```bash
+# Add an address to your NIC
+sudo tee -a /etc/systemd/network/20-dhcp.network <<EOL
+
+[Address]
+Address=192.168.0.10/24
+EOL
+```
+
+#### SSH Port Forwarding <a name="ssh-port-forwarding"/></a>
+Securely forwarding ports via ssh is simple just hard to remember.
+
+```bash
+# Forward local host:port to remote host:port using the ssh connection
+# e.g. forwards local 192.168.0.10:5938 to remote 192.168.1.10:5938 via user@access-point.com
+# 192.168.1.10 in this case is a host accesible from access-point.com
+
+# ssh -L local_host:local_port:remote_host:remote_port user@access-point.com
+ssh -L 192.168.0.10:5938:192.168.1.10:5938 -p 23 user@access-point.com
+```
+
 ### Systemd <a name="systemd"/></a>
 
 #### Systemd Debug Shell <a name="systemd-debug-shell"/></a>
