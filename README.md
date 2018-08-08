@@ -189,7 +189,10 @@ few things here that were useful for me.
 [List of apps to use from Arch Linux Wiki](https://wiki.archlinux.org/index.php/List_of_applications/Utilities)
 
 ### Backlight <a name="backlight"/></a>
-
+The ***HP ZBook 15*** laptop has hybrid graphics, using the intel chipset to conserve power and the
+Nvidia discrete graphics for power. I've always run with this disabled and just used the discrete
+graphics. However Linux doesn't create the backlight controls unless it is enabled thus generating
+the desired ***/sys/class/backlight/intel_backlight*** files.
 
 ### BlackArch Signature issue <a name="blackarch-signature-issue"/></a>
 To fix the issue below delete ***/var/lib/pacman/sync/*.sig***

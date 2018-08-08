@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.140
+  release: 0.2.141
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -483,9 +483,9 @@ apps:
         insert: append
         values:
           - "#!/usr/bin/env ruby\n"
-          - "max = 1200"
-          - "intel_backlight = '/sys/class/backlight/intel_backlight/brightness'"
-          - "level = File.read(intel_backlight).to_i\n"
+          - "max = File.read('/sys/class/backlight/intel_backlight/max_brightness').to_i"
+          - "brightness = '/sys/class/backlight/intel_backlight/brightness'"
+          - "level = File.read(brightness).to_i\n"
           - "if ARGV.first[0] == '+'"
           - "  val = ARGV.first.split('+').last.to_i"
           - "  level += val"
@@ -495,7 +495,7 @@ apps:
           - "  level -= val"
           - "  level = 0 if val < 0"
           - "end"
-          - "`echo '#{level}' > #{intel_backlight}`"
+          - "`echo '#{level}' > #{brightness}`"
       - { exec: 'chmod +x /usr/bin/backlight'}
 
     # Performance improvements in for the iwlwifi driver
