@@ -215,8 +215,8 @@ sudo toggle wifi
 # Toggle bluetooth
 sudo toggle bluetooth
 
-# Toggle projector
-sudo toggle projector
+# Toggle monitor
+sudo toggle monitor
 ```
 
 ## Roll your own cyberlinux <a name="build-cyberlinux"/></a>

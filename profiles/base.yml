@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.154
+  release: 0.2.155
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -459,7 +459,7 @@ apps:
     - {install: remmina, desc: Network/Remoting - Nice remoting UI for RDP }
     - {install: veracrypt, desc: Disk encryption with strong security based on TrueCrypt }
 
-    # Toggle script for toggling radios and projector
+    # Toggle script for toggling radios and monitor
     - config-toggle:
       - edit: /opt/<%=distro%>/bin/toggle
         insert: append
@@ -473,13 +473,16 @@ apps:
           - "  val = `rfkill | grep bluetooth`[/unblocked|blocked/]"
           - "  `rfkill block bluetooth` if val == 'unblocked'"
           - "  `rfkill unblock bluetooth` if val == 'blocked'"
-          - "elsif ARGV.first == 'projector'"
+          - "elsif ARGV.first == 'monitor'"
           - "  primary = 'eDP-1'"
           - "  projector = 'VGA-1'"
           - "  resolution = '1280x1024'"
-          - "  xrandr = `xrandr`"
+          - "  xrandr = `xrandr`\n"
           - '  if xrandr.include?("#{primary} connected primary #{resolution}")'
-          - "    `xrandr --output #{projector} --off --output #{primary} --auto`"
+          - "  # Standalone laptop mode, disable external output"
+          - '  if xrandr.include?("#{primary} connected primary #{resolution}")'
+          - "    `xrandr --output #{projector} --off --output #{primary} --auto`\n"
+          - "  # Projector mode, enable external output"
           - '  elsif xrandr.include?("#{primary} connected") && xrandr.include?("#{projector} connected")'
           - "    `xrandr --output #{projector} --auto --same-as #{primary}`"
           - "    sleep 2"

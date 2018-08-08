@@ -416,7 +416,7 @@
     <!-- Handle display controls -->
     <keybind key="XF86Display">
       <action name="Execute">
-        <command>sudo toggle projector</command>
+        <command>sudo toggle monitor</command>
       </action>
     </keybind>
     <keybind key="XF86MonBrightnessUp">
