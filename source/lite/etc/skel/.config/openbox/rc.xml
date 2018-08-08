@@ -414,6 +414,11 @@
     </keybind>
 
     <!-- Handle display controls -->
+    <keybind key="XF86Display">
+      <action name="Execute">
+        <command>sudo toggle projector</command>
+      </action>
+    </keybind>
     <keybind key="XF86MonBrightnessUp">
       <action name="Execute">
         <command>sudo backlight +10</command>

@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.151
+  release: 0.2.152
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -459,8 +459,8 @@ apps:
     - {install: synergy, desc: Network/Virtual KVM }
     - {install: veracrypt, desc: Disk encryption with strong security based on TrueCrypt }
 
-    # Toggle radios to save power
-    - config-rfkill:
+    # Toggle script for toggling radios and projector
+    - config-toggle:
       - edit: /opt/<%=distro%>/bin/toggle
         insert: append
         values:
@@ -473,6 +473,18 @@ apps:
           - "  val = `rfkill | grep bluetooth`[/unblocked|blocked/]"
           - "  `rfkill block bluetooth` if val == 'unblocked'"
           - "  `rfkill unblock bluetooth` if val == 'blocked'"
+          - "elsif ARGV.first == 'projector'"
+          - "  primary = 'eDP-1'"
+          - "  projector = 'VGA-1'"
+          - "  resolution = '1280x1024'"
+          - "  xrandr = `xrandr`"
+          - '  if xrandr.include?("#{primary} connected primary #{resolution}")'
+          - "    `xrandr --output #{projector} --off --output #{primary} --auto`"
+          - '  elsif xrandr.include?("#{primary} connected") && xrandr.include?("#{projector} connected")'
+          - "    `xrandr --output #{projector} --auto --same-as #{primary}`"
+          - "    sleep 2"
+          - "    `xrandr --output #{projector} --mode #{resolution} --output #{primary} --mode #{resolution}`"
+          - "  end"
           - "end"
       - { exec: 'chmod +x /opt/<%=distro%>/bin/toggle'}
 
