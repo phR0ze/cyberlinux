@@ -428,17 +428,17 @@
     <!-- Handle audio controls -->
     <keybind key="XF86AudioRaiseVolume">
       <action name="Execute">
-        <command>pactl set-sink-volume 0 +1dB</command>
+        <command>sudo pactl set-sink-volume 0 +1dB</command>
       </action>
     </keybind>
     <keybind key="XF86AudioLowerVolume">
       <action name="Execute">
-        <command>pactl set-sink-volume 0 -1dB</command>
+        <command>sudo pactl set-sink-volume 0 -1dB</command>
       </action>
     </keybind>
     <keybind key="XF86AudioMute">
       <action name="Execute">
-        <command>pactl set-sink-mute 0 toggle</command>
+        <command>sudo pactl set-sink-mute 0 toggle</command>
       </action>
     </keybind>
   </keyboard>
