@@ -321,7 +321,7 @@ the Nvidia drivers rather than the free ones.
 
 1. Configure Master Node  
   a. Install: `sudo pacman -S synergy`  
-  b. Run ***synergy*** from the ***Accessories*** menu  
+  b. Run ***synergy*** from the ***Network*** menu  
   c. Work through the wizard  
   d. Select ***Server (share this computer's mouse and keyboard)*** and click ***Finish***  
      Note: ignore the ***Failed to get local IP address...*** errror and click ***OK***  
