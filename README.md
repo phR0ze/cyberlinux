@@ -36,7 +36,7 @@ fork it and make their own configuration ***profiles***
 * [Configure cyberlinux](#configure-cyberlinux)
     * [Configure Proxy](#configure-proxy)
     * [Configure Backlight](#configure-backlight)
-    * [Toggle Wireless Devices](#toggle-wireless-devices)
+    * [Toggle Devices](#toggle-devices)
 * [Roll your own cyberlinux](#build-cyberlinux)
 * [Arch Linux Help](#arch-linux-help)
     * [Apps to use](#apps-to-use)
@@ -204,9 +204,9 @@ Nvidia discrete graphics for power. I've always run with this disabled and just 
 graphics. However Linux doesn't create the backlight controls unless it is enabled thus generating
 the desired ***/sys/class/backlight/intel_backlight*** files.
 
-### Toggle Wireless Devices <a name="toggle-wireless-devices"/></a>
-cyberlinux uses the ***/opt/cyberlinux/bin/toggle*** script to toggle wifi and bluetooth radios on
-and off as follows:
+### Toggle Devices <a name="toggle-devices"/></a>
+cyberlinux uses the ***/opt/cyberlinux/bin/toggle*** script to toggle wifi/bluetooth radios and
+external monitors on and off as follows:
 
 ```bash
 # Toggle wifi
@@ -214,6 +214,9 @@ sudo toggle wifi
 
 # Toggle bluetooth
 sudo toggle bluetooth
+
+# Toggle projector
+sudo toggle projector
 ```
 
 ## Roll your own cyberlinux <a name="build-cyberlinux"/></a>
@@ -433,11 +436,14 @@ device. To tell Linux you want to use that external port:
 # VGA-1 (external port for projectors)
 xrandr
 
-# Once connected to projector
-xrandr --output VGA-1 --auto --same-as eDP-1
+# Turn on VGA-1 output mirroring internal
+# Note lxrandr provides a good way to change resolution as well
+xrandr --output VGA-1 --mode 1280x1024 --same-as eDP-1 --output eDP-1 --mode 1280x1024
+xrandr --output VGA-1 --off --output eDP-1 --auto
 
 # Mapping this to Win + P or other hot key combo
-
+# Launch lxrandr
+# Select resolution of 1280x1024 for both monitors
 ```
 
 #### Nvidia Proprietary <a name="nvidia-proprietary"/></a>
