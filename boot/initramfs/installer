@@ -447,6 +447,14 @@ config_system()
         fi
     done
 
+    # Configure wifi before user is created to pick up autostart
+    if [ "x$enable_wifi" == "x1" ]; then
+        echo -en ":: Enable Wifi..."
+        chroot ${rootmnt} cp /usr/share/applications/wpa_gui.desktop /etc/skel/.config/autostart &>/dev/null
+        chroot ${rootmnt} ln -sf /usr/lib/systemd/system/wpa_supplicant@.service /etc/systemd/system/multi-user.target.wants/wpa_supplicant@wlo1.service &>/dev/null
+        check_status
+    fi
+
     echo -en ":: Create user group '${user}'..."
     chroot ${rootmnt} groupadd ${user}
     check_status
@@ -509,14 +517,6 @@ config_system()
         else
             chroot ${rootmnt} /opt/$distro/bin/setproxy enable $proxy &>/dev/null
         fi
-        check_status
-    fi
-
-    # Configure wifi
-    if [ "x$enable_wifi" == "x1" ]; then
-        echo -en ":: Enable Wifi..."
-        chroot ${rootmnt} cp /usr/share/applications/wpa_gui.desktop /etc/skel/.config/autostart &>/dev/null
-        chroot ${rootmnt} ln -sf /usr/lib/systemd/system/wpa_supplicant@.service /etc/systemd/system/multi-user.target.wants/wpa_supplicant@wlo1.service &>/dev/null
         check_status
     fi
 
