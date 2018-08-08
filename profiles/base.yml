@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.155
+  release: 0.2.156
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -459,7 +459,7 @@ apps:
     - {install: remmina, desc: Network/Remoting - Nice remoting UI for RDP }
     - {install: veracrypt, desc: Disk encryption with strong security based on TrueCrypt }
 
-    # Toggle script for toggling radios and monitor
+    # Toggle script for toggling radios and displays
     - config-toggle:
       - edit: /opt/<%=distro%>/bin/toggle
         insert: append
@@ -473,7 +473,7 @@ apps:
           - "  val = `rfkill | grep bluetooth`[/unblocked|blocked/]"
           - "  `rfkill block bluetooth` if val == 'unblocked'"
           - "  `rfkill unblock bluetooth` if val == 'blocked'"
-          - "elsif ARGV.first == 'monitor'"
+          - "elsif ARGV.first == 'display'"
           - "  primary = 'eDP-1'"
           - "  projector = 'VGA-1'"
           - "  resolution = '1280x1024'"

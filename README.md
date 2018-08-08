@@ -206,7 +206,7 @@ the desired ***/sys/class/backlight/intel_backlight*** files.
 
 ### Toggle Devices <a name="toggle-devices"/></a>
 cyberlinux uses the ***/opt/cyberlinux/bin/toggle*** script to toggle wifi/bluetooth radios and
-external monitors on and off as follows:
+external displays on and off as follows:
 
 ```bash
 # Toggle wifi
@@ -215,8 +215,8 @@ sudo toggle wifi
 # Toggle bluetooth
 sudo toggle bluetooth
 
-# Toggle monitor
-sudo toggle monitor
+# Toggle display 
+sudo toggle display
 ```
 
 ## Roll your own cyberlinux <a name="build-cyberlinux"/></a>
