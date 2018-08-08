@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.152
+  release: 0.2.153
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -452,11 +452,11 @@ apps:
     - conky
     - gimp
     - keepass
+    - synergy
     - libreoffice
     - wpa-supplicant
     - {install: openvpn-update-systemd-resolved, desc: OpenVPN systemd-resolved updater, type: CYBERLINUX }
     - {install: remmina, desc: Network/Remoting - Nice remoting UI for RDP }
-    - {install: synergy, desc: Network/Virtual KVM }
     - {install: veracrypt, desc: Disk encryption with strong security based on TrueCrypt }
 
     # Toggle script for toggling radios and projector
@@ -1031,6 +1031,11 @@ apps:
       insert: append
       value: 'Defaults env_keep += "ftp_proxy http_proxy https_proxy no_proxy"'
 
+  # Excellent cross platform keyboard/mouse sharing i.e. virtual KVM
+  synergy:
+    - install: synergy
+    - {menu: Network, entry: Synergy, icon: /usr/share/icons/Paper/32x32/apps/synergy.png, exec: synergy }
+
   # Init system for cyberlinux
   systemd:
     - install: systemd              # System and service manager
@@ -1338,7 +1343,6 @@ configs:
     - {menu: Multimedia, entry: DeVeDe, icon: /usr/share/devedeng/devedeng.png, exec: devede_ng.py }
     - {menu: Multimedia, entry: OpenShot, icon: /usr/share/icons/Paper/32x32/apps/openshot.png, exec: openshot-qt }
     - {menu: Network, entry: Remmina, icon: /usr/share/icons/Paper/32x32/apps/remmina.png, exec: remmina }
-    - {menu: Network, entry: Synergy, icon: /usr/share/icons/Paper/32x32/apps/synergy.png, exec: synergy }
     - {menu: Office, entry: Scribus, icon: /usr/share/icons/Paper/32x32/apps/scribus.png, exec: scribus }
     - {menu: System, entry: HardInfo, icon: /usr/share/hardinfo/pixmaps/logo.png, exec: hardinfo }
   config-dconf:
