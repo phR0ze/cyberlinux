@@ -273,8 +273,9 @@ sudo systemctl restart systemd-networkd
 
 #### Wifi Driver - HP ZBook 15 <a name="wifi-driver-hp-zbook-15"/></a>
 ```bash
-# Check the kernel has support for your wireless device
-lspci -
+# Check your wireless device and current driver
+inxi -N
+#Card-2: Intel Centrino Advanced-N 6235 driver: iwlwifi 
 ```
 
 ### Systemd Debug Shell <a name="systemd-debug-shell"/></a>
