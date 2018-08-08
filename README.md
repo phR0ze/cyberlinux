@@ -37,11 +37,12 @@ fork it and make their own configuration ***profiles***
     * [Enable Proxy](#enable-proxy)
     * [Disable Proxy](#disable-proxy)
 * [Roll your own cyberlinux](#build-cyberlinux)
-* [Arch Help](#arch-help)
+* [Arch Linux Help](#arch-linux-help)
     * [Apps to use](#apps-to-use)
     * [Certificates](#certificates)
     * [BlackArch Signature issue](#blackarch-signature-issue)
     * [Systemd Debug Shell](#systemd-debug-shell)
+    * [VeraCrypt](#veracrypt)
 * [Background](#background)
    * [Evolution](#evolution)
    * [My take on Arch](#my-take-on-arch)
@@ -178,7 +179,7 @@ Disable proxy:
 ## Roll your own cyberlinux <a name="build-cyberlinux"/></a>
 [See => profiles/README.md](https://github.com/phR0ze/cyberlinux/blob/master/profiles)
 
-## Arch Help <a name="arch-help"/></a>
+## Arch Linux Help <a name="arch-linux-help"/></a>
 The [arch wiki](https://wiki.archlinux.org/) is the best place to go for help. I've just collected a
 few things here that were useful for me.
 
@@ -214,6 +215,41 @@ sudo systemctl enable debug-shell
 systemctl status
 # See which apps are hanging
 ```
+
+### VeraCrypt <a name="veracrypt"/></a>
+VeraCrypt is the go forward fork of TrueCrypt providing virtual drives with encryption you can
+safely store your data in. Many of the issues with the original TrueCrypt code audits have been
+fixed.
+
+Create a new ***100GB Volume***  
+1. Install, run:   
+   `sudo pacman -S veracrypt`
+2. Create Encrypted Volume  
+    a. Launch: `veracrypt`  
+    b. Select ***Slot 1*** and hit ***Create Volume***   
+    c. Select ***Create an encrypted file container*** and click ***Next***
+    d. Select ***Standard VeraCrypt volume*** and click ***Next***  
+    e. Click ***Select File...*** and choose e.g. ***~/.local/data*** and click ***Next***  
+    f. Choose ***AES*** and ***SHA-512*** and click ***Next***  
+    g. Set ***100 GB*** and click ***Next***  
+    h. Set Password and click ***Next***  
+    i. Choose ***I will not store files larger than 4GB on the volume*** and click ***Next***  
+    j. Select ***Linux Ext4*** as the file system and click ***Next***
+    k. Select ***I will mount the volume only on Linux*** and click ***Next***  
+    l. Move mouse randomly then click ***Format***
+3. Mount encrypted volume  
+    a. Launch: `veracrypt`  
+    b. Select ***Slot 1*** and click ***Select File...*** then select your data file  
+    d. Click ***Mount*** then punch in your password and walla  
+    c. Veracrypt will automatically create ***/mnt/veracrypt1*** as your mount point  
+4. Create a shell link and ownership  
+    ```bash
+    ln -sf /mnt/veracrypt1 ~/veracrypt1
+    cd ~/veracrypt
+    sudo chown pcrumm: -R .
+    ```
+5. Create a Thunar Shortcut  
+   a. Browse to ***/mnt/veracrypt1*** and drage and drop it to ***Places***  
 
 ## Background <a name="background"></a>
 ***cyberlinux*** is an evolution of an idea come to fruition.  The origin was the need for an
