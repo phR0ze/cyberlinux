@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.141
+  release: 0.2.142
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -487,13 +487,13 @@ apps:
           - "brightness = '/sys/class/backlight/intel_backlight/brightness'"
           - "level = File.read(brightness).to_i\n"
           - "if ARGV.first[0] == '+'"
-          - "  val = ARGV.first.split('+').last.to_i"
-          - "  level += val"
+          - "  inc = ARGV.first.split('+').last.to_i"
+          - "  level += (max.to_f*inc.to_f/100.0).round"
           - "  level = max if level > max"
           - "else"
-          - "  val = ARGV.first.split('-').last.to_i"
-          - "  level -= val"
-          - "  level = 0 if val < 0"
+          - "  dec = ARGV.first.split('-').last.to_i"
+          - "  level -= (max.to_f*dec.to_f/100.0).round"
+          - "  level = 0 if level < 0"
           - "end"
           - "`echo '#{level}' > #{brightness}`"
       - { exec: 'chmod +x /usr/bin/backlight'}
