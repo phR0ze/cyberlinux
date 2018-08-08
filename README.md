@@ -156,27 +156,31 @@ dependencies. I'll be documenting them here:
 
 ## Configure cyberlinux <a name="configure-cyberlinux"/></a>
 ### Enable Proxy <a name="enable-proxy"/></a>
-cyberlinux uses the ***/usr/bin/setproxy*** script to configure the proxy given during install for:
+cyberlinux uses the ***/opt/cyberlinux/bin/setproxy*** script to configure the proxy given during install for:
 
 1. Shells via ***/etc/profile.d/setproxy.sh***
 2. XWindows apps via ***/etc/dconf/db/local.d/00-proxy***
 3. Docker via ***/etc/systemd/system/docker.service.d/20-proxy.conf***
 
-Update ***/usr/bin/setproxy*** variables as shown below: 
+Run the script to see help: 
 ```bash
-proxy=http://proxy.corp.net:8080
-proxy_host=proxy.corp.net
-proxy_port=8080
-no_proxy=localhost,127.0.0.1
-no_proxy_aray="['localhost', '127.0.0.1']"
+sudo setproxy
+setproxy_v0.0.1
+--------------------------------------------------------------------------------
+Usage: sudo setproxy CMD [PROXY] [NO_PROXY]
+Examples:
+sudo setproxy disable
+sudo setproxy enable http://example.com:8080
+sudo setproxy enable http://example.com:8080 localhost,127.0.0.1
 ```
+
 Enable proxy:
-1. Run: `sudo setproxy 1`
+1. Run: `sudo setproxy enable http://example.com:8080 localhost,127.0.0.1`
 2. Logout and back in
 
 ### Disable Proxy <a name="disable-proxy"/></a>
 Disable proxy:
-1. Run: `sudo setproxy 0`
+1. Run: `sudo setproxy disable`
 2. Logout and back in
 
 ## Roll your own cyberlinux <a name="build-cyberlinux"/></a>
