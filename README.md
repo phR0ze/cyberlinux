@@ -45,7 +45,7 @@ fork it and make their own configuration ***profiles***
     * [Network](#network)
     * [Systemd](#systemd)
     * [VeraCrypt](#veracrypt)
-    * [Video Cards](#video-cards)
+    * [Video Output](#video-output)
 * [Background](#background)
    * [Evolution](#evolution)
    * [My take on Arch](#my-take-on-arch)
@@ -420,7 +420,25 @@ Create a new ***100GB Volume***
 6. Configure autostart for veracrypt  
   `cp /usr/share/applications/veracrypt.desktop ~/.config/autostart`
 
-### Video Cards <a name="video-cards"/></a>
+### Video Output <a name="video-output"/></a>
+
+#### VGA Output <a name="vga-output"/></a>
+Many laptops have a VGA output port that can be hooked up to a projector or other external video
+device. To tell Linux you want to use that external port:
+
+```bash
+# Executing xrandr you'll see multiple devices:
+# eDP-1 (internal display)
+# DP-2 (docking station display)
+# VGA-1 (external port for projectors)
+xrandr
+
+# Once connected to projector
+xrandr --output VGA-1 --auto --same-as eDP-1
+
+# Mapping this to Win + P or other hot key combo
+
+```
 
 #### Nvidia Proprietary <a name="nvidia-proprietary"/></a>
 1. Determine Graphics Card
