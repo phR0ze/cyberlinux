@@ -1,5 +1,5 @@
 # cyberlinux
-<img align="left" width="48" height="48" src="https://raw.githubusercontent.com/phR0ze/cyberlinux/master/art/logo_256x256.png">
+<img align="left" width="48" height="48" src="art/logo_256x256.png">
 <b><i>cyberlinux</i></b> was designed to provide the unobtrusive beauty and power of Arch Linux as a fully
 customized automated offline multi-deployment ISO. Using clean declarative yaml profiles,
 cyberlinux is able to completely customize and automate the building of Arch Linux filesystems
@@ -42,6 +42,7 @@ fork it and make their own configuration ***profiles***
     * [Backlight](#backlight)
     * [BlackArch Signature issue](#blackarch-signature-issue)
     * [Certificates](#certificates)
+    * [Network](#network)
     * [Systemd Debug Shell](#systemd-debug-shell)
     * [VeraCrypt](#veracrypt)
     * [Video Cards](#video-cards)
@@ -183,7 +184,7 @@ Disable proxy:
 
 ## Arch Linux Help <a name="arch-linux-help"/></a>
 The [arch wiki](https://wiki.archlinux.org/) is the best place to go for help. I've just collected a
-few things here that were useful for me.
+few things here that were useful for me here for quick reference.
 
 ### Apps to use <a name="apps-to-use"/></a>
 [List of apps to use from Arch Linux Wiki](https://wiki.archlinux.org/index.php/List_of_applications/Utilities)
@@ -207,14 +208,74 @@ error: database 'blackarch' is not valid (invalid or corrupted database (PGP sig
 
 #### Add Root CA <a name="add-root-ca"/></a>
 ```bash
-#Download certs
+# Download certs
 wget --no-check-certificate -P ~/Downloads https://example.com/CAs/CA1.zip
+
 # Unzip cert and rename to crt
 unzip CA1.zip && rename CA1.cer CA1.crt
+
 # Install new CA cert, original file can then be deleted
 sudo trust anchor CA1.crt
 ```
 
+### Network <a name="network"/></a>
+https://wiki.archlinux.org/index.php/Systemd-networkd#Basic_usage
+
+#### Nameservers <a name="nameservers"/></a>
+Cloudflares DNS is the fastest and safest right now
+
+***1.1.1.1*** and ***1.0.0.1***
+
+#### Static Networking <a name="static-networking"/></a>
+```bash
+# Create config file
+sudo tee -a /etc/systemd/network/10-static.network <<EOL
+[Match]
+Name=en* eth*
+
+[Network]
+Address=192.168.1.6/24
+Gateway=192.168.1.1
+DNS=1.1.1.1
+DNS=1.0.0.1
+IPForward=kernel
+EOL
+
+# Restart networking
+sudo systemctl restart systemd-networkd
+```
+
+#### DHCP Networking <a name="dhcp-networking"/></a>
+```bash
+# Create config file
+sudo tee -a /etc/systemd/network/10-static.network <<EOL
+[Match]
+Name=en* eth*
+
+[Network]
+DHCP=ipv4
+IPForward=kernel
+
+[DHCP]
+UseDomains=true
+EOL
+
+# Configure DNS
+sudo ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+
+# Enable/start resolved
+sudo systemctl enable systemd-networkd systemd-resolved
+sudo systemctl start systemd-networkd systemd-resolved
+
+# Restart networking
+sudo systemctl restart systemd-networkd
+```
+
+#### Wifi Driver - HP ZBook 15 <a name="wifi-driver-hp-zbook-15"/></a>
+```bash
+# Check the kernel has support for your wireless device
+lspci -
+```
 
 ### Systemd Debug Shell <a name="systemd-debug-shell"/></a>
 ```bash
