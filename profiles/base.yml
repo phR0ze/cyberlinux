@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.166
+  release: 0.2.167
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -247,7 +247,7 @@ apps:
       - {install: logrotate,        desc: Rotates system logs automatically }
       - {install: pacman,           desc: Package manager with dependency support, group: [build-devel]}
       - {install: pacman-contrib,   desc: Pacman support configuration, depof: rankmirrors}
-      - {install: screenfetch,      desc: CLI bash script to show system theme for screenshots }
+      - {install: cyberlinux-screenfetch, desc: CLI bash script to show system theme for screenshots, type: CYBERLINUX }
       - {install: which,            desc: Show the full path of commnds, depof: .bashrc, group: [build-devel]}
     - recovery:
       - {install: ddrescue,         desc: GNU data recovery tool }
