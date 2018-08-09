@@ -126,19 +126,19 @@ ${offset 350}${color lightgrey} ${tcp_portmon 32768 61000 rhost 6} ${tcp_portmon
 #-------------------------------------------------------------------------------
 ${voffset -392}
 ${offset 700}${color2}${font Liberation Mono:size=20}HOT KEYS${font Liberation Mono:size=10}
-${offset 700}${color lightgrey} Search+c         (Reconfigure openbox)
-${offset 700}${color lightgrey} Search+e         (Launch editor)
-${offset 700}${color lightgrey} Search+f         (Launch filemanager)
-${offset 700}${color lightgrey} Search+l         (Launch lock)
-${offset 700}${color lightgrey} Search+o         (Launch office)
-${offset 700}${color lightgrey} Search+r         (Launch runner)
-${offset 700}${color lightgrey} Search+t         (Launch terminal)
-${offset 700}${color lightgrey} Search+w         (Launch web browser)
-${offset 700}${color lightgrey} Search+x         (Launch login controls)
-${offset 700}${color lightgrey} Alt+Search+F5    (Screen shot)
-${offset 700}${color lightgrey} Alt+Search+F6    (Toggle bluetooth)
-${offset 700}${color lightgrey} Alt+Search+F7    (Toggle WiFi)
-${offset 700}${color lightgrey} Search+media key (Trigger media control)
+${offset 700}${color lightgrey} Super+c         (Reconfigure openbox)
+${offset 700}${color lightgrey} Super+e         (Launch editor)
+${offset 700}${color lightgrey} Super+f         (Launch filemanager)
+${offset 700}${color lightgrey} Super+l         (Launch lock)
+${offset 700}${color lightgrey} Super+o         (Launch office)
+${offset 700}${color lightgrey} Super+r         (Launch runner)
+${offset 700}${color lightgrey} Super+t         (Launch terminal)
+${offset 700}${color lightgrey} Super+w         (Launch web browser)
+${offset 700}${color lightgrey} Super+x         (Launch login controls)
+${offset 700}${color lightgrey} Alt+Super+F5    (Screen shot)
+${offset 700}${color lightgrey} Alt+Super+F6    (Toggle bluetooth)
+${offset 700}${color lightgrey} Alt+Super+F7    (Toggle WiFi)
+${offset 700}${color lightgrey} Super+media key (Trigger media control)
 
 #-------------------------------------------------------------------------------
 # CPU/Processes

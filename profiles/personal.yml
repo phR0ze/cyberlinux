@@ -35,23 +35,30 @@ deployments:
       label: "Deploy <%=distro%>-desktop                 // Netbook + more apps"
     apps:
       - desktop
+      - makemkv
       - teamviewer-host
       - virtualbox-ext-oracle
+  laptop:
+    base: desktop
+    install:
+      order: 3
+      label: "Deploy <%=distro%>-laptop                  // Desktop + configs"
+    source: [netbook]
+    apps: []
   netbook:
     base: lite
     install:
-      order: 3
+      order: 4
       label: "Deploy <%=distro%>-netbook                 // Lite + more apps"
-    source: [desktop]
+    source: [desktop, netbook]
     apps:
       - netbook
-      - makemkv
       - teamviewer
   theater:
     base: lite
     vars: { fontsize: 18 }
     install:
-      order: 4
+      order: 5
       label: "Deploy <%=distro%>-theater                 // Lite + media apps"
       params: autologin=1
     apps:
@@ -61,7 +68,7 @@ deployments:
   server:
     base: lite
     install:
-      order: 5
+      order: 6
       label: "Deploy <%=distro%>-server                  // Lite + services"
     apps:
       - server
@@ -70,14 +77,14 @@ deployments:
   lite:
     base: shell
     install:
-      order: 6
+      order: 7
       label: "Deploy <%=distro%>-lite                    // Shell + min X11"
     apps:
       - lite
       - ttf-adobe-fonts
   shell:
     install:
-      order: 7
+      order: 8
       label: "Deploy <%=distro%>-shell                   // Shell env"
     source: [core, shell]
     apps:

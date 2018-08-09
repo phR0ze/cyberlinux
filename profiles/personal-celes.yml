@@ -38,7 +38,7 @@ deployments:
       order: 2
       label: "Deploy <%=distro%>-netbook                 // Full X11 env."
       kernel: linux-celes
-    source: [lite, desktop, celes]
+    source: [lite, desktop, netbook]
     apps:
       - lite
       - netbook
