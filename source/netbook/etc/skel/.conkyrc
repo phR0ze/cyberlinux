@@ -80,9 +80,14 @@ ${offset 1038}${font Liberation Mono:bold:size=14}${color2}  Su  Mo  Tu  We  Th 
 ${font Liberation Mono:size=14}${color1}${execp ~/bin/conky_cal.rb 2 1038}
 
 #-------------------------------------------------------------------------------
+# Distro
+#-------------------------------------------------------------------------------
+${voffset -360}
+${font Audiowide:size=30}${color1}cyber${color2}linux${font Liberation Mono:size=12}
+
+#-------------------------------------------------------------------------------
 # System
 #-------------------------------------------------------------------------------
-${voffset -340}
 ${color2}${font Liberation Mono:size=20}SYSTEM${font Liberation Mono:size=12}
 ${voffset 4}${color lightgrey} Name: $color${nodename}
 ${color lightgrey} Kernel: $color${kernel}

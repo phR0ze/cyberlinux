@@ -42,6 +42,7 @@ fork it and make their own configuration ***profiles***
     * [Apps to use](#apps-to-use)
     * [BlackArch Signature issue](#blackarch-signature-issue)
     * [Certificates](#certificates)
+    * [Fonts](#fonts)
     * [Network](#network)
     * [Packages](#packages)
     * [Systemd](#systemd)
@@ -262,6 +263,38 @@ unzip CA1.zip && rename CA1.cer CA1.crt
 # Install new CA cert, original file can then be deleted
 sudo trust anchor CA1.crt
 ```
+### Fonts <a name="fonts"/></a>
+Fonts are tricky due to licensing, despite being free for commercial use many are only free for
+individual users and can not be included in a distribution.  That said here are some awesome techno
+fonts that you may want to individually use.
+
+* https://www.1001fonts.com/sui-generis-free-font.html
+* https://www.1001fonts.com/rexlia-free-font.html
+* https://www.1001fonts.com/recharge-font.html
+* https://www.1001fonts.com/nulshock-font.html
+* https://www.1001fonts.com/galderglynn-titling-font.html
+* https://www.1001fonts.com/conthrax-font.html
+* https://www.1001fonts.com/good-times-font.html
+* https://www.1001fonts.com/sofachrome-font.html
+* https://www.1001fonts.com/hemi-head-426-font.html
+* https://www.1001fonts.com/ethnocentric-font.html
+* https://www.1001fonts.com/neuropolitical-font.html
+* https://www.1001fonts.com/induction-font.html
+* https://www.1001fonts.com/neuropol-x-free-font.html
+* https://www.1001fonts.com/zekton-free-font.html
+* https://www.1001fonts.com/no-clocks-font.html
+* https://www.1001fonts.com/dendritic-voltage-font.html
+* https://www.1001fonts.com/neuropol-font.html
+ 
+* https://www.1001fonts.com/perfect-dark-brk-font.html
+* https://www.1001fonts.com/crackdown-brk-font.html
+* https://www.1001fonts.com/airstrip-four-font.html
+* https://www.1001fonts.com/aldrich-font.html
+* https://www.1001fonts.com/anita-semi-square-font.html
+* https://www.1001fonts.com/audiowide-font.html
+
+#### Conky Fonts <a name="conky-fonts"/></a>
+Conky will need to be restarted to pick up new fonts
 
 ### Network <a name="network"/></a>
 https://wiki.archlinux.org/index.php/Systemd-networkd#Basic_usage

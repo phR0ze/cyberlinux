@@ -80,9 +80,14 @@ ${offset 1538}${font Liberation Mono:bold:size=14}${color2}  Su  Mo  Tu  We  Th 
 ${font Liberation Mono:size=14}${color1}${execp ~/bin/conky_cal.rb 2 1538}
 
 #-------------------------------------------------------------------------------
+# Distro
+#-------------------------------------------------------------------------------
+${voffset -360}
+${font Audiowide:size=30}${color1}cyber${color2}linux${font Liberation Mono:size=12}
+
+#-------------------------------------------------------------------------------
 # System
 #-------------------------------------------------------------------------------
-${voffset -285}
 ${color2}${font Liberation Mono:size=20}SYSTEM${font Liberation Mono:size=12}
 ${voffset 4}${color lightgrey} Name: $color${nodename}
 ${color lightgrey} Kernel: $color${kernel}
@@ -90,7 +95,7 @@ ${color lightgrey} Kernel: $color${kernel}
 ${color lightgrey} WiFi:      $color${exec ~/bin/conky_radio.rb wifi}
 ${color lightgrey} Bluetooth: $color${exec ~/bin/conky_radio.rb bluetooth}
 ${voffset 8}${color lightgrey} SSID:      $color ${wireless_essid}
-${color lightgrey} Private IP:$color ${addrs wlo1}
+${color lightgrey} Private IP:$color ${addrs enp0s25}
 ${color lightgrey} Public  IP:$color ${curl ipinfo.io/ip 5}
 
 ${color lightgrey} Battery: $color${battery_percent}% (${battery_time})
@@ -197,8 +202,8 @@ ${offset 350}${color lightgrey} ${top_mem name 10} ${top_mem pid 10} ${top_mem m
 #-------------------------------------------------------------------------------
 ${voffset -319}
 ${offset 700}${color2}${font Liberation Mono:size=20}UP/DOWN SPEED${font Liberation Mono:size=12}
-${offset 700}${color lightgrey} Up Speed: $color${upspeed wlo1}
-${offset 700} $color${upspeedgraph wlo1}
-${voffset 4}${offset 700}${color lightgrey} Down Speed: $color${downspeed wlo1}
-${offset 700} $color${downspeedgraph wlo1}
+${offset 700}${color lightgrey} Up Speed: $color${upspeed enp0s25}
+${offset 700} $color${upspeedgraph enp0s25}
+${voffset 4}${offset 700}${color lightgrey} Down Speed: $color${downspeed enp0s25}
+${offset 700} $color${downspeedgraph enp0s25}
 ]];
