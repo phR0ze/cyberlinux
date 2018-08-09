@@ -40,8 +40,8 @@ conky.config = {
 
     -- Position
     alignment = 'top_left',                 -- Align window on the desktop
-    maximum_width = 1900,                   -- Maximum width of conky window
-    minimum_width = 1900,                   -- Set to max so offset doesn't push into unknown
+    maximum_width = 1860,                   -- Maximum width of conky window
+    minimum_width = 1860,                   -- Set to max so offset doesn't push into unknown
     minimum_height = 1000,                  -- Set to max so voffset doesn't push into unknown
     gap_x = 20,                             -- Gap in pixels between right or left border of screen
     gap_y = 20,                             -- Gap in pixels between top or bottom of screen
@@ -82,7 +82,7 @@ ${font Liberation Mono:size=14}${color1}${execp ~/bin/conky_cal.rb 2 1538}
 #-------------------------------------------------------------------------------
 # System
 #-------------------------------------------------------------------------------
-${voffset -290}
+${voffset -280}
 ${color2}${font Liberation Mono:size=20}SYSTEM${font Liberation Mono:size=12}
 ${voffset 4}${color lightgrey} Name: $color${nodename}
 ${color lightgrey} Kernel: $color${kernel}
@@ -91,6 +91,7 @@ ${color lightgrey} Bluetooth: $color${exec ~/bin/conky_radio.rb bluetooth}
 ${voffset 8}${color lightgrey} SSID:      $color ${wireless_essid}
 ${color lightgrey} Private IP:$color ${addrs wlo1}
 ${color lightgrey} Public  IP:$color ${curl ipinfo.io/ip 5}
+
 ${voffset -4}${color lightgrey} Battery: $color${battery_percent}% (${battery_time})
 ${color} ${battery_bar}
 ${voffset 10}${color lightgrey} Storage 1: $color${fs_used_perc /}% (${fs_used /}/${fs_size /})
@@ -99,51 +100,55 @@ ${voffset 10}${color lightgrey} Storage 2: $color${fs_used_perc /mnt/storage}% (
 ${color} ${fs_bar /mnt/storage}
 
 #-------------------------------------------------------------------------------
-# Connections
-#-------------------------------------------------------------------------------
-${voffset -370}
-${offset 350}${color2}${font Liberation Mono:size=20}CONNECTIONS${font Liberation Mono:size=12}
-${offset 350}${color2}${font Liberation Mono:size=14} Inbound:  ${tcp_portmon 1 32767 count}${font Liberation Mono:size=12}
-${offset 350}${color lightgrey} ${tcp_portmon 1 32767 rhost 0} ${tcp_portmon 1 32767 lport 0}
-${offset 350}${color lightgrey} ${tcp_portmon 1 32767 rhost 1} ${tcp_portmon 1 32767 lport 1}
-${offset 350}${color lightgrey} ${tcp_portmon 1 32767 rhost 2} ${tcp_portmon 1 32767 lport 2}
-${offset 350}${color lightgrey} ${tcp_portmon 1 32767 rhost 3} ${tcp_portmon 1 32767 lport 3}
-${offset 350}${color lightgrey} ${tcp_portmon 1 32767 rhost 4} ${tcp_portmon 1 32767 lport 4}
-${offset 350}${color lightgrey} ${tcp_portmon 1 32767 rhost 5} ${tcp_portmon 1 32767 lport 5}
-
-
-${offset 350}${color2}${font Liberation Mono:size=14} Outbound: ${tcp_portmon 32768 65535 count}${font Liberation Mono:size=12}
-${offset 350}${color lightgrey} ${tcp_portmon 32768 61000 rhost 0} ${tcp_portmon 32768 61000 rport 0}
-${offset 350}${color lightgrey} ${tcp_portmon 32768 61000 rhost 1} ${tcp_portmon 32768 61000 rport 1}
-${offset 350}${color lightgrey} ${tcp_portmon 32768 61000 rhost 2} ${tcp_portmon 32768 61000 rport 2}
-${offset 350}${color lightgrey} ${tcp_portmon 32768 61000 rhost 3} ${tcp_portmon 32768 61000 rport 3}
-${offset 350}${color lightgrey} ${tcp_portmon 32768 61000 rhost 4} ${tcp_portmon 32768 61000 rport 4}
-${offset 350}${color lightgrey} ${tcp_portmon 32768 61000 rhost 5} ${tcp_portmon 32768 61000 rport 5}
-${offset 350}${color lightgrey} ${tcp_portmon 32768 61000 rhost 6} ${tcp_portmon 32768 61000 rport 6}
-
-#-------------------------------------------------------------------------------
 # Hot Keys
 #-------------------------------------------------------------------------------
-${voffset -392}
-${offset 800}${color2}${font Liberation Mono:size=20}HOT KEYS${font Liberation Mono:size=10}
-${offset 800}${color lightgrey} Super+c         (Reconfigure openbox)
-${offset 800}${color lightgrey} Super+e         (Launch editor)
-${offset 800}${color lightgrey} Super+f         (Launch filemanager)
-${offset 800}${color lightgrey} Super+l         (Launch lock)
-${offset 800}${color lightgrey} Super+o         (Launch office)
-${offset 800}${color lightgrey} Super+r         (Launch runner)
-${offset 800}${color lightgrey} Super+t         (Launch terminal)
-${offset 800}${color lightgrey} Super+w         (Launch web browser)
-${offset 800}${color lightgrey} Super+x         (Launch login controls)
-${offset 800}${color lightgrey} Alt+Super+F5    (Screen shot)
-${offset 800}${color lightgrey} Alt+Super+F6    (Toggle bluetooth)
-${offset 800}${color lightgrey} Alt+Super+F7    (Toggle WiFi)
-${offset 800}${color lightgrey} Super+media key (Trigger media control)
+${voffset -385}
+${offset 350}${color2}${font Liberation Mono:size=20}HOT KEYS${font Liberation Mono:size=10}
+${offset 350}${color lightgrey} Super+c         (Reconfigure openbox)
+${offset 350}${color lightgrey} Super+e         (Launch editor)
+${offset 350}${color lightgrey} Super+f         (Launch filemanager)
+${offset 350}${color lightgrey} Super+l         (Launch lock)
+${offset 350}${color lightgrey} Super+o         (Launch office)
+${offset 350}${color lightgrey} Super+r         (Launch runner)
+${offset 350}${color lightgrey} Super+t         (Launch terminal)
+${offset 350}${color lightgrey} Super+w         (Launch web browser)
+${offset 350}${color lightgrey} Super+x         (Launch login controls)
+${offset 350}${color lightgrey} Print           (Screen shot)
+${offset 350}${color lightgrey} Media key       (Trigger media control)
+${offset 350}${color lightgrey} Alt+Print       (Custom Screen shot)
+${offset 350}${color lightgrey} Alt+Super+F6    (Toggle bluetooth)
+${offset 350}${color lightgrey} Alt+Super+F7    (Toggle WiFi)
+
+#-------------------------------------------------------------------------------
+# Connections
+#-------------------------------------------------------------------------------
+${voffset -305}
+${offset 700}${color2}${font Liberation Mono:size=20}CONNECTIONS${font Liberation Mono:size=12}
+${offset 700}${color2}${font Liberation Mono:size=14} Inbound:  ${tcp_portmon 1 32767 count}${font Liberation Mono:size=12}
+${offset 700}${color lightgrey} ${tcp_portmon 1 32767 rhost 0} ${tcp_portmon 1 32767 lport 0}
+${offset 700}${color lightgrey} ${tcp_portmon 1 32767 rhost 1} ${tcp_portmon 1 32767 lport 1}
+${offset 700}${color lightgrey} ${tcp_portmon 1 32767 rhost 2} ${tcp_portmon 1 32767 lport 2}
+${offset 700}${color lightgrey} ${tcp_portmon 1 32767 rhost 3} ${tcp_portmon 1 32767 lport 3}
+${offset 700}${color lightgrey} ${tcp_portmon 1 32767 rhost 4} ${tcp_portmon 1 32767 lport 4}
+${offset 700}${color lightgrey} ${tcp_portmon 1 32767 rhost 5} ${tcp_portmon 1 32767 lport 5}
+
+
+${offset 700}${color2}${font Liberation Mono:size=14} Outbound: ${tcp_portmon 32768 65535 count}${font Liberation Mono:size=12}
+${offset 700}${color lightgrey} ${tcp_portmon 32768 61000 rhost 0} ${tcp_portmon 32768 61000 rport 0}
+${offset 700}${color lightgrey} ${tcp_portmon 32768 61000 rhost 1} ${tcp_portmon 32768 61000 rport 1}
+${offset 700}${color lightgrey} ${tcp_portmon 32768 61000 rhost 2} ${tcp_portmon 32768 61000 rport 2}
+${offset 700}${color lightgrey} ${tcp_portmon 32768 61000 rhost 3} ${tcp_portmon 32768 61000 rport 3}
+${offset 700}${color lightgrey} ${tcp_portmon 32768 61000 rhost 4} ${tcp_portmon 32768 61000 rport 4}
+${offset 700}${color lightgrey} ${tcp_portmon 32768 61000 rhost 5} ${tcp_portmon 32768 61000 rport 5}
+${offset 700}${color lightgrey} ${tcp_portmon 32768 61000 rhost 6} ${tcp_portmon 32768 61000 rport 6}
+${offset 700}${color lightgrey} ${tcp_portmon 32768 61000 rhost 7} ${tcp_portmon 32768 61000 rport 7}
+${offset 700}${color lightgrey} ${tcp_portmon 32768 61000 rhost 8} ${tcp_portmon 32768 61000 rport 8}
+${offset 700}${color lightgrey} ${tcp_portmon 32768 61000 rhost 9} ${tcp_portmon 32768 61000 rport 9}
 
 #-------------------------------------------------------------------------------
 # CPU/Processes
 #-------------------------------------------------------------------------------
-${voffset 240}
+${voffset 100}
 ${color2}${font Liberation Mono:size=20}CPU/PROCESSES${font Liberation Mono:size=12}
 ${voffset 4}${color lightgrey} usage: ${cpu cpu1}%
 ${color} ${cpubar cpu1}

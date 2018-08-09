@@ -21,8 +21,8 @@
 #SOFTWARE.
 require 'date'
 
-# Get number of spaces to use from the only param passed in
-spaces = ARGV.first.to_i
+spaces = ARGV.first.to_i  # Number of spaces to use between days
+offset = ARGV.last        # Number of offset spaces for line
 
 # Generate array of days with first of the month spacing
 # [' ', '1', '2', '3', ... , '31'] 
@@ -30,6 +30,7 @@ now = Date.today
 prefix = Date.new(now.year, now.month, 1).wday.to_i
 end_of_month = Date.new(now.year, now.month, -1).day
 [*1..end_of_month].unshift(*[* [' '] * prefix]).each_slice(7){|wk|
+  print("${offset #{offset}}") if ARGV.size > 1
   wk.each{|day|
     print("#{' ' * spaces}")
     print("${color2}") if day == now.day
@@ -38,5 +39,4 @@ end_of_month = Date.new(now.year, now.month, -1).day
   }
   puts
 }
-
 # vim: ft=ruby:ts=2:sw=2:sts=2
