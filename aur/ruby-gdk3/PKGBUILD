@@ -24,18 +24,18 @@
 #-------------------------------------------------------------------------------
 gem=gdk3
 pkgname=ruby-$gem
-pkgver=3.2.8
+pkgver=3.2.9
 pkgrel=1
 pkgdesc='Ruby/GDK3 is a Ruby binding of GDK-3.x.'
 arch=(any)
 url='http://ruby-gnome2.sourceforge.jp/'
 license=(LGPL2.1)
-depends=(ruby ruby-cairo-gobject=$pkgver ruby-gdk_pixbuf2=$pkgver ruby-gobject-introspection=$pkgver ruby-pango=$pkgver)
+depends=(ruby ruby-rdoc ruby-cairo-gobject=$pkgver ruby-gdk_pixbuf2=$pkgver ruby-gobject-introspection=$pkgver ruby-pango=$pkgver)
 makedepends=(ruby-native-package-installer)
 options=(!emptydirs)
 source=(https://rubygems.org/downloads/$gem-$pkgver.gem)
 noextract=($gem-$pkgver.gem)
-sha256sums=('69d8d75d54b7d71dd264270a2a2695d9fc35a4eb0af1bbb70739a8c25549a4c7')
+sha256sums=('eb5998b22d5a0f3a33189b03b080be6966962aa6ae46037250badeecc959309a')
 
 package() {
   msg "Packaging $pkgname"

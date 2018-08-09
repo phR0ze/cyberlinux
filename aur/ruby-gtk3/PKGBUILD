@@ -24,19 +24,19 @@
 #-------------------------------------------------------------------------------
 gem=gtk3
 pkgname=ruby-$gem
-pkgver=3.2.8
+pkgver=3.2.9
 pkgrel=1
 pkgdesc='Ruby/GTK3 is a Ruby binding of GTK+-3.x.'
 arch=(any)
 url='http://ruby-gnome2.sourceforge.jp/'
 license=(LGPL2.1)
-depends=(ruby ruby-atk=$pkgver ruby-gdk3=$pkgver ruby-gdk_pixbuf2=$pkgver ruby-gio2=$pkgver
+depends=(ruby ruby-rdoc ruby-atk=$pkgver ruby-gdk3=$pkgver ruby-gdk_pixbuf2=$pkgver ruby-gio2=$pkgver
     ruby-glib2=$pkgver ruby-pango=$pkgver gtk3)
 makedepends=(gobject-introspection)
 options=(!emptydirs)
 source=(https://rubygems.org/downloads/$gem-$pkgver.gem)
 noextract=($gem-$pkgver.gem)
-sha256sums=('8ff63474123a410a139fcc04e63ecd82e16e1d1f379f93ebc511a6ca30bd9286')
+sha256sums=('c0417506dee5d203d36566923f27a63def5ef634228a3744f36b4b3af643afc8')
 
 package() {
   msg "Packaging $pkgname"
