@@ -91,7 +91,7 @@ ${color lightgrey} Bluetooth: $color${exec ~/bin/conky_radio.rb bluetooth}
 ${voffset 8}${color lightgrey} SSID:      $color ${wireless_essid}
 ${color lightgrey} Private IP:$color ${addrs wlo1}
 ${color lightgrey} Public  IP:$color ${curl ipinfo.io/ip 5}
-${voffset -4}${color lightgrey} Battery: $color${battery_percent}% (${battery_time})
+${voffset 10}${color lightgrey} Battery: $color${battery_percent}% (${battery_time})
 ${color} ${battery_bar}
 ${voffset 10}${color lightgrey} Storage 1: $color${fs_used_perc /}% (${fs_used /}/${fs_size /})
 ${color} ${fs_bar /}
@@ -99,46 +99,53 @@ ${voffset 10}${color lightgrey} Storage 2: $color${fs_used_perc /mnt/storage}% (
 ${color} ${fs_bar /mnt/storage}
 
 #-------------------------------------------------------------------------------
-# Connections
-#-------------------------------------------------------------------------------
-${voffset -370}
-${offset 350}${color2}${font Liberation Mono:size=20}CONNECTIONS${font Liberation Mono:size=12}
-${offset 350}${color2}${font Liberation Mono:size=14} Inbound:  ${tcp_portmon 1 32767 count}${font Liberation Mono:size=12}
-${offset 350}${color lightgrey} ${tcp_portmon 1 32767 rhost 0} ${tcp_portmon 1 32767 lport 0}
-${offset 350}${color lightgrey} ${tcp_portmon 1 32767 rhost 1} ${tcp_portmon 1 32767 lport 1}
-${offset 350}${color lightgrey} ${tcp_portmon 1 32767 rhost 2} ${tcp_portmon 1 32767 lport 2}
-${offset 350}${color lightgrey} ${tcp_portmon 1 32767 rhost 3} ${tcp_portmon 1 32767 lport 3}
-${offset 350}${color lightgrey} ${tcp_portmon 1 32767 rhost 4} ${tcp_portmon 1 32767 lport 4}
-${offset 350}${color lightgrey} ${tcp_portmon 1 32767 rhost 5} ${tcp_portmon 1 32767 lport 5}
-
-
-${offset 350}${color2}${font Liberation Mono:size=14} Outbound: ${tcp_portmon 32768 65535 count}${font Liberation Mono:size=12}
-${offset 350}${color lightgrey} ${tcp_portmon 32768 61000 rhost 0} ${tcp_portmon 32768 61000 rport 0}
-${offset 350}${color lightgrey} ${tcp_portmon 32768 61000 rhost 1} ${tcp_portmon 32768 61000 rport 1}
-${offset 350}${color lightgrey} ${tcp_portmon 32768 61000 rhost 2} ${tcp_portmon 32768 61000 rport 2}
-${offset 350}${color lightgrey} ${tcp_portmon 32768 61000 rhost 3} ${tcp_portmon 32768 61000 rport 3}
-${offset 350}${color lightgrey} ${tcp_portmon 32768 61000 rhost 4} ${tcp_portmon 32768 61000 rport 4}
-${offset 350}${color lightgrey} ${tcp_portmon 32768 61000 rhost 5} ${tcp_portmon 32768 61000 rport 5}
-${offset 350}${color lightgrey} ${tcp_portmon 32768 61000 rhost 6} ${tcp_portmon 32768 61000 rport 6}
-
-#-------------------------------------------------------------------------------
 # Hot Keys
 #-------------------------------------------------------------------------------
-${voffset -392}
-${offset 700}${color2}${font Liberation Mono:size=20}HOT KEYS${font Liberation Mono:size=10}
-${offset 700}${color lightgrey} Super+c         (Reconfigure openbox)
-${offset 700}${color lightgrey} Super+e         (Launch editor)
-${offset 700}${color lightgrey} Super+f         (Launch filemanager)
-${offset 700}${color lightgrey} Super+l         (Launch lock)
-${offset 700}${color lightgrey} Super+o         (Launch office)
-${offset 700}${color lightgrey} Super+r         (Launch runner)
-${offset 700}${color lightgrey} Super+t         (Launch terminal)
-${offset 700}${color lightgrey} Super+w         (Launch web browser)
-${offset 700}${color lightgrey} Super+x         (Launch login controls)
-${offset 700}${color lightgrey} Alt+Super+F5    (Screen shot)
-${offset 700}${color lightgrey} Alt+Super+F6    (Toggle bluetooth)
-${offset 700}${color lightgrey} Alt+Super+F7    (Toggle WiFi)
-${offset 700}${color lightgrey} Super+media key (Trigger media control)
+${voffset -380}
+${offset 350}${color2}${font Liberation Mono:size=20}HOT KEYS${font Liberation Mono:size=10}
+${offset 350}${color lightgrey} Super+c         (Reconfigure openbox)
+${offset 350}${color lightgrey} Super+e         (Launch editor)
+${offset 350}${color lightgrey} Super+f         (Launch filemanager)
+${offset 350}${color lightgrey} Super+l         (Launch lock)
+${offset 350}${color lightgrey} Super+o         (Launch office)
+${offset 350}${color lightgrey} Super+r         (Launch runner)
+${offset 350}${color lightgrey} Super+t         (Launch terminal)
+${offset 350}${color lightgrey} Super+w         (Launch web browser)
+${offset 350}${color lightgrey} Super+x         (Launch login controls)
+${offset 350}${color lightgrey} Super+arrow     (Pos Win L,R,Full,Min)
+${offset 350}${color lightgrey} Print           (Screen shot)
+${offset 350}${color lightgrey} Alt+Print       (Custom Screen shot)
+${offset 350}${color lightgrey} Alt+Super+F6    (Toggle bluetooth)
+${offset 350}${color lightgrey} Alt+Super+F7    (Toggle WiFi)
+${offset 350}${color lightgrey} XF86Display     (Toggle Projector)
+${offset 350}${color lightgrey} XF86BrightUp    (Increase Brightness)
+${offset 350}${color lightgrey} XF86BrightDown  (Decrease Brightness)
+${offset 350}${color lightgrey} XF86AudioMute   (Mute Volume)
+${offset 350}${color lightgrey} XF86AudioRaise  (Raise Volume)
+${offset 350}${color lightgrey} XF86AudioLower  (Lower Volume)
+
+#-------------------------------------------------------------------------------
+# Connections
+#-------------------------------------------------------------------------------
+${voffset -380}
+${offset 700}${color2}${font Liberation Mono:size=20}CONNECTIONS${font Liberation Mono:size=12}
+${offset 700}${color2}${font Liberation Mono:size=14} Inbound:  ${tcp_portmon 1 32767 count}${font Liberation Mono:size=10}
+${offset 700}${color lightgrey} ${tcp_portmon 1 32767 rhost 0} ${tcp_portmon 1 32767 lport 0}
+${offset 700}${color lightgrey} ${tcp_portmon 1 32767 rhost 1} ${tcp_portmon 1 32767 lport 1}
+${offset 700}${color lightgrey} ${tcp_portmon 1 32767 rhost 2} ${tcp_portmon 1 32767 lport 2}
+${offset 700}${color lightgrey} ${tcp_portmon 1 32767 rhost 3} ${tcp_portmon 1 32767 lport 3}
+${offset 700}${color lightgrey} ${tcp_portmon 1 32767 rhost 4} ${tcp_portmon 1 32767 lport 4}
+${offset 700}${color lightgrey} ${tcp_portmon 1 32767 rhost 5} ${tcp_portmon 1 32767 lport 5}
+
+
+${offset 700}${color2}${font Liberation Mono:size=14} Outbound: ${tcp_portmon 32768 65535 count}${font Liberation Mono:size=10}
+${offset 700}${color lightgrey} ${tcp_portmon 32768 61000 rhost 0} ${tcp_portmon 32768 61000 rport 0}
+${offset 700}${color lightgrey} ${tcp_portmon 32768 61000 rhost 1} ${tcp_portmon 32768 61000 rport 1}
+${offset 700}${color lightgrey} ${tcp_portmon 32768 61000 rhost 2} ${tcp_portmon 32768 61000 rport 2}
+${offset 700}${color lightgrey} ${tcp_portmon 32768 61000 rhost 3} ${tcp_portmon 32768 61000 rport 3}
+${offset 700}${color lightgrey} ${tcp_portmon 32768 61000 rhost 4} ${tcp_portmon 32768 61000 rport 4}
+${offset 700}${color lightgrey} ${tcp_portmon 32768 61000 rhost 5} ${tcp_portmon 32768 61000 rport 5}
+${offset 700}${color lightgrey} ${tcp_portmon 32768 61000 rhost 6} ${tcp_portmon 32768 61000 rport 6}
 
 #-------------------------------------------------------------------------------
 # CPU/Processes
