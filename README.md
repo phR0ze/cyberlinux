@@ -219,6 +219,16 @@ sudo toggle bluetooth
 sudo toggle display
 ```
 
+#### HP ZBook 15 Display <a name="hp-zbook-15-display"/></a>
+Using the ***toggle*** script I was able to get the external output to turn and off mirroring the
+internal display at 1280x1024 resolution just fine when the laptop was started undocked.
+
+Additionally if I enable the internal display before undocking I won't loose it after undocking
+although I haven't tried the projector in this state.
+
+I was unable to get the dock display to enable again after redocking until restarting in the docked
+state although the internal display continued to work until restarted.
+
 ## Roll your own cyberlinux <a name="build-cyberlinux"/></a>
 [See => profiles/README.md](https://github.com/phR0ze/cyberlinux/blob/master/profiles)
 
