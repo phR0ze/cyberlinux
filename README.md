@@ -43,6 +43,7 @@ fork it and make their own configuration ***profiles***
     * [BlackArch Signature issue](#blackarch-signature-issue)
     * [Certificates](#certificates)
     * [Network](#network)
+    * [Packages](#packages)
     * [Systemd](#systemd)
     * [VeraCrypt](#veracrypt)
     * [Video Output](#video-output)
@@ -385,6 +386,9 @@ Securely forwarding ports via ssh is simple just hard to remember.
 # ssh -L local_host:local_port:remote_host:remote_port user@access-point.com
 ssh -L 192.168.0.10:5938:192.168.1.10:5938 -p 23 user@access-point.com
 ```
+
+### Packages <a name="packages"/></a>
+* Create repo: `repo-add cyberlinux.db.tar.gz *.pkg.tar.xz`
 
 ### Systemd <a name="systemd"/></a>
 
