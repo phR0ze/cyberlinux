@@ -23,14 +23,14 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.165
+  release: 0.2.166
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
   timezone: US/Mountain
   country: United_States
-  color_light: '#39AEF4'
-  color_dark: '#216A94'
+  color_light: '#39AEF4'  # 256 color ~ #5fafff
+  color_dark: '#216A94'   # 256 color ~ #005f87
   gfxmode: 1280x1024,1024x768,auto
   grub_iso_theme: /boot/grub/themes/cyberlinux
 

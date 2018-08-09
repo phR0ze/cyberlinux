@@ -46,6 +46,7 @@ fork it and make their own configuration ***profiles***
     * [Fonts](#fonts)
     * [Network](#network)
     * [Packages](#packages)
+    * [Patching](#patching)
     * [Systemd](#systemd)
     * [VeraCrypt](#veracrypt)
     * [Video Output](#video-output)
@@ -424,6 +425,13 @@ ssh -L 192.168.0.10:5938:192.168.1.10:5938 -p 23 user@access-point.com
 
 ### Packages <a name="packages"/></a>
 * Create repo: `repo-add cyberlinux.db.tar.gz *.pkg.tar.xz`
+
+### Patching <a name="patching"/></a>
+
+### Create Patch <a name="create-patch"/></a>
+1. Rename code directory to ***a***
+2. Copy a to be: `cp -a a b`
+3. Modify b as desired then run: `diff -ruN a b > <nam>.patch`
 
 ### Systemd <a name="systemd"/></a>
 
