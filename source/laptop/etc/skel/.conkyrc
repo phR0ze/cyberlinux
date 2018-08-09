@@ -86,13 +86,14 @@ ${voffset -285}
 ${color2}${font Liberation Mono:size=20}SYSTEM${font Liberation Mono:size=12}
 ${voffset 4}${color lightgrey} Name: $color${nodename}
 ${color lightgrey} Kernel: $color${kernel}
-${voffset 8}${color lightgrey} WiFi:      $color${exec ~/bin/conky_radio.rb wifi}
+
+${color lightgrey} WiFi:      $color${exec ~/bin/conky_radio.rb wifi}
 ${color lightgrey} Bluetooth: $color${exec ~/bin/conky_radio.rb bluetooth}
 ${voffset 8}${color lightgrey} SSID:      $color ${wireless_essid}
 ${color lightgrey} Private IP:$color ${addrs wlo1}
 ${color lightgrey} Public  IP:$color ${curl ipinfo.io/ip 5}
 
-${voffset -4}${color lightgrey} Battery: $color${battery_percent}% (${battery_time})
+${color lightgrey} Battery: $color${battery_percent}% (${battery_time})
 ${color} ${battery_bar}
 ${voffset 10}${color lightgrey} Storage 1: $color${fs_used_perc /}% (${fs_used /}/${fs_size /})
 ${color} ${fs_bar /}
@@ -102,7 +103,7 @@ ${color} ${fs_bar /mnt/storage}
 #-------------------------------------------------------------------------------
 # Hot Keys
 #-------------------------------------------------------------------------------
-${voffset -388}
+${voffset -405}
 ${offset 350}${color2}${font Liberation Mono:size=20}HOT KEYS${font Liberation Mono:size=10}
 ${offset 350}${color lightgrey} Super+c         (Reconfigure openbox)
 ${offset 350}${color lightgrey} Super+e         (Launch editor)
@@ -113,16 +114,22 @@ ${offset 350}${color lightgrey} Super+r         (Launch runner)
 ${offset 350}${color lightgrey} Super+t         (Launch terminal)
 ${offset 350}${color lightgrey} Super+w         (Launch web browser)
 ${offset 350}${color lightgrey} Super+x         (Launch login controls)
+${offset 350}${color lightgrey} Super+arrow     (Pos Win L,R,Full,Min)
 ${offset 350}${color lightgrey} Print           (Screen shot)
-${offset 350}${color lightgrey} Media key       (Trigger media control)
 ${offset 350}${color lightgrey} Alt+Print       (Custom Screen shot)
 ${offset 350}${color lightgrey} Alt+Super+F6    (Toggle bluetooth)
 ${offset 350}${color lightgrey} Alt+Super+F7    (Toggle WiFi)
+${offset 350}${color lightgrey} XF86Display     (Toggle Projector)
+${offset 350}${color lightgrey} XF86BrightUp    (Increase Brightness)
+${offset 350}${color lightgrey} XF86BrightDown  (Decrease Brightness)
+${offset 350}${color lightgrey} XF86AudioMute   (Mute Volume)
+${offset 350}${color lightgrey} XF86AudioRaise  (Raise Volume)
+${offset 350}${color lightgrey} XF86AudioLower  (Lower Volume)
 
 #-------------------------------------------------------------------------------
 # Connections
 #-------------------------------------------------------------------------------
-${voffset -300}
+${voffset -380}
 ${offset 700}${color2}${font Liberation Mono:size=20}CONNECTIONS${font Liberation Mono:size=12}
 ${offset 700}${color2}${font Liberation Mono:size=14} Inbound:  ${tcp_portmon 1 32767 count}${font Liberation Mono:size=12}
 ${offset 700}${color lightgrey} ${tcp_portmon 1 32767 rhost 0} ${tcp_portmon 1 32767 lport 0}
