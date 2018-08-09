@@ -82,7 +82,7 @@ ${font Liberation Mono:size=14}${color1}${execp ~/bin/conky_cal.rb 2 1538}
 #-------------------------------------------------------------------------------
 # System
 #-------------------------------------------------------------------------------
-${voffset -280}
+${voffset -285}
 ${color2}${font Liberation Mono:size=20}SYSTEM${font Liberation Mono:size=12}
 ${voffset 4}${color lightgrey} Name: $color${nodename}
 ${color lightgrey} Kernel: $color${kernel}
@@ -102,7 +102,7 @@ ${color} ${fs_bar /mnt/storage}
 #-------------------------------------------------------------------------------
 # Hot Keys
 #-------------------------------------------------------------------------------
-${voffset -385}
+${voffset -388}
 ${offset 350}${color2}${font Liberation Mono:size=20}HOT KEYS${font Liberation Mono:size=10}
 ${offset 350}${color lightgrey} Super+c         (Reconfigure openbox)
 ${offset 350}${color lightgrey} Super+e         (Launch editor)
@@ -122,7 +122,7 @@ ${offset 350}${color lightgrey} Alt+Super+F7    (Toggle WiFi)
 #-------------------------------------------------------------------------------
 # Connections
 #-------------------------------------------------------------------------------
-${voffset -305}
+${voffset -300}
 ${offset 700}${color2}${font Liberation Mono:size=20}CONNECTIONS${font Liberation Mono:size=12}
 ${offset 700}${color2}${font Liberation Mono:size=14} Inbound:  ${tcp_portmon 1 32767 count}${font Liberation Mono:size=12}
 ${offset 700}${color lightgrey} ${tcp_portmon 1 32767 rhost 0} ${tcp_portmon 1 32767 lport 0}
