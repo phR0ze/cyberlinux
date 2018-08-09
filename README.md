@@ -23,6 +23,7 @@ with my desires will be accepted. Typically I would expect those looking to leve
 fork it and make their own configuration ***profiles***
 
 ### Table of Contents
+* [Screen Shots](#screen-shots)
 * [cyberlinux Profiles](#cyberlinux-profiles)
     * [Standard Profile](#standard-profile)
     * [Personal Use Profile](#personal-profile)
@@ -56,7 +57,8 @@ fork it and make their own configuration ***profiles***
     * [Git-Hook Version Increment](#git-hook-version-increment)
 * [Licenses](#licenses)
 
-<a href="doc/images/cyberlinux-deployment.jpg"><img width="639" height="480" src="doc/images/cyberlinux-deployment.jpg"></a>
+### Screen Shots <a name="screen-shots"/></a>
+<a href="doc/images/cyberlinux-deployment-01.jpg"><img width="639" height="480" src="doc/images/cyberlinux-deployment-01.jpg"></a>
 
 ## cyberlinux Profiles <a name="cyberlinux-profiles"/></a>
 There are serveral predefined profiles to choose from and the possibility of making endless.
