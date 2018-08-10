@@ -28,7 +28,7 @@ fork it and make their own configuration ***profiles***
     * [Standard Profile](#standard-profile)
     * [Personal Use Profile](#personal-profile)
     * [Personal Use Celes Profile](#personal-celes-profile)
-    * [Kubernetes Profile](#kubernetes-profile)
+    * [k8snode Profile](#k8snode-profile)
 * [Deploy cyberlinux](#deploy-cyberlinux)
     * [Bare metal deployment](#bare-metal-deployment)
     * [Virtual box deployment](#virtual-box-deployment)
@@ -78,8 +78,8 @@ The [Personal Celes profile](profiles/personal-celes.md) was developed specifica
 Chromebook 3 (a.k.a celes) with personal use in mind meaning that it includes apps that are not
 allowed due to licensing restrictions for commercial use.
 
-## Kubernetes Profile <a name="kubernetes-profile"/></a>
-The [Kubernetes profile](profiles/kubernetes.md) was developed as a slimmed down shell environment
+## k8snode Profile <a name="k8snode-profile"/></a>
+The [k8snode profile](profiles/k8snode.md) was developed as a slimmed down shell environment
 with Kubernetes dependencies baked in. It includes ***kubectl***, ***kubelet***, ***kubeadm***,
 ***docker*** and ***helm*** to easily and quickly setup a K8s cluster.
 
