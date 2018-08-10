@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.169
+  release: 0.2.170
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -986,6 +986,11 @@ apps:
     - {install: mesa,               desc: Open-source OpenGL implementation }
     - {install: mesa-demos,         desc: Mesa demos and tools e.g glxinfo/glxgears }
     - {install: mesa-vdpau,         desc: Mesa vdpau drivers, depof: kodi steam }
+
+  # Simple app for modifying pdfs
+  pdfmod:
+    - install: pdfmod
+    - {menu: Office, entry: PDFMod, icon: /usr/share/icons/Paper/32x32/apps/pdfmod.png, exec: pdfmod }
 
   # Light weight, simple clean app dock
   plank:

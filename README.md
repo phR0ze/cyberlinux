@@ -59,7 +59,8 @@ fork it and make their own configuration ***profiles***
 * [Licenses](#licenses)
 
 ### Screen Shots <a name="screen-shots"/></a>
-<a href="doc/images/cyberlinux-deployment-01.jpg"><img width="639" height="480" src="doc/images/cyberlinux-deployment-01.jpg"></a>
+<a href="doc/images/cyberlinux-deployment-01.jpg"><img width="820" height="480" src="doc/images/cyberlinux-deployment-01.jpg"></a>
+<a href="doc/images/cyberlinux-deployment-02.jpg"><img width="820" height="480" src="doc/images/cyberlinux-deployment-02.jpg"></a>
 
 ## cyberlinux Profiles <a name="cyberlinux-profiles"/></a>
 There are serveral predefined profiles to choose from and the possibility of making endless.
