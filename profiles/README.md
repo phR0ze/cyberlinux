@@ -12,22 +12,50 @@ its codename and calls out that packages are being included that restrict the us
 created from this profile to personal use only.
 
 ### Table of Contents
+* [Cyberlinux Profiles](#cyberlinux-profiles)
+  * [Standard Profile](#standard-profile)
+  * [Personal Use Profile](#personal-profile)
+  * [Personal Use Celes Profile](#personal-celes-profile)
+  * [k8snode Profile](#k8snode-profile)
 * [Roll your own cyberlinux](#build-cyberlinux)
-    * [Dev Environment](#dev-environment)
-    * [Full cyberlinux build](#full-cyberlinux-build)
-    * [Pack cyberlinux](#pack-cyberlinux)
-    * [Profiles](#profiles)
-        * [Profile Structure](#profile-structure)
-        * [Variables](#variables)
-        * [Build](#build)
-        * [Deployments](#deployments)
-        * [Apps](#apps)
-        * [Configs](#configs)
+  * [Dev Environment](#dev-environment)
+  * [Full cyberlinux build](#full-cyberlinux-build)
+  * [Pack cyberlinux](#pack-cyberlinux)
+  * [Profiles](#profiles)
+    * [Profile Structure](#profile-structure)
+    * [Variables](#variables)
+    * [Build](#build)
+    * [Deployments](#deployments)
+    * [Apps](#apps)
+    * [Configs](#configs)
 * [Troubleshooting](#troubleshooting)
-    * [BlackArch Signature issue](#blackarch-signature-issue)
+  * [BlackArch Signature issue](#blackarch-signature-issue)
 * [Contributions](#contributions)
-    * [Git-Hook Version Increment](#git-hook-version-increment)
+  * [Git-Hook Version Increment](#git-hook-version-increment)
 * [Licenses](#licenses)
+
+## cyberlinux Profiles <a name="cyberlinux-profiles"/></a>
+***cyberlinux Profiles*** provide a way to capture predefined system configurations
+and turn them into ISO and Vagrant Box artifacts.  There are serveral predefined profiles to choose
+from and the possibility of making endless more.
+
+### Standard Profile <a name="standard-profile"/></a>
+The [Standard profile](standard.md) was developed carefully to exclude any applications
+that were not free to use for commercial purposes.
+
+### Personal Use Profile <a name="personal-profile"/></a>
+The [Personal profile](personal.md) was developed to allow the distribution of applications
+for personal use that are not allowed due to licensing restrictions for commercial use.
+
+### Personal Use Celes Profile <a name="personal-celes-profile"/></a>
+The [Personal Celes profile](personal-celes.md) was developed specifically for the Samsung
+Chromebook 3 (a.k.a celes) with personal use in mind meaning that it includes apps that are not
+allowed due to licensing restrictions for commercial use.
+
+### k8snode Profile <a name="k8snode-profile"/></a>
+The [k8snode profile](k8snode.md) was developed as a slimmed down shell environment
+with Kubernetes dependencies baked in. It includes ***kubectl***, ***kubelet***, ***kubeadm***,
+***docker*** and ***helm*** to easily and quickly setup a K8s cluster.
 
 ## Roll your own cyberlinux <a name="build-cyberlinux"/></a>
 This section covers how to roll your own cyberlinux ISO

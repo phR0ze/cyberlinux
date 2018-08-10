@@ -25,10 +25,6 @@ fork it and make their own configuration ***profiles***
 ### Table of Contents
 * [Screen Shots](#screen-shots)
 * [cyberlinux Profiles](#cyberlinux-profiles)
-    * [Standard Profile](#standard-profile)
-    * [Personal Use Profile](#personal-profile)
-    * [Personal Use Celes Profile](#personal-celes-profile)
-    * [k8snode Profile](#k8snode-profile)
 * [Deploy cyberlinux](#deploy-cyberlinux)
     * [Bare metal deployment](#bare-metal-deployment)
     * [Virtual box deployment](#virtual-box-deployment)
@@ -63,28 +59,15 @@ fork it and make their own configuration ***profiles***
 <a href="doc/images/cyberlinux-deployment-02.jpg"><img width="820" height="480" src="doc/images/cyberlinux-deployment-02.jpg"></a>
 
 ## cyberlinux Profiles <a name="cyberlinux-profiles"/></a>
-There are serveral predefined profiles to choose from and the possibility of making endless.
-
-### Standard Profile <a name="standard-profile"/></a>
-The [Standard profile](profiles/standard.md) was developed carefully to exclude any applications
-that were not free to use for commercial purposes.
-
-## Personal Use Profile <a name="personal-profile"/></a>
-The [Personal profile](profiles/personal.md) was developed to allow the distribution of applications
-for personal use that are not allowed due to licensing restrictions for commercial use.
-
-## Personal Use Celes Profile <a name="personal-celes-profile"/></a>
-The [Personal Celes profile](profiles/personal-celes.md) was developed specifically for the Samsung
-Chromebook 3 (a.k.a celes) with personal use in mind meaning that it includes apps that are not
-allowed due to licensing restrictions for commercial use.
-
-## k8snode Profile <a name="k8snode-profile"/></a>
-The [k8snode profile](profiles/k8snode.md) was developed as a slimmed down shell environment
-with Kubernetes dependencies baked in. It includes ***kubectl***, ***kubelet***, ***kubeadm***,
-***docker*** and ***helm*** to easily and quickly setup a K8s cluster.
+[cyberlinux Profiles](profiles/README.md) provide a way to capture predefined system configurations
+and turn them into ISO and Vagrant Box artifacts.  There are serveral predefined profiles to choose
+from and the possibility of making endless more.
 
 ## Deploy cyberlinux <a name="deploy-cyberlinux"/></a>
-There are a number of ways to get up and running quickly with ***cyberlinux***
+***cyberlinux*** can be quickly deployed using the ***Bare metal***, a hypervisor like
+***VirtualBox*** or via prebuilt ***Vagrant boxes***. Simply choose the pre-built artifact of your
+choice either ***ISO*** or ***Vagrant Box*** and deploy at will. Additionally you could roll your
+own artifacts usig [cyberlinux profiles](profiles/README.md).
 
 ### Bare metal deployment <a name="bare-metal-deployment"/></a>
 Deploy ***cyberlinux*** via a USB directly onto a machine
