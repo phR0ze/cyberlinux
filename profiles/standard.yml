@@ -33,15 +33,6 @@ deployments:
       label: "Deploy <%=distro%>-desktop                 // Lite + more apps"
     apps:
       - desktop
-  theater:
-    base: lite
-    vars: { fontsize: 18 }
-    install:
-      order: 3
-      label: "Deploy <%=distro%>-theater                 // Lite + media apps"
-      params: autologin=1
-    apps:
-      - theater
   lite:
     base: shell
     install:

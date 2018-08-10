@@ -11,28 +11,39 @@ strictly the responsiblity of the user and not the developer/creator of ***cyber
 
 ### Table of Contents
 * [Desktop Deployment](#desktop-deployment)
-* [Theater Deployment](#theater-deployment)
 * [Lite Deployment](#lite-deployment)
 * [Shell Deployment](#shell-deployment)
 
 ### Desktop Deployment <a name="desktop-deployment"/></a>
 The ***desktop*** deployment was created to serve as a full developer environment and daily runner.
 It is an amalgam of most other deployment options. Although it is the heaviest of the deployments,
-resource wise, it is still built with speed and efficiency in mind.
+resource wise, it is still built with speed and efficiency in mind. It is built on top of the
+***Lite*** deployment thus having all the new features below layered on top of the existing Lite
+applications and configuration.
+
+<a href="../doc/images/cyberlinux-deployment-02.jpg"><img width="820" height="480" src="../doc/images/cyberlinux-deployment-02.jpg"></a>
 
 **Features:** 
-* Development (vscode, go, ruby, python)
-* File Sharing (NFS, Torrent, SFTP, FTP)
-* Productivity and Office (libreoffice, pdfs)
-* Virtual Machines and Containers (virtualbox, docker)
-* Media Processing/Consumption (vlc, smplayer, mvp, handbrake, makemkv)
-
-### Theater Deployment <a name="theater-deployment"/></a>
-Xorg desktop environment focusing on media playback
+* System
+  * WPA Supplicant, guake, plank
+* Utilities
+  * Android Utils, Docker, VirtualBox, Cinnamon ScreenSaver, Conky
+* Nework
+  * Synergy
+* Media
+  * Gimp, SMplayer, Mvp, Handbrake, MakeMKV, Audacity, Brasero, DEVEDE, Avidemux, OpenShot,
+  InkScape, Scribus, Asunder, Tiny Media Manager
+* Office
+  * LibreOffice, PDFMod
+* Development
+  * Visual Studio Code, Meld
 
 ### Lite Deployment <a name="lite-deployment"/></a>
 Slimmed down minimal Xorg desktop environment with selected light weight apps built on top of the
-***Shell*** deployment.
+***Shell*** deployment thus having all the new features below layered on top of the existing shell
+applications and configuration.
+
+<a href="../doc/images/lite-deployment.jpg"><img width="639" height="480" src="../doc/images/lite-deployment.jpg"></a>
 
 **Features:**
 * System
@@ -40,16 +51,16 @@ Slimmed down minimal Xorg desktop environment with selected light weight apps bu
 * Utilities
     * Galculater, GSimpleCal, File Roller, LXRandr, LXTerminal, PNMixer, PAVUControl, Xfce3 Screenshooter
 * Nework
-    * Chromium, Filezilla
+    * Chromium, FileZilla
 * Media
     * Audacious, GPicView, SMPlayer, VLC, WinFF, XNViewMP
 * Office
     * Evince, GVim, Leafpad
 
-<a href="../doc/images/lite-deployment.jpg"><img width="639" height="480" src="../doc/images/lite-deployment.jpg"></a>
-
 ### Shell Deployment <a name="shell-deployment"/></a>
 Intended as a full shell development environment the ***Shell*** deployment provides:
+
+<a href="../doc/images/shell-deployment.png"><img width="639" height="480" src="../doc/images/shell-deployment.png"></a>
 
 **Features:**
 * Filesystem utilities
@@ -62,5 +73,3 @@ Intended as a full shell development environment the ***Shell*** deployment prov
     * C, C++, Go, Ruby, Python
 * System utilities
     * htop, iftop
-
-<a href="../doc/images/shell-deployment.png"><img width="639" height="480" src="../doc/images/shell-deployment.png"></a>

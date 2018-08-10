@@ -10,8 +10,10 @@ strictly the responsiblity of the user and not the developer/creator of ***cyber
 
 ### Table of Contents
 * [Desktop Deployment](#desktop-deployment)
+* [Laptop Deployment](#laptop-deployment)
 * [Theater Deployment](#theater-deployment)
 * [Server Deployment](#server-deployment)
+* [Netbook Deployment](#netbook-deployment)
 * [Lite Deployment](#lite-deployment)
 * [Shell Deployment](#shell-deployment)
 
@@ -26,6 +28,15 @@ resource wise, it is still built with speed and efficiency in mind.
 * Productivity and Office (libreoffice, pdfs)
 * Virtual Machines and Containers (virtualbox, docker)
 * Media Processing/Consumption (vlc, smplayer, mvp, handbrake, makemkv)
+
+### Laptop Deployment <a name="laptop-deployment"/></a>
+The ***laptop*** deployment is essentially just the desktop deployment with a few configuration
+changes useful for a laptop such as:
+
+**Features:**
+* Wireless configuration
+* Backlight configuration
+* Conky widgets statistics showing networking, storage, battery, cpu and ram usage and date and time
 
 ### Theater Deployment <a name="theater-deployment"/></a>
 Xorg desktop environment focusing on media playback
@@ -45,6 +56,15 @@ be run on lower end headless hardware. It is built on top of teh ***lite*** depl
     * Handbrake, makemkv-cli
 
 <a href="../doc/images/server-deployment.jpg"><img width="639" height="480" src="../doc/images/server-deployment.jpg"></a>
+
+### Netbook Deployment <a name="netbook-deployment"/></a>
+The ***netbook*** deployment builds on the lite deployment by adding the following features.
+
+**Features:**
+* Wireless configuration
+* Backlight configuration
+* Teaviewer remoting
+* Conky widgets statistics showing networking, storage, battery, cpu and ram usage and date and time
 
 ### Lite Deployment <a name="lite-deployment"/></a>
 Slimmed down minimal Xorg desktop environment with selected light weight apps built on top of the
