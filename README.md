@@ -26,32 +26,32 @@ fork it and make their own configuration ***profiles***
 * [Screen Shots](#screen-shots)
 * [cyberlinux Profiles](#cyberlinux-profiles)
 * [Deploy cyberlinux](#deploy-cyberlinux)
-    * [Bare metal deployment](#bare-metal-deployment)
-    * [Virtual box deployment](#virtual-box-deployment)
-    * [Vagrant box deployment](#vagrant-box-deployment)
-    * [Brown field deployment](#brown-field-deployment)
+  * [Bare metal deployment](#bare-metal-deployment)
+  * [Virtual box deployment](#virtual-box-deployment)
+  * [Vagrant box deployment](#vagrant-box-deployment)
+  * [Brown field deployment](#brown-field-deployment)
 * [Configure cyberlinux](#configure-cyberlinux)
-    * [Configure Proxy](#configure-proxy)
-    * [Configure Backlight](#configure-backlight)
-    * [Toggle Devices](#toggle-devices)
+  * [Configure Proxy](#configure-proxy)
+  * [Configure Backlight](#configure-backlight)
+  * [Toggle Devices](#toggle-devices)
 * [Roll your own cyberlinux](#build-cyberlinux)
 * [Arch Linux Help](#arch-linux-help)
-    * [Apps to use](#apps-to-use)
-    * [BlackArch Signature issue](#blackarch-signature-issue)
-    * [Certificates](#certificates)
-    * [Fonts](#fonts)
-    * [Network](#network)
-    * [Packages](#packages)
-    * [Patching](#patching)
-    * [Systemd](#systemd)
-    * [VeraCrypt](#veracrypt)
-    * [Video Output](#video-output)
+  * [Apps to use](#apps-to-use)
+  * [BlackArch Signature issue](#blackarch-signature-issue)
+  * [Certificates](#certificates)
+  * [Fonts](#fonts)
+  * [Network](#network)
+  * [Packages](#packages)
+  * [Patching](#patching)
+  * [Systemd](#systemd)
+  * [VeraCrypt](#veracrypt)
+  * [Video Output](#video-output)
 * [Background](#background)
-   * [Evolution](#evolution)
-   * [My take on Arch](#my-take-on-arch)
-   * [Distro requirements](#distro-requirements)
+  * [Evolution](#evolution)
+  * [My take on Arch](#my-take-on-arch)
+  * [Distro requirements](#distro-requirements)
 * [Contributions](#contributions)
-    * [Git-Hook Version Increment](#git-hook-version-increment)
+  * [Git-Hook Version Increment](#git-hook-version-increment)
 * [Licenses](#licenses)
 
 ### Screen Shots <a name="screen-shots"/></a>
@@ -611,10 +611,6 @@ cd ~/Projects/cyberlinux
 git config core.hooksPath .githooks
 ```
 
-<!-- 
-vim: ts=2:sw=2:sts=2
--->
-
 ## Licenses <a name="licenses"/></a>
 Because of the nature of ***cyberlinux*** any licensing will be of a mixed nature.  In some cases as
 called out below such as ***reduce*** and the ***boot/initramfs/installer***, created by phR0ze, the
@@ -649,3 +645,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+<!-- 
+vim: ts=2:sw=2:sts=2
+-->
