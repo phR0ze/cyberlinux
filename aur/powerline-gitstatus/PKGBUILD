@@ -1,6 +1,6 @@
 pkgname=powerline-gitstatus
 pkgver=1.2.1
-pkgrel=1
+pkgrel=2
 pkgdesc="A Powerline segment for showing the status of a Git working copy"
 arch=('any')
 url="https://github.com/jaspernbrouwer/powerline-gitstatus"
