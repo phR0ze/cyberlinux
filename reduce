@@ -21,7 +21,6 @@
 #SOFTWARE.
 
 require 'fileutils'             # advanced file utils: FileUtils
-require 'mkmf'                  # system utils: find_executable
 require 'open-uri'              # easily read HTTP
 require 'ostruct'               # OpenStruct
 require 'open3'                 # Better system commands
@@ -38,7 +37,6 @@ rescue Exception => e
   puts("Error: missing package '#{e.message.split(' ').last.sub('/', '-')}'")
   !puts("Error: install missing packages with 'bundle install --system") and exit
 end
-MakeMakefile::Logging.instance_variable_set(:@logfile, File::NULL)
 
 class Reduce
   attr_accessor(:vars)
@@ -684,8 +682,8 @@ class Reduce
     create_dir_structure
 
     # Ensure we have the right binaries available
-    Log.die("ensure 'packer' https://www.packer.io/downloads.html is in the path") unless find_executable('packer')
-    Log.die("install 'virtualbox' via 'sudo pacman -S virtualbox'") unless find_executable('vboxmanage')
+    Log.die("ensure 'packer' https://www.packer.io/downloads.html is in the path") unless FileUtils.exec?('packer')
+    Log.die("install 'virtualbox' via 'sudo pacman -S virtualbox'") unless FileUtils.exec?('vboxmanage')
 
     # Locate latest iso for profile
     isos = self.getimages(@type.iso, filter:@vars.profile).map{|x| x.first}
@@ -763,7 +761,7 @@ class Reduce
       uid, gid = User.drop_privileges
 
       # Check that vagrant is on the path and clean previously deployed VMs
-      Log.die("ensure 'vagrant' https://www.vagrantup.com/downloads.html is in the path") unless find_executable('vagrant')
+      Log.die("ensure 'vagrant' https://www.vagrantup.com/downloads.html is in the path") unless FileUtils.exec?('vagrant')
       clean(vms:true)
 
       # Choose a vagrant box to use and update registry if needed
@@ -779,7 +777,7 @@ class Reduce
       end
 
       # Configure host-only network
-      Log.die("ensure 'virtualbox' https://www.virtualbox.org/wiki/Downloads is in the path") unless find_executable('vboxmanage')
+      Log.die("ensure 'virtualbox' https://www.virtualbox.org/wiki/Downloads is in the path") unless FileUtils.exec?('vboxmanage')
       config_network = "#{@sudoinv}vboxmanage hostonlyif ipconfig "
       config_network += "#{@vars.netname} -ip #{@vars.netip} -netmask #{@vars.subnet}"
       if not Sys.exec(config_network, die:false)
