@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.176
+  release: 0.2.177
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -196,6 +196,7 @@ apps:
   # ----------------------------------------------------------------------------
   core-tools:
     - openssl-with-perl
+    - {install: ca-certificates-utils desc: Common CA certificates, size: 7 KiB }
     - {install: coreutils,          desc: Utils ls/cp/mv, depends-on: [glibc, acl, attr, gmp, libcap, openssl], size: 13.79 MiB }
     - {install: gzip,               desc: GNU compression utility, depof: locale-gen, group: [build-devel]}
     - {install: inetutils,          desc: hostname, ftp, telnet }
