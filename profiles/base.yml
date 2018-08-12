@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.175
+  release: 0.2.176
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -224,6 +224,7 @@ apps:
     - mkinitcpio                    # require need mkinitcpio-vtcolors to be coo
     - sudo                          # require sudo to do anything in a boot env
     - systemd                       # require an init system to boot
+    - install: gnutls               # required by systemd-resolved to work
     - install: gettext              # required by grub
     - install: intel-ucode          # require Intel Microcode update files to boot
     - install: cyberlinux-grub      # require Grub Booloader to boot
