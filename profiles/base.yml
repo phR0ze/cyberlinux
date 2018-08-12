@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.178
+  release: 0.2.179
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -196,6 +196,8 @@ apps:
   # ----------------------------------------------------------------------------
   core-tools:
     - openssl-with-perl
+    - {install: ca-certificates-cacert, desc: CAcert.org root certificates, size: 7.05 KiB }
+    - {install: ca-certificates-mozilla, desc: Mozilla's set of CA certificates, size: 923 KiB }
     - {install: ca-certificates-utils, desc: Common CA certificates, size: 7 KiB }
     - {install: coreutils,          desc: Utils ls/cp/mv, depends-on: [glibc, acl, attr, gmp, libcap, openssl], size: 13.79 MiB }
     - {install: gzip,               desc: GNU compression utility, depof: locale-gen, group: [build-devel]}
