@@ -715,7 +715,7 @@ class Reduce
       puts("Building vagrant image with packer for deployment '#{deployment}'".colorize(:cyan))
       output_dir = File.join(@packer_work, deployment)
       puts("Removing old packer artifacts at #{output_dir}".colorize(:red))
-      rm_rf(output_dir)
+      Sys.rm_rf(output_dir)
 
       # Copy over and resolve packer template and scripts
       puts("Copy over and resolve packer template and scripts".colorize(:cyan))
@@ -935,7 +935,7 @@ class Reduce
       ensure
         # Ensure joined file system is unmounted
         Sys.umount(deployment_work, retries:10)
-        rm_rf(File.join(@tmp_dir, '*'))
+        Sys.rm_rf(File.join(@tmp_dir, '*'))
       end
       changed |= deployment_changed
     end
