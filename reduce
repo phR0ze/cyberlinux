@@ -919,10 +919,10 @@ class Reduce
 
           # Create squashfs image for machine deployments
           if deployment_yml[@k.type] == @k.machine
-            Sys.exec("nice --10 mksquashfs #{deployment_work} #{deployment_image} -noappend -comp xz -b 256K -Xbcj x86")
+            Sys.exec("nice -n 19 mksquashfs #{deployment_work} #{deployment_image} -noappend -comp xz -b 256K -Xbcj x86")
           else
             # Create compressed tarball for container deployments
-            Sys.exec("nice --10 tar --numeric-owner --xattrs --acls -C #{deployment_work} -czf #{deployment_image} .")
+            Sys.exec("nice -n 19 tar --numeric-owner --xattrs --acls -C #{deployment_work} -czf #{deployment_image} .")
           end
 
           puts("Successfully built #{deployment_image}".colorize(:green))
