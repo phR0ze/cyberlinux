@@ -25,9 +25,10 @@
 # https://github.com/containernetworking/cni
 # Kubeadmin is the go forward tool deployment tool
 #-------------------------------------------------------------------------------
-pkgname=('kubeadm' 'kubectl' 'kubelet')
-pkgver='1.10.5'
+pkgname=('kubeadm' 'kubectl' 'kubelet' 'kubecni')
+pkgver='1.11.2'
 pkgrel=1
+cniver='0.6.0'
 pkgdesc='Production-Grade Container Scheduling and Management'
 arch=('i686' 'x86_64')
 url='https://github.com/kubernetes/kubernetes'
@@ -36,25 +37,32 @@ install=kubeadm.install
 depends=('glibc' 'bash' 'ebtables' 'ethtool' 'iptables' 'socat' 'docker' 'util-linux')
 makedepends=('git' 'go' 'rsync' 'go-bindata' 'docker')
 source=("https://github.com/kubernetes/kubernetes/archive/v${pkgver}.tar.gz"
+        "https://github.com/containernetworking/cni/releases/download/v${cniver}/cni-amd64-v${cniver}.tgz"
         "git+https://github.com/kubernetes/release.git#branch=master"
         'kubeadm.install')
-sha256sums=('efa27452ca77366f5e0c31e8db36df338593e3c24bd86be7e95b2e1a04672321'
-        'SKIP'
-        'c838345ec43b7db7676d209756d6fe7b8259f41253f02ba1426eddd129e05294')
+sha256sums=('deaabdab00003ef97309cde188a61db8c2737721efeb75f7b19c6240863d9cbe'
+            ''
+            'SKIP'
+            'c838345ec43b7db7676d209756d6fe7b8259f41253f02ba1426eddd129e05294')
 
 # Automated build of kubernetes
 #-------------------------------------------------------------------------------
 build()
 {
-    # Build go binaries
+    msg "Building K8s go binaries"
     cd $srcdir/kubernetes-$pkgver
     build/run.sh make
+
+    msg "Building CNI go binaries"
+    cd $srcdir/cni-$cniver
+    bash -c 'CGO_ENABLED=0 GOOS=linux GOARCH=amd64 ./build.sh'
 }
 
 # Create package for kubeadm
 #-------------------------------------------------------------------------------
 package_kubeadm()
 {
+    msg "Packaging kubeadm"
     cd $srcdir/kubernetes-$pkgver
     install -dm 755 $pkgdir/usr/bin
     install -Dm755 _output/dockerized/bin/linux/amd64/kubeadm $pkgdir/usr/bin/
@@ -62,6 +70,7 @@ package_kubeadm()
 
 package_kubectl()
 {
+    msg "Packaging kubectl"
     cd $srcdir/kubernetes-$pkgver
     install -dm 755 $pkgdir/usr/bin
     install -Dm755 _output/dockerized/bin/linux/amd64/kubectl $pkgdir/usr/bin/
@@ -69,6 +78,7 @@ package_kubectl()
 
 package_kubelet()
 {
+    msg "Packaging kubelet"
     cd $srcdir/kubernetes-$pkgver
     install -dm 755 $pkgdir/usr/bin
     install -Dm755 _output/dockerized/bin/linux/amd64/kubelet $pkgdir/usr/bin/
@@ -85,4 +95,12 @@ package_kubelet()
     cd $srcdir/release/debian/xenial/kubeadm/channel/stable/etc/systemd/system
     install -dm 755 $pkgdir/etc/systemd/system/kubelet.service.d/
     install -m 644 -t $pkgdir/etc/systemd/system/kubelet.service.d/ kubelet.service.d/post-1.8/10-kubeadm.conf
+}
+
+package_kubecni()
+{
+    msg "Packaging kubecni"
+    cd $srcdir/cni-$cniver
+    install -dm 755 $pkgdir/opt/cni/bin
+    install -m 755 -t $pkgdir/opt/cni/bin bin/*
 }
