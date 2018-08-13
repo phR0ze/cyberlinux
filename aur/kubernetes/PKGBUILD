@@ -37,11 +37,11 @@ install=kubeadm.install
 depends=('glibc' 'bash' 'ebtables' 'ethtool' 'iptables' 'socat' 'docker' 'util-linux')
 makedepends=('git' 'go' 'rsync' 'go-bindata' 'docker')
 source=("https://github.com/kubernetes/kubernetes/archive/v${pkgver}.tar.gz"
-        "https://github.com/containernetworking/cni/releases/download/v${cniver}/cni-amd64-v${cniver}.tgz"
+        "https://github.com/containernetworking/cni/archive/v${cniver}.tar.gz"
         "git+https://github.com/kubernetes/release.git#branch=master"
         'kubeadm.install')
-sha256sums=('deaabdab00003ef97309cde188a61db8c2737721efeb75f7b19c6240863d9cbe'
-            ''
+sha256sums=('43f42c64426247d909010bf77f18c72ab1f36104a67e9c878cf897ee9f0ab6a6'
+            '802f4a002b4eb774624a9dc1c859d3c9926eb2d862e66a673fc99cfc8bcd7494'
             'SKIP'
             'c838345ec43b7db7676d209756d6fe7b8259f41253f02ba1426eddd129e05294')
 
