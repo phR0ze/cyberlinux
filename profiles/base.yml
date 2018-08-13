@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.182
+  release: 0.2.183
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -786,6 +786,7 @@ apps:
     - install: bridge-utils         # required by k8s
     - install: ebtables             # required by k8s
     - install: ethtool              # required by k8s
+    - install: jq                   # required for command line configuration of k8s
     - {install: kubeadm,            desc: K8s cluster bootstrap, type: CYBERLINUX}
     - {install: kubelet,            desc: K8s node control agent, type: CYBERLINUX}
     - chroot: systemctl enable kubelet.service
