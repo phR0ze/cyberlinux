@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.license     = 'MIT'
 
   # Runtime dependencies
-  spec.add_dependency('nub', '~> 0.0.96')
+  spec.add_dependency('nub', '~> 0.0.103')
   spec.add_dependency('filesize', '~> 0.1.1')
 
   # Development dependencies
