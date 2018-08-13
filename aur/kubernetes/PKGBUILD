@@ -25,10 +25,11 @@
 # https://github.com/containernetworking/cni
 # Kubeadmin is the go forward tool deployment tool
 #-------------------------------------------------------------------------------
-pkgname=('kubeadm' 'kubectl' 'kubelet' 'kubecni')
+pkgname=('kubeadm' 'kubectl' 'kubelet' 'kubecni' 'critools')
 pkgver='1.11.2'
-pkgrel=1
+pkgrel=2
 cniver='0.6.0'
+criver='1.11.1'
 pkgdesc='Production-Grade Container Scheduling and Management'
 arch=('i686' 'x86_64')
 url='https://github.com/kubernetes/kubernetes'
@@ -36,12 +37,14 @@ license=('Apache 2.0')
 install=kubeadm.install
 depends=('glibc' 'bash' 'ebtables' 'ethtool' 'iptables' 'socat' 'docker' 'util-linux')
 makedepends=('git' 'go' 'rsync' 'go-bindata' 'docker')
-source=("https://github.com/kubernetes/kubernetes/archive/v${pkgver}.tar.gz"
-        "https://github.com/containernetworking/cni/archive/v${cniver}.tar.gz"
+source=("kubernetes-${pkgver}.tar.gz::https://github.com/kubernetes/kubernetes/archive/v${pkgver}.tar.gz"
+        "cni-${cniver}.tar.gz::https://github.com/containernetworking/cni/archive/v${cniver}.tar.gz"
+        "cri-tools-${criver}.tar.gz::https://github.com/kubernetes-incubator/cri-tools/archive/v${criver}.tar.gz"
         "git+https://github.com/kubernetes/release.git#branch=master"
         'kubeadm.install')
 sha256sums=('43f42c64426247d909010bf77f18c72ab1f36104a67e9c878cf897ee9f0ab6a6'
             '802f4a002b4eb774624a9dc1c859d3c9926eb2d862e66a673fc99cfc8bcd7494'
+            'a357c67c891896032865f7a34f7ec330e5a00fe7f20b6d8be50399b91c99a4ac'
             'SKIP'
             'c838345ec43b7db7676d209756d6fe7b8259f41253f02ba1426eddd129e05294')
 
@@ -49,6 +52,10 @@ sha256sums=('43f42c64426247d909010bf77f18c72ab1f36104a67e9c878cf897ee9f0ab6a6'
 #-------------------------------------------------------------------------------
 build()
 {
+    msg "Building CRI Tools"
+    cd $srcdir/cri-tools-$criver
+    bash -c 'CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build github.com/kubernetes-incubator/cri-tools/cmd/crictl'
+
     msg "Building K8s go binaries"
     cd $srcdir/kubernetes-$pkgver
     build/run.sh make
@@ -103,4 +110,12 @@ package_kubecni()
     cd $srcdir/cni-$cniver
     install -dm 755 $pkgdir/opt/cni/bin
     install -m 755 -t $pkgdir/opt/cni/bin bin/*
+}
+
+package_critools()
+{
+    msg "Packaging CRI Tools"
+    cd $srcdir/cri-tools-$criver
+    install -dm 755 $pkgdir/usr/bin
+    install -m 755 -t $pkgdir/usr/bin crictl
 }
