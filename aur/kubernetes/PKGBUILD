@@ -25,7 +25,7 @@
 # https://github.com/containernetworking/cni
 # Kubeadmin is the go forward tool deployment tool
 #-------------------------------------------------------------------------------
-pkgname=('kubeadm' 'kubectl' 'kubelet' 'kubecni' 'critools')
+pkgname=('kubeadm' 'kubectl' 'kubelet' 'kubecni' 'cri-tools')
 pkgver=1.11.2
 pkgrel=2
 criver=1.11.1
@@ -74,10 +74,24 @@ build()
     bash -c 'CGO_ENABLED=0 GOOS=linux GOARCH=amd64 ./build.sh'
 }
 
-# Create package for kubeadm
+# Create package for kubernetes
 #-------------------------------------------------------------------------------
+package_cri-tools()
+{
+    pkgdesc='CLI and validation tools for Kubelet Container Runtime Iterface (CRI)'
+    pkgver=$criver
+
+    msg "Packaging CRI Tools"
+    cd $srcdir/cri-tools-$criver
+    install -dm 755 $pkgdir/usr/bin
+    install -m 755 -t $pkgdir/usr/bin _output/bin/crictl
+    install -m 755 -t $pkgdir/usr/bin _output/bin/critest
+}
+
 package_kubeadm()
 {
+    pkgdesc='Best practice tooling for creating Kubernetes clusters'
+
     msg "Packaging kubeadm"
     cd $srcdir/kubernetes-$pkgver
     install -dm 755 $pkgdir/usr/bin
@@ -86,6 +100,8 @@ package_kubeadm()
 
 package_kubectl()
 {
+    pkgdesc='CLI for managing Kubernetes clusters'
+
     msg "Packaging kubectl"
     cd $srcdir/kubernetes-$pkgver
     install -dm 755 $pkgdir/usr/bin
@@ -94,6 +110,8 @@ package_kubectl()
 
 package_kubelet()
 {
+    pkgdesc='Kubernetes node agent'
+
     msg "Packaging kubelet"
     cd $srcdir/kubernetes-$pkgver
     install -dm 755 $pkgdir/usr/bin
@@ -108,9 +126,9 @@ package_kubelet()
     install -m 644 -t $pkgdir/usr/lib/systemd/system kubelet.service
 
     # Install kubelet config files
-    cd $srcdir/release/debian/xenial/kubelet/lib
+    cd $srcdir/release/debian/xenial/kubelet/lib/default
     install -dm 755 $pkgdir/etc/default
-    install -m 644 -t $pkgdir/etc/default default/kubelet
+    install -m 644 -t $pkgdir/etc/default kubelet
 
     cd $srcdir/release/debian/xenial/kubeadm/channel/stable/etc/systemd/system
     install -dm 755 $pkgdir/etc/systemd/system/kubelet.service.d/
@@ -133,16 +151,4 @@ package_kubecni()
     cd $srcdir/plugins-$cnipluginsver
     install -dm 755 $pkgdir/opt/cni/bin
     install -m 755 -t $pkgdir/opt/cni/bin bin/*
-}
-
-package_critools()
-{
-    pkgdesc='CLI and validation tools for Kubelet Container Runtime Iterface (CRI)'
-    pkgver=1.11.1
-
-    msg "Packaging CRI Tools"
-    cd $srcdir/cri-tools-$criver
-    install -dm 755 $pkgdir/usr/bin
-    install -m 755 -t $pkgdir/usr/bin _output/bin/crictl
-    install -m 755 -t $pkgdir/usr/bin _output/bin/critest
 }
