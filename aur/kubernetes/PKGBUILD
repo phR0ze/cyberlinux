@@ -27,7 +27,7 @@
 #-------------------------------------------------------------------------------
 pkgname=('kubeadm' 'kubectl' 'kubelet' 'kubecni' 'critools')
 pkgver=1.11.2
-pkgrel=1
+pkgrel=2
 criver=1.11.1
 cniver=0.6.0
 cnipluginsver=0.7.2
@@ -110,7 +110,7 @@ package_kubelet()
     # Create override location for kubelet confs
     cd $srcdir/release/debian/xenial/kubeadm/channel/stable/etc/systemd/system
     install -dm 755 $pkgdir/etc/systemd/system/kubelet.service.d/
-    install -m 644 -t $pkgdir/etc/systemd/system/kubelet.service.d/ kubelet.service.d/post-1.8/10-kubeadm.conf
+    install -m 644 -t $pkgdir/etc/systemd/system/kubelet.service.d/ kubelet.service.d/post-1.10/10-kubeadm.conf
 }
 
 package_kubecni()
