@@ -26,10 +26,10 @@
 # Kubeadmin is the go forward tool deployment tool
 #-------------------------------------------------------------------------------
 pkgname=('kubeadm' 'kubectl' 'kubelet' 'kubecni' 'critools')
-pkgver='1.11.2'
-pkgrel=2
-cniver='0.6.0'
-criver='1.11.1'
+pkgver=1.11.2
+pkgrel=1
+cniver=0.6.0
+criver=1.11.1
 pkgdesc='Production-Grade Container Scheduling and Management'
 arch=('i686' 'x86_64')
 url='https://github.com/kubernetes/kubernetes'
@@ -54,7 +54,9 @@ build()
 {
     msg "Building CRI Tools"
     cd $srcdir/cri-tools-$criver
-    bash -c 'CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build github.com/kubernetes-incubator/cri-tools/cmd/crictl'
+    unset GOPATH
+    unset GOROOT
+    make binaries
 
     msg "Building K8s go binaries"
     cd $srcdir/kubernetes-$pkgver
@@ -106,6 +108,9 @@ package_kubelet()
 
 package_kubecni()
 {
+    pkgdesc='CNI networking for linux containers'
+    pkgver=$cniver
+
     msg "Packaging kubecni"
     cd $srcdir/cni-$cniver
     install -dm 755 $pkgdir/opt/cni/bin
@@ -114,8 +119,12 @@ package_kubecni()
 
 package_critools()
 {
+    pkgdesc='CLI and validation tools for Kubelet Container Runtime Iterface (CRI)'
+    pkgver=1.11.1
+
     msg "Packaging CRI Tools"
     cd $srcdir/cri-tools-$criver
     install -dm 755 $pkgdir/usr/bin
-    install -m 755 -t $pkgdir/usr/bin crictl
+    install -m 755 -t $pkgdir/usr/bin _output/bin/crictl
+    install -m 755 -t $pkgdir/usr/bin _output/bin/critest
 }
