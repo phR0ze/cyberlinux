@@ -102,12 +102,16 @@ package_kubelet()
     # Create kubelet default volumes directory
     install -d $pkgdir/var/lib/kubelet
 
-    # Install systemd unit files
+    # Install kubelet systemd unit file
     cd $srcdir/release/debian/xenial/kubelet/lib/systemd/system
     install -dm 755 $pkgdir/usr/lib/systemd/system
     install -m 644 -t $pkgdir/usr/lib/systemd/system kubelet.service
 
-    # Create override location for kubelet confs
+    # Install kubelet config files
+    cd $srcdir/release/debian/xenial/kubelet/lib
+    install -dm 755 $pkgdir/etc/default
+    install -m 644 -t $pkgdir/etc/default default/kubelet
+
     cd $srcdir/release/debian/xenial/kubeadm/channel/stable/etc/systemd/system
     install -dm 755 $pkgdir/etc/systemd/system/kubelet.service.d/
     install -m 644 -t $pkgdir/etc/systemd/system/kubelet.service.d/ kubelet.service.d/post-1.10/10-kubeadm.conf
