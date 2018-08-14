@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.194
+  release: 0.2.195
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -787,7 +787,7 @@ apps:
     - install: ebtables             # required by k8s
     - install: ethtool              # required by k8s
     - install: jq                   # required for command line configuration of k8s
-    - {install: critools,           desc: CLI for Kubelet Container Runtime interface, type: CYBERLINUX }
+    - {install: cri-tools,          desc: CLI for Kubelet Container Runtime interface, type: CYBERLINUX }
     - {install: kubeadm,            desc: K8s cluster bootstrap, type: CYBERLINUX}
     - {install: kubecni,            desc: K8s CNI pod networking, type: CYBERLINUX}
     - {install: kubelet,            desc: K8s node control agent, type: CYBERLINUX}
