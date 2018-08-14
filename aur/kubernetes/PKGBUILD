@@ -28,8 +28,9 @@
 pkgname=('kubeadm' 'kubectl' 'kubelet' 'kubecni' 'critools')
 pkgver=1.11.2
 pkgrel=1
-cniver=0.6.0
 criver=1.11.1
+cniver=0.6.0
+cnipluginsver=0.7.2
 pkgdesc='Production-Grade Container Scheduling and Management'
 arch=('i686' 'x86_64')
 url='https://github.com/kubernetes/kubernetes'
@@ -39,11 +40,13 @@ depends=('glibc' 'bash' 'ebtables' 'ethtool' 'iptables' 'socat' 'docker' 'util-l
 makedepends=('git' 'go' 'rsync' 'go-bindata' 'docker')
 source=("kubernetes-${pkgver}.tar.gz::https://github.com/kubernetes/kubernetes/archive/v${pkgver}.tar.gz"
         "cni-${cniver}.tar.gz::https://github.com/containernetworking/cni/archive/v${cniver}.tar.gz"
+        "cni-plugins-${cnipluginsver}.tar.gz::https://github.com/containernetworking/plugins/archive/v${cnipluginsver}.tar.gz"
         "cri-tools-${criver}.tar.gz::https://github.com/kubernetes-incubator/cri-tools/archive/v${criver}.tar.gz"
         "git+https://github.com/kubernetes/release.git#branch=master"
         'kubeadm.install')
 sha256sums=('43f42c64426247d909010bf77f18c72ab1f36104a67e9c878cf897ee9f0ab6a6'
             '802f4a002b4eb774624a9dc1c859d3c9926eb2d862e66a673fc99cfc8bcd7494'
+            'd469a73e67a97feebc898f80e884d6114095fb8d6efc2fc82fa6352fd8f440f6'
             'a357c67c891896032865f7a34f7ec330e5a00fe7f20b6d8be50399b91c99a4ac'
             'SKIP'
             'c838345ec43b7db7676d209756d6fe7b8259f41253f02ba1426eddd129e05294')
@@ -58,12 +61,16 @@ build()
     unset GOROOT
     make binaries
 
-    msg "Building K8s go binaries"
+    msg "Building K8s"
     cd $srcdir/kubernetes-$pkgver
     build/run.sh make
 
-    msg "Building CNI go binaries"
+    msg "Building CNI"
     cd $srcdir/cni-$cniver
+    bash -c 'CGO_ENABLED=0 GOOS=linux GOARCH=amd64 ./build.sh'
+
+    msg "Building CNI Plugins"
+    cd $srcdir/plugins-$cnipluginsver
     bash -c 'CGO_ENABLED=0 GOOS=linux GOARCH=amd64 ./build.sh'
 }
 
@@ -108,11 +115,18 @@ package_kubelet()
 
 package_kubecni()
 {
-    pkgdesc='CNI networking for linux containers'
-    pkgver=$cniver
+    pkgdesc='CNI networking for linux containers with plugins'
+    pkgver=$cnipluginsver
 
     msg "Packaging kubecni"
+
+    msg2 "Packaging CNI"
     cd $srcdir/cni-$cniver
+    install -dm 755 $pkgdir/opt/cni/bin
+    install -m 755 -t $pkgdir/opt/cni/bin bin/*
+
+    msg2 "Packaging CNI Plugins"
+    cd $srcdir/plugins-$cnipluginsver
     install -dm 755 $pkgdir/opt/cni/bin
     install -m 755 -t $pkgdir/opt/cni/bin bin/*
 }
