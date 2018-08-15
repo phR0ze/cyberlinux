@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.195
+  release: 0.2.196
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -185,7 +185,7 @@ apps:
       - {edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "fs.inotify.max_user_watches = 524288"}
     - config-vconsole:
       - {edit: /etc/vconsole.conf, insert: append, value: 'KEYMAP=us'}
-    - remove-container-waste:
+    - remove-waste:
       - exec: 'find /var/log -type f -delete'
       - exec: 'rm -rf /usr/share/{man,doc}'
       - exec: 'rm -rf /etc/pacman.d/mirrorlist'
@@ -232,12 +232,12 @@ apps:
     - install: intel-ucode          # require Intel Microcode update files to boot
     - install: cyberlinux-grub      # require Grub Booloader to boot
 
-  # Full shell environment
+  # Shell environment without boot or systemd
   # ----------------------------------------------------------------------------
   shell:
-    - cronie
-    - sshd
-    - virtualbox-guest-nox
+    - core
+    - core-tools
+    - sudo
     - system:
       - install: cyberlinux-vim-plugins
       - {install: dmidecode,        desc: Desktop Managment Interface table related utilities }
@@ -253,9 +253,6 @@ apps:
       - {install: pacman-contrib,   desc: Pacman support configuration, depof: rankmirrors}
       - {install: cyberlinux-screenfetch, desc: CLI bash script to show system theme for screenshots, type: CYBERLINUX }
       - {install: which,            desc: Show the full path of commnds, depof: .bashrc, group: [build-devel]}
-    - recovery:
-      - {install: ddrescue,         desc: GNU data recovery tool }
-      - {install: testdisk,         desc: Checks and undeletes partitions + photorec }
     - keyrings:
       - install: archlinux-keyring
       - {install: antergos-keyring, type: ANTERGOS}
@@ -334,7 +331,6 @@ apps:
       - {install: ruby-bundler,     desc: Gem management, depof: reduce }
       - {install: ruby-colorize,    desc: Colorized output, depof: reduce }
       - {install: ruby-filesize,    desc: Filesize to string maipulations, depof: reduce, type: CYBERLINUX }
-      - {install: ruby-gtk3,        desc: Ruby binding of GTK3, depof: openvpn-pia, type: CYBERLINUX }
       - {install: ruby-net-scp,     desc: Pure Ruby SCP client protocol, depof: reduce, type: CYBERLINUX }
       - {install: ruby-net-sftp,    desc: Pure Ruby SFTP client protocol, depof: reduce, type: CYBERLINUX }
       - {install: ruby-net-ssh,     desc: Pure Ruby SSH2 client protocol, depof: reduce, type: CYBERLINUX }
@@ -346,13 +342,28 @@ apps:
     - config-makepkg:
       - {edit: /etc/makepkg.conf, regex: '^#(MAKEFLAGS)=.*', value: '\1="-j8"'}
       - {edit: /etc/makepkg.conf, regex: '^(COMPRESSXZ)=.*', value: '\1=(xz -c -z - --threads=0)'}
-    - config-modprobed:
-      - {edit: /etc/modprobe.d/pcspkr.conf, insert: append, value: "blacklist pcspkr"}
-    - remove-machine-waste:
+    - remove-waste:
       - exec: find /var/log -type f -delete
       - exec: rm -rf /etc/pacman.d/mirrorlist
       - exec: rm -rf /var/tmp/*
       - exec: rm -rf /tmp/*
+
+  # Full shell environment
+  # ----------------------------------------------------------------------------
+  shell-boot:
+    - kernel-full
+    - core-boot
+    - shell
+    - cronie
+    - sshd
+    - virtualbox-guest-nox
+    - recovery:
+      - {install: ddrescue,         desc: GNU data recovery tool }
+      - {install: testdisk,         desc: Checks and undeletes partitions + photorec }
+    - ruby-gems:
+      - {install: ruby-gtk3,        desc: Ruby binding of GTK3, depof: openvpn-pia, type: CYBERLINUX }
+    - config-modprobed:
+      - {edit: /etc/modprobe.d/pcspkr.conf, insert: append, value: "blacklist pcspkr"}
 
   # Lite weight X11 evironment
   # ----------------------------------------------------------------------------

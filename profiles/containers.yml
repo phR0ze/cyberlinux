@@ -29,7 +29,7 @@ deployments:
       params: '-e TERM=xterm'
       command: 'busybox ash -c "busybox --install; while :; do sleep 5; done"'
     apps:
-      - {install: busybox}
+      - install: busybox
 
   # Smallest container possible with bash
   core:
@@ -44,4 +44,11 @@ deployments:
       params: '-e TERM=xterm'
       command: ruby -e "loop do; sleep(5); end"
     apps:
-      - ruby-core
+      - ruby
+
+  # Dev shell environment with plenty of tooling
+  shell:
+    type: container
+    source: [core, shell]
+    apps:
+      - shell

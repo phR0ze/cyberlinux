@@ -46,6 +46,4 @@ deployments:
       label: "Deploy <%=distro%>-shell                   // Shell env"
     source: [core, shell]
     apps:
-      - kernel-full
-      - core-boot
-      - shell
+      - shell-boot
