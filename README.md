@@ -39,6 +39,7 @@ fork it and make their own configuration ***profiles***
   * [Apps to use](#apps-to-use)
   * [BlackArch Signature issue](#blackarch-signature-issue)
   * [Certificates](#certificates)
+  * [Docker](#docker)
   * [Fonts](#fonts)
   * [Network](#network)
   * [Packages](#packages)
@@ -282,6 +283,20 @@ fonts that you may want to individually use.
 
 #### Conky Fonts <a name="conky-fonts"/></a>
 Conky will need to be restarted to pick up new fonts
+
+### Docker <a name="docker"/></a>
+Build, deploy and run a cyberlinux container
+
+```bash
+# Build net container
+sudo ./reduce clean build -d net -p containers
+
+# Deploy net container to local docker
+sudo ./reduce deploy net -p containers
+
+# Run net container with docker
+docker run --rm -it net-0.2.197:latest bash
+```
 
 ### Network <a name="network"/></a>
 https://wiki.archlinux.org/index.php/Systemd-networkd#Basic_usage
