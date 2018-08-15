@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.196
+  release: 0.2.197
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -232,12 +232,41 @@ apps:
     - install: intel-ucode          # require Intel Microcode update files to boot
     - install: cyberlinux-grub      # require Grub Booloader to boot
 
+  # Smallest set of packages required networking debug
+  # Size: ? MiB
+  # ----------------------------------------------------------------------------
+  net:
+    - core
+    - core-tools
+    - keyrings:
+      - install: archlinux-keyring
+      - {install: antergos-keyring, type: ANTERGOS}
+      - {install: blackarch-keyring, type: BLACKARCH}
+      - {install: cyberlinux-keyring, type: CYBERLINUX}
+    - system:
+      - {install: htop,             desc: Interactive process viewer, alt: top }
+      - {install: iftop,            desc: Display bandwidth usage on an interface }
+      - {install: pacman,           desc: Package manager with dependency support, group: [build-devel]}
+      - {install: pacman-contrib,   desc: Pacman support configuration, depof: rankmirrors}
+      - {install: pkgfile,          desc: A pacman files and metadata explorer }
+      - {install: which,            desc: Show the full path of commnds, depof: .bashrc, group: [build-devel]}
+    - compression:
+      - {install: tar,              desc: File store backup and transport utility }
+    - network:
+      - {install: curl,             desc: Adding curl command to pull in packer scripts }
+      - {install: dnsutils,         desc: Network utilities dig/host/nslookup }
+      - {install: gnu-netcat,       desc: Network piping application }
+      - {install: iputils,          desc: Network utils e.g. ping/tftpd }
+      - {install: nfs-utils,        desc: Support programs for Network File Systems }
+      - {install: nmap,             desc: Network discovery and security auditing }
+      - {install: rsync,            desc: Remote file transfer sync utility }
+      - {install: tcpdump,          desc: Network monitoring and data acquisition }
+      - {install: wget,             desc: Retrieve files from the Web }
+
   # Shell environment without boot or systemd
   # ----------------------------------------------------------------------------
   shell:
-    - core
-    - core-tools
-    - sudo
+    - net
     - system:
       - install: cyberlinux-vim-plugins
       - {install: dmidecode,        desc: Desktop Managment Interface table related utilities }
@@ -246,21 +275,10 @@ apps:
       - {install: gcc-multilib,     desc: GNU Compiler Collection, multilib: true, group: [base-devel]}
       - {install: gptfdisk,         desc: Text-mode paritioning tools e.g. sgdisk }
       - {install: haveged,          desc: Entropy harvesting, depof: pacman-key --init }
-      - {install: htop,             desc: Interactive process viewer, alt: top }
-      - {install: iftop,            desc: Display bandwidth usage on an interface }
       - {install: logrotate,        desc: Rotates system logs automatically }
-      - {install: pacman,           desc: Package manager with dependency support, group: [build-devel]}
-      - {install: pacman-contrib,   desc: Pacman support configuration, depof: rankmirrors}
       - {install: cyberlinux-screenfetch, desc: CLI bash script to show system theme for screenshots, type: CYBERLINUX }
-      - {install: which,            desc: Show the full path of commnds, depof: .bashrc, group: [build-devel]}
-    - keyrings:
-      - install: archlinux-keyring
-      - {install: antergos-keyring, type: ANTERGOS}
-      - {install: blackarch-keyring, type: BLACKARCH}
-      - {install: cyberlinux-keyring, type: CYBERLINUX}
     - compression:
       - {install: p7zip,            desc: Comman-line file archiver for 7zip format, depof: thunar }
-      - {install: tar,              desc: File store backup and transport utility }
       - {install: unrar,            desc: The RAR uncompression program }
       - {install: unzip,            desc: Extract and view files in .zip archives }
       - {install: zip,              desc: Zip file compression utilities }
@@ -273,23 +291,12 @@ apps:
       - {install: man-db,           desc: A utility for reading man pages }
       - {install: man-pages,        desc: Linux man pages }
       - {install: moreutils,        desc: Linux utils e.g. parallel-moreutils }
-      - {install: pkgfile,          desc: A pacman files and metadata explorer }
       - {install: reptyr,           desc: Attach running program to a new terminal }
       - {install: smartmontools,    desc: Control/monitor S.M.A.R.T. Drives }
       - {install: squashfs-tools,   desc: Tooling for squashfs like mksquashfs }
       - {install: tmux,             desc: Terminal multiplexer built off screen }
       - {install: udisks2,          desc: Enumerate and operate on storage devices }
       - {install: usbutils,         desc: USB device utilities including lsusb }
-    - network:
-      - {install: curl,             desc: Adding curl command to pull in packer scripts }
-      - {install: dnsutils,         desc: Network utilities dig/host/nslookup }
-      - {install: gnu-netcat,       desc: Network piping application }
-      - {install: iputils,          desc: Network utils e.g. ping/tftpd }
-      - {install: nfs-utils,        desc: Support programs for Network File Systems }
-      - {install: nmap,             desc: Network discovery and security auditing }
-      - {install: rsync,            desc: Remote file transfer sync utility }
-      - {install: tcpdump,          desc: Network monitoring and data acquisition }
-      - {install: wget,             desc: Retrieve files from the Web }
     - develop:
       - {install: arch-install-scripts, desc: arch-chroot/genfstab/pacstrap }
       - {install: autoconf,         desc: Automatically configure source code, group: [base-devel]}
@@ -356,6 +363,7 @@ apps:
     - shell
     - cronie
     - sshd
+    - sudo
     - virtualbox-guest-nox
     - recovery:
       - {install: ddrescue,         desc: GNU data recovery tool }

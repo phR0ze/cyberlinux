@@ -46,6 +46,13 @@ deployments:
     apps:
       - ruby
 
+  # Smallest container possible with bash and networking tools
+  net:
+    type: container
+    source: [core, shell]
+    apps:
+      - net
+
   # Dev shell environment with plenty of tooling
   shell:
     type: container
