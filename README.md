@@ -306,8 +306,16 @@ docker run --rm -it net-0.2.197:latest bash
 1. Build and deploy a cyberlinux container see [Build cyberlinux container](#build-cyberlinux-container)
 2. List out your docker images: `docker images`
 3. Login to dockerhub.com: `docker login`
-4. Tag docker image: `docker tag net-0.2.197:latest phR0ze/cyberlinux-net:0.2.197`
-5. Push docker image: `docker push phR0ze/cyberlinux-net:0.2.197`
+4. Tag and push the versioned and latest tags
+  ```bash
+  # Tag and push the versioned image
+  docker tag net-0.2.197:latest phR0ze/cyberlinux-net:0.2.197
+  docker push phR0ze/cyberlinux-net:0.2.197
+
+  # Tag and push the latest image
+  docker tag net-0.2.197:latest phR0ze/cyberlinux-net:latest
+  docker push phR0ze/cyberlinux-net:latest
+  ```
 
 ### Network <a name="network"/></a>
 https://wiki.archlinux.org/index.php/Systemd-networkd#Basic_usage
