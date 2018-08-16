@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.201
+  release: 0.2.202
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -444,6 +444,7 @@ apps:
     - plank
     - virtualbox-host
     - config-menu-desktop
+    - simplescreenrecorder
     - {install: asunder,            desc: A lean and friendly audio CD ripper and encoder }
     - {install: avidemux-qt,        desc: Graphical tool to edit video (filter/re-encode/split) - Qt GUI }
     - {install: audacity,           desc: Audio editor - cross platform, tried and tested }
@@ -1050,6 +1051,11 @@ apps:
   qbittorrent:
     - install: qbittorrent
     - {menu: Network, entry: qBittorrent, icon: /usr/share/icons/hicolor/32x32/apps/qbittorrent.png, exec: qbittorrent }
+
+  # Awesome screen recorder
+  simplescreenrecorder:
+    - install: qbittorrent
+    - {menu: Multimedia, entry: SimpleScreenRecorder, icon: /usr/share/icons/hicolor/32x32/apps/simplescreenrecorder.png, exec: simplescreenrecorder }
 
   # Open source SSH server/client
   sshd:

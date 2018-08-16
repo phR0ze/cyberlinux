@@ -43,6 +43,8 @@ fork it and make their own configuration ***profiles***
     * [Build cyberliux container](#build-cyberlinux-container)
     * [Upload cyberliux container](#upload-cyberlinux-container)
   * [Fonts](#fonts)
+  * [Media](#media)
+    * [Screen Recorder](#screen-recorder)
   * [Network](#network)
   * [Packages](#packages)
   * [Patching](#patching)
@@ -253,6 +255,38 @@ unzip CA1.zip && rename CA1.cer CA1.crt
 # Install new CA cert, original file can then be deleted
 sudo trust anchor CA1.crt
 ```
+
+### Docker <a name="docker"/></a>
+
+#### Build cyberlinux container <a name="build-cyberlinux-container"/></a>
+Build, deploy and run a cyberlinux container
+
+```bash
+# Build net container
+sudo ./reduce clean build -d net -p containers
+
+# Deploy net container to local docker
+sudo ./reduce deploy net -p containers
+
+# Run net container with docker
+docker run --rm -it net-0.2.197:latest bash
+```
+
+#### Upload cyberlinux container <a name="upload-cyberlinux-container"/></a>
+1. Build and deploy a cyberlinux container see [Build cyberlinux container](#build-cyberlinux-container)
+2. List out your docker images: `docker images`
+3. Login to dockerhub.com: `docker login`
+4. Tag and push the versioned and latest tags
+  ```bash
+  # Tag and push the versioned image
+  docker tag net-0.2.197:latest phR0ze/cyberlinux-net:0.2.197
+  docker push phR0ze/cyberlinux-net:0.2.197
+
+  # Tag and push the latest image
+  docker tag net-0.2.197:latest phR0ze/cyberlinux-net:latest
+  docker push phR0ze/cyberlinux-net:latest
+  ```
+
 ### Fonts <a name="fonts"/></a>
 Fonts are tricky due to licensing, despite being free for commercial use many are only free for
 individual users and can not be included in a distribution.  That said here are some awesome techno
@@ -286,36 +320,23 @@ fonts that you may want to individually use.
 #### Conky Fonts <a name="conky-fonts"/></a>
 Conky will need to be restarted to pick up new fonts
 
-### Docker <a name="docker"/></a>
+### Media <a name="media"/></a>
 
-#### Build cyberlinux container <a name="build-cyberlinux-container"/></a>
-Build, deploy and run a cyberlinux container
+#### Screen Recorder <a name="screen-recorder"/></a>
+The two best are ***SimpleScreenRecorder*** and ***RecordMyDesktop***
 
-```bash
-# Build net container
-sudo ./reduce clean build -d net -p containers
-
-# Deploy net container to local docker
-sudo ./reduce deploy net -p containers
-
-# Run net container with docker
-docker run --rm -it net-0.2.197:latest bash
-```
-
-#### Upload cyberlinux container <a name="upload-cyberlinux-container"/></a>
-1. Build and deploy a cyberlinux container see [Build cyberlinux container](#build-cyberlinux-container)
-2. List out your docker images: `docker images`
-3. Login to dockerhub.com: `docker login`
-4. Tag and push the versioned and latest tags
-  ```bash
-  # Tag and push the versioned image
-  docker tag net-0.2.197:latest phR0ze/cyberlinux-net:0.2.197
-  docker push phR0ze/cyberlinux-net:0.2.197
-
-  # Tag and push the latest image
-  docker tag net-0.2.197:latest phR0ze/cyberlinux-net:latest
-  docker push phR0ze/cyberlinux-net:latest
-  ```
+1. Install: `sudo pacman -S simplescreenrecorder`
+2. Launch: `simplescreenrecorder`
+3. Click ***Continue***
+4. Click ***Record a fixed rectangle*** then ***Select window...***
+5. Click the content area of the window to be recorder to only record the content
+6. Uncheck ***Record cursor***
+7. Uncheck ***Record audio***
+8. Click ***Continue***
+9. Click ***Browse*** to choose a file to record as
+10. Choose ***Preset*** as ***faster***
+11. Click ***Continue***
+12. Click ***Start Recording***
 
 ### Network <a name="network"/></a>
 https://wiki.archlinux.org/index.php/Systemd-networkd#Basic_usage
