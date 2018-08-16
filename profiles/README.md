@@ -17,6 +17,7 @@ created from this profile to personal use only.
   * [Personal Use Profile](#personal-profile)
   * [Personal Use Celes Profile](#personal-celes-profile)
   * [k8snode Profile](#k8snode-profile)
+  * [Containers Profile](#containers-profile)
 * [Roll your own cyberlinux](#build-cyberlinux)
   * [Dev Environment](#dev-environment)
   * [Full cyberlinux build](#full-cyberlinux-build)
@@ -56,6 +57,10 @@ allowed due to licensing restrictions for commercial use.
 The [k8snode profile](k8snode.md) was developed as a slimmed down shell environment
 with Kubernetes dependencies baked in. It includes ***kubectl***, ***kubelet***, ***kubeadm***,
 ***docker*** and ***helm*** to easily and quickly setup a K8s cluster.
+
+### Containers Profile <a name="containers-profile"/></a>
+The [containers profile](containers.md) was developed to provide docker containers for use in the
+cloud world, such as deployed as an app in Kubernetes.
 
 ## Roll your own cyberlinux <a name="build-cyberlinux"/></a>
 This section covers how to roll your own cyberlinux ISO
