@@ -391,7 +391,7 @@ class Reduce
             puts("Deleting #{x}".colorize(:red))
             File.delete(x)}
         }
-        evalimages!(@type.tgz, deployment:deployment, live:true, force:true)
+        evalimages!(@type.tgz, filter:deployment, live:true, force:true)
       }
     end
 
@@ -674,8 +674,7 @@ class Reduce
   # @param disksize [int] disk size to use for pack
   # @param force [bool] pack even if already exists
   def pack(deployments, disksize:nil, force:nil)
-    _deployments = @profile.deployments
-      .select{|k,v| v[@k.type] == @k.machine}
+    _deployments = @profile.deployments.select{|k,v| v[@k.type] == @k.machine}
     deployments = deployments || _deployments.reject{|k,v| k == 'live'}.keys
     puts("Packing deployments #{deployments * ','}\n#{'-' * 80}".colorize(:light_yellow))
     Log.die("must be executed as non-root user") unless not Process.uid.zero?
@@ -708,7 +707,7 @@ class Reduce
       i = installables.index(deployment)
 
       # Remove old boxes and/or skip if current
-      image = self.evalimages!(@type.box, deployment:deployment, force:force)
+      image = self.evalimages!(@type.box, filter:deployment, force:force)
       !puts("Box #{image} already exists".colorize(:green)) and next if image
 
       # Clean up build artifacts and prep for build
@@ -836,12 +835,12 @@ class Reduce
       Log.die("must be executed as root") unless Process.uid.zero?
 
       # Remove old 'live' images or skip if current
-      image = self.evalimages!(@type.tgz, deployment:deployment, live:true, force:force)
+      image = self.evalimages!(@type.tgz, filter:deployment, live:true, force:force)
       puts("Image #{image} already exists".colorize(:green)) if image
 
       # Load disk image if it exists
       if not image
-        image = self.evalimages!(@type.tgz, deployment:deployment, live:false)
+        image = self.evalimages!(@type.tgz, filter:deployment, live:false)
         image ? puts("Image #{image} exists importing".colorize(:green)) :
           Log.die("need to first build image '#{image}'")
         Sys.exec("cat #{image} | docker import - #{File.basename(image, '.*')}:latest")
@@ -1187,15 +1186,15 @@ class Reduce
 
   # Evaluate images matching type and deployment; removing if stale
   # @param type [string] image type to get
-  # @param deployment [string] deployment to get image for or all
+  # @param filter [string] to filter images with
   # @param live [bool] evaluate live(true) vs disk(false)
   # @param force [bool] remove images matching conditions
   # @returns image matching the version
-  def evalimages!(type, deployment:nil, live:nil, force:nil)
+  def evalimages!(type, filter:nil, live:nil, force:nil)
     image_exists = nil
     curver = @vars.release.split('.').map{|x| x.to_i}
 
-    self.getimages(type, filter:deployment, live:live).map{|x| x.first}.each{|image|
+    self.getimages(type, filter:filter, live:live).map{|x| x.first}.each{|image|
       puts("Evaluating '#{live ? 'live' : 'disk'}' image #{image}".colorize(:cyan))
       name = live ? image[/-(.*)/, 1] : image[/-(.*?)\.#{type}/, 1]
       imagever = name.split('.').map{|x| x.to_i}
@@ -1223,7 +1222,7 @@ class Reduce
 
   # Get all images sorted newest to oldest
   # @param type [string] image type to get
-  # @param filter[string] deployment to get image for or all
+  # @param filter [string] to filter images with
   # @param live [bool] get live(true) vs disk(false)
   # @param die [bool] die on error
   # @returns all images sorted by version and optionally filtered by deployment
@@ -1251,7 +1250,7 @@ class Reduce
         files.delete_if{|x| !File.basename(x).start_with?(@vars.distro)}
       end
 
-      # Sort the resulting list by version
+      # Filter results then sort by version
       images = filter ? files.select{|x| x.include?(filter)} : files
       images = [@type.sqfs, @type.img].include?(type) ? images.sort :
         images.sort_by{|x| x[/-(\d+\.\d+\.\d+).*/, 1].split('.').map{|y| y.to_i}}.reverse
