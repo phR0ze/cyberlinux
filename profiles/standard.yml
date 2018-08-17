@@ -32,17 +32,18 @@ deployments:
       order: 2
       label: "Deploy <%=distro%>-desktop                 // Lite + more apps"
     apps:
+      - netbook
       - desktop
   lite:
     base: shell
     install:
-      order: 4
+      order: 3
       label: "Deploy <%=distro%>-lite                    // Shell + min X11"
     apps:
       - lite
   shell:
     install:
-      order: 5
+      order: 4
       label: "Deploy <%=distro%>-shell                   // Shell env"
     source: [core, shell]
     apps:
