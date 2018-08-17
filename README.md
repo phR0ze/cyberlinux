@@ -42,6 +42,7 @@ fork it and make their own configuration ***profiles***
   * [Docker](#docker)
     * [Build cyberliux container](#build-cyberlinux-container)
     * [Upload cyberliux container](#upload-cyberlinux-container)
+  * [File Hosting](#file-hosting)
   * [Fonts](#fonts)
   * [Media](#media)
     * [Screen Recorder](#screen-recorder)
@@ -286,6 +287,14 @@ docker run --rm -it net-0.2.197:latest bash
   docker tag net-0.2.197:latest phR0ze/cyberlinux-net:latest
   docker push phR0ze/cyberlinux-net:latest
   ```
+
+### File Hosting <a name="file-hosting"/></a>
+The ***cyberlinux*** ISOs are larger than the 1GB Github artifact limit so I need to find another
+location to host them on. Since they are open source hopefully there should be something available.
+
+* SourceForge?
+
+* OSDN ?
 
 ### Fonts <a name="fonts"/></a>
 Fonts are tricky due to licensing, despite being free for commercial use many are only free for
