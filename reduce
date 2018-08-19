@@ -391,7 +391,8 @@ class Reduce
             puts("Deleting #{x}".colorize(:red))
             File.delete(x)}
         }
-        evalimages!(@type.tgz, filter:deployment, live:true, force:true)
+        filter = "#{@vars.distro.downcase}-#{@vars.profile}-#{deployment}"
+        evalimages!(@type.tgz, filter:filter, live:true, force:true)
       }
     end
 
@@ -685,7 +686,8 @@ class Reduce
     Log.die("install 'virtualbox' via 'sudo pacman -S virtualbox'") unless FileUtils.exec?('vboxmanage')
 
     # Locate latest iso for profile
-    isos = self.getimages(@type.iso, filter:@vars.profile).map{|x| x.first}
+    filter = "#{@vars.distro.downcase}-#{@vars.profile}"
+    isos = self.getimages(@type.iso, filter:filter).map{|x| x.first}
     Log.die("no ISOs found") unless isos.any?
     @vars.isofile = isos.shift
 
@@ -707,7 +709,7 @@ class Reduce
       i = installables.index(deployment)
 
       # Remove old boxes and/or skip if current
-      image = self.evalimages!(@type.box, filter:deployment, force:force)
+      image = self.evalimages!(@type.box, filter:"#{filter}-#{deployment}", force:force)
       !puts("Box #{image} already exists".colorize(:green)) and next if image
 
       # Clean up build artifacts and prep for build
@@ -764,15 +766,15 @@ class Reduce
       clean(vms:true)
 
       # Choose a vagrant box to use and update registry if needed
-      vagrant_box = deployment
-      box = self.getimages(@type.box, filter:deployment).map{|x| x.first}.shift
+      vagrant_box = "#{@vars.distro.downcase}-#{@vars.profile}-#{deployment}"
+      box = self.getimages(@type.box, filter:vagrant_box).map{|x| x.first}.shift
       if !box
-        vagrant_box = "phR0ze/cyberlinux-#{deployment}"
+        vagrant_box = "phR0ze/#{vagrant_box}"
         puts("Downloading '#{vagrant_box}' from vagrantup.com".colorize(:cyan))
       else
-        Log.die("no box found for #{deployment}, please pack the box first") unless box
-        puts("Updating vagrant registry for '#{deployment}'".colorize(:cyan))
-        Sys.exec("#{@sudoinv}vagrant box add #{deployment} #{box} --force")
+        Log.die("no box found for #{vagrant_box}, please pack the box first") unless box
+        puts("Updating vagrant registry for '#{vagrant_box}'".colorize(:cyan))
+        Sys.exec("#{@sudoinv}vagrant box add #{vagrant_box} #{box} --force")
       end
 
       # Configure host-only network
@@ -788,7 +790,7 @@ class Reduce
       #---------------------------------------------------------------------------
       profiles = []
       (nodes || [rand(2..254)]).each do |node|
-        host = name || vagrant_box
+        host = name || deployment
         host = "#{host}#{node.to_s}".gsub(' ', '-').gsub('/', '-').gsub('_', '-')
         profile = {
           host: host,
