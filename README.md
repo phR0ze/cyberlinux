@@ -26,9 +26,9 @@ fork it and make their own configuration ***profiles***
 * [Screen Shots](#screen-shots)
 * [cyberlinux Profiles](#cyberlinux-profiles)
 * [Deploy cyberlinux](#deploy-cyberlinux)
-  * [Bare metal deployment](#bare-metal-deployment)
-  * [Virtual box deployment](#virtual-box-deployment)
   * [Vagrant box deployment](#vagrant-box-deployment)
+  * [Virtual box deployment](#virtual-box-deployment)
+  * [Bare metal deployment](#bare-metal-deployment)
   * [Brown field deployment](#brown-field-deployment)
 * [Configure cyberlinux](#configure-cyberlinux)
   * [Configure Proxy](#configure-proxy)
@@ -75,6 +75,29 @@ from and the possibility of making endless more.
 choice either ***ISO*** or ***Vagrant Box*** and deploy at will. Additionally you could roll your
 own artifacts usig [cyberlinux profiles](profiles/README.md).
 
+### Vagrant box deployment <a name="vagrant-box-deployment"/></a>
+Deploy [phR0ze/cyberlinux-desktop](https://app.vagrantup.com/phR0ze/boxes/cyberlinux-desktop) via a VM using a Vagrant Box
+
+```bash
+# Create a Vagrantfile describing the cyberlinux-desktop box to use
+vagrant init phR0ze/cyberlinux-desktop
+
+# Download and deploy cyberlinux-desktop box
+vagrant up
+```
+
+### Virtual box deployment <a name="virtual-box-deployment"/></a>
+Deploy ***cyberlinux*** via a VM using Virtual Box
+
+1. Create a VM named ***cyberlinux-desktop*** with ***4GB RAM, 40GB HDD***  
+2. Once created edit ***Settings***  
+  a. Set ***System >Processor = 4***  
+  b. Set ***Display >Video = 32***  
+  c. Set ***Network >Bridged Adapter***  
+  d. Set ***Storage >IDE Empty*** to ***cyberlinux-standard-0.2.208-4.18.1-x86_64.iso***  
+  e. Click ***OK***  
+2.	Once booted to the ISO choose the ***cyberlinux-desktop*** deployment option
+
 ### Bare metal deployment <a name="bare-metal-deployment"/></a>
 Deploy ***cyberlinux*** via a USB directly onto a machine
 
@@ -85,7 +108,7 @@ Deploy ***cyberlinux*** via a USB directly onto a machine
     sudo fdisk -l
 
     # Burn to USB
-    sudo dd bs=4M if=~/cyberlinux-0.0.159-4.12.13-1-x86_64.iso of=/dev/sdb status=progress oflag=sync
+    sudo dd bs=4M if=~/cyberlinux-standard-0.2.208-4.18.1-x86_64.iso of=/dev/sdb status=progress oflag=sync
     ```
 2. Burn the ISO to a USB via ***MultiWriter***  
     ```bash
@@ -106,40 +129,6 @@ Deploy ***cyberlinux*** via a USB directly onto a machine
     growisofs -dvd-compat -Z /dev/sr0=images/cyberlinux-0.1.2-4.14.11-1-x86_64.iso
     ```
 4. Boot from the USB and choose the ***cyberlinux-desktop*** deployment option
-
-### Virtual box deployment <a name="virtual-box-deployment"/></a>
-Deploy ***cyberlinux*** via a VM using Virtual Box
-
-1. Create a VM named ***cyberlinux-desktop*** with ***4GB RAM, 40GB HDD***  
-2. Once created edit ***Settings***  
-  a. Set ***System >Processor = 4***  
-  b. Set ***Display >Video = 32***  
-  c. Set ***Network >Bridged Adapter***  
-  d. Set ***Storage >IDE Empty*** to ***cyberlinux-0.0.159-4.12.13-1-x86_64.iso***  
-  e. Click ***OK***  
-2.	Once booted to the ISO choose the ***cyberlinux-desktop*** deployment option
-
-### Vagrant box deployment <a name="vagrant-box-deployment"/></a>
-Deploy ***cyberlinux*** via a VM using a Vagrant Box
-
-**Raw Vagrant Use**  
-```bash
-# Create a Vagrantfile describing the cyberlinux-desktop box to use
-vagrant init phR0ze/cyberlinux-desktop --box-version 0.0.159
-
-# Download and deploy cyberlinux-desktop box
-vagrant up
-```
-
-**Vagrant with Reduce**  
-```bash
-# Clone cyberlinux
-git clone git@github.com:phR0ze/cyberlinux.git
-
-# Deploy cyberlinux vagrant box via reduce
-cd cyberlinux
-sudo ./reduce deploy desktop -p standard
-```
 
 ### Brown field deployment <a name="brown-field-deployment"/></a>
 Using an existing arch linux system to deploy cyberlinux is more complicated as it requires a few
