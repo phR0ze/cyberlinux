@@ -29,5 +29,4 @@ deployments:
       label: "Deploy <%=distro%>-k8snode"
     apps:
       - kernel
-      - core-boot
       - k8snode

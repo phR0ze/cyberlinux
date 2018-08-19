@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.209
+  release: 0.2.210
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -799,6 +799,7 @@ apps:
   # Apps needed for a kubernetes node
   # i.e. standard terminal tools, ssh and k8s tools
   k8snode:
+    - core-boot
     - sshd
     - docker
     - k8shost
