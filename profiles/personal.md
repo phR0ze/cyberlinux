@@ -38,6 +38,8 @@ changes useful for a laptop such as:
 * Backlight configuration
 * Conky widgets statistics showing networking, storage, battery, cpu and ram usage and date and time
 
+<a href="../doc/images/personal-laptop.jpg"><img width="820" height="480" src="../doc/images/personal-laptop.jpg"></a>
+
 ### Theater Deployment <a name="theater-deployment"/></a>
 Xorg desktop environment focusing on media playback
 
