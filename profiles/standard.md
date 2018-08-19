@@ -60,7 +60,7 @@ applications and configuration.
 ### Shell Deployment <a name="shell-deployment"/></a>
 Intended as a full shell development environment the ***Shell*** deployment provides:
 
-<a href="../doc/images/shell-deployment.png"><img width="639" height="480" src="../doc/images/shell-deployment.png"></a>
+<a href="../doc/images/standard-shell.jpg"><img width="639" height="480" src="../doc/images/standard-shell.jpg"></a>
 
 **Features:**
 * Filesystem utilities
