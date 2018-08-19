@@ -35,7 +35,7 @@
     "post-processors": [
         {
             "type": "vagrant",
-            "output": "../../images/<%=distro%>-<%=deployment%>-<%=release%>.box",
+            "output": "../../images/<%=distro%>-<%=profile%>-<%=deployment%>-<%=release%>.box",
             "compression_level": 0,
             "keep_input_artifact": false
         }
