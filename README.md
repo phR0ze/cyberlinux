@@ -76,13 +76,13 @@ choice either ***ISO*** or ***Vagrant Box*** and deploy at will. Additionally yo
 own artifacts usig [cyberlinux profiles](profiles/README.md).
 
 ### Vagrant box deployment <a name="vagrant-box-deployment"/></a>
-Deploy [phR0ze/cyberlinux-desktop](https://app.vagrantup.com/phR0ze/boxes/cyberlinux-desktop) via a VM using a Vagrant Box
+Deploy [phR0ze/cyberlinux-standard-desktop](https://app.vagrantup.com/phR0ze/boxes/cyberlinux-standard-desktop) via a VM using a Vagrant Box
 
 ```bash
 # Create a Vagrantfile describing the cyberlinux-desktop box to use
-vagrant init phR0ze/cyberlinux-desktop
+vagrant init phR0ze/cyberlinux-standard-desktop
 
-# Download and deploy cyberlinux-desktop box
+# Download and deploy cyberlinux-standard-desktop box
 vagrant up
 ```
 
