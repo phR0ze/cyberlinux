@@ -453,11 +453,14 @@ Securely forwarding ports via ssh is simple just hard to remember.
 
 ```bash
 # Forward local host:port to remote host:port using the ssh connection
-# e.g. forwards local 192.168.0.10:5938 to remote 192.168.1.10:5938 via user@access-point.com
+# e.g. forwards local 192.168.100.1:5938 to remote 192.168.1.10:5938 via user@access-point.com
 # 192.168.1.10 in this case is a host accesible from access-point.com
 
 # ssh -L local_host:local_port:remote_host:remote_port user@access-point.com
-ssh -L 192.168.0.10:5938:192.168.1.10:5938 -p 23 user@access-point.com
+ssh -L 192.168.100.1:5938:192.168.1.10:5938 -p 23 user@access-point.com
+
+# Forward 5938 from access-point.com directly
+ssh -L 192.168.100.1:5938:127.0.0.1:5938 -p 23 user@access-point.com
 ```
 
 ### Packages <a name="packages"/></a>
