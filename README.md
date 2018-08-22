@@ -47,9 +47,18 @@ fork it and make their own configuration ***profiles***
   * [Media](#media)
     * [Screen Recorder](#screen-recorder)
   * [Network](#network)
+    * [Bind to NIC](#bind-to-nic)
+    * [Configure Multiple IPs](#configure-multiple-ips)
+    * [Nameservers](#nameservers)
+    * [Static Networking](#static-networking)
+    * [DHCP Networking](#dhcp-networking)
+    * [Wifi Driver - HP ZBook 15](#wifi-driver-hp-zbook-15)
+    * [Synergy](#synergy)
   * [Packages](#packages)
   * [Patching](#patching)
   * [Systemd](#systemd)
+  * [Users/Groups](#users-groups)
+    * [Add system user](#add-system-user)
   * [VeraCrypt](#veracrypt)
   * [Video Output](#video-output)
 * [Background](#background)
@@ -339,6 +348,28 @@ The two best are ***SimpleScreenRecorder*** and ***RecordMyDesktop***
 ### Network <a name="network"/></a>
 https://wiki.archlinux.org/index.php/Systemd-networkd#Basic_usage
 
+#### Bind to NIC <a name="bind-to-nic"/></a>
+Many Linux apps will by default bind to all available network interfaces. This is a nightmare for
+end users that want control of which nics are used. To get around this many techniques have been
+developed to replace code at runtime using LD_PRELOAD shims to inform the dynamic linker to first
+load all libs into the process that you want then add some more.
+
+```bash
+# Compile code
+wget http://daniel-lange.com/software/bind.c
+gcc -nostartfiles -fpic -shared bind.c -o bind.so -ldl -D_GNU_SOURCE
+
+# Install binary
+strip bind.so
+sudo cp -i bind.so /usr/lib/
+
+# Example use case with firefox
+BIND_ADDR='192.168.100.1' LD_PRELOAD=/usr/lib/bind.so /opt/teamviewer/tv_bin/teamviewerd -d
+
+# Check resulting binding
+netstat -nl | grep 5938
+```
+
 #### Nameservers <a name="nameservers"/></a>
 Cloudflares DNS is the fastest and safest right now
 
@@ -481,6 +512,17 @@ sudo systemctl enable debug-shell
 # Logout then switch to debug shell with Ctl+F9
 systemctl status
 # See which apps are hanging
+```
+
+### Users/Groups <a name="users-groups"/></a>
+
+#### Add system user <a name="add-system-user"/></a>
+https://wiki.archlinux.org/index.php/users_and_groups#Example_adding_a_system_user
+
+Add a user without a home directory or ability to login for running daemons
+```bash
+# e.g. useradd -r -s /usr/bin/nologin <username>
+useradd -r -s /usr/bin/nologin teamviewer
 ```
 
 ### VeraCrypt <a name="veracrypt"/></a>

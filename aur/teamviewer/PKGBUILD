@@ -23,31 +23,28 @@
 # Maintained by phR0ze
 #-------------------------------------------------------------------------------
 pkgname=teamviewer
-pkgver=13.1.8286
+pkgver=13.2.13582
 pkgrel=1
 pkgdesc='All-In-One Software for Remote Support and Online Meetings'
 arch=(x86_64)
 url='http://www.teamviewer.com'
 license=('custom')
 options=('!strip')
-depends=('qt5-base' 'qt5-declarative' 'qt5-x11extras' 'qt5-webkit' 'hicolor-icon-theme'
-  'qt5-x11extras' 'qt5-quickcontrols')
+depends=('qt5-base' 'qt5-quickcontrols' 'qt5-x11extras' 'qt5-webkit' 'hicolor-icon-theme')
 install=teamviewer.install
-
 source=("https://dl.tvcdn.de/download/linux/version_${pkgver%%.*}x/teamviewer_${pkgver}_amd64.deb"
   $pkgname.desktop
   ${pkgname}d.service
   $pkgname)
-sha256sums=('4465dd09a302ea11f40090b7efd8287bc3c4bfaf7336ad323bd3b8261123a4f9'
+sha256sums=('04a09b016c3df38b7d4583788820c092a249024f26287f952b9c1d059fecca3f'
   '4897ef7a6d42fe5ef2e41b772b9498c1349f18142906419d8960f9b9824cc90c'
-  'cb7928a9ad04f7abe0f65b6339ff729fd2898bf5030f79a5ea97331348340e8d'
+  'c123ad11cb2ba7a05724f65cb18344ab2516a4da92e9043773acf044a7504431'
   'c446ba6f9e3398c09a80ecf02a464370eec2ef485e2855d9eddd18dfa3fb7c48') 
 
 prepare()
 {
   cd $srcdir
   msg "Building $pkgname..."
-
 	tar -xf data.tar.xz
 }
 
@@ -56,7 +53,8 @@ package()
   cd $srcdir
   msg "Packaging $pkgname..."
 
-  msg2 "Remove cruft"
+  msg2 "Remove lib23 dependencies via libdepend and cruft"
+  rm -rf opt/teamviewer/tv_bin/script/libdepend
   rm -rf opt/teamviewer/tv_bin/xdg-utils/xdg-email
 
   msg2 "Packaging dirs and files"
