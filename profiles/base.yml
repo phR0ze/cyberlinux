@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.220
+  release: 0.2.221
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -253,6 +253,7 @@ apps:
     - compression:
       - {install: tar,              desc: File store backup and transport utility }
     - network:
+      - {install: bindip,           desc: Bind a service to a specifc IP Address, type: CYBERLINUX }
       - {install: curl,             desc: Adding curl command to pull in packer scripts }
       - {install: dnsutils,         desc: Network utilities dig/host/nslookup }
       - {install: gnu-netcat,       desc: Network piping application }
