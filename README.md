@@ -49,6 +49,7 @@ fork it and make their own configuration ***profiles***
   * [Network](#network)
     * [Bind to NIC](#bind-to-nic)
     * [Configure Multiple IPs](#configure-multiple-ips)
+    * [SSH Port Forwarding](#ssh-port-forwarding)
     * [Nameservers](#nameservers)
     * [Static Networking](#static-networking)
     * [DHCP Networking](#dhcp-networking)
@@ -361,13 +362,65 @@ gcc -nostartfiles -fpic -shared bind.c -o bind.so -ldl -D_GNU_SOURCE
 
 # Install binary
 strip bind.so
-sudo cp -i bind.so /usr/lib/
+sudo cp bind.so /usr/lib/
 
-# Example use case with firefox
-BIND_ADDR='192.168.100.1' LD_PRELOAD=/usr/lib/bind.so /opt/teamviewer/tv_bin/teamviewerd -d
+# Check existing binding of teamviewer
+netstat -nl | grep 5938
+tcp        0      0 0.0.0.0:5938            0.0.0.0:*               LISTEN     
+
+# Edit teamviewer unit and add teh new start up line below
+sudo systemctl stop teamviewerd
+sudo sed -i -e 's|^\(PIDFile=.*\)|\1\nEnvironment=BIND_ADDR=10.33.234.133 LD_PRELOAD=/usr/lib/bind.so|' /usr/lib/systemd/system/teamviewerd.service
+sudo systemctl daemon-reload
+sudo systemctl start teamviewerd
 
 # Check resulting binding
 netstat -nl | grep 5938
+tcp        0      0 10.33.234.133:5938      0.0.0.0:*               LISTEN     
+```
+
+#### Configure Multiple IPs <a name="configure-multiple-ips"/></a>
+In Linux its easy to add more than one ip address to a given NIC. But if your service binds to all
+NICs then your not going to get an open port, use [Bind to NIC](#bind-to-nic) to limit the service
+to a specific IP address then create another to forward ports to.
+
+```bash
+# Add an address to your NIC
+sudo tee -a /etc/systemd/network/20-dhcp.network <<EOL
+
+[Address]
+Address=192.168.0.1/24
+[Address]
+Address=192.168.0.2/24
+EOL
+
+# Restart networking for it to take affect
+sudo systemctl restart systemd-networkd
+
+# Check new IPs exist
+ip a
+# inet 192.168.0.1/24 brd 192.168.0.255 scope global enp0s25
+# inet 192.168.0.2/24 brd 192.168.0.255 scope global enp0s25
+```
+
+#### SSH Port Forwarding <a name="ssh-port-forwarding"/></a>
+Securely forwarding ports via ssh is simple just hard to remember.
+
+```bash
+# Forward local host:port to remote host:port using the ssh connection
+# e.g. forwards local 192.168.0.1:5938 to remote 192.168.1.10:5938 via user@access-point.com
+# 192.168.1.10 in this case is a host accesible from access-point.com
+
+# ssh -L local_host:local_port:remote_host:remote_port user@access-point.com
+ssh -L 192.168.0.1:5938:192.168.1.10:5938 -p 23 user@access-point.com
+
+# Forward 5938 from access-point.com directly
+ssh -L 192.168.0.1:5938:127.0.0.1:5938 -p 23 user@access-point.com
+
+# Check resulting ports
+netstat -nl | grep 5938
+tcp        0      0 192.168.0.1:5938        0.0.0.0:*               LISTEN     
+tcp        0      0 10.33.234.133:5938      0.0.0.0:*               LISTEN     
 ```
 
 #### Nameservers <a name="nameservers"/></a>
@@ -465,34 +518,6 @@ the Nvidia drivers rather than the free ones.
   Display refreshes don't seem to happen normally after this  
   a. Autologin: `echo "autologin=$USER" | sudo tee -a /etc/lxdm/lxdm.conf`  
   b. Lock immediately: `echo 'sleep 2 && cinnamon-screensaver-command --lock' | sudo tee -a /etc/lxdm/PostLogin`  
-
-#### Configure Multiple IPs <a name="configure-multiple-ips"/></a>
-In Linux its easy to add more than one ip address to a given NIC. But if your service binds to all
-NICs then your not going to get an open port.
-
-```bash
-# Add an address to your NIC
-sudo tee -a /etc/systemd/network/20-dhcp.network <<EOL
-
-[Address]
-Address=192.168.0.10/24
-EOL
-```
-
-#### SSH Port Forwarding <a name="ssh-port-forwarding"/></a>
-Securely forwarding ports via ssh is simple just hard to remember.
-
-```bash
-# Forward local host:port to remote host:port using the ssh connection
-# e.g. forwards local 192.168.100.1:5938 to remote 192.168.1.10:5938 via user@access-point.com
-# 192.168.1.10 in this case is a host accesible from access-point.com
-
-# ssh -L local_host:local_port:remote_host:remote_port user@access-point.com
-ssh -L 192.168.100.1:5938:192.168.1.10:5938 -p 23 user@access-point.com
-
-# Forward 5938 from access-point.com directly
-ssh -L 192.168.100.1:5938:127.0.0.1:5938 -p 23 user@access-point.com
-```
 
 ### Packages <a name="packages"/></a>
 * Create repo: `repo-add cyberlinux.db.tar.gz *.pkg.tar.xz`
