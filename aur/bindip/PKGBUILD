@@ -30,7 +30,6 @@ arch=('any')
 url="https://github.com/phR0ze/cyberlinus/aur/bindip"
 license=('GPL')
 makedepends=(gcc gcc-libs)
-install=$pkgname.install
 
 # Originally downloaded from http://daniel-lange.com/software/bind.c
 source=("bindip.c")
@@ -47,9 +46,9 @@ package()
 {
   cd $srcdir
   msg "Packaging $pkgname..."
-  strip bind.so
+  strip $pkgname.so
   install -dm750 $pkgdir/usr/lib
-  install -Dm644 $srcdir/$pkgname.so -t $pkgdir/usr/lib
+  install -Dm755 $srcdir/$pkgname.so -t $pkgdir/usr/lib
 }
 
 # vim: ts=2:sw=2:sts=2

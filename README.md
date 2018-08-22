@@ -357,12 +357,12 @@ load all libs into the process that you want then add some more.
 
 ```bash
 # Compile code
-wget http://daniel-lange.com/software/bind.c
-gcc -nostartfiles -fpic -shared bind.c -o bind.so -ldl -D_GNU_SOURCE
+wget http://daniel-lange.com/software/bind.c -O bindip.c
+gcc -nostartfiles -fpic -shared bindip.c -o bindip.so -ldl -D_GNU_SOURCE
 
 # Install binary
-strip bind.so
-sudo cp bind.so /usr/lib/
+strip bindip.so
+sudo cp bindip.so /usr/lib/
 
 # Check existing binding of teamviewer
 netstat -nl | grep 5938
@@ -370,7 +370,7 @@ tcp        0      0 0.0.0.0:5938            0.0.0.0:*               LISTEN
 
 # Edit teamviewer unit and add teh new start up line below
 sudo systemctl stop teamviewerd
-sudo sed -i -e 's|^\(PIDFile=.*\)|\1\nEnvironment=BIND_ADDR=10.33.234.133 LD_PRELOAD=/usr/lib/bind.so|' /usr/lib/systemd/system/teamviewerd.service
+sudo sed -i -e 's|^\(PIDFile=.*\)|\1\nEnvironment=BIND_ADDR=10.33.234.133 LD_PRELOAD=/usr/lib/bindip.so|' /usr/lib/systemd/system/teamviewerd.service
 sudo systemctl daemon-reload
 sudo systemctl start teamviewerd
 
