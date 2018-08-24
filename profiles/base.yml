@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.222
+  release: 0.2.223
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -383,13 +383,11 @@ apps:
     - virtualbox-guest
     - utils:
       - {install: dmenu,            desc: Super light weight application runner }
-      - {install: cups-pdf,         desc: System/Printer Driver with PDF print support }
       - {install: galculator,       desc: Office/Calculator }
       - {install: gsimplecal,       desc: Simple calendar like windows systray calendar }
       - {install: powerline,        desc: Status line plugin for bash }
       - {install: powerline-gitstatus, desc: Powerline plugin for git status, type: CYBERLINUX }
       - {install: powerline-fonts,  desc: Powerline font symbols }
-      - {install: system-config-printer, desc: A CUPS printer configuration tool and status applet }
       - {install: xfce4-screenshooter, desc: Plugin that makes screenshots for the Xfce panel }
       - filelight
     - media:
@@ -443,6 +441,7 @@ apps:
     - guake
     - media
     - plank
+    - printing
     - virtualbox-host
     - config-menu-desktop
     - simplescreenrecorder
@@ -1049,6 +1048,13 @@ apps:
     - {edit: /etc/skel/.config/plank/dock1/launchers/09-writer.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/libreoffice-writer.desktop"]}
     - {edit: /etc/skel/.config/plank/dock1/launchers/10-virtualbox.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/virtualbox.desktop"]}
 
+  # Linux printing service
+  printing:
+    - {install: cups-pdf,         desc: System/Printer Driver with PDF print support }
+    - {install: system-config-printer, desc: A CUPS printer configuration tool and status applet }
+    - {menu: Settings, entry: Printer Preferences, icon: /usr/share/icons/Paper/32x32/devices/preferences-desktop-printer.png, exec: sudo system-config-printer }
+    - chroot: systemctl enable org.cups.cupsd.service
+
   # Excellent torrent client
   qbittorrent:
     - install: qbittorrent
@@ -1371,7 +1377,6 @@ configs:
     - {menu: Network, entry: FileZilla, icon: /usr/share/icons/Paper/32x32/apps/filezilla.png, exec: filezilla }
     - {menu: Network, entry: Zenmap, icon: /usr/share/zenmap/pixmaps/zenmap.png, exec: sudo zenmap }
     - {menu: Office, entry: Evince, icon: /usr/share/icons/Paper/32x32/apps/evince.png, exec: evince }
-    - {menu: Settings, entry: Printer Preferences, icon: /usr/share/icons/Paper/32x32/devices/preferences-desktop-printer.png, exec: sudo system-config-printer }
     - {menu: System, entry: Htop, icon: /usr/share/icons/Paper/32x32/apps/htop.png, exec: lxterminal -e htop }
   config-menu-desktop:
     - {menu: Accessories, entry: Catfish File Search, icon: /usr/share/icons/Paper/32x32/apps/system-search.png, exec: catfish }
