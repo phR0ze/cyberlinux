@@ -53,7 +53,7 @@ fork it and make their own configuration ***profiles***
     * [Nameservers](#nameservers)
     * [Static Networking](#static-networking)
     * [DHCP Networking](#dhcp-networking)
-    * [Wifi Driver - HP ZBook 15](#wifi-driver-hp-zbook-15)
+    * [Wifi Configuration](#wifi-configuration)
     * [Synergy](#synergy)
   * [Packages](#packages)
   * [Patching](#patching)
@@ -473,12 +473,57 @@ sudo systemctl start systemd-networkd systemd-resolved
 sudo systemctl restart systemd-networkd
 ```
 
-#### Wifi Driver - HP ZBook 15 <a name="wifi-driver-hp-zbook-15"/></a>
-```bash
-# Check your wireless device and current driver
-inxi -N
-#Card-2: Intel Centrino Advanced-N 6235 driver: iwlwifi 
-```
+#### Wifi Configuration <a name="wifi-configuration"/></a>
+
+1. Ensure kernel driver is accurate:
+  ```bash
+  inxi -N
+  # Network:   Card-1: Intel Ethernet Connection I217-LM driver: e1000e 
+  #            Card-2: Intel Centrino Advanced-N 6235 driver: iwlwifi 
+  ```
+2. Ensure ***systemd-networkd*** has been configured:
+  ```bash
+  sudo tee /etc/systemd/network/30-wireless.network <<EOL
+  [Match]
+  Name=wl*
+
+  [Network]
+  DHCP=ipv4
+  IPForward=kernel
+
+  [DHCP]
+  RouteMetric=20
+  UseDomains=true
+  EOL
+  sudo systemctl daemon-reload
+  sudo systemctl restart systemd-networkd
+  ```
+3. Ensure ***wpa_supplicant*** is configured:
+  ```bash
+  sudo tee /etc/wpa_supplicant/wpa_supplicant-wlo1.conf <<EOL
+  ctrl_interface=/run/wpa_supplicant
+  ctrl_interface_group=wheel
+  update_config=1
+  p2p_disabled=1
+
+  network={
+    ssid="My Network"
+    psk="secret-key"
+    proto=RSN
+    key_mgmt=WPA-PSK
+    pairwise=CCMP
+    auth_alg=OPEN
+  }
+  EOL
+  sudo systemctl daemon-reload
+  sudo systemctl enable wpa_supplicant@wlo1
+  sudo systemctl start wpa_supplicant@wlo1
+  ```
+4. Launch with ***WPA UI***:
+  ```bash
+  sudo wpa_gui
+  # Click connect
+  ```
 
 #### Synergy <a name="synergy"/></a>
 Synergy allows you to share a keyboard and mouse between machines (e.g. desktop and laptop).
