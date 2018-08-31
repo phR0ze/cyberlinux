@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.224
+  release: 0.2.225
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -674,7 +674,6 @@ apps:
         - '  else'
         - '    rm -rf $proxyfile'
         - '  fi'
-        - '  systemctl restart docker'
         - 'fi'
         - ''
     - {chroot: systemctl enable docker.service }
