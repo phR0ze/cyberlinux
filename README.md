@@ -54,9 +54,11 @@ fork it and make their own configuration ***profiles***
     * [Static Networking](#static-networking)
     * [DHCP Networking](#dhcp-networking)
     * [Wifi Configuration](#wifi-configuration)
-    * [Synergy](#synergy)
   * [Packages](#packages)
   * [Patching](#patching)
+  * [Remoting](#remoting)
+    * [Synergy](#synergy)
+    * [Zoom](#zoom)
   * [Systemd](#systemd)
   * [Users/Groups](#users-groups)
     * [Add system user](#add-system-user)
@@ -525,6 +527,18 @@ sudo systemctl restart systemd-networkd
   # Click connect
   ```
 
+### Packages <a name="packages"/></a>
+* Create repo: `repo-add cyberlinux.db.tar.gz *.pkg.tar.xz`
+
+### Patching <a name="patching"/></a>
+
+### Create Patch <a name="create-patch"/></a>
+1. Rename code directory to ***a***
+2. Copy a to be: `cp -a a b`
+3. Modify b as desired then run: `diff -ruN a b > <nam>.patch`
+
+### Remoting <a name="remoting"/></a>
+
 #### Synergy <a name="synergy"/></a>
 Synergy allows you to share a keyboard and mouse between machines (e.g. desktop and laptop).
 
@@ -564,15 +578,26 @@ the Nvidia drivers rather than the free ones.
   a. Autologin: `echo "autologin=$USER" | sudo tee -a /etc/lxdm/lxdm.conf`  
   b. Lock immediately: `echo 'sleep 2 && cinnamon-screensaver-command --lock' | sudo tee -a /etc/lxdm/PostLogin`  
 
-### Packages <a name="packages"/></a>
-* Create repo: `repo-add cyberlinux.db.tar.gz *.pkg.tar.xz`
+#### Zoom <a name="zoom"/></a>
+Seems to be a pretty good quality app.  I simply installed it and selected my plantronics headset
+and audio worked great.  My laptop webcam also worked without doing anything.
 
-### Patching <a name="patching"/></a>
+**Install Manually**
+```bash
+yaourt -G zoom; cd zoom
+makepkg -s
+sudo pacman -U zoom-2.4.121350.0816-1-x86_64.pkg.tar.xz
+```
 
-### Create Patch <a name="create-patch"/></a>
-1. Rename code directory to ***a***
-2. Copy a to be: `cp -a a b`
-3. Modify b as desired then run: `diff -ruN a b > <nam>.patch`
+**Install from cyberlinux-repo**
+```bash
+sudo tee -a /etc/pacman.conf <<EOL
+[cyberlinux]
+SigLevel = Optional TrustAll
+Server = https://phR0ze.github.io/cyberlinux-repo/$repo/$arch
+EOL
+sudo pacman -Sy zoom
+```
 
 ### Systemd <a name="systemd"/></a>
 
