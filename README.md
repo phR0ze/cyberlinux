@@ -58,6 +58,7 @@ fork it and make their own configuration ***profiles***
   * [Patching](#patching)
   * [Remoting](#remoting)
     * [Synergy](#synergy)
+    * [Teamviewer](#teamviewer)
     * [Zoom](#zoom)
   * [Systemd](#systemd)
   * [Users/Groups](#users-groups)
@@ -577,6 +578,35 @@ the Nvidia drivers rather than the free ones.
   Display refreshes don't seem to happen normally after this  
   a. Autologin: `echo "autologin=$USER" | sudo tee -a /etc/lxdm/lxdm.conf`  
   b. Lock immediately: `echo 'sleep 2 && cinnamon-screensaver-command --lock' | sudo tee -a /etc/lxdm/PostLogin`  
+
+#### Teamviewer <a name="teamviewer"/></a>
+Typically I configure TV to only be accessible from my LAN and tunnel in.
+
+1. Install Teamviewer
+  ```bash
+  sudo pacman -S teamviewer
+  sudo systemctl enable teamviewerd
+  sudo systemctl start teamviewerd
+  ```
+2. Autostart Teamviewer
+  ```bash
+  cp /usr/share/applications/teamviewer.desktop ~/.config/autostart
+  ```
+3. Configure Teamviewer  
+  a. Start teamviewer: `teamviewer`  
+  b. Click ***Accept License Agreement***  
+  c. Navigate to ***Extras >Options***  
+  d. Click ***General*** tab on left  
+  e. Set ***Your Display Name***  
+  f. Check the box ***Start Teamviwer with system***  
+  g. Set drop down ***Incoming LAN connections*** to ***accept exclusively***  
+  h. Click ***Security*** tab   
+  i. Set ***Password*** and ***Confirm Password***  
+  j. Leave ***Start Teamviewer with Windows*** checked and click ***OK*** then ***OK***  
+  k. Click ***Advanced*** tab on left  
+  l. Disable log files  
+  m. Check ***Disable TeamViewer shutdown***  
+  n. Click ***OK***  
 
 #### Zoom <a name="zoom"/></a>
 Seems to be a pretty good quality app.  I simply installed it and selected my plantronics headset
