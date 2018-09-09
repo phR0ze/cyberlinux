@@ -40,8 +40,10 @@ fork it and make their own configuration ***profiles***
   * [BlackArch Signature issue](#blackarch-signature-issue)
   * [Certificates](#certificates)
   * [Docker](#docker)
+    * [Build container](#build-container)
+    * [Run container](#run-container)
+    * [Upload container](#upload-container)
     * [Build cyberliux container](#build-cyberlinux-container)
-    * [Upload cyberliux container](#upload-cyberlinux-container)
   * [File Hosting](#file-hosting)
   * [Fonts](#fonts)
   * [Media](#media)
@@ -261,6 +263,33 @@ sudo trust anchor CA1.crt
 
 ### Docker <a name="docker"/></a>
 
+#### Build container <a name="build-container"/></a>
+From the directory that contains your ***Dockerfile*** run:
+
+```bash
+docker build -t alpine-base:latest  .
+```
+
+#### Run container <a name="run-container"/></a>
+```bash
+docker run --rm -it alpine-base:latest bash
+```
+
+#### Upload container <a name="upload-cyberlinux-container"/></a>
+1. Build and deploy a cyberlinux container see [Build cyberlinux container](#build-cyberlinux-container)
+2. List out your docker images: `docker images`
+3. Login to dockerhub.com: `docker login`
+4. Tag and push the versioned and latest tags
+  ```bash
+  # Tag and push the versioned image
+  docker tag net-0.2.197:latest phr0ze/cyberlinux-net:0.2.197
+  docker push phR0ze/cyberlinux-net:0.2.197
+
+  # Tag and push the latest image
+  docker tag net-0.2.197:latest phr0ze/cyberlinux-net:latest
+  docker push phr0ze/cyberlinux-net:latest
+  ```
+
 #### Build cyberlinux container <a name="build-cyberlinux-container"/></a>
 Build, deploy and run a cyberlinux container
 
@@ -274,21 +303,6 @@ sudo ./reduce deploy net -p containers
 # Run net container with docker
 docker run --rm -it net-0.2.197:latest bash
 ```
-
-#### Upload cyberlinux container <a name="upload-cyberlinux-container"/></a>
-1. Build and deploy a cyberlinux container see [Build cyberlinux container](#build-cyberlinux-container)
-2. List out your docker images: `docker images`
-3. Login to dockerhub.com: `docker login`
-4. Tag and push the versioned and latest tags
-  ```bash
-  # Tag and push the versioned image
-  docker tag net-0.2.197:latest phR0ze/cyberlinux-net:0.2.197
-  docker push phR0ze/cyberlinux-net:0.2.197
-
-  # Tag and push the latest image
-  docker tag net-0.2.197:latest phR0ze/cyberlinux-net:latest
-  docker push phR0ze/cyberlinux-net:latest
-  ```
 
 ### File Hosting <a name="file-hosting"/></a>
 The ***cyberlinux*** ISOs are larger than the 1GB Github artifact limit so I need to find another
