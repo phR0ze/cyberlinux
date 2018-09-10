@@ -53,6 +53,7 @@ fork it and make their own configuration ***profiles***
     * [Configure Multiple IPs](#configure-multiple-ips)
     * [SSH Port Forwarding](#ssh-port-forwarding)
     * [Nameservers](#nameservers)
+    * [NFS Shares](#nfs-shares)
     * [Static Networking](#static-networking)
     * [DHCP Networking](#dhcp-networking)
     * [Wifi Configuration](#wifi-configuration)
@@ -444,6 +445,22 @@ tcp        0      0 10.33.234.133:5938      0.0.0.0:*               LISTEN
 Cloudflares DNS is the fastest and safest right now
 
 ***1.1.1.1*** and ***1.0.0.1***
+
+#### NFS Shares <a name="nfs-shares"/></a>
+https://wiki.archlinux.org/index.php/NFS
+
+**Client Config**
+```bash
+# Create local mount points
+sudo mkdir -p /mnt/{Documents,Install,Movies.Pictures,TV}
+
+# Set local mount point ownership to your user
+#sudo chown -R <user-name>: /mnt/{Documents,Install,Movies.Pictures,TV}
+```
+
+**Server Config**
+```bash
+```
 
 #### Static Networking <a name="static-networking"/></a>
 ```bash
