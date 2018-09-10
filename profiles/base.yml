@@ -556,10 +556,11 @@ apps:
           - '/srv/nfs/Cache       <%=nfscidr%>(rw,no_subtree_check,nohide,no_root_squash)'
           - '/srv/nfs/Documents   <%=nfscidr%>(rw,no_subtree_check,nohide)'
           - '/srv/nfs/Install     <%=nfscidr%>(rw,no_subtree_check,nohide)'
-          - '/srv/nfs/Media       <%=nfscidr%>(rw,no_subtree_check,nohide)'
+          - '/srv/nfs/Movies      <%=nfscidr%>(rw,no_subtree_check,nohide)'
           - '/srv/nfs/Pictures    <%=nfscidr%>(rw,no_subtree_check,nohide)'
+          - '/srv/nfs/TV          <%=nfscidr%>(rw,no_subtree_check,nohide)'
           - '/srv/nfs/Other       <%=nfscidr%>(rw,no_subtree_check,nohide)'
-      - {chroot: 'mkdir -p /srv/nfs/{Cache,Documents,Install,Media,Pictures,Other}' }
+      - {chroot: 'mkdir -p /srv/nfs/{Cache,Documents,Install,Movies,Pictures,TV,Other}' }
       - {chroot: "echo 'options nfs nfs4_disable_idmapping=0' > /etc/modprobe.d/nfs.conf" }
 
       # Share pacman cache with other machines on the LAN
