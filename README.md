@@ -449,6 +449,15 @@ Cloudflares DNS is the fastest and safest right now
 #### NFS Shares <a name="nfs-shares"/></a>
 https://wiki.archlinux.org/index.php/NFS
 
+* ***nfs*** – calls out the type of technology being used
+* ***auto*** – maps the share immediately rather than waiting until it is accessed
+* ***noacl*** – turns off all ACL processing, if your not woried about security i.e. home network this is find to turn off
+* ***noatime*** – disables NFS from updating the inodes access time, it can be safely ignored to speed up performance a bit
+* ***nodiratime*** – same as noatime but for directories
+* ***rsize and wsize*** - bytes read from server, default: 1024, larger values e.g. 8192 improve throughput
+* ***timeo=14*** – time in tenths of a second to wait before resending a transmission after an RPC timeout, default: 600
+* ***_netdev*** – tells systemd to wait until the network is up before tyring to mount the share
+
 **Client Config**
 ```bash
 # Create local mount points
@@ -456,10 +465,51 @@ sudo mkdir -p /mnt/{Documents,Install,Movies.Pictures,TV}
 
 # Set local mount point ownership to your user
 #sudo chown -R <user-name>: /mnt/{Documents,Install,Movies.Pictures,TV}
+
+# Manually mount/umount
+sudo mount 192.168.1.2:/srv/nfs/Movies /mnt/Movies
+sudo umount /mnt/Movies
+
+# Setup automount for shares
+sudo tee -a /etc/fstab <<EOL
+192.168.1.2:/srv/nfs/Documents /mnt/Documents nfs auto,noacl,noatime,nodiratime,rsize=8192,wsize=8192,timeo=15,_netdev 0 0
+192.168.1.2:/srv/nfs/Install /mnt/Install nfs auto,noacl,noatime,nodiratime,rsize=8192,wsize=8192,timeo=15,_netdev 0 0
+192.168.1.2:/srv/nfs/Movies /mnt/Movies nfs auto,noacl,noatime,nodiratime,rsize=8192,wsize=8192,timeo=15,_netdev 0 0
+192.168.1.2:/srv/nfs/Pictures /mnt/Pictures nfs auto,noacl,noatime,nodiratime,rsize=8192,wsize=8192,timeo=15,_netdev 0 0
+192.168.1.2:/srv/nfs/TV /mnt/TV nfs auto,noacl,noatime,nodiratime,rsize=8192,wsize=8192,timeo=15,_netdev 0 0
+EOL
+sudo mount -a
 ```
 
 **Server Config**
 ```bash
+# Setup nfs shares
+#/srv/nfs/Cache       192.168.1.0/24(rw,no_subtree_check,nohide,no_root_squash)
+sudo tee -a /etc/exports <<EOL
+/srv/nfs/Documents   192.168.1.0/24(rw,no_subtree_check,nohide)
+/srv/nfs/Install     192.168.1.0/24(rw,no_subtree_check,nohide)
+/srv/nfs/Movies      192.168.1.0/24(rw,no_subtree_check,nohide)
+/srv/nfs/Pictures    192.168.1.0/24(rw,no_subtree_check,nohide)
+/srv/nfs/TV          192.168.1.0/24(rw,no_subtree_check,nohide)
+EOL
+
+# Manually Bind mount directories
+sudo mount --bind /mnt/Movies /srv/nfs/Movies
+
+# Auto Bind mount directories
+#/var/cache/pacman/pkg /srv/nfs/Cache none bind 0 0
+sudo tee -a /etc/fstab <<EOL
+/mnt/Documents /srv/nfs/Documents none bind 0 0
+/mnt/Install /srv/nfs/Install none bind 0 0
+/mnt/Movies /srv/nfs/Movies none bind 0 0
+/mnt/Pictures /srv/nfs/Pictures none bind 0 0
+/mnt/TV /srv/nfs/TV none bind 0 0
+EOL
+sudo mount -a
+sudo systemctl restart nfs-server
+
+# Check what is currently being served
+sudo exportfs -v
 ```
 
 #### Static Networking <a name="static-networking"/></a>
