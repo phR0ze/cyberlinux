@@ -58,6 +58,7 @@ fork it and make their own configuration ***profiles***
     * [DHCP Networking](#dhcp-networking)
     * [Wifi Configuration](#wifi-configuration)
   * [Packages](#packages)
+    * [Mirror Lists](#mirror-lists)
   * [Patching](#patching)
   * [Remoting](#remoting)
     * [Synergy](#synergy)
@@ -611,6 +612,17 @@ sudo systemctl restart systemd-networkd
 
 ### Packages <a name="packages"/></a>
 * Create repo: `repo-add cyberlinux.db.tar.gz *.pkg.tar.xz`
+
+### Mirror Lists <a name="mirror-lists"/></a>
+1. Install the latest mirror list  
+  a. Install: `sudo pacman -S pacman-mirrorlist`  
+  b. Replace old: `sudo mv /etc/pacman.d/mirrorlist.pacnew /etc/pacman.d/mirrorlist`  
+  c. Backup list: `sudo cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak`  
+2. Prep mirror list for sorting  
+  a. Edit list and uncomment ***US*** mirrors  
+  b. Delete everything else  
+3. Sort by speed  
+  a. Run: `sudo bash -c 'rankmirrors -n 20 /etc/pacman.d/mirrorlist.bak > /etc/pacman.d/mirrorlist'`  
 
 ### Patching <a name="patching"/></a>
 
