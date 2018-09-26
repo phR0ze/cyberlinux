@@ -64,6 +64,8 @@ fork it and make their own configuration ***profiles***
     * [Synergy](#synergy)
     * [Teamviewer](#teamviewer)
     * [Zoom](#zoom)
+  * [Storage](#storage)
+    * [Clone Drive](#clone-drive)
   * [Systemd](#systemd)
   * [Users/Groups](#users-groups)
     * [Add system user](#add-system-user)
@@ -720,6 +722,17 @@ SigLevel = Optional TrustAll
 Server = https://phR0ze.github.io/cyberlinux-repo/$repo/$arch
 EOL
 sudo pacman -Sy zoom
+```
+
+### Storage <a name="storage"/></a>
+#### Clone Drive <a name="clone-drive"/></a>
+```bash
+# Kick off clone in one terminal
+# conv=sync,noerror means in the case of an error ensure length of original data is preserved and don't fail
+sudo dd if=/dev/sdX of=/dev/sdY bs=1M conv=sync,noerror
+
+# Watch clone in another with
+watch -n10 'sudo kill -USR1 $(pgrep ^dd)'
 ```
 
 ### Systemd <a name="systemd"/></a>
