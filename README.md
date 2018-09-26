@@ -58,6 +58,7 @@ fork it and make their own configuration ***profiles***
     * [DHCP Networking](#dhcp-networking)
     * [Wifi Configuration](#wifi-configuration)
   * [Packages](#packages)
+    * [Init Database](#init-database)
     * [Mirror Lists](#mirror-lists)
   * [Patching](#patching)
   * [Remoting](#remoting)
@@ -614,6 +615,24 @@ sudo systemctl restart systemd-networkd
 
 ### Packages <a name="packages"/></a>
 * Create repo: `repo-add cyberlinux.db.tar.gz *.pkg.tar.xz`
+
+### Init database <a name="init-database"/></a>
+***cyberlinux*** is configured out of the box with initial keys and databases; however should the
+need arise to clean it and start fresh this is what you do.
+
+```bash
+# Initialize pacman keys
+sudo pacman-key --init
+
+# Populate with repo keys
+sudo pacman-key --populate archlinux blackarch antergos
+
+# Update database
+sudo pacman -Sy
+
+# Cache pkg data
+sudo pkgfile --update
+```
 
 ### Mirror Lists <a name="mirror-lists"/></a>
 1. Install the latest mirror list  
