@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.238
+  release: 0.2.239
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -495,19 +495,22 @@ apps:
         values:
           - "#!/usr/bin/env ruby\n"
           - "if ARGV.first == 'wifi'"
-          - "  val = `rfkill | grep wlan`[/unblocked|blocked/]"
-          - "  `rfkill block wlan` if val == 'unblocked'"
-          - "  `rfkill unblock wlan` if val == 'blocked'"
+          - '  `rfkill | grep wlan`.split("\n").each{|x|'
+          - "    id, type, name, status = x.split()"
+          - "    `rfkill block #{id}` if status == 'unblocked'"
+          - "    `rfkill unblock #{id}` if status == 'blocked'"
+          - "  }"
           - "elsif ARGV.first == 'bluetooth'"
-          - "  val = `rfkill | grep bluetooth`[/unblocked|blocked/]"
-          - "  `rfkill block bluetooth` if val == 'unblocked'"
-          - "  `rfkill unblock bluetooth` if val == 'blocked'"
+          - '  `rfkill | grep bluetooth`.split("\n").each{|x|'
+          - "    id, type, name, status = x.split()"
+          - "    `rfkill block #{id}` if status == 'unblocked'"
+          - "    `rfkill unblock #{id}` if status == 'blocked'"
+          - "  }"
           - "elsif ARGV.first == 'display'"
           - "  primary = 'eDP-1'"
           - "  projector = 'VGA-1'"
           - "  resolution = '1280x1024'"
           - "  xrandr = `xrandr`\n"
-          - '  if xrandr.include?("#{primary} connected primary #{resolution}")'
           - "  # Standalone laptop mode, disable external output"
           - '  if xrandr.include?("#{primary} connected primary #{resolution}")'
           - "    `xrandr --output #{projector} --off --output #{primary} --auto`\n"
