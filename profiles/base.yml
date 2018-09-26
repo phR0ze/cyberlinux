@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.234
+  release: 0.2.235
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -391,7 +391,10 @@ apps:
       - {install: xfce4-screenshooter, desc: Plugin that makes screenshots for the Xfce panel }
       - filelight
     - media:
+      - {install: flac,             desc: Free lossless audio codec }
       - {install: gpicview,         desc: Image viewer, alt: shotwell/viewnior }
+      - {install: lame,             desc: High quality MPEG layer III audio encoder }
+      - {install: parallel,         desc: Shell tool for executing jobs in parallel }
       - {install: qt4,              desc: A cross-platform application and UI framework, deps: vlc }
       - {install: qt5-base,         desc: A cross-platform application and UI framework, deps: mkvtoolnix-gui }
       - {install: smplayer,         desc: UI wrapper around mplayer with click to pause, alt: vlc }
