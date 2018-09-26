@@ -421,12 +421,12 @@
     </keybind>
     <keybind key="XF86MonBrightnessUp">
       <action name="Execute">
-        <command>sudo backlight +10</command>
+        <command>light -A 10</command>
       </action>
     </keybind>
     <keybind key="XF86MonBrightnessDown">
       <action name="Execute">
-        <command>sudo backlight -10</command>
+        <command>light -U 10</command>
       </action>
     </keybind>
 

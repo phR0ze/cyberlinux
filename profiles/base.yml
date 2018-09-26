@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.237
+  release: 0.2.238
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -483,6 +483,7 @@ apps:
     - synergy
     - libreoffice
     - wpa-supplicant
+    - {install: light, desc: Control laptop backlights screen and keyboard, type: CYBERLINUX }
     - {install: openvpn-update-systemd-resolved, desc: OpenVPN systemd-resolved updater, type: CYBERLINUX }
     - {install: remmina, desc: Network/Remoting - Nice remoting UI for RDP }
     - {install: veracrypt, desc: Disk encryption with strong security based on TrueCrypt }
@@ -518,28 +519,6 @@ apps:
           - "  end"
           - "end"
       - { exec: 'chmod +x /opt/<%=distro%>/bin/toggle'}
-
-    # Backlight configuration script
-    # Workaround as xranrd doesn't seem to recognize intel_backlight
-    - config-backlight:
-      - edit: /opt/<%=distro%>/bin/backlight
-        insert: append
-        values:
-          - "#!/usr/bin/env ruby\n"
-          - "max = File.read('/sys/class/backlight/intel_backlight/max_brightness').to_i"
-          - "brightness = '/sys/class/backlight/intel_backlight/brightness'"
-          - "level = File.read(brightness).to_i\n"
-          - "if ARGV.first[0] == '+'"
-          - "  inc = ARGV.first.split('+').last.to_i"
-          - "  level += (max.to_f*inc.to_f/100.0).round"
-          - "  level = max if level > max"
-          - "else"
-          - "  dec = ARGV.first.split('-').last.to_i"
-          - "  level -= (max.to_f*dec.to_f/100.0).round"
-          - "  level = 0 if level < 0"
-          - "end"
-          - "`echo '#{level}' > #{brightness}`"
-      - { exec: 'chmod +x /opt/<%=distro%>/bin/backlight'}
 
     # Performance improvements in for the iwlwifi driver
     - config-iwlwifi:
@@ -1264,9 +1243,9 @@ apps:
 
   # Xorg breakdown rather than using xorg group to remove un-needed packages
   # Removing: xorg-docs, xorg-server-xdmx, xorg-server-xephyr, xorg-server-xnest, xorg-server-xwayland,
-  # xorg-server-devel, xorg-sessreg, xorg-smproxy, xorg-xdriinfo, xorg-xgamma, xorg-xcmsdb, xorg-xhost,
-  # xorg-xlsatoms, xorg-xlsclients, xorg-xrdb, xorg-xrefresh, xorg-xsetroot, xorg-x11perf, xorg-xpr,
-  # xorg-xvinfo, xorg-xwud, xorg-iceauth, xorg-xwd
+  # xorg-server-devel, xorg-sessreg, xorg-smproxy, xorg-xbacklight, xorg-xdriinfo, xorg-xgamma, xorg-xcmsdb,
+  # xorg-xhost, xorg-xlsatoms, xorg-xlsclients, xorg-xrdb, xorg-xrefresh, xorg-xsetroot, xorg-x11perf,
+  # xorg-xpr, xorg-xvinfo, xorg-xwud, xorg-iceauth, xorg-xwd
   xorg:
     - {install: xf86-input-libinput, desc: X.Org generic input driver, group: [xorg-drivers]}
     - {install: xf86-video-vesa,  desc: X.org vesa video driver, group: [xorg, xorg-drivers]}
@@ -1282,7 +1261,6 @@ apps:
     - {install: xorg-server-xvfb, desc: Virtual framebuffer X server, group: [xorg]}
     - {install: xorg-setxkbmap,   desc: Set the keyboard using the X Keyboard Extension, group: [xorg, xorg-apps]}
     - {install: xorg-xauth,       desc: X.Org authorization settings program, group: [xorg, xorg-apps]}
-    - {install: xorg-xbacklight,  desc: RandR-based backlight control application, group: [xorg, xorg-apps]}
     - {install: xorg-xcursorgen,  desc: Create an X cursor file from PNG images, group: [xorg, xorg-apps]}
     - {install: xorg-xdpyinfo,    desc: Display information utility for X, group: [xorg, xorg-apps]}
     - {install: xorg-xev,         desc: Print contents of X events, group: [xorg, xorg-apps]}

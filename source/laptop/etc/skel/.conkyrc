@@ -40,9 +40,9 @@ conky.config = {
 
     -- Position
     alignment = 'top_left',                 -- Align window on the desktop
-    maximum_width = 1860,                   -- Maximum width of conky window
-    minimum_width = 1860,                   -- Set to max so offset doesn't push into unknown
-    minimum_height = 1000,                  -- Set to max so voffset doesn't push into unknown
+    maximum_width = 1920,                   -- Maximum width of conky window
+    minimum_width = 1920,                   -- Set to max so offset doesn't push into unknown
+    minimum_height = 1080,                  -- Set to max so voffset doesn't push into unknown
     gap_x = 20,                             -- Gap in pixels between right or left border of screen
     gap_y = 20,                             -- Gap in pixels between top or bottom of screen
 
@@ -65,19 +65,19 @@ conky.text = [[
 #-------------------------------------------------------------------------------
 # Time/Date/Calendar
 #-------------------------------------------------------------------------------
-${voffset -38}${offset 1540}\
+${voffset -38}${offset 1570}\
 ${font Designer Block:bold:size=100}${color1}${time %I}\
 ${offset 3}${voffset -38}${font Designer Block:bold:size=50}${color3}:${time %M}\
 ${font Designer Block:bold:size=14}${time %p}\
 ${offset -110}${voffset 13}${font Designer Block:bold:size=35}${color1}${time %a} ${time %d}\
 ${voffset -10}${font Designer Block:bold:size=20}${exec ~/bin/conky_date.rb}
 # Month/Year
-${voffset 25}${offset 1550}\
+${voffset 25}${offset 1580}\
 ${font Designer Block:normal:size=24}${color1}${time %B}.${time %Y} ${hr 2}
 # Day names
-${offset 1538}${font Liberation Mono:bold:size=14}${color2}  Su  Mo  Tu  We  Th  Fr  Sa
+${offset 1568}${font Liberation Mono:bold:size=14}${color2}  Su  Mo  Tu  We  Th  Fr  Sa
 # Days
-${font Liberation Mono:size=14}${color1}${execp ~/bin/conky_cal.rb 2 1538}
+${font Liberation Mono:size=14}${color1}${execp ~/bin/conky_cal.rb 2 1568}
 
 #-------------------------------------------------------------------------------
 # Distro
@@ -91,24 +91,20 @@ ${font Audiowide:size=30}${color1}cyber${color2}linux${font Liberation Mono:size
 ${color2}${font Liberation Mono:size=20}SYSTEM${font Liberation Mono:size=12}
 ${voffset 4}${color lightgrey} Name: $color${nodename}
 ${color lightgrey} Kernel: $color${kernel}
-
-${color lightgrey} WiFi:      $color${exec ~/bin/conky_radio.rb wifi}
+${voffset 8}${color lightgrey} WiFi:      $color${exec ~/bin/conky_radio.rb wifi}
 ${color lightgrey} Bluetooth: $color${exec ~/bin/conky_radio.rb bluetooth}
 ${voffset 8}${color lightgrey} SSID:      $color ${wireless_essid}
-${color lightgrey} Private IP:$color ${addrs enp0s25}
+${color lightgrey} Private IP:$color ${addrs wlo1}
 ${color lightgrey} Public  IP:$color ${curl ipinfo.io/ip 5}
-
-${color lightgrey} Battery: $color${battery_percent}% (${battery_time})
+${voffset 10}${color lightgrey} Battery: $color${battery_percent}% (${battery_time})
 ${color} ${battery_bar}
 ${voffset 10}${color lightgrey} Storage 1: $color${fs_used_perc /}% (${fs_used /}/${fs_size /})
 ${color} ${fs_bar /}
-${voffset 10}${color lightgrey} Storage 2: $color${fs_used_perc /mnt/storage}% (${fs_used /mnt/storage}/${fs_size /mnt/storage})
-${color} ${fs_bar /mnt/storage}
 
 #-------------------------------------------------------------------------------
 # Hot Keys
 #-------------------------------------------------------------------------------
-${voffset -405}
+${voffset -333}
 ${offset 350}${color2}${font Liberation Mono:size=20}HOT KEYS${font Liberation Mono:size=10}
 ${offset 350}${color lightgrey} Super+c         (Reconfigure openbox)
 ${offset 350}${color lightgrey} Super+e         (Launch editor)
@@ -134,9 +130,9 @@ ${offset 350}${color lightgrey} XF86AudioLower  (Lower Volume)
 #-------------------------------------------------------------------------------
 # Connections
 #-------------------------------------------------------------------------------
-${voffset -380}
+${voffset -400}
 ${offset 700}${color2}${font Liberation Mono:size=20}CONNECTIONS${font Liberation Mono:size=12}
-${offset 700}${color2}${font Liberation Mono:size=14} Inbound:  ${tcp_portmon 1 32767 count}${font Liberation Mono:size=12}
+${offset 700}${color2}${font Liberation Mono:size=14} Inbound:  ${tcp_portmon 1 32767 count}${font Liberation Mono:size=10}
 ${offset 700}${color lightgrey} ${tcp_portmon 1 32767 rhost 0} ${tcp_portmon 1 32767 lport 0}
 ${offset 700}${color lightgrey} ${tcp_portmon 1 32767 rhost 1} ${tcp_portmon 1 32767 lport 1}
 ${offset 700}${color lightgrey} ${tcp_portmon 1 32767 rhost 2} ${tcp_portmon 1 32767 lport 2}
@@ -145,7 +141,7 @@ ${offset 700}${color lightgrey} ${tcp_portmon 1 32767 rhost 4} ${tcp_portmon 1 3
 ${offset 700}${color lightgrey} ${tcp_portmon 1 32767 rhost 5} ${tcp_portmon 1 32767 lport 5}
 
 
-${offset 700}${color2}${font Liberation Mono:size=14} Outbound: ${tcp_portmon 32768 65535 count}${font Liberation Mono:size=12}
+${offset 700}${color2}${font Liberation Mono:size=14} Outbound: ${tcp_portmon 32768 65535 count}${font Liberation Mono:size=10}
 ${offset 700}${color lightgrey} ${tcp_portmon 32768 61000 rhost 0} ${tcp_portmon 32768 61000 rport 0}
 ${offset 700}${color lightgrey} ${tcp_portmon 32768 61000 rhost 1} ${tcp_portmon 32768 61000 rport 1}
 ${offset 700}${color lightgrey} ${tcp_portmon 32768 61000 rhost 2} ${tcp_portmon 32768 61000 rport 2}
@@ -153,14 +149,11 @@ ${offset 700}${color lightgrey} ${tcp_portmon 32768 61000 rhost 3} ${tcp_portmon
 ${offset 700}${color lightgrey} ${tcp_portmon 32768 61000 rhost 4} ${tcp_portmon 32768 61000 rport 4}
 ${offset 700}${color lightgrey} ${tcp_portmon 32768 61000 rhost 5} ${tcp_portmon 32768 61000 rport 5}
 ${offset 700}${color lightgrey} ${tcp_portmon 32768 61000 rhost 6} ${tcp_portmon 32768 61000 rport 6}
-${offset 700}${color lightgrey} ${tcp_portmon 32768 61000 rhost 7} ${tcp_portmon 32768 61000 rport 7}
-${offset 700}${color lightgrey} ${tcp_portmon 32768 61000 rhost 8} ${tcp_portmon 32768 61000 rport 8}
-${offset 700}${color lightgrey} ${tcp_portmon 32768 61000 rhost 9} ${tcp_portmon 32768 61000 rport 9}
 
 #-------------------------------------------------------------------------------
 # CPU/Processes
 #-------------------------------------------------------------------------------
-${voffset 100}
+${voffset 140}
 ${color2}${font Liberation Mono:size=20}CPU/PROCESSES${font Liberation Mono:size=12}
 ${voffset 4}${color lightgrey} usage: ${cpu cpu1}%
 ${color} ${cpubar cpu1}
@@ -202,8 +195,8 @@ ${offset 350}${color lightgrey} ${top_mem name 10} ${top_mem pid 10} ${top_mem m
 #-------------------------------------------------------------------------------
 ${voffset -319}
 ${offset 700}${color2}${font Liberation Mono:size=20}UP/DOWN SPEED${font Liberation Mono:size=12}
-${offset 700}${color lightgrey} Up Speed: $color${upspeed enp0s25}
-${offset 700} $color${upspeedgraph enp0s25}
-${voffset 4}${offset 700}${color lightgrey} Down Speed: $color${downspeed enp0s25}
-${offset 700} $color${downspeedgraph enp0s25}
+${offset 700}${color lightgrey} Up Speed: $color${upspeed wlo1}
+${offset 700} $color${upspeedgraph wlo1}
+${voffset 4}${offset 700}${color lightgrey} Down Speed: $color${downspeed wlo1}
+${offset 700} $color${downspeedgraph wlo1}
 ]];

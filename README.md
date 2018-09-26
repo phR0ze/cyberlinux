@@ -39,6 +39,8 @@ fork it and make their own configuration ***profiles***
   * [Apps to use](#apps-to-use)
   * [BlackArch Signature issue](#blackarch-signature-issue)
   * [Certificates](#certificates)
+  * [Develop](#develop)
+    * [Git](#git)
   * [Docker](#docker)
     * [Build container](#build-container)
     * [Run container](#run-container)
@@ -191,15 +193,15 @@ Disable proxy:
 2. Logout and back in
 
 ### Configure Backlight <a name="configure-backlight"/></a>
-cyberlinux uses the ***/opt/cyberlinux/bin/backlight*** script to configure the
-***intel_backlight***. It takes two different arguments, either increment or decrement as follows:
+cyberlinux uses the ***https://aur.archlinux.org/packages/light/*** script to configure the
+backlights.  ***Light*** is used directly in the ***~/.config/openbox/rc.xml*** config file.
 
 ```bash
 # Increment backlight brightness by 10%
-sudo backlight +10
+light -A 10
 
 # Decrement backlight brightness by 10%
-sudo backlight -10
+light -U 10
 ```
 
 #### HP ZBook 15 <a name="HP ZBook 15"/></a>
@@ -264,6 +266,17 @@ unzip CA1.zip && rename CA1.cer CA1.crt
 
 # Install new CA cert, original file can then be deleted
 sudo trust anchor CA1.crt
+```
+
+### Develop <a name="develop"/></a>
+#### Git <a name="git"/></a>
+Common git config across repos
+```bash
+cd ~/Projects/cyberlinux
+git config --global user.email <email address>
+git config --global user.name phR0ze
+git config --global push.default simple
+git config core.hooksPath .githooks
 ```
 
 ### Docker <a name="docker"/></a>
@@ -801,15 +814,10 @@ Create a new ***100GB Volume***
   b. Select ***Slot 1*** and click ***Select File...*** then select your data file  
   d. Click ***Mount*** then punch in your password and walla  
   c. Veracrypt will automatically create ***/mnt/veracrypt1*** as your mount point  
-4. Create a shell link and ownership  
-  ```bash
-  ln -sf /mnt/veracrypt1 ~/veracrypt1
-  cd ~/veracrypt
-  sudo chown pcrumm: -R .
-  ```
-5. Create a Thunar Shortcut  
-  a. Browse to ***/mnt/veracrypt1*** and drage and drop it to ***Places***  
-6. Configure autostart for veracrypt  
+  d. Set ownership: `sudo chown -R phR0ze: /mnt/veracrypt1`  
+4. Create a Thunar Shortcut  
+  a. Browse to ***/mnt/veracrypt1*** and drag and drop it to ***Places***  
+5. Configure autostart for veracrypt  
   `cp /usr/share/applications/veracrypt.desktop ~/.config/autostart`
 
 ### Video Output <a name="video-output"/></a>
