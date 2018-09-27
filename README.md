@@ -52,6 +52,8 @@ fork it and make their own configuration ***profiles***
     * [Keyboard Shortcuts](#keyboard-shortcuts)
     * [Set Default Template](#set-default-template)
     * [Turn off Smart Quotes](#turn-off-smart-quotes)
+    * [Turn off Replace Dashes](#turn-off-replace-dashes)
+    * [Turn off Automatic Strikeout](#turn-off-automatic-strikeout)
   * [Media](#media)
     * [Screen Recorder](#screen-recorder)
   * [Network](#network)
@@ -398,6 +400,16 @@ Conky will need to be restarted to pick up new fonts
 1. Navigate to ***Tools >AutoCorrect >AutoCorrect Options...***  
 2. Select the ***Localization Options*** tab  
 3. Uncheck ***Replace*** for both types of quotes  
+
+#### Turn off Replace Dashes <a name="turn-off-replace-dashes"/></a>
+1. Navigate to ***Tools >AutoCorrect >AutoCorrect Options...***  
+2. Select the ***Options*** tab  
+3. Uncheck ***Replace dashes***  
+
+#### Turn off Automatic Strikeout <a name="turn-off-automatic-strikeout"/></a>
+1. Navigate to ***Tools >AutoCorrect >AutoCorrect Options...***  
+2. Select the ***Options*** tab  
+3. Uncheck ***Automatic bold,italic,strikeout,underline***   
 
 ### Media <a name="media"/></a>
 
