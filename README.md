@@ -48,6 +48,10 @@ fork it and make their own configuration ***profiles***
     * [Build cyberliux container](#build-cyberlinux-container)
   * [File Hosting](#file-hosting)
   * [Fonts](#fonts)
+  * [Libre Office](#libre-office)
+    * [Keyboard Shortcuts](#keyboard-shortcuts)
+    * [Set Default Template](#set-default-template)
+    * [Turn off Smart Quotes](#turn-off-smart-quotes)
   * [Media](#media)
     * [Screen Recorder](#screen-recorder)
   * [Network](#network)
@@ -362,6 +366,38 @@ fonts that you may want to individually use.
 
 #### Conky Fonts <a name="conky-fonts"/></a>
 Conky will need to be restarted to pick up new fonts
+
+### Libre Office <a name="libre-office"/></a>
+
+#### Keyboard Shortcuts <a name="keyboard-shortcuts"/></a>
+1. Navigate to ***Tools >Customize... >Keyboard***  
+2. Set ***Ctrl+Shift+c***  
+  a. Press ***Ctrl+Shift+c*** to automatically navigate to that shortcut in the top window  
+  b. Navigate to ***Category >Styles >Character >Code***  
+  c. Click ***Modify*** in the top right to set shortcut function  
+3. Set ***Ctrl+Shift+d***  
+  a. Press ***Ctrl+Shift+d*** to automatically navigate to that shortcut in the top window  
+  b. Navigate to ***Category >Styles >Character >Default Style***  
+  c. Click ***Modify*** in the top right to set shortcut function  
+4. Set ***Ctrl+Shift+l***  
+  a. Press ***Ctrl+Shift+l*** to automatically navigate to that shortcut in the top window  
+  b. Navigate to ***Category >Styles >Numbering >List 1***  
+  c. Click ***Modify*** in the top right to set shortcut function  
+5. Set ***Ctrl+Shift+n***  
+  a. Press ***Ctrl+Shift+n*** to automatically navigate to that shortcut in the top window  
+  b. Navigate to ***Category >Styles >Numbering >Numbering 1***  
+  c. Click ***Modify*** in the top right to set shortcut function  
+
+#### Set Default Template <a name="set-default-template"/></a>
+1. Save your template as ***~/.config/libreoffice/4/user/template/standard.ott***  
+2. Launch ***libreoffice*** and navigate to ***File >Templates >Manage Templates***  
+3. Right click on ***standard*** and choose ***Set As Default***  
+4. Cancel dialog and your done  
+
+#### Turn off Smart Quotes <a name="turn-off-smart-quotes"/></a>
+1. Navigate to ***Tools >AutoCorrect >AutoCorrect Options...***  
+2. Select the ***Localization Options*** tab  
+3. Uncheck ***Replace*** for both types of quotes  
 
 ### Media <a name="media"/></a>
 
