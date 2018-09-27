@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.246
+  release: 0.2.247
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -1048,7 +1048,7 @@ apps:
 
   # Awesome screen recorder
   simplescreenrecorder:
-    - install: qbittorrent
+    - install: simplescreenrecorder
     - {menu: Multimedia, entry: SimpleScreenRecorder, icon: /usr/share/icons/hicolor/32x32/apps/simplescreenrecorder.png, exec: simplescreenrecorder }
 
   # Open source SSH server/client
