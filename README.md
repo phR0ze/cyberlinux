@@ -49,6 +49,7 @@ fork it and make their own configuration ***profiles***
   * [File Hosting](#file-hosting)
   * [Fonts](#fonts)
   * [Libre Office](#libre-office)
+    * [Config Navigation](#config-navigation)
     * [Keyboard Shortcuts](#keyboard-shortcuts)
     * [Set Default Template](#set-default-template)
     * [Turn off Smart Quotes](#turn-off-smart-quotes)
@@ -370,6 +371,10 @@ fonts that you may want to individually use.
 Conky will need to be restarted to pick up new fonts
 
 ### Libre Office <a name="libre-office"/></a>
+
+#### Config Navigation <a name="config-navigation"/></a>
+1. Display navigation select ***View >Navigator***  
+2. Dock press ***Ctrl+Shift+F10***  
 
 #### Keyboard Shortcuts <a name="keyboard-shortcuts"/></a>
 1. Navigate to ***Tools >Customize... >Keyboard***  
