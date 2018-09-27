@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.244
+  release: 0.2.245
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -924,7 +924,7 @@ apps:
     - {install: handbrake-cli,      desc: Video/Encoding - Video encoding tool for mp4/mkv }
     - {install: mkvtoolnix-gui,     desc: Set of tools to create, edit and inspect MKV files }
     - {install: tiny-media-manager, desc: Cross platform media manager, type: CYBERLINUX }
-    - {menu: Multimedia, entry: HandBrake, icon: /usr/share/icons/hicolor/scalable/apps/hb-icon.svg, exec: ghb }
+    - {menu: Multimedia, entry: HandBrake, icon: /usr/share/icons/hicolor/scalable/apps/fr.handbrake.ghb.svg, exec: ghb }
     - {menu: Multimedia, entry: MKVToolNix, icon: /usr/share/icons/hicolor/32x32/apps/mkvtoolnix-gui.png, exec: mkvtoolnix-gui }
     - {menu: Multimedia, entry: Tiny Media Manager, icon: /usr/share/icons/hicolor/32x32/apps/tiny-media-manager.png, exec: tiny-media-manager }
 
@@ -1026,7 +1026,7 @@ apps:
     - {edit: /etc/skel/.config/plank/dock1/launchers/02-xnviewmp.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/xnviewmp.desktop"]}
     - {edit: /etc/skel/.config/plank/dock1/launchers/03-smplayer.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/smplayer.desktop"]}
     - {edit: /etc/skel/.config/plank/dock1/launchers/04-vlc.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/vlc.desktop"]}
-    - {edit: /etc/skel/.config/plank/dock1/launchers/05-ghb.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/fr.handbrake.ghb.desktop"]}
+    - {edit: /etc/skel/.config/plank/dock1/launchers/05-handbrake.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/fr.handbrake.ghb.desktop"]}
     - {edit: /etc/skel/.config/plank/dock1/launchers/06-filezilla.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/filezilla.desktop"]}
     - {edit: /etc/skel/.config/plank/dock1/launchers/07-chromium.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/chromium.desktop"]}
     - {edit: /etc/skel/.config/plank/dock1/launchers/08-calc.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/libreoffice-calc.desktop"]}
