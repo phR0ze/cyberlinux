@@ -815,9 +815,10 @@ Create a new ***100GB Volume***
   d. Click ***Mount*** then punch in your password and walla  
   c. Veracrypt will automatically create ***/mnt/veracrypt1*** as your mount point  
   d. Set ownership: `sudo chown -R phR0ze: /mnt/veracrypt1`  
-4. Create a Thunar Shortcut  
+4. Create home dir link `ln -sf /mnt/veracrypt1/Documents ~/Documents`  
+5. Create a Thunar Shortcut  
   a. Browse to ***/mnt/veracrypt1*** and drag and drop it to ***Places***  
-5. Configure autostart for veracrypt  
+6. Configure autostart for veracrypt  
   `cp /usr/share/applications/veracrypt.desktop ~/.config/autostart`
 
 ### Video Output <a name="video-output"/></a>
