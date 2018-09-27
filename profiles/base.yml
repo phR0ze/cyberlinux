@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.245
+  release: 0.2.246
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -924,9 +924,10 @@ apps:
     - {install: handbrake-cli,      desc: Video/Encoding - Video encoding tool for mp4/mkv }
     - {install: mkvtoolnix-gui,     desc: Set of tools to create, edit and inspect MKV files }
     - {install: tiny-media-manager, desc: Cross platform media manager, type: CYBERLINUX }
-    - {menu: Multimedia, entry: HandBrake, icon: /usr/share/icons/hicolor/scalable/apps/fr.handbrake.ghb.svg, exec: ghb }
+    - {menu: Multimedia, entry: HandBrake, icon: /usr/share/icons/hicolor/scalable/apps/hb-icon.svg, exec: ghb }
     - {menu: Multimedia, entry: MKVToolNix, icon: /usr/share/icons/hicolor/32x32/apps/mkvtoolnix-gui.png, exec: mkvtoolnix-gui }
     - {menu: Multimedia, entry: Tiny Media Manager, icon: /usr/share/icons/hicolor/32x32/apps/tiny-media-manager.png, exec: tiny-media-manager }
+    - {edit: /usr/share/applications/fr.handbrake.ghb.desktop, regex: '^(Icon).*', value: '\1=hb-icon.svg'}
 
   menu-structure:
     - menu-header:
