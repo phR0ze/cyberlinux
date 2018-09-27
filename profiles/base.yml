@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.243
+  release: 0.2.244
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -1026,7 +1026,7 @@ apps:
     - {edit: /etc/skel/.config/plank/dock1/launchers/02-xnviewmp.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/xnviewmp.desktop"]}
     - {edit: /etc/skel/.config/plank/dock1/launchers/03-smplayer.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/smplayer.desktop"]}
     - {edit: /etc/skel/.config/plank/dock1/launchers/04-vlc.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/vlc.desktop"]}
-    - {edit: /etc/skel/.config/plank/dock1/launchers/05-ghb.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/ghb.desktop"]}
+    - {edit: /etc/skel/.config/plank/dock1/launchers/05-ghb.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/fr.handbrake.ghb.desktop"]}
     - {edit: /etc/skel/.config/plank/dock1/launchers/06-filezilla.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/filezilla.desktop"]}
     - {edit: /etc/skel/.config/plank/dock1/launchers/07-chromium.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/chromium.desktop"]}
     - {edit: /etc/skel/.config/plank/dock1/launchers/08-calc.dockitem, insert: append, values: ["[PlankDockItemPreferences]", "Launcher=file:///usr/share/applications/libreoffice-calc.desktop"]}
