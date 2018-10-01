@@ -891,9 +891,10 @@ accurately you have to set some ***xrandr*** rules post login:
 xrandr
 
 # Specify order of displays (auto is a default param if nothing is given to override it)
-xrandr --output DP-2 --left-of DP-3
+xrandr --output DP-3 --auto --primary --output DP-2 --auto --left-of DP-3
 
-# LXDM has a hook you can use to configure this before logging in in /etc/lxdm/PostLogin
+# LXDM has a hook you can use to configure this after login /etc/lxdm/PostLogin
+# LoginReady and PreLogin both seem to be too early in the process to work correctly
 # Lxrandr updates the auto start desktop file with its config ~/.config/autostart/lxrandr-autostart.desktop
 # Exec=sh -c 'xrandr --output DP-3 --mode 2560x1600 --rate 59.97 --output DP-2 --mode 1920x1200 --rate 59.95 --left-of DP-3'
 sudo tee -a /etc/lxdm/PostLogin <<EOL
