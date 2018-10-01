@@ -888,17 +888,6 @@ accurately you have to set some ***xrandr*** rules post login:
 # DP-1 disconnected (normal left inverted right x axis y axis)
 # DP-2 connected 1920x1200+2560+0 (normal left inverted right x axis y axis) 520mm x 320mm
 # DP-3 connected 2560x1600+0+0 (normal left inverted right x axis y axis) 641mm x 400mm
-xrandr
-
-# Specify order of displays (auto is a default param if nothing is given to override it)
-xrandr --output DP-2 --left-of DP-3
-
-# LXDM has a hook you can use to configure this before logging in in /etc/lxdm/PostLogin
-# Lxrandr updates the auto start desktop file with its config ~/.config/autostart/lxrandr-autostart.desktop
-# Exec=sh -c 'xrandr --output DP-3 --mode 2560x1600 --rate 59.97 --output DP-2 --mode 1920x1200 --rate 59.95 --left-of DP-3'
-sudo tee -a /etc/lxdm/PostLogin <<EOL
-xrandr --output DP-3 --mode 2560x1600 --rate 59.97 --primary --output DP-2 --mode 1920x1200 --rate 59.95 --left-of DP-3
-EOL
 ```
 
 #### VGA Output <a name="vga-output"/></a>
