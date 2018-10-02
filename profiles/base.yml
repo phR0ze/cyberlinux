@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.252
+  release: 0.2.253
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -644,6 +644,16 @@ apps:
   docker:
     - groups: [docker]
     - {install: docker, desc: Run applications as containers, depof: reduce }
+    - edit: /etc/docker/daemon.json
+      insert: append
+      values:
+        - '{'
+        - '  "log-driver": "json-file",'
+        - '  "log-opts": {'
+        - '    "max-size": "10m",'
+        - '    "max-file": "3"'
+        - '  }'
+        - '}'
     - edit: /opt/<%=distro%>/bin/setproxy
       insert: before
       regex: 'PROXY_MARKER'
