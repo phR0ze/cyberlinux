@@ -557,6 +557,8 @@ sudo mount -a
 #/srv/nfs/Cache       192.168.1.0/24(rw,no_subtree_check,nohide,no_root_squash)
 sudo tee -a /etc/exports <<EOL
 /srv/nfs/Documents   192.168.1.0/24(rw,no_subtree_check,nohide)
+/srv/nfs/Educational 192.168.1.0/24(rw,no_subtree_check,nohide)
+/srv/nfs/Family      192.168.1.0/24(rw,no_subtree_check,nohide)
 /srv/nfs/Install     192.168.1.0/24(rw,no_subtree_check,nohide)
 /srv/nfs/Movies      192.168.1.0/24(rw,no_subtree_check,nohide)
 /srv/nfs/Pictures    192.168.1.0/24(rw,no_subtree_check,nohide)
@@ -570,6 +572,8 @@ sudo mount --bind /mnt/Movies /srv/nfs/Movies
 #/var/cache/pacman/pkg /srv/nfs/Cache none bind 0 0
 sudo tee -a /etc/fstab <<EOL
 /mnt/Documents /srv/nfs/Documents none bind 0 0
+/mnt/Educational /srv/nfs/Educational none bind 0 0
+/mnt/Family /srv/nfs/Family none bind 0 0
 /mnt/Install /srv/nfs/Install none bind 0 0
 /mnt/Movies /srv/nfs/Movies none bind 0 0
 /mnt/Pictures /srv/nfs/Pictures none bind 0 0
