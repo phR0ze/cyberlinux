@@ -834,7 +834,7 @@ sudo shred -v --random-source=/dev/urandom -n1 /dev/sdX
 #### Wipe Drive <a name="wipe-drive"/></a>
 ```bash
 sudo dd if=/dev/zero of=/dev/sdX bs=512 count=2048
-sudo bash -c 'dd if=/dev/zero of=/dev/sdX bs=512 count=2048 seek=$((`blockdev -- getsz /dev/sdX` - 2048))'
+sudo bash -c 'dd if=/dev/zero of=/dev/sdX bs=512 count=2048 seek=$((`blockdev --getsz /dev/sdX` - 2048))'
 sudo wipefs --all --force /dev/sdX
 ```
 
