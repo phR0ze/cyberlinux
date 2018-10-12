@@ -76,6 +76,8 @@ fork it and make their own configuration ***profiles***
     * [Zoom](#zoom)
   * [Storage](#storage)
     * [Clone Drive](#clone-drive)
+    * [Shred Drive](#shred-drive)
+    * [Wipe Drive](#wipe-drive)
   * [Systemd](#systemd)
   * [Users/Groups](#users-groups)
     * [Add system user](#add-system-user)
@@ -822,6 +824,18 @@ sudo dd if=/dev/sdX of=/dev/sdY bs=1M conv=sync,noerror
 
 # Watch clone in another with
 watch -n10 'sudo kill -USR1 $(pgrep ^dd)'
+```
+
+#### Shred Drive <a name="shred-drive"/></a>
+```bash
+sudo shred -v --random-source=/dev/urandom -n1 /dev/sdX
+```
+
+#### Wipe Drive <a name="wipe-drive"/></a>
+```bash
+sudo dd if=/dev/zero of=/dev/sdX bs=512 count=2048
+sudo bash -c 'dd if=/dev/zero of=/dev/sdX bs=512 count=2048 seek=$((`blockdev -- getsz /dev/sdX` - 2048))'
+sudo wipefs --all --force /dev/sdX
 ```
 
 ### Systemd <a name="systemd"/></a>
