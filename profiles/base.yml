@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.256
+  release: 0.2.257
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -644,6 +644,7 @@ apps:
   docker:
     - groups: [docker]
     - {install: docker, desc: Run applications as containers, depof: reduce }
+    - {install: systemd-docker, desc: Wrapper for docker so systemd works better, type: CYBERLINUX }
     - edit: /etc/docker/daemon.json
       insert: append
       values:
