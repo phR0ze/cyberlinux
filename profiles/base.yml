@@ -905,6 +905,7 @@ apps:
           - '[ -x /usr/bin/xdg-user-dirs-update ] && /usr/bin/xdg-user-dirs-update'
           - "\n# Configure X resources"
           - 'xrdb -merge ~/.Xresources'
+          - 'xset r rate 200 30'
       - edit: /etc/skel/.config/openbox/environment
         insert: append
         values:
