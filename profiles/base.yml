@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.257
+  release: 0.2.259
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -905,6 +905,7 @@ apps:
           - '[ -x /usr/bin/xdg-user-dirs-update ] && /usr/bin/xdg-user-dirs-update'
           - "\n# Configure X resources"
           - 'xrdb -merge ~/.Xresources'
+          - "\n# Configure key repeat delay/rate"
           - 'xset r rate 200 30'
       - edit: /etc/skel/.config/openbox/environment
         insert: append
