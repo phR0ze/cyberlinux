@@ -70,6 +70,8 @@ fork it and make their own configuration ***profiles***
     * [Init Database](#init-database)
     * [Mirror Lists](#mirror-lists)
   * [Patching](#patching)
+    * [Create Patch](#create-patch)
+    * [Apply Patch](#apply-patch)
   * [Remoting](#remoting)
     * [Synergy](#synergy)
     * [Teamviewer](#teamviewer)
@@ -720,9 +722,21 @@ sudo pkgfile --update
 ### Patching <a name="patching"/></a>
 
 ### Create Patch <a name="create-patch"/></a>
-1. Rename code directory to ***a***
-2. Copy a to be: `cp -a a b`
-3. Modify b as desired then run: `diff -ruN a b > <nam>.patch`
+```bash
+# Copy code to a
+cp -a <code> a
+
+# Copy a to b
+cp -a a b
+
+# Modify b as desired then generate patch
+diff -ruN a b > <patch-name>.patch
+```
+
+### Apply Patch <a name="apply-patch"/></a>
+```bash
+patch -Np1 -i <patch-name>.patch
+```
 
 ### Remoting <a name="remoting"/></a>
 
