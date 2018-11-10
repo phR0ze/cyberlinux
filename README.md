@@ -72,6 +72,8 @@ fork it and make their own configuration ***profiles***
   * [Patching](#patching)
     * [Create Patch](#create-patch)
     * [Apply Patch](#apply-patch)
+  * [Printers](#printers)
+    * [Workforce WF-7710](#workforce-wf-7710)
   * [Remoting](#remoting)
     * [Synergy](#synergy)
     * [Teamviewer](#teamviewer)
@@ -724,19 +726,52 @@ sudo pkgfile --update
 ### Create Patch <a name="create-patch"/></a>
 ```bash
 # Copy code to a
-cp -a <code> a
+$ cp -a <code> a
 
 # Copy a to b
-cp -a a b
+$ cp -a a b
 
 # Modify b as desired then generate patch
-diff -ruN a b > <patch-name>.patch
+$ diff -ruN a b > <patch-name>.patch
 ```
 
 ### Apply Patch <a name="apply-patch"/></a>
 ```bash
-patch -Np1 -i <patch-name>.patch
+$ patch -Np1 -i <patch-name>.patch
 ```
+
+### Printers <a name="printers"/></a>
+Any printer will require the default CUPS installation
+
+```bash
+# First install the CUPS open source printer solution
+$ sudo pacman -S cups-pdf system-config-printer
+
+# Start the CUPS service
+$ sudo systemctl enable org.cups.cupsd
+$ sudo systemctl start org.cups.cupsd
+
+# Ensure your user is part of the 'lp' group
+$ groups
+```
+
+#### Workforce WF-7710<a name="workforce-wf-7710"/></a>
+1. Download and install the correct Epson driver  
+  a. Navigate to [Arch Wiki - Epson](https://aur.archlinux.org/packages/epson-inkjet-printer-escpr2/)  
+  b. We can see that the `WF7710` requires the AUR package `epson-inkjet-printer-escpr2`  
+  c. Open a shell and run:  
+  ```bash
+  $ yaourt -G epson-inkjet-printer-escpr2
+  $ cd epson-inkjet-printer-escpr2
+  $ makepkg -s
+  $ sudo pacman -U epson-inkjet-printer-escpr2-1.0.26-1-x86_64.pkg.tar.xz
+  ```
+2. Launch `system-config-printer`  
+  a. Click `+Add > Network Printer`  
+  b. Select `Epson WF-7710`  
+     Note: it automatically showed up in the list  
+  c. Click `Forward`  
+  d. Click `Apply`  
 
 ### Remoting <a name="remoting"/></a>
 
