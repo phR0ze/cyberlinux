@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.261
+  release: 0.2.262
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -1050,6 +1050,7 @@ apps:
   # Linux printing service
   printing:
     - {install: cups-pdf,         desc: System/Printer Driver with PDF print support }
+    - {install: epson-inkjet-printer-escpr2, desc: Epson printer drivers for newer Workforce printers }
     - {install: system-config-printer, desc: A CUPS printer configuration tool and status applet }
     - {menu: Settings, entry: Printer Preferences, icon: /usr/share/icons/Paper/32x32/devices/preferences-desktop-printer.png, exec: sudo system-config-printer }
     - chroot: systemctl enable org.cups.cupsd.service
