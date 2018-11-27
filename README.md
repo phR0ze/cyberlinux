@@ -383,6 +383,8 @@ Conky will need to be restarted to pick up new fonts
 2. Dock press ***Ctrl+Shift+F10***  
 
 #### Keyboard Shortcuts <a name="keyboard-shortcuts"/></a>
+`~/.config/libreoffice/4/user/registrymodifications.xcu`
+
 1. Navigate to ***Tools >Customize... >Keyboard***  
 2. Set ***Ctrl+Shift+c***  
   a. Press ***Ctrl+Shift+c*** to automatically navigate to that shortcut in the top window  
@@ -399,6 +401,14 @@ Conky will need to be restarted to pick up new fonts
 5. Set ***Ctrl+Shift+n***  
   a. Press ***Ctrl+Shift+n*** to automatically navigate to that shortcut in the top window  
   b. Navigate to ***Category >Styles >Numbering >Numbering 1***  
+  c. Click ***Modify*** in the top right to set shortcut function  
+6. Set ***Ctrl++*** (there is a bug that prevents this from working)  
+  a. Press ***Ctrl++*** to automatically navigate to that shortcut in the top window  
+  b. Navigate to ***Category >View >Functions >Zoom In***  
+  c. Click ***Modify*** in the top right to set shortcut function  
+7. Set ***Ctrl+-*** (there is a bug that prevents this from working)  
+  a. Press ***Ctrl+-*** to automatically navigate to that shortcut in the top window  
+  b. Navigate to ***Category >View >Functions >Zoom Out***  
   c. Click ***Modify*** in the top right to set shortcut function  
 
 #### Set Default Template <a name="set-default-template"/></a>
