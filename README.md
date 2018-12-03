@@ -41,6 +41,7 @@ fork it and make their own configuration ***profiles***
   * [Certificates](#certificates)
   * [Develop](#develop)
     * [Git](#git)
+    * [Github Personal Access Tokens](#github-personal-access-tokens)
   * [Docker](#docker)
     * [Build container](#build-container)
     * [Run container](#run-container)
@@ -62,10 +63,11 @@ fork it and make their own configuration ***profiles***
     * [Configure Multiple IPs](#configure-multiple-ips)
     * [SSH Port Forwarding](#ssh-port-forwarding)
     * [Nameservers](#nameservers)
+    * [Networking DHCP](#networking-dhcp)
+    * [Networking Static](#networking-static)
+    * [Networkin Wifi](#networking-wifi)
     * [NFS Shares](#nfs-shares)
-    * [Static Networking](#static-networking)
-    * [DHCP Networking](#dhcp-networking)
-    * [Wifi Configuration](#wifi-configuration)
+    * [OpenConnect](#openconnect)
   * [Packages](#packages)
     * [Init Database](#init-database)
     * [Mirror Lists](#mirror-lists)
@@ -282,8 +284,10 @@ sudo trust anchor CA1.crt
 ```
 
 ### Develop <a name="develop"/></a>
+
 #### Git <a name="git"/></a>
 Common git config across repos
+
 ```bash
 cd ~/Projects/cyberlinux
 git config --global user.email <email address>
@@ -291,6 +295,22 @@ git config --global user.name phR0ze
 git config --global push.default simple
 git config core.hooksPath .githooks
 ```
+
+##### Github Personal Access Tokens <a name="github-personal-access-tokens"/></a>
+Personal access tokens provide a secure way to access your account with the ability to lock down the
+token to only particular access.
+
+1. Navigate to `Settings/Developer settings/Personal access tokens` and click `Generate new token`
+2. Set priviledges for the token
+3. Use it for git clones e.g. `git clone https://example-token@github.com/phR0ze/cyberlinux`
+4. If you find this taxing you can create a `~/.gitconfig` setting to simplify token use
+```bash
+tee -a ~/.gitconfig <<EOL
+[url "https://example-token@github.com/phR0ze/"]
+    insteadOf = phR0ze/
+EOL
+```
+5. Then you can just use e.g. `git clone phR0ze/cyberlinux`
 
 ### Docker <a name="docker"/></a>
 
@@ -532,6 +552,104 @@ Cloudflares DNS is the fastest and safest right now
 
 ***1.1.1.1*** and ***1.0.0.1***
 
+#### Networking DHCP <a name="networking-dhcp"/></a>
+```bash
+# Create config file
+sudo tee -a /etc/systemd/network/10-static.network <<EOL
+[Match]
+Name=en* eth*
+
+[Network]
+DHCP=ipv4
+IPForward=kernel
+
+[DHCP]
+UseDomains=true
+EOL
+
+# Configure DNS
+sudo ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+
+# Enable/start resolved
+sudo systemctl enable systemd-networkd systemd-resolved
+sudo systemctl start systemd-networkd systemd-resolved
+
+# Restart networking
+sudo systemctl restart systemd-networkd
+```
+
+#### Networking Static <a name="networking-static"/></a>
+```bash
+# Create config file
+sudo tee -a /etc/systemd/network/10-static.network <<EOL
+[Match]
+Name=en* eth*
+
+[Network]
+Address=192.168.1.6/24
+Gateway=192.168.1.1
+DNS=1.1.1.1
+DNS=1.0.0.1
+IPForward=kernel
+EOL
+
+# Restart networking
+sudo systemctl restart systemd-networkd
+```
+
+#### Networking Wifi <a name="networking-wifi"/></a>
+
+1. Ensure kernel driver is accurate:
+  ```bash
+  inxi -N
+  # Network:   Card-1: Intel Ethernet Connection I217-LM driver: e1000e 
+  #            Card-2: Intel Centrino Advanced-N 6235 driver: iwlwifi 
+  ```
+2. Ensure ***systemd-networkd*** has been configured:
+  ```bash
+  sudo tee /etc/systemd/network/30-wireless.network <<EOL
+  [Match]
+  Name=wl*
+
+  [Network]
+  DHCP=ipv4
+  IPForward=kernel
+
+  [DHCP]
+  RouteMetric=20
+  UseDomains=true
+  EOL
+  sudo systemctl daemon-reload
+  sudo systemctl restart systemd-networkd
+  ```
+3. Ensure ***wpa_supplicant*** is configured:
+  ```bash
+  sudo tee /etc/wpa_supplicant/wpa_supplicant-wlo1.conf <<EOL
+  ctrl_interface=/run/wpa_supplicant
+  ctrl_interface_group=wheel
+  update_config=1
+  p2p_disabled=1
+
+  network={
+    ssid="My Network"
+    psk="secret-key"
+    proto=RSN
+    key_mgmt=WPA-PSK
+    pairwise=CCMP
+    auth_alg=OPEN
+  }
+  EOL
+  sudo systemctl daemon-reload
+  sudo systemctl enable wpa_supplicant@wlo1
+  sudo systemctl start wpa_supplicant@wlo1
+  ```
+4. Launch with ***WPA UI***:
+  ```bash
+  sudo wpa_gui
+  # Click connect
+  ```
+
+
 #### NFS Shares <a name="nfs-shares"/></a>
 https://wiki.archlinux.org/index.php/NFS
 
@@ -602,102 +720,14 @@ sudo systemctl restart nfs-server
 sudo exportfs -v
 ```
 
-#### Static Networking <a name="static-networking"/></a>
+#### OpenConnect <a name="openconnect"/></a>
+https://wiki.archlinux.org/index.php/OpenConnect  
+OpenConnect is a client for Cisco's AnyConnect SSL VPN and Pulse Secure's Pulse Connect Secure.
+
 ```bash
-# Create config file
-sudo tee -a /etc/systemd/network/10-static.network <<EOL
-[Match]
-Name=en* eth*
-
-[Network]
-Address=192.168.1.6/24
-Gateway=192.168.1.1
-DNS=1.1.1.1
-DNS=1.0.0.1
-IPForward=kernel
-EOL
-
-# Restart networking
-sudo systemctl restart systemd-networkd
+# Install package
+$ sudo pacman -S openconnect
 ```
-
-#### DHCP Networking <a name="dhcp-networking"/></a>
-```bash
-# Create config file
-sudo tee -a /etc/systemd/network/10-static.network <<EOL
-[Match]
-Name=en* eth*
-
-[Network]
-DHCP=ipv4
-IPForward=kernel
-
-[DHCP]
-UseDomains=true
-EOL
-
-# Configure DNS
-sudo ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
-
-# Enable/start resolved
-sudo systemctl enable systemd-networkd systemd-resolved
-sudo systemctl start systemd-networkd systemd-resolved
-
-# Restart networking
-sudo systemctl restart systemd-networkd
-```
-
-#### Wifi Configuration <a name="wifi-configuration"/></a>
-
-1. Ensure kernel driver is accurate:
-  ```bash
-  inxi -N
-  # Network:   Card-1: Intel Ethernet Connection I217-LM driver: e1000e 
-  #            Card-2: Intel Centrino Advanced-N 6235 driver: iwlwifi 
-  ```
-2. Ensure ***systemd-networkd*** has been configured:
-  ```bash
-  sudo tee /etc/systemd/network/30-wireless.network <<EOL
-  [Match]
-  Name=wl*
-
-  [Network]
-  DHCP=ipv4
-  IPForward=kernel
-
-  [DHCP]
-  RouteMetric=20
-  UseDomains=true
-  EOL
-  sudo systemctl daemon-reload
-  sudo systemctl restart systemd-networkd
-  ```
-3. Ensure ***wpa_supplicant*** is configured:
-  ```bash
-  sudo tee /etc/wpa_supplicant/wpa_supplicant-wlo1.conf <<EOL
-  ctrl_interface=/run/wpa_supplicant
-  ctrl_interface_group=wheel
-  update_config=1
-  p2p_disabled=1
-
-  network={
-    ssid="My Network"
-    psk="secret-key"
-    proto=RSN
-    key_mgmt=WPA-PSK
-    pairwise=CCMP
-    auth_alg=OPEN
-  }
-  EOL
-  sudo systemctl daemon-reload
-  sudo systemctl enable wpa_supplicant@wlo1
-  sudo systemctl start wpa_supplicant@wlo1
-  ```
-4. Launch with ***WPA UI***:
-  ```bash
-  sudo wpa_gui
-  # Click connect
-  ```
 
 ### Packages <a name="packages"/></a>
 * Create repo: `repo-add cyberlinux.db.tar.gz *.pkg.tar.xz`
@@ -708,16 +738,16 @@ need arise to clean it and start fresh this is what you do.
 
 ```bash
 # Initialize pacman keys
-sudo pacman-key --init
+$ sudo pacman-key --init
 
 # Populate with repo keys
-sudo pacman-key --populate archlinux blackarch antergos
+$ sudo pacman-key --populate archlinux blackarch antergos
 
 # Update database
-sudo pacman -Sy
+$ sudo pacman -Sy
 
 # Cache pkg data
-sudo pkgfile --update
+$ sudo pkgfile --update
 ```
 
 ### Mirror Lists <a name="mirror-lists"/></a>
