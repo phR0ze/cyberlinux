@@ -26,7 +26,7 @@
 [ -z ${TERM+x} ] && export TERM=xterm
 
 # Enable programmable completion features
-[ -r /etc/bash_completion ] && . /etc/bash_completion
+for x in /etc/bash_completion.d/* ; do . $x > /dev/null 2>&1; done
 
 # Enable dircolors if supported
 [ -x /usr/bin/dircolors ] && [ -r ~/.dircolors ] && eval "$(dircolors -b ~/.dircolors)"
