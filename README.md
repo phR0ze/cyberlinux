@@ -89,6 +89,8 @@ fork it and make their own configuration ***profiles***
     * [Add system user](#add-system-user)
   * [VeraCrypt](#veracrypt)
   * [Video Output](#video-output)
+    * [Dual Output](#dual-output)
+    * [VGA Output](#vga-output)
 * [Background](#background)
   * [Evolution](#evolution)
   * [My take on Arch](#my-take-on-arch)
@@ -982,6 +984,25 @@ Create a new ***100GB Volume***
   `cp /usr/share/applications/veracrypt.desktop ~/.config/autostart`
 
 ### Video Output <a name="video-output"/></a>
+
+#### Adapt Toggle for Display Port <a name="adapt-toggle-for-display-port"/></a>
+cyberlinux uses the ***/opt/cyberlinux/bin/toggle*** script to toggle external displays on and off.
+
+```bash
+# Running xrandr shows that our primary output is 'LVDS-1' and target output port is 'DP-2'
+$ xrandr
+LVDS-1 connected primary 1920x1080+0+0 (normal left inverted right x axis y axis) 345mm x 194mm
+   1920x1080     59.93*+
+DP-2 connected (normal left inverted right x axis y axis)
+   1920x1080     60.00 +  60.00    59.94    59.93    24.00    23.98  
+
+# Edit the /opt/cyberlinux/bin/toggle script to control your laptop as desired
+# Set primary to 'LVDS-1'
+# Set output to 'DP-2'
+# Set resolution to desired '1920x1080'
+# Test
+$ toggle display
+```
 
 #### Dual Output <a name="dual-output"/></a>
 Many workstations will have more than one monitor. In order to have Linux configure them both

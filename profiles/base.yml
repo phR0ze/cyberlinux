@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.265
+  release: 0.2.266
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -507,18 +507,18 @@ apps:
           - "    `rfkill unblock #{id}` if status == 'blocked'"
           - "  }"
           - "elsif ARGV.first == 'display'"
-          - "  primary = 'eDP-1'"
-          - "  projector = 'VGA-1'"
-          - "  resolution = '1280x1024'"
+          - "  primary = 'LVDS-1'"
+          - "  output = 'DP-2'"
+          - "  resolution = '1920x1080'"
           - "  xrandr = `xrandr`\n"
           - "  # Standalone laptop mode, disable external output"
-          - '  if xrandr.include?("#{primary} connected primary #{resolution}")'
-          - "    `xrandr --output #{projector} --off --output #{primary} --auto`\n"
-          - "  # Projector mode, enable external output"
-          - '  elsif xrandr.include?("#{primary} connected") && xrandr.include?("#{projector} connected")'
-          - "    `xrandr --output #{projector} --auto --same-as #{primary}`"
+          - '  if xrandr.include?("#{primary} connected") && !xrandr.include?("#{output} connected")'
+          - "    `xrandr --output #{output} --off --output #{primary} --auto`\n"
+          - "  # output mode, enable external output"
+          - '  elsif xrandr.include?("#{primary} connected") && xrandr.include?("#{output} connected")'
+          - "    `xrandr --output #{output} --auto --same-as #{primary}`"
           - "    sleep 2"
-          - "    `xrandr --output #{projector} --mode #{resolution} --output #{primary} --mode #{resolution}`"
+          - "    `xrandr --output #{output} --mode #{resolution} --output #{primary} --mode #{resolution}`"
           - "  end"
           - "end"
       - { exec: 'chmod +x /opt/<%=distro%>/bin/toggle'}
