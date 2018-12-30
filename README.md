@@ -36,6 +36,7 @@ fork it and make their own configuration ***profiles***
   * [Toggle Devices](#toggle-devices)
 * [Roll your own cyberlinux](#build-cyberlinux)
 * [Arch Linux Help](#arch-linux-help)
+  * [Android](#android)
   * [Apps to use](#apps-to-use)
   * [BlackArch Signature issue](#blackarch-signature-issue)
   * [Certificates](#certificates)
@@ -258,6 +259,19 @@ state although the internal display continued to work until restarted.
 ## Arch Linux Help <a name="arch-linux-help"/></a>
 The [arch wiki](https://wiki.archlinux.org/) is the best place to go for help. I've just collected a
 few things here that were useful for me here for quick reference.
+
+### Android <a name="android"/></a>
+
+```bash
+# Install dependencies
+$ sudo pacman -S android-tools android-udev libmtp
+
+# Add user to adbusers group
+$ sudo gpasswd -a <user> adbusers
+
+# Logout and back in or
+$ su - <user>
+```
 
 ### Apps to use <a name="apps-to-use"/></a>
 [List of apps to use from Arch Linux Wiki](https://wiki.archlinux.org/index.php/List_of_applications/Utilities)
