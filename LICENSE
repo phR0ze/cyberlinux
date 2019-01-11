@@ -1,5 +1,5 @@
-cyberlinux is leveraging many open source works to provide a modified
-copy mixed with new source content by the developer phR0ze.  As such many
+cyberlinux is leveraging many open source works that coupled with original
+source content by the developer phR0ze make up cyberlinux.  As such many
 open source licenses are in play.  However all source is publlicly available
 via github and all original licenses intact as specified by the originators,
 thus any GPL or other open source licenses should be satisfied.
@@ -12,7 +12,7 @@ of existing software that has been included or modified the license of the
 existing software (e.g. GPL2, GPL3 etc...) apply.
 
 MIT License
-Copyright (c) 2017 phR0ze
+Copyright (c) 2017-2019 phR0ze
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
