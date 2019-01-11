@@ -62,11 +62,11 @@ prepend(){
 }
 
 # Prepend version to every commit message (use POSIX ERE for compatibility)
-# Note: the cwd is always the full path where the hook is e.g. ...hooks
+# Note: the cwd is always the full path of your project root
 msgfile="$1"
 
 ver_regx='[[:space:]]*release:[[:space:]]*([0-9]+\.[0-9]+\.[0-9]+).*'
-version '../profiles/base.yml' "$ver_regx" ver
+version 'profiles/base.yml' "$ver_regx" ver
 
 msg_regx='[0-9]+\.[0-9]+\.[0-9]+:[[:space:]]*(.*)'
 prepend "$msgfile" "$msg_regx" "$ver"
