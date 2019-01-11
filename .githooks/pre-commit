@@ -70,10 +70,10 @@ update_copyright() {
 increment_version() {
   local file="$1"     # target version file to read from
   local regex="$2"    # regex for version must include before and after pieces
+  echo $file
 
   # If target exists read line by line and check for match
   if [ -f "$file" ]; then
-    echo here
     local original=     # original line
 
     # Capture version
