@@ -1,6 +1,6 @@
-#!/usr/bin/env ruby
+#!/usr/bin/env bash
 #MIT License
-#Copyright (c) 2017-2018 phR0ze
+#Copyright (c) 2017-2019 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -20,25 +20,85 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-begin
-  require 'nub'
-rescue Exception => e
-  mod = e.message.split(' ').last.sub('/', '-')
-  !puts("Error: install missing package with 'sudo pacman -S ruby-#{mod}'") and exit
-end
+# Update copyright in changed ASCII files
+update_copyright() {
+  local copyright="$1"        # regex escaped string to use for copyright pattern
+  local year=$(date +"%Y")    # current year to use for copyright updates
 
-# Update copyright in ASCII files
-`git diff --cached --name-only --diff-filter=d`.split(' ').each{|path|
-  if `file #{path}`.include?("ASCII text")
-    `git add #{path}` if FileUtils.update_copyright(path, "Copyright (c)")
-  end
+  files=$(git diff --cached --name-only --diff-filter=d)
+  for x in $files; do
+
+    # Only update copyright if its an ASCII file
+    if [[ "$(file $x)" == *"ASCII text"* ]]; then
+      local updated=
+      local original=
+
+      # Check copyright and update if required
+      while IFS= read -r line || [[ -n "$line" ]]; do
+
+        # Handle year range
+        local regex="(.*$copyright)[[:space:]]*([0-9]{4})-([0-9]{4})(.*)"
+        if [[ "$line" =~ $regex ]]; then
+          if [ "${BASH_REMATCH[3]}" != "$year" ]; then
+            updated="${BASH_REMATCH[1]} ${BASH_REMATCH[2]}-${year}${BASH_REMATCH[4]}"
+            original="$line"
+          fi
+          break
+        fi
+
+        # Handle single year
+        local regex="(.*$copyright)[[:space:]]*([0-9]{4})(.*)"
+        if [[ "$line" =~ $regex ]]; then
+          if [ "${BASH_REMATCH[2]}" != "$year" ]; then
+            updated="${BASH_REMATCH[1]} ${BASH_REMATCH[2]}-${year}${BASH_REMATCH[3]}"
+            original="$line"
+          fi
+          break
+        fi
+      done < "$x"
+
+      # Update target file
+      if [ "x$updated" != "x" ]; then
+        sed -i -e "s/$original/$updated/" "$x"
+        git add "$x"
+      fi
+    fi
+  done
 }
 
-# Increment revision of version
-ver_file = 'profiles/base.yml'
-ver_regx = /\s*release:\s*(\d+\.\d+\.\d+).*/
-ver = FileUtils.inc_version(ver_file, ver_regx)
-`git add #{ver_file}`
-puts("Version: #{ver}")
+# Increment the revision of the semantic version
+increment_version() {
+  local file="$1"     # target version file to read from
+  local regex="$2"    # regex for version must include before and after pieces
 
-# vim: ft=ruby:ts=2:sw=2:sts=2
+  # If target exists read line by line and check for match
+  if [ -f "$file" ]; then
+    local original=     # original line
+
+    # Capture version
+    while IFS= read -r line || [[ -n "$line" ]]; do
+      if [[ "$line" =~ $regex ]]; then
+        original="$line"
+        break
+      fi
+    done < "$file"
+
+    # Increment the revision portion of the version
+    IFS=. read major minor rev <<< ${BASH_REMATCH[2]}
+    ((rev++))
+    ver="$major.$minor.$rev"
+    updated="${BASH_REMATCH[1]}$ver${BASH_REMATCH[3]}"
+
+    # Write out the changes to the file and stage
+    sed -i -e "s/$original/$updated/" "$file"
+    git add "$file"
+    echo "Version: $updated"
+  fi
+}
+
+# Update copyrights and increment version
+# Note: the cwd is always the full path of your project root
+update_copyright 'Copyright \(c\)'
+increment_version 'profiles/base.yml''(.*release:[[:space:]]*)([0-9]+\.[0-9]+\.[0-9]+)(.*)'
+
+# vim: ts=2:sw=2:sts=2

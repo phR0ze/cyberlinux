@@ -21,10 +21,10 @@
 #SOFTWARE.
 
 # Read target file and capture Sem Version string and set result
-version() {
-  local file="$1"
-  local regex="$2"
-  local result=$3
+get_version() {
+  local file="$1"     # target version file to read from
+  local regex="$2"    # version regex to use when looking for version
+  local result=$3     # captured version set as result
 
   # If target exists read line by line and check for match
   if [ -f "$file" ]; then
@@ -42,10 +42,10 @@ version() {
 }
 
 # Read commit message and prepend version if it doesn't exist
-prepend(){
-  local msg=$(<$1)
-  local regex="$2"
-  local ver="$3"
+prepend_version(){
+  local msg=$(<$1)    # read in the message file
+  local regex="$2"    # regex to use to detect version in message
+  local ver="$3"      # version to use when prepending to message
 
   # Don't modify the message if a version wasn't given
   if [[ "x$ver" != "x" ]]; then
@@ -63,12 +63,7 @@ prepend(){
 
 # Prepend version to every commit message (use POSIX ERE for compatibility)
 # Note: the cwd is always the full path of your project root
-msgfile="$1"
-
-ver_regx='[[:space:]]*release:[[:space:]]*([0-9]+\.[0-9]+\.[0-9]+).*'
-version 'profiles/base.yml' "$ver_regx" ver
-
-msg_regx='[0-9]+\.[0-9]+\.[0-9]+:[[:space:]]*(.*)'
-prepend "$msgfile" "$msg_regx" "$ver"
+get_version 'version' '[[:space:]]*release:[[:space:]]*([0-9]+\.[0-9]+\.[0-9]+).*' ver
+prepend_version "$1" '[0-9]+\.[0-9]+\.[0-9]+:[[:space:]]*(.*)' "$ver"
 
 # vim: ts=2:sw=2:sts=2
