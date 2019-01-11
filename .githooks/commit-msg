@@ -1,6 +1,6 @@
-#!/usr/bin/env ruby
+#!/usr/bin/env bash
 #MIT License
-#Copyright (c) 2017-2018 phR0ze
+#Copyright (c) 2017-2019 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -20,21 +20,55 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-begin
-  require 'nub'
-rescue Exception => e
-  mod = e.message.split(' ').last.sub('/', '-')
-  !puts("Error: install missing package with 'sudo pacman -S ruby-#{mod}'") and exit
-end
+# Read target file and capture Sem Version string and set result
+version() {
+  local file="$1"
+  local regex="$2"
+  local result=$3
 
-# Prepend version to every commit message
-# Get version from the base.yml profile
-msgfile = ARGV[0]
-msg_regx = /\d+\.\d+\.\d+:\s(.*)/
-ver_regx = /\s*release:\s*(\d+\.\d+\.\d+).*/
-ver = FileUtils.version('profiles/base.yml', ver_regx)
-msg = File.read(msgfile)
-msg = msg[msg_regx, 1] if msg[msg_regx, 1]
-File.write(msgfile, "#{ver}: #{msg}")
+  # If target exists read line by line and check for match
+  if [ -f "$file" ]; then
 
-# vim: ft=ruby:ts=2:sw=2:sts=2
+    # IFS= prevents leading/trailing whitespace from being ignored
+    # -r prevents backslash escapes from being interpreted
+    # || [[ -n $line ]] prevents the last line from being ignored if it doesn't end with a \n
+    while IFS= read -r line || [[ -n "$line" ]]; do
+      if [[ "$line" =~ $regex ]]; then
+        eval $result="'${BASH_REMATCH[1]}'"
+        break
+      fi
+    done < "$file"
+  fi
+}
+
+# Read commit message and prepend version if it doesn't exist
+prepend(){
+  local msg=$(<$1)
+  local regex="$2"
+  local ver="$3"
+
+  # Don't modify the message if a version wasn't given
+  if [[ "x$ver" != "x" ]]; then
+
+    # Prepend the version to the message if no version is present
+    if ! [[ "$msg" =~ $regex ]]; then
+      echo "$ver: $msg" > $1
+    else
+
+      # Replace the pepended message version if version present
+      echo "$ver: ${BASH_REMATCH[1]}" > $1
+    fi
+  fi
+}
+
+# Prepend version to every commit message (use POSIX ERE for compatibility)
+# Note: the cwd is always the full path where the hook is e.g. ...hooks
+msgfile="$1"
+
+ver_regx='[[:space:]]*release:[[:space:]]*([0-9]+\.[0-9]+\.[0-9]+).*'
+version '../profiles/base.yml' "$ver_regx" ver
+
+msg_regx='[0-9]+\.[0-9]+\.[0-9]+:[[:space:]]*(.*)'
+prepend "$msgfile" "$msg_regx" "$ver"
+
+# vim: ts=2:sw=2:sts=2
