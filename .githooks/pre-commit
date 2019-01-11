@@ -73,6 +73,7 @@ increment_version() {
 
   # If target exists read line by line and check for match
   if [ -f "$file" ]; then
+    echo here
     local original=     # original line
 
     # Capture version
