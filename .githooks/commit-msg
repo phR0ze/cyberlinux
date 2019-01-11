@@ -63,7 +63,7 @@ prepend_version(){
 
 # Prepend version to every commit message (use POSIX ERE for compatibility)
 # Note: the cwd is always the full path of your project root
-get_version 'version' '[[:space:]]*release:[[:space:]]*([0-9]+\.[0-9]+\.[0-9]+).*' ver
+get_version 'profiles/base.yml' '.*release:.*([0-9]+\.[0-9]+\.[0-9]+).*' ver
 prepend_version "$1" '[0-9]+\.[0-9]+\.[0-9]+:[[:space:]]*(.*)' "$ver"
 
 # vim: ts=2:sw=2:sts=2

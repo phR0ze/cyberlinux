@@ -94,6 +94,7 @@ increment_version() {
     sed -i -e "s/$original/$updated/" "$file"
     git add "$file"
     echo "Version: $updated"
+    exit 1
   fi
 }
 
