@@ -93,7 +93,7 @@ increment_version() {
     # Write out the changes to the file and stage
     sed -i -e "s/$original/$updated/" "$file"
     git add "$file"
-    echo "Version: $updated"
+    echo "Version: $ver"
   fi
 }
 
