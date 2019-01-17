@@ -81,11 +81,18 @@ fork it and make their own configuration ***profiles***
     * [Synergy](#synergy)
     * [Teamviewer](#teamviewer)
     * [Zoom](#zoom)
+  * [Rescue](#resuce)
+    * [Switch to TTY](#switch-to-tty)
+    * [Boot from Live USB](#boot-from-live-usb)
+    * [Black Screen](#black-screen)
+    * [Check Logs for Errors](#check-logs-for-errors)
   * [Storage](#storage)
     * [Clone Drive](#clone-drive)
     * [Shred Drive](#shred-drive)
     * [Wipe Drive](#wipe-drive)
   * [Systemd](#systemd)
+  * [Time/Date](#time-date)
+    * [Set Time/Date](#set-time-date)
   * [Users/Groups](#users-groups)
     * [Add system user](#add-system-user)
   * [VeraCrypt](#veracrypt)
@@ -920,6 +927,60 @@ EOL
 sudo pacman -Sy zoom
 ```
 
+### Rescue <a name="rescue"/></a>
+
+#### Switch to TTY <a name="switch-to-tty"/></a>
+`ctrl+alt+F2` should switch to console  
+`ctrl+alt+F1` should switch back to UI
+
+#### Boot from Live USB <a name="boot-from-live-usb"/></a>
+```bash
+# Mount the HDD
+$ lsblk
+$ sudo mount /dev/sda3 /mnt
+
+# Chroot into HDD
+$ sudo arch-chroot /mnt
+
+# Check current boot target
+$ sudo systemctl get-default
+graphical.target
+
+# Change to mult-user (console)
+$ sudo systemctl set-default multi-user
+
+# Exit the chroot
+$ exit
+
+# Reboot to the HDD
+$ sudo reboot
+```
+
+#### Black Screen <a name="black-screen"/></a>
+If you get a black screen after upgrading downgrade to lts kernel
+
+```bash
+sudo pacman -S linux-lts linux-lts-docs linux-lts-headers
+sudo reboot
+```
+
+Adding `nomodeset` to grub will bypass KMS but that sucks:
+```bash
+# Update GRUB configuration
+# sudo vim /etc/default/grub
+# Ensure GRUB_CMDLINE_LINUX="nomodeset"
+sudo grub-mkconfig -o /boot/grub/grub.cfg
+```
+
+#### Check Logs for Errors <a name="check-logs-for-errors"/></a>
+```bash
+# Xorg logs
+vim /var/log/Xorg.0.log
+
+# Journal boot logs
+journalctl -b
+```
+
 ### Storage <a name="storage"/></a>
 #### Clone Drive <a name="clone-drive"/></a>
 ```bash
@@ -951,6 +1012,15 @@ sudo systemctl enable debug-shell
 # Logout then switch to debug shell with Ctl+F9
 systemctl status
 # See which apps are hanging
+```
+
+### Time/Date <a name="time-date"/></a>
+Time and dates are controlled on Arch Linux by  `timedatectl`
+
+### Set Time/Date <a name="set-time-date"/></a>
+```bash
+# timedatectl set-time "yyyy-MM-dd hh:mm:ss"
+timedatectl set-time "2019-01-17 09:12:20"
 ```
 
 ### Users/Groups <a name="users-groups"/></a>
