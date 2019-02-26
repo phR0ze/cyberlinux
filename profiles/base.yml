@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.280
+  release: 0.2.281
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -892,21 +892,6 @@ apps:
           - 'restart = systemctl reboot'
           - 'shutdown = systemctl poweroff'
           - 'lock = cinnamon-screensaver-command --lock'
-      - edit: /etc/skel/.config/openbox/autostart
-        insert: append
-        values:
-          - '## Autostart file'
-          - 'export GTK2_RC_FILES="$HOME/.gtkrc-2.0" '
-          - "\n# Ensure D-Bus Communication for file management, auth, and other system processes"
-          - 'if which dbus-launch >/dev/null && test -z "$DBUS_SESSION_BUS_ADDRESS"; then'
-          - '    eval "$(dbus-launch --sh-syntax --exit-with-session)"'
-          - 'fi'
-          - "\n# Generate home directories if they don't exist"
-          - '[ -x /usr/bin/xdg-user-dirs-update ] && /usr/bin/xdg-user-dirs-update'
-          - "\n# Configure X resources"
-          - 'xrdb -merge ~/.Xresources'
-          - "\n# Configure key repeat delay/rate"
-          - 'xset r rate 200 30'
       - edit: /etc/skel/.config/openbox/environment
         insert: append
         values:
@@ -1292,6 +1277,21 @@ apps:
     - {install: xorg-xrandr,      desc: Primitive command line interface to RandR extension, group: [xorg, xorg-apps]}
     - {install: xorg-xset,        desc: User preference utility for X, group: [xorg, xorg-apps]}
     - {install: xorg-xwininfo,    desc: Command-line util to print info about windows, group: [xorg, xorg-apps]}
+    - edit: /etc/skel/.xprofile
+      insert: append
+      values:
+        - '## Autostart file'
+        - 'export GTK2_RC_FILES="$HOME/.gtkrc-2.0" '
+        - "\n# Ensure D-Bus Communication for file management, auth, and other system processes"
+        - 'if which dbus-launch >/dev/null && test -z "$DBUS_SESSION_BUS_ADDRESS"; then'
+        - '    eval "$(dbus-launch --sh-syntax --exit-with-session)"'
+        - 'fi'
+        - "\n# Generate home directories if they don't exist"
+        - '[ -x /usr/bin/xdg-user-dirs-update ] && /usr/bin/xdg-user-dirs-update'
+        - "\n# Configure X resources"
+        - 'xrdb -merge ~/.Xresources'
+        - "\n# Configure key repeat delay/rate"
+        - 'xset r rate 200 30'
     - edit: /opt/<%=distro%>/bin/pre-xorg
       insert: append
       values:
