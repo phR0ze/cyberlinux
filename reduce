@@ -133,7 +133,7 @@ class Reduce
 
     @motd_path = File.join(@deployments_src, 'shell/etc/motd')
     @pacman_src_conf = File.join(@deployments_src, 'shell/etc/pacman.conf')
-    @pacman_src_mirrors = Dir[File.join(@deployments_src, "shell/etc/pacman.d/*.mirrorlist")]
+    @pacman_src_mirrors = Dir[File.join(@deployments_src, "shell/etc/pacman.d/*mirrorlist")]
 
     @boot_dst = File.join(@isopath, 'boot')
     @efi_dst = File.join(@isopath, 'efi/boot')
