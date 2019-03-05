@@ -9,6 +9,7 @@ Gem::Specification.new do |spec|
   # Runtime dependencies
   spec.add_dependency('nub', '~> 0.0.138')
   spec.add_dependency('filesize', '~> 0.2.0')
+  spec.add_dependency('colorize', '~> 0.8.1')
 
   # Development dependencies
   spec.add_development_dependency('minitest', '~> 5.11.3')
