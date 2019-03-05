@@ -1,5 +1,5 @@
 #MIT License
-#Copyright (c) 2018 phR0ze
+#Copyright (c) 2018-2019 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,7 @@
 #-------------------------------------------------------------------------------
 gem=mechanize
 pkgname=ruby-$gem
-pkgver=2.7.5
+pkgver=2.7.6
 pkgrel=1
 pkgdesc='Mechanize library is used for automating interaction with website'
 arch=(any)
@@ -35,7 +35,7 @@ makedepends=('rubygems')
 options=(!emptydirs)
 source=(https://rubygems.org/downloads/$gem-$pkgver.gem)
 noextract=($gem-$pkgver.gem)
-sha256sums=('de042b0b2b75a53b078c8e71ba6cc24e1d2a8b4e42ec3c81f1efd5294c0f06b9')
+sha256sums=('3d3318db3c66a27721b7cfcb0924464887e2737b6c120d401f0f196df6270301')
 
 package() {
   msg "Packaging $pkgname"
