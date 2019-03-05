@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.297
+  release: 0.2.298
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -194,7 +194,6 @@ apps:
     - remove-waste:
       - exec: 'find /var/log -type f -delete'
       - exec: 'rm -rf /usr/share/{man,doc}'
-      - exec: 'rm -rf /etc/pacman.d/mirrorlist'
       - exec: 'rm -rf /var/tmp/*'
       - exec: 'rm -rf /tmp/*'
 
