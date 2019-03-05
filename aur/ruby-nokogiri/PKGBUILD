@@ -1,5 +1,5 @@
 #MIT License
-#Copyright (c) 2018 phR0ze
+#Copyright (c) 2018-2019 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -24,18 +24,18 @@
 #-------------------------------------------------------------------------------
 gem=nokogiri
 pkgname=ruby-$gem
-pkgver=1.8.1
+pkgver=1.10.1
 pkgrel=1
 pkgdesc='HTML, XML, SAX, and Reader parser'
 arch=(any)
 url='http://github.com/dominikh/filesize'
 license=(MIT)
 depends=('libxml2' 'libxslt' 'ruby' 'ruby-mini_portile2')
-makedepends=('ruby-pkg-config')
+makedepends=(ruby-pkg-config ruby-rdoc)
 options=(!emptydirs)
 source=(https://rubygems.org/downloads/$gem-$pkgver.gem)
 noextract=($gem-$pkgver.gem)
-sha256sums=('4180dd5dfe8ba5479db7c3030012cd79da9b958eea472195f3daa23cbf80bd80')
+sha256sums=('0405d84a87d7dbc057eb9a2d0fcef5795e23992db516b83d37b91f69d8a1f427')
 
 package() {
   msg "Packaging $pkgname"
