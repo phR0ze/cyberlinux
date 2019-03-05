@@ -1,5 +1,5 @@
 #MIT License
-#Copyright (c) 2017-2018 phR0ze
+#Copyright (c) 2017-2019 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,7 @@
 #-------------------------------------------------------------------------------
 gem=filesize
 pkgname=ruby-$gem
-pkgver=0.1.1
+pkgver=0.2.0
 pkgrel=3
 pkgdesc='Handles filesizes with both SI and binary prefixes'
 arch=(any)
@@ -32,9 +32,10 @@ url='http://github.com/dominikh/filesize'
 license=(MIT)
 depends=(ruby)
 options=(!emptydirs)
+makedepends=(ruby-rdoc)
 source=(https://rubygems.org/downloads/$gem-$pkgver.gem)
 noextract=($gem-$pkgver.gem)
-sha256sums=('09252b433da02dff0ce2162cc085991d8947445cefac816db53dd52ad0ab3818')
+sha256sums=('0f5db8629d628b60857dd8e7b8d52f427e6b7b9dc49265bfda71c0d383cbe79e')
 
 package() {
   msg "Packaging $pkgname"
