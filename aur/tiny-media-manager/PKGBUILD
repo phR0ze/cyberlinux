@@ -1,5 +1,5 @@
 #MIT License
-#Copyright (c) 2017 phR0ze
+#Copyright (c) 2017-2019 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -23,8 +23,8 @@
 # Maintained by phR0ze
 #-------------------------------------------------------------------------------
 pkgname=tiny-media-manager
-pkgver=2.9.7
-pkgrel=3
+pkgver=2.9.16
+pkgrel=1
 pkgdesc="A multi-OS media managment tool"
 arch=('any')
 url="http://www.tinymediamanager.org"
@@ -38,7 +38,7 @@ source=("https://github.com/tinyMediaManager/tinyMediaManager/archive/$_gitname-
   "$pkgname"
   "$pkgname.desktop")
 
-sha256sums=('dc4832fabb10fcde753b6a6325786c6f54939a2a5eb2550828ac19ff3019b0ec'
+sha256sums=('3cb00cd8b5070fd49d9896035b6a48d1dab2581ba7a19f065e9cc37d3d7bf99e'
   '24b5c4dac6c12be7d1ca54fa712bd56bac1a4098d62f2155253a2a6b05e96786'
   '7c60b8c4b7ac62eaf192f797110155c6ea552348cf5f11d3bc6dc6ef8ea70dd5')
 
