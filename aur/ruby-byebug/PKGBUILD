@@ -1,5 +1,5 @@
 #MIT License
-#Copyright (c) 2017-2018 phR0ze
+#Copyright (c) 2017-2019 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,7 @@
 #-------------------------------------------------------------------------------
 gem=byebug
 pkgname=ruby-$gem
-pkgver=10.0.2
+pkgver=11.0.0
 pkgrel=1
 pkgdesc='Ruby debugger'
 arch=(any)
@@ -32,9 +32,10 @@ url='https://github.com/deivid-rodriguez/byebug'
 license=(MIT)
 depends=(ruby)
 options=(!emptydirs)
+makedepends=(ruby-rdoc)
 source=(https://rubygems.org/downloads/$gem-$pkgver.gem)
 noextract=($gem-$pkgver.gem)
-sha256sums=('c861d66755780acf315ddd0eb48842009a27ea7008d00ba141c6a22d6160f683')
+sha256sums=('44ce6ace68c2d2a1885f60a9fd16bc437626413b6a91c5842e645c67a30461ee')
 
 package() {
   msg "Packaging $pkgname"
