@@ -776,12 +776,12 @@ $ sudo pkgfile --update
 ### Mirror Lists <a name="mirror-lists"/></a>
 1. Install the latest mirror list  
   a. Install: `sudo pacman -S pacman-mirrorlist`  
-  b. Update: `sudo mv /etc/pacman.d/mirrorlist.pacnew /etc/pacman.d/mirrorlist.bak`  
+  b. Update: `sudo mv /etc/pacman.d/mirrorlist.pacnew /etc/pacman.d/mirrorlist`  
 2. Prep mirror list for sorting  
   a. Edit list and uncomment ***US*** mirrors  
   b. Delete everything else  
 3. Sort by speed  
-  a. Run: `sudo bash -c 'rankmirrors -n 20 /etc/pacman.d/mirrorlist.bak > /etc/pacman.d/mirrorlist'`  
+  a. Run: `sudo bash -c 'rankmirrors -n 20 /etc/pacman.d/mirrorlist.bak > /etc/pacman.d/archlinux.mirrorlist'`  
 
 ### Patching <a name="patching"/></a>
 
