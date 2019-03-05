@@ -1,5 +1,5 @@
 #MIT License
-#Copyright (c) 2017-2018 phR0ze
+#Copyright (c) 2017-2019 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -24,9 +24,9 @@
 #-------------------------------------------------------------------------------
 gem=gtk3
 pkgname=ruby-$gem
-pkgver=3.2.9
+pkgver=3.3.2
 pkgrel=1
-pkgdesc='Ruby/GTK3 is a Ruby binding of GTK+-3.x.'
+pkgdesc='Ruby/GTK3 is a Ruby binding of GTK+-3.x.x'
 arch=(any)
 url='http://ruby-gnome2.sourceforge.jp/'
 license=(LGPL2.1)
@@ -36,7 +36,7 @@ makedepends=(gobject-introspection)
 options=(!emptydirs)
 source=(https://rubygems.org/downloads/$gem-$pkgver.gem)
 noextract=($gem-$pkgver.gem)
-sha256sums=('c0417506dee5d203d36566923f27a63def5ef634228a3744f36b4b3af643afc8')
+sha256sums=('5475bc3acc11a2682e17e436a6d29b599d816ceb9d440ff0d3c18cb970b6e7da')
 
 package() {
   msg "Packaging $pkgname"
