@@ -133,7 +133,7 @@ class Reduce
 
     @motd_path = File.join(@deployments_src, 'shell/etc/motd')
     @pacman_src_conf = File.join(@deployments_src, 'shell/etc/pacman.conf')
-    @pacman_src_mirrors = Dir[File.join(@deployments_src, "shell/etc/pacman.d/*mirrorlist")]
+    @pacman_src_mirrors = Dir[File.join(@deployments_src, "shell/etc/pacman.d/*.mirrorlist")]
 
     @boot_dst = File.join(@isopath, 'boot')
     @efi_dst = File.join(@isopath, 'efi/boot')
@@ -280,7 +280,6 @@ class Reduce
     opts = { ssl_verify_mode: 0, proxy:@proxy }
     page = open("https://www.archlinux.org/packages/core/x86_64/linux", opts).read
     @vars.kernel = page[/<title>(.*?)<\/title>/, 1][/.*(\d+\.\d+)|(\d+\.\d+\.\d+)\.arch.*/, 1]
-    @vars.kernel = "4.20.13"
 
     puts("Distro: #{@vars.distro.colorize(:cyan)}")
     puts("Release: #{@vars.release.colorize(:cyan)}")

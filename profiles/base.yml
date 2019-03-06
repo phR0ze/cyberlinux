@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.299
+  release: 0.2.300
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -902,7 +902,7 @@ apps:
     - menu-lxde:
       - {menu: Settings>Desktop/Login, entry: Tint2 Panel, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.config/tint2/tint2rc }
       - {menu: Settings>Pacman/Servers, entry: Pacman Config, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: sudo gvim /etc/pacman.conf }
-      - {menu: Settings>Pacman/Servers, entry: Pacman Mirrorlist, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: sudo gvim /etc/pacman.d/mirrorlist }
+      - {menu: Settings>Pacman/Servers, entry: Pacman Arch Linux, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: sudo gvim /etc/pacman.d/archlinux.mirrorlist }
       - {menu: Settings, entry: Dconf Editor, icon: /usr/share/icons/Paper/32x32/apps/dconf-editor.png, exec: dconf-editor }
       - {menu: Settings, entry: Gconf Editor, icon: /usr/share/icons/Paper/32x32/apps/gconf-editor.png, exec: gconf-editor }
       - {menu: Settings, entry: LXAppearance, icon: /usr/share/icons/Paper/32x32/apps/preferences-desktop-theme.png, exec: lxappearance }
