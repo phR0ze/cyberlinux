@@ -1,32 +1,79 @@
 # chromium
 Chromium ***without*** Google's Orwellian type tracking, plus a few settings and UI tweaks to
-enhance privacy and aesthetics to support ***cyberlinux***. Note this is a work in progress...
+enhance privacy and aesthetics to support ***cyberlinux***.
+
+### Disclaimer
+This is a work in progress and comes with absolutely no guarantees or support of any kind. It is to
+be used at your own risk.
 
 ## Table of Contents
 * [Overview](#overview)
-    * [Chrome build in pages](#chrome-built-in-pages)
-    * [Command line switches](#command-line-switches)
-    * [Chromium Policies](#chromium-policies)
-    * [Chromium Extensions](#chromium-extensions)
+  * [Forks and Builds](#forks-and-builds)
+    * [Woolyss](#woolyss)
+    * [Ungoogled Chromium](#ungoogled-chromium)
+    * [Inox Chromium](#inox-chromium)
+    * [Bromite Chromium](#bromite-chromium)
+    * [Debian Chromium](#debian-chromium)
+    * [Iridium Chromium](#iridium-chromium)
+  * [Chrome built in pages](#chrome-built-in-pages)
+  * [Command line switches](#command-line-switches)
+  * [Chromium Policies](#chromium-policies)
+  * [Chromium Extensions](#chromium-extensions)
 * [cyberlinux Chromium build](#cyberlinux-chromium-build)
-    * [Update/Build process](#update-build-process)
-    * [Chromium Patches](#chromium-patches)
-        * [Other patches - see chroma.rb for details](#other-patches)
-    * [Source Code Navigation](#source-code-navigation)
-        * [Frame UI Code](#frame-ui-code)
-        * [WebUI Code](#webui-code)
-    * [Javascript modal dialogs](#javascript-modal-dialogs)
+  * [Update/Build process](#update-build-process)
+  * [Chromium Patches](#chromium-patches)
+      * [Other patches - see chroma.rb for details](#other-patches)
+  * [Source Code Navigation](#source-code-navigation)
+      * [Frame UI Code](#frame-ui-code)
+      * [WebUI Code](#webui-code)
+  * [Javascript modal dialogs](#javascript-modal-dialogs)
 * [Backlog](#backlog)
+* [Completed](#completed)
 
-## Overview <a name="overview"></a>
+# Overview <a name="overview"></a>
+Because of Google's backing and a ton of other contributors Chromium has become the defacto standard
+in the browser market and seen a lot of performance and efficiency boosts other browser haven't been
+able to keep up with.  Despite its awesomeness however Google has built a bunch of Orwellian phone
+home type tracking, privacy leaking ad-vertising crap etc...  
 
-### Chrome built in pages <a name="chrome-built-in-pages"></a>
+## Forks and Builds <a name="forks-and-builds"></a>
+A number of forks and builds have sprung into existence to offer various alternatives. Some simply
+building the open source chromium bits to make them available other customizing with patches and
+many have forked the code base to add features or privacy. Due to the work involved in maintaining
+these patch sets, builds and forks many lag behind the Chromium code base substantially.
+
+### Woolyss <a name="Woolyss"></a>
+https://chromium.woolyss.com aims to provide information on how to get/install chromium for your
+various platforms or in Windows case provides automated builds. Its a good resource for tracking
+Chromiums latest versions and stability.
+
+### Ungoogled Chromium <a name="ungoogled-chromium"></a>
+https://github.com/Eloston/ungoogled-chromium
+
+### Inox Chromium <a name="inox-chromium"></a>
+https://github.com/gcarq/inox-patchset maintained primarily by Michael Egger is a set of patches
+that improve security and privacy of Chromium.
+
+### Bromite Chromium <a name="bromite-chromium"></a>
+https://github.com/bromite/bromite maintained primarily by Carl csagan5 is a set of patches that
+improve ad blocking and privacy. The project seems to be very active.
+
+### Debian Chromium <a name="debian-chromium"></a>
+https://tracker.debian.org/pkg/chromium maintained mainly by Michael Gilbert provides Debian's build
+of Chromium with some stability patching.
+
+### Iridium Chromium <a name="iridium-chromium"></a>
+https://github.com/iridium-browser/tracker/wiki/Differences-between-Iridium-and-Chromium is a fork
+of Chromium backed by the Open Source Business Alliance aimed at privacy and security in a
+transparent auditable way.
+
+## Chrome built in pages <a name="chrome-built-in-pages"></a>
 * **chrome://gpu** - get GPU details
 * **chrome://net-internals/#modules** - validate built in extensions
 * **chrome://sandbox** - get sandbox details
 * **chrome://version** - validate command line flags and see versions
 
-### Command line switches <a name="command-line-switches"></a>
+## Command line switches <a name="command-line-switches"></a>
 Chromium has a number of command line switches that are convenient to always have set:
 
 These command line switches can be set in ***/etc/chromium/launcher.conf***
@@ -40,7 +87,7 @@ These command line switches can be set in ***/etc/chromium/launcher.conf***
 * **--disable-notifications** Disable the annoying pop up notifications
 * **--disable-ntp-popular-sites** Disable tracking and listing populare sites on your New Tab Page
 
-### Chromium Policies <a name="chromium-policies"></a>
+## Chromium Policies <a name="chromium-policies"></a>
 References for policy and extension settings
 * http://dev.chromium.org/administrators/policy-list-3
 * https://www.chromium.org/administrators/linux-quick-start
@@ -51,7 +98,7 @@ policies can also be configured for extensions that support policy management vi
 storage API. Extensions that support policy management are listed in ***chrome://policy*** along
 with the policies they support.
 
-### Chromium Extensions <a name="chromium-extensions"></a>
+## Chromium Extensions <a name="chromium-extensions"></a>
 Chromium has a host of extensions available in the market for install. A handful of which are essential
 for safe, performant operations and others useful:
 
@@ -63,9 +110,9 @@ for safe, performant operations and others useful:
 * **ublock-origin-extra** - foil early hostile anti-user mechanisms
 * **videodownload-helper** - excellent clean plugin for downloading online videos
 
-## cyberlinux Chromium build <a name="cyberlinux-chromium-build"></a>
+# cyberlinux Chromium build <a name="cyberlinux-chromium-build"></a>
 
-### Update/Build process <a name="update-build-process"></a>
+## Update/Build process <a name="update-build-process"></a>
 Notes to myself when re-building this package:
 1. Update against arch abs PKGBUILD  
    https://git.archlinux.org/svntogit/packages.git/tree/repos/extra-x86_64?h=packages/chromium  
@@ -75,7 +122,7 @@ Notes to myself when re-building this package:
 3. Build against arch patches only
 4. Update patches/debian then each of the others
 
-### Chromium Patches <a name="chromium-patches"></a>
+## Chromium Patches <a name="chromium-patches"></a>
 Despite probably being the best browser out there Chromium has some glaring issues, in my opionion,
 that need to be fixed before its useful as a daily runner.  I've focused on three major categories
 for improvements in the code (***Arch Linux compatiblity***, ***Privacy/Security***, ***Aesthetic
@@ -88,7 +135,7 @@ chromium fit with the ideals of the ***cyberlinux*** project as follows:
 * **03-remove-profile-management.patch** - patching to remove profile managment from settings
 * **04-remove-avatar-button.patch** - patching to remove the avatar button in the window title bar
 
-#### Other patches - see chroma.rb for details <a name="other-patches"></a>
+### Other patches - see chroma.rb for details <a name="other-patches"></a>
 I'm leveraging some of the patches from some of these projects:
 
 * **Arch Linux** - https://git.archlinux.org/svntogit/packages.git/tree/repos/extra-x86_64?h=packages/chromium
@@ -97,7 +144,7 @@ I'm leveraging some of the patches from some of these projects:
 * **Iridium** - https://git.iridiumbrowser.de/cgit.cgi/iridium-browser/
 * **Ungoogled** - https://github.com/Eloston/ungoogled-chromium
 
-### Source Code Navigation <a name="source-code-navigation"></a>
+## Source Code Navigation <a name="source-code-navigation"></a>
 https://www.chromium.org/developers/how-tos/getting-around-the-chrome-source-code
 
 The chromium code base is separated into three main parts: 
@@ -107,7 +154,7 @@ The chromium code base is separated into three main parts:
 2. **Renderer** - per-tab subprocess that is driven by the browser
 3. **Webkit** - embedded in renderer to do layout and rendering
 
-#### Frame UI Code <a name="frame-ui-code"></a>
+### Frame UI Code <a name="frame-ui-code"></a>
 https://www.chromium.org/developers/design-documents/browser-window
 
 ***chrome/browser*** is the location for all browser frame code including UI feature dirs like
@@ -139,7 +186,7 @@ related code.
   * Source file paths for all images
   * ui/views/resources/default_100_percent/linux/linux_minimize.png
 
-#### WebUI Code <a name="webui-code"></a>
+### WebUI Code <a name="webui-code"></a>
 WebUI is responsible for content UI like extensions, settings, etc...
 
 * ***chrome/browser/ui/toolbar/app_menu_model.cc***
@@ -153,7 +200,7 @@ WebUI is responsible for content UI like extensions, settings, etc...
 * ***chrome/browser/resources/settings/people_page/people_page.html***
   * Actual html layout code for people settings UI widgets
 
-### Javascript modal dialogs <a name="javascript-modal-dialogs"></a>
+## Javascript modal dialogs <a name="javascript-modal-dialogs"></a>
 http://www.javascripter.net/faq/confirm.htm
 https://googlechrome.github.io/samples/block-modal-dialogs-sandboxed-iframe/
 
@@ -162,7 +209,7 @@ print(), prompt().
 
 The sanbox feature with ***allow-scripts*** and ***allow-modals***
 
-## Backlog  <a name="backlog"></a>
+# Backlog  <a name="backlog"></a>
 * ***chrome://settings/content/cookies*** **Keep local data only until you quit your browser** is false by default
 * ***chrome://settings/content/automaticDownloads/ set to **Do not allow any site to download multiple files automatically**
 * ***chrome://settings/languages*** Spell check off by deafult?
@@ -170,3 +217,5 @@ The sanbox feature with ***allow-scripts*** and ***allow-modals***
 * Loading extensions from update URLs donsn't work
 * Doesn't remember pinned sites across restarts
 * Fix spellchecking with https://github.com/gcarq/inox-patchset/issues/83
+
+# Completed <a name="completed"></a>
