@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.307
+  release: 0.2.308
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -1325,7 +1325,7 @@ apps:
         - '    Driver "libinput"'
         - '    MatchIsPointer "on"'
         - '    MatchDevicePath "/dev/input/event*"'
-        - '    Option "AccelSpeed" "0.3"'
+        - '    Option "AccelSpeed" "0.6"'
         - 'EndSection'
         - ''
         - 'Section "InputClass"'

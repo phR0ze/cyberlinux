@@ -357,13 +357,20 @@ either system.
   * [Github Personal Access Tokens](#github-personal-access-tokens)
 * [Devices](#devices)
   * [Android](#android)
-  * [Displays](#displays)
+  * [Display](#display)
     * [Adapt Output Toggle](#adapt-output-toggle)
     * [Dual Output](#dual-output)
     * [VGA Output](#vga-output)
     * [Nvidia Proprietary](#nvidia-proprietary)
-  * [Printers](#printers)
+  * [Mouse](#mouse)
+    * [Configure Mouse Speed](#configure-mouse-speed)
+  * [Keyboard](#keyboard)
+    * [Configure Keyboard Rate](#configure-keyboard-rate)
+  * [Printer](#printer)
     * [Workforce WF-7710](#workforce-wf-7710)
+* [Display Manager](#display-manager)
+  * [LXDM](#lxdm)
+    * [xprofile](#xprofile)
 * [Docker](#docker)
   * [Build container](#build-container)
   * [Run container](#run-container)
@@ -389,8 +396,6 @@ either system.
   * [Networking Wifi](#networking-wifi)
   * [NFS Shares](#nfs-shares)
   * [File Sharing](#file-sharing)
-  * [VPNs](#vpns)
-    * [OpenConnect](#openconnect)
 * [Packages](#packages)
   * [Init Database](#init-database)
   * [Mirror Lists](#mirror-lists)
@@ -416,7 +421,8 @@ either system.
 * [Users/Groups](#users-groups)
   * [Add system user](#add-system-user)
 * [VeraCrypt](#veracrypt)
-
+* [VPNs](#vpns)
+  * [OpenConnect](#openconnect)
 
 # Arch Linux Help <a name="arch-linux-help"/></a>
 The [arch wiki](https://wiki.archlinux.org/) is the best place to go for help. I've just collected a
@@ -493,7 +499,7 @@ $ sudo gpasswd -a <user> adbusers
 $ su - <user>
 ```
 
-## Displays <a name="displays"/></a>
+## Display <a name="display"/></a>
 
 ### Adapt Output Toggle <a name="adapt-output-toggle"/></a>
 cyberlinux uses the ***/opt/cyberlinux/bin/toggle*** script to toggle external displays on and off.
@@ -578,8 +584,85 @@ xrandr --output VGA-1 --off --output eDP-1 --auto
   e. Install driver: ***sudo pacman -S nvidia***  
   f. Reboot  
 
+## Mouse <a name="mouse"/></a>
 
-## Printers <a name="printers"/></a>
+### Configure Mouse Speed <a name="configure-mouse-speed"/></a>
+[Arch Linux Wiki](https://wiki.archlinux.org/index.php/Mouse_acceleration#Using_xinput)
+The xorg input config file at `/etc/X11/xorg.conf.d/40-input.conf` sets up the mouse speed and
+accuracy.
+
+Xorg config method
+```bash
+Section "InputClass"
+  Identifier "Mouse"
+  Driver "libinput"
+  MatchIsPointer "on"
+  MatchDevicePath "/dev/input/event*"
+  Option "AccelSpeed" "0.6"
+  EndSection'
+```
+
+Manually test mouse acceleration via libinput before using above in Xorg config:
+```bash
+# Find mouse device id
+$ xinput list
+Virtual core pointer                    	id=2	[master pointer  (3)]
+   ↳ Virtual core XTEST pointer           id=4	[slave  pointer  (2)]
+   ↳ PixArt HP USB Optical Mouse          id=10	[slave  pointer  (2)]
+...
+
+# List out mouse properties
+$ xinput list-props 10
+...
+libinput Accel Speed (361):	0.300000
+...
+
+# Set new value to test acceleration diff, increase value to accelerate faster
+xinput --set-prop 10 'libinput Accel Speed' 0.6
+```
+
+### Configure Mouse Scroll <a name="configure-mouse-scroll"/></a>
+Although libinput doesn't have a nice property to change the scrolling speed. You can at the systemd
+udev level modify the scroll speed.
+
+```bash
+# View the udev mouse control file
+$ sudo vim /etc/udev/hwdb.d/70-mouse.hwdb
+
+# All supported brands are listed in this file so we need to identify your mouse
+$ xinput list
+...
+   ↳ PixArt HP USB Optical Mouse          id=10	[slave  pointer  (2)]
+...
+# Searching the file "HP USB 1000dpi Laser Mouse" is probably the closest thing to it
+# Note the 'MOUSE_WHEEL_CLICK_ANGLE=15'
+
+# Create a new mouse control override
+$ sudo vim /etc/udev/hwdb.d/71-mouse.hwdb
+
+# Add contents
+# HP USB 1000dpi Laser Mouse
+mouse:usb:v0458p0133:name:Mouse Laser Mouse:
+ MOUSE_DPI=1000@125
+ MOUSE_WHEEL_CLICK_ANGLE=30
+
+# Reload the udev rules
+$ sudo udevadm hwdb --update
+$ sudo udevadm trigger /dev/input/event1
+```
+
+## Keyboard <a name="keyboard"/></a>
+
+### Configure Keyboard Rate <a name="configure-keyboard-rate"/></a>
+
+Set this in your `~/.xprofile`
+```bash
+# First number is after how many ms the key will start repeating
+# Secon number is how many repititions per secon, so after 190ms will output 40 a sec
+xset r rate 190 40
+```
+
+## Printer <a name="printer"/></a>
 Any printer will require the default CUPS installation
 
 ```bash
@@ -611,6 +694,24 @@ $ groups
      Note: it automatically showed up in the list  
   c. Click `Forward`  
   d. Click `Apply`  
+
+# Display Manager <a name="display-manager"/></a>
+## LXDM <a name="lxdm"/></a>
+[LXDM](https://wiki.archlinux.org/index.php/LXDM) is a lightweight display manager for the LXDE
+desktop environment. I'm using it in cyberlinux because it lightweight, although I've been eying
+LightDM.
+
+### xprofile <a name="xprofile"/></a>
+An [xprofile](https://wiki.archlinux.org/index.php/Xprofile) file `~/.xprofile` allows you to
+execute commands at the begining of the X user session before the window manager is started.
+
+I'm using this in cyberlinux to setup a few minor Xorg settings at login
+
+The following display managers natively source it at the right time:
+* GDM
+* LightDM
+* LXDM
+* SDDM
 
 # Docker <a name="docker"/></a>
 
@@ -1012,52 +1113,6 @@ sudo systemctl restart nfs-server
 sudo exportfs -v
 ```
 
-## File Sharing <a name="file-sharing"/></a>
-
-## VPNs <a name="vpns"/></a>
-
-### OpenConnect <a name="openconnect"/></a>
-https://wiki.archlinux.org/index.php/OpenConnect  
-OpenConnect is a client for Cisco's AnyConnect SSL VPN and Pulse Secure's Pulse Connect Secure.
-
-**Note:** I kept wanting to pass in all the fields I could. It works better to use the minimal args
-and OpenConnect will then prompt for information it needs.
-
-```bash
-# Install OpenConnect
-$ sudo pacman -S openconnect vpnc
-
-# Connect to AnyConnect VPN
-$ sudo openconnect --user=<USER-NAME> --authgroup=<AUTH-GROUP> <VPN GATEWAY NAME/IP>
-...
-Please enter your username and password.
-Password:
-# When prompted for `Password:` paste in your ldap password
-Password:
-# When prompted again for `Password:` u may or may not have a second
-Verification code:
-Response:
-# When prompted for `Response:` paste in authy code
-Connect Banner:
-Welcome to Example VPN!
-```
-
-#### Trouble shooting DNS failures
-cyberlinux just worked out of the box but Ubuntu, although using `systemd-resolved` doesn't have
-`nsswitch` setup correctly.
-
-You can verify if it is working by checking the DNS configured with `systemd-resolved --status`. If
-that returns the VPN's dns then your good if not check below as I had to on Ubuntu
-
-The problem is that `/etc/nsswitch.conf` is not configured to use `systemd-resolved` even
-though Ubuntu Pop has systemd-resolved running.  To fix this you need to add
-`resolve` before `[NOTFOUND=return]` on the `hosts` line, no resstarts are necessary
-
-Example of fixed:
-```bash
-hosts: files mdns4_minimal resolve [NOTFOUND=return] dns myhostname
-```
-
 # Packages <a name="packages"/></a>
 * Create repo: `repo-add cyberlinux.db.tar.gz *.pkg.tar.xz`
 
@@ -1117,7 +1172,7 @@ Note: if synergy starts up before xrandr has positioned the windows and thus mou
 other desktop doesn't work due to inaccurate display layout I've found this can be solved by using
 the Nvidia drivers rather than the free ones.
 
-1. Configure Master Node  
+1. Configure Main Workstation as Server i.e. has keyboard/mouse
   a. Install: `sudo pacman -S synergy`  
   b. Run ***synergy*** from the ***Network*** menu  
   c. Work through the wizard  
@@ -1130,11 +1185,11 @@ the Nvidia drivers rather than the free ones.
   j. Now move it to etc: `sudo mv ~/synergy.conf /etc`
 2. Configure systemd unit  
   Synergy needs to attach to your user's X session which means it needs to run as your user. Synergy
-  provides ***/usr/lib/systemd/user/synergys.service*** which when run with ***systemctl --user
-  enable synergys*** will create the link ***~/.config/systemd/user/default.target.wants/synergys.service***  
+  provides `/usr/lib/systemd/user/synergys.service` which when run with `systemctl --user
+  enable synergys` will create the link ***~/.config/systemd/user/default.target.wants/synergys.service***  
   a. Enable synergy: `systemctl --user enable synergys`  
   b. Start synergy: `systemctl --user start synergys`  
-3. Configure Slave Node  
+3. Configure Slave Nodes as Clients i.e. don't have keyboard/mouse
   a. Launch: `synergy`  
   b. Click ***Next*** to accept ***English*** as the default language  
   c. Select ***Client (use another computer's mouse and keyboard)*** then ***Finish***  
@@ -1338,6 +1393,51 @@ Create a new ***100GB Volume***
   a. Browse to ***/mnt/veracrypt1*** and drag and drop it to ***Places***  
 6. Configure autostart for veracrypt  
   `cp /usr/share/applications/veracrypt.desktop ~/.config/autostart`
+
+# VPNs <a name="vpns"/></a>
+
+## OpenConnect <a name="openconnect"/></a>
+https://wiki.archlinux.org/index.php/OpenConnect  
+OpenConnect is a client for Cisco's AnyConnect SSL VPN and Pulse Secure's Pulse Connect Secure.
+
+**Note:** I kept wanting to pass in all the fields I could. It works better to use the minimal args
+and OpenConnect will then prompt for information it needs.
+
+```bash
+# Install OpenConnect
+$ sudo pacman -S openconnect vpnc
+
+# Connect to AnyConnect VPN
+$ sudo openconnect --user=<USER-NAME> --authgroup=<AUTH-GROUP> <VPN GATEWAY NAME/IP>
+...
+Please enter your username and password.
+Password:
+# When prompted for `Password:` paste in your ldap password
+Password:
+# When prompted again for `Password:` u may or may not have a second
+Verification code:
+Response:
+# When prompted for `Response:` paste in authy code
+Connect Banner:
+Welcome to Example VPN!
+```
+
+#### Trouble shooting DNS failures
+cyberlinux just worked out of the box but Ubuntu, although using `systemd-resolved` doesn't have
+`nsswitch` setup correctly.
+
+You can verify if it is working by checking the DNS configured with `systemd-resolved --status`. If
+that returns the VPN's dns then your good if not check below as I had to on Ubuntu
+
+The problem is that `/etc/nsswitch.conf` is not configured to use `systemd-resolved` even
+though Ubuntu Pop has systemd-resolved running.  To fix this you need to add
+`resolve` before `[NOTFOUND=return]` on the `hosts` line, no resstarts are necessary
+
+Example of fixed:
+```bash
+hosts: files mdns4_minimal resolve [NOTFOUND=return] dns myhostname
+```
+
 
 <!-- 
 vim: ts=2:sw=2:sts=2
