@@ -469,11 +469,12 @@ git config core.hooksPath .githooks
 ```
 
 ## Rewrite Git History <a name="rewrite-git-history"/></a>
+Hammer to rewrite committer and author for all history
 
 ```bash
 git filter-branch -f --env-filter \
 "GIT_AUTHOR_NAME='NEW_USER'; GIT_AUTHOR_EMAIL='NEW_USER@EXAMPLE.COM'; \
-GIT_COMMITTER_NAME='OLD_USER'; GIT_COMMITTER_EMAIL='OLD_USER@EXAMPLE.COM';" HEAD
+GIT_COMMITTER_NAME='NEW_USER'; GIT_COMMITTER_EMAIL='NEW_USER@EXAMPLE.COM';" HEAD
 
 git push origin -f
 ```
