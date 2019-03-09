@@ -354,6 +354,7 @@ either system.
 * [Certificates](#certificates)
 * [Develop](#develop)
   * [Git](#git)
+  * [Rewrite Git History](#rewrite-git-history)
   * [Github Personal Access Tokens](#github-personal-access-tokens)
 * [Devices](#devices)
   * [Android](#android)
@@ -465,6 +466,16 @@ git config --global user.email <email address>
 git config --global user.name phR0ze
 git config --global push.default simple
 git config core.hooksPath .githooks
+```
+
+## Rewrite Git History <a name="rewrite-git-history"/></a>
+
+```bash
+git filter-branch -f --env-filter \
+"GIT_AUTHOR_NAME='NEW_USER'; GIT_AUTHOR_EMAIL='NEW_USER@EXAMPLE.COM'; \
+GIT_COMMITTER_NAME='OLD_USER'; GIT_COMMITTER_EMAIL='OLD_USER@EXAMPLE.COM';" HEAD
+
+git push origin -f
 ```
 
 ## Github Personal Access Tokens <a name="github-personal-access-tokens"/></a>
