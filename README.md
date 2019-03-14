@@ -378,13 +378,6 @@ either system.
   * [Upload container](#upload-container)
   * [Build cyberliux container](#build-cyberlinux-container)
 * [Fonts](#fonts)
-* [Libre Office](#libre-office)
-  * [Config Navigation](#config-navigation)
-  * [Keyboard Shortcuts](#keyboard-shortcuts)
-  * [Set Default Template](#set-default-template)
-  * [Turn off Smart Quotes](#turn-off-smart-quotes)
-  * [Turn off Replace Dashes](#turn-off-replace-dashes)
-  * [Turn off Automatic Strikeout](#turn-off-automatic-strikeout)
 * [Media](#media)
   * [Screen Recorder](#screen-recorder)
 * [Network](#network)
@@ -397,6 +390,16 @@ either system.
   * [Networking Wifi](#networking-wifi)
   * [NFS Shares](#nfs-shares)
   * [File Sharing](#file-sharing)
+* [Office](#office)
+  * [Libre Office](#libre-office)
+    * [Config Navigation](#config-navigation)
+    * [Keyboard Shortcuts](#keyboard-shortcuts)
+    * [Set Default Template](#set-default-template)
+    * [Turn off Smart Quotes](#turn-off-smart-quotes)
+    * [Turn off Replace Dashes](#turn-off-replace-dashes)
+    * [Turn off Automatic Strikeout](#turn-off-automatic-strikeout)
+  * [PDFs](#pdfs)
+    * [Convert Images to PDF](#convert-images-to-pdf)
 * [Packages](#packages)
   * [Init Database](#init-database)
   * [Mirror Lists](#mirror-lists)
@@ -801,62 +804,6 @@ fonts that you may want to individually use.
 ## Conky Fonts <a name="conky-fonts"/></a>
 Conky will need to be restarted to pick up new fonts
 
-# Libre Office <a name="libre-office"/></a>
-
-## Config Navigation <a name="config-navigation"/></a>
-1. Display navigation select ***View >Navigator***  
-2. Dock press ***Ctrl+Shift+F10***  
-
-## Keyboard Shortcuts <a name="keyboard-shortcuts"/></a>
-`~/.config/libreoffice/4/user/registrymodifications.xcu`
-
-1. Navigate to ***Tools >Customize... >Keyboard***  
-2. Set ***Ctrl+Shift+c***  
-  a. Press ***Ctrl+Shift+c*** to automatically navigate to that shortcut in the top window  
-  b. Navigate to ***Category >Styles >Character >Code***  
-  c. Click ***Modify*** in the top right to set shortcut function  
-3. Set ***Ctrl+Shift+d***  
-  a. Press ***Ctrl+Shift+d*** to automatically navigate to that shortcut in the top window  
-  b. Navigate to ***Category >Styles >Character >Default Style***  
-  c. Click ***Modify*** in the top right to set shortcut function  
-4. Set ***Ctrl+Shift+l***  
-  a. Press ***Ctrl+Shift+l*** to automatically navigate to that shortcut in the top window  
-  b. Navigate to ***Category >Styles >Numbering >List 1***  
-  c. Click ***Modify*** in the top right to set shortcut function  
-5. Set ***Ctrl+Shift+n***  
-  a. Press ***Ctrl+Shift+n*** to automatically navigate to that shortcut in the top window  
-  b. Navigate to ***Category >Styles >Numbering >Numbering 1***  
-  c. Click ***Modify*** in the top right to set shortcut function  
-6. Set ***Ctrl++*** (there is a bug that prevents this from working)  
-  a. Press ***Ctrl++*** to automatically navigate to that shortcut in the top window  
-  b. Navigate to ***Category >View >Functions >Zoom In***  
-  c. Click ***Modify*** in the top right to set shortcut function  
-7. Set ***Ctrl+-*** (there is a bug that prevents this from working)  
-  a. Press ***Ctrl+-*** to automatically navigate to that shortcut in the top window  
-  b. Navigate to ***Category >View >Functions >Zoom Out***  
-  c. Click ***Modify*** in the top right to set shortcut function  
-
-## Set Default Template <a name="set-default-template"/></a>
-1. Save your template as ***~/.config/libreoffice/4/user/template/standard.ott***  
-2. Launch ***libreoffice*** and navigate to ***File >Templates >Manage Templates***  
-3. Right click on ***standard*** and choose ***Set As Default***  
-4. Cancel dialog and your done  
-
-## Turn off Smart Quotes <a name="turn-off-smart-quotes"/></a>
-1. Navigate to ***Tools >AutoCorrect >AutoCorrect Options...***  
-2. Select the ***Localization Options*** tab  
-3. Uncheck ***Replace*** for both types of quotes  
-
-## Turn off Replace Dashes <a name="turn-off-replace-dashes"/></a>
-1. Navigate to ***Tools >AutoCorrect >AutoCorrect Options...***  
-2. Select the ***Options*** tab  
-3. Uncheck ***Replace dashes***  
-
-## Turn off Automatic Strikeout <a name="turn-off-automatic-strikeout"/></a>
-1. Navigate to ***Tools >AutoCorrect >AutoCorrect Options...***  
-2. Select the ***Options*** tab  
-3. Uncheck ***Automatic bold,italic,strikeout,underline***   
-
 # Media <a name="media"/></a>
 
 ## Screen Recorder <a name="screen-recorder"/></a>
@@ -1125,10 +1072,83 @@ sudo systemctl restart nfs-server
 sudo exportfs -v
 ```
 
+# Office <a name="office"/></a>
+## Libre Office <a name="libre-office"/></a>
+
+### Config Navigation <a name="config-navigation"/></a>
+1. Display navigation select ***View >Navigator***  
+2. Dock press ***Ctrl+Shift+F10***  
+
+### Keyboard Shortcuts <a name="keyboard-shortcuts"/></a>
+`~/.config/libreoffice/4/user/registrymodifications.xcu`
+
+1. Navigate to ***Tools >Customize... >Keyboard***  
+2. Set ***Ctrl+Shift+c***  
+  a. Press ***Ctrl+Shift+c*** to automatically navigate to that shortcut in the top window  
+  b. Navigate to ***Category >Styles >Character >Code***  
+  c. Click ***Modify*** in the top right to set shortcut function  
+3. Set ***Ctrl+Shift+d***  
+  a. Press ***Ctrl+Shift+d*** to automatically navigate to that shortcut in the top window  
+  b. Navigate to ***Category >Styles >Character >Default Style***  
+  c. Click ***Modify*** in the top right to set shortcut function  
+4. Set ***Ctrl+Shift+l***  
+  a. Press ***Ctrl+Shift+l*** to automatically navigate to that shortcut in the top window  
+  b. Navigate to ***Category >Styles >Numbering >List 1***  
+  c. Click ***Modify*** in the top right to set shortcut function  
+5. Set ***Ctrl+Shift+n***  
+  a. Press ***Ctrl+Shift+n*** to automatically navigate to that shortcut in the top window  
+  b. Navigate to ***Category >Styles >Numbering >Numbering 1***  
+  c. Click ***Modify*** in the top right to set shortcut function  
+6. Set ***Ctrl++*** (there is a bug that prevents this from working)  
+  a. Press ***Ctrl++*** to automatically navigate to that shortcut in the top window  
+  b. Navigate to ***Category >View >Functions >Zoom In***  
+  c. Click ***Modify*** in the top right to set shortcut function  
+7. Set ***Ctrl+-*** (there is a bug that prevents this from working)  
+  a. Press ***Ctrl+-*** to automatically navigate to that shortcut in the top window  
+  b. Navigate to ***Category >View >Functions >Zoom Out***  
+  c. Click ***Modify*** in the top right to set shortcut function  
+
+### Set Default Template <a name="set-default-template"/></a>
+1. Save your template as ***~/.config/libreoffice/4/user/template/standard.ott***  
+2. Launch ***libreoffice*** and navigate to ***File >Templates >Manage Templates***  
+3. Right click on ***standard*** and choose ***Set As Default***  
+4. Cancel dialog and your done  
+
+### Turn off Smart Quotes <a name="turn-off-smart-quotes"/></a>
+1. Navigate to ***Tools >AutoCorrect >AutoCorrect Options...***  
+2. Select the ***Localization Options*** tab  
+3. Uncheck ***Replace*** for both types of quotes  
+
+### Turn off Replace Dashes <a name="turn-off-replace-dashes"/></a>
+1. Navigate to ***Tools >AutoCorrect >AutoCorrect Options...***  
+2. Select the ***Options*** tab  
+3. Uncheck ***Replace dashes***  
+
+### Turn off Automatic Strikeout <a name="turn-off-automatic-strikeout"/></a>
+1. Navigate to ***Tools >AutoCorrect >AutoCorrect Options...***  
+2. Select the ***Options*** tab  
+3. Uncheck ***Automatic bold,italic,strikeout,underline***   
+
+## PDFs <a name="pdfs"/></a>
+
+### Convert Images to PDF <a name="convert-images-to-pdf"/></a>
+```bash
+# Install imagemagick
+$ sudo pacman -S imagemagick
+
+# Comment out the stupid security policy default in Arch Linux
+$ sudo vim /etc/ImageMagick-7/policy.xml
+# <policy domain="coder" rights="none" pattern="{PS,PS2,PS3,EPS,PDF,XPS}" />
+
+# Convert images to pdf
+# -quality is the jpeg compression to use for images
+$ convert -resize 50% -quality 98 -units pixelsperinch -density 150 image1.jpg image2.jpg output.pdf
+```
+
 # Packages <a name="packages"/></a>
 * Create repo: `repo-add cyberlinux.db.tar.gz *.pkg.tar.xz`
 
-# Init database <a name="init-database"/></a>
+## Init database <a name="init-database"/></a>
 ***cyberlinux*** is configured out of the box with initial keys and databases; however should the
 need arise to clean it and start fresh this is what you do.
 
@@ -1146,7 +1166,7 @@ $ sudo pacman -Sy
 $ sudo pkgfile --update
 ```
 
-# Mirror Lists <a name="mirror-lists"/></a>
+## Mirror Lists <a name="mirror-lists"/></a>
 1. Install the latest mirror list  
   a. Install: `sudo pacman -S pacman-mirrorlist`  
   b. Update: `sudo mv /etc/pacman.d/mirrorlist.pacnew /etc/pacman.d/mirrorlist`  
@@ -1158,7 +1178,7 @@ $ sudo pkgfile --update
 
 # Patching <a name="patching"/></a>
 
-# Create Patch <a name="create-patch"/></a>
+## Create Patch <a name="create-patch"/></a>
 ```bash
 # Copy code to a
 $ cp -a <code> a
@@ -1170,7 +1190,7 @@ $ cp -a a b
 $ diff -ruN a b > <patch-name>.patch
 ```
 
-# Apply Patch <a name="apply-patch"/></a>
+## Apply Patch <a name="apply-patch"/></a>
 ```bash
 $ patch -Np1 -i <patch-name>.patch
 ```

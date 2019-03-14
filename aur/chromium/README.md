@@ -15,6 +15,13 @@ be used at your own risk.
     * [Bromite Chromium](#bromite-chromium)
     * [Debian Chromium](#debian-chromium)
     * [Iridium Chromium](#iridium-chromium)
+    * [Vilvaldi Chromium](#vilvaldi-chromium)
+    * [Epic Chromium](#epic-chromium)
+    * [SRWare Iron Chromium](#epic-chromium)
+    * [Opera 15 Chromium](#opera-15-chromium)
+    * [Brave Chromium](#brave-chromium)
+    * [Vendor Chromium](#vendor-chromium)
+  * [Data Sent to Google](#data-sent-to-google)
   * [Chrome built in pages](#chrome-built-in-pages)
   * [Command line switches](#command-line-switches)
   * [Chromium Policies](#chromium-policies)
@@ -35,6 +42,9 @@ Because of Google's backing and a ton of other contributors Chromium has become 
 in the browser market and seen a lot of performance and efficiency boosts other browser haven't been
 able to keep up with.  Despite its awesomeness however Google has built a bunch of Orwellian phone
 home type tracking, privacy leaking ad-vertising crap etc...  
+
+My goal is to get a browswer that is fast, private and compatible with chromium's browser
+extensions out of the box.
 
 ## Forks and Builds <a name="forks-and-builds"></a>
 A number of forks and builds have sprung into existence to offer various alternatives. Some simply
@@ -66,6 +76,68 @@ of Chromium with some stability patching.
 https://github.com/iridium-browser/tracker/wiki/Differences-between-Iridium-and-Chromium is a fork
 of Chromium backed by the Open Source Business Alliance aimed at privacy and security in a
 transparent auditable way.
+
+### Vilvaldi Chromium <a name="vilvalidi-chromium"></a>
+Vivaldi is the brainchild of Opera’s former CEO, who wasn’t happy with the direction Opera was
+headed. It aims to target power users while bringing back discarded features from Opera.
+
+### Epic Chromium <a name="epic-chromium"></a>
+Epic is a privacy-centered web browser. It is always in a “Private browsing” mode, and proactively
+removes cookies, browser history, and cache upon exit. It also disables other data that is sent to
+Google, like address bar suggestions.
+
+### SRWare Iron Chromium <a name="epic-chromium"></a>
+SRWare Iron is another privacy-focused browser that aims to eliminate privacy-compromising
+functionality from Google Chrome. To accomplish this, it takes a different approach: instead of
+adding new features, it actually strips down potentially privacy-related functionality from Chrome.
+It removes Google-hosted error pages, Google Updater, DNS pre-fetching, address bar suggestions,
+etc. Built in ad-blocking, user agent switcher and more.
+
+### Opera 15 Chromium <a name="opera-15-chromium"></a>
+Opera continued to innovate and break new grounds for browsers, being the first to integrate an ad
+blocker by default, a VPN-like system, a cryptocurrency wallet, and it was also the first browser to
+experiment a floating video player window years before Google developers even thought of adding one
+to Chrome.
+
+### Brave Chromium <a name="brave-chromium"></a>
+Privacy-focused browser Brave has finished the final phase of a two-stage process and has now
+migrated most of its userbase to a full Chromium codebase, the same one used by Chrome, Vivaldi,
+Opera, and soon, Edge. Brave doesn't integrate any of the Google-based features that Chromium
+includes. Includes built-in ad blocking, built in tor and more.
+
+### Blisk Chromium <a name="blisk-chromium"></a>
+Blisk is a Chromium browser like no other, mainly because it's aimed at developers above all.
+Regular users can use it too, but the browser is packed choke-full with tools and features that
+developers often install as extensions on Chrome installations. This developer-oriented browser
+comes with features such a tool that lets devs test how a website would look on laptops, tablets,
+and smartphones alike; support for touch events; user-agent switching; different device pixel
+ratio rendering; and many other more.
+
+### Superbird Chromium <a name="superbird-chromium"></a>
+http://superbird-browser.com/download.php
+
+### Vendor Chromium <a name="vendor-chromium"></a>
+Many vendors have highly customized versions of chromium they offer
+
+* ***Comodo Dragon*** disables the privacy-compromising functionality in Chrome. It removes address
+bar suggestions, bug tracking system, and Google user tracking. The built-in PDF viewer, Google Safe
+Browsing, and Google Translate also get the boot. It lets users configure their computers to use
+Comodo’s DNS servers, which performs additional checks to verify the security of websites.
+* Avast Secure Browser
+* Amazon Silk
+* Samnsun Internet Browser
+* Yandex Browser
+* Qihoo 360 Secure Browser
+* Torch Browser
+
+## Data Sent to Google <a name="data-sent-to-google"></a>
+* ***Installation ID*** - Google Chrome generates a unique identification on installation time. According to Google, this ID will be used to track the number of installations.
+* ***RLZ identifier*** - Google Chrome communicates information about where Google Chrome was downloaded
+* ***Client ID*** - A unique client ID transmitted to Google in the case that Google Chrome crashes
+* ***Suggest*** - During your input, text from the url bar is transmitted to google
+* ***Bug Tracker*** - If Chrome detects a fault it is sent to Google
+* ***Google Updater*** - Google installs a Google updater that searches updates in the background
+* ***Malformed URL*** - Once you enter the wrong address in the browser address line, Chrome will send this address to Google
 
 ## Chrome built in pages <a name="chrome-built-in-pages"></a>
 * **chrome://gpu** - get GPU details
