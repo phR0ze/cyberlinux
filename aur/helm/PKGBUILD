@@ -1,5 +1,5 @@
 #MIT License
-#Copyright (c) 2017-2018 phR0ze
+#Copyright (c) 2017-2019 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,7 @@
 # Maintained by phR0ze
 #-------------------------------------------------------------------------------
 pkgname=helm
-pkgver=2.9.1
+pkgver=2.11.0
 pkgrel=1
 pkgdesc='Tool for managing Kubernetes charts'
 arch=('i686' 'x86_64')
@@ -32,7 +32,7 @@ license=('Apache')
 depends=('glibc' 'bash' 'ebtables' 'ethtool' 'iptables' 'socat' 'docker' 'util-linux')
 makedepends=('git' 'go' 'rsync' 'go-bindata')
 source=("http://storage.googleapis.com/kubernetes-helm/helm-v${pkgver}-linux-amd64.tar.gz")
-sha256sums=('56ae2d5d08c68d6e7400d462d6ed10c929effac929fedce18d2636a9b4e166ba')
+sha256sums=('02a4751586d6a80f6848b58e7f6bd6c973ffffadc52b4c06652db7def02773a1')
 
 package()
 {
