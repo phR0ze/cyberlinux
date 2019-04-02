@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.313
+  release: 0.2.314
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -368,7 +368,7 @@ apps:
       - {install: ddrescue,         desc: GNU data recovery tool }
       - {install: testdisk,         desc: Checks and undeletes partitions + photorec }
     - ruby-gems:
-      - {install: ruby-gtk3,        desc: Ruby binding of GTK3, depof: vpnctl, type: CYBERLINUX }
+      - {install: ruby-gtk3,        desc: Ruby binding of GTK3, depof: vpnctl }
     - config-modprobed:
       - {edit: /etc/modprobe.d/pcspkr.conf, insert: append, value: "blacklist pcspkr"}
 
