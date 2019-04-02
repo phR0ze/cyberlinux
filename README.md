@@ -378,6 +378,9 @@ either system.
   * [Upload container](#upload-container)
   * [Build cyberliux container](#build-cyberlinux-container)
 * [Fonts](#fonts)
+  * [Distro Fonts](#distro-fonts)
+  * [Fontconfig](#fongconfig)
+  * [Manually Install Fonts](#manually-install-fonts)
 * [Media](#media)
   * [Screen Recorder](#screen-recorder)
 * [Network](#network)
@@ -427,6 +430,9 @@ either system.
 * [VeraCrypt](#veracrypt)
 * [VPNs](#vpns)
   * [OpenConnect](#openconnect)
+* [Wine](#wine)
+  * [Config Wine](#config-wine)
+  * [Config Prefix](#config-prefix)
 
 # Arch Linux Help <a name="arch-linux-help"/></a>
 The [arch wiki](https://wiki.archlinux.org/) is the best place to go for help. I've just collected a
@@ -772,6 +778,66 @@ docker run --rm -it net-0.2.197:latest bash
 ```
 
 # Fonts <a name="fonts"/></a>
+https://wiki.archlinux.org/index.php/fonts
+
+## Xorg Fonts <a name="xorg-fonts"/></a>
+
+## Fontconfig <a name="fontconfig"/></a>
+https://wiki.archlinux.org/index.php/font_configuration
+
+Fontconfig is a library designed for provide a list of available fonts to applications, and also for
+configuration for how fonts get rendered. The default font rendering library `freetype2` installed on
+most linux machines renders fonts based on this configurattion.
+
+Font configuration is done per user via the `~/.config/fontconfig/fonts.conf` and globally with
+`/etc/fonts/local.conf` and `/etc/fonts/conf.d/*`.  All configuration is gathered into
+`/etc/fonts/fonts.conf` during fontconfig updates via `fc-cache` and should not be edited.
+
+The process for making Fontconfig configurations changes is:
+1. Edit config files and/or install fonts
+2. Build Fontconfig's configuration, run: `fc-cache`
+3. Close and reopen applications that you want to see updated
+
+### Replace or Set Defaut Fonts <a name="replace-or-set-default-fonts"/></a>
+```xml
+...
+ <match target="pattern">
+   <test qual="any" name="family"><string>georgia</string></test>
+   <edit name="family" mode="assign" binding="same"><string>Ubuntu</string></edit>
+ </match>
+...
+```
+
+### Font paths <a name="font-paths"/></a>
+Fontconfig recogizes the following font paths and scans them recursively:
+* `/usr/share/fonts`
+* `~/local/share/fonts`
+
+List out existing fonts known to Fontconfig
+```bash
+$ fc-list : file
+```
+
+### Font Presets <a name="font-presets"/></a>
+Font presets are installed in the directory `/etc/fonts/conf.avail` and can be enabled by creating
+symbolic links to them in the `/etc/fonts/conf.d` directory.
+
+### Font Anti-aliasing <a name="font-anti-aliasing"/></a>
+
+### Font Hinting <a name="font-hinting"/></a>
+
+### Font Autohinter <a name="font-auto-hinter"/></a>
+
+### Subpixel Rendering <a name="subpixel-rendering"/></a>
+Subpixel rendering a.k.a. `ClearType` is covered by Microsoft patents and **disabled** by default on
+Arch Linux. To enable it, you have to use the `freetype2-cleartype` AUR package.
+
+## Manually Install Fonts <a name="manually-install-fonts"/></a>
+1. Copy fonts to `/usr/share/fonts`
+2. Set permissions to at least `0444` for files and `0555` for directories
+3. Update font cache: `fc-cache`
+
+## Distro Fonts <a name="distro-fonts"/></a>
 Fonts are tricky due to licensing, despite being free for commercial use many are only free for
 individual users and can not be included in a distribution.  That said here are some awesome techno
 fonts that you may want to individually use.
@@ -793,7 +859,6 @@ fonts that you may want to individually use.
 * https://www.1001fonts.com/no-clocks-font.html
 * https://www.1001fonts.com/dendritic-voltage-font.html
 * https://www.1001fonts.com/neuropol-font.html
- 
 * https://www.1001fonts.com/perfect-dark-brk-font.html
 * https://www.1001fonts.com/crackdown-brk-font.html
 * https://www.1001fonts.com/airstrip-four-font.html
@@ -1454,7 +1519,7 @@ Connect Banner:
 Welcome to Example VPN!
 ```
 
-#### Trouble shooting DNS failures
+### Trouble shooting DNS failures
 cyberlinux just worked out of the box but Ubuntu, although using `systemd-resolved` doesn't have
 `nsswitch` setup correctly.
 
@@ -1470,6 +1535,55 @@ Example of fixed:
 hosts: files mdns4_minimal resolve [NOTFOUND=return] dns myhostname
 ```
 
+# Wine <a name="wine"/></a>
+Wine uses the `WINEPREFIX` as separate C-drive/registries. Typically you'll want one per app unless
+the apps are sharing configuration or depend on each other.
+
+## Config Wine <a name="config-wine"/></a>
+https://wiki.archlinux.org/index.php/wine
+
+```bash
+# Install Wine
+$ sudo pacman -S winetricks wine_gecko wine-mono
+
+# Ensure the multilib freetype is installed
+$ sudo pacman -S multilib/lib32-freetype2
+```
+
+## Config Prefix <a name="config-prefix"/></a>
+Wine prefixes are where all the registry, apps etc... live and are installed.
+
+Delete a prefix:
+```bash
+$ rm -rf ~/.wine/steam
+```
+
+Create new 32bit Wine Prefix:
+```bash
+$ mkdir ~/.wine
+$ WINEARCH=win32 WINEPREFIX=~/.wine/win32 wineboot -u
+
+# Configure new Prefix if desired, defaults to Windows 7
+$ WINEARCH=win32 WINEPREFIX=~/.wine/win32 wincfg
+```
+
+## Wine Sketchup <a name="wine-sketchup"/></a>
+```bash
+$ Install Sketchup via Winetricks
+$ WINEARCH=win32 WINEPREFIX=~/.wine/sketchup winetricks sketchup
+
+# Note you can see the download location in the output of the shell
+# https://dl.google.com/sketchup/GoogleSketchUpWEN.exe
+
+# Launch after installation find the exe and launch
+$ WINEARCH=win32 WINEPREFIX=~/.wine/sketchup wine ~/.wine/sketchup/drive_c/Program\ Files/Google/Google\ SketchUp\ 8/SketchUp.exe
+
+```
+
+## Wine Steam <a name="wine-steam"/></a>
+```bash
+$ WINEARCH=win32 WINEPREFIX=~/.wine/steam winetricks steam
+```
 
 <!-- 
 vim: ts=2:sw=2:sts=2
