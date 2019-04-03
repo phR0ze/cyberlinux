@@ -11,13 +11,14 @@ strictly the responsiblity of the user and not the developer/creator of ***cyber
 ### Table of Contents
 * [Desktop Deployment](#desktop-deployment)
 * [Laptop Deployment](#laptop-deployment)
+  * [Dell Inspiron 1545](#dell-inspiron-1545)
 * [Theater Deployment](#theater-deployment)
 * [Server Deployment](#server-deployment)
 * [Netbook Deployment](#netbook-deployment)
 * [Lite Deployment](#lite-deployment)
 * [Shell Deployment](#shell-deployment)
 
-### Desktop Deployment <a name="desktop-deployment"/></a>
+# Desktop Deployment <a name="desktop-deployment"/></a>
 The ***desktop*** deployment was created to serve as a full developer environment and daily runner.
 It is an amalgam of most other deployment options. Although it is the heaviest of the deployments,
 resource wise, it is still built with speed and efficiency in mind.
@@ -29,7 +30,7 @@ resource wise, it is still built with speed and efficiency in mind.
 * Virtual Machines and Containers (virtualbox, docker)
 * Media Processing/Consumption (vlc, smplayer, mvp, handbrake, makemkv)
 
-### Laptop Deployment <a name="laptop-deployment"/></a>
+# Laptop Deployment <a name="laptop-deployment"/></a>
 The ***laptop*** deployment is essentially just the desktop deployment with a few configuration
 changes useful for a laptop such as:
 
@@ -40,10 +41,20 @@ changes useful for a laptop such as:
 
 <a href="../doc/images/personal-laptop.jpg"><img width="820" height="480" src="../doc/images/personal-laptop.jpg"></a>
 
-### Theater Deployment <a name="theater-deployment"/></a>
+## Dell Inspiron 1545 <a name="dell-inspiron-1545"/></a>
+* 4GB RAM
+* Intel Core 2 Duo CPU T6400@2.00GHz
+* 512GB SSD
+* Intel GM45 Graphics
+* IDT 92HD71 Audio
+* Dell Wireless 1397 WLAN
+* Marvell Yukon 88E8040 PCI-E Fast Ethernet
+
+
+# Theater Deployment <a name="theater-deployment"/></a>
 Xorg desktop environment focusing on media playback
 
-### Server Deployment <a name="server-deployment"/></a>
+# Server Deployment <a name="server-deployment"/></a>
 The ***server*** deployment was created to serve as a light weight web and file server that would
 be run on lower end headless hardware. It is built on top of teh ***lite*** deployment.
 
@@ -59,7 +70,7 @@ be run on lower end headless hardware. It is built on top of teh ***lite*** depl
 
 <a href="../doc/images/server-deployment.jpg"><img width="639" height="480" src="../doc/images/server-deployment.jpg"></a>
 
-### Netbook Deployment <a name="netbook-deployment"/></a>
+# Netbook Deployment <a name="netbook-deployment"/></a>
 The ***netbook*** deployment builds on the lite deployment by adding the following features.
 
 **Features:**
@@ -68,7 +79,7 @@ The ***netbook*** deployment builds on the lite deployment by adding the followi
 * Teaviewer remoting
 * Conky widgets statistics showing networking, storage, battery, cpu and ram usage and date and time
 
-### Lite Deployment <a name="lite-deployment"/></a>
+# Lite Deployment <a name="lite-deployment"/></a>
 Slimmed down minimal Xorg desktop environment with selected light weight apps built on top of the
 ***Shell*** deployment.
 
@@ -86,7 +97,7 @@ Slimmed down minimal Xorg desktop environment with selected light weight apps bu
 
 <a href="../doc/images/lite-deployment.jpg"><img width="639" height="480" src="../doc/images/lite-deployment.jpg"></a>
 
-### Shell Deployment <a name="shell-deployment"/></a>
+# Shell Deployment <a name="shell-deployment"/></a>
 Intended as a full shell development environment the ***Shell*** deployment provides:
 
 **Features:**

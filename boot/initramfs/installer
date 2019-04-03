@@ -1,6 +1,6 @@
 #!/bin/bash
 #MIT License
-#Copyright (c) 2017-2018 phR0ze
+#Copyright (c) 2017-2019 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -277,7 +277,7 @@ partition_and_mount_disk()
             check_status
         fi
 
-        # Create root parition and set boot flag
+        # Create root partition and set boot flag
         echo -en ":: Creating ${part_root} as Linux filesystem partition..."
         sgdisk -n 0:0:0 -t 0:8300 -c 0:"Linux filesystem" ${install_dev} &>/dev/null
         check_status
@@ -329,31 +329,21 @@ install_bootloader()
     esp_mnt=${rootmnt}/mnt
     grub_path=${rootmnt}/mnt/grub
 
-    # Prepare GRUB MBR (/new_root/boot/grub), EFI (/new_root/mnt/boot/grub)
+    # Prepare GRUB (/new_root/boot/grub), EFI (/new_root/mnt/boot/grub)
     #---------------------------------------------------------------------------
     if [ "x${efi}" == "x1" ]; then
         echo -en ":: Mount ${part_boot} (ESP) as ${esp_mnt}..."
         mount ${part_boot} ${esp_mnt} &>/dev/null
         check_status
         rm -rf ${rootmnt}/boot/grub
-        echo -en ":: Create GRUB path ${grub_path}..."
-        mkdir -p ${grub_path} &>/dev/null
-        check_status
     else
         platform=i386-pc
         grub_path=${rootmnt}/boot/grub
-        rm -rf ${rootmnt}/boot/grub/grub.*
     fi
 
-    echo -en ":: Install GRUB unicode.pf2 font to ${grub_path}..."
-    cp ${rootmnt}/usr/share/grub/unicode.pf2 ${grub_path} &>/dev/null
-    check_status
-
-    echo -en ":: Install GRUB platform ${platform} to ${grub_path}..."
-    cp -r ${rootmnt}/usr/lib/grub/${platform} ${grub_path} &>/dev/null
-    check_status
-
-    # Install GRUB to /boot/grub on /new_root
+    # Install GRUB bootloader to the MBR on i386-pc and ESP for EFI system
+    # grub-install populates the $grub_path with everything needed to boot
+    # the system, all we need is to customize the 'grub.cfg'
     #---------------------------------------------------------------------------
     shared_modules="ext2 all_video font gfxterm"
     if [ "x${efi}" == "x1" ]; then
@@ -375,11 +365,12 @@ install_bootloader()
         check_status
     fi
 
-    # Install GRUB configuration files to the ESP for EFI or /boot for BIOS
+    # Install custom GRUB configuration file 'grub.cfg' to the ESP for EFI
+    # or /boot/grub for BIOS# which is read by GRUB once it has booted up.
     echo -en ":: Install GRUB config at ${grub_path}..."
     echo -e "default=0\ntimeout=0\n" > ${grub_path}/grub.cfg
     echo -e 'set gfxmode="<%=gfxmode%>"' >> ${grub_path}/grub.cfg
-    echo -e 'loadfont "${prefix}/unicode.pf2"' >> ${grub_path}/grub.cfg
+    echo -e 'loadfont fonts/unicode.pf2' >> ${grub_path}/grub.cfg
     echo -e 'terminal_input console' >> ${grub_path}/grub.cfg
     echo -e "terminal_output gfxterm\n" >> ${grub_path}/grub.cfg
     echo -e 'menuentry "<%=distro%>" {' >> ${grub_path}/grub.cfg
@@ -645,7 +636,7 @@ installer()
         fi
     fi
 
-    # Mount live system or Install to local disk
+    # Mount live system / Install to local disk
     #---------------------------------------------------------------------------
     rootmnt="${1}"                          # /new_root passed in as 1st param
     local rw_ram_size="75%"
@@ -663,6 +654,7 @@ installer()
         mount -o bind ${write_mnt}/root ${rootmnt} &>/dev/null
         check_status
     else
+        # Copies /mnt/read/root/ to /new_root
         mount_layers "${iso_mnt}/images" ${read_mnt}/root ${read_mnt}/temp
         partition_and_mount_disk
         echo -e ":: Copying ${read_mnt}/root to ${rootmnt}"

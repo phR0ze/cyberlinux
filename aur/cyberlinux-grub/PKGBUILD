@@ -1,5 +1,5 @@
 #MIT License
-#Copyright (c) 2018 phR0ze
+#Copyright (c) 2018-2019 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,7 @@
 pkgname=cyberlinux-grub
 pkgver=0.0.3
 pkgrel=1
-pkgdesc="Grub boog files and themes for cyberlinux"
+pkgdesc="Grub boot files and themes for cyberlinux"
 arch=('any')
 url="https://github.com/phR0ze/cyberlinux-grub"
 license=('MIT')
