@@ -368,7 +368,9 @@ either system.
   * [Keyboard](#keyboard)
     * [Configure Keyboard Rate](#configure-keyboard-rate)
   * [Printer](#printer)
-    * [Workforce WF-7710](#workforce-wf-7710)
+    * [Workforce WF-7710](#printer-workforce-wf-7710)
+  * [Scanner](#scanner)
+    * [Workforce WF-7710](#scanner-workforce-wf-7710)
 * [Display Manager](#display-manager)
   * [LXDM](#lxdm)
     * [xprofile](#xprofile)
@@ -698,7 +700,9 @@ $ sudo systemctl start org.cups.cupsd
 $ groups
 ```
 
-### Workforce WF-7710<a name="workforce-wf-7710"/></a>
+### Workforce WF-7710<a name="printer-workforce-wf-7710"/></a>
+The package that works for the WF-7710 is actually a wrapped version that comes from Epson directly
+
 1. Download and install the correct Epson driver  
   a. Navigate to [Arch Wiki - Epson](https://aur.archlinux.org/packages/epson-inkjet-printer-escpr2/)  
   b. We can see that the `WF7710` requires the AUR package `epson-inkjet-printer-escpr2`  
@@ -715,6 +719,64 @@ $ groups
      Note: it automatically showed up in the list  
   c. Click `Forward`  
   d. Click `Apply`  
+
+## Scanner <a name="scanner"/></a>
+https://wiki.archlinux.org/index.php/SANE
+
+SANE is the defacto standard in the Linux community for scanning software.
+
+```bash
+# Install
+$ sudo pacman -S sane
+
+# Test if your scanner is reconized by SANE
+$ scanimage -L
+```
+### Workforce WF-7710<a name="scanner-workforce-wf-7710"/></a>
+
+Slow detection black list devices:
+```bash
+# Firt time i detected devices
+$ scanimage -L
+device `v4l:/dev/video0' is a Noname HP Webcam 3110: HP Webcam 3110 virtual device
+
+# Edit /etc/sand.d/v4l.conf
+# /dev/video0
+
+# Once that was commented out I got nothing
+No scanners were identified. If you were expecting something different,
+check that the scanner is plugged in, turned on and detected by the
+sane-find-scanner tool (if appropriate). Please read the documentation
+which came with this software (README, FAQ, manpages).
+```
+
+Search EPSON I found the [Support Driver Download Page](http://download.ebz.epson.net/dsc/search/01/search/searchModule#)
+and saw the `WF-7710 Series` had a `Scanner Driver` package available which when clicked brought me to the
+[Image Scan v3](http://support.epson.net/linux/en/imagescanv3.php) so then I went back to the Arch Linux wiki
+and found the [Image Scan v3](https://wiki.archlinux.org/index.php/SANE/Scanner-specific_problems#Image_Scan_v3) 
+backend driver support section.
+
+Working throught the driver install process:
+```bash
+# Install imagescan
+$ sudo pacman -S imagescan
+
+# Download and install the AUR package 
+$ yaourt -S imagescan-plugin-networkscan
+
+# Now edit `/etc/utsushi/utsushi.conf`
+# In the [devices] delete everything also delete the entire [devices.mfp1] if it exists
+# Add the following looking up the actual IP address from your printer.
+# wf7710.udi = esci:networkscan://<ip-address-here>:1865
+# wf7710.vendor = EPSON
+# wf7710.model = WF-7710
+```
+
+Scan a black and white document:
+1. Launch the scanner with `utsushi`
+2. Set `Scan Area` to `Letter/Portrait`
+3. Set `Resolution` to `150`
+4. Set `Image Type` to `Grayscale`
 
 # Display Manager <a name="display-manager"/></a>
 ## LXDM <a name="lxdm"/></a>
