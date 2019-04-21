@@ -422,6 +422,7 @@ either system.
   * [Check Logs for Errors](#check-logs-for-errors)
 * [Storage](#storage)
   * [Add Drive](#add-drive)
+    * [Add Automount using FSTAB](#add-automount-using-fstab)
   * [Clone Drive](#clone-drive)
   * [Shred Drive](#shred-drive)
   * [Wipe Drive](#wipe-drive)
@@ -1494,6 +1495,31 @@ $ sudo mkfs.ext4 /dev/sdb1
 # reserved blocks are only used as a security measure on boot disks to that system functions can
 # continue to operate correctly even if a user has stuffed the drive.
 $ sudo tune2fs -m 0 /dev/sdb1
+```
+
+### Add Automount using FSTAB <a name="add-automount-using-fstab"/></a>
+https://www.freedesktop.org/software/systemd/man/systemd.mount.html
+
+According to systemd documentation `/etc/fstab` entries will be automatically converted to systemd unit
+files and is the preferred approach rather than manually creating individual mount unit files.
+
+```bash
+# Make mount point directory
+$ sudo mkdir /mnt/storage
+
+# Find UUID of drive
+$ sudo bash -c 'blkid >> /etc/fstab'
+
+# Edit /etc/fstab
+# Remove boot device from the list
+# Use: UUID=ba6619b0-c3a6-493e-92f0-14bf313d15a3 /mnt/storage1 ext4 defaults,noatime,nodiratime 0 0
+$ sudo vim /etc/fstab
+
+# Manually mount
+$ sudo mount -a
+
+# Set ownership if needed
+$ sudo chown -R phR0ze: /mnt/storage1 /mnt/storage2
 ```
 
 ## Clone Drive <a name="clone-drive"/></a>
