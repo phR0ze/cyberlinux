@@ -421,9 +421,11 @@ either system.
   * [Black Screen](#black-screen)
   * [Check Logs for Errors](#check-logs-for-errors)
 * [Storage](#storage)
+  * [Add Drive](#add-drive)
   * [Clone Drive](#clone-drive)
   * [Shred Drive](#shred-drive)
   * [Wipe Drive](#wipe-drive)
+  * [RAID Drives](#raid-drives)
 * [Systemd](#systemd)
 * [Time/Date](#time-date)
   * [Set Time/Date](#set-time-date)
@@ -1468,6 +1470,32 @@ journalctl -b
 ```
 
 # Storage <a name="storage"/></a>
+
+## Add Drive <a name="add-drive"/></a>
+```bash
+# Get device names
+$ sudo fdisk -l
+
+# Partition a drive via gdisk (greater than 2TB)
+$ sudo gdisk /dev/sdb
+# n to start create a new partition wizard
+# Accept default Partition number, hit enter
+# Accept defaults for First sector and Last sector
+# Accept default Hex code 8300 for Linux filesystem
+# w to write out the changes
+
+# To tell kernel about changes  
+$ sudo partprobe /dev/sdb
+
+# Format and Tune Drive  
+$ sudo mkfs.ext4 /dev/sdb1
+
+# For storage only set reserved blocks which defaults to 5% to 0 as it is unneeded.  These
+# reserved blocks are only used as a security measure on boot disks to that system functions can
+# continue to operate correctly even if a user has stuffed the drive.
+$ sudo tune2fs -m 0 /dev/sdb1
+```
+
 ## Clone Drive <a name="clone-drive"/></a>
 ```bash
 # Kick off clone in one terminal
@@ -1489,6 +1517,12 @@ sudo dd if=/dev/zero of=/dev/sdX bs=512 count=2048
 sudo bash -c 'dd if=/dev/zero of=/dev/sdX bs=512 count=2048 seek=$((`blockdev --getsz /dev/sdX` - 2048))'
 sudo wipefs --all --force /dev/sdX
 ```
+
+## RAID Drives <a name="raid-drives"/></a>
+The standard URE rate of 1 in 10^14 failure in modern drives has made RAID 5 an almost 100% fail with
+larger drives. RAID 6 although tolerable will also be too high a risk with larger drives.  The only
+option for RAID is RAID 10 if you value your data.  Otherwise forget RAID and make regular backups.
+Once configured partition and format like any other drive.
 
 # Systemd <a name="systemd"/></a>
 
