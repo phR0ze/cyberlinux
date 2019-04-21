@@ -1507,6 +1507,9 @@ files and is the preferred approach rather than manually creating individual mou
 # Make mount point directory
 $ sudo mkdir /mnt/storage
 
+# Identify your drive
+$ lsblk
+
 # Find UUID of drive
 $ sudo bash -c 'blkid >> /etc/fstab'
 
