@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.319
+  release: 0.2.320
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -839,6 +839,7 @@ apps:
       - install: gconf-editor         # Old Gnome configuration manager separate dconf-editor db
       - install: gtk-engines          # GTK theme engines for cyberlinux theme
       - install: gtk-engine-murrine   # GTK theme engine for cyberlinux theme
+      - install: paprefs              # Configuration dialog for pulse audio
       - install: pavucontrol          # PulseAudio Volume Control
       - install: pulseaudio-alsa      # ALSA Configuration for PulseAudio
       - install: tint2                # Lightweight taskmanager and system tray
@@ -1362,6 +1363,7 @@ configs:
     - {menu: Graphics, entry: Image Viewer, icon: /usr/share/icons/Paper/32x32/apps/gpicview.png, exec: gpicview }
     - {menu: Graphics, entry: XnViewMP, icon: /opt/xnviewmp/xnview.png, exec: xnviewmp }
     - {menu: Multimedia, entry: Pulse Audio, icon: /usr/share/icons/Paper/32x32/apps/multimedia-volume-control.png, exec: pavucontrol }
+    - {menu: Multimedia, entry: Pulse Audio Config, icon: /usr/share/icons/Paper/32x32/apps/multimedia-volume-control.png, exec: paprefs }
     - {menu: Multimedia, entry: SMPlayer, icon: /usr/share/icons/hicolor/32x32/apps/smplayer.png, exec: smplayer }
     - {menu: Multimedia, entry: VLC, icon: /usr/share/icons/hicolor/32x32/apps/vlc.png, exec: vlc }
     - {menu: Multimedia, entry: WinFF, icon: /usr/share/icons/hicolor/32x32/apps/winff.png, exec: winff }

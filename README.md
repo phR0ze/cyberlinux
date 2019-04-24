@@ -371,6 +371,7 @@ either system.
     * [Workforce WF-7710](#printer-workforce-wf-7710)
   * [Scanner](#scanner)
     * [Workforce WF-7710](#scanner-workforce-wf-7710)
+  * [Sound](#sound)
 * [Display Manager](#display-manager)
   * [LXDM](#lxdm)
     * [xprofile](#xprofile)
@@ -780,6 +781,13 @@ Scan a black and white document:
 2. Set `Scan Area` to `Letter/Portrait`
 3. Set `Resolution` to `150`
 4. Set `Image Type` to `Grayscale`
+
+## Sound <a name="sound"/></a>
+https://wiki.archlinux.org/index.php/PulseAudio/Troubleshooting#Simultaneous_output_to_multiple_sound_cards_/_devices
+
+1. Install: `sudo pacman -S paprefs`
+2. Click the `Simultaneous Output` tab
+2. Check `Add virtual output device for simultaneous output on all local sound cards`
 
 # Display Manager <a name="display-manager"/></a>
 ## LXDM <a name="lxdm"/></a>
