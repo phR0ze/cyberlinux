@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.320
+  release: 0.2.321
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -239,7 +239,6 @@ apps:
     - core-tools
     - keyrings:
       - install: archlinux-keyring
-      - {install: antergos-keyring, type: ANTERGOS}
       - {install: blackarch-keyring, type: BLACKARCH}
       - {install: cyberlinux-keyring, type: CYBERLINUX}
     - system:
@@ -332,7 +331,7 @@ apps:
       - {install: ruby,             desc: Ruby lang quick and easy programming }
       - {install: strace,           desc: A diagnostic, debugging and instructional userspace tracer }
       - {install: texinfo,          desc: Documentation for online information, group: [base-devel]}
-      - {install: yaourt,           desc: Pacman wrapper with support for AUR, type: ANTERGOS }
+      - {install: yay,              desc: Pacman wrapper and AUR helper written in go, type: CYBERLINUX }
     - ruby-gems:
       - {install: ruby-amatch,      desc: Fuzzy string matching, depof: watchman, type: CYBERLINUX }
       - {install: ruby-bundler,     desc: Gem management, depof: reduce }
@@ -404,7 +403,7 @@ apps:
       - audacious
     - network:
       - {install: chromium,         desc: Opensource project behind Chrome, type: CYBERLINUX }
-      - {install: chromium-widevine, desc: Chromium support for Netflix, type: ANTERGOS }
+      - {install: chromium-widevine, desc: Chromium support for Netflix, type: CYBERLINUX }
       - {install: flashplugin,      desc: Adobe Flash Player NPAPI }
       - {install: pepper-flash,     desc: Chromium flash support }
       - {install: filezilla,        desc: Network/Transfer }
@@ -426,7 +425,7 @@ apps:
       - {install: ttf-bitstream-vera, desc: Bitstream vera fonts }
       - {install: ttf-dejavu,       desc: Bitstream Vera Fonts w/more characters }
       - {install: ttf-droid,        desc: Google Android general purpose fonts }
-      - {install: ttf-google-fonts-typewolf, desc: Typewolf's 40 best fonts from the Google Fonts project, type: ANTERGOS }
+      - {install: ttf-google-fonts-typewolf, desc: Typewolf's 40 best fonts from the Google Fonts project, type: CYBERLINUX }
       - {install: ttf-hack,         desc: Hand groomed/optically balanced typeface based on Bitstream Vera Mono }
       - {install: ttf-inconsolata-g, desc: Best monospace terminal font, type: CYBERLINUX }
       - {install: ttf-indic-otf,    desc: Indic Opentype Fonts collection }
@@ -898,7 +897,7 @@ apps:
           - '[ -r ~/.bashrc ] && source ~/.bashrc'
     - themes:
       - install: lxappearance-obconf # Openbox support for lxappearance
-      - {install: numix-frost-themes, desc: Numix frost GTK2, GTK3 and OpenBox themes, type: ANTERGOS }
+      - {install: numix-frost-themes, desc: Numix frost GTK2, GTK3 and OpenBox themes, type: CYBERLINUX }
       - {install: paper-icon-theme, desc: Paper icon theme, type: CYBERLINUX }
     - menu-lxde:
       - {menu: Settings>Desktop/Login, entry: Tint2 Panel, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.config/tint2/tint2rc }
