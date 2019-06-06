@@ -391,6 +391,11 @@ either system.
   * [Configure Multiple IPs](#configure-multiple-ips)
   * [SSH Port Forwarding](#ssh-port-forwarding)
   * [Nameservers](#nameservers)
+    * [See Current DNS](#see-current-dns)
+    * [Configure DNS](#configure-dns)
+    * [Quad9 DNS](#quad9-dns)
+    * [Cloudflare DNS](#cloudflare-dns)
+    * [Google DNS](#google-dns)
   * [Networking DHCP](#networking-dhcp)
   * [Networking Static](#networking-static)
   * [Networking Wifi](#networking-wifi)
@@ -429,6 +434,9 @@ either system.
   * [Wipe Drive](#wipe-drive)
   * [RAID Drives](#raid-drives)
 * [Systemd](#systemd)
+  * [Boot Performance](#boot-performance)
+    * [See How long boot takes](#see-how-long-boot-takes)
+    * [Rank services by startup time](#rank-services-by-startup-time)
 * [Time/Date](#time-date)
   * [Set Time/Date](#set-time-date)
 * [Users/Groups](#users-groups)
@@ -1038,9 +1046,84 @@ tcp        0      0 10.33.234.133:5938      0.0.0.0:*               LISTEN
 ```
 
 ## Nameservers <a name="nameservers"/></a>
-Cloudflares DNS is the fastest and safest right now
+https://wiki.archlinux.org/index.php/Alternative_DNS_services
 
-***1.1.1.1*** and ***1.0.0.1***
+Systemd's resolved service configured it's Fallback DNS by default to use Cloudflare then Quad9 then
+Google so that DNS will always work.
+
+### See Current DNS <a name="see-current-dns"/></a>
+```bash
+$ resolvectl status
+```
+
+### Configure DNS <a name="configure-dns"/></a>
+https://wiki.archlinux.org/index.php/Systemd-resolved#Setting_DNS_servers
+
+DNS is managed first by the network manager which in cyberlinux's case means `systemd-networkd`
+which if not specified will fallback on the network router's DNS configuration. It can be overridden
+with resolved configuration if desired but is probably simpler to just go with the network manager
+settings.
+
+Configure Network Wide at Router:
+1. Set network wide DNS picked up by DHCP clients at your router
+2. Restart clients `sudo systemctl restart systemd-resolved`
+
+Configure DNS directly locally (for target link):
+```bash
+# Edit the target network config ensuring that UseDNS=false is set
+# Note that to not use the DHCP dns you must set UseDNS=false
+$ cat /etc/systemd/network/30-wireless.network
+[Match]
+Name=wl*
+
+[Network]
+DHCP=ipv4
+IPForward=kernel
+DNS=8.8.8.8
+
+[DHCP]
+UseDNS=false
+RouteMetric=20
+UseDomains=true
+
+# Restart services
+$ sudo systemctl restart systemd-networkd systemd-resolved
+```
+
+Configure DNS directly locally (for all links):
+```bash
+# Edit resolved config
+$ cat /etc/systemd/resolved.conf
+[Resolve]
+DNS=1.1.1.1 1.0.0.1
+FallbackDNS=1.1.1.1 1.0.0.1 9.9.9.9 8.8.8.8
+
+# Change the DNS= line to your target dns e.g. DNS=8.8.8.8 8.8.4.4
+
+# Restart service
+$ sudo systemctl restart systemd-resolved
+```
+
+### Cloudflare DNS <a name="cloudflare-dns"/></a>
+[Cloudflare's DNS](https://blog.cloudflare.com/announcing-1111/) heralded as the Internet's fastest,
+privacy-first consumer DNS service.
+
+* ***1.1.1.1***
+* ***1.0.0.1***
+
+### Quad9 DNS <a name="quad9-dns"/></a>
+[Quad9's DNS](https://quad9.net/) is a DNS service founed by IBM and a few others with the primary
+unique feature of a malicious blocklist.
+
+* ***9.9.9.9***
+* ***9.9.9.10***
+
+### Google DNS <a name="google-dns"/></a>
+[Google DNS](https://developers.google.com/speed/public-dns/) claims to speed up browsing and offer
+better security, however nothing is called out around privacy as they like to monitor heavily.
+
+* ***8.8.8.8***
+* ***8.8.4.4***
 
 ## Networking DHCP <a name="networking-dhcp"/></a>
 ```bash
@@ -1563,11 +1646,95 @@ Once configured partition and format like any other drive.
 
 # Systemd <a name="systemd"/></a>
 
+## System Status <a name="system-status"/></a>
+
+```bash
+# By leaving off a specific unit to get status about we see the status of the entire system
+$ systemctl status
+
+# List out all running units and their state
+$ systemctl
+```
+
+## Boot Performance <a name="boot-performance"/></a>
+https://wiki.archlinux.org/index.php/Improving_performance/Boot_process
+
+### See How long boot takes <a name="see-how-long-boot-takes"/></a>
+```bash
+$ systemd-analyze
+Startup finished in 4.800s (kernel) + 2min 3.457s (userspace) = 2min 8.258s 
+graphical.target reached after 2min 3.457s in userspace
+```
+
+### Rank services by startup time <a name="rank-services-by-startup-time"/></a>
+```bash
+$ systemd-analyze blame
+2min 200ms systemd-networkd-wait-online.service
+  2.012s dev-sda3.device
+  1.577s systemd-udevd.service
+  1.483s systemd-resolved.service
+  1.406s man-db.service
+  1.277s systemd-journal-flush.service
+   981ms docker.service
+   823ms systemd-timesyncd.service
+   472ms logrotate.service
+   455ms systemd-logind.service
+   417ms systemd-networkd.service
+   374ms systemd-journald.service
+   338ms udisks2.service
+   305ms polkit.service
+   114ms systemd-rfkill.service
+    96ms systemd-udev-trigger.service
+    71ms teamviewerd.service
+    69ms user@1000.service
+    51ms org.cups.cupsd.service
+    47ms systemd-binfmt.service
+    28ms dev-mqueue.mount
+    26ms dev-hugepages.mount
+    26ms lvm2-monitor.service
+    26ms sys-kernel-debug.mount
+    25ms systemd-tmpfiles-setup.service
+    24ms kmod-static-nodes.service
+    24ms systemd-modules-load.service
+    23ms systemd-remount-fs.service
+    20ms systemd-tmpfiles-setup-dev.service
+    19ms systemd-random-seed.service
+    15ms systemd-sysctl.service
+    15ms tmp.mount
+    13ms systemd-tmpfiles-clean.service
+    12ms user-runtime-dir@1000.service
+    12ms systemd-update-utmp.service
+    11ms proc-sys-fs-binfmt_misc.mount
+    10ms systemd-user-sessions.service
+     9ms systemd-backlight@backlight:acpi_video0.service
+     7ms docker.socket
+     7ms systemd-backlight@backlight:nv_backlight.service
+
+$ systemd-analyze critical-chain
+graphical.target @2min 3.457s
+└─multi-user.target @2min 3.457s
+  └─docker.service @2min 2.474s +981ms
+    └─network-online.target @2min 2.472s
+      └─network.target @3.749s
+        └─systemd-resolved.service @2.265s +1.483s
+          └─systemd-networkd.service @1.845s +417ms
+            └─systemd-udevd.service @263ms +1.577s
+              └─systemd-tmpfiles-setup-dev.service @240ms +20ms
+                └─kmod-static-nodes.service @190ms +24ms
+                  └─systemd-journald.socket @189ms
+                    └─system.slice @183ms
+                      └─-.slice @183ms
+```
+
+### Remove lvm2 service <a name="remove-lvm2-service"/></a>
+
 ## Systemd Debug Shell <a name="systemd-debug-shell"/></a>
 ```bash
-sudo systemctl enable debug-shell
+$ sudo systemctl enable debug-shell
+
 # Logout then switch to debug shell with Ctl+F9
-systemctl status
+$ systemctl status
+
 # See which apps are hanging
 ```
 
