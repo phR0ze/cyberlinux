@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.324
+  release: 0.2.325
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -332,6 +332,7 @@ apps:
       - {install: strace,           desc: A diagnostic, debugging and instructional userspace tracer }
       - {install: texinfo,          desc: Documentation for online information, group: [base-devel]}
       - {install: yay,              desc: Pacman wrapper and AUR helper written in go, type: CYBERLINUX }
+      - {install: yq,               desc: Command-line YAML processor - jq wrapper for YAML documents }
     - ruby-gems:
       - {install: ruby-amatch,      desc: Fuzzy string matching, depof: watchman, type: CYBERLINUX }
       - {install: ruby-bundler,     desc: Gem management, depof: reduce }
