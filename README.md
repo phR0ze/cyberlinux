@@ -206,106 +206,99 @@ state although the internal display continued to work until restarted.
 
 # cyberlinux-repo <a name="cyberlinux-repo"></a>
 
-| Package                                                   | Purpose                
-| --------------------------------------------------------- | ------------------------------------------------------------------
-| asterisk-15.4.1-2-x86_64.pkg.tar.xz                       | ?
-| awf-git-v1.3.1.r4.gcee9158-1-x86_64.pkg.tar.xz            | ?
-| bindip-0.0.1-1-any.pkg.tar.xz                             | ?
-| ccextractor-0.87-1-x86_64.pkg.tar.xz                      | Dependency of makemkv - extract CC streams from some DVD Media
-| chromium-62.0.3202.94-3-x86_64.pkg.tar.xz                 | cyberlinux custom build of chromium with security enhancements
-| cinnamon-desktop-3.4.2-1-x86_64.pkg.tar.xz                | ?
-| cinnamon-screensaver-3.0.1-1-x86_64.pkg.tar.xz            | ?
-| cinnamon-translations-3.4.2-1-any.pkg.tar.xz              | ?
-| cri-tools-1.11.1-2-x86_64.pkg.tar.xz                      | ?
-| cyberlinux.db.tar.gz.lck                                  | ?
-| cyberlinux-grub-0.0.3-1-any.pkg.tar.xz                    | ?
-| cyberlinux-keyring-0.0.170-2-any.pkg.tar.xz               | ?
-| cyberlinux-plank-0.11.4-3-x86_64.pkg.tar.xz               | ?
-| cyberlinux-screenfetch-3.8.0-2-any.pkg.tar.xz             | ?
-| cyberlinux-vim-plugins-0.0.2-1-any.pkg.tar.xz             | ?
-| epson-inkjet-printer-escpr2-1.0.26-1-x86_64.pkg.tar.xz    | Driver for the Epson WorkForce 7710 inkjet all-in-one printer
-| galliumos-braswell-config-1.0.0-1-any.pkg.tar.xz          | Braswell configuration files for Samsung 3 Chromebook
-| google-cloud-sdk-243.0.0-1-x86_64.pkg.tar.xz              | ?
-| helm-2.14.0-1-x86_64.pkg.tar.xz                           | ?
-| hipchat-4.30.5.1676-1-x86_64.pkg.tar.xz                   | ?
-| idesk-0.7.5-8-x86_64.pkg.tar.xz                           | ?
-| iksemel-1.5-1-x86_64.pkg.tar.xz                           | FreeSWITCH dependency
-| imagescan-plugin-networkscan-1.1.2-1-x86_64.pkg.tar.xz    | Scanner driver for Epson WorkForce 7710 inject all-in-on printer
-| input-wacom-dkms-0.39.0-1-x86_64.pkg.tar.xz               | ?
-| inxi-3.0.10-2-any.pkg.tar.xz                              | Low level cli tool for device configuration discovery
-| kubeadm-1.11.2-2-x86_64.pkg.tar.xz                        | ?
-| kubecni-0.7.2-2-x86_64.pkg.tar.xz                         | ?
-| kubectl-1.11.2-2-x86_64.pkg.tar.xz                        | ?
-| kubelet-1.11.2-2-x86_64.pkg.tar.xz                        | ?
-| lib32-freetype2-2.8-2-x86_64.pkg.tar.xz                   | ?
-| libblockdev-2.21-1-x86_64.pkg.tar.xz                      | Recompiled ABS with `--without-lvm` to remove the lvm2 dependency
-| light-1.1.2-1-x86_64.pkg.tar.xz                           | ?
-| linux-celes-4.15.5-1-x86_64.pkg.tar.xz                    | ?
-| linux-celes-docs-4.15.5-1-x86_64.pkg.tar.xz               | ?
-| linux-celes-headers-4.15.5-1-x86_64.pkg.tar.xz            | ?
-| makemkv-1.14.3-1-x86_64.pkg.tar.xz                        | ?
-| makemkv-cli-1.14.3-1-x86_64.pkg.tar.xz                    | ?
-| mkinitcpio-vt-colors-1.0.0-1-x86_64.pkg.tar.xz            | ?
-| numix-frost-themes-3.6.6-1-any.pkg.tar.xz                 | ?
-| openvpn-update-systemd-resolved-1.2.6-1-any.pkg.tar.xz    | ?
-| packer-1.2.4-1-x86_64.pkg.tar.xz                          | ?
-| paper-icon-theme-1.4.0-1-any.pkg.tar.xz                   | ?
-| php-7.1.12-2-x86_64.pkg.tar.xz                            | ?
-| php-apache-7.1.12-2-x86_64.pkg.tar.xz                     | ?
-| php-gd-7.1.12-2-x86_64.pkg.tar.xz                         | ?
-| php-sqlite-7.1.12-2-x86_64.pkg.tar.xz                     | ?
-| pjproject-2.7-1-x86_64.pkg.tar.xz                         | ?
-| pnmixer-0.7.2-1-x86_64.pkg.tar.xz                         | ?
-| postman-bin-6.1.3-2-x86_64.pkg.tar.xz                     | ?
-| powerline-gitstatus-1.2.1-2-any.pkg.tar.xz                | ?
-| ruby-amatch-0.4.0-1-any.pkg.tar.xz                        | ?
-| ruby-byebug-11.0.0-1-any.pkg.tar.xz                       | ?
-| ruby-coderay-1.1.2-3-any.pkg.tar.xz                       | ?
-| ruby-connection_pool-2.2.1-2-any.pkg.tar.xz               | ?
-| ruby-domain_name-0.5.20161129-4-any.pkg.tar.xz            | ?
-| ruby-filesize-0.2.0-3-any.pkg.tar.xz                      | ?
-| ruby-httparty-0.15.6-1-any.pkg.tar.xz                     | ?
-| ruby-http-cookie-1.0.3-5-any.pkg.tar.xz                   | ?
-| ruby-json-2.1.0-1-any.pkg.tar.xz                          | ?
-| ruby-mechanize-2.7.6-1-any.pkg.tar.xz                     | ?
-| ruby-method_source-0.9.2-3-any.pkg.tar.xz                 | ?
-| ruby-multi_xml-0.6.0-1-any.pkg.tar.xz                     | ?
-| ruby-net-http-digest_auth-1.4.1-3-any.pkg.tar.xz          | ?
-| ruby-net-http-persistent-2:2.9.4-1-any.pkg.tar.xz         | ?
-| ruby-net-scp-1.2.1-3-any.pkg.tar.xz                       | ?
-| ruby-net-sftp-2.1.2-2-any.pkg.tar.xz                      | ?
-| ruby-net-sftp-2.1.2-3-any.pkg.tar.xz                      | ?
-| ruby-net-ssh-4.2.0-3-any.pkg.tar.xz                       | ?
-| ruby-nokogiri-1.10.1-1-any.pkg.tar.xz                     | ?
-| ruby-ntlm-http-0.1.1-10-any.pkg.tar.xz                    | ?
-| ruby-nub-0.1.2-1-any.pkg.tar.xz                           | ?
-| ruby-pry-0.12.2-1-any.pkg.tar.xz                          | ?
-| ruby-pry-byebug-3.7.0-1-any.pkg.tar.xz                    | ?
-| ruby-rest-client-2.0.2-3-any.pkg.tar.xz                   | ?
-| ruby-themoviedb-1.0.1-1-any.pkg.tar.xz                    | ?
-| ruby-unf_ext-0.0.7.2-4-any.pkg.tar.xz                     | ?
-| ruby-webrobots-0.1.2-5-any.pkg.tar.xz                     | ?
-| systemd-docker-0.2.1-1-x86_64.pkg.tar.xz                  | ?
-| teamviewer-13.2.13582-1-x86_64.pkg.tar.xz                 | All-In-One Software for Remote Support and Online Meetings
-| termcap-1.3.1-6-x86_64.pkg.tar.xz                         | ?
-| tiny-media-manager-2.9.16-1-any.pkg.tar.xz                | ?
-| ttf-adobe-fonts-11.0.06-1-any.pkg.tar.xz                  | ?
-| ttf-google-fonts-typewolf-17.11.git+94dff3e-1-any.pkg.tar.xz | ?
-| ttf-inconsolata-g-20090213-3-any.pkg.tar.xz               | ?
-| ttf-ms-fonts-2.0-10-any.pkg.tar.xz                        | ?
-| ttf-nerd-fonts-symbols-2.0.0-2-x86_64.pkg.tar.xz          | ?
-| vdhcoapp-bin-1.2.4-2-x86_64.pkg.tar.xz                    | ?
-| virtualbox-ext-oracle-6.0.4-1-any.pkg.tar.xz              | ?
-| visual-studio-code-bin-1.34.0-2-x86_64.pkg.tar.xz         | ?
-| vivaldi-2.5.1525.48-1-x86_64.pkg.tar.xz                   | An advanced browser made with the power user in mind
-| vpnctl-0.0.62-1-any.pkg.tar.xz                            | ?
-| vundle-0.10.2-2-any.pkg.tar.xz                            | ?
-| winff-1.5.4-3-x86_64.pkg.tar.xz                           | ?
-| wpa_gui-2.6-1-x86_64.pkg.tar.xz                           | ?
-| xcursor-numix-frost-0.9.9-4-any.pkg.tar.xz                | ?
-| xnviewmp-0.89-1-x86_64.pkg.tar.xz                         | ?
-| yay-9.2.0-1-x86_64.pkg.tar.xz                             | ?
-| zoom-2.8.183302.0415-1-x86_64.pkg.tar.xz                  | ?
+Key:
+* **Packaged** simply means the upstream aur package was built and added to this repo
+* **Repackaged** indicates the upstream bits were customized and saved at `cyberlinux/aur/<package>`
+* **Custom** indicates this package was wrote from scratch and saved at `cyberlinux/aur/<package>`
+
+| Package                         | Version           | Purpose                
+| ------------------------------- | ------------------| ------------------------------------------------------------------
+| asterisk                        | 15.4.1-2          | ?
+| awf-git                         | v1.3.1.r4.gcee91. | ?
+| bindip                          | 0.0.1-1           | ?
+| ccextractor                     | 0.87-1            | Packaged dependency of makemkv
+| chromium                        | 62.0.3202.94-3    | cyberlinux custom build of chromium with security enhancements
+| chromium-widevine               |                   |
+| cinnamon-desktop                | 3.4.2-1           | ?
+| cinnamon-screensaver            | 3.0.1-1           | ?
+| cinnamon-translations           | 3.4.2-1           | ?
+| cri-tools                       | 1.11.1-2          | ?
+| cyberlinux-grub                 | 0.0.3-1           | ?
+| cyberlinux-keyring              | 0.0.170-2         | ?
+| cyberlinux-plank                | 0.11.4-3          | ?
+| cyberlinux-screenfetch          | 3.8.0-2           | ?
+| cyberlinux-vim-plugins          | 0.0.2-1           | ?
+| epson-inkjet-printer-escpr2     | 1.0.26-1          | Driver for the Epson WorkForce 7710 inkjet all-in-one printer
+| galliumos-braswell-config       | 1.0.0-1           | Braswell configuration files for Samsung 3 Chromebook
+| google-cloud-sdk                | 243.0.0-1         | ?
+| helm                            | 2.14.0-1          | ?
+| hipchat                         | 4.30.5.1676-1     | ?
+| idesk                           | 0.7.5-8           | ?
+| iksemel                         | 1.5-1             | FreeSWITCH dependency
+| imagescan-plugin-networkscan    | 1.1.2-1           | Scanner driver for Epson WorkForce 7710 inject all-in-on printer
+| input-wacom-dkms                | 0.39.0-1          | ?
+| inxi                            | 3.0.10-2          | Low level cli tool for device configuration discovery
+| kubeadm                         | 1.11.2-2          | ?
+| kubecni                         | 0.7.2-2           | ?
+| kubectl                         | 1.11.2-2          | ?
+| kubelet                         | 1.11.2-2          | ?
+| lib32-freetype2                 | 2.8-2             | ?
+| libblockdev                     | 2.21-1            | Recompiled ABS with `--without-lvm` to remove the lvm2 dependency
+| light                           | 1.1.2-1           | ?
+| linux-celes                     | 4.15.5-1          | ?
+| linux-celes-docs                | 4.15.5-1          | ?
+| linux-celes-headers             | 4.15.5-1          | ?
+| makemkv                         | 1.14.4-1          | Re-packaged version making ccextractor a default dependency
+| mkinitcpio-vt-colors            | 1.0.0-1           | ?
+| numix-frost-themes              | 3.6.6-1           | ?
+| openvpn-update-systemd-resolved | 1.2.6-1           | ?
+| paper-icon-theme                | 1.4.0-1           | ?
+| php                             | 7.1.12-2          | ?
+| php-apache                      | 7.1.12-2          | ?
+| php-gd                          | 7.1.12-2          | ?
+| php-sqlite                      | 7.1.12-2          | ?
+| pjproject                       | 2.7-1             | ?
+| pnmixer                         | 0.7.2-1           | ?
+| postman-bin                     | 6.1.3-2           | ?
+| powerline-gitstatus             | 1.2.1-2           | ?
+| ruby-amatch                     | 0.4.0-1           | ?
+| ruby-byebug                     | 11.0.0-1          | ?
+| ruby-coderay                    | 1.1.2-3           | ?
+| ruby-filesize                   | 0.2.0-3           | ?
+| ruby-httparty                   | 0.15.6-1          | ?
+| ruby-json                       | 2.1.0-1           | ?
+| ruby-method\_source             | 0.9.2-3           | ?
+| ruby-multi\_xml                 | 0.6.0-1           | ?
+| ruby-net-scp                    | 1.2.1-3           | ?
+| ruby-net-sftp                   | 2.1.2-2           | ?
+| ruby-net-sftp                   | 2.1.2-3           | ?
+| ruby-net-ssh                    | 4.2.0-3           | ?
+| ruby-nub                        | 0.1.2-1           | ?
+| ruby-pry                        | 0.12.2-1          | ?
+| ruby-pry-byebug                 | 3.7.0-1           | ?
+| ruby-rest-client                | 2.0.2-3           | ?
+| ruby-themoviedb                 | 1.0.1-1           | ?
+| systemd-docker                  | 0.2.1-1           | ?
+| teamviewer                      | 13.2.13582-1      | All-In-One Software for Remote Support and Online Meetings
+| termcap                         | 1.3.1-6           | ?
+| tiny-media-manager              | 2.9.16-1          | ?
+| ttf-adobe-fonts                 | 11.0.06-1         |                     | ?
+| ttf-google-fonts-typewolf       | 17.11.git+94dff3e-1 | ?
+| ttf-inconsolata-g               | 20090213-3        | ?
+| ttf-ms-fonts                    | 2.0-10            | ?
+| ttf-nerd-fonts-symbols          | 2.0.0-2           | ?
+| vdhcoapp-bin                    | 1.2.4-2           | ?
+| virtualbox-ext-oracle           | 6.0.4-1           | ?
+| visual-studio-code-bin          | 1.34.0-2          | ?
+| vivaldi                         | 2.5.1525.48-1     | An advanced browser made with the power user in mind
+| vpnctl                          | 0.0.62-1          | ?
+| vundle                          | 0.10.2-2          | ?
+| winff                           | 1.5.5+f721e4d-1   | Packaged: GUI for ffmpeg
+| wpa\_gui                        | 2.6-1             | Custom: A Qt frontend to wpa\_supplicant
+| xcursor-numix-frost             | 0.9.9-4           | Custom: X-Cursor theme for use with numix products
+| xnviewmp                        | 0.89-1            | Packaged: An efficient multimedia viewer, browser and converter
+| yay                             | 9.2.0-1           | Packaged: Yet another yogurt. Pacman wrapper and AUR helper written in go
+| zoom                            | 2.8.252201.0616-1 | Packaged: Video Conferencing and Web Conferencing Service
 
 # Background <a name="background"></a>
 ***cyberlinux*** is an evolution of an idea come to fruition.  The origin was the need for an
