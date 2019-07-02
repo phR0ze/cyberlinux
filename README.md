@@ -211,7 +211,7 @@ state although the internal display continued to work until restarted.
 | asterisk-15.4.1-2-x86_64.pkg.tar.xz                       | ?
 | awf-git-v1.3.1.r4.gcee9158-1-x86_64.pkg.tar.xz            | ?
 | bindip-0.0.1-1-any.pkg.tar.xz                             | ?
-| ccextractor-0.87-1-x86_64.pkg.tar.xz                      | Dependency of makemkv
+| ccextractor-0.87-1-x86_64.pkg.tar.xz                      | Dependency of makemkv - extract CC streams from some DVD Media
 | chromium-62.0.3202.94-3-x86_64.pkg.tar.xz                 | cyberlinux custom build of chromium with security enhancements
 | cinnamon-desktop-3.4.2-1-x86_64.pkg.tar.xz                | ?
 | cinnamon-screensaver-3.0.1-1-x86_64.pkg.tar.xz            | ?
