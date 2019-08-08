@@ -482,6 +482,8 @@ either system.
   * [Fontconfig](#fongconfig)
   * [Manually Install Fonts](#manually-install-fonts)
 * [Media](#media)
+  * [Convert Images](#convert-images)
+    * [Convert HEIC to JPEG](#convert-heic-to-jpeg)
   * [Screen Recorder](#screen-recorder)
 * [Network](#network)
   * [Bind to NIC](#bind-to-nic)
@@ -1050,6 +1052,20 @@ fonts that you may want to individually use.
 Conky will need to be restarted to pick up new fonts
 
 # Media <a name="media"/></a>
+
+## Convert Images <a name="convert-images"/></a>
+### Convert HEIC to JPEG <a name="convert-heic-to-jpeg"/></a>
+Image conversions are easily done with `imagemagick`
+```bash
+# Install imagemagick
+$ sudo pacman -S imagemagick
+
+# Convert all heic pix to jpeg
+$ mogrify -format jpg *.heic
+
+# Delete the original heic files
+$ rm *.heic
+```
 
 ## Screen Recorder <a name="screen-recorder"/></a>
 The two best are ***SimpleScreenRecorder*** and ***RecordMyDesktop***
