@@ -1,5 +1,5 @@
 #MIT License
-#Copyright (c) 2017-2018 phR0ze
+#Copyright (c) 2017-2019 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -30,41 +30,42 @@
 # https://git.archlinux.org/svntogit/packages.git/tree/repos/extra-x86_64?h=packages/chromium
 #-------------------------------------------------------------------------------
 pkgname=chromium
-pkgver=62.0.3202.94
-pkgrel=4
-_launcher_ver=0.0.7
-pkgdesc="Chromium without Google big brother monitoring plus a few settings/UI tweaks to enhance privacy"
+pkgver=76.0.3809.100
+pkgrel=1
+_launcher_ver=6
+pkgdesc="Chromium focused on privacy and the removal of Google Orwellian tracking"
 arch=('x86_64')
 url="https://www.chromium.org/Home"
 license=('BSD')
 depends=('gtk3' 'nss' 'alsa-lib' 'xdg-utils' 'libxss' 'libcups' 'libgcrypt'
          'ttf-font' 'systemd' 'dbus' 'libpulse' 'pciutils' 'json-glib'
-         'desktop-file-utils' 'hicolor-icon-theme')
-makedepends=('python2' 'gperf' 'yasm' 'mesa' 'ninja' 'nodejs' 'git' 'libva' 'clang' 'lld' 'llvm')
-optdepends=('pepper-flash: support for Flash content'
-            'libva-intel-driver: for hardware video acceleration with Intel GPUs'
+         'desktop-file-utils' 'hicolor-icon-theme' 'pepper-flash')
+makedepends=('python' 'python2' 'gperf' 'yasm' 'mesa' 'ninja' 'nodejs' 'git'
+             'pipewire' 'clang' 'lld' 'gn' 'java-runtime-headless')
+optdepends=('libva-intel-driver: for hardware video acceleration with Intel GPUs'
             'libva-mesa-driver: for hardware video acceleration with AMD/ATI GPUs'
             'libva-vdpau-driver: for hardware video acceleration with NVIDIA GPUs')
 install=chromium.install
 source=(https://commondatastorage.googleapis.com/chromium-browser-official/$pkgname-$pkgver.tar.xz
-        chromium-launcher-$_launcher_ver.tar.gz::https://github.com/phR0ze/chromium-launcher/archive/$_launcher_ver.tar.gz
+        chromium-launcher-$_launcher_ver.tar.gz::https://github.com/foutrelis/chromium-launcher/archive/v$_launcher_ver.tar.gz
         chromium.desktop)
-sha256sums=('cabc4d267bf08aabe11c5739048c43dde18c61acf595223a1c3aa1d3499558d4'
-            '9a2da2ab1c3fc24ad47c72925a9f748e4f758ea65183d4fdc2a8000487f2d49a'
+sha256sums=('8cd93ada3e0837ced512f69783400991d3b82e0d9622e04fab5922877577d26d'
+            '04917e3cd4307d8e31bfb0027a5dce6d086edb10ff8a716024fbb8bb0c7dccf1'
             '028a748a5c275de9b8f776f97909f999a8583a4b77fd1cd600b4fc5c0c3e91e9')
 
 # Possible replacements are listed in build/linux/unbundle/replace_gn_files.py
 # Keys are the names in the above script; values are the dependencies in Arch
-declare -rgA _system_libs=(
-  #[ffmpeg]=ffmpeg           # https://crbug.com/731766
+declare -gA _system_libs=(
+  [ffmpeg]=ffmpeg
   [flac]=flac
-  #[freetype]=freetype2      # https://crbug.com/pdfium/733
-  [harfbuzz-ng]=harfbuzz-icu
-  #[icu]=icu                 # https://crbug.com/772655
+  [fontconfig]=fontconfig
+  [freetype]=freetype2
+  [harfbuzz-ng]=harfbuzz
+  [icu]=icu
   [libdrm]=
   [libjpeg]=libjpeg
-  #[libpng]=libpng           # https://crbug.com/752403#c10
-  #[libvpx]=libvpx           # https://bugs.gentoo.org/611394
+  #[libpng]=libpng            # https://crbug.com/752403#c10
+  [libvpx]=libvpx
   [libwebp]=libwebp
   [libxml]=libxml2
   [libxslt]=libxslt
@@ -74,18 +75,18 @@ declare -rgA _system_libs=(
   [yasm]=
   [zlib]=minizip
 )
+_unwanted_bundled_libs=(
+  ${!_system_libs[@]}
+  ${_system_libs[libjpeg]+libjpeg_turbo}
+)
 depends+=(${_system_libs[@]})
 
 prepare() {
-  cd $srcdir/$pkgname-$pkgver
-
-  # Fix incorrect inclusion of <string_view> in modes other than >= C++17
-  msg "Applying oneoff patches..."
-  msg2 "Applying patch ../../patches/arch/one-off/crc32c-string-view-check.patch"
-  patch -Np1 -d third_party/crc32c/src <../../patches/arch/one-off/crc32c-string-view-check.patch
+  cd "$srcdir/$pkgname-$pkgver"
 
   # Apply patches from various distributions
-  for patchset in arch debian cyber inox; do
+  #for patchset in arch debian cyber inox; do
+  for patchset in arch; do
     msg "Applying $patchset patches..."
     for patch in ../../patches/$patchset/*.patch; do
       msg2 "Applying patch $patch"
@@ -93,12 +94,8 @@ prepare() {
     done
   done
 
-  # Use Python 2
-  find . -name '*.py' -exec sed -i -r 's|/usr/bin/python$|&2|g' {} +
-
-  # There are still a lot of relative calls which need a workaround
-  mkdir "$srcdir/python2-path"
-  ln -s /usr/bin/python2 "$srcdir/python2-path/python"
+  # Force script incompatible with Python 3 to use /usr/bin/python2
+  sed -i '1s|python$|&2|' third_party/dom_distiller_js/protoc_plugins/*.py
 
   # Setup nodejs dependency
   mkdir -p third_party/node/linux/node-linux-x64/bin
@@ -108,12 +105,12 @@ prepare() {
   # *should* do what the remove_bundled_libraries.py script does, with the
   # added benefit of not having to list all the remaining libraries
   local _lib
-  for _lib in ${!_system_libs[@]} ${_system_libs[libjpeg]+libjpeg_turbo}; do
-    find -type f -path "*third_party/$_lib/*" \
-      \! -path "*third_party/$_lib/chromium/*" \
-      \! -path "*third_party/$_lib/google/*" \
-      \! -path "*base/third_party/icu/*" \
-      \! -regex '.*\.\(gn\|gni\|isolate\|py\)' \
+  for _lib in ${_unwanted_bundled_libs[@]}; do
+    find "third_party/$_lib" -type f \
+      \! -path "third_party/$_lib/chromium/*" \
+      \! -path "third_party/$_lib/google/*" \
+      \! -path 'third_party/yasm/run_yasm.py' \
+      \! -regex '.*\.\(gn\|gni\|isolate\)' \
       -delete
   done
 
@@ -126,93 +123,98 @@ build() {
 
   cd "$srcdir/$pkgname-$pkgver"
 
-  export PATH="$srcdir/python2-path:$PATH"
-  export TMPDIR="$srcdir/temp"
-  mkdir -p "$TMPDIR"
+  if check_buildoption ccache y; then
+    # Avoid falling back to preprocessor mode when sources contain time macros
+    export CCACHE_SLOPPINESS=time_macros
+  fi
 
-  # Configure clang
   export CC=clang
   export CXX=clang++
-  export AR=llvm-ar
-  export NM=llvm-nm
-
-  # Remove '-fno-plt' as it isn't supported by the Arch system clang
-  export CFLAGS="${CFLAGS//-fno-plt/} -Wno-unknown-warning-option"
-  export CXXFLAGS="${CXXFLAGS//-fno-plt/} -Wno-unknown-warning-option"
+  export AR=ar
+  export NM=nm
 
   local _flags=(
     'custom_toolchain="//build/toolchain/linux/unbundle:default"'
     'host_toolchain="//build/toolchain/linux/unbundle:default"'
-    'clang_use_chrome_plugins=false'                # Don't use chrome clang plugins
-    'is_clang=true'                                 # Use the clang compiler, produces better code
-    'use_lld=true'                                  # Use LLVM's lld linker instead of Google's Clang plugins
-    'symbol_level=0'                                # Will speed up build but make debugging impossible
-    'is_debug=false'                                # Want a clean release version not debug
-    'exclude_unwind_tables=true'                    # Exclude tables to save on disk space
-    'fatal_linker_warnings=false'                   #
-    'treat_warnings_as_errors=false'                #
-    'fieldtrial_testing_like_official_build=true'   #
-    'remove_webcore_debug_symbols=true'             # 
-    'ffmpeg_branding="Chrome"'                      # 
-    'proprietary_codecs=true'                       #
-    'link_pulseaudio=true'                          # Use PulseAudio for sound
-    'use_gtk3=true'                                 # Build with GTK3 rather than GTK2 support
-    'use_gconf=false'                               # 
-    'use_gnome_keyring=false'                       #
-    'use_gold=false'                                #
-    'use_sysroot=false'                             #
-    'linux_use_bundled_binutils=false'              #
-    'use_custom_libcxx=false'                       #
-    'enable_hangout_services_extension=true'        # Enable Hangout service
-    'enable_widevine=true'                          # Enable multi platform DRM support for media
-    'enable_nacl=false'                             #
-    'enable_swiftshader=false'                      #
-    'enable_nacl_nonsfi=false'                      #
-    'enable_remoting=false'                         # Disable Remoting
-    'enable_google_now=false'                       # Disable google now
-    'safe_browsing_mode=0'                          # Disable Safe browsing, requires patch to work
-    'enable_hotwording=false'                       # Disable hotwording
+    'clang_use_chrome_plugins=false'                # Arch: don't use chrome clang plugins
+    'is_official_build=true'                        # Arch: implies is_cfi=true on x86_64
+    'treat_warnings_as_errors=false'                # Arch: don't worry about warnings
+    'fieldtrial_testing_like_official_build=true'   # Arch: includes all optimizations suitable for end users
+    'ffmpeg_branding="Chrome"'                      # Arch:
+    'proprietary_codecs=true'                       # Arch: enables propietary H264, AAC, MP3 and MP4
+    'rtc_use_pipewire=true'                         # Arch: support for screen sharing on wayland
+    'link_pulseaudio=true'                          # Arch: use PulseAudio for sound
+    'use_gnome_keyring=false'                       # Arch: don't use the gnome keyring
+    'use_sysroot=false'                             # Arch: icecc doesn't work with sysroot
+    'linux_use_bundled_binutils=false'              # Arch: 
+    'use_custom_libcxx=false'                       # Arch: 
+    'enable_hangout_services_extension=true'        # Arch: enable Hangout service
+    'enable_widevine=true'                          # Arch: enable multi platform DRM support for media
+    'enable_nacl=false'                             # Arch:
+    'enable_swiftshader=false'                      # Arch:
+
+#    'is_clang=true'                                 # Use the clang compiler, produces better code
+#    'use_lld=true'                                  # Use LLVM's lld linker instead of Google's Clang plugins
+#    'symbol_level=0'                                # Will speed up build but make debugging impossible
+#    'is_debug=false'                                # Want a clean release version not debug
+#    'exclude_unwind_tables=true'                    # Exclude tables to save on disk space
+#    'fatal_linker_warnings=false'                   #
+#    'remove_webcore_debug_symbols=true'             # 
+#    'use_gtk3=true'                                 # Build with GTK3 rather than GTK2 support
+#    'use_gconf=false'                               # 
+#    'use_gold=false'                                #
+#    'enable_nacl_nonsfi=false'                      #
+#    'enable_remoting=false'                         # Disable Remoting
+#    'enable_google_now=false'                       # Disable google now
+#    'safe_browsing_mode=0'                          # Disable Safe browsing, requires patch to work
+#    'enable_hotwording=false'                       # Disable hotwording
   )
 
-  msg2 'Building GN'
-  python2 tools/gn/bootstrap/bootstrap.py --gn-gen-args "${_flags[*]}"
+  # Facilitate deterministic builds (taken from build/config/compiler/BUILD.gn)
+  CFLAGS+='   -Wno-builtin-macro-redefined'
+  CXXFLAGS+=' -Wno-builtin-macro-redefined'
+  CPPFLAGS+=' -D__DATE__=  -D__TIME__=  -D__TIMESTAMP__='
 
-  msg2 'Configuring Chromium'
-  out/Release/gn gen out/Release --args="${_flags[*]}" \
-    --script-executable=/usr/bin/python2
+  if check_option strip y; then
+    _flags+=('symbol_level=0')
+  fi
 
-  msg2 'Building Chromium'
-  ninja -C out/Release chrome chrome_sandbox chromedriver widevinecdmadapter
+  gn gen out/Release --args="${_flags[*]}" --script-executable=/usr/bin/python2
+  ninja -C out/Release chrome chrome_sandbox chromedriver
 }
 
 package() {
-  msg 'Build/Package launcher'
   cd chromium-launcher-$_launcher_ver
   make PREFIX=/usr DESTDIR="$pkgdir" install
-  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/chromium/LICENSE.launcher"
+  install -Dm644 LICENSE \
+    "$pkgdir/usr/share/licenses/chromium/LICENSE.launcher"
 
-  msg 'Package chromium'
   cd "$srcdir/$pkgname-$pkgver"
 
   install -D out/Release/chrome "$pkgdir/usr/lib/chromium/chromium"
-  install -Dm644 out/Release/chrome.1 "$pkgdir/usr/share/man/man1/chromium.1"
-  install -Dm644 "$srcdir/chromium.desktop" \
+  install -Dm4755 out/Release/chrome_sandbox "$pkgdir/usr/lib/chromium/chrome-sandbox"
+  ln -s /usr/lib/chromium/chromedriver "$pkgdir/usr/bin/chromedriver"
+
+  install -Dm644 chrome/installer/linux/common/desktop.template \
     "$pkgdir/usr/share/applications/chromium.desktop"
+  install -Dm644 chrome/app/resources/manpage.1.in \
+    "$pkgdir/usr/share/man/man1/chromium.1"
+  sed -i \
+    -e "s/@@MENUNAME@@/Chromium/g" \
+    -e "s/@@PACKAGE@@/chromium/g" \
+    -e "s/@@USR_BIN_SYMLINK_NAME@@/chromium/g" \
+    "$pkgdir/usr/share/applications/chromium.desktop" \
+    "$pkgdir/usr/share/man/man1/chromium.1"
 
-  install -Dm4755 out/Release/chrome_sandbox \
-    "$pkgdir/usr/lib/chromium/chrome-sandbox"
-
-  cp -a \
+  cp \
     out/Release/{chrome_{100,200}_percent,resources}.pak \
-    out/Release/{*.bin,chromedriver,libwidevinecdmadapter.so} \
-    out/Release/locales \
+    out/Release/{*.bin,chromedriver} \
     "$pkgdir/usr/lib/chromium/"
+  install -Dm644 -t "$pkgdir/usr/lib/chromium/locales" out/Release/locales/*.pak
 
   if [[ -z ${_system_libs[icu]+set} ]]; then
     cp out/Release/icudtl.dat "$pkgdir/usr/lib/chromium/"
   fi
-
-  ln -s /usr/lib/chromium/chromedriver "$pkgdir/usr/bin/chromedriver"
 
   for size in 22 24 48 64 128 256; do
     install -Dm644 "chrome/app/theme/chromium/product_logo_$size.png" \
@@ -226,40 +228,41 @@ package() {
 
   install -Dm644 LICENSE "$pkgdir/usr/share/licenses/chromium/LICENSE"
 
-  # Install Chromium Extensions
-  #-----------------------------------------------------------------------------
-  msg "Installing Chromium Extensions"
-  extensions=(
-    'gcbommkclmclpchllfjekcdonpmejbdp'  # https-everywhere: Automatically use HTTPS security where possible
-    'oiigbmnaadbkfbmpbfijlflahbdbdgdf'  # scriptsafe: 
-    'bgjfekefhjemchdeigphccilhncnjldn'  # smartup-gestures: Better mouse gestures for Chromium
-    'dhdgffkkebhmkfjojejmpbldmpobfkfo'  # tampermonkey: World's most popular userscript manager
-    'cjpalhdlnbpafiamejdnhcphjbkeiagm'  # ublock-origin: An efficient ad-blocker for Chromium
-    'pgdnlhfefecpicbbihgmbmffkjpaplco'  # ublock-origin-extra: Foil early hostile anti-user mechanisms
-    'lmjnegcaeklhafolokijcfjliaokphfk'  # videodownload-helper: Video download helper for Chromium
-  )
 
-  # Generate extension preference files
-  mkdir -p $srcdir/extensions
-  for ext in ${extensions[@]}; do
-    msg2 "Install extension: $ext"
-    echo -e "{\n  \"external_update_url\": \"https://clients2.google.com/service/update2/crx\"\n}" > $srcdir/extensions/$ext.json
-  done
-
-  # Install extensions
-  cd $srcdir/extensions
-  find . -type f -exec install -Dm644 "{}" "${pkgdir}/usr/share/chromium/extensions/{}" \;
-
-  # Install Custom configuration 
-  # - launcher.conf: list of command line options to give to chromium when starting
-  #   https://peter.sh/experiments/chromium-command-line-switches/
-  # - master_preferences: acts as a template for the first run then user can edit them
-  #   http://www.chromium.org/administrators/configuring-other-preferences
-  # - policy.json: is a set of policies to configure chromium with
-  #-----------------------------------------------------------------------------
-  install -Dm644 $srcdir/../config/launcher.conf -t $pkgdir/etc/chromium
-  install -Dm644 $srcdir/../config/master_preferences -t $pkgdir/etc/chromium
-  install -Dm644 $srcdir/../config/policy.json -t $pkgdir/etc/chromium/policies/recommended
+#  # Install Chromium Extensions
+#  #-----------------------------------------------------------------------------
+#  msg "Installing Chromium Extensions"
+#  extensions=(
+#    'gcbommkclmclpchllfjekcdonpmejbdp'  # https-everywhere: Automatically use HTTPS security where possible
+#    'oiigbmnaadbkfbmpbfijlflahbdbdgdf'  # scriptsafe: 
+#    'bgjfekefhjemchdeigphccilhncnjldn'  # smartup-gestures: Better mouse gestures for Chromium
+#    'dhdgffkkebhmkfjojejmpbldmpobfkfo'  # tampermonkey: World's most popular userscript manager
+#    'cjpalhdlnbpafiamejdnhcphjbkeiagm'  # ublock-origin: An efficient ad-blocker for Chromium
+#    'pgdnlhfefecpicbbihgmbmffkjpaplco'  # ublock-origin-extra: Foil early hostile anti-user mechanisms
+#    'lmjnegcaeklhafolokijcfjliaokphfk'  # videodownload-helper: Video download helper for Chromium
+#  )
+#
+#  # Generate extension preference files
+#  mkdir -p $srcdir/extensions
+#  for ext in ${extensions[@]}; do
+#    msg2 "Install extension: $ext"
+#    echo -e "{\n  \"external_update_url\": \"https://clients2.google.com/service/update2/crx\"\n}" > $srcdir/extensions/$ext.json
+#  done
+#
+#  # Install extensions
+#  cd $srcdir/extensions
+#  find . -type f -exec install -Dm644 "{}" "${pkgdir}/usr/share/chromium/extensions/{}" \;
+#
+#  # Install Custom configuration 
+#  # - launcher.conf: list of command line options to give to chromium when starting
+#  #   https://peter.sh/experiments/chromium-command-line-switches/
+#  # - master_preferences: acts as a template for the first run then user can edit them
+#  #   http://www.chromium.org/administrators/configuring-other-preferences
+#  # - policy.json: is a set of policies to configure chromium with
+#  #-----------------------------------------------------------------------------
+#  install -Dm644 $srcdir/../config/launcher.conf -t $pkgdir/etc/chromium
+#  install -Dm644 $srcdir/../config/master_preferences -t $pkgdir/etc/chromium
+#  install -Dm644 $srcdir/../config/policy.json -t $pkgdir/etc/chromium/policies/recommended
 }
 
 # vim: ts=2:sw=2:sts=2

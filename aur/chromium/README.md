@@ -7,8 +7,13 @@ This is a work in progress and comes with absolutely no guarantees or support of
 be used at your own risk.
 
 ## Table of Contents
+* [Installation](#installation)
+  * [Install](#install)
+  * [Configure](#configure)
 * [Overview](#overview)
+  * [Data Sent to Google](#data-sent-to-google)
   * [Forks and Builds](#forks-and-builds)
+    * [Arch Chromium](#arch-chromium)
     * [Woolyss](#woolyss)
     * [Ungoogled Chromium](#ungoogled-chromium)
     * [Inox Chromium](#inox-chromium)
@@ -21,12 +26,11 @@ be used at your own risk.
     * [Opera 15 Chromium](#opera-15-chromium)
     * [Brave Chromium](#brave-chromium)
     * [Vendor Chromium](#vendor-chromium)
-  * [Data Sent to Google](#data-sent-to-google)
   * [Chrome built in pages](#chrome-built-in-pages)
   * [Command line switches](#command-line-switches)
   * [Chromium Policies](#chromium-policies)
   * [Chromium Extensions](#chromium-extensions)
-* [cyberlinux Chromium build](#cyberlinux-chromium-build)
+* [cyberlinux Chromium](#cyberlinux-chromium)
   * [Update/Build process](#update-build-process)
   * [Chromium Patches](#chromium-patches)
       * [Other patches - see chroma.rb for details](#other-patches)
@@ -37,25 +41,61 @@ be used at your own risk.
 * [Backlog](#backlog)
 * [Completed](#completed)
 
+# Installation <a name="installation"></a>
+
+## Install <a name="install"></a>
+```bash
+$ sudo pacman -S chromium pepper-flash chromium-widevine
+```
+
+## Configure <a name="configure"></a>
+TBD from old doc
+
 # Overview <a name="overview"></a>
 Because of Google's backing and a ton of other contributors Chromium has become the defacto standard
 in the browser market and seen a lot of performance and efficiency boosts other browser haven't been
-able to keep up with.  Despite its awesomeness however Google has built a bunch of Orwellian phone
-home type tracking, privacy leaking ad-vertising crap etc...  
+able to keep up with.  Despite its awesomeness, however Google has built a bunch of Orwellian phone
+home type tracking, privacy leaking, and ad-vertising crap etc... into the code base. 
 
-My goal is to get a browswer that is fast, private and compatible with chromium's browser
-extensions out of the box.
+Many efforts have been made to plugs these vulnerabilities. My goal is to leverage these fixes where
+possible to get a browswer that is fast, private and compatible with chromium's browser extensions
+out of the box.
+
+## Data Sent to Google <a name="data-sent-to-google"></a>
+* ***Installation ID*** - Google Chrome generates a unique identification on installation time.
+  According to Google, this ID will be used to track the number of installations.
+* ***RLZ identifier*** - Google Chrome communicates information about where Google Chrome was downloaded
+* ***Client ID*** - A unique client ID transmitted to Google in the case that Google Chrome crashes
+* ***Link tracking*** - the links you click and enter in the address bar
+* ***Suggest*** - During your input, text from the url bar is transmitted to google. Can be disabled
+  by unchecking the `Under the Hood >Use a prediction service` setting.
+* ***Alternate Error Pages*** - if you have a navigation error in your url it is sent to googl and
+  you get an error message from Google's servers. Can be disabled by unchecking the `Under the Hood
+  >Use a web service to help resolve navigation errors` setting.
+* ***Bug Tracker*** - If Chrome detects a fault it is sent to Google
+* ***Google Updater*** - Google installs a Google updater that searches updates in the background
+* ***Malformed URL*** - Once you enter the wrong address in the browser address line, Chrome will send this address to Google
 
 ## Forks and Builds <a name="forks-and-builds"></a>
 A number of forks and builds have sprung into existence to offer various alternatives. Some simply
-building the open source chromium bits to make them available other customizing with patches and
-many have forked the code base to add features or privacy. Due to the work involved in maintaining
-these patch sets, builds and forks many lag behind the Chromium code base substantially.
+building the open source chromium bits to make them available, while others are customized with
+patches and still others have forked the code base to add features or privacy. Due to the work
+involved in maintaining these patch sets, custom builds and forks many lag behind the Chromium code
+base substantially.
 
-### Woolyss <a name="Woolyss"></a>
-https://chromium.woolyss.com aims to provide information on how to get/install chromium for your
-various platforms or in Windows case provides automated builds. Its a good resource for tracking
-Chromiums latest versions and stability.
+I've ordered them by usefullness to the ***cyberlinux*** project which is Arch Linux based.
+
+### Arch Chromium <a name="arch-chromium"></a>
+Arch Linux provides a simple build of chromium with only minimal system patches to work with the Arch
+Linux operating system.
+
+Packages available to Arch:
+* **extra/chromium** - standard chromium build
+* ***extra/pepper-flash*** - Adobe Flash Player PPAPI plugin for chromium
+* ***aur/chromium-widevine*** - widevine DRM protected media plugin for chromium
+* ***aur/https-everywhere-chrome*** - chromium extension to use https everywhere
+* ***aur/chromium-ublock-origin*** - an efficient ad blocker extension for chromium
+* ***aur/chromium-extension-violentmonkey-git*** - monkey scripts alternative extension for chromium
 
 ### Ungoogled Chromium <a name="ungoogled-chromium"></a>
 https://github.com/Eloston/ungoogled-chromium
@@ -64,13 +104,13 @@ https://github.com/Eloston/ungoogled-chromium
 https://github.com/gcarq/inox-patchset maintained primarily by Michael Egger is a set of patches
 that improve security and privacy of Chromium.
 
-### Bromite Chromium <a name="bromite-chromium"></a>
-https://github.com/bromite/bromite maintained primarily by Carl csagan5 is a set of patches that
-improve ad blocking and privacy. The project seems to be very active.
-
 ### Debian Chromium <a name="debian-chromium"></a>
 https://tracker.debian.org/pkg/chromium maintained mainly by Michael Gilbert provides Debian's build
 of Chromium with some stability patching.
+
+### Bromite Chromium <a name="bromite-chromium"></a>
+https://github.com/bromite/bromite maintained primarily by Carl csagan5 is a set of patches that
+improve ad blocking and privacy. The project seems to be very active.
 
 ### Iridium Chromium <a name="iridium-chromium"></a>
 https://github.com/iridium-browser/tracker/wiki/Differences-between-Iridium-and-Chromium is a fork
@@ -116,6 +156,11 @@ ratio rendering; and many other more.
 ### Superbird Chromium <a name="superbird-chromium"></a>
 http://superbird-browser.com/download.php
 
+### Woolyss <a name="Woolyss"></a>
+https://chromium.woolyss.com aims to provide information on how to get/install chromium for your
+various platforms or in Windows case provides automated builds. Its a good resource for tracking
+Chromiums latest versions and stability.
+
 ### Vendor Chromium <a name="vendor-chromium"></a>
 Many vendors have highly customized versions of chromium they offer
 
@@ -129,15 +174,6 @@ Comodo’s DNS servers, which performs additional checks to verify the security 
 * Yandex Browser
 * Qihoo 360 Secure Browser
 * Torch Browser
-
-## Data Sent to Google <a name="data-sent-to-google"></a>
-* ***Installation ID*** - Google Chrome generates a unique identification on installation time. According to Google, this ID will be used to track the number of installations.
-* ***RLZ identifier*** - Google Chrome communicates information about where Google Chrome was downloaded
-* ***Client ID*** - A unique client ID transmitted to Google in the case that Google Chrome crashes
-* ***Suggest*** - During your input, text from the url bar is transmitted to google
-* ***Bug Tracker*** - If Chrome detects a fault it is sent to Google
-* ***Google Updater*** - Google installs a Google updater that searches updates in the background
-* ***Malformed URL*** - Once you enter the wrong address in the browser address line, Chrome will send this address to Google
 
 ## Chrome built in pages <a name="chrome-built-in-pages"></a>
 * **chrome://gpu** - get GPU details
@@ -182,16 +218,68 @@ for safe, performant operations and others useful:
 * **ublock-origin-extra** - foil early hostile anti-user mechanisms
 * **videodownload-helper** - excellent clean plugin for downloading online videos
 
-# cyberlinux Chromium build <a name="cyberlinux-chromium-build"></a>
+# cyberlinux Chromium <a name="cyberlinux-chromium"></a>
+Chromium ***without*** Google's Orwellian type tracking, plus a few settings and UI tweaks to
+enhance privacy and aesthetics to support ***cyberlinux***.
 
 ## Update/Build process <a name="update-build-process"></a>
 Notes to myself when re-building this package:
+
+Example target version `76.0.3809.100`:
 1. Update against arch abs PKGBUILD  
    https://git.archlinux.org/svntogit/packages.git/tree/repos/extra-x86_64?h=packages/chromium  
-   a. Run: `yaourt -G chromium` to get the files locally  
-   b. Manually sync any changes
-2. Update patches/arch by hand
+   ```bash
+   # Download the arch abs chromium package
+   $ yay -G extra/chromium
+
+   # Ensure we have the correct target version
+   $ grep "pkgver=" chromium/PKGBUILD 
+   pkgver=76.0.3809.100
+
+   # Manually compare and update as needed.
+   $ diff PKGBUILD chromium/PKGBUILD
+   ```
+2. Update `patches/arch` by hand
+   ```bash
+   # Remove all the existing patches
+   $ rm patches/arch/*
+
+   # Download source to create clean patches
+   $ makepkg -so
+
+   # Stage chromium for generating patches
+   $ cp chromium-76.0.3809.100.tar.xz patches/arch; cd patches/arch
+   $ tar xfJ chromium-76.0.3809.100.tar.xz
+   $ rm chromium-76.0.3809.100.tar.xz
+   $ mv chromium-76.0.3809.100 a; cp -a a b
+
+   # Create patch for 'Allow building against system libraries in official builds' in PKGBUILD
+   $ cd b; sed -i 's/OFFICIAL_BUILD/GOOGLE_CHROME_BUILD/' tools/generate_shim_headers/generate_shim_headers.py
+   $ diff -ruN a b > 00-build-against-system-libraries.patch
+
+   # Create patch for https://crbug.com/893950 fix in PKGBUILD
+   $ rm -rf b; cp -a a b; cd b
+   $ sed -i -e 's/\<xmlMalloc\>/malloc/' -e 's/\<xmlFree\>/free/' \
+     third_party/blink/renderer/core/xml/*.cc \
+     third_party/blink/renderer/core/xml/parser/xml_document_parser.cc \
+     third_party/libxml/chromium/libxml_utils.cc
+   $ diff -ruN a b > 01-crbug.com-893950.patch
+
+   # Move the widevine patch into 'not-used' as the debian patches for this way better
+
+   # Recreate the skia harmony patch
+   $ rm -rf b; cp -a a b; cd b
+   $ patch -Np0 -i ../../../chromium/chromium-skia-harmony.patch
+   $ diff -ruN a b > 02-chromium-skia-harmony.patch
+   ```
 3. Build against arch patches only
+   ```bash
+   # Comment out the patchsets except for arch
+   # Comment out the plugins section at the bottom
+
+   # Build and package
+   $ makepkg -s
+   ```
 4. Update patches/debian then each of the others
 
 ## Chromium Patches <a name="chromium-patches"></a>

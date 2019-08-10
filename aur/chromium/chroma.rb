@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 ##MIT License
-#Copyright (c) 2017 phR0ze
+#Copyright (c) 2017-2019 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -87,7 +87,7 @@ class Chroma
     # --------------------------------------------------------------------------
     @patchSets = {
       @distros.arch => 'https://git.archlinux.org/svntogit/packages.git/tree/trunk?h=packages/chromium',
-      @distros.debian => 'https://anonscm.debian.org/cgit/pkg-chromium/pkg-chromium.git/plain/debian/patches',
+      @distros.debian => 'https://salsa.debian.org/chromium-team/chromium/tree/master/debian/patches',
       @distros.inox => 'https://github.com/gcarq/inox-patchset',
       @distros.iridium => 'https://git.iridiumbrowser.de/cgit.cgi/iridium-browser/commit/?h=patchview'
     }

@@ -1,0 +1,12 @@
+diff '--color=auto' -ruN a/tools/generate_shim_headers/generate_shim_headers.py b/tools/generate_shim_headers/generate_shim_headers.py
+--- a/tools/generate_shim_headers/generate_shim_headers.py	2019-08-09 08:48:51.000000000 -0600
++++ b/tools/generate_shim_headers/generate_shim_headers.py	2019-08-10 12:40:43.271441688 -0600
+@@ -18,7 +18,7 @@
+ 
+ 
+ SHIM_TEMPLATE = """
+-#if defined(OFFICIAL_BUILD)
++#if defined(GOOGLE_CHROME_BUILD)
+ #error shim headers must not be used in official builds!
+ #endif
+ """

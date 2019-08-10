@@ -1,0 +1,15 @@
+diff '--color=auto' -ruN a/third_party/skia/src/ports/SkFontHost_FreeType.cpp b/third_party/skia/src/ports/SkFontHost_FreeType.cpp
+--- a/third_party/skia/src/ports/SkFontHost_FreeType.cpp	2019-08-09 08:50:50.000000000 -0600
++++ b/third_party/skia/src/ports/SkFontHost_FreeType.cpp	2019-08-10 13:13:45.775596252 -0600
+@@ -128,9 +128,9 @@
+         : fGetVarDesignCoordinates(nullptr)
+         , fGetVarAxisFlags(nullptr)
+         , fLibrary(nullptr)
+-        , fIsLCDSupported(false)
++        , fIsLCDSupported(true)
+         , fLightHintingIsYOnly(false)
+-        , fLCDExtra(0)
++        , fLCDExtra(2)
+     {
+         if (FT_New_Library(&gFTMemory, &fLibrary)) {
+             return;
