@@ -509,6 +509,7 @@ either system.
     * [Turn off Replace Dashes](#turn-off-replace-dashes)
     * [Turn off Automatic Strikeout](#turn-off-automatic-strikeout)
   * [PDFs](#pdfs)
+    * [Combine PDFs](#combine-pdfs)
     * [Convert Images to PDF](#convert-images-to-pdf)
 * [Packages](#packages)
   * [Init Database](#init-database)
@@ -890,6 +891,7 @@ Scan a black and white document:
 2. Set `Scan Area` to `Letter/Portrait`
 3. Set `Resolution` to `150`
 4. Set `Image Type` to `Grayscale`
+5. Click `Scan` and choose the pdf destination
 
 ## Sound <a name="sound"/></a>
 https://wiki.archlinux.org/index.php/PulseAudio/Troubleshooting#Simultaneous_output_to_multiple_sound_cards_/_devices
@@ -1466,6 +1468,15 @@ sudo exportfs -v
 3. Uncheck ***Automatic bold,italic,strikeout,underline***   
 
 ## PDFs <a name="pdfs"/></a>
+
+### Combine PDFs <a name="combine-pdfs"/></a>
+```bash
+# Install pdfjoin
+$ sudo pacman -S pdfjoin
+
+# Join pdfs
+$ pdfjoin 1.pdf 2.pdf -o combined.pdf
+```
 
 ### Convert Images to PDF <a name="convert-images-to-pdf"/></a>
 ```bash

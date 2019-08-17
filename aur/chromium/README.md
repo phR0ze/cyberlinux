@@ -227,9 +227,9 @@ Notes to myself when re-building this package:
 
 Example target version `76.0.3809.100`:
 1. Update against arch abs PKGBUILD  
-   https://git.archlinux.org/svntogit/packages.git/tree/repos/extra-x86_64?h=packages/chromium  
    ```bash
    # Download the arch abs chromium package
+   # https://git.archlinux.org/svntogit/packages.git/tree/repos/extra-x86_64?h=packages/chromium  
    $ yay -G extra/chromium
 
    # Ensure we have the correct target version

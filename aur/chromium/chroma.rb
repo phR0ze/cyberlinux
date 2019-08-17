@@ -28,7 +28,7 @@ require 'net/http'              # standard Ruby HTTP gem
 require 'uri'                   # URI support
 
 begin
-  require 'utils'               # commands for command line params
+  require 'nub'               # commands for command line params
   require 'colorize'            # color output: colorize
   require 'nokogiri'            # web scraping library
   require 'mechanize'           # web scraping library
