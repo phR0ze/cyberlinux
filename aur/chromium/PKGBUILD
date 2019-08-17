@@ -86,7 +86,7 @@ prepare() {
 
   # Apply patches from various distributions
   #for patchset in arch debian cyber inox; do
-  for patchset in arch; do
+  for patchset in arch debian; do
     msg "Applying $patchset patches..."
     for patch in ../../patches/$patchset/*.patch; do
       msg2 "Applying patch $patch"
