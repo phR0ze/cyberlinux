@@ -280,7 +280,9 @@ Example target version `76.0.3809.100`:
    # Build and package
    $ makepkg -s
    ```
-4. Update patches/debian then each of the others
+4. Update patches/debian next
+   ```bash
+   ```
 
 ## Chromium Patches <a name="chromium-patches"></a>
 Despite probably being the best browser out there Chromium has some glaring issues, in my opionion,
