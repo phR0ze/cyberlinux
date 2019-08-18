@@ -282,6 +282,12 @@ Example target version `76.0.3809.100`:
    ```
 4. Update patches/debian next
    ```bash
+   # Update latest chroma for debian patches then run
+   # see github.com/phR0ze/chroma
+   $ ./chroma down patches debian
+
+   # Update the PKGBUILD to include the debian patches
+   $ makepkg -Cfs
    ```
 
 ## Chromium Patches <a name="chromium-patches"></a>

@@ -47,11 +47,9 @@ optdepends=('libva-intel-driver: for hardware video acceleration with Intel GPUs
             'libva-vdpau-driver: for hardware video acceleration with NVIDIA GPUs')
 install=chromium.install
 source=(https://commondatastorage.googleapis.com/chromium-browser-official/$pkgname-$pkgver.tar.xz
-        chromium-launcher-$_launcher_ver.tar.gz::https://github.com/foutrelis/chromium-launcher/archive/v$_launcher_ver.tar.gz
-        chromium.desktop)
+        chromium-launcher-$_launcher_ver.tar.gz::https://github.com/foutrelis/chromium-launcher/archive/v$_launcher_ver.tar.gz)
 sha256sums=('8cd93ada3e0837ced512f69783400991d3b82e0d9622e04fab5922877577d26d'
-            '04917e3cd4307d8e31bfb0027a5dce6d086edb10ff8a716024fbb8bb0c7dccf1'
-            '028a748a5c275de9b8f776f97909f999a8583a4b77fd1cd600b4fc5c0c3e91e9')
+            '04917e3cd4307d8e31bfb0027a5dce6d086edb10ff8a716024fbb8bb0c7dccf1')
 
 # Possible replacements are listed in build/linux/unbundle/replace_gn_files.py
 # Keys are the names in the above script; values are the dependencies in Arch
@@ -136,32 +134,32 @@ build() {
   local _flags=(
     'custom_toolchain="//build/toolchain/linux/unbundle:default"'
     'host_toolchain="//build/toolchain/linux/unbundle:default"'
-    'clang_use_chrome_plugins=false'                # Arch: don't use chrome clang plugins
-    'is_official_build=true'                        # Arch: implies is_cfi=true on x86_64
-    'treat_warnings_as_errors=false'                # Arch: don't worry about warnings
-    'fieldtrial_testing_like_official_build=true'   # Arch: includes all optimizations suitable for end users
-    'ffmpeg_branding="Chrome"'                      # Arch:
-    'proprietary_codecs=true'                       # Arch: enables propietary H264, AAC, MP3 and MP4
-    'rtc_use_pipewire=true'                         # Arch: support for screen sharing on wayland
-    'link_pulseaudio=true'                          # Arch: use PulseAudio for sound
-    'use_gnome_keyring=false'                       # Arch: don't use the gnome keyring
-    'use_sysroot=false'                             # Arch: icecc doesn't work with sysroot
-    'linux_use_bundled_binutils=false'              # Arch: 
-    'use_custom_libcxx=false'                       # Arch: 
-    'enable_hangout_services_extension=true'        # Arch: enable Hangout service
-    'enable_widevine=true'                          # Arch: enable multi platform DRM support for media
-    'enable_nacl=false'                             # Arch:
-    'enable_swiftshader=false'                      # Arch:
+    'clang_use_chrome_plugins=false'                # arch: don't use chrome clang plugins
+    'is_official_build=true'                        # arch: implies is_cfi=true on x86_64
+    'treat_warnings_as_errors=false'                # arch: don't worry about warnings
+    'fieldtrial_testing_like_official_build=true'   # arch: includes all optimizations suitable for end users
+    'ffmpeg_branding="Chrome"'                      # arch:
+    'proprietary_codecs=true'                       # arch: enables propietary H264, AAC, MP3 and MP4
+    'rtc_use_pipewire=true'                         # arch: support for screen sharing on wayland
+    'link_pulseaudio=true'                          # arch: use PulseAudio for sound
+    'use_gnome_keyring=false'                       # arch: don't use the gnome keyring
+    'use_sysroot=false'                             # arch: icecc doesn't work with sysroot
+    'linux_use_bundled_binutils=false'              # arch: 
+    'use_custom_libcxx=false'                       # arch: 
+    'enable_hangout_services_extension=true'        # arch: enable Hangout service
+    'enable_widevine=true'                          # arch: enable multi platform DRM support for media
+    'enable_nacl=false'                             # arch: disable native clients
+    'enable_swiftshader=false'                      # arch:
 
+#    'is_debug=false'                                # cyberlinux: clean release version
+#    'symbol_level=0'                                # cyberlinux: build faster by making debug impossible
+#    'blink_symbol_level=0'                          # cyberlinux: build faster by disabling blink debug symbols
+#    'use_jumbo_build=true'                          # cyberlinux: build faster by merging translation units
 #    'is_clang=true'                                 # Use the clang compiler, produces better code
 #    'use_lld=true'                                  # Use LLVM's lld linker instead of Google's Clang plugins
-#    'symbol_level=0'                                # Will speed up build but make debugging impossible
-#    'is_debug=false'                                # Want a clean release version not debug
 #    'exclude_unwind_tables=true'                    # Exclude tables to save on disk space
 #    'fatal_linker_warnings=false'                   #
 #    'remove_webcore_debug_symbols=true'             # 
-#    'use_gtk3=true'                                 # Build with GTK3 rather than GTK2 support
-#    'use_gconf=false'                               # 
 #    'use_gold=false'                                #
 #    'enable_nacl_nonsfi=false'                      #
 #    'enable_remoting=false'                         # Disable Remoting
