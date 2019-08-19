@@ -1773,22 +1773,61 @@ Once configured partition and format like any other drive.
 
 ## Test Drive <a name="test-drive"/></a>
 Using the SMART monitor tools and the built in diagnostics in drives we can determine their health.
+SMART offers two different tests, according to specification type. Each of these tests can be
+performed in two modes:
+
+* ***Background Mode*** - the priority of the test is low, which means the normal instructions can
+continue to be processed. If the drive is doing real work the test gets paused and compelted when
+it's no longer busy.
+* ***Forground Mode*** - all commands will be answered during the test with a `CHECK_CONDITION`
+status i.e. you only want to use this option if the hard disk is unmounted.
+
+The `Short Test` provides rapid identification of a defective hard drive. It only takes a max of
+`2min` and checks the disk by looking at `Electrical Properties`, `Mechanical Properties` and
+`Read/Verify`. The read verify spot check is usually a specific area as called out by the
+manufacturer.
+
+The `Long Test` is similar to the short test but also dos a `Read/Verify` on the entire disk, not
+just the spot check done in the short test.
 
 ```bash
 # Install smart monitor tools
 $ sudo pacman -S smartmontools
 
-# Show drive health
-$ sudo smartctl -H /dev/sda
+# Check that drive is smart capable - check the last couple lines of output
+$ sudo smartctl -i /dev/sda
+...
+SMART support is: Available - device has SMART capability.
+SMART support is: Enabled
 
-# Show test info
-$ sudo smartctl -l selftest /dev/sda
+# Check the approximate time required to run the tests - look near bottom
+$ sudo smartctl -c /dev/sda
+...
+Extended self-test routine
+recommended polling time: 	 ( 333) minutes.
+...
 
-# Show drive info
-$ sudo smartctl -a /dev/sda -d ata
+# Run short drive test in foreground
+$ sudo smartctl -t short -C /dev/sda
 
 # Run long test
 $ sudo smartctl -t long /dev/sda
+
+# Show overall health check from tests once all tests have been run
+$ sudo smartctl -H /dev/sda
+...
+=== START OF READ SMART DATA SECTION ===
+SMART overall-health self-assessment test result: PASSED
+
+# Show specific test results, the latest test is #1 and so on
+$ sudo smartctl -l selftest /dev/sda
+...
+=== START OF READ SMART DATA SECTION ===
+SMART Self-test log structure revision number 1
+Num  Test_Description    Status                  Remaining  LifeTime(hours)  LBA_of_first_error
+# 1  Short captive       Interrupted (host reset)      50%     30363         -
+# 2  Extended offline    Completed without error       00%     30356         -
+# 3  Extended offline    Aborted by host               90%         2         -
 ```
 
 # Systemd <a name="systemd"/></a>

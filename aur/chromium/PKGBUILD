@@ -79,42 +79,42 @@ _unwanted_bundled_libs=(
 )
 depends+=(${_system_libs[@]})
 
-#prepare() {
-#  cd "$srcdir/$pkgname-$pkgver"
-#
-#  # Apply patches from various distributions
-#  #for patchset in arch debian cyber inox; do
-#  for patchset in arch debian; do
-#    msg "Applying $patchset patches..."
-#    for patch in ../../patches/$patchset/*.patch; do
-#      msg2 "Applying patch $patch"
-#      patch -Np1 -i $patch
-#    done
-#  done
-#
-#  # Force script incompatible with Python 3 to use /usr/bin/python2
-#  sed -i '1s|python$|&2|' third_party/dom_distiller_js/protoc_plugins/*.py
-#
-#  # Setup nodejs dependency
-#  mkdir -p third_party/node/linux/node-linux-x64/bin
-#  ln -s /usr/bin/node third_party/node/linux/node-linux-x64/bin/
-#
-#  # Remove bundled libraries for which we will use the system copies; this
-#  # *should* do what the remove_bundled_libraries.py script does, with the
-#  # added benefit of not having to list all the remaining libraries
-#  local _lib
-#  for _lib in ${_unwanted_bundled_libs[@]}; do
-#    find "third_party/$_lib" -type f \
-#      \! -path "third_party/$_lib/chromium/*" \
-#      \! -path "third_party/$_lib/google/*" \
-#      \! -path 'third_party/yasm/run_yasm.py' \
-#      \! -regex '.*\.\(gn\|gni\|isolate\)' \
-#      -delete
-#  done
-#
-#  python2 build/linux/unbundle/replace_gn_files.py \
-#    --system-libraries "${!_system_libs[@]}"
-#}
+prepare() {
+  cd "$srcdir/$pkgname-$pkgver"
+
+  # Apply patches from various distributions
+  #for patchset in arch debian cyber inox; do
+  for patchset in arch debian; do
+    msg "Applying $patchset patches..."
+    for patch in ../../patches/$patchset/*.patch; do
+      msg2 "Applying patch $patch"
+      patch -Np1 -i $patch
+    done
+  done
+
+  # Force script incompatible with Python 3 to use /usr/bin/python2
+  sed -i '1s|python$|&2|' third_party/dom_distiller_js/protoc_plugins/*.py
+
+  # Setup nodejs dependency
+  mkdir -p third_party/node/linux/node-linux-x64/bin
+  ln -s /usr/bin/node third_party/node/linux/node-linux-x64/bin/
+
+  # Remove bundled libraries for which we will use the system copies; this
+  # *should* do what the remove_bundled_libraries.py script does, with the
+  # added benefit of not having to list all the remaining libraries
+  local _lib
+  for _lib in ${_unwanted_bundled_libs[@]}; do
+    find "third_party/$_lib" -type f \
+      \! -path "third_party/$_lib/chromium/*" \
+      \! -path "third_party/$_lib/google/*" \
+      \! -path 'third_party/yasm/run_yasm.py' \
+      \! -regex '.*\.\(gn\|gni\|isolate\)' \
+      -delete
+  done
+
+  python2 build/linux/unbundle/replace_gn_files.py \
+    --system-libraries "${!_system_libs[@]}"
+}
 
 build() {
   make -C chromium-launcher-$_launcher_ver
@@ -131,54 +131,53 @@ build() {
   export AR=ar
   export NM=nm
 
+  # GN arguments explained
+  # https://gitlab.com/noencoding/OS-X-Chromium-with-proprietary-codecs/wikis/List-of-all-gn-arguments-for-Chromium-build
   local _flags=(
     'custom_toolchain="//build/toolchain/linux/unbundle:default"'
     'host_toolchain="//build/toolchain/linux/unbundle:default"'
-    'clang_use_chrome_plugins=false'                # arch & ungoogled: don't use chrome clang plugins
+    'clang_use_chrome_plugins=false'                # arch/ungoogled: don't use chrome clang plugins
     'is_official_build=true'                        # arch: implies is_cfi=true on x86_64
-    'treat_warnings_as_errors=false'                # arch & ungoogled: don't worry about warnings
-    'fieldtrial_testing_like_official_build=true'   # arch & ungoogled: includes all optimizations suitable for end users
-    'ffmpeg_branding="Chrome"'                      # arch:
-    'proprietary_codecs=true'                       # arch: enables propietary H264, AAC, MP3 and MP4
+    'treat_warnings_as_errors=false'                # arch/debian: ungoogled: don't worry about warnings
+    'fieldtrial_testing_like_official_build=true'   # arch/debian/ungoogled: includes all optimizations suitable for end users
+    'ffmpeg_branding="Chrome"'                      # arch/debian: build Chrome version which contains additional codecs
+    'proprietary_codecs=true'                       # arch/debian: enables propietary H264, AAC, MP3 and MP4
     'rtc_use_pipewire=true'                         # arch: support for screen sharing on wayland
-    'link_pulseaudio=true'                          # arch: use PulseAudio for sound
-    'use_gnome_keyring=false'                       # arch: don't use the gnome keyring
-    'use_sysroot=false'                             # arch: icecc doesn't work with sysroot
-    'linux_use_bundled_binutils=false'              # arch: 
-    'use_custom_libcxx=false'                       # arch: 
-    'enable_hangout_services_extension=true'        # arch: enable Google Hangouts service so screen sharing will work
-    'enable_widevine=true'                          # arch & ungoogled: enable multi platform DRM support for media
-    'enable_nacl=false'                             # arch & ungoogled: disable native clients
-    'enable_swiftshader=false'                      # arch & ungoogled:
-    'closure_compile=false'                         # ungoogled: 
-    'enable_hevc_demuxing=true'                     # ungoogled: 
-    'enable_mdns=false'                             # ungoogled: 
-    'enable_mse_mpeg2ts_stream_parser=true'         # ungoogled: 
-    'enable_nacl_nonsfi=false'                      # ungoogled: 
-    #'enable_one_click_signin=false'                 # ungoogled: disable one click sign in
-    'enable_reading_list=false'                     # ungoogled: 
-    'enable_remoting=false'                         # ungoogled: disable remoting
-    'enable_reporting=false'                        # ungoogled: 
-    'enable_service_discovery=false'                # ungoogled: 
-    'google_api_key=""'                             # ungoogled: 
-    'google_default_client_id=""'                   # ungoogled: 
-    'google_default_client_secret=""'               # ungoogled: 
-    'optimize_webui=false'                          # ungoogled: 
+    'link_pulseaudio=true'                          # arch/debian: use PulseAudio for sound
+    'use_gnome_keyring=false'                       # arch/debian: don't use the gnome keyring
+    'use_sysroot=false'                             # arch/debian: icecc doesn't work with sysroot
+    'linux_use_bundled_binutils=false'              # arch/debian: used the system binutils instead
+    'use_custom_libcxx=false'                       # arch/debian: don't use a custom libc
+    'enable_hangout_services_extension=true'        # arch: enable for screen sharing, both debian and ungoogle disable this
+    'enable_widevine=true'                          # arch/debian/ungoogled: enable multi platform DRM support for media
+    'enable_nacl=false'                             # arch/debian/ungoogled: disable native clients
+    'enable_swiftshader=false'                      # arch/debian/ungoogled: ??
+    'is_debug=false'                                # debian: clean release version
+    'use_jumbo_build=true'                          # debian: speed up build by merging source files and compiles them together
+    'jumbo_file_merge_limit=8'                      # debian: limit the jumbo merge depth to allow for parallelism
+    'enable_vr=false'                               # debian: disable the use of OpenVR 
+    'enable_nacl_nonsfi=false'                      # debian/ungoogled: not useing native clients
+    'enable_reading_list=false'                     # debian/ungoogled: disable the reading list feature i.e think pocket
+    'enable_one_click_signin=false'                 # debian/ungoogled: disable one click sign in
+    'enable_iterator_debugging=false'               # debian/ungoogled: turn off iterator debugging should be off when is_debug=false
+    'optimize_webui=false'                          # debian/ungoogled: faster build by using Polymer for HTML imports
+    'use_unofficial_version_number=false'           # debian/ungoogled: use the official version number
+    'enable_hevc_demuxing=true'                     # ungoogled: enable HEVC/H265 demuxing by system libraries
+    'enable_mdns=false'                             # ungoogled: disable multicast DNS
+    'enable_remoting=false'                         # ungoogled: disable ability to do VNC/RDP type connecting via chromium
+    'enable_reporting=false'                        # ungoogled: disable reporting
+#'enable_service_discovery=false'                # ungoogled: ?
     #'safe_browsing_mode=0'                          # ungoogled: disable safe browsing, requires patch to work
-    'use_official_google_api_keys=false'            # ungoogled: 
-    'use_unofficial_version_number=false'           # ungoogled: 
-    'enable_ac3_eac3_audio_demuxing=true'           # cyberlinux: from ungoogled, they have since removed it to leave it up to distros
-    'enable_iterator_debugging=false'               # cyberlinux: from ungoogled, they have since removed it to leave it up to distros
-    'fatal_linker_warnings=false'                   # cyberlinux: from ungoogled, they have since removed it to leave it up to distros
-    'blink_symbol_level=0'                          # cyberlinux: build faster by disabling blink debug symbols
-    'is_debug=false'                                # cyberlinux: clean release version
+    'use_official_google_api_keys=false'            # ungoogled: don't fall back on google keys when api keys are missing
     'symbol_level=0'                                # cyberlinux: build faster by making debug impossible
-    #'use_jumbo_build=true'                          # cyberlinux: build faster by merging translation units
-
-#    'use_gold=false'                                #
+    'blink_symbol_level=0'                          # cyberlinux: build faster by disabling blink debug symbols
+    'fatal_linker_warnings=false'                   # cyberlinux: ignore linker warnings with certain versions of binutils
+    'enable_ac3_eac3_audio_demuxing=true'           # cyberlinux: enable AC3/EAC3 audio demuxing to HDMI sink
 
     # No longer needed or are no longer valid
     # https://chromium.googlesource.com/chromium/src.git/+/62.0.3178.1/chrome/common/features.gni
+    #'concurrent_links=1'                          # debian: limit the number of linking operations at a time to save memory
+    #'v8_enable_backtrace=true'                    # debian: doesn't seem useful
     #'exclude_unwind_tables=true'                  # no longer does anything
     #'enable_google_now=false'                     # feature was removed
     #'enable_hotwording=false'                     # disabled by default
@@ -190,6 +189,7 @@ build() {
   CXXFLAGS+=' -Wno-builtin-macro-redefined'
   CPPFLAGS+=' -D__DATE__=  -D__TIME__=  -D__TIMESTAMP__='
 
+  # By default ninja tries to use all processors
   gn gen out/Release --args="${_flags[*]}" --script-executable=/usr/bin/python2
   ninja -C out/Release chrome chrome_sandbox chromedriver
 }
