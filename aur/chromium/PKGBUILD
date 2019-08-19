@@ -79,42 +79,42 @@ _unwanted_bundled_libs=(
 )
 depends+=(${_system_libs[@]})
 
-prepare() {
-  cd "$srcdir/$pkgname-$pkgver"
-
-  # Apply patches from various distributions
-  #for patchset in arch debian cyber inox; do
-  for patchset in arch debian; do
-    msg "Applying $patchset patches..."
-    for patch in ../../patches/$patchset/*.patch; do
-      msg2 "Applying patch $patch"
-      patch -Np1 -i $patch
-    done
-  done
-
-  # Force script incompatible with Python 3 to use /usr/bin/python2
-  sed -i '1s|python$|&2|' third_party/dom_distiller_js/protoc_plugins/*.py
-
-  # Setup nodejs dependency
-  mkdir -p third_party/node/linux/node-linux-x64/bin
-  ln -s /usr/bin/node third_party/node/linux/node-linux-x64/bin/
-
-  # Remove bundled libraries for which we will use the system copies; this
-  # *should* do what the remove_bundled_libraries.py script does, with the
-  # added benefit of not having to list all the remaining libraries
-  local _lib
-  for _lib in ${_unwanted_bundled_libs[@]}; do
-    find "third_party/$_lib" -type f \
-      \! -path "third_party/$_lib/chromium/*" \
-      \! -path "third_party/$_lib/google/*" \
-      \! -path 'third_party/yasm/run_yasm.py' \
-      \! -regex '.*\.\(gn\|gni\|isolate\)' \
-      -delete
-  done
-
-  python2 build/linux/unbundle/replace_gn_files.py \
-    --system-libraries "${!_system_libs[@]}"
-}
+#prepare() {
+#  cd "$srcdir/$pkgname-$pkgver"
+#
+#  # Apply patches from various distributions
+#  #for patchset in arch debian cyber inox; do
+#  for patchset in arch debian; do
+#    msg "Applying $patchset patches..."
+#    for patch in ../../patches/$patchset/*.patch; do
+#      msg2 "Applying patch $patch"
+#      patch -Np1 -i $patch
+#    done
+#  done
+#
+#  # Force script incompatible with Python 3 to use /usr/bin/python2
+#  sed -i '1s|python$|&2|' third_party/dom_distiller_js/protoc_plugins/*.py
+#
+#  # Setup nodejs dependency
+#  mkdir -p third_party/node/linux/node-linux-x64/bin
+#  ln -s /usr/bin/node third_party/node/linux/node-linux-x64/bin/
+#
+#  # Remove bundled libraries for which we will use the system copies; this
+#  # *should* do what the remove_bundled_libraries.py script does, with the
+#  # added benefit of not having to list all the remaining libraries
+#  local _lib
+#  for _lib in ${_unwanted_bundled_libs[@]}; do
+#    find "third_party/$_lib" -type f \
+#      \! -path "third_party/$_lib/chromium/*" \
+#      \! -path "third_party/$_lib/google/*" \
+#      \! -path 'third_party/yasm/run_yasm.py' \
+#      \! -regex '.*\.\(gn\|gni\|isolate\)' \
+#      -delete
+#  done
+#
+#  python2 build/linux/unbundle/replace_gn_files.py \
+#    --system-libraries "${!_system_libs[@]}"
+#}
 
 build() {
   make -C chromium-launcher-$_launcher_ver
@@ -134,10 +134,10 @@ build() {
   local _flags=(
     'custom_toolchain="//build/toolchain/linux/unbundle:default"'
     'host_toolchain="//build/toolchain/linux/unbundle:default"'
-    'clang_use_chrome_plugins=false'                # arch: don't use chrome clang plugins
+    'clang_use_chrome_plugins=false'                # arch & ungoogled: don't use chrome clang plugins
     'is_official_build=true'                        # arch: implies is_cfi=true on x86_64
-    'treat_warnings_as_errors=false'                # arch: don't worry about warnings
-    'fieldtrial_testing_like_official_build=true'   # arch: includes all optimizations suitable for end users
+    'treat_warnings_as_errors=false'                # arch & ungoogled: don't worry about warnings
+    'fieldtrial_testing_like_official_build=true'   # arch & ungoogled: includes all optimizations suitable for end users
     'ffmpeg_branding="Chrome"'                      # arch:
     'proprietary_codecs=true'                       # arch: enables propietary H264, AAC, MP3 and MP4
     'rtc_use_pipewire=true'                         # arch: support for screen sharing on wayland
@@ -146,36 +146,49 @@ build() {
     'use_sysroot=false'                             # arch: icecc doesn't work with sysroot
     'linux_use_bundled_binutils=false'              # arch: 
     'use_custom_libcxx=false'                       # arch: 
-    'enable_hangout_services_extension=true'        # arch: enable Hangout service
-    'enable_widevine=true'                          # arch: enable multi platform DRM support for media
-    'enable_nacl=false'                             # arch: disable native clients
-    'enable_swiftshader=false'                      # arch:
+    'enable_hangout_services_extension=true'        # arch: enable Google Hangouts service so screen sharing will work
+    'enable_widevine=true'                          # arch & ungoogled: enable multi platform DRM support for media
+    'enable_nacl=false'                             # arch & ungoogled: disable native clients
+    'enable_swiftshader=false'                      # arch & ungoogled:
+    'closure_compile=false'                         # ungoogled: 
+    'enable_hevc_demuxing=true'                     # ungoogled: 
+    'enable_mdns=false'                             # ungoogled: 
+    'enable_mse_mpeg2ts_stream_parser=true'         # ungoogled: 
+    'enable_nacl_nonsfi=false'                      # ungoogled: 
+    #'enable_one_click_signin=false'                 # ungoogled: disable one click sign in
+    'enable_reading_list=false'                     # ungoogled: 
+    'enable_remoting=false'                         # ungoogled: disable remoting
+    'enable_reporting=false'                        # ungoogled: 
+    'enable_service_discovery=false'                # ungoogled: 
+    'google_api_key=""'                             # ungoogled: 
+    'google_default_client_id=""'                   # ungoogled: 
+    'google_default_client_secret=""'               # ungoogled: 
+    'optimize_webui=false'                          # ungoogled: 
+    #'safe_browsing_mode=0'                          # ungoogled: disable safe browsing, requires patch to work
+    'use_official_google_api_keys=false'            # ungoogled: 
+    'use_unofficial_version_number=false'           # ungoogled: 
+    'enable_ac3_eac3_audio_demuxing=true'           # cyberlinux: from ungoogled, they have since removed it to leave it up to distros
+    'enable_iterator_debugging=false'               # cyberlinux: from ungoogled, they have since removed it to leave it up to distros
+    'fatal_linker_warnings=false'                   # cyberlinux: from ungoogled, they have since removed it to leave it up to distros
+    'blink_symbol_level=0'                          # cyberlinux: build faster by disabling blink debug symbols
+    'is_debug=false'                                # cyberlinux: clean release version
+    'symbol_level=0'                                # cyberlinux: build faster by making debug impossible
+    #'use_jumbo_build=true'                          # cyberlinux: build faster by merging translation units
 
-#    'is_debug=false'                                # cyberlinux: clean release version
-#    'symbol_level=0'                                # cyberlinux: build faster by making debug impossible
-#    'blink_symbol_level=0'                          # cyberlinux: build faster by disabling blink debug symbols
-#    'use_jumbo_build=true'                          # cyberlinux: build faster by merging translation units
-#    'is_clang=true'                                 # Use the clang compiler, produces better code
-#    'use_lld=true'                                  # Use LLVM's lld linker instead of Google's Clang plugins
-#    'exclude_unwind_tables=true'                    # Exclude tables to save on disk space
-#    'fatal_linker_warnings=false'                   #
-#    'remove_webcore_debug_symbols=true'             # 
 #    'use_gold=false'                                #
-#    'enable_nacl_nonsfi=false'                      #
-#    'enable_remoting=false'                         # Disable Remoting
-#    'enable_google_now=false'                       # Disable google now
-#    'safe_browsing_mode=0'                          # Disable Safe browsing, requires patch to work
-#    'enable_hotwording=false'                       # Disable hotwording
+
+    # No longer needed or are no longer valid
+    # https://chromium.googlesource.com/chromium/src.git/+/62.0.3178.1/chrome/common/features.gni
+    #'exclude_unwind_tables=true'                  # no longer does anything
+    #'enable_google_now=false'                     # feature was removed
+    #'enable_hotwording=false'                     # disabled by default
+    #'is_clang=true'                               # clang is the default compiler on linux now
   )
 
   # Facilitate deterministic builds (taken from build/config/compiler/BUILD.gn)
   CFLAGS+='   -Wno-builtin-macro-redefined'
   CXXFLAGS+=' -Wno-builtin-macro-redefined'
   CPPFLAGS+=' -D__DATE__=  -D__TIME__=  -D__TIMESTAMP__='
-
-  if check_option strip y; then
-    _flags+=('symbol_level=0')
-  fi
 
   gn gen out/Release --args="${_flags[*]}" --script-executable=/usr/bin/python2
   ninja -C out/Release chrome chrome_sandbox chromedriver

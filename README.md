@@ -533,6 +533,7 @@ either system.
   * [Shred Drive](#shred-drive)
   * [Wipe Drive](#wipe-drive)
   * [RAID Drives](#raid-drives)
+  * [Test Drive](#test-drive)
 * [Systemd](#systemd)
   * [Boot Performance](#boot-performance)
     * [See How long boot takes](#see-how-long-boot-takes)
@@ -1769,6 +1770,26 @@ The standard URE rate of 1 in 10^14 failure in modern drives has made RAID 5 an 
 larger drives. RAID 6 although tolerable will also be too high a risk with larger drives.  The only
 option for RAID is RAID 10 if you value your data.  Otherwise forget RAID and make regular backups.
 Once configured partition and format like any other drive.
+
+## Test Drive <a name="test-drive"/></a>
+Using the SMART monitor tools and the built in diagnostics in drives we can determine their health.
+
+```bash
+# Install smart monitor tools
+$ sudo pacman -S smartmontools
+
+# Show drive health
+$ sudo smartctl -H /dev/sda
+
+# Show test info
+$ sudo smartctl -l selftest /dev/sda
+
+# Show drive info
+$ sudo smartctl -a /dev/sda -d ata
+
+# Run long test
+$ sudo smartctl -t long /dev/sda
+```
 
 # Systemd <a name="systemd"/></a>
 
