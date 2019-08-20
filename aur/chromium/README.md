@@ -28,6 +28,7 @@ be used at your own risk.
     * [Vendor Chromium](#vendor-chromium)
   * [Chrome built in pages](#chrome-built-in-pages)
   * [Command line switches](#command-line-switches)
+  * [Chromium Settings](#chromium-settings)
   * [Chromium Policies](#chromium-policies)
   * [Chromium Extensions](#chromium-extensions)
 * [cyberlinux Chromium](#cyberlinux-chromium)
@@ -195,6 +196,31 @@ These command line switches can be set in ***/etc/chromium/launcher.conf***
 * **--disable-notifications** Disable the annoying pop up notifications
 * **--disable-ntp-popular-sites** Disable tracking and listing populare sites on your New Tab Page
 
+## Chromium Settings <a name="chromium-settings"></a>
+These settings have all been translated into preferences or policies but I like having a list here to
+double check:
+
+1. Navigate to `chrome://settings`
+2. Disable `Autofill >Passwords >Offer to save passwords`
+3. Disable `Autofill >Payment methods >Save and fill payment methods`
+4. Disable `Autofill >Addresses and more >Save and fill addresses`
+5. Select `Appearance >Themes >Classic`
+6. Enable `Appearance >Show bookmarks bar`
+7. Select `Search engine >DuckDuckGo`
+8. Disable `Sync and Google services >Autocomplete searches and URLs`
+9. Disable `Sync and Google services >Show suggestions for similar pages when a page can't be found`
+10. Disable `Sync and Google services >Safe Browsing (protects you and your device from dangerous sites)`
+11. Disable `Sync and Google services >Help improve Chrome security`
+12. Disable `Sync and Google services >Make searches and browsing better`
+13. Disable `Allow Chromium sign-in`
+13. Enable `Send a "Do Not Track" request with your browsing traffic`
+14. Disable `Allow sites to check if you have payment methods saved`
+15. Disable `Preload pages for faster browsing and searching`
+16. Select `Site Settings >Cookies >Keep local data only until you quit your browser`
+16. Disable `Site Settings >Location`
+17. Disable `Site Settings >Notifications`
+18. Disable `Site Settings >Pop-ups and redirects`
+
 ## Chromium Policies <a name="chromium-policies"></a>
 References for policy and extension settings
 * http://dev.chromium.org/administrators/policy-list-3
@@ -289,6 +315,28 @@ Example target version `76.0.3809.100`:
    # Update the PKGBUILD to include the debian patches
    $ makepkg -Cfs
    ```
+5. Update patches/ungoogled next
+   ```bash
+   # Update latest chroma for ungoogled patches then run
+   # see github.com/phR0ze/chroma
+   $ ./chroma down patches ungoogled
+
+   # Update the PKGBUILD to include the debian patches
+   $ makepkg -Cfs
+   ```
+5. Validate plugins install and configuration is correct
+   | Feature               | Notes
+   |-----------------------|---------------------------------------------------
+   | Incognito             | Color scheme is correct and indicator icon exists
+   | Show Home Button      | Enabled correctly in settings based on master preferences
+   | Send a "Do Not Track" | Enabled correctly in settings based on master preferences
+   | Ask where to save     | Is working correctly defaults to ~/Downloads
+   | Cookies               | Set to keep local data only until you quit your browser
+   | Flash                 | Blocks sites from running Flash is off
+   | PDF documents         | Allow pdfs to be viewed in browser
+   | Block location        | Site access to location is strictly blocked
+   | Block notifications   | Site access to notifications is strictly blocked
+   | Plugins               | Plugins at the webstore don't allow install
 
 ## Chromium Patches <a name="chromium-patches"></a>
 Despite probably being the best browser out there Chromium has some glaring issues, in my opionion,
@@ -297,7 +345,6 @@ for improvements in the code (***Arch Linux compatiblity***, ***Privacy/Security
 compatibility with cyberlinux***. So I'm leveraging patches from others and creating my own to make
 chromium fit with the ideals of the ***cyberlinux*** project as follows:
 
-* **00-master-preferences.patch** - patching to set /etc/chromium/master_preferenes path to use
 * **01-disable-default-extensions.patch** - patching to disble CloudPrint, HotWording, Feedback, InAppPayments
 * **02-always-incognito-theme.patch** - patching code to always use the incognito theme (dark themes are better)
 * **03-remove-profile-management.patch** - patching to remove profile managment from settings
@@ -325,32 +372,32 @@ The chromium code base is separated into three main parts:
 ### Frame UI Code <a name="frame-ui-code"></a>
 https://www.chromium.org/developers/design-documents/browser-window
 
-***chrome/browser*** is the location for all browser frame code including UI feature dirs like
-***themes***. ***chrome/browser/ui/views/browser_frame.cc*** is the main entry point for UI
+`chrome/browser` is the location for all browser frame code including UI feature dirs like
+`themes`. `chrome/browser/ui/views/browser_frame.cc` is the main entry point for UI
 related code.
 
-* ***chrome/browser/ui/browser.cc***
+* `chrome/browser/ui/browser.cc`
   * Top level window in the application (i.e. main entry point)  
-* ***chrome/browser/ui/views/browser_frame.cc***
+* `chrome/browser/ui/views/browser_frame.cc`
   * BrowserFrame::GetThemeProvider => ThemeService::GetThemeProviderForProfile
   * BrowserFrame::GetNewAvatarMenuButton => browser_frame_view->GetProfileSwitcherView
-* ***chrome/browser/themes/theme_service.cc***
+* `chrome/browser/themes/theme_service.cc`
   * Patch to always use incognito theme
-* ***chrome/browser/ui/views/browser_view.cc***
+* `chrome/browser/ui/views/browser_view.cc`
   * BrowserView implementation
-* ***chrome/browser/ui/profiles/profile_chooser_view.cc***
+* `chrome/browser/ui/profiles/profile_chooser_view.cc`
   * The dialog that is opened when you click Manage People from the Avatar Menu
-* ***chrome/browser/ui/profiles/avatar_button.cc***
+* `chrome/browser/ui/profiles/avatar_button.cc`
   * Actual Avatar button but we need the caller of this **AvatarButtonManager**
-* ***chrome/browser/ui/views/frame/avatar_button_manager.cc***
+* `chrome/browser/ui/views/frame/avatar_button_manager.cc`
   * Where the AvatarButton is actually created and added to the frame view
-* ***chrome/browser/ui/views/frame/browser_non_client_frame_view.cc***
-  * Looked promising but seems not used on linux and instead use ***opaque_browser_frame_view.cc***
-* ***chrome/browser/ui/views/frame/opaque_browser_frame_view.cc***
+* `chrome/browser/ui/views/frame/browser_non_client_frame_view.cc`
+  * Looked promising but seems not used on linux and instead use `opaque_browser_frame_view.cc`
+* `chrome/browser/ui/views/frame/opaque_browser_frame_view.cc`
   * Where the AvatarButtonManager is created and used to add the AvatarButton to the frame view
   * Has reference to avatar_button_manager i.e. **profile_switcher_**
   * InitWindowCaptionButton, IDR_MINIMIZE, IDR_MAXIMIZE, IDR_CLOSE
-* ***chrome/app/theme/theme_resources.grd***
+* `chrome/app/theme/theme_resources.grd`
   * Source file paths for all images
   * ui/views/resources/default_100_percent/linux/linux_minimize.png
 
@@ -375,15 +422,14 @@ https://googlechrome.github.io/samples/block-modal-dialogs-sandboxed-iframe/
 The goal is to have javascript execute but block all modal dialogs such as alert(), confirm(),
 print(), prompt().
 
-The sanbox feature with ***allow-scripts*** and ***allow-modals***
+The sandbox feature with ***allow-scripts*** and ***allow-modals***
 
 # Backlog  <a name="backlog"></a>
-* ***chrome://settings/content/cookies*** **Keep local data only until you quit your browser** is false by default
-* ***chrome://settings/content/automaticDownloads/ set to **Do not allow any site to download multiple files automatically**
-* ***chrome://settings/languages*** Spell check off by deafult?
-* Block javascript modal dialogs
-* Loading extensions from update URLs donsn't work
-* Doesn't remember pinned sites across restarts
-* Fix spellchecking with https://github.com/gcarq/inox-patchset/issues/83
+
+# Testing
+* Webstore extensions are not allowed
 
 # Completed <a name="completed"></a>
+* 76.0.3809.100: ***chrome://settings/languages*** Spell check off by deafult?
+* 76.0.3809.100: Fix spellchecking with https://github.com/gcarq/inox-patchset/issues/83
+* 76.0.3809.100: ***chrome://settings/content/cookies*** **Keep local data only until you quit your browser** is false by default

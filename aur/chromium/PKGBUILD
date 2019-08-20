@@ -47,7 +47,7 @@ optdepends=('libva-intel-driver: for hardware video acceleration with Intel GPUs
             'libva-vdpau-driver: for hardware video acceleration with NVIDIA GPUs')
 install=chromium.install
 source=(https://commondatastorage.googleapis.com/chromium-browser-official/$pkgname-$pkgver.tar.xz
-        chromium-launcher-$_launcher_ver.tar.gz::https://github.com/foutrelis/chromium-launcher/archive/v$_launcher_ver.tar.gz)
+        chromium-launcher-$_launcher_ver.tar.gz::https://github.com/phR0ze/chromium-launcher/archive/v$_launcher_ver.tar.gz)
 sha256sums=('8cd93ada3e0837ced512f69783400991d3b82e0d9622e04fab5922877577d26d'
             '04917e3cd4307d8e31bfb0027a5dce6d086edb10ff8a716024fbb8bb0c7dccf1')
 
@@ -83,7 +83,7 @@ prepare() {
   cd "$srcdir/$pkgname-$pkgver"
 
   # Apply patches from various distributions
-  for patchset in arch debian ungoogled; do
+  for patchset in arch debian cyber ungoogled; do
     msg "Applying $patchset patches..."
     for patch in ../../patches/$patchset/*.patch; do
       msg2 "Applying patch $patch"
@@ -238,6 +238,16 @@ package() {
 
   install -Dm644 LICENSE "$pkgdir/usr/share/licenses/chromium/LICENSE"
 
+  # Install Custom configuration 
+  # - launcher.conf: list of command line options to give to chromium when starting
+  #   https://peter.sh/experiments/chromium-command-line-switches/
+  # - master_preferences: acts as a template for the first run then user can edit them
+  #   http://www.chromium.org/administrators/configuring-other-preferences
+  # - policy.json: is a set of policies to configure chromium with
+  #-----------------------------------------------------------------------------
+  install -Dm644 $srcdir/../config/launcher.conf -t $pkgdir/etc/chromium
+  install -Dm644 $srcdir/../config/master_preferences -t $pkgdir/etc/chromium
+  install -Dm644 $srcdir/../config/policy.json -t $pkgdir/etc/chromium/policies/recommended
 
 #  # Install Chromium Extensions
 #  #-----------------------------------------------------------------------------
@@ -263,16 +273,6 @@ package() {
 #  cd $srcdir/extensions
 #  find . -type f -exec install -Dm644 "{}" "${pkgdir}/usr/share/chromium/extensions/{}" \;
 #
-#  # Install Custom configuration 
-#  # - launcher.conf: list of command line options to give to chromium when starting
-#  #   https://peter.sh/experiments/chromium-command-line-switches/
-#  # - master_preferences: acts as a template for the first run then user can edit them
-#  #   http://www.chromium.org/administrators/configuring-other-preferences
-#  # - policy.json: is a set of policies to configure chromium with
-#  #-----------------------------------------------------------------------------
-#  install -Dm644 $srcdir/../config/launcher.conf -t $pkgdir/etc/chromium
-#  install -Dm644 $srcdir/../config/master_preferences -t $pkgdir/etc/chromium
-#  install -Dm644 $srcdir/../config/policy.json -t $pkgdir/etc/chromium/policies/recommended
 }
 
 # vim: ts=2:sw=2:sts=2

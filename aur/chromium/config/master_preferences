@@ -1,18 +1,18 @@
 {
   "homepage_is_newtabpage": true,
   "distribution": {
-    "import_history": false,
+    "disable_logging": true,
     "import_bookmarks": false,
+    "import_bookmarks_from_file": "/usr/share/chromium/bookmarks.html",
+    "import_history": false,
     "import_home_page": false,
     "import_search_engine": false,
-    "import_bookmarks_from_file": "/usr/share/chromium/bookmarks.html",
+    "make_chrome_default": true,
+    "make_chrome_default_for_user": true,
     "skip_first_run_ui": true,
     "show_welcome_page": false,
     "suppress_first_run_bubble": true,
-    "suppress_first_run_default_browser_prompt": true,
-    "make_chrome_default": true,
-    "make_chrome_default_for_user": true,
-    "create_all_shortcuts": true
+    "suppress_first_run_default_browser_prompt": true
   },
   "download": {
     "prompt_for_download": true
@@ -20,15 +20,17 @@
   "browser": {
     "clear_data": {
       "browsing_history": true,
-      "cache": true,
       "download_history": true,
+      "cache": true,
+      "cookies": true,
+      "passwords": true,
       "form_data": true,
       "hosted_apps_data": true,
-      "passwords": true,
       "time_period": 4
     },
-    "show_home_button": true,
-    "check_default_browser" : false
+    "check_default_browser" : false,
+    "confirm_to_quit": false,
+    "show_home_button": true
   },
   "bookmark_bar": {
     "show_on_all_tabs": true

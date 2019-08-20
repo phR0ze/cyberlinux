@@ -1,0 +1,59 @@
+diff '--color=auto' -ruN a/chrome/browser/ui/views/frame/opaque_browser_frame_view.cc b/chrome/browser/ui/views/frame/opaque_browser_frame_view.cc
+--- a/chrome/browser/ui/views/frame/opaque_browser_frame_view.cc	2017-11-13 13:09:14.000000000 -0700
++++ b/chrome/browser/ui/views/frame/opaque_browser_frame_view.cc	2017-12-04 12:08:08.148677203 -0700
+@@ -73,7 +73,7 @@
+       close_button_(nullptr),
+       window_icon_(nullptr),
+       window_title_(nullptr),
+-      profile_switcher_(this),
++      // profile_switcher_(this),
+       frame_background_(new views::FrameBackground()) {
+   SetLayoutManager(layout_);
+ 
+@@ -177,7 +177,7 @@
+ }
+ 
+ views::View* OpaqueBrowserFrameView::GetProfileSwitcherView() const {
+-  return profile_switcher_.view();
++  return nullptr;
+ }
+ 
+ ///////////////////////////////////////////////////////////////////////////////
+@@ -198,10 +198,10 @@
+       profile_indicator_icon()->GetMirroredBounds().Contains(point)) {
+     return true;
+   }
+-  if (profile_switcher_.view() &&
+-      profile_switcher_.view()->GetMirroredBounds().Contains(point)) {
+-    return true;
+-  }
++  // if (profile_switcher_.view() &&
++  //     profile_switcher_.view()->GetMirroredBounds().Contains(point)) {
++  //   return true;
++  // }
+ 
+   return false;
+ }
+@@ -505,9 +505,7 @@
+ }
+ 
+ void OpaqueBrowserFrameView::UpdateProfileIcons() {
+-  if (browser_view()->IsRegularOrGuestSession())
+-    profile_switcher_.Update(AvatarButtonStyle::THEMED);
+-  else
++  if (!browser_view()->IsRegularOrGuestSession())
+     UpdateProfileIndicatorIcon();
+ }
+ 
+diff '--color=auto' -ruN a/chrome/browser/ui/views/frame/opaque_browser_frame_view.h b/chrome/browser/ui/views/frame/opaque_browser_frame_view.h
+--- a/chrome/browser/ui/views/frame/opaque_browser_frame_view.h	2017-11-13 13:09:14.000000000 -0700
++++ b/chrome/browser/ui/views/frame/opaque_browser_frame_view.h	2017-12-04 11:21:12.595454907 -0700
+@@ -182,7 +182,7 @@
+   views::Label* window_title_;
+ 
+   // Wrapper around the in-frame avatar switcher.
+-  AvatarButtonManager profile_switcher_;
++//   AvatarButtonManager profile_switcher_;
+ 
+   // Background painter for the window frame.
+   std::unique_ptr<views::FrameBackground> frame_background_;

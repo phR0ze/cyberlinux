@@ -1,4 +1,7 @@
 {
   "BrowserAddPersonEnabled": false,
-  "BrowserGuestModeEnabled": false
+  "BrowserGuestModeEnabled": false,
+  "DefaultGeolocationSetting": 2,
+  "DefaultNotificationsSetting": 2,
+  "AdsSettingForIntrusiveAdsSites": 2
 }
