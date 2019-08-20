@@ -49,7 +49,7 @@ install=chromium.install
 source=(https://commondatastorage.googleapis.com/chromium-browser-official/$pkgname-$pkgver.tar.xz
         chromium-launcher-$_launcher_ver.tar.gz::https://github.com/phR0ze/chromium-launcher/archive/v$_launcher_ver.tar.gz)
 sha256sums=('8cd93ada3e0837ced512f69783400991d3b82e0d9622e04fab5922877577d26d'
-            '04917e3cd4307d8e31bfb0027a5dce6d086edb10ff8a716024fbb8bb0c7dccf1')
+            '691a1f6a6dd8bca775fde4216153735af9d167f4d5774f007a785bfcb805655e')
 
 # Possible replacements are listed in build/linux/unbundle/replace_gn_files.py
 # Keys are the names in the above script; values are the dependencies in Arch
