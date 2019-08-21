@@ -426,10 +426,9 @@ The sandbox feature with ***allow-scripts*** and ***allow-modals***
 
 # Backlog  <a name="backlog"></a>
 
-# Testing
-* Webstore extensions are not allowed
-
 # Completed <a name="completed"></a>
+* 76.0.3809.100: Dark Mode all the time
+* 76.0.3809.100: Webstore extensions are not allowed
 * 76.0.3809.100: ***chrome://settings/languages*** Spell check off by deafult?
 * 76.0.3809.100: Fix spellchecking with https://github.com/gcarq/inox-patchset/issues/83
 * 76.0.3809.100: ***chrome://settings/content/cookies*** **Keep local data only until you quit your browser** is false by default
