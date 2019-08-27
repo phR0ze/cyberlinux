@@ -9,6 +9,8 @@ your own risk.  Any damages, issues, losses or problems caused by the use of ***
 strictly the responsiblity of the user and not the developer/creator of ***cyberlinux***.
 
 ### Table of Contents
+* [Build Steps](#build-steps)
+* [Desktop Deployment](#desktop-deployment)
 * [Desktop Deployment](#desktop-deployment)
 * [Laptop Deployment](#laptop-deployment)
   * [Dell Inspiron 1545](#dell-inspiron-1545)
@@ -17,6 +19,29 @@ strictly the responsiblity of the user and not the developer/creator of ***cyber
 * [Netbook Deployment](#netbook-deployment)
 * [Lite Deployment](#lite-deployment)
 * [Shell Deployment](#shell-deployment)
+
+# Build Steps <a name="build-steps"/></a>
+Build the multi-deployment ISO for the personal cyberlinux profile
+
+```bash
+# Install prerequisites
+$ sudo pacman -S ruby docker vagrant virtualbox
+
+# Clone the cyberlinux repo
+$ git clone git@github.com:phR0ze/cyberlinux.git
+
+# Change directory into the newly cloned repo
+$ cd cyberlinux
+
+# Install ruby dependencies
+$ bundle install --system
+
+# Trigger full build
+$ sudo ./reduce clean build --iso-full
+
+# Pack all deployments as Vagrant boxes that end up in .../cyberlinux/temp/images
+$ ./reduce pack
+```
 
 # Desktop Deployment <a name="desktop-deployment"/></a>
 The ***desktop*** deployment was created to serve as a full developer environment and daily runner.
@@ -49,7 +74,6 @@ changes useful for a laptop such as:
 * IDT 92HD71 Audio
 * Dell Wireless 1397 WLAN
 * Marvell Yukon 88E8040 PCI-E Fast Ethernet
-
 
 # Theater Deployment <a name="theater-deployment"/></a>
 Xorg desktop environment focusing on media playback
