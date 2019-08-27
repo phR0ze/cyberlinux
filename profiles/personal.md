@@ -37,7 +37,7 @@ $ cd cyberlinux
 $ bundle install --system
 
 # Trigger full build
-$ sudo ./reduce clean build --iso-full
+$ sudo ./reduce clean build isofull -p personal
 
 # Pack all deployments as Vagrant boxes that end up in .../cyberlinux/temp/images
 $ ./reduce pack
