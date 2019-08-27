@@ -248,31 +248,6 @@ package() {
   install -Dm644 $srcdir/../config/launcher.conf -t $pkgdir/etc/chromium
   install -Dm644 $srcdir/../config/master_preferences -t $pkgdir/etc/chromium
   install -Dm644 $srcdir/../config/policy.json -t $pkgdir/etc/chromium/policies/recommended
-
-#  # Install Chromium Extensions
-#  #-----------------------------------------------------------------------------
-#  msg "Installing Chromium Extensions"
-#  extensions=(
-#    'gcbommkclmclpchllfjekcdonpmejbdp'  # https-everywhere: Automatically use HTTPS security where possible
-#    'oiigbmnaadbkfbmpbfijlflahbdbdgdf'  # scriptsafe: 
-#    'bgjfekefhjemchdeigphccilhncnjldn'  # smartup-gestures: Better mouse gestures for Chromium
-#    'dhdgffkkebhmkfjojejmpbldmpobfkfo'  # tampermonkey: World's most popular userscript manager
-#    'cjpalhdlnbpafiamejdnhcphjbkeiagm'  # ublock-origin: An efficient ad-blocker for Chromium
-#    'pgdnlhfefecpicbbihgmbmffkjpaplco'  # ublock-origin-extra: Foil early hostile anti-user mechanisms
-#    'lmjnegcaeklhafolokijcfjliaokphfk'  # videodownload-helper: Video download helper for Chromium
-#  )
-#
-#  # Generate extension preference files
-#  mkdir -p $srcdir/extensions
-#  for ext in ${extensions[@]}; do
-#    msg2 "Install extension: $ext"
-#    echo -e "{\n  \"external_update_url\": \"https://clients2.google.com/service/update2/crx\"\n}" > $srcdir/extensions/$ext.json
-#  done
-#
-#  # Install extensions
-#  cd $srcdir/extensions
-#  find . -type f -exec install -Dm644 "{}" "${pkgdir}/usr/share/chromium/extensions/{}" \;
-#
 }
 
 # vim: ts=2:sw=2:sts=2

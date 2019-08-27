@@ -233,7 +233,7 @@ storage API. Extensions that support policy management are listed in ***chrome:/
 with the policies they support.
 
 ## Chromium Extensions <a name="chromium-extensions"></a>
-Chromium has a host of extensions available in the market for install. A handful of which are essential
+Chromium has a host of extensions available in the webstore for install. A handful of which are essential
 for safe, performant operations and others useful:
 
 * **https-everywhere** - automatically use HTTPS security where possible
@@ -324,7 +324,7 @@ Example target version `76.0.3809.100`:
    # Update the PKGBUILD to include the debian patches
    $ makepkg -Cfs
    ```
-5. Validate plugins install and configuration is correct
+6. Validate plugins install and configuration is correct
    | Feature               | Notes
    |-----------------------|---------------------------------------------------
    | Incognito             | Color scheme is correct and indicator icon exists
@@ -336,7 +336,8 @@ Example target version `76.0.3809.100`:
    | PDF documents         | Allow pdfs to be viewed in browser
    | Block location        | Site access to location is strictly blocked
    | Block notifications   | Site access to notifications is strictly blocked
-   | Plugins               | Plugins at the webstore don't allow install
+   | Plugins               | Plugins are now working from webstore
+7. Extensions
 
 ## Chromium Patches <a name="chromium-patches"></a>
 Despite probably being the best browser out there Chromium has some glaring issues, in my opionion,
@@ -346,7 +347,7 @@ compatibility with cyberlinux***. So I'm leveraging patches from others and crea
 chromium fit with the ideals of the ***cyberlinux*** project as follows:
 
 * **01-disable-default-extensions.patch** - patching to disble CloudPrint, HotWording, Feedback, InAppPayments
-* **02-always-incognito-theme.patch** - patching code to always use the incognito theme (dark themes are better)
+* **02-always-incognito-theme.patch** - no longer using as dark mode can be easily enabled with a flag now
 * **03-remove-profile-management.patch** - patching to remove profile managment from settings
 * **04-remove-avatar-button.patch** - patching to remove the avatar button in the window title bar
 
