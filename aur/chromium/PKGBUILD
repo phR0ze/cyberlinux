@@ -31,15 +31,16 @@
 #-------------------------------------------------------------------------------
 pkgname=chromium
 pkgver=76.0.3809.100
-pkgrel=1
+pkgrel=2
 _launcher_ver=6
 pkgdesc="Chromium focused on privacy and the removal of Google Orwellian tracking"
 arch=('x86_64')
 url="https://www.chromium.org/Home"
 license=('BSD')
+# jsoncpp was missing from the archlinux package
 depends=('gtk3' 'nss' 'alsa-lib' 'xdg-utils' 'libxss' 'libcups' 'libgcrypt'
          'ttf-font' 'systemd' 'dbus' 'libpulse' 'pciutils' 'json-glib'
-         'desktop-file-utils' 'hicolor-icon-theme' 'pepper-flash')
+         'desktop-file-utils' 'hicolor-icon-theme' 'pepper-flash' 'jsoncpp')
 makedepends=('python' 'python2' 'gperf' 'yasm' 'mesa' 'ninja' 'nodejs' 'git'
              'pipewire' 'clang' 'lld' 'gn' 'java-runtime-headless')
 optdepends=('libva-intel-driver: for hardware video acceleration with Intel GPUs'
