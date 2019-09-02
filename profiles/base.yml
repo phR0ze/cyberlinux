@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.345
+  release: 0.2.346
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -1431,6 +1431,8 @@ configs:
         - '  fi'
         - 'fi'
   config-fonts:
+    # Fix for java apps not using anti-aliased fonts
+    - exec: "_JAVA_OPTIONS='-Dawt.useSystemAAFontSettings=lcd' >> /etc/environment"
     - edit: /etc/skel/.config/fontconfig/fonts.conf
       insert: append
       values:

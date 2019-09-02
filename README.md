@@ -239,6 +239,7 @@ Key:
 | imagescan-plugin-networkscan    | 1.1.2-1           | Scanner driver for Epson WorkForce 7710 inject all-in-on printer
 | input-wacom-dkms                | 0.39.0-1          | ?
 | inxi                            | 3.0.10-2          | Low level cli tool for device configuration discovery
+| jd-gui                          | 1.6.3             | Standalone Java app for viewing the contents of class files in a jar
 | kubeadm                         | 1.11.2-2          | ?
 | kubecni                         | 0.7.2-2           | ?
 | kubectl                         | 1.11.2-2          | ?
