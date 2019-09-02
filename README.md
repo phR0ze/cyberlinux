@@ -207,18 +207,19 @@ state although the internal display continued to work until restarted.
 # cyberlinux-repo <a name="cyberlinux-repo"></a>
 
 Key:
-* **Packaged** simply means the upstream aur package was built and added to this repo
+* **AUR** simply means the upstream aur package was built and added to this repo
 * **Repackaged** indicates the upstream bits were customized and saved at `cyberlinux/aur/<package>`
 * **Custom** indicates this package was wrote from scratch and saved at `cyberlinux/aur/<package>`
 
 | Package                         | Version           | Purpose                
 | ------------------------------- | ------------------| ------------------------------------------------------------------
+| android-studio                  | 3.5.0.21-2        | AUR: Android Studio provides an excellent Android Emulator
 | asterisk                        | 15.4.1-2          | ?
 | awf-git                         | v1.3.1.r4.gcee91. | ?
 | bindip                          | 0.0.1-1           | ?
-| ccextractor                     | 0.87-1            | Packaged dependency of makemkv
-| chromium                        | 62.0.3202.94-3    | cyberlinux custom build of chromium with security enhancements
-| chromium-widevine               |                   |
+| ccextractor                     | 0.87-1            | AUR: dependency of makemkv
+| chromium                        | 76.0.3809.100-2   | cyberlinux custom build of chromium with security enhancements
+| chromium-widevine               | 1:4.10.1440.18-2  | AUR: Chromium dependency for viewing premium media content
 | cinnamon-desktop                | 3.4.2-1           | ?
 | cinnamon-screensaver            | 3.0.1-1           | ?
 | cinnamon-translations           | 3.4.2-1           | ?
@@ -293,12 +294,12 @@ Key:
 | vivaldi                         | 2.5.1525.48-1     | An advanced browser made with the power user in mind
 | vpnctl                          | 0.0.62-1          | ?
 | vundle                          | 0.10.2-2          | ?
-| winff                           | 1.5.5+f721e4d-1   | Packaged: GUI for ffmpeg
+| winff                           | 1.5.5+f721e4d-1   | AUR: GUI for ffmpeg
 | wpa\_gui                        | 2.6-1             | Custom: A Qt frontend to wpa\_supplicant
 | xcursor-numix-frost             | 0.9.9-4           | Custom: X-Cursor theme for use with numix products
-| xnviewmp                        | 0.89-1            | Packaged: An efficient multimedia viewer, browser and converter
-| yay                             | 9.2.0-1           | Packaged: Yet another yogurt. Pacman wrapper and AUR helper written in go
-| zoom                            | 2.8.252201.0616-1 | Packaged: Video Conferencing and Web Conferencing Service
+| xnviewmp                        | 0.89-1            | AUR: An efficient multimedia viewer, browser and converter
+| yay                             | 9.2.0-1           | AUR: Yet another yogurt. Pacman wrapper and AUR helper written in go
+| zoom                            | 2.8.252201.0616-1 | AUR: Video Conferencing and Web Conferencing Service
 
 # Background <a name="background"></a>
 ***cyberlinux*** is an evolution of an idea come to fruition.  The origin was the need for an
