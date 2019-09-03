@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.353
+  release: 0.2.354
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -575,7 +575,7 @@ apps:
 
   # Abiword is a lite weight word processor
   abiword:
-    - install: abiword
+    - {install: abiword-gtk2, desc: lite weight word processor type: CYBERLINUX }
     - {menu: Office, entry: Abiword, icon: /usr/share/icons/hicolor/32x32/apps/abiword.png, exec: abiword }
 
   # Android tooling

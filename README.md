@@ -213,6 +213,7 @@ Key:
 
 | Package                         | Version           | Purpose                
 | ------------------------------- | ------------------| ------------------------------------------------------------------
+| abiword-gtk2                    | 3.0.2.-3          | AUR: The non gtk2 one flickers, this one seems to be ok
 | android-studio                  | 3.5.0.21-2        | AUR: Android Studio provides an excellent Android Emulator
 | arch-install-scripts            | 22-1              | Repackaged: patched the arch-chroot to retry umount
 | asterisk                        | 15.4.1-2          | ?
