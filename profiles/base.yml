@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.349
+  release: 0.2.350
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -472,19 +472,21 @@ apps:
   # Netbook configuration
   # Lighter deployment for smaller, less powerfull mobile devices
   netbook:
+    - abiword
     - android
     - cinnamon-screensaver
     - conky
     - gimp
+    - gnumeric
     - keepass
     - pdfmod
     - synergy
     - libreoffice
+    - veracrypt
     - wpa-supplicant
     - {install: light, desc: Control laptop backlights screen and keyboard, type: CYBERLINUX }
     - {install: openvpn-update-systemd-resolved, desc: OpenVPN systemd-resolved updater, type: CYBERLINUX }
     - {install: remmina, desc: Network/Remoting - Nice remoting UI for RDP }
-    - {install: veracrypt, desc: Disk encryption with strong security based on TrueCrypt }
 
     # Toggle script for toggling radios and displays
     - config-toggle:
@@ -570,6 +572,11 @@ apps:
           - '        Modes "1920x1080"'
           - '    EndSubSection'
           - 'EndSection'
+
+  # Abiword is a lite weight word processor
+  abiword:
+    - install: abiword
+    - {menu: Office, entry: Abiword, icon: /usr/share/icons/hicolor/32x32/apps/abiword.png, exec: abiword }
 
   # Android tooling
   android:
@@ -682,6 +689,11 @@ apps:
   gimp:
     - install: gimp
     - {menu: Graphics, entry: Gimp, icon: /usr/share/icons/Paper/32x32/apps/gimp.png, exec: gimp }
+
+  # Gnumeric is a lite weight spreadsheet
+  abiword:
+    - install: gnumeric
+    - {menu: Office, entry: Gnumeric, icon: /usr/share/icons/hicolor/32x32/apps/gnumeric.png, exec: gnumeric }
 
   # Drop-down python based quake style terminal
   guake:
@@ -1129,6 +1141,10 @@ apps:
     - {menu: Settings, entry: Thunar Settings, icon: /usr/share/icons/Paper/32x32/apps/system-file-manager.png, exec: thunar-settings }
     - {menu: Settings, entry: Thunar Volman, icon: /usr/share/icons/Paper/32x32/devices/drive-removable-media.png, exec: thunar-volman-settings }
 
+  veracrypt:
+    - {install: veracrypt, desc: Disk encryption with strong security based on TrueCrypt }
+    - {menu: System, entry: Veracrypt, icon: /usr/share/pixmaps/veracrypt.xpm, exec: veracrypt }
+
   virtualbox-host:
     - {install: packer,             desc: HashiCorp's vagrant box builder, type: CYBERLINUX }
     - {install: vagrant,            desc: Build and distribute virtualized dev environments }
@@ -1384,7 +1400,7 @@ configs:
     - {menu: Multimedia, entry: OpenShot, icon: /usr/share/icons/Paper/32x32/apps/openshot.png, exec: openshot-qt }
     - {menu: Network, entry: Remmina, icon: /usr/share/icons/Paper/32x32/apps/remmina.png, exec: remmina }
     - {menu: Office, entry: Scribus, icon: /usr/share/icons/Paper/32x32/apps/scribus.png, exec: scribus }
-    - {menu: System, entry: HardInfo, icon: /usr/share/hardinfo/pixmaps/logo.png, exec: hardinfo }
+    - {menu: System, entry: HardInfo, icon: /usr/share/icons/hicolor/48x48/apps/hardinfo.png, exec: hardinfo }
   config-dconf:
     - edit: /etc/dconf/profile/user
       insert: append
