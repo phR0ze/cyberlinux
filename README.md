@@ -214,6 +214,7 @@ Key:
 | Package                         | Version           | Purpose                
 | ------------------------------- | ------------------| ------------------------------------------------------------------
 | android-studio                  | 3.5.0.21-2        | AUR: Android Studio provides an excellent Android Emulator
+| arch-install-scripts            | 22-1              | Repackaged: patched the arch-chroot to retry umount
 | asterisk                        | 15.4.1-2          | ?
 | awf-git                         | v1.3.1.r4.gcee91. | ?
 | bindip                          | 0.0.1-1           | ?
@@ -239,7 +240,7 @@ Key:
 | imagescan-plugin-networkscan    | 1.1.2-1           | Scanner driver for Epson WorkForce 7710 inject all-in-on printer
 | input-wacom-dkms                | 0.39.0-1          | ?
 | inxi                            | 3.0.10-2          | Low level cli tool for device configuration discovery
-| jd-gui                          | 1.6.3             | Standalone Java app for viewing the contents of class files in a jar
+| jd-gui                          | 1.6.3             | Repackaged: patched with dark theme and java font fix
 | kubeadm                         | 1.11.2-2          | ?
 | kubecni                         | 0.7.2-2           | ?
 | kubectl                         | 1.11.2-2          | ?
