@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.354
+  release: 0.2.355
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -1108,6 +1108,8 @@ apps:
           - '[Time]'
           - 'NTP=0.arch.pool.ntp.org 1.arch.pool.ntp.org 2.arch.pool.ntp.org 3.arch.pool.ntp.org'
           - 'FallbackNTP=0.pool.ntp.org 1.pool.ntp.org 0.fr.pool.ntp.org'
+    - config-resolved:
+      - {edit: /etc/systemd/resolved.conf, regex: '^#(DNSSEC=).*', value: '\1false'}
     - enable-systemd-services:
       - chroot: systemctl enable systemd-networkd.service
       - chroot: systemctl enable systemd-networkd-wait-online.service

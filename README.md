@@ -503,6 +503,7 @@ either system.
     * [Quad9 DNS](#quad9-dns)
     * [Cloudflare DNS](#cloudflare-dns)
     * [Google DNS](#google-dns)
+    * [DNSSEC Validation Failures](#dnssec-validation-failures)
   * [Networking DHCP](#networking-dhcp)
   * [Networking Static](#networking-static)
   * [Networking Wifi](#networking-wifi)
@@ -1308,6 +1309,29 @@ better security, however nothing is called out around privacy as they like to mo
 * ***8.8.8.8***
 * ***8.8.4.4***
 
+### DNSSEC Validation Failures <a name="dnssec-validation-failures"/></a>
+After updating to the latest bits 5.2.11 kernel for reference I started getting DNS failures:
+
+```bash
+# Check the status of systemd resolved
+$ sudo systemctl status systemd-resolved
+...
+Sep 02 20:04:08 main4 systemd-resolved[668]: DNSSEC validation failed for question io IN DS: signature-expired
+...
+```
+
+Apparently DNSSEC is known to fail and the work around is to turn it off.
+https://wiki.archlinux.org/index.php/Systemd-resolved#DNSSEC
+
+```bash
+# /etc/systemd/resolved.conf.d/dnssec.conf
+# [Resolve]
+# DNSSEC=false
+
+# Then restart the service
+$ sudo systemctl restart systemd-resolved
+```
+
 ## Networking DHCP <a name="networking-dhcp"/></a>
 ```bash
 # Create config file
@@ -2015,7 +2039,7 @@ Time and dates are controlled on Arch Linux by  `timedatectl`
 # Set Time/Date <a name="set-time-date"/></a>
 ```bash
 # timedatectl set-time "yyyy-MM-dd hh:mm:ss"
-timedatectl set-time "2019-01-17 09:12:20"
+sudo timedatectl set-time "2019-01-17 09:12:20"
 ```
 
 # Users/Groups <a name="users-groups"/></a>
@@ -2099,7 +2123,7 @@ that returns the VPN's dns then your good if not check below as I had to on Ubun
 
 The problem is that `/etc/nsswitch.conf` is not configured to use `systemd-resolved` even
 though Ubuntu Pop has systemd-resolved running.  To fix this you need to add
-`resolve` before `[NOTFOUND=return]` on the `hosts` line, no resstarts are necessary
+`resolve` before `[NOTFOUND=return]` on the `hosts` line, no restarts are necessary
 
 Example of fixed:
 ```bash
