@@ -1,11 +1,9 @@
 diff '--color=auto' -ruN a/usr/bin/arch-chroot b/usr/bin/arch-chroot
---- a/usr/bin/arch-chroot	2019-09-02 17:59:47.000000000 -0600
-+++ b/usr/bin/arch-chroot	2019-09-02 18:00:59.115083222 -0600
-@@ -98,8 +98,13 @@
- }
+--- a/usr/bin/arch-chroot	2019-09-02 20:06:47.000000000 -0600
++++ b/usr/bin/arch-chroot	2019-09-02 20:07:43.288732628 -0600
+@@ -99,7 +99,11 @@
  
  chroot_teardown() {
-+  unset CHROOT_ACTIVE_MOUNTS
    if (( ${#CHROOT_ACTIVE_MOUNTS[@]} )); then
 -    umount "${CHROOT_ACTIVE_MOUNTS[@]}"
 +    for mnt in "${CHROOT_ACTIVE_MOUNTS[@]}"; do

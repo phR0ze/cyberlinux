@@ -908,6 +908,9 @@ class Reduce
           puts("Mount deployment dependencies #{deployment_deps} for deployment '#{deployment}'".colorize(:cyan))
           Sys.exec("mount -t overlay -o lowerdir=%s,upperdir=%s,workdir=%s none %s" %
             [deployment_deps.map{|x| File.join(@deployments_work, x)} * ':', deployment_work, @tmp_dir, deployment_work])
+        else
+          puts("Bind mount deployment '#{deployment}' for arch-chroot ".colorize(:cyan))
+          Sys.exec("mount --bind %s %s" % [deployment_work, deployment_work])
         end
 
         # Install deployment specific packages via pacman
@@ -1046,6 +1049,16 @@ class Reduce
       changed |= Config.apply(all_configs || [],
         OpenStruct.new({root: deployment_work, vars: vars, configs: @profile.configs}))
       File.open(changedfile, 'w'){|f|}
+
+      # Failures in exec app changes will result in mounts being left around
+      # deployments/shell/dev/pts
+      # deployments/shell/dev/shm
+      # deployments/shell/dev
+      # deployments/shell/proc
+      # deployments/shell/run
+      # deployments/shell/sys
+      # deployments/shell/tmp
+      # deployments/shell/etc/resolv.conf
     end
 
     # Sync user files with root to have a seamless experience

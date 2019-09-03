@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.348
+  release: 0.2.349
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -1088,8 +1088,6 @@ apps:
       - {edit: /etc/systemd/logind.conf, regex: '^#(HandleHibernateKey)=.*', value: '\1=hibernate'}
       - {edit: /etc/systemd/logind.conf, regex: '^#(HandleLidSwitch)=.*', value: '\1=suspend'}
       - {edit: /etc/systemd/logind.conf, regex: '^#(HandleLidSwitchDocked)=.*', value: '\1=ignore'}
-    - config-resolved:
-      - exec: ln -sf //run/systemd/resolve/resolv.conf /etc/resolv.conf
     - config-timesyncd:
       - exec: rm -f /etc/systemd/timesyncd.conf
       - edit: /etc/systemd/timesyncd.conf
