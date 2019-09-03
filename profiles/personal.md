@@ -36,6 +36,9 @@ $ cd cyberlinux
 # Install ruby dependencies
 $ bundle install --system
 
+# Build one deployment at a time to ensure they are all working
+$ sudo ./reduce clean build isofull -d shell -p personal
+
 # Trigger full build
 $ sudo ./reduce clean build isofull -p personal
 

@@ -14,6 +14,7 @@ aur/*/*.gem
 aur/*/*.zip
 aur/*/*.sign
 aur/*/*.pkg
+aur/arch-install-scripts/arch-install-scripts
 aur/awf/awf
 aur/delve/delve
 aur/kubernetes/cni*
