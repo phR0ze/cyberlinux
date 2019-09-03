@@ -1,0 +1,52 @@
+diff '--color=auto' -ruN a/data/net.launchpad.plank.gschema.xml.in.in b/data/net.launchpad.plank.gschema.xml.in.in
+--- a/data/net.launchpad.plank.gschema.xml.in.in	2016-03-09 01:48:47.000000000 -0700
++++ b/data/net.launchpad.plank.gschema.xml.in.in	2019-09-03 08:51:23.886431535 -0600
+@@ -40,7 +40,7 @@
+ 			<_description>Possible values are "fill", "start", "end", and "center".</_description>
+ 		</key>
+ 		<key name="auto-pinning" type="b">
+-			<default>true</default>
++			<default>false</default>
+ 			<_summary>Automatically pin an application if it seems useful to do</_summary>
+ 			<_description>If true, automatically pin applications when it seems useful to do.</_description>
+ 		</key>
+@@ -61,13 +61,13 @@
+ 			<_description>Length of the delay before hiding the dock, in milliseconds.</_description>
+ 		</key>
+ 		<key name="hide-mode" enum='PlankHideType'>
+-			<default>'intelligent'</default>
++			<default>'window-dodge'</default>
+ 			<_summary>Hidemode of the dock</_summary>
+ 			<_description>Possible values are "none", "intelligent", "auto", "dodge-maximized", "window-dodge", and "dodge-active".</_description>
+ 		</key>
+ 		<key name="icon-size" type="i">
+ 			<range min="24" max="128"/>
+-			<default>48</default>
++			<default>36</default>
+ 			<_summary>Icon Size</_summary>
+ 			<_description>The size of dock items, in pixels.</_description>
+ 		</key>
+@@ -98,7 +98,7 @@
+ 			<_description>If true, only show pinned applications. Useful for running more than one dock.</_description>
+ 		</key>
+ 		<key name="position" enum='GtkPositionType'>
+-			<default>'bottom'</default>
++			<default>'top'</default>
+ 			<_summary>The position for the dock on the monitor</_summary>
+ 			<_description>Possible values are "left", "right", "top", and "bottom".</_description>
+ 		</key>
+@@ -108,12 +108,12 @@
+ 			<_description>If true, use pressure-based revealing of the dock if the input device supports it.</_description>
+ 		</key>
+ 		<key name="show-dock-item" type="b">
+-			<default>false</default>
++			<default>true</default>
+ 			<_summary>Show the item for the dock itself</_summary>
+ 			<_description>If true, show the Plank dock item.</_description>
+ 		</key>
+ 		<key name="theme" type="s">
+-			<default>'Default'</default>
++			<default>'Transparent'</default>
+ 			<_summary>The name of the dock theme for Plank to use</_summary>
+ 			<_description>Built-in values include "Default", "Matte", "Transparent", and "Gtk+".</_description>
+ 		</key>

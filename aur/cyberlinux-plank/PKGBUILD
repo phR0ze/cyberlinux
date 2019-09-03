@@ -1,5 +1,5 @@
 #MIT License
-#Copyright (c) 2018 phR0ze
+#Copyright (c) 2018-2019 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,7 @@
 #-------------------------------------------------------------------------------
 pkgname=cyberlinux-plank
 pkgver=0.11.4
-pkgrel=3
+pkgrel=4
 pkgdesc='Light weight, simple, clean launcher'
 arch=('x86_64')
 url='https://launchpad.net/plank'
@@ -32,16 +32,19 @@ license=('GPL3')
 depends=(atk bamf cairo gdk-pixbuf2 glib2 glibc gtk3 libgee libwnck3 libx11 libxfixes libxi pango)
 makedepends=('gnome-common' 'intltool' 'vala')
 source=("https://launchpad.net/plank/1.0/${pkgver}/+download/plank-${pkgver}.tar.xz"
-  cyberlinux.patch)
+  defaults.patch
+  ordering.patch)
 sha256sums=('88b5cd6a84e67395df5e7cc1869521126830be0e8a509b28ee12e2db0b8981b8'
-  'a80b9fb6812183b6239cacd4c9fd5c0931b66093aa8b8be80afe9042af513029')
+  'c6c73f8647b84107e9e1c02958e913cf2f7b8163ac30dfdc5e48396dfbe47fb2'
+  '2a7fc088fe641a7990b88429fba69b62e02e685375793f8533e755a786e3203a')
 
 prepare()
 {
   cd $srcdir/plank-$pkgver
-  msg "Patching $pkgname..."
 
-  patch -Np1 -i $srcdir/cyberlinux.patch
+  msg "Patching $pkgname..."
+  patch -Np1 -i $srcdir/defaults.patch
+  patch -Np1 -i $srcdir/ordering.patch
 }
 
 build()

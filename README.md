@@ -227,7 +227,7 @@ Key:
 | cri-tools                       | 1.11.1-2          | ?
 | cyberlinux-grub                 | 0.0.3-1           | ?
 | cyberlinux-keyring              | 0.0.170-2         | ?
-| cyberlinux-plank                | 0.11.4-3          | ?
+| cyberlinux-plank                | 0.11.4-3          | Repackaged: modified the source with better defaults 
 | cyberlinux-screenfetch          | 3.8.0-2           | ?
 | cyberlinux-vim-plugins          | 0.0.2-1           | ?
 | epson-inkjet-printer-escpr2     | 1.0.26-1          | Driver for the Epson WorkForce 7710 inkjet all-in-one printer
@@ -484,6 +484,8 @@ either system.
   * [Distro Fonts](#distro-fonts)
   * [Fontconfig](#fongconfig)
   * [Manually Install Fonts](#manually-install-fonts)
+* [Launchers](#launchers)
+  * [Plank](#plank)
 * [Media](#media)
   * [Convert Images](#convert-images)
     * [Convert HEIC to JPEG](#convert-heic-to-jpeg)
@@ -1056,6 +1058,14 @@ fonts that you may want to individually use.
 
 ## Conky Fonts <a name="conky-fonts"/></a>
 Conky will need to be restarted to pick up new fonts
+
+# Launchers <a name="launchers"/></a>
+## Plank <a name="plank"/></a>
+Plank can be configured via the `dconf-editor`
+
+1. Launch `dconf-editor`
+2. Navigate to `net/launchpad/plank/docks/dock1`
+3. Flip switches as desired
 
 # Media <a name="media"/></a>
 
