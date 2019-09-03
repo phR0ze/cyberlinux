@@ -225,7 +225,7 @@ Key:
 | cinnamon-screensaver            | 3.0.1-1           | ?
 | cinnamon-translations           | 3.4.2-1           | ?
 | cri-tools                       | 1.11.1-2          | ?
-| cyberlinux-grub                 | 0.0.3-1           | ?
+| cyberlinux-grub                 | 0.0.3-1           | Custom: provides cyberlinux splash screen and boot files
 | cyberlinux-keyring              | 0.0.170-2         | ?
 | cyberlinux-plank                | 0.11.4-3          | Repackaged: modified the source with better defaults 
 | cyberlinux-screenfetch          | 3.8.0-2           | ?
@@ -480,6 +480,8 @@ either system.
   * [Run container](#run-container)
   * [Upload container](#upload-container)
   * [Build cyberliux container](#build-cyberlinux-container)
+* [Grub](#grub)
+  * [Boot Kernel](#boot-kernel)
 * [Fonts](#fonts)
   * [Distro Fonts](#distro-fonts)
   * [Fontconfig](#fongconfig)
@@ -801,8 +803,8 @@ $ sudo udevadm trigger /dev/input/event1
 Set this in your `~/.xprofile`
 ```bash
 # First number is after how many ms the key will start repeating
-# Secon number is how many repititions per secon, so after 190ms will output 40 a sec
-xset r rate 190 40
+# Second number is how many repititions per second, so after 190ms will output 40 a sec
+xset r rate 200 40
 ```
 
 ## Printer <a name="printer"/></a>
@@ -965,6 +967,55 @@ sudo ./reduce deploy net -p containers
 
 # Run net container with docker
 docker run --rm -it net-0.2.197:latest bash
+```
+
+# Grub <a name="Grub"/></a>
+I was using syslinux as my go to bootloader as it is so simple and liteweight, but found that grub
+handled install splash screens and menus better and the transition from gfx to xorg better.
+
+## Boot Kernel <a name="boot-kernel"/></a>
+When BIOS is used the boot grub config ends up in `/boot/grub/grub.cfg` where as on an EFI system the
+grub boot files are stored on the ESP mount point.
+
+You can tell which your system is simply by looking at the partitions on your disk:
+```bash
+# As we see below the 'EFI System' is the EFI partition that contains the bootloader and
+# bootloader configuration.
+$ sudo fdisk -l
+...
+Device         Start      End  Sectors  Size Type
+/dev/mmcblk0p1  2048    22527    20480   10M EFI System
+/dev/mmcblk0p2 22528 30777310 30754783 14.7G Linux filesystem
+```
+
+### UEFI Boot <a name="uefi-boot"/></a>
+System like the Samsung Chromebook 3 boot in UEFI mode which reads the bootloader from the boot
+partition EFI System.
+
+```bash
+# Mount the ESP for editing
+$ sudo mount /dev/mmcblk0p1 /mnt/tmp
+
+# Edit the grub file to use the new kernel
+cat /mnt/tmp/grub/grub.cfg
+default=0
+timeout=0
+
+set gfxmode="1366x768,auto"
+loadfont unicode.pf2
+terminal_input console
+terminal_output gfxterm
+
+menuentry "cyberlinux" {
+    set gfxpayload=keep
+    search --no-floppy --set=root --label cyberlinux
+    linux /boot/vmlinuz-linux root=LABEL=cyberlinux rw rd.systemd.show_status=auto rd.udev.log_priority=3 ipv6.disable=1
+    initrd /boot/intel-ucode.img /boot/initramfs-linux.img
+}
+
+# Save the desired changes and unmount and reboot
+$ sudo umount /mnt/tmp
+$ sudo reboot
 ```
 
 # Fonts <a name="fonts"/></a>
@@ -1854,6 +1905,8 @@ $ systemctl status
 # List out all running units and their state
 $ systemctl
 ```
+
+## Boot Kernel <a name="boot-kernel"/></a>
 
 ## Boot Performance <a name="boot-performance"/></a>
 https://wiki.archlinux.org/index.php/Improving_performance/Boot_process
