@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.350
+  release: 0.2.351
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -691,7 +691,7 @@ apps:
     - {menu: Graphics, entry: Gimp, icon: /usr/share/icons/Paper/32x32/apps/gimp.png, exec: gimp }
 
   # Gnumeric is a lite weight spreadsheet
-  abiword:
+  gnumeric:
     - install: gnumeric
     - {menu: Office, entry: Gnumeric, icon: /usr/share/icons/hicolor/32x32/apps/gnumeric.png, exec: gnumeric }
 
