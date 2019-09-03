@@ -1,0 +1,55 @@
+#MIT License
+#Copyright (c) 2017-2019 phR0ze
+#
+#Permission is hereby granted, free of charge, to any person obtaining a copy
+#of this software and associated documentation files (the "Software"), to deal
+#in the Software without restriction, including without limitation the rights
+#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#copies of the Software, and to permit persons to whom the Software is
+#furnished to do so, subject to the following conditions:
+#
+#The above copyright notice and this permission notice shall be included in all
+#copies or substantial portions of the Software.
+#
+#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+#SOFTWARE.
+
+#-------------------------------------------------------------------------------
+# Maintainer: phR0ze
+#-------------------------------------------------------------------------------
+pkgname=ttf-google-fonts
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Google Fonts project."
+arch=('any')
+url='https://www.typewolf.com/google-fonts'
+license=('apache' 'custom:OFL')
+depends=('fontconfig' 'xorg-fonts-encodings' 'xorg-mkfontdir' 'xorg-mkfontscale')
+source=(https://github.com/phR0ze/fonts/archive/${pkgver}.tar.gz)
+sha256sums=('19b164a555df4a0adbe1b033ea9fe5efbba09dd8dd9ff60b094c6788df04bb02')
+
+
+package() {
+#	_fonts="${provides[@]//-/}" # Remove hyphens from each element in array.
+#	_fonts="${_fonts[@]//ttf/}" # Remove 'ttf' from each element in array.
+#	_regex="${_fonts[*]// /|}"  # Replace spaces with pipe symbols.
+#
+#	install -dm755 "${pkgdir}/usr/share/fonts/TTF"
+#	install -dm755 "${pkgdir}/usr/share/licenses/${pkgname}"
+#
+#	cd "${srcdir}/fonts-${_commit}"
+#
+#	install -Dm644 ofl/raleway/OFL.txt "${pkgdir}/usr/share/licenses/${pkgname}"
+#
+#	find . \
+#		-type f \
+#		-regextype egrep \
+#		-regex ".*(${_regex}).+\.ttf" \
+#		-execdir install -Dm644 '{}' "${pkgdir}/usr/share/fonts/TTF" \;
+}
+
