@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.360
+  release: 0.2.361
   distro: cyberlinux
   language: en_US
   character_set: UTF-8

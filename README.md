@@ -290,7 +290,7 @@ Key:
 | ttf-inconsolata-g               | 20090213-3        | AUR: excellent mono space coding font
 | ttf-ms-fonts                    | 2.0-10            | AUR: old venerable Microsoft fonts
 | ttf-nerd-fonts-symbols          | 2.0.0-2           | AUR: font symbols useful for powerine etc...
-| vdhcoapp-bin                    | 1.2.4-2           | ?
+| vdhcoapp-bin                    | 1.3.0-2           | Repackaged: Video Download Helper's companion app, simply bumped the version
 | virtualbox-ext-oracle           | 6.0.4-1           | AUR: extensions for virtualbox
 | visual-studio-code-bin          | 1.34.0-2          | AUR: excellent development IDE
 | vivaldi                         | 2.5.1525.48-1     | An advanced browser made with the power user in mind
