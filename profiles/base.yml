@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.358
+  release: 0.2.359
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -426,7 +426,8 @@ apps:
       - {install: ttf-bitstream-vera, desc: Bitstream vera fonts }
       - {install: ttf-dejavu,       desc: Bitstream Vera Fonts w/more characters }
       - {install: ttf-droid,        desc: Google Android general purpose fonts }
-      - {install: ttf-google-fonts-typewolf, desc: Typewolf's 40 best fonts from the Google Fonts project, type: CYBERLINUX }
+      - {install: ttf-google-fonts-fun, desc: Handful of fun fonts from the Google Fonts project, type: CYBERLINUX }
+      - {install: ttf-google-fonts-work, desc: 40 best fonts from the Google Fonts project, type: CYBERLINUX }
       - {install: ttf-hack,         desc: Hand groomed/optically balanced typeface based on Bitstream Vera Mono }
       - {install: ttf-inconsolata-g, desc: Best monospace terminal font, type: CYBERLINUX }
       - {install: ttf-indic-otf,    desc: Indic Opentype Fonts collection }
