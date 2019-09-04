@@ -21,8 +21,11 @@
 
 #-------------------------------------------------------------------------------
 # Maintainer: phR0ze
+# Leveraged originally from the ttf-google-fonts-typewolf package created and
+# maintained by Antergos Developers <dev@antergos.com>
 #-------------------------------------------------------------------------------
-pkgname=ttf-google-fonts
+pkgbase=ttf-google-fonts
+pkgname=('ttf-google-fonts-work' 'ttf-google-fonts-fun')
 pkgver=1.0.0
 pkgrel=1
 pkgdesc="Google Fonts project."
@@ -32,24 +35,107 @@ license=('apache' 'custom:OFL')
 depends=('fontconfig' 'xorg-fonts-encodings' 'xorg-mkfontdir' 'xorg-mkfontscale')
 source=(https://github.com/phR0ze/fonts/archive/${pkgver}.tar.gz)
 sha256sums=('19b164a555df4a0adbe1b033ea9fe5efbba09dd8dd9ff60b094c6788df04bb02')
+conflicts=(
+	'adobe-source-sans-pro-fonts'
+	'adobe-source-serif-pro-fonts'
+	'ttf-adobe-fonts'
+	'ttf-google-fonts-git'
+	'ttf-google-fonts-typewolf'
+	'ttf-google-fonts-opinionated-git'
+)
+_workfonts=(
+	'adobe-source-sans-pro-fonts'   #
+	'adobe-source-serif-pro-fonts'  #
+	'ttf-alegreya'                  #
+	'ttf-alegreya-sans'             #
+	'ttf-anonymous-pro'             #
+	'ttf-archivo-narrow'            #
+	'ttf-arvo'                      #
+	'ttf-biorhyme'                  #
+	'ttf-bitter'                    #
+	'ttf-cabin'                     #
+	'ttf-cardo'                     #
+	'ttf-chivo'                     #
+	'ttf-cormorant'                 #
+	'ttf-crimson-text'              #
+	'ttf-domine'                    #
+	'ttf-eczar'                     #
+	'ttf-fira-sans'                 #
+	'ttf-gentium-basic'             #
+	'ttf-inconsolata'               #
+	'ttf-cormorant'                 #
+	'ttf-karla'                     #
+	'ttf-lato'                      #
+	'ttf-libre-baskerville'         #
+	'ttf-libre-franklin'            #
+	'ttf-lora'                      #
+	'ttf-merriweather'              #
+	'ttf-montserrat'                #
+	'ttf-neuton'                    #
+	'ttf-old-standard'              #
+	'ttf-opensans'                  #
+	'ttf-play-fair-display'         #
+	'ttf-poppins'                   #
+	'ttf-pt-sans'                   #
+	'ttf-pt-serif'                  #
+	'ttf-rajdhani'                  #
+	'ttf-raleway'                   #
+	'ttf-roboto'                    #
+	'ttf-roboto-slab'               #
+	'ttf-rubik'                     #
+	'ttf-source-sans-pro'           #
+	'ttf-source-serif-pro'          #
+	'ttf-spacemono'                 #
+	'ttf-spectral'                  #
+	'ttf-worksans'                  #
+)
+_funfonts=(
+	'ttf-caveat'                    # sans serif fun
+	'ttf-chilanka'                  # sans serif fun
+	'ttf-courgette'                 # sans serif fun
+	'ttf-dancing'                   # script
+	'ttf-fontdiner'                 # serif fun
+	'ttf-indiflower'                # sans serif fun
+	'ttf-kalam'                     # sans serif fun
+	'ttf-permanentmarker'           # sans serif fun
+	'ttf-shadows'                   # sans serif fun
+)
 
+package_ttf-google-fonts-fun() {
+	_funfonts="${_funfonts[@]//-/}" # Remove hyphens from each element in array.
+	_funfonts="${_funfonts[@]//ttf/}" # Remove 'ttf' from each element in array.
+	_funregex="${_funfonts[*]// /|}"  # Replace spaces with pipe symbols.
 
-package() {
-#	_fonts="${provides[@]//-/}" # Remove hyphens from each element in array.
-#	_fonts="${_fonts[@]//ttf/}" # Remove 'ttf' from each element in array.
-#	_regex="${_fonts[*]// /|}"  # Replace spaces with pipe symbols.
-#
-#	install -dm755 "${pkgdir}/usr/share/fonts/TTF"
-#	install -dm755 "${pkgdir}/usr/share/licenses/${pkgname}"
-#
-#	cd "${srcdir}/fonts-${_commit}"
-#
-#	install -Dm644 ofl/raleway/OFL.txt "${pkgdir}/usr/share/licenses/${pkgname}"
-#
-#	find . \
-#		-type f \
-#		-regextype egrep \
-#		-regex ".*(${_regex}).+\.ttf" \
-#		-execdir install -Dm644 '{}' "${pkgdir}/usr/share/fonts/TTF" \;
+	install -dm755 "${pkgdir}/usr/share/fonts/TTF"
+	install -dm755 "${pkgdir}/usr/share/licenses/${pkgname}"
+
+	cd "${srcdir}/fonts-${pkgver}"
+
+	install -Dm644 ofl/raleway/OFL.txt "${pkgdir}/usr/share/licenses/${pkgname}"
+
+	find . \
+		-type f \
+		-regextype egrep \
+		-regex ".*(${_funregex}).+\.ttf" \
+		-execdir install -Dm644 '{}' "${pkgdir}/usr/share/fonts/TTF" \;
+}
+
+package_ttf-google-fonts-work() {
+	_workfonts="${_workfonts[@]//-/}" # Remove hyphens from each element in array.
+	_workfonts="${_workfonts[@]//ttf/}" # Remove 'ttf' from each element in array.
+	_workregex="${_workfonts[*]// /|}"  # Replace spaces with pipe symbols.
+
+	install -dm755 "${pkgdir}/usr/share/fonts/TTF"
+	install -dm755 "${pkgdir}/usr/share/licenses/${pkgname}"
+
+	cd "${srcdir}/fonts-${pkgver}"
+
+	install -Dm644 ofl/raleway/OFL.txt "${pkgdir}/usr/share/licenses/${pkgname}"
+
+	find . \
+		-type f \
+		-regextype egrep \
+		-regex ".*(${_workregex}).+\.ttf" \
+		-execdir install -Dm644 '{}' "${pkgdir}/usr/share/fonts/TTF" \;
 }
 
