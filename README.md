@@ -246,6 +246,8 @@ Key:
 | kubectl                         | 1.11.2-2          | ?
 | kubelet                         | 1.11.2-2          | ?
 | lib32-freetype2                 | 2.8-2             | ?
+| lib32-nvidia-340xx-utils        | 340.107-3         | AUR: Arch Linux dropped this from the main repos
+| lib32-opencl-nvidia-340xx       | 340.107-3         | AUR: Arch Linux dropped this from the main repos
 | libblockdev                     | 2.21-1            | Repackaged: Recompiled ABS with `--without-lvm` to remove the lvm2 dependency
 | light                           | 1.1.2-1           | AUR: file size ui tool
 | linux-celes                     | 4.15.5-1          | ?
@@ -254,6 +256,9 @@ Key:
 | makemkv                         | 1.14.4-1          | Repackaged version making ccextractor a default dependency
 | mkinitcpio-vt-colors            | 1.0.0-1           | ?
 | numix-frost-themes              | 3.6.6-1           | ?
+| nvidia-340xx                    | 340.107-90        | AUR: Arch Linux dropped this from the main repos
+| nvidia-340xx-dkms               | 340.107-90        | AUR: Arch Linux dropped this from the main repos
+| nvidia-340xx-utils              | 340.107-3         | AUR: Arch Linux dropped this from the main repos
 | openvpn-update-systemd-resolved | 1.2.6-1           | ?
 | paper-icon-theme                | 1.4.0-1           | ?
 | php                             | 7.1.12-2          | ?
@@ -530,7 +535,9 @@ either system.
   * [Teamviewer](#teamviewer)
   * [Zoom](#zoom)
 * [Rescue](#resuce)
-  * [Switch to TTY](#switch-to-tty)
+  * [Unable to Login](#unable-to-login)
+    * [Switch to TTY](#switch-to-tty)
+    * [Use nmap to Find IP](#use-nmap-to-find-ip)
   * [Boot from Live USB](#boot-from-live-usb)
   * [Black Screen](#black-screen)
   * [Check Logs for Errors](#check-logs-for-errors)
@@ -910,6 +917,7 @@ https://wiki.archlinux.org/index.php/PulseAudio/Troubleshooting#Simultaneous_out
 2. Check `Add virtual output device for simultaneous output on all local sound cards`
 
 # Display Manager <a name="display-manager"/></a>
+
 ## LXDM <a name="lxdm"/></a>
 [LXDM](https://wiki.archlinux.org/index.php/LXDM) is a lightweight display manager for the LXDE
 desktop environment. I'm using it in cyberlinux because it lightweight, although I've been eying
@@ -1724,9 +1732,38 @@ sudo pacman -Sy zoom
 
 # Rescue <a name="rescue"/></a>
 
-## Switch to TTY <a name="switch-to-tty"/></a>
-`ctrl+alt+F2` should switch to console  
-`ctrl+alt+F1` should switch back to UI
+## Unable to Login <a name="unable-to-login"/></a>
+
+Try running openbox directly. This will eliminate possibilities.
+1. Use one of the methods below to get shell access.
+2. Disable LXDM `sudo systemctl disable lxdm`
+3. Restart your system `sudo reboot`
+4. Install xinit `sudo pacman -S xorg-xinit`
+5. Launch `startx openbox-session`
+
+Try resetting your xorg settings:
+1. Remove settings `sudo rm -rf /etc/X11/xorg.conf.d/*`
+2. Generate new `sudo Xorg -configure`
+3. Install `sudo mv /root/xorg.conf.new /etc/X11/xorg.conf`
+
+### Switch to TTY <a name="switch-to-tty"/></a>
+If you are unable to login after an upgrade most likely something in your environment settings to do
+with your Display Manager e.g. LXDM or your user scripts e.g. `.bashrc` may be to blame. I've had my
+powerline initialization in my login scripts fail from time to time.
+
+Bare Metal:
+* `ctrl+alt+F2` should switch to console  
+* `ctrl+alt+F1` should switch back to UI
+
+VirtualBox:
+* `right ctrl+F2` should switch to console  
+* `right ctrl+F1` should switch back to UI
+
+### Use nmap to Find IP <a name="use-nmap-to-find-ip"/></a>
+If you're unable to login via the Display Manager, chances are that you can still login via ssh. You
+can use nmap to lookup the IP of the machine then ssh in.
+
+TBD
 
 ## Boot from Live USB <a name="boot-from-live-usb"/></a>
 ```bash
@@ -1769,8 +1806,20 @@ sudo grub-mkconfig -o /boot/grub/grub.cfg
 
 ## Check Logs for Errors <a name="check-logs-for-errors"/></a>
 ```bash
-# Xorg logs
+# Check LXDM unit logs
+sudo systemctl status lxdm
+
+# LXDM logs
+sudo vim /var/log/lxdm.log
+
+# Xorg logs - often telling when unable to login or black screens
+# Search for EE e.g.
+# [     3.932] (EE) Failed to load module "vboxvideo" (module does not exist, 0)
+# [     3.935] (EE) Failed to load module "fbdev" (module does not exist, 0)
 vim /var/log/Xorg.0.log
+
+# Follow journal logs
+journalctl -f
 
 # Journal boot logs
 journalctl -b
