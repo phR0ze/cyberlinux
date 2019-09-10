@@ -248,7 +248,7 @@ Key:
 | lib32-freetype2                 | 2.8-2             | ?
 | lib32-nvidia-340xx-utils        | 340.107-3         | AUR: Arch Linux dropped this from the main repos
 | lib32-opencl-nvidia-340xx       | 340.107-3         | AUR: Arch Linux dropped this from the main repos
-| libblockdev                     | 2.21-1            | Repackaged: Recompiled ABS with `--without-lvm` to remove the lvm2 dependency
+| libblockdev                     | 2.21-3            | Repackaged: recompiled ABS with `--without-lvm` to remove the lvm2 dependency
 | light                           | 1.1.2-1           | AUR: file size ui tool
 | linux-celes                     | 4.15.5-1          | ?
 | linux-celes-docs                | 4.15.5-1          | ?
@@ -273,10 +273,7 @@ Key:
 | ruby-byebug                     | 11.0.0-1          | ?
 | ruby-coderay                    | 1.1.2-3           | ?
 | ruby-filesize                   | 0.2.0-3           | ?
-| ruby-httparty                   | 0.15.6-1          | ?
-| ruby-json                       | 2.1.0-1           | ?
 | ruby-method\_source             | 0.9.2-3           | ?
-| ruby-multi\_xml                 | 0.6.0-1           | ?
 | ruby-net-scp                    | 1.2.1-3           | ?
 | ruby-net-sftp                   | 2.1.2-2           | ?
 | ruby-net-sftp                   | 2.1.2-3           | ?
@@ -305,7 +302,6 @@ Key:
 | wpa\_gui                        | 2.6-1             | Custom: A Qt frontend to wpa\_supplicant
 | xcursor-numix-frost             | 0.9.9-4           | Custom: X-Cursor theme for use with numix products
 | xnviewmp                        | 0.89-1            | AUR: An efficient multimedia viewer, browser and converter
-| yay                             | 9.2.0-1           | AUR: Yet another yogurt. Pacman wrapper and AUR helper written in go
 | zoom                            | 2.8.252201.0616-1 | AUR: Video Conferencing and Web Conferencing Service
 
 # Background <a name="background"></a>
@@ -917,6 +913,12 @@ https://wiki.archlinux.org/index.php/PulseAudio/Troubleshooting#Simultaneous_out
 2. Check `Add virtual output device for simultaneous output on all local sound cards`
 
 # Display Manager <a name="display-manager"/></a>
+https://wiki.archlinux.org/index.php/Display_manager
+
+A display manager manager is typically a graphical user interface that is displayed at the end of the
+boot process in place of the default shell. Cyberlinux is uses systemd and symlinks `lxdm` to the
+`display-manager.service` using `sudo systemctl enable lxdm`. LXDM works in conjunction with the
+systemd service `systemd-logind` managed with `loginctl`.
 
 ## LXDM <a name="lxdm"/></a>
 [LXDM](https://wiki.archlinux.org/index.php/LXDM) is a lightweight display manager for the LXDE
@@ -1734,14 +1736,21 @@ sudo pacman -Sy zoom
 
 ## Unable to Login <a name="unable-to-login"/></a>
 
-Try running openbox directly. This will eliminate possibilities.
+### Try logging in while tailing the logs
+1. Switch to TTY and get the ip of the system then loging and tail the logs
+   ```bash
+   $ journalctl -f
+   ```
+2. Switch back to LXDM and attempt to loging and watch the logs
+
+### Try running openbox directly. This will eliminate possibilities.
 1. Use one of the methods below to get shell access.
 2. Disable LXDM `sudo systemctl disable lxdm`
 3. Restart your system `sudo reboot`
 4. Install xinit `sudo pacman -S xorg-xinit`
 5. Launch `startx openbox-session`
 
-Try resetting your xorg settings:
+### Try resetting your xorg settings:
 1. Remove settings `sudo rm -rf /etc/X11/xorg.conf.d/*`
 2. Generate new `sudo Xorg -configure`
 3. Install `sudo mv /root/xorg.conf.new /etc/X11/xorg.conf`
@@ -2056,8 +2065,14 @@ If you're not using the lvm2 service, which has never seemed a useful feature, t
 will clean up your boot slightly especially since it seems to be trying to start and failing for me.
 Unfortunately due to actual useful tools depending on it i.e. `libblockdev` which in turn is
 depended upon by `gvfs` which I use, it can't be simply removed. Unless I rebuilt `libblockdev` with
-the `--without-lvm` flag which I didn't and make it available in the `cyberlinux-repo`.
+the `--without-lvm` flag which I did and made available in the `cyberlinux-repo`.
 
+Remove lvm2 requires a rebuild of `libblockdev`
+```bash
+$ 
+```
+
+Disable
 ```bash
 # List out all failed units
 $ systemctl --failed

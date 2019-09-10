@@ -1,0 +1,55 @@
+#MIT License
+#Copyright (c) 2017-2019 phR0ze
+#
+#Permission is hereby granted, free of charge, to any person obtaining a copy
+#of this software and associated documentation files (the "Software"), to deal
+#in the Software without restriction, including without limitation the rights
+#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#copies of the Software, and to permit persons to whom the Software is
+#furnished to do so, subject to the following conditions:
+#
+#The above copyright notice and this permission notice shall be included in all
+#copies or substantial portions of the Software.
+#
+#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+#SOFTWARE.
+
+#-------------------------------------------------------------------------------
+# Maintainer: phR0ze
+#
+# Dropped requirement/support for lvm2
+#-------------------------------------------------------------------------------
+pkgname=libblockdev
+pkgver=2.22
+pkgrel=3
+pkgdesc="A library for manipulating block devices"
+arch=('x86_64')
+url="https://github.com/rhinstaller/libblockdev"
+license=('LGPL')
+depends=('btrfs-progs' 'dosfstools' 'dmraid' 'gptfdisk' 'libbytesize' 'mdadm' 'ndctl'
+         'parted' 'volume_key' 'xfsprogs' 'kmod' 'libyaml')
+makedepends=('autoconf-archive' 'gobject-introspection' 'systemd' 'python')
+source=("$pkgname-$pkgver.tar.gz::https://github.com/rhinstaller/libblockdev/archive/$pkgver-1.tar.gz")
+sha256sums=('9ffe1526aec93994978c1b1b93a90e4ed762fed1819e907bae4ed14c859882fe')
+
+build() {
+  cd "$srcdir"/$pkgname-$pkgver-1
+  ./autogen.sh
+  ./configure --prefix=/usr --sysconfdir=/etc --without-lvm_dbus --without-lvm
+  make
+}
+
+check() {
+  cd "$srcdir"/$pkgname-$pkgver-1
+  make check
+}
+
+package() {
+  cd "$srcdir"/$pkgname-$pkgver-1
+  make DESTDIR="$pkgdir" install
+}

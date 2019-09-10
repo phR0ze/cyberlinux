@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.362
+  release: 0.2.363
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -331,7 +331,7 @@ apps:
       - {install: ruby,             desc: Ruby lang quick and easy programming }
       - {install: strace,           desc: A diagnostic, debugging and instructional userspace tracer }
       - {install: texinfo,          desc: Documentation for online information, group: [base-devel]}
-      - {install: yay,              desc: Pacman wrapper and AUR helper written in go, type: CYBERLINUX }
+      - {install: yay,              desc: Pacman wrapper and AUR helper written in go, type: BLACKARCH }
       - {install: yq,               desc: Command-line YAML processor - jq wrapper for YAML documents }
     - ruby-gems:
       - {install: ruby-amatch,      desc: Fuzzy string matching, depof: watchman, type: CYBERLINUX }
@@ -341,9 +341,9 @@ apps:
       - {install: ruby-net-scp,     desc: Pure Ruby SCP client protocol, depof: reduce, type: CYBERLINUX }
       - {install: ruby-net-sftp,    desc: Pure Ruby SFTP client protocol, depof: reduce, type: CYBERLINUX }
       - {install: ruby-net-ssh,     desc: Pure Ruby SSH2 client protocol, depof: reduce, type: CYBERLINUX }
-      - {install: ruby-nokogiri,    desc: HTML parser, depof: chromium build, type: CYBERLINUX }
+      - {install: ruby-nokogiri,    desc: HTML parser, depof: chromium build, type: BLACKARCH }
       - {install: ruby-nub,         desc: Collection of useful Ruby utils, depof: vpnctl, type: CYBERLINUX }
-      - {install: ruby-mechanize,   desc: Automate interation with websites, depof: chromium build, type: CYBERLINUX }
+      - {install: ruby-mechanize,   desc: Automate interation with websites, depof: chromium build, type: BLACKARCH }
       - {install: ruby-pry,         desc: Ruby debugger, type: CYBERLINUX }
       - {install: ruby-rest-client, desc: Simple HTTP and REST client, depof: reduce, type: CYBERLINUX }
     - config-makepkg:
