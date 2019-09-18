@@ -494,6 +494,10 @@ either system.
   * [Convert Images](#convert-images)
     * [Convert HEIC to JPEG](#convert-heic-to-jpeg)
   * [Screen Recorder](#screen-recorder)
+* [Mount](#mount)
+  * [Mount Busy](#mount-busy)
+    * [fuser](#fuser)
+  * [Add Automount using FSTAB](#add-automount-using-fstab)
 * [Network](#network)
   * [Bind to NIC](#bind-to-nic)
   * [Configure Multiple IPs](#configure-multiple-ips)
@@ -541,7 +545,6 @@ either system.
   * [Check Logs for Errors](#check-logs-for-errors)
 * [Storage](#storage)
   * [Add Drive](#add-drive)
-    * [Add Automount using FSTAB](#add-automount-using-fstab)
   * [Clone Drive](#clone-drive)
   * [Shred Drive](#shred-drive)
   * [Wipe Drive](#wipe-drive)
@@ -1162,6 +1165,56 @@ The two best are ***SimpleScreenRecorder*** and ***RecordMyDesktop***
 10. Choose ***Preset*** as ***faster***
 11. Click ***Continue***
 12. Click ***Start Recording***
+
+# Mount <a name="mount"/></a>
+
+## Mount Busy <a name="mount-busy"/></a>
+How do you deal with a mount point that is busy e.g.
+`umount: cyberlinux/temp/work/deployments/shell/dev: target is busy.`
+
+### fuser <a name="fuser"/></a>
+`fuser` provided by the `psmisc` package is a command line utility for identifying processes using
+resources.
+
+1. Check that you have a valid local user session within X:
+   ```bash
+   # Look for Remote=no and Active=yes
+   $ loginctl show-session $XDG_SESSION_ID
+   ...
+   Remote=no
+   ...
+   Active=yes
+   ...
+   ```
+2. 
+
+## Add Automount using FSTAB <a name="add-automount-using-fstab"/></a>
+https://www.freedesktop.org/software/systemd/man/systemd.mount.html
+
+According to systemd documentation `/etc/fstab` entries will be automatically converted to systemd unit
+files and is the preferred approach rather than manually creating individual mount unit files.
+
+```bash
+# Make mount point directory
+$ sudo mkdir /mnt/storage
+
+# Identify your drive
+$ lsblk
+
+# Find UUID of drive
+$ sudo bash -c 'blkid >> /etc/fstab'
+
+# Edit /etc/fstab
+# Remove boot device from the list
+# Use: UUID=ba6619b0-c3a6-493e-92f0-14bf313d15a3 /mnt/storage1 ext4 defaults,noatime,nodiratime 0 0
+$ sudo vim /etc/fstab
+
+# Manually mount
+$ sudo mount -a
+
+# Set ownership if needed
+$ sudo chown -R phR0ze: /mnt/storage1 /mnt/storage2
+```
 
 # Network <a name="network"/></a>
 https://wiki.archlinux.org/index.php/Systemd-networkd#Basic_usage
@@ -1872,33 +1925,7 @@ $ sudo mkfs.ext4 /dev/sdb1
 $ sudo tune2fs -m 0 /dev/sdb1
 ```
 
-### Add Automount using FSTAB <a name="add-automount-using-fstab"/></a>
-https://www.freedesktop.org/software/systemd/man/systemd.mount.html
-
-According to systemd documentation `/etc/fstab` entries will be automatically converted to systemd unit
-files and is the preferred approach rather than manually creating individual mount unit files.
-
-```bash
-# Make mount point directory
-$ sudo mkdir /mnt/storage
-
-# Identify your drive
-$ lsblk
-
-# Find UUID of drive
-$ sudo bash -c 'blkid >> /etc/fstab'
-
-# Edit /etc/fstab
-# Remove boot device from the list
-# Use: UUID=ba6619b0-c3a6-493e-92f0-14bf313d15a3 /mnt/storage1 ext4 defaults,noatime,nodiratime 0 0
-$ sudo vim /etc/fstab
-
-# Manually mount
-$ sudo mount -a
-
-# Set ownership if needed
-$ sudo chown -R phR0ze: /mnt/storage1 /mnt/storage2
-```
+Most likely you'll want to also automount it [Add Automount using FSTAB](#add-automount-using-fstab)
 
 ## Clone Drive <a name="clone-drive"/></a>
 ```bash
