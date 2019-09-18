@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.364
+  release: 0.2.365
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -843,6 +843,7 @@ apps:
     - xorg
     - menu-structure
     - system:
+      - install: cyberlinux-config    # cyberlinux system configuration e.g. startlxde
       - install: lxinput              # Keyboard and mouse config for LXDE
       - install: lxrandr              # Monitor configuration tool for LXDE
       - install: lxsession            # Enable .desktop files in ~/.config/autostart and /etc/xdg/autostart
