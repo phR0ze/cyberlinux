@@ -215,22 +215,23 @@ Key:
 | ------------------------------- | ------------------| ------------------------------------------------------------------
 | abiword-gtk2                    | 3.0.2.-3          | AUR: The non gtk2 one flickers, this one seems to be ok
 | android-studio                  | 3.5.0.21-2        | AUR: Android Studio provides an excellent Android Emulator
-| arch-install-scripts            | 22-1              | Repackaged: patched the arch-chroot to retry umount
+| arch-install-scripts            | 22-1              | Repackaged: patched the arch-chroot to retry umount for reduce
 | asterisk                        | 15.4.1-2          | Custom: asterisk telephony engine
 | awf-git                         | v1.3.1.r4.gcee91. | ?
 | bindip                          | 0.0.1-1           | ?
 | ccextractor                     | 0.87-1            | AUR: dependency of makemkv
 | chromium                        | 76.0.3809.100-2   | Custom: cyberlinux build of chromium with security enhancements
 | chromium-widevine               | 1:4.10.1440.18-2  | AUR: Chromium dependency for viewing premium media content
-| cinnamon-desktop                | 3.4.2-1           | ?
-| cinnamon-screensaver            | 3.0.1-1           | ?
-| cinnamon-translations           | 3.4.2-1           | ?
+| cinnamon-desktop                | 3.4.2-1           | Repackaged: support file for lockscreen
+| cinnamon-screensaver            | 3.0.1-1           | Repackaged: keeping the old lockscreen behavior
+| cinnamon-translations           | 3.4.2-1           | Repackaged: support file for lockscreen
 | cri-tools                       | 1.11.1-2          | ?
+| cyberlinux-config               | 0.0.1-1           | Custom: provides cyberlinux configuration files
 | cyberlinux-grub                 | 0.0.3-1           | Custom: provides cyberlinux splash screen and boot files
-| cyberlinux-keyring              | 0.0.170-2         | ?
+| cyberlinux-keyring              | 0.0.170-2         | Custom: provides cyberlinux keyring
 | cyberlinux-plank                | 0.11.4-3          | Repackaged: modified the source with better defaults 
 | cyberlinux-screenfetch          | 3.8.0-2           | Custom: cyberlinux screenfetch
-| cyberlinux-vim-plugins          | 0.0.2-1           | ?
+| cyberlinux-vim-plugins          | 0.0.2-1           | Custom: provides useful default vim plugins
 | epson-inkjet-printer-escpr2     | 1.0.26-1          | AUR: Driver for the Epson WorkForce 7710 inkjet all-in-one printer
 | galliumos-braswell-config       | 1.0.0-1           | AUR: Braswell configuration files for Samsung 3 Chromebook
 | google-cloud-sdk                | 243.0.0-1         | ?
@@ -248,7 +249,7 @@ Key:
 | lib32-freetype2                 | 2.8-2             | ?
 | lib32-nvidia-340xx-utils        | 340.107-3         | AUR: Arch Linux dropped this from the main repos
 | lib32-opencl-nvidia-340xx       | 340.107-3         | AUR: Arch Linux dropped this from the main repos
-| libblockdev                     | 2.21-3            | Repackaged: recompiled ABS with `--without-lvm` to remove the lvm2 dependency
+| libblockdev                     | 2.22-2            | Repackaged: recompiled ABS with `--without-lvm` to remove the lvm2 dependency
 | light                           | 1.1.2-1           | AUR: file size ui tool
 | linux-celes                     | 4.15.5-1          | ?
 | linux-celes-docs                | 4.15.5-1          | ?
@@ -510,13 +511,14 @@ either system.
   * [NFS Shares](#nfs-shares)
   * [File Sharing](#file-sharing)
 * [Office](#office)
-  * [Libre Office](#libre-office)
+  * [LibreOffice](#libreoffice)
     * [Config Navigation](#config-navigation)
     * [Keyboard Shortcuts](#keyboard-shortcuts)
     * [Set Default Template](#set-default-template)
     * [Turn off Smart Quotes](#turn-off-smart-quotes)
     * [Turn off Replace Dashes](#turn-off-replace-dashes)
     * [Turn off Automatic Strikeout](#turn-off-automatic-strikeout)
+    * [Repeatable Config](#repeatable-config)
   * [PDFs](#pdfs)
     * [Combine PDFs](#combine-pdfs)
     * [Convert Images to PDF](#convert-images-to-pdf)
@@ -1510,7 +1512,7 @@ sudo exportfs -v
 ```
 
 # Office <a name="office"/></a>
-## Libre Office <a name="libre-office"/></a>
+## LibreOffice <a name="libreoffice"/></a>
 
 ### Config Navigation <a name="config-navigation"/></a>
 1. Display navigation select ***View >Navigator***  
@@ -1565,6 +1567,15 @@ sudo exportfs -v
 1. Navigate to ***Tools >AutoCorrect >AutoCorrect Options...***  
 2. Select the ***Options*** tab  
 3. Uncheck ***Automatic bold,italic,strikeout,underline***   
+
+### Repeatable Config <a name="repeatable-config"/></a>
+LibreOffice stores its user configuration in the `~/.config/libreoffice/4/user/registrymodifications.xdu` file.
+To detect the settings you desire and apply them to a future system you can remove the config and use
+git to detect the diffs between the defaults and any changes you make.
+
+```bash
+# Remove the existing configuration to have it defaulted
+```
 
 ## PDFs <a name="pdfs"/></a>
 
@@ -1717,19 +1728,19 @@ and audio worked great.  My laptop webcam also worked without doing anything.
 
 **Install Manually**
 ```bash
-yaourt -G zoom; cd zoom
-makepkg -s
-sudo pacman -U zoom-2.4.121350.0816-1-x86_64.pkg.tar.xz
+$ yaourt -G zoom; cd zoom
+$ makepkg -s
+$ sudo pacman -U zoom-2.4.121350.0816-1-x86_64.pkg.tar.xz
 ```
 
 **Install from cyberlinux-repo**
 ```bash
-sudo tee -a /etc/pacman.conf <<EOL
+$ sudo tee -a /etc/pacman.conf <<EOL
 [cyberlinux]
 SigLevel = Optional TrustAll
 Server = https://phR0ze.github.io/cyberlinux-repo/$repo/$arch
 EOL
-sudo pacman -Sy zoom
+$ sudo pacman -Sy zoom
 ```
 
 # Rescue <a name="rescue"/></a>

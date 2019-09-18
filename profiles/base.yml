@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.363
+  release: 0.2.364
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -845,6 +845,7 @@ apps:
     - system:
       - install: lxinput              # Keyboard and mouse config for LXDE
       - install: lxrandr              # Monitor configuration tool for LXDE
+      - install: lxsession            # Enable .desktop files in ~/.config/autostart and /etc/xdg/autostart
       - install: lxterminal           # Terminal for LXDE, alt: terminator
       - install: dconf                # A low-level configuration system
       - install: dconf-editor         # New configuration manager intended to replace gconf
@@ -866,11 +867,11 @@ apps:
       - nitrogen
       - thunar
     - lxdm:
-      - install: lxdm-gtk3          # Lightweight display manager
+      - install: lxdm                 # Lightweight display manager
       - {exec: ln -sf //usr/lib/systemd/system/lxdm.service /etc/systemd/system/display-manager.service }
       - {edit: /usr/share/lxdm/themes/Industrial/gtk.css, regex: '^(\s*font: Sans).*', value: '\1 18;' }
       - {edit: /usr/share/lxdm/themes/Industrial/gtk.css, regex: '^(\s*color:) #000000.*', value: '\1 #ffffff;' }
-      - {edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(session)=.*', value: '\1=/usr/bin/openbox-session' }
+      - {edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(session)=.*', value: '\1=/usr/bin/startlxde' }
       - {edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(numlock)=.*', value: '\1=1' }
       - {edit: /etc/lxdm/lxdm.conf, regex: '^(gtk_theme)=.*', value: '\1=<%=distro%>' }
       - {edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(bg)=.*', value: '\1=<%=wallpaper%>' }
@@ -882,7 +883,6 @@ apps:
     - openbox:
       - install: oblogout           # Openbox logout script
       - install: openbox            # Lightweight X11 window manager
-      - install: python2-xdg        # Enable use of .desktop files in /etc/xdg in openbox
       - edit: /etc/oblogout.conf
         insert: append
         values:
@@ -900,7 +900,7 @@ apps:
           - 'shutdown = S'
           - 'lock = L'
           - '[commands]'
-          - 'logout = openbox --exit'
+          - 'logout = pkill -9 -f lxsession'
           - 'restart = systemctl reboot'
           - 'shutdown = systemctl poweroff'
           - 'lock = cinnamon-screensaver-command --lock'
@@ -959,7 +959,7 @@ apps:
 
     - menu-footer:
       - {menu: Session, insert: append, entry: Run..., icon: /usr/share/icons/Paper/32x32/mimetypes/application-x-executable.png, exec: "dmenu_run -fn -misc-fixed-*-*-*-*-20-200-*-*-*-*-*-*  -i -nb '#000000' -nf '#efefef' -sf '#000000' -sb '#3cb0fd'" }
-      - {menu: Session, insert: append, entry: Logout, icon: /usr/share/icons/Paper/32x32/actions/exit.png, exec: openbox --exit }
+      - {menu: Session, insert: append, entry: Logout, icon: /usr/share/icons/Paper/32x32/actions/exit.png, exec: pkill -9 -f lxsession}
       - {menu: Session, insert: append, entry: Reboot, icon: /usr/share/icons/hicolor/32x32/actions/system-reboot.png, exec: sudo reboot }
       - {menu: Session, insert: append, entry: Shutdown, icon: /usr/share/icons/hicolor/32x32/actions/system-shutdown.png, exec: sudo poweroff }
 
@@ -1288,21 +1288,6 @@ apps:
     - {install: xorg-xrandr,      desc: Primitive command line interface to RandR extension, group: [xorg, xorg-apps]}
     - {install: xorg-xset,        desc: User preference utility for X, group: [xorg, xorg-apps]}
     - {install: xorg-xwininfo,    desc: Command-line util to print info about windows, group: [xorg, xorg-apps]}
-    - edit: /etc/skel/.xprofile
-      insert: append
-      values:
-        - '## Autostart file'
-        - 'export GTK2_RC_FILES="$HOME/.gtkrc-2.0" '
-        - "\n# Ensure D-Bus Communication for file management, auth, and other system processes"
-        - 'if which dbus-launch >/dev/null && test -z "$DBUS_SESSION_BUS_ADDRESS"; then'
-        - '    eval "$(dbus-launch --sh-syntax --exit-with-session)"'
-        - 'fi'
-        - "\n# Generate home directories if they don't exist"
-        - '[ -x /usr/bin/xdg-user-dirs-update ] && /usr/bin/xdg-user-dirs-update'
-        - "\n# Configure X resources"
-        - 'xrdb -merge ~/.Xresources'
-        - "\n# Configure key repeat delay/rate"
-        - 'xset r rate 200 40'
     - edit: /opt/<%=distro%>/bin/pre-xorg
       insert: append
       values:
