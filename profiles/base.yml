@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.367
+  release: 0.2.368
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -901,7 +901,7 @@ apps:
           - 'shutdown = S'
           - 'lock = L'
           - '[commands]'
-          - 'logout = pkill -9 -f lxsession'
+          - 'logout = pkill -f lxsession'
           - 'restart = systemctl reboot'
           - 'shutdown = systemctl poweroff'
           - 'lock = cinnamon-screensaver-command --lock'
@@ -960,7 +960,7 @@ apps:
 
     - menu-footer:
       - {menu: Session, insert: append, entry: Run..., icon: /usr/share/icons/Paper/32x32/mimetypes/application-x-executable.png, exec: "dmenu_run -fn -misc-fixed-*-*-*-*-20-200-*-*-*-*-*-*  -i -nb '#000000' -nf '#efefef' -sf '#000000' -sb '#3cb0fd'" }
-      - {menu: Session, insert: append, entry: Logout, icon: /usr/share/icons/Paper/32x32/actions/exit.png, exec: pkill -9 -f lxsession}
+      - {menu: Session, insert: append, entry: Logout, icon: /usr/share/icons/Paper/32x32/actions/exit.png, exec: pkill -f lxsession}
       - {menu: Session, insert: append, entry: Reboot, icon: /usr/share/icons/hicolor/32x32/actions/system-reboot.png, exec: sudo reboot }
       - {menu: Session, insert: append, entry: Shutdown, icon: /usr/share/icons/hicolor/32x32/actions/system-shutdown.png, exec: sudo poweroff }
 
