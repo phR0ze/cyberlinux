@@ -537,9 +537,12 @@ either system.
   * [Teamviewer](#teamviewer)
   * [Zoom](#zoom)
 * [Rescue](#resuce)
+  * [Graphical Target](#graphical-target)
+    * [Check Xorg logs](#check-xorg-logs)
+    * [Reset Xorg settings](#check-xorg-settings)
+    * [Opensource Driver](#opensource-driver)
   * [Unable to Login](#unable-to-login)
     * [Switch to TTY](#switch-to-tty)
-    * [Use nmap to Find IP](#use-nmap-to-find-ip)
   * [Boot from Live USB](#boot-from-live-usb)
   * [Black Screen](#black-screen)
   * [Check Logs for Errors](#check-logs-for-errors)
@@ -1798,7 +1801,68 @@ $ sudo pacman -Sy zoom
 
 # Rescue <a name="rescue"/></a>
 
+## Switch to TTY <a name="switch-to-tty"/></a>
+Bare Metal:
+* `ctrl+alt+F2` should switch to console  
+* `ctrl+alt+F1` should switch back to UI
+
+VirtualBox:
+* `right ctrl+F2` should switch to console  
+* `right ctrl+F1` should switch back to UI
+
+
+## Graphical Target <a name="graphical-target"/></a>
+When you're system boots the last thing you'll see before the display manager is loaded is that the
+`Graphical Target` is being started. If it hangs here its safe to say either LXDM is failing or Xorg
+is failing to start.
+
+### Check Xorg logs <a name="check-xorg-logs"/></a>
+The Xorg logs are often telling when unable you get black screens or hanging at the Graphical Target.
+Often this will be a video driver issue. You can check your video card with `inxi -G`.
+
+```bash
+$ cat /var/log/Xorg.0.log | grep EE
+[     3.932] (EE) Failed to load module "vboxvideo" (module does not exist, 0)
+[     3.935] (EE) Failed to load module "fbdev" (module does not exist, 0)
+```
+
+### Reset Xorg settings <a name="check-xorg-settings"/></a>
+Often there will be old settings from a previous driver in the `xorg.conf`
+
+```bash
+# Disable the display manager and restart
+$ sudo systemctl disable lxdm
+$ sudo reboot
+
+# Remove settings:
+$ sudo rm -rf /etc/X11/xorg.conf.d/*
+$ sudo rm /etc/X11/xorg.conf
+
+# Generate new settings file
+$ sudo Xorg -configure
+
+# Install the new settings file
+$ sudo mv /root/xorg.conf.new /etc/X11/xorg.conf
+```
+
+### Opensource Driver <a name="opensource-driver"/></a>
+Frequently the settings on Nvidia's proprietary drivers will get screwed up. If you just want to
+validate that he problem is indeed the video driver you can temporarily switch to the opensource
+driver to check.
+
+```bash
+# Remove the old nvidia driver
+$ sudo pacman -Rns nvidia-340xx nvidia-340xx-utils
+
+# Install the opensource driver
+$ sudo pacman -Rns mesa xf86-video-nouveau
+```
+
 ## Unable to Login <a name="unable-to-login"/></a>
+If you are unable to login via LXDM but have got past the Graphicl target that means your video
+driver is working properly. In this case it may be something in the chain of scripts and apps that
+boot the desktop i.e. LXDM settings, `startx` or user scripts like `.bashrc`. I've seen powerline
+initialization in in `.bashrc` fail causing the login to fail.
 
 ### Try logging in while tailing the logs
 1. Switch to TTY and get the ip of the system then loging and tail the logs
@@ -1813,30 +1877,6 @@ $ sudo pacman -Sy zoom
 3. Restart your system `sudo reboot`
 4. Install xinit `sudo pacman -S xorg-xinit`
 5. Launch `startx openbox-session`
-
-### Try resetting your xorg settings:
-1. Remove settings `sudo rm -rf /etc/X11/xorg.conf.d/*`
-2. Generate new `sudo Xorg -configure`
-3. Install `sudo mv /root/xorg.conf.new /etc/X11/xorg.conf`
-
-### Switch to TTY <a name="switch-to-tty"/></a>
-If you are unable to login after an upgrade most likely something in your environment settings to do
-with your Display Manager e.g. LXDM or your user scripts e.g. `.bashrc` may be to blame. I've had my
-powerline initialization in my login scripts fail from time to time.
-
-Bare Metal:
-* `ctrl+alt+F2` should switch to console  
-* `ctrl+alt+F1` should switch back to UI
-
-VirtualBox:
-* `right ctrl+F2` should switch to console  
-* `right ctrl+F1` should switch back to UI
-
-### Use nmap to Find IP <a name="use-nmap-to-find-ip"/></a>
-If you're unable to login via the Display Manager, chances are that you can still login via ssh. You
-can use nmap to lookup the IP of the machine then ssh in.
-
-TBD
 
 ## Boot from Live USB <a name="boot-from-live-usb"/></a>
 ```bash
