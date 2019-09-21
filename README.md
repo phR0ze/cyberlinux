@@ -516,6 +516,8 @@ either system.
   * [Networking Static](#networking-static)
   * [Networking Wifi](#networking-wifi)
   * [NFS Shares](#nfs-shares)
+    * [NFS Client Config](#nfs-server-config)
+    * [NFS Server Config](#nfs-server-config)
   * [File Sharing](#file-sharing)
 * [Office](#office)
   * [LibreOffice](#libreoffice)
@@ -1593,10 +1595,10 @@ sudo systemctl restart systemd-networkd
   # Click connect
   ```
 
-
 ## NFS Shares <a name="nfs-shares"/></a>
 https://wiki.archlinux.org/index.php/NFS
 
+### NFS Client Config <a name="nfs-client-config"/></a>
 * ***nfs*** – calls out the type of technology being used
 * ***auto*** – maps the share immediately rather than waiting until it is accessed
 * ***noacl*** – turns off all ACL processing, if your not woried about security i.e. home network this is find to turn off
@@ -1606,8 +1608,10 @@ https://wiki.archlinux.org/index.php/NFS
 * ***timeo=14*** – time in tenths of a second to wait before resending a transmission after an RPC timeout, default: 600
 * ***_netdev*** – tells systemd to wait until the network is up before tyring to mount the share
 
-**Client Config**
 ```bash
+# Check exported list on client side
+$ showmount -e 192.168.1.3
+
 # Create local mount points
 sudo mkdir -p /mnt/{Documents,Install,Movies.Pictures,TV}
 
@@ -1629,26 +1633,26 @@ EOL
 sudo mount -a
 ```
 
-**Server Config**
+### NFS Server Config <a name="nfs-server-config"/></a>
+Kodi recommends the `(rw,all_squash,insecure)` for the export options.
+
+Setup nfs shares:
 ```bash
-# Setup nfs shares
-#/srv/nfs/Cache       192.168.1.0/24(rw,no_subtree_check,nohide,no_root_squash)
-sudo tee -a /etc/exports <<EOL
-/srv/nfs/Documents   192.168.1.0/24(rw,no_subtree_check,nohide)
-/srv/nfs/Educational 192.168.1.0/24(rw,no_subtree_check,nohide)
-/srv/nfs/Family      192.168.1.0/24(rw,no_subtree_check,nohide)
-/srv/nfs/Install     192.168.1.0/24(rw,no_subtree_check,nohide)
-/srv/nfs/Movies      192.168.1.0/24(rw,no_subtree_check,nohide)
-/srv/nfs/Pictures    192.168.1.0/24(rw,no_subtree_check,nohide)
-/srv/nfs/TV          192.168.1.0/24(rw,no_subtree_check,nohide)
+$ sudo tee -a /etc/exports <<EOL
+/srv/nfs/Documents   192.168.1.0/24(rw,all_squash,insecure,no_subtree_check)
+/srv/nfs/Educational 192.168.1.0/24(rw,all_squash,insecure,no_subtree_check)
+/srv/nfs/Family      192.168.1.0/24(rw,all_squash,insecure,no_subtree_check)
+/srv/nfs/Install     192.168.1.0/24(rw,all_squash,insecure,no_subtree_check)
+/srv/nfs/Movies      192.168.1.0/24(rw,all_squash,insecure,no_subtree_check)
+/srv/nfs/Pictures    192.168.1.0/24(rw,all_squash,insecure,no_subtree_check)
+/srv/nfs/TV          192.168.1.0/24(rw,all_squash,insecure,no_subtree_check)
 EOL
 
 # Manually Bind mount directories
-sudo mount --bind /mnt/Movies /srv/nfs/Movies
+$ sudo mount --bind /mnt/Movies /srv/nfs/Movies
 
 # Auto Bind mount directories
-#/var/cache/pacman/pkg /srv/nfs/Cache none bind 0 0
-sudo tee -a /etc/fstab <<EOL
+$ sudo tee -a /etc/fstab <<EOL
 /mnt/Documents /srv/nfs/Documents none bind 0 0
 /mnt/Educational /srv/nfs/Educational none bind 0 0
 /mnt/Family /srv/nfs/Family none bind 0 0
@@ -1657,11 +1661,11 @@ sudo tee -a /etc/fstab <<EOL
 /mnt/Pictures /srv/nfs/Pictures none bind 0 0
 /mnt/TV /srv/nfs/TV none bind 0 0
 EOL
-sudo mount -a
-sudo systemctl restart nfs-server
+$ sudo mount -a
+$ sudo systemctl restart nfs-server
 
 # Check what is currently being served
-sudo exportfs -v
+$ sudo exportfs -v
 ```
 
 # Office <a name="office"/></a>
