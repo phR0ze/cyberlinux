@@ -466,6 +466,7 @@ either system.
     * [VGA Output](#vga-output)
     * [Quadro FX 3800](#quadro-fx-3800)
     * [Nvidia Proprietary](#nvidia-proprietary)
+    * [Overscan](#overscan)
   * [Mouse](#mouse)
     * [Configure Mouse Speed](#configure-mouse-speed)
   * [Keyboard](#keyboard)
@@ -765,6 +766,8 @@ $ sudo reboot
   d. Find the driver package related to ***NVE6***  
   e. Install driver: ***sudo pacman -S nvidia***  
   f. Reboot  
+
+### Overscan <a name="overscan"/></a>
 
 ## Mouse <a name="mouse"/></a>
 
