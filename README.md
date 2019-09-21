@@ -1879,19 +1879,12 @@ $ cat /var/log/Xorg.0.log | grep EE
 Often there will be old settings from a previous driver in the `xorg.conf`
 
 ```bash
-# Disable the display manager and restart
-$ sudo systemctl disable lxdm
-$ sudo reboot
-
-# Remove settings:
-$ sudo rm -rf /etc/X11/xorg.conf.d/*
+# Remove the xorg config file
+# 99.9% of the time the main config file is not required
 $ sudo rm /etc/X11/xorg.conf
 
-# Generate new settings file
-$ sudo Xorg -configure
-
-# Install the new settings file
-$ sudo mv /root/xorg.conf.new /etc/X11/xorg.conf
+# Removing the one off configs is probably not needed, but circle back if still not working
+$ sudo rm -rf /etc/X11/xorg.conf.d/*
 ```
 
 ### Opensource Driver <a name="opensource-driver"/></a>
