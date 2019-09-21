@@ -466,7 +466,7 @@ either system.
     * [VGA Output](#vga-output)
     * [Quadro FX 3800](#quadro-fx-3800)
     * [Nvidia Proprietary](#nvidia-proprietary)
-    * [Overscan](#overscan)
+    * [Overscan/Underscan](#overscan-underscan)
   * [Mouse](#mouse)
     * [Configure Mouse Speed](#configure-mouse-speed)
   * [Keyboard](#keyboard)
@@ -767,7 +767,38 @@ $ sudo reboot
   e. Install driver: ***sudo pacman -S nvidia***  
   f. Reboot  
 
-### Overscan <a name="overscan"/></a>
+### Overscan/Underscan <a name="overscan-underscan"/></a>
+I'm using the term `Underscan` to mean reducing the display image and `Overscan` to increase the
+display image as relates to the defaults.  `Offset` in this context means what location related to
+the origin top left i.e. +0+0 to draw the display.
+
+**Adjust with nvidia-settings**:
+1. Launch `nvidia-settings` which is part of the `nvidia-utils` package.
+2. Click `X Server Display Configuration` on the left
+3. Then use the `Underscan` slider to increase the underscan
+4. Click `Apply` and done
+
+**Adjust directly via Xorg**:
+1. Follow steps from the nvidia-settings section above
+2. Instead of `Apply` click `Save to X Configuration File` then `Show preview...`
+3. From here you can see what needs to be added to your `/etc/X11/xorg.conf.d/10-display.conf` file to get what you want.
+4. Example changing viewport with syntax `widthxheight+offset_width+offset_height`
+   ```bash
+   # http://blog.wxm.be/2012/08/26/nvidia-linux-overscan.html
+   Section "Screen"
+       Identifier "Screen0"
+       # Keep underscan/overscan and offset at defaults
+       Option     "metamodes" "1920x1080 +0+0"
+       # Underscan 14 pixels and offset to center it
+       Option     "metamodes" "1920x1080 +0+0 {viewportout=1892x1064+14+7}"
+       # Underscan 14 pixels and leave top left corner
+       Option     "metamodes" "1920x1080 +0+0 {viewportout=1892x1064+0+0}"
+       SubSection "Display"
+           Depth 24
+           Modes "1920x1080"
+       EndSubSection
+   EndSection
+   ```
 
 ## Mouse <a name="mouse"/></a>
 
@@ -1037,10 +1068,25 @@ Device         Start      End  Sectors  Size Type
 
 ### BIOS Boot <a name="bios-boot"/></a>
 ```bash
-# Install grub boot loader
+# Install grub package
+$ sudo pacman -S cyberlinux-grub
 
-# Edit the grub file to use the new kernel
-$ cat /mnt/tmp/grub/grub.cfg
+# Determine your target drive
+$ sudo fdisk -l
+Device       Start       End   Sectors   Size Type
+/dev/sda1     2048      6143      4096     2M BIOS boot
+
+# Ensure your drive has the cyberlinux label
+$ sudo blkid
+/dev/sda1: PARTLABEL="BIOS boot" PARTUUID="xxx-xxx..."
+/dev/sda3: LABEL="root" UUID="xxx-xxx..." TYPE="ext4" PARTLABEL="Linux filesystem" PARTUUID="xxx-xxx..."
+$ sudo tune2fs -L cyberlinux /dev/sda3
+
+# Install grub boot loader to disk
+$ sudo grub-install --target=i386-pc /dev/sda
+
+# Create the grub file with the following
+$ sudo vim /boot/grub/grub.cfg
 default=0
 timeout=0
 
