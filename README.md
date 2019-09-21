@@ -464,6 +464,7 @@ either system.
     * [Adapt Output Toggle](#adapt-output-toggle)
     * [Dual Output](#dual-output)
     * [VGA Output](#vga-output)
+    * [Quadro FX 3800](#quadro-fx-3800)
     * [Nvidia Proprietary](#nvidia-proprietary)
   * [Mouse](#mouse)
     * [Configure Mouse Speed](#configure-mouse-speed)
@@ -484,6 +485,8 @@ either system.
   * [Build cyberliux container](#build-cyberlinux-container)
 * [Grub](#grub)
   * [Boot Kernel](#boot-kernel)
+    * [BIOS Boot](#bios-boot)
+    * [UEFI Boot](#uefi-boot)
 * [Fonts](#fonts)
   * [Distro Fonts](#distro-fonts)
   * [Fontconfig](#fongconfig)
@@ -723,6 +726,28 @@ xrandr --output VGA-1 --off --output eDP-1 --auto
 # Mapping this to Win + P or other hot key combo
 # Launch lxrandr
 # Select resolution of 1280x1024 for both monitors
+```
+
+### Quadro FX 3800 <a name="quadro-fx-3800"/></a>
+The driver for this card i.e. `nvidia-340xx` is no longer carried in the Arch Linux repos, but has a
+maintained version in the cyberlinux repo.
+
+```bash
+# Determine graphics card
+$ inxi -G
+Graphics:  Card-1: NVIDIA GT200GL [Quadro FX 3800]
+...
+
+# Build nvidia-340xx drivers
+$ yay -G nvidia-340xx-utils
+
+# Installing the DKMS driver will allow kernel updates without
+# requiring the corresponding rebuilds of the drivers
+$ sudo pacman -Rns xf86-video-nouveau
+$ sudo pacman -S nvidia-340xx-dkms
+
+# Reboot
+$ sudo reboot
 ```
 
 ### Nvidia Proprietary <a name="nvidia-proprietary"/></a>
@@ -1007,6 +1032,30 @@ Device         Start      End  Sectors  Size Type
 /dev/mmcblk0p2 22528 30777310 30754783 14.7G Linux filesystem
 ```
 
+### BIOS Boot <a name="bios-boot"/></a>
+```bash
+# Install grub boot loader
+
+# Edit the grub file to use the new kernel
+$ cat /mnt/tmp/grub/grub.cfg
+default=0
+timeout=0
+
+set gfxmode="1920x1080,auto"
+loadfont unicode.pf2
+terminal_input console
+terminal_output gfxterm
+
+menuentry "cyberlinux" {
+    set gfxpayload=keep
+    search --no-floppy --set=root --label cyberlinux
+    linux /boot/vmlinuz-linux root=LABEL=cyberlinux rw rd.systemd.show_status=auto rd.udev.log_priority=3 ipv6.disable=1
+    initrd /boot/intel-ucode.img /boot/initramfs-linux.img
+}
+
+$ sudo reboot
+```
+
 ### UEFI Boot <a name="uefi-boot"/></a>
 System like the Samsung Chromebook 3 boot in UEFI mode which reads the bootloader from the boot
 partition EFI System.
@@ -1016,7 +1065,7 @@ partition EFI System.
 $ sudo mount /dev/mmcblk0p1 /mnt/tmp
 
 # Edit the grub file to use the new kernel
-cat /mnt/tmp/grub/grub.cfg
+$ cat /mnt/tmp/grub/grub.cfg
 default=0
 timeout=0
 
