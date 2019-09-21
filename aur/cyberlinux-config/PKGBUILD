@@ -23,7 +23,7 @@
 # Maintainer: phR0ze
 #-------------------------------------------------------------------------------
 pkgname=cyberlinux-config
-pkgver=0.0.1
+pkgver=0.0.2
 pkgrel=1
 pkgdesc='Configuration files for cyberlinux'
 arch=('any')
