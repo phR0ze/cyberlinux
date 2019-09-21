@@ -214,22 +214,21 @@ Key:
 | Package                         | Version           | Purpose                
 | ------------------------------- | ------------------| ------------------------------------------------------------------
 | abiword-gtk2                    | 3.0.2.-3          | AUR: The non gtk2 one flickers, this one seems to be ok
-| android-studio                  | 3.5.0.21-2        | AUR: Android Studio provides an excellent Android Emulator
-| arch-install-scripts            | 22-1              | Repackaged: patched the arch-chroot to retry umount for reduce
+| arch-install-scripts            | 22-2              | Repackaged: patched the arch-chroot to retry umount for reduce
 | asterisk                        | 15.4.1-2          | Custom: asterisk telephony engine
 | awf-git                         | v1.3.1.r4.gcee91. | ?
 | bindip                          | 0.0.1-1           | ?
-| ccextractor                     | 0.87-1            | AUR: dependency of makemkv
-| chromium                        | 76.0.3809.100-2   | Custom: cyberlinux build of chromium with security enhancements
+| ccextractor                     | 0.88-1            | AUR: dependency of makemkv
+| chromium                        | 76.0.3809.100-4   | Custom: cyberlinux build of chromium with security enhancements
 | chromium-widevine               | 1:4.10.1440.18-2  | AUR: Chromium dependency for viewing premium media content
 | cinnamon-desktop                | 3.4.2-1           | Repackaged: support file for lockscreen
 | cinnamon-screensaver            | 3.0.1-1           | Repackaged: keeping the old lockscreen behavior
 | cinnamon-translations           | 3.4.2-1           | Repackaged: support file for lockscreen
 | cri-tools                       | 1.11.1-2          | ?
-| cyberlinux-config               | 0.0.1-1           | Custom: provides cyberlinux configuration files
+| cyberlinux-config               | 0.0.2-1           | Custom: provides cyberlinux configuration files
 | cyberlinux-grub                 | 0.0.3-1           | Custom: provides cyberlinux splash screen and boot files
 | cyberlinux-keyring              | 0.0.170-2         | Custom: provides cyberlinux keyring
-| cyberlinux-plank                | 0.11.4-3          | Repackaged: modified the source with better defaults 
+| cyberlinux-plank                | 0.11.4-4          | Repackaged: modified the source with better defaults 
 | cyberlinux-screenfetch          | 3.8.0-2           | Custom: cyberlinux screenfetch
 | cyberlinux-vim-plugins          | 0.0.2-1           | Custom: provides useful default vim plugins
 | epson-inkjet-printer-escpr2     | 1.0.26-1          | AUR: Driver for the Epson WorkForce 7710 inkjet all-in-one printer
@@ -240,26 +239,26 @@ Key:
 | iksemel                         | 1.5-1             | AUR: FreeSWITCH dependency
 | imagescan-plugin-networkscan    | 1.1.2-1           | AUR: Scanner driver for Epson WorkForce 7710 inject all-in-on printer
 | input-wacom-dkms                | 0.39.0-1          | AUR: wacom input driver
-| inxi                            | 3.0.10-2          | AUR: Low level cli tool for device configuration discovery
+| inxi                            | 3.0.36-2          | AUR: Low level cli tool for device configuration discovery
 | jd-gui                          | 1.6.3             | Repackaged: patched with dark theme and java font fix
 | kubeadm                         | 1.11.2-2          | ?
 | kubecni                         | 0.7.2-2           | ?
 | kubectl                         | 1.11.2-2          | ?
 | kubelet                         | 1.11.2-2          | ?
 | lib32-freetype2                 | 2.8-2             | ?
-| lib32-nvidia-340xx-utils        | 340.107-3         | AUR: Arch Linux dropped this from the main repos
-| lib32-opencl-nvidia-340xx       | 340.107-3         | AUR: Arch Linux dropped this from the main repos
+| lib32-nvidia-340xx-utils        | 340.107-4         | AUR: supports the Quadro FX 3800 and other older cards
+| lib32-opencl-nvidia-340xx       | 340.107-4         | AUR: supports the Quadro FX 3800 and other older cards
 | libblockdev                     | 2.22-2            | Repackaged: recompiled ABS with `--without-lvm` to remove the lvm2 dependency
+| libxnvctrl-340xx                | 340.107-2         | Repackaged: provides libxnvctrl used by conky
 | light                           | 1.1.2-1           | AUR: file size ui tool
-| linux-celes                     | 4.15.5-1          | ?
-| linux-celes-docs                | 4.15.5-1          | ?
-| linux-celes-headers             | 4.15.5-1          | ?
 | makemkv                         | 1.14.4-1          | Repackaged version making ccextractor a default dependency
-| mkinitcpio-vt-colors            | 1.0.0-1           | ?
+| mkinitcpio-vt-colors            | 1.0.0-1           | Custom: provides kernel output coloring on boot
 | numix-frost-themes              | 3.6.6-1           | ?
-| nvidia-340xx                    | 340.107-90        | AUR: Arch Linux dropped this from the main repos
-| nvidia-340xx-dkms               | 340.107-90        | AUR: Arch Linux dropped this from the main repos
-| nvidia-340xx-utils              | 340.107-3         | AUR: Arch Linux dropped this from the main repos
+| nvidia-340xx                    | 340.107-92        | AUR: supports the Quadro FX 3800 and other older cards
+| nvidia-340xx-dkms               | 340.107-92        | AUR: supports the Quadro FX 3800 and other older cards
+| nvidia-340xx-settings           | 340.107-2         | AUR: supports the Quadro FX 3800 and other older cards
+| nvidia-340xx-utils              | 340.107-4         | AUR: supports the Quadro FX 3800 and other older cards
+| opencl-nvidia-340xx             | 340.107-4         | AUR: supports the Quadro FX 3800 and other older cards
 | openvpn-update-systemd-resolved | 1.2.6-1           | ?
 | paper-icon-theme                | 1.4.0-1           | ?
 | php                             | 7.1.12-2          | ?
@@ -745,7 +744,7 @@ $ yay -G nvidia-340xx-utils
 # Installing the DKMS driver will allow kernel updates without
 # requiring the corresponding rebuilds of the drivers
 $ sudo pacman -Rns xf86-video-nouveau
-$ sudo pacman -S nvidia-340xx-dkms
+$ sudo pacman -S nvidia-340xx-dkms libxnvctrl
 
 # Reboot
 $ sudo reboot
