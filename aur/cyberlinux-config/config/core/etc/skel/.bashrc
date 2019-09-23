@@ -1,5 +1,5 @@
 #MIT License
-#Copyright (c) 2017-2018 phR0ze
+#Copyright (c) 2017-2019 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -72,7 +72,7 @@ alias egrep='egrep --color=auto'
 none="\[\e[0m\]"
 cyber="\[\e[1;38;5;67m\]"
 export PS1="${cyber}[\u@\h:\w]\$${none} "
-export PATH=$PATH:$HOME/bin:$GOPATH/bin
+export PATH=$PATH:$HOME/bin:$GOPATH/bin:/opt/cyberlinux/bin
 
 # Powerline configuration
 if [ -f /usr/bin/powerline ] && [ -f /usr/bin/Xorg ]; then
