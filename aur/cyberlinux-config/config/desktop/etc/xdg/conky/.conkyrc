@@ -1,5 +1,5 @@
 --MIT License
---Copyright (c) 2017-2018 phR0ze
+--Copyright (c) 2017-2019 phR0ze
 
 --Permission is hereby granted, free of charge, to any person obtaining a copy
 --of this software and associated documentation files (the "Software"), to deal
@@ -68,12 +68,12 @@ ${font Designer Block:bold:size=100}${color1}${time %I}\
 ${offset 3}${voffset -38}${font Designer Block:bold:size=50}${color3}:${time %M}\
 ${font Designer Block:bold:size=14}${time %p}\
 ${offset -110}${voffset 13}${font Designer Block:bold:size=35}${color1}${time %a} ${time %d}\
-${voffset -10}${font Designer Block:bold:size=20}${exec ~/bin/conky_date.rb}
+${voffset -10}${font Designer Block:bold:size=20}${exec /etc/xdg/conky/bin/date.rb}
 # Month/Year
 ${voffset 25}\
 ${font Designer Block:normal:size=24}${color1}${time %B}.${time %Y} ${hr 2}
 # Day names
 ${font Liberation Mono:bold:size=14}${color2}  Su  Mo  Tu  We  Th  Fr  Sa
 # Days
-${font Liberation Mono:size=14}${color1}${execp ~/bin/conky_cal.rb 2 0}
+${font Liberation Mono:size=14}${color1}${execp /etc/xdg/conky/bin/cal.rb 2 0}
 ]];

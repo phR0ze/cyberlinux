@@ -1,0 +1,10 @@
+[Unit]
+Description=Conky
+Documentation=man:conky(1)
+
+[Service]
+ExecStart=/usr/bin/conky -c /etc/xdg/conky/.conkyrc
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

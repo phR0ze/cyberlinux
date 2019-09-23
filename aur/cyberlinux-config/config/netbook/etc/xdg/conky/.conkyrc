@@ -1,5 +1,5 @@
 --MIT License
---Copyright (c) 2018 phR0ze
+--Copyright (c) 2018-2019 phR0ze
 
 --Permission is hereby granted, free of charge, to any person obtaining a copy
 --of this software and associated documentation files (the "Software"), to deal
@@ -40,9 +40,9 @@ conky.config = {
 
     -- Position
     alignment = 'top_left',                 -- Align window on the desktop
-    maximum_width = 1920,                   -- Maximum width of conky window
-    minimum_width = 1920,                   -- Set to max so offset doesn't push into unknown
-    minimum_height = 1080,                  -- Set to max so voffset doesn't push into unknown
+    maximum_width = 1366,                   -- Maximum width of conky window
+    minimum_width = 1366,                   -- Set to max so offset doesn't push into unknown
+    minimum_height = 768,                   -- Set to max so voffset doesn't push into unknown
     gap_x = 20,                             -- Gap in pixels between right or left border of screen
     gap_y = 20,                             -- Gap in pixels between top or bottom of screen
 
@@ -65,19 +65,19 @@ conky.text = [[
 #-------------------------------------------------------------------------------
 # Time/Date/Calendar
 #-------------------------------------------------------------------------------
-${voffset -38}${offset 1570}\
+${voffset -38}${offset 1040}\
 ${font Designer Block:bold:size=100}${color1}${time %I}\
 ${offset 3}${voffset -38}${font Designer Block:bold:size=50}${color3}:${time %M}\
 ${font Designer Block:bold:size=14}${time %p}\
 ${offset -110}${voffset 13}${font Designer Block:bold:size=35}${color1}${time %a} ${time %d}\
-${voffset -10}${font Designer Block:bold:size=20}${exec ~/bin/conky_date.rb}
+${voffset -10}${font Designer Block:bold:size=20}${exec /etc/xdg/conky/bin/date.rb}
 # Month/Year
-${voffset 25}${offset 1580}\
+${voffset 25}${offset 1050}\
 ${font Designer Block:normal:size=24}${color1}${time %B}.${time %Y} ${hr 2}
 # Day names
-${offset 1568}${font Liberation Mono:bold:size=14}${color2}  Su  Mo  Tu  We  Th  Fr  Sa
+${offset 1038}${font Liberation Mono:bold:size=14}${color2}  Su  Mo  Tu  We  Th  Fr  Sa
 # Days
-${font Liberation Mono:size=14}${color1}${execp ~/bin/conky_cal.rb 2 1568}
+${font Liberation Mono:size=14}${color1}${execp /etc/xdg/conky/bin/cal.rb 2 1038}
 
 #-------------------------------------------------------------------------------
 # Distro
@@ -91,7 +91,7 @@ ${font Audiowide:size=30}${color1}cyber${color2}linux${font Liberation Mono:size
 ${color2}${font Liberation Mono:size=20}SYSTEM${font Liberation Mono:size=12}
 ${voffset 4}${color lightgrey} Name: $color${nodename}
 ${color lightgrey} Kernel: $color${kernel}
-${voffset 8}${color lightgrey} WiFi:      $color${exec ~/bin/conky_radio.rb wifi}
+${voffset 8}${color lightgrey} WiFi:      $color${exec /etc/xdg/conky/bin/radio.rb wifi}
 ${color lightgrey} Bluetooth: $color${exec ~/bin/conky_radio.rb bluetooth}
 ${voffset 8}${color lightgrey} SSID:      $color ${wireless_essid}
 ${color lightgrey} Private IP:$color ${addrs wlo1}
@@ -100,11 +100,13 @@ ${voffset 10}${color lightgrey} Battery: $color${battery_percent}% (${battery_ti
 ${color} ${battery_bar}
 ${voffset 10}${color lightgrey} Storage 1: $color${fs_used_perc /}% (${fs_used /}/${fs_size /})
 ${color} ${fs_bar /}
+${voffset 10}${color lightgrey} Storage 2: $color${fs_used_perc /mnt/storage}% (${fs_used /mnt/storage}/${fs_size /mnt/storage})
+${color} ${fs_bar /mnt/storage}
 
 #-------------------------------------------------------------------------------
 # Hot Keys
 #-------------------------------------------------------------------------------
-${voffset -333}
+${voffset -380}
 ${offset 350}${color2}${font Liberation Mono:size=20}HOT KEYS${font Liberation Mono:size=10}
 ${offset 350}${color lightgrey} Super+c         (Reconfigure openbox)
 ${offset 350}${color lightgrey} Super+e         (Launch editor)
@@ -130,7 +132,7 @@ ${offset 350}${color lightgrey} XF86AudioLower  (Lower Volume)
 #-------------------------------------------------------------------------------
 # Connections
 #-------------------------------------------------------------------------------
-${voffset -400}
+${voffset -380}
 ${offset 700}${color2}${font Liberation Mono:size=20}CONNECTIONS${font Liberation Mono:size=12}
 ${offset 700}${color2}${font Liberation Mono:size=14} Inbound:  ${tcp_portmon 1 32767 count}${font Liberation Mono:size=10}
 ${offset 700}${color lightgrey} ${tcp_portmon 1 32767 rhost 0} ${tcp_portmon 1 32767 lport 0}

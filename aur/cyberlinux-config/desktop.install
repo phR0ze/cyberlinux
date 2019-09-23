@@ -1,6 +1,5 @@
-#!/usr/bin/env ruby
 #MIT License
-#Copyright (c) 2017-2018 phR0ze
+#Copyright (c) 2018-2019 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -20,14 +19,25 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-if ARGV.first == 'wifi'
-  val = `rfkill | grep wlan`[/unblocked|blocked/]
-  print("ON") if val == 'unblocked'
-  print("OFF") if val == 'blocked'
-elsif ARGV.first == 'bluetooth'
-  val = `rfkill | grep bluetooth`[/unblocked|blocked/]
-  print("ON") if val == 'unblocked'
-  print("OFF") if val == 'blocked'
-end
+post_upgrade()
+{
+  post_install
+}
 
-# vim: ft=ruby:ts=2:sw=2:sts=2
+post_install()
+{
+  # Enable services
+  home=/home/$SUDO_USER
+  sudo -u $SUDO_USER mkdir -p "$home/.config/systemd/user/default.target.wants"
+  sudo -u $SUDO_USER systemctl --user enable conky
+  sudo -u $SUDO_USER systemctl --user restart conky
+}
+
+pre_remove()
+{
+  # Disable services
+  home=/home/$SUDO_USER
+  sudo -u $SUDO_USER systemctl --user disable conky --now -q
+}
+
+# vim: ts=2:sw=2:sts=2

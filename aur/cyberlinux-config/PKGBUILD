@@ -22,17 +22,88 @@
 #-------------------------------------------------------------------------------
 # Maintainer: phR0ze
 #-------------------------------------------------------------------------------
-pkgname=cyberlinux-config
-pkgver=0.0.2
+pkgname=(
+    'cyberlinux-config'           # core
+    'cyberlinux-shell-config'     # shell
+    'cyberlinux-lite-config'      # lite
+    'cyberlinux-server-config'    # server
+    'cyberlinux-netbook-config'   # netbook
+    'cyberlinux-theater-config'   # theater
+    'cyberlinux-desktop-config'   # shell
+    'cyberlinux-laptop-config'    # laptop
+)
+pkgver=0.0.3
 pkgrel=1
 pkgdesc='Configuration files for cyberlinux'
 arch=('any')
 url="https://github.com/phR0ze/cyberlinux/aur/cyberlinux-config"
 license=('MIT')
 
-package()
+pkg() {
+  local name=$1
+  shopt -s dotglob
+  shopt -s extglob
+  pkgdesc="Configuration for the cyberlinux ${name} deployment"
+
+  cd $srcdir/../config/$name
+
+  # Install config files
+  while IFS='' read -r -d '' x; do
+    msg2 "Installing $x"
+    mkdir -p "$pkgdir/$(dirname $x)"
+    cp -dr "$x" "$pkgdir/$x"
+  done < <(find . -type f -print0 -o -type l -print0)
+}
+
+package_cyberlinux-config()
 {
-  cd $srcdir/..
-  msg2 "Installing configs from $(pwd)/config"
-  cp -rd config/* "${pkgdir}"
+  pkg core
+}
+
+package_cyberlinux-shell-config()
+{
+  depends=('cyberlinux-config')
+  pkg shell
+}
+
+package_cyberlinux-lite-config()
+{
+  depends=('cyberlinux-shell-config')
+  pkg lite
+}
+
+package_cyberlinux-server-config()
+{
+  depends=('cyberlinux-lite-config')
+  conflicts=('cyberlinux-desktop-config' 'cyberlinux-laptop-config' 'cyberlinux-netbook-config' 'cyberlinux-theater-config')
+  pkg lite
+}
+
+package_cyberlinux-theater-config()
+{
+  depends=('cyberlinux-lite-config')
+  conflicts=('cyberlinux-desktop-config' 'cyberlinux-laptop-config' 'cyberlinux-netbook-config' 'cyberlinux-server-config')
+  pkg theater
+}
+
+package_cyberlinux-netbook-config()
+{
+  depends=('cyberlinux-lite-config')
+  conflicts=('cyberlinux-desktop-config' 'cyberlinux-laptop-config' 'cyberlinux-server-config' 'cyberlinux-theater-config')
+  pkg netbook
+}
+
+package_cyberlinux-desktop-config()
+{
+  depends=('cyberlinux-lite-config')
+  conflicts=('cyberlinux-server-config' 'cyberlinux-laptop-config' 'cyberlinux-netbook-config' 'cyberlinux-theater-config')
+  install=desktop.install
+  pkg desktop
+}
+
+package_cyberlinux-laptop-config()
+{
+  depends=('cyberlinux-lite-config')
+  conflicts=('cyberlinux-desktop-config' 'cyberlinux-server-config' 'cyberlinux-netbook-config' 'cyberlinux-theater-config')
+  pkg laptop
 }

@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 #MIT License
-#Copyright (c) 2017-2018 phR0ze
+#Copyright (c) 2017-2019 phR0ze
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -20,18 +20,14 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-def day_suffix(day)
-  if day.between?(11, 13)
-    "th"
-  else
-    case day % 10
-      when 1; "st"
-      when 2; "nd"
-      when 3; "rd"
-      else    "th"
-    end
-  end
+if ARGV.first == 'wifi'
+  val = `rfkill | grep wlan`[/unblocked|blocked/]
+  print("ON") if val == 'unblocked'
+  print("OFF") if val == 'blocked'
+elsif ARGV.first == 'bluetooth'
+  val = `rfkill | grep bluetooth`[/unblocked|blocked/]
+  print("ON") if val == 'unblocked'
+  print("OFF") if val == 'blocked'
 end
-print(day_suffix(Time.now.day))
 
 # vim: ft=ruby:ts=2:sw=2:sts=2
