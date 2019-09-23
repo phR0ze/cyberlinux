@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.373
+  release: 0.2.374
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -1127,7 +1127,19 @@ apps:
     - install: thunar-media-tags-plugin # Thunar plugin to view media details
     - install: thunar-volman            # Thunar plugin to automatically manage removeable devices
     - install: tumbler                  # D-Bus thumbnail service for apps (e.g. Thunar)
-    - {exec: ln -sf //usr/lib/systemd/user/thunar.service /etc/skel/.config/systemd/user/default.target.wants/thunar.service }
+    - edit: /etc/skel/.config/autostart/thunar.desktop
+      insert: append
+      values:
+        - '[Desktop Entry]'
+        - 'Name=Thunar File Manager'
+        - 'Comment=Browse the filesystem with the file manager'
+        - 'GenericName=File Manager'
+        - 'Exec=thunar --daemon'
+        - 'Icon=Thunar'
+        - 'Terminal=false'
+        - 'StartupNotify=true'
+        - 'Type=Application'
+        - 'Categories=System;Utility;Core;GTK;FileTools;FileManager;'
     - {menu: Accessories, entry: Archive Manager, icon: /usr/share/icons/Paper/32x32/apps/file-roller.png, exec: file-roller }
     - {menu: Accessories, entry: Bulk Rename, icon: /usr/share/icons/Paper/32x32/apps/Thunar.png, exec: /usr/lib/Thunar/ThunarBulkRename }
     - {menu: Settings, entry: Thunar Settings, icon: /usr/share/icons/Paper/32x32/apps/system-file-manager.png, exec: thunar-settings }

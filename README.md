@@ -225,11 +225,18 @@ Key:
 | cinnamon-screensaver            | 3.0.1-1           | Repackaged: keeping the old lockscreen behavior
 | cinnamon-translations           | 3.4.2-1           | Repackaged: support file for lockscreen
 | cri-tools                       | 1.11.1-2          | ?
-| cyberlinux-config               | 0.0.2-1           | Custom: provides cyberlinux configuration files
+| cyberlinux-config               | 0.0.3-1           | Custom: provides cyberlinux configuration files
+| cyberlinux-desktop-config       | 0.0.3-1           | Custom: provides configuration for the cyberlinux desktop deployment
 | cyberlinux-grub                 | 0.0.3-1           | Custom: provides cyberlinux splash screen and boot files
 | cyberlinux-keyring              | 0.0.170-2         | Custom: provides cyberlinux keyring
+| cyberlinux-laptop-config        | 0.0.3-1           | Custom: provides configuration for the cyberlinux desktop deployment
+| cyberlinux-lite-config          | 0.0.3-1           | Custom: provides configuration for the cyberlinux desktop deployment
+| cyberlinux-netbook-config       | 0.0.3-1           | Custom: provides configuration for the cyberlinux desktop deployment
 | cyberlinux-plank                | 0.11.4-4          | Repackaged: modified the source with better defaults 
 | cyberlinux-screenfetch          | 3.8.0-2           | Custom: cyberlinux screenfetch
+| cyberlinux-server-config        | 0.0.3-1           | Custom: provides configuration for the cyberlinux desktop deployment
+| cyberlinux-shell-config         | 0.0.3-1           | Custom: provides configuration for the cyberlinux desktop deployment
+| cyberlinux-theater-config       | 0.0.3-1           | Custom: provides configuration for the cyberlinux desktop deployment
 | cyberlinux-vim-plugins          | 0.0.2-1           | Custom: provides useful default vim plugins
 | epson-inkjet-printer-escpr2     | 1.0.26-1          | AUR: Driver for the Epson WorkForce 7710 inkjet all-in-one printer
 | galliumos-braswell-config       | 1.0.0-1           | AUR: Braswell configuration files for Samsung 3 Chromebook
