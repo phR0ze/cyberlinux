@@ -1644,11 +1644,14 @@ sudo mount -a
 ```
 
 ### NFS Server Config <a name="nfs-server-config"/></a>
-Kodi recommends the `(rw,all_squash,insecure)` for the export options.
+Kodi recommends the `(rw,all_squash,insecure)` for the export options. In my experience the nfs root
+was also required `/srv/nfs             192.168.1.0/24(rw,fsid=0,no_subtree_check)` and although the
+linux nfs client worked fine without it, Kodi wouldn't work until it was added.
 
 Setup nfs shares:
 ```bash
 $ sudo tee -a /etc/exports <<EOL
+/srv/nfs             192.168.1.0/24(rw,fsid=0,no_subtree_check)
 /srv/nfs/Documents   192.168.1.0/24(rw,all_squash,insecure,no_subtree_check)
 /srv/nfs/Educational 192.168.1.0/24(rw,all_squash,insecure,no_subtree_check)
 /srv/nfs/Family      192.168.1.0/24(rw,all_squash,insecure,no_subtree_check)
