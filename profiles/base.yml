@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.374
+  release: 0.2.375
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -635,7 +635,7 @@ apps:
         - '[Desktop Entry]'
         - 'Name=Conky'
         - 'Comment=Desktop widgets'
-        - 'Exec=conky'
+        - 'Exec=/etc/xdg/conky/bin/startconky'
         - 'Icon=conky'
         - 'Terminal=false'
         - 'StartupNotify=true'
