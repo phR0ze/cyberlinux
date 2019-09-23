@@ -558,6 +558,9 @@ either system.
   * [Boot from Live USB](#boot-from-live-usb)
   * [Black Screen](#black-screen)
   * [Check Logs for Errors](#check-logs-for-errors)
+* [Sesion](#session)
+  * [XDG Autostart](#xdg-autostart)
+    * [Exec Script](#exec-script)
 * [Storage](#storage)
   * [Add Drive](#add-drive)
   * [Clone Drive](#clone-drive)
@@ -2037,6 +2040,28 @@ journalctl -f
 
 # Journal boot logs
 journalctl -b
+```
+
+# Session <a name="session"/></a>
+cyberlinux uses `lxsession` to manage its session which is started by the `/usr/bin/startx` in the
+`cyberlinux-lite-config` package which in turn is started by `lxdm`. LXSession will also kick off any
+XDG Autostart desktop files at `~/.config/autostart`.
+
+## XDG Autostart <a name="xdg-autostart"/></a>
+LXSession supports the XDG Autostart specification which calls out `/etc/xdg/autostart` and
+`~/.config/autostart` as locations where you can store desktop files that will get executed at
+startup.
+
+### Exec Script <a name="exec-script"/></a>
+As of yet the timing/ordering of X components being started isn't guaranteed which means that some
+may start too soon and end up having UI tearing. Conky is an example of an app that frequently does
+this. To avoid it you can create a wrapper script called from the desktop exec entry that will sleep 
+then execute conky.
+
+Note the placement of the `exec` call to avoid having nested parent processes visible with `ps -ef`
+```bash
+#!/bin/bash
+sleep 2 && exec conky -c /etc/xdg/conky/.conkyrc
 ```
 
 # Storage <a name="storage"/></a>
