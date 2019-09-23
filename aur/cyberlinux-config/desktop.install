@@ -19,25 +19,4 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-post_upgrade()
-{
-  post_install
-}
-
-post_install()
-{
-  # Enable services
-  home=/home/$SUDO_USER
-  sudo -u $SUDO_USER mkdir -p "$home/.config/systemd/user/default.target.wants"
-  sudo -u $SUDO_USER systemctl --user enable conky
-  sudo -u $SUDO_USER systemctl --user restart conky
-}
-
-pre_remove()
-{
-  # Disable services
-  home=/home/$SUDO_USER
-  sudo -u $SUDO_USER systemctl --user disable conky --now -q
-}
-
 # vim: ts=2:sw=2:sts=2
