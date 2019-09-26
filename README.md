@@ -1282,7 +1282,13 @@ The two best are ***SimpleScreenRecorder*** and ***RecordMyDesktop***
 
 ## Mount Busy <a name="mount-busy"/></a>
 How do you deal with a mount point that is busy e.g.
+
 `umount: cyberlinux/temp/work/deployments/shell/dev: target is busy.`
+
+### lsof <a name="lsof"/></a>
+See the open files for the given mount path
+
+`lsof <mount path that is busy>`
 
 ### fuser <a name="fuser"/></a>
 `fuser` provided by the `psmisc` package is a command line utility for identifying processes using

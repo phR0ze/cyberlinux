@@ -51,8 +51,9 @@ export GOPATH=~/Projects/go         # GOPATH for all Go projects
 # Command Aliases
 #----------------------------------------------------------------------------------------
 alias gb='git branch -av'
-alias gd='git diff-tree -r --name-only'
-alias gl='git log -5 --graph --decorate --pretty=oneline'
+alias gd='git diff --name-only'
+alias gl='git log -5 --oneline'
+alias gf='vim `git diff --name-only --diff-filter=M | uniq`'
 
 alias ip='ip -c'
 alias ls='ls -h --group-directories-first --color=auto'
