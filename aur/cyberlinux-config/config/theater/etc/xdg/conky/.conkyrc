@@ -71,9 +71,10 @@ ${offset -110}${voffset 13}${font Designer Block:bold:size=35}${color1}${time %a
 ${voffset -10}${font Designer Block:bold:size=20}${exec /etc/xdg/conky/bin/date.rb}
 # Month/Year
 ${voffset 25}\
-${font Designer Block:normal:size=24}${color1}${time %B}.${time %Y} ${hr 2}
+${font Designer Block:normal:size=28}${color1}${time %B}.${time %Y} ${hr 2}
 # Day names
-${font Liberation Mono:bold:size=14}${color2}  Su  Mo  Tu  We  Th  Fr  Sa
+${offset -30}${voffset -5}\
+${font Liberation Mono:bold:size=20}${color2}  Su Mo Tu We Th Fr Sa
 # Days
-${font Liberation Mono:size=14}${color1}${execp /etc/xdg/conky/bin/cal.rb 2 0}
+${font Liberation Mono:size=20}${color1}${execp /etc/xdg/conky/bin/cal.rb 1 -15}
 ]];
