@@ -8,6 +8,7 @@ import (
 var (
 	CleanOptKey       = "clean"
 	DeploymentsOptKey = "deployments"
+	ProfileOptKey     = "profile"
 )
 
 // CleanOpt wraps the option to clean the builds
@@ -38,4 +39,19 @@ func GetDeploymentsOpt(opts []*opt.Opt) []string {
 		}
 	}
 	return []string{}
+}
+
+// ProfileOpt passes the profile string
+func ProfileOpt(val string) *opt.Opt {
+	return &opt.Opt{Key: ProfileOptKey, Val: val}
+}
+
+// GetProfileOpt return the profile
+func GetProfileOpt(opts []*opt.Opt) string {
+	if o := opt.Get(opts, ProfileOptKey); o != nil {
+		if val, ok := o.Val.(string); ok {
+			return val
+		}
+	}
+	return ""
 }

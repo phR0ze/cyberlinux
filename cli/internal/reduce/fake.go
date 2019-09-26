@@ -19,6 +19,7 @@ func NewFake(opts ...*opt.Opt) Interface {
 	fake.Quiet = opt.GetQuietOpt(opts)
 	fake.Debug = opt.GetDebugOpt(opts)
 	fake.DryRun = opt.GetDryRunOpt(opts)
+	fake.Testing = opt.GetTestingOpt(opts)
 	fake.Data = map[string]interface{}{}
 	fake.Result = map[string]interface{}{}
 
@@ -26,8 +27,9 @@ func NewFake(opts ...*opt.Opt) Interface {
 }
 
 // Clean reduce targets
-func (fake *Fake) Clean(targets []string) error {
-	fake.Result["clean"] = targets
+func (fake *Fake) Clean(targets []string, opts ...*opt.Opt) error {
+	fake.Result["clean-targets"] = targets
+	fake.Result["clean-opts"] = opts
 
 	if data, ok := fake.Data["clean"]; ok {
 		switch x := data.(type) {
@@ -40,7 +42,7 @@ func (fake *Fake) Clean(targets []string) error {
 
 // Build reduce targets
 func (fake *Fake) Build(targets []string, opts ...*opt.Opt) (err error) {
-	fake.Result["build"] = targets
+	fake.Result["build-targets"] = targets
 	fake.Result["build-opts"] = opts
 
 	if data, ok := fake.Data["build"]; ok {

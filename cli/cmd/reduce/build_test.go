@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/phR0ze/cyberlinux/cli/internal/reduce"
@@ -9,35 +10,47 @@ import (
 )
 
 func TestBuidl(t *testing.T) {
-	cli := newCli()
 
 	// clean & deployments
 	{
-		err := cli.Execute("build", "all", "iso", "isofull", "--clean", "-d", "foo,bar")
+		cli := newCli()
+		err := cli.Execute("build", "all,iso,isofull", "personal", "--clean", "-d", "foo,bar")
 		assert.Nil(t, err)
-		assert.Equal(t, []string{"all", "iso", "isofull"}, cli.Client.(*reduce.Fake).Result["build"].([]string))
-		assert.Len(t, cli.Client.(*reduce.Fake).Result["build-opts"].([]*opt.Opt), 2)
+		assert.Equal(t, []string{"all", "iso", "isofull"}, cli.Client.(*reduce.Fake).Result["build-targets"].([]string))
+		assert.Len(t, cli.Client.(*reduce.Fake).Result["build-opts"].([]*opt.Opt), 3)
 		assert.Equal(t, &opt.Opt{Key: reduce.CleanOptKey, Val: true}, cli.Client.(*reduce.Fake).Result["build-opts"].([]*opt.Opt)[0])
-		assert.Equal(t, &opt.Opt{Key: reduce.DeploymentsOptKey, Val: []string{"foo", "bar"}}, cli.Client.(*reduce.Fake).Result["build-opts"].([]*opt.Opt)[1])
+		assert.Equal(t, &opt.Opt{Key: reduce.ProfileOptKey, Val: "personal"}, cli.Client.(*reduce.Fake).Result["build-opts"].([]*opt.Opt)[1])
+		assert.Equal(t, &opt.Opt{Key: reduce.DeploymentsOptKey, Val: []string{"foo", "bar"}}, cli.Client.(*reduce.Fake).Result["build-opts"].([]*opt.Opt)[2])
 	}
 
 	// many
 	{
-		err := cli.Execute("build", "all", "iso", "isofull")
+		cli := newCli()
+		err := cli.Execute("build", "all,iso,isofull", "personal")
 		assert.Nil(t, err)
-		assert.Equal(t, []string{"all", "iso", "isofull"}, cli.Client.(*reduce.Fake).Result["build"].([]string))
+		assert.Equal(t, []string{"all", "iso", "isofull"}, cli.Client.(*reduce.Fake).Result["build-targets"].([]string))
 	}
 
 	// one
 	{
-		err := cli.Execute("build", "all")
+		cli := newCli()
+		err := cli.Execute("build", "all", "personal")
 		assert.Nil(t, err)
-		assert.Equal(t, []string{"all"}, cli.Client.(*reduce.Fake).Result["build"].([]string))
+		assert.Equal(t, []string{"all"}, cli.Client.(*reduce.Fake).Result["build-targets"].([]string))
+	}
+
+	// error
+	{
+		cli := newCli()
+		cli.Client.(*reduce.Fake).Data["build"] = fmt.Errorf("internal error")
+		err := cli.Execute("build", "foo", "bar")
+		assert.Equal(t, "internal error", err.Error())
 	}
 
 	// invalid args
 	{
-		err := cli.Execute("build", "bob")
-		assert.Equal(t, "Argument details: invalid argument \"bob\" for \"reduce build\"", err.Error())
+		cli := newCli()
+		err := cli.Execute("build", "foo")
+		assert.Equal(t, "Argument details: accepts 2 arg(s), received 1", err.Error())
 	}
 }

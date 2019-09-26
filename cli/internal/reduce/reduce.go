@@ -11,11 +11,11 @@ type Reduce struct {
 
 // Interface is the public interface for reduce
 type Interface interface {
-	Clean(targets []string) error                   // Clean reduce targets
-	Build(targets []string, opts ...*opt.Opt) error // Build reduce targets
+	Clean(targets []string, opts ...*opt.Opt) error // Clean reduce targets; opts: ProfileOpt
+	Build(targets []string, opts ...*opt.Opt) error // Build reduce targets; opts: ProfileOpt, CleanOpt, DeploymentsOpt
 }
 
-// New initializes the new instance with the given options
+// New reduce client supports opt.StdProps using the options pattern
 func New(opts ...*opt.Opt) Interface {
 	reduce := &Reduce{}
 	reduce.In = opt.GetInOpt(opts)
@@ -25,6 +25,7 @@ func New(opts ...*opt.Opt) Interface {
 	reduce.Quiet = opt.GetQuietOpt(opts)
 	reduce.Debug = opt.GetDebugOpt(opts)
 	reduce.DryRun = opt.GetDryRunOpt(opts)
+	reduce.Testing = opt.GetTestingOpt(opts)
 
 	return reduce
 }
