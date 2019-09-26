@@ -11,7 +11,8 @@ type Reduce struct {
 
 // Interface is the public interface for reduce
 type Interface interface {
-	Clean(targets []string) error // Clean reduce targets
+	Clean(targets []string) error                   // Clean reduce targets
+	Build(targets []string, opts ...*opt.Opt) error // Build reduce targets
 }
 
 // New initializes the new instance with the given options

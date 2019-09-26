@@ -37,3 +37,17 @@ func (fake *Fake) Clean(targets []string) error {
 	}
 	return nil
 }
+
+// Build reduce targets
+func (fake *Fake) Build(targets []string, opts ...*opt.Opt) (err error) {
+	fake.Result["build"] = targets
+	fake.Result["build-opts"] = opts
+
+	if data, ok := fake.Data["build"]; ok {
+		switch x := data.(type) {
+		case error:
+			return x
+		}
+	}
+	return nil
+}

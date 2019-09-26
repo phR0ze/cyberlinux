@@ -10,7 +10,14 @@ import (
 func TestClean(t *testing.T) {
 	cli := newCli()
 
-	// all
+	// many
+	{
+		err := cli.Execute("clean", "all", "iso", "isofull")
+		assert.Nil(t, err)
+		assert.Equal(t, []string{"all", "iso", "isofull"}, cli.Client.(*reduce.Fake).Result["clean"].([]string))
+	}
+
+	// one
 	{
 		err := cli.Execute("clean", "all")
 		assert.Nil(t, err)
