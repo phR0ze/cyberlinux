@@ -13,8 +13,9 @@ func TestBuidl(t *testing.T) {
 
 	// clean & deployments
 	{
-		cli := newCli()
-		err := cli.Execute("build", "all,iso,isofull", "personal", "--clean", "-d", "foo,bar")
+		cli, err := newCli()
+		assert.Nil(t, err)
+		err = cli.Execute("build", "all,iso,isofull", "personal", "--clean", "-d", "foo,bar")
 		assert.Nil(t, err)
 		assert.Equal(t, []string{"all", "iso", "isofull"}, cli.Client.(*reduce.Fake).Result["build-targets"].([]string))
 		assert.Len(t, cli.Client.(*reduce.Fake).Result["build-opts"].([]*opt.Opt), 3)
@@ -25,32 +26,36 @@ func TestBuidl(t *testing.T) {
 
 	// many
 	{
-		cli := newCli()
-		err := cli.Execute("build", "all,iso,isofull", "personal")
+		cli, err := newCli()
+		assert.Nil(t, err)
+		err = cli.Execute("build", "all,iso,isofull", "personal")
 		assert.Nil(t, err)
 		assert.Equal(t, []string{"all", "iso", "isofull"}, cli.Client.(*reduce.Fake).Result["build-targets"].([]string))
 	}
 
 	// one
 	{
-		cli := newCli()
-		err := cli.Execute("build", "all", "personal")
+		cli, err := newCli()
+		assert.Nil(t, err)
+		err = cli.Execute("build", "all", "personal")
 		assert.Nil(t, err)
 		assert.Equal(t, []string{"all"}, cli.Client.(*reduce.Fake).Result["build-targets"].([]string))
 	}
 
 	// error
 	{
-		cli := newCli()
+		cli, err := newCli()
+		assert.Nil(t, err)
 		cli.Client.(*reduce.Fake).Data["build"] = fmt.Errorf("internal error")
-		err := cli.Execute("build", "foo", "bar")
+		err = cli.Execute("build", "foo", "bar")
 		assert.Equal(t, "internal error", err.Error())
 	}
 
 	// invalid args
 	{
-		cli := newCli()
-		err := cli.Execute("build", "foo")
+		cli, err := newCli()
+		assert.Nil(t, err)
+		err = cli.Execute("build", "foo")
 		assert.Equal(t, "Argument details: accepts 2 arg(s), received 1", err.Error())
 	}
 }

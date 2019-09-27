@@ -1,3 +1,4 @@
 bin/induce
 bin/reduce
 coverage.out
+test/temp

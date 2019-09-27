@@ -3,8 +3,7 @@ package reduce
 import "github.com/phR0ze/n/pkg/opt"
 
 var (
-	// CleanTargets that are supported
-	CleanTargets = []string{
+	gCleanTargets = []string{
 		"all",       // Clean everything listed below
 		"builder",   // Clean builder
 		"cache",     // Clean the package cache

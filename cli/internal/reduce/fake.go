@@ -1,29 +1,35 @@
 package reduce
 
-import "github.com/phR0ze/n/pkg/opt"
+import (
+	"bytes"
+
+	"github.com/phR0ze/n/pkg/opt"
+)
 
 // Fake instance
 type Fake struct {
-	opt.StdProps
+	Reduce
 	Data   map[string]interface{} // test data input
 	Result map[string]interface{} // test data output
 }
 
 // NewFake initializes the new instance with the given options
-func NewFake(opts ...*opt.Opt) Interface {
+func NewFake(opts ...*opt.Opt) (ins Interface, err error) {
+	opt.Default(&opts, opt.QuietOpt(true))
+	opt.Default(&opts, opt.TestingOpt(true))
+	opt.Default(&opts, opt.OutOpt(&bytes.Buffer{}))
+	opt.Default(&opts, opt.ErrOpt(&bytes.Buffer{}))
+
 	fake := &Fake{}
-	fake.In = opt.GetInOpt(opts)
-	fake.Out = opt.GetOutOpt(opts)
-	fake.Err = opt.GetErrOpt(opts)
-	fake.Home = opt.GetHomeOpt(opts)
-	fake.Quiet = opt.GetQuietOpt(opts)
-	fake.Debug = opt.GetDebugOpt(opts)
-	fake.DryRun = opt.GetDryRunOpt(opts)
-	fake.Testing = opt.GetTestingOpt(opts)
 	fake.Data = map[string]interface{}{}
 	fake.Result = map[string]interface{}{}
+	if ins, err = New(opts...); err != nil {
+		return
+	}
+	fake.Reduce = *(ins.(*Reduce))
 
-	return fake
+	ins = fake
+	return
 }
 
 // Clean reduce targets

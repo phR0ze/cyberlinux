@@ -9,6 +9,7 @@ var (
 	CleanOptKey       = "clean"
 	DeploymentsOptKey = "deployments"
 	ProfileOptKey     = "profile"
+	RootOptKey        = "root"
 )
 
 // CleanOpt wraps the option to clean the builds
@@ -49,6 +50,21 @@ func ProfileOpt(val string) *opt.Opt {
 // GetProfileOpt return the profile
 func GetProfileOpt(opts []*opt.Opt) string {
 	if o := opt.Get(opts, ProfileOptKey); o != nil {
+		if val, ok := o.Val.(string); ok {
+			return val
+		}
+	}
+	return ""
+}
+
+// RootOpt passes the root string
+func RootOpt(val string) *opt.Opt {
+	return &opt.Opt{Key: RootOptKey, Val: val}
+}
+
+// GetRootOpt return the root
+func GetRootOpt(opts []*opt.Opt) string {
+	if o := opt.Get(opts, RootOptKey); o != nil {
 		if val, ok := o.Val.(string); ok {
 			return val
 		}

@@ -111,7 +111,7 @@ func (cli *CLI) Execute(args ...string) (err error) {
 func (cli *CLI) init() (err error) {
 	if cli.Client == nil {
 		opts := opt.Copy(cli.opts)
-		cli.Client = reduce.New(opts...)
+		cli.Client, err = reduce.New(opts...)
 	}
 	return
 }
