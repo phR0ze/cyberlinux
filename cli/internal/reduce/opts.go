@@ -1,6 +1,7 @@
 package reduce
 
 import (
+	"github.com/phR0ze/cyberlinux/cli/internal/aur"
 	"github.com/phR0ze/n/pkg/opt"
 )
 
@@ -10,6 +11,7 @@ var (
 	DeploymentsOptKey = "deployments"
 	ProfileOptKey     = "profile"
 	RootOptKey        = "root"
+	AurClientOptKey   = "aur-client"
 )
 
 // CleanOpt wraps the option to clean the builds
@@ -70,4 +72,27 @@ func GetRootOpt(opts []*opt.Opt) string {
 		}
 	}
 	return ""
+}
+
+// AurClientOpt passes the client to use
+func AurClientOpt(val aur.Interface) *opt.Opt {
+	return &opt.Opt{Key: AurClientOptKey, Val: val}
+}
+
+// GetAurClientOpt returns the client option
+func GetAurClientOpt(opts []*opt.Opt) aur.Interface {
+	if o := opt.Get(opts, AurClientOptKey); o != nil {
+		if val, ok := o.Val.(aur.Interface); ok {
+			return val
+		}
+	}
+	return nil
+}
+
+// DefaultAurClientOpt sets the default client if it doesn't exist
+func DefaultAurClientOpt(opts []*opt.Opt, val aur.Interface) aur.Interface {
+	if !opt.Exists(opts, AurClientOptKey) {
+		return val
+	}
+	return GetAurClientOpt(opts)
 }

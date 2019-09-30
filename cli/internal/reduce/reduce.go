@@ -3,6 +3,7 @@ package reduce
 import (
 	"path"
 
+	"github.com/phR0ze/cyberlinux/cli/internal/aur"
 	"github.com/phR0ze/n"
 	"github.com/phR0ze/n/pkg/opt"
 	"github.com/phR0ze/n/pkg/structs"
@@ -26,15 +27,18 @@ type Reduce struct {
 	workDir        string // path to outDir/work
 	tmpDir         string // path to workDir/tmp
 	isoDir         string // path to workDir/_iso_
+
+	aurClient aur.Interface // aur client to use
 }
 
 // Interface is the public interface for reduce
 type Interface interface {
+	Info() (Distro, error)                          // Info gets the target distro info
 	Clean(targets []string, opts ...*opt.Opt) error // Clean reduce targets; opts: ProfileOpt
 	Build(targets []string, opts ...*opt.Opt) error // Build reduce targets; opts: ProfileOpt, CleanOpt, DeploymentsOpt
 }
 
-// New reduce client supports opt.StdProps using the options pattern
+// New reduce client supports opt.StdProps, Root and AurClient
 func New(opts ...*opt.Opt) (ins Interface, err error) {
 	reduce := &Reduce{}
 	reduce.In = opt.GetInOpt(opts)
@@ -46,6 +50,7 @@ func New(opts ...*opt.Opt) (ins Interface, err error) {
 	reduce.DryRun = opt.GetDryRunOpt(opts)
 	reduce.Testing = opt.GetTestingOpt(opts)
 	reduce.rootDir = GetRootOpt(opts)
+	reduce.aurClient = DefaultAurClientOpt(opts, aur.New())
 
 	// Determine paths
 	if err = reduce.getRootDir(); err != nil {

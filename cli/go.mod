@@ -7,5 +7,7 @@ require (
 	github.com/pkg/errors v0.8.1
 	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/cobra v0.0.5
+	github.com/src-d/go-git v4.7.0+incompatible
 	github.com/stretchr/testify v1.4.0
+	gopkg.in/src-d/go-git.v4 v4.13.1 // indirect
 )

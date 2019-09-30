@@ -25,6 +25,7 @@ test:
 	@echo "------------------------------------------------------------------------"
 	go test ./cmd/${NAME}
 	go test ./internal/${NAME}
+	go test ./internal/aur
 
 clean:
 	@rm -rf bin
