@@ -1,7 +1,7 @@
 package reduce
 
 import (
-	"github.com/phR0ze/cyberlinux/cli/internal/aur"
+	"github.com/phR0ze/cyberlinux/cli/internal/arch/aur"
 	"github.com/phR0ze/n/pkg/opt"
 )
 

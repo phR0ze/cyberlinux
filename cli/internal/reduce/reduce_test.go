@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var (
+const (
 	testDir = "../../test"
 	tempDir = "../../test/temp"
 )

@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/phR0ze/cyberlinux/cli/internal/arch/model"
 	"github.com/phR0ze/n/pkg/opt"
 	"github.com/pkg/errors"
 )
@@ -19,8 +20,8 @@ const (
 
 // Interface provides a related set of AUR functions
 type Interface interface {
-	Info(pkgs ...string) ([]Package, error) // Retrieves package details for the given packages
-	Search(query string) ([]Package, error) // Search the aur for packages by name and/or description
+	Info(pkgs ...string) ([]model.Package, error) // Retrieves package details for the given packages
+	Search(query string) ([]model.Package, error) // Search the aur for packages by name and/or description
 }
 
 // API client
@@ -38,7 +39,7 @@ func New(opts ...*opt.Opt) Interface {
 }
 
 // Info retrieves package information for the given packages
-func (api *API) Info(pkgs ...string) ([]Package, error) {
+func (api *API) Info(pkgs ...string) ([]model.Package, error) {
 	if len(pkgs) == 0 {
 		return nil, errors.Errorf("Failed to get info for zero packages")
 	}
@@ -54,7 +55,7 @@ func (api *API) Info(pkgs ...string) ([]Package, error) {
 }
 
 // Search retrieves package information for the given query term
-func (api *API) Search(query string) ([]Package, error) {
+func (api *API) Search(query string) ([]model.Package, error) {
 	values := &url.Values{}
 	values.Set("type", "search")
 	values.Set("arg", query)
@@ -65,12 +66,13 @@ func (api *API) Search(query string) ([]Package, error) {
 // API gets like the examples from https://aur.archlinux.org/rpc.php
 // info /rpc/?v=5&type=info&arg[]=foobar
 // search /rpc/?v=5&type=search&arg=foobar
-func (api *API) get(values *url.Values) (pkgs []Package, err error) {
+func (api *API) get(values *url.Values) (pkgs []model.Package, err error) {
 	values.Set("v", "5")
 
 	// Query API and check status
 	var res *http.Response
 	if res, err = api.client.Get(fmt.Sprintf("%s?%s", api.url, values.Encode())); err != nil {
+		err = errors.Wrap(err, "Failed to get data from AUR server")
 		return
 	}
 

@@ -3,7 +3,7 @@ package reduce
 import (
 	"path"
 
-	"github.com/phR0ze/cyberlinux/cli/internal/aur"
+	"github.com/phR0ze/cyberlinux/cli/internal/arch/aur"
 	"github.com/phR0ze/n"
 	"github.com/phR0ze/n/pkg/opt"
 	"github.com/phR0ze/n/pkg/structs"

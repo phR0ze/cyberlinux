@@ -180,6 +180,7 @@ func TestInfoMultiple(t *testing.T) {
 	assert.Equal(t, []string(nil), pkgs[0].Groups)
 	assert.Equal(t, []string{"ISC"}, pkgs[0].License)
 	assert.Equal(t, []string{}, pkgs[0].Keywords)
+	assert.Equal(t, 0, pkgs[0].Release)
 
 	assert.Equal(t, 648306, pkgs[1].ID)
 	assert.Equal(t, "yay", pkgs[1].Name)

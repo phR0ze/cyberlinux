@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/phR0ze/cyberlinux/cli/internal/aur"
+	"github.com/phR0ze/cyberlinux/cli/internal/arch/aur"
 	"github.com/stretchr/testify/assert"
 )
 

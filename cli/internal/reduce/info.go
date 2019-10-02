@@ -1,9 +1,5 @@
 package reduce
 
-import (
-	"github.com/phR0ze/cyberlinux/cli/internal/aur"
-)
-
 // Distro provides information about the distro being built
 type Distro struct {
 	Name      string // Distro name
@@ -15,5 +11,5 @@ type Distro struct {
 
 // Info about the target distro
 func (reduce *Reduce) Info() (distro Distro, err error) {
-	aur.New()
+	return
 }
