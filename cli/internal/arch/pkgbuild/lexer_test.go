@@ -37,7 +37,7 @@ func TestScanNAME(t *testing.T) {
 		scanner := NewScanner(strings.NewReader("_foo1=bar"))
 		token := scanner.scanNAME()
 		assert.Equal(t, NAME, token.Type)
-		assert.Equal(t, Position{}, token.Pos)
+		assert.Equal(t, []Token(nil), token.Tokens)
 		assert.Equal(t, "_foo1", token.Text)
 	}
 
@@ -46,7 +46,28 @@ func TestScanNAME(t *testing.T) {
 		scanner := NewScanner(strings.NewReader("foo=bar"))
 		token := scanner.scanNAME()
 		assert.Equal(t, NAME, token.Type)
-		assert.Equal(t, Position{}, token.Pos)
+		assert.Equal(t, []Token(nil), token.Tokens)
+		assert.Equal(t, "foo", token.Text)
+	}
+}
+
+func TestScanVALUE(t *testing.T) {
+
+	// underscores and numbers
+	{
+		scanner := NewScanner(strings.NewReader("_foo1=bar"))
+		token := scanner.scanNAME()
+		assert.Equal(t, NAME, token.Type)
+		assert.Equal(t, []Token(nil), token.Tokens)
+		assert.Equal(t, "_foo1", token.Text)
+	}
+
+	// regular
+	{
+		scanner := NewScanner(strings.NewReader("foo=bar"))
+		token := scanner.scanNAME()
+		assert.Equal(t, NAME, token.Type)
+		assert.Equal(t, []Token(nil), token.Tokens)
 		assert.Equal(t, "foo", token.Text)
 	}
 }
@@ -58,7 +79,7 @@ func TestScanCOMMENT(t *testing.T) {
 		scanner := NewScanner(strings.NewReader("# foo bar"))
 		token := scanner.scanCOMMENT()
 		assert.Equal(t, COMMENT, token.Type)
-		assert.Equal(t, Position{}, token.Pos)
+		assert.Equal(t, []Token(nil), token.Tokens)
 		assert.Equal(t, "# foo bar", token.Text)
 	}
 
@@ -67,7 +88,7 @@ func TestScanCOMMENT(t *testing.T) {
 		scanner := NewScanner(strings.NewReader("# foo bar\n"))
 		token := scanner.scanCOMMENT()
 		assert.Equal(t, COMMENT, token.Type)
-		assert.Equal(t, Position{}, token.Pos)
+		assert.Equal(t, []Token(nil), token.Tokens)
 		assert.Equal(t, "# foo bar\n", token.Text)
 	}
 }
@@ -79,7 +100,7 @@ func TestScanWS(t *testing.T) {
 		scanner := NewScanner(strings.NewReader("\n \t\n"))
 		token := scanner.scanWS()
 		assert.Equal(t, WS, token.Type)
-		assert.Equal(t, Position{}, token.Pos)
+		assert.Equal(t, []Token(nil), token.Tokens)
 		assert.Equal(t, "\n \t\n", token.Text)
 	}
 
@@ -88,7 +109,7 @@ func TestScanWS(t *testing.T) {
 		scanner := NewScanner(strings.NewReader("  "))
 		token := scanner.scanWS()
 		assert.Equal(t, WS, token.Type)
-		assert.Equal(t, Position{}, token.Pos)
+		assert.Equal(t, []Token(nil), token.Tokens)
 		assert.Equal(t, "  ", token.Text)
 	}
 }
@@ -100,12 +121,12 @@ func TestScanEOL(t *testing.T) {
 		scanner := NewScanner(strings.NewReader("\r\n\r\n"))
 		token := scanner.scanEOL()
 		assert.Equal(t, EOL, token.Type)
-		assert.Equal(t, Position{}, token.Pos)
+		assert.Equal(t, []Token(nil), token.Tokens)
 		assert.Equal(t, "\r\n", token.Text)
 
 		token = scanner.scanEOL()
 		assert.Equal(t, EOL, token.Type)
-		assert.Equal(t, Position{}, token.Pos)
+		assert.Equal(t, []Token(nil), token.Tokens)
 		assert.Equal(t, "\r\n", token.Text)
 	}
 
@@ -114,7 +135,7 @@ func TestScanEOL(t *testing.T) {
 		scanner := NewScanner(strings.NewReader("\r\n"))
 		token := scanner.scanEOL()
 		assert.Equal(t, EOL, token.Type)
-		assert.Equal(t, Position{}, token.Pos)
+		assert.Equal(t, []Token(nil), token.Tokens)
 		assert.Equal(t, "\r\n", token.Text)
 	}
 
@@ -123,7 +144,7 @@ func TestScanEOL(t *testing.T) {
 		scanner := NewScanner(strings.NewReader("\n"))
 		token := scanner.scanEOL()
 		assert.Equal(t, EOL, token.Type)
-		assert.Equal(t, Position{}, token.Pos)
+		assert.Equal(t, []Token(nil), token.Tokens)
 		assert.Equal(t, "\n", token.Text)
 	}
 }

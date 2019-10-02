@@ -2,8 +2,6 @@
 package pkgbuild
 
 import (
-	"bufio"
-	"fmt"
 	"io"
 )
 
@@ -49,12 +47,12 @@ const (
 
 // Parse the given PKGBUILD reader
 func Parse(reader io.Reader) {
-	scanner := &Scanner{reader: bufio.NewReader(reader)}
+	// scanner := &Scanner{reader: bufio.NewReader(reader)}
 
-	for scanner.Next() {
-		token := scanner.token
-		fmt.Println("Type: ", token.Type)
-		fmt.Println("Pos : ", token.Pos)
-		fmt.Println("Text: ", token.Text)
-	}
+	// for scanner.Next() {
+	// 	token := scanner.token
+	// 	fmt.Println("Type: ", token.Type)
+	// 	fmt.Println("Pos : ", token.Pos)
+	// 	fmt.Println("Text: ", token.Text)
+	// }
 }

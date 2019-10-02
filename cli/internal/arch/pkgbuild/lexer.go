@@ -27,21 +27,16 @@ const (
 	COMMENT  // comments
 	NAME     // variable name
 	VALUE    // variable value
-	VARIABLE // name=value pair
+	ARRAY    // variable array value
+	EQUAL    // variable equals
+	VARIABLE // parent token composed of NAME, EQUAL, VALUE/ARRAY
 )
-
-// Position of the token in the document
-type Position struct {
-	Line   int
-	Col    int
-	Offset int
-}
 
 // Token encapsulates components needed to track tokens
 type Token struct {
-	Type TokenType
-	Pos  Position
-	Text string
+	Type   TokenType
+	Tokens []Token
+	Text   string
 }
 
 // Scanner scans for tokens
@@ -73,9 +68,9 @@ func (s *Scanner) Scan() Token {
 	case r == '#':
 		s.token = s.scanCOMMENT()
 
-	// Variable case
+		// Variable
 	default:
-		s.token = s.scanVARIABLE()
+		// s.token = s.scanVARIABLE()
 	}
 
 	return s.token
@@ -110,66 +105,63 @@ func (s *Scanner) read() rune {
 func (s *Scanner) unread() { _ = s.reader.UnreadRune() }
 
 // scanVARIABLE consumes variables e.g. name=value, name=()
-func (s *Scanner) scanVARIABLE() (tok Token) {
+func (s *Scanner) scanVARIABLE() Token {
+	toks := []Token{}
 	var buf bytes.Buffer
 
-Loop:
-	for {
-		r := s.peek()
-		switch {
+	// Scan the name
+	t := s.scanNAME()
+	toks = append(toks, t)
+	buf.WriteString(t.Text)
 
-		// Stop if we hit the end
-		case r == eof:
-			break Loop
+	// Add the equals
+	t := s.scanNAME()
+	toks = append(toks, Token{Type: EQUAL, Text: "="})
+	buf.WriteString(t.Text)
 
-		// Read all Bash name runes
-		case isName(r):
-			buf.WriteString(s.scanNAME().Text)
-			break Loop
+	// Scan the value
 
-		// Must have whitespace char
-		default:
-			buf.WriteRune(s.read())
-		}
-	}
-
+	t := s.scanNAME()
+	toks = append(toks, t)
+	buf.WriteString(t.Text)
+	toks = append(toks, s.scanVALUE())
 	return Token{Type: VARIABLE, Text: buf.String()}
 }
 
 // scanName consumes Bash valid variable names up to =
-func (s *Scanner) scanNAME() (tok Token) {
+func (s *Scanner) scanNAME() Token {
+	return s.scanFunc(NAME, func(r rune) bool { return isName(r) })
+}
+
+// scanVALUE consumes Bash variable value/array
+func (s *Scanner) scanVALUE() (tok Token) {
+	if r := s.peek(); r == eof {
+	}
 	return s.scanFunc(NAME, func(r rune) bool { return isName(r) })
 }
 
 // scanCOMMENT consumes the current rune and all characters up and including EOL
-func (s *Scanner) scanCOMMENT() (tok Token) {
+func (s *Scanner) scanCOMMENT() Token {
 	var buf bytes.Buffer
-
-Loop:
 	for {
-		r := s.peek()
-		switch {
-
-		// Stop if we hit the end
-		case r == eof:
-			break Loop
-
-		// Stop on EOL
-		case isEOL(r):
+		if r := s.peek(); r == eof {
+			break
+		} else if isEOL(r) {
 			buf.WriteString(s.scanEOL().Text)
-			break Loop
-
-		// Read comment runes
-		default:
+			break
+		} else {
 			buf.WriteRune(s.read())
 		}
 	}
-
-	return Token{Type: COMMENT, Text: buf.String()}
+	txt := buf.String()
+	if txt == "" {
+		return Token{Type: ILLEGAL, Text: txt}
+	}
+	return Token{Type: COMMENT, Text: txt}
 }
 
 // scanEOL consumes one Linux or Windows line ending
-func (s *Scanner) scanEOL() (tok Token) {
+func (s *Scanner) scanEOL() Token {
 	returns := 0
 	newlines := 0
 	return s.scanFunc(EOL, func(r rune) bool {
@@ -190,12 +182,12 @@ func (s *Scanner) scanEOL() (tok Token) {
 }
 
 // scanWS consumes the current rune and all contiguous whitespace.
-func (s *Scanner) scanWS() (tok Token) {
+func (s *Scanner) scanWS() Token {
 	return s.scanFunc(WS, func(r rune) bool { return isWS(r) })
 }
 
 // scanFunc provides a generic way to scan for rune sets
-func (s *Scanner) scanFunc(typ TokenType, f func(rune) bool) (tok Token) {
+func (s *Scanner) scanFunc(typ TokenType, f func(rune) bool) Token {
 	var buf bytes.Buffer
 	for {
 		if r := s.peek(); r == eof || !f(r) {
@@ -204,7 +196,11 @@ func (s *Scanner) scanFunc(typ TokenType, f func(rune) bool) (tok Token) {
 			buf.WriteRune(s.read())
 		}
 	}
-	return Token{Type: typ, Text: buf.String()}
+	txt := buf.String()
+	if txt == "" {
+		return Token{Type: ILLEGAL, Text: txt}
+	}
+	return Token{Type: typ, Text: txt}
 }
 
 func isEOL(r rune) bool {
