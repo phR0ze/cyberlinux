@@ -27,6 +27,8 @@ test:
 	go test ./internal/${NAME}
 	go test ./internal/arch/abs
 	go test ./internal/arch/aur
+	go test ./internal/arch/pkgbuild
+	go test ./internal/shlex
 
 clean:
 	@rm -rf bin
