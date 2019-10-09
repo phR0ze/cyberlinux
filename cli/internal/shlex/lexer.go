@@ -9,6 +9,7 @@ package shlex
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"strings"
 
@@ -39,15 +40,19 @@ const (
 	EOF                // errors or end of file
 	EOL                // end of line handle both \r\n and \n
 	WS                 // one or more whitespaces
-	COMMENT            // comments
+	COMMENT            // comment: COMMENT{VALUE, [EOL]}
 	IDENT              // NAME | KEYWORD
 	VARNAME            // variable name
 	KEYWORD            // language operator
 	FUNCNAME           // function name
 	EQUAL              // assignment operator
-	QUOTE              // quotes
+	QUOTE              // single or double quoted value: QUOTE{LQUOTE|LDQUOTE, VALUE, RQUOTE|RDQUOTE}
+	LQUOTE             // single left quote
+	RQUOTE             // single right quote
+	LDQUOTE            // double left quote
+	RDQUOTE            // double right quote
 	VALUE              // SCALAR | ARRAY | FUNC
-	ARRAY              //
+	ARRAY              // array type value: ARRAY{}
 	VARIABLE           // IDENT, EQUAL, VALUE
 )
 
@@ -254,6 +259,15 @@ func (s *Scanner) scanVALUE() (tok Token) {
 
 // scanARRAY handle bash arrays
 func (s *Scanner) scanARRAY() (tok Token) {
+
+	// Ensure we are working the correct type
+	if s.buf.Peek() != '(' {
+		tok = Token{Type: ILLEGAL, Pos: s.buf.Pos}
+		s.push(tok)
+		return
+	}
+
+	// Scan array
 	var buf bytes.Buffer
 	tok.Pos = s.buf.Pos
 	var openParen, success bool
@@ -263,7 +277,10 @@ func (s *Scanner) scanARRAY() (tok Token) {
 			break
 		} else if next == '(' {
 			openParen = true
-
+		} else if isQUOTE(next) {
+			quote := s.scanQUOTE()
+			tok.Tokens = append(tok.Tokens, quote)
+			buf.WriteString(quote.Text)
 		} else if next == ')' {
 			if openParen {
 				success = true
@@ -284,30 +301,54 @@ func (s *Scanner) scanARRAY() (tok Token) {
 	return
 }
 
-// scanQUOTE handle single, double and escaped quotes;
-// escaped can be backslash or quoted twice
+// scanQUOTE handle single, double and escaped quotes, escaped can be backslash or quoted twice;
+// composed of: QUOTE{LQUOTE|LDQUOTE, VALUE, RQUOTE|RDQUOTE}
 func (s *Scanner) scanQUOTE() (tok Token) {
+
+	// Ensure we are working the correct type
+	if !isQUOTE(s.buf.Peek()) {
+		tok = Token{Type: ILLEGAL, Pos: s.buf.Pos}
+		s.push(tok)
+		return
+	}
+
+	// Scan quote
 	var buf bytes.Buffer
 	var single, double, success bool
 	tok.Pos = s.buf.Pos
+	value := Token{Type: VALUE}
 
 	for {
 		prev := s.buf.PeekPrev()
 		if next := s.buf.Peek(); next == eof {
 			break
 		} else if next == '\'' && !double && prev != '\\' {
-			buf.WriteRune(s.buf.Read())
+			quote := Token{Type: LQUOTE, Pos: s.buf.Pos, Text: string(next)}
+			s.buf.Read()
 			if !single {
+				value.Pos = s.buf.Pos
+				tok.Tokens = append(tok.Tokens, quote)
 				single = true
 			} else {
+				quote.Type = RQUOTE
+				value.Text = buf.String()
+				tok.Tokens = append(tok.Tokens, value)
+				tok.Tokens = append(tok.Tokens, quote)
 				success = true
 				break
 			}
 		} else if next == '"' && !single && prev != '\\' {
-			buf.WriteRune(s.buf.Read())
+			quote := Token{Type: LDQUOTE, Pos: s.buf.Pos, Text: string(next)}
+			s.buf.Read()
 			if !double {
+				value.Pos = s.buf.Pos
+				tok.Tokens = append(tok.Tokens, quote)
 				double = true
 			} else {
+				quote.Type = RDQUOTE
+				value.Text = buf.String()
+				tok.Tokens = append(tok.Tokens, value)
+				tok.Tokens = append(tok.Tokens, quote)
 				success = true
 				break
 			}
@@ -316,23 +357,26 @@ func (s *Scanner) scanQUOTE() (tok Token) {
 		}
 	}
 
-	if !success {
+	if !success || len(tok.Tokens) != 3 {
 		tok.Type = ILLEGAL
+		tok.Tokens = []Token(nil)
 	} else {
 		tok.Type = QUOTE
-		tok.Text = buf.String()
+		tok.Text = fmt.Sprintf("%s%s%s", tok.Tokens[0].Text, tok.Tokens[1].Text, tok.Tokens[2].Text)
 	}
 	s.push(tok)
 	return
 }
 
-// scanCOMMENT consumes the current rune and all characters up and including EOL
+// scanCOMMENT consumes the current rune and all characters up and including EOL;
+// composed of: COMMENT{VALUE, [EOL]}
 func (s *Scanner) scanCOMMENT() (tok Token) {
 
-	// Ensure we are working with a comment
+	// Ensure we are working the correct type
 	if s.buf.Peek() != '#' {
 		tok = Token{Type: ILLEGAL, Pos: s.buf.Pos}
 		s.push(tok)
+		return
 	}
 
 	// Scan the comment including the tailing newline
@@ -342,14 +386,19 @@ func (s *Scanner) scanCOMMENT() (tok Token) {
 		}
 		return true
 	})
+	tok.Tokens = append(tok.Tokens, Token{Type: VALUE, Pos: tok.Pos, Text: tok.Text})
+
+	// Include newline
 	if s.buf.Peek() == '\n' {
+		tok.Tokens = append(tok.Tokens, Token{Type: EOL, Pos: s.buf.Pos, Text: "\n"})
 		tok.Text += string(s.buf.Read())
-		s.Tokens[s.Index] = tok
 	}
+	s.Tokens[s.Index] = tok
 	return
 }
 
-// scanEOL consumes one Linux newline
+// scanEOL consumes one Linux newline;
+// composed of: EOL
 func (s *Scanner) scanEOL() Token {
 	newlines := 0
 	return s.scanFunc(EOL, func(r rune) bool {
@@ -364,7 +413,8 @@ func (s *Scanner) scanEOL() Token {
 	})
 }
 
-// scanWS consumes the current rune and all contiguous whitespace.
+// scanWS consumes the current rune and all contiguous whitespace;
+// composed of: WS
 func (s *Scanner) scanWS() Token {
 	return s.scanFunc(WS, func(r rune) bool { return isWS(r) })
 }
@@ -393,8 +443,8 @@ func (s *Scanner) scanFunc(typ TokenType, f func(rune) bool) (tok Token) {
 	return
 }
 
-// Check simply loops over the tokens and gets the first ILLEGAL else UNSET
-func (t Token) Check() Token {
+// FirstILLEGAL simply loops over the tokens and gets the first ILLEGAL else UNSET
+func (t Token) FirstILLEGAL() Token {
 	for _, tok := range t.Tokens {
 		if tok.Type == ILLEGAL {
 			return tok

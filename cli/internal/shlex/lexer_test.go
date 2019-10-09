@@ -34,19 +34,19 @@ func TestUnscan(t *testing.T) {
 	scanner := NewScanner(strings.NewReader("# comment\n\nfoo=bar\nbar=foo\n"))
 
 	// Scan and check comment1
-	comment1 := Token{Type: COMMENT, Tokens: []Token(nil), Pos: buf.Position{0, 0, 0}, Text: "# comment\n"}
+	comment1 := Token{Type: COMMENT, Text: "# comment\n", Tokens: []Token{{Type: VALUE, Text: "# comment"}, {Type: EOL, Pos: buf.Position{0, 9, 9}, Text: "\n"}}}
 	assert.Equal(t, comment1, scanner.Scan())
 	assert.Equal(t, comment1, scanner.Current())
 	assert.Len(t, scanner.Tokens, 1)
 
 	// Scan and check newline1
-	newline1 := Token{Type: EOL, Tokens: []Token(nil), Pos: buf.Position{1, 0, 10}, Text: "\n"}
+	newline1 := Token{Type: EOL, Pos: buf.Position{1, 0, 10}, Text: "\n"}
 	assert.Equal(t, newline1, scanner.Scan())
 	assert.Equal(t, newline1, scanner.Current())
 	assert.Len(t, scanner.Tokens, 2)
 
 	// Scan and check ident1
-	ident1 := Token{Type: IDENT, Tokens: []Token{{Type: VARNAME, Tokens: []Token(nil), Pos: buf.Position{2, 0, 11}, Text: "foo"}}, Pos: buf.Position{2, 0, 11}, Text: "foo"}
+	ident1 := Token{Type: IDENT, Tokens: []Token{{Type: VARNAME, Pos: buf.Position{2, 0, 11}, Text: "foo"}}, Pos: buf.Position{2, 0, 11}, Text: "foo"}
 	assert.Equal(t, ident1, scanner.scanIDENT())
 	assert.Equal(t, ident1, scanner.Current())
 	assert.Len(t, scanner.Tokens, 3)
@@ -84,7 +84,7 @@ func TestScanIDENT(t *testing.T) {
 		token := scanner.scanIDENT()
 		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, IDENT, token.Type)
-		assert.Equal(t, []Token{{Type: FUNCNAME, Tokens: []Token(nil), Pos: buf.Position{Line: 0, Col: 0}, Text: "foo"}}, token.Tokens)
+		assert.Equal(t, []Token{{Type: FUNCNAME, Text: "foo"}}, token.Tokens)
 		assert.Equal(t, buf.Position{}, token.Pos)
 		assert.Equal(t, "foo", token.Text)
 	}
@@ -95,7 +95,7 @@ func TestScanIDENT(t *testing.T) {
 		token := scanner.scanIDENT()
 		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, IDENT, token.Type)
-		assert.Equal(t, []Token{{Type: FUNCNAME, Tokens: []Token(nil), Pos: buf.Position{Line: 0, Col: 0}, Text: "foo"}}, token.Tokens)
+		assert.Equal(t, []Token{{Type: FUNCNAME, Text: "foo"}}, token.Tokens)
 		assert.Equal(t, buf.Position{}, token.Pos)
 		assert.Equal(t, "foo", token.Text)
 	}
@@ -106,7 +106,7 @@ func TestScanIDENT(t *testing.T) {
 		token := scanner.scanIDENT()
 		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, IDENT, token.Type)
-		assert.Equal(t, []Token{{Type: KEYWORD, Tokens: []Token(nil), Pos: buf.Position{Line: 0, Col: 0}, Text: "if"}}, token.Tokens)
+		assert.Equal(t, []Token{{Type: KEYWORD, Text: "if"}}, token.Tokens)
 		assert.Equal(t, buf.Position{}, token.Pos)
 		assert.Equal(t, "if", token.Text)
 	}
@@ -117,7 +117,7 @@ func TestScanIDENT(t *testing.T) {
 		token := scanner.scanIDENT()
 		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, IDENT, token.Type)
-		assert.Equal(t, []Token{{Type: VARNAME, Tokens: []Token(nil), Pos: buf.Position{Line: 0, Col: 0}, Text: "_foo1"}}, token.Tokens)
+		assert.Equal(t, []Token{{Type: VARNAME, Text: "_foo1"}}, token.Tokens)
 		assert.Equal(t, buf.Position{}, token.Pos)
 		assert.Equal(t, "_foo1", token.Text)
 	}
@@ -128,7 +128,7 @@ func TestScanIDENT(t *testing.T) {
 		token := scanner.scanIDENT()
 		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, IDENT, token.Type)
-		assert.Equal(t, []Token{{Type: VARNAME, Tokens: []Token(nil), Pos: buf.Position{Line: 0, Col: 0}, Text: "foo"}}, token.Tokens)
+		assert.Equal(t, []Token{{Type: VARNAME, Text: "foo"}}, token.Tokens)
 		assert.Equal(t, buf.Position{}, token.Pos)
 		assert.Equal(t, "foo", token.Text)
 	}
@@ -157,14 +157,69 @@ func TestScanVALUE(t *testing.T) {
 	// }
 }
 
+func TestScanARRAY(t *testing.T) {
+
+	// // single value
+	// {
+	// 	scanner := NewScanner(strings.NewReader("(foo)"))
+	// 	token := scanner.scanARRAY()
+	// 	assert.Equal(t, token, scanner.Current())
+	// 	assert.Equal(t, Token{Type: ARRAY, Text: "(foo)"}, token)
+	// }
+
+	// none with offset
+	{
+		scanner := NewScanner(strings.NewReader("  foo"))
+		token := scanner.scanWS()
+		assert.Equal(t, token, scanner.Current())
+		assert.Equal(t, Token{Type: WS, Text: "  "}, token)
+
+		token = scanner.scanARRAY()
+		assert.Equal(t, token, scanner.Current())
+		assert.Equal(t, Token{Type: ILLEGAL, Pos: buf.Position{0, 2, 2}}, token)
+	}
+
+	// none
+	{
+		scanner := NewScanner(strings.NewReader("  foo"))
+		token := scanner.scanARRAY()
+		assert.Equal(t, token, scanner.Current())
+		assert.Equal(t, Token{Type: ILLEGAL}, token)
+	}
+}
+
 func TestScanQUOTE(t *testing.T) {
+
+	// none with offset
+	{
+		scanner := NewScanner(strings.NewReader("  foo"))
+		token := scanner.scanWS()
+		assert.Equal(t, token, scanner.Current())
+		assert.Equal(t, Token{Type: WS, Text: "  "}, token)
+
+		token = scanner.scanQUOTE()
+		assert.Equal(t, token, scanner.Current())
+		assert.Equal(t, Token{Type: ILLEGAL, Pos: buf.Position{0, 2, 2}}, token)
+	}
+
+	// none
+	{
+		scanner := NewScanner(strings.NewReader("  foo"))
+		token := scanner.scanQUOTE()
+		assert.Equal(t, token, scanner.Current())
+		assert.Equal(t, Token{Type: ILLEGAL}, token)
+	}
 
 	// double mixed quote with mixed escape
 	{
 		scanner := NewScanner(strings.NewReader(`"fo'o' \"\'bar" bogus`))
 		token := scanner.scanQUOTE()
 		assert.Equal(t, token, scanner.Current())
-		assert.Equal(t, Token{Type: QUOTE, Tokens: []Token(nil), Pos: buf.Position{}, Text: `"fo'o' \"\'bar"`}, token)
+		assert.Equal(t, Token{Type: QUOTE, Text: `"fo'o' \"\'bar"`, Tokens: []Token{
+			{Type: LDQUOTE, Text: `"`},
+			{Type: VALUE, Pos: buf.Position{0, 1, 1}, Text: `fo'o' \"\'bar`},
+			{Type: RDQUOTE, Pos: buf.Position{0, 14, 14}, Text: `"`},
+		}}, token)
 	}
 
 	// double mixed quote with escape
@@ -172,7 +227,11 @@ func TestScanQUOTE(t *testing.T) {
 		scanner := NewScanner(strings.NewReader(`"fo'o' \"bar" bogus`))
 		token := scanner.scanQUOTE()
 		assert.Equal(t, token, scanner.Current())
-		assert.Equal(t, Token{Type: QUOTE, Tokens: []Token(nil), Pos: buf.Position{}, Text: `"fo'o' \"bar"`}, token)
+		assert.Equal(t, Token{Type: QUOTE, Text: `"fo'o' \"bar"`, Tokens: []Token{
+			{Type: LDQUOTE, Text: `"`},
+			{Type: VALUE, Pos: buf.Position{0, 1, 1}, Text: `fo'o' \"bar`},
+			{Type: RDQUOTE, Pos: buf.Position{0, 12, 12}, Text: `"`},
+		}}, token)
 	}
 
 	// double quote with escape
@@ -180,7 +239,11 @@ func TestScanQUOTE(t *testing.T) {
 		scanner := NewScanner(strings.NewReader(`"foo \"bar" bogus`))
 		token := scanner.scanQUOTE()
 		assert.Equal(t, token, scanner.Current())
-		assert.Equal(t, Token{Type: QUOTE, Tokens: []Token(nil), Pos: buf.Position{}, Text: `"foo \"bar"`}, token)
+		assert.Equal(t, Token{Type: QUOTE, Text: `"foo \"bar"`, Tokens: []Token{
+			{Type: LDQUOTE, Text: `"`},
+			{Type: VALUE, Pos: buf.Position{0, 1, 1}, Text: `foo \"bar`},
+			{Type: RDQUOTE, Pos: buf.Position{0, 10, 10}, Text: `"`},
+		}}, token)
 	}
 
 	// double quote
@@ -188,7 +251,11 @@ func TestScanQUOTE(t *testing.T) {
 		scanner := NewScanner(strings.NewReader("\"foo bar\" bogus"))
 		token := scanner.scanQUOTE()
 		assert.Equal(t, token, scanner.Current())
-		assert.Equal(t, Token{Type: QUOTE, Tokens: []Token(nil), Pos: buf.Position{}, Text: `"foo bar"`}, token)
+		assert.Equal(t, Token{Type: QUOTE, Text: `"foo bar"`, Tokens: []Token{
+			{Type: LDQUOTE, Text: `"`},
+			{Type: VALUE, Pos: buf.Position{0, 1, 1}, Text: `foo bar`},
+			{Type: RDQUOTE, Pos: buf.Position{0, 8, 8}, Text: `"`},
+		}}, token)
 	}
 
 	// double quote - no ending
@@ -196,7 +263,7 @@ func TestScanQUOTE(t *testing.T) {
 		scanner := NewScanner(strings.NewReader("\"foo bar bogus"))
 		token := scanner.scanQUOTE()
 		assert.Equal(t, token, scanner.Current())
-		assert.Equal(t, Token{Type: ILLEGAL, Tokens: []Token(nil), Pos: buf.Position{}, Text: ``}, token)
+		assert.Equal(t, Token{Type: ILLEGAL}, token)
 	}
 
 	// single mixed quote with mixed escape
@@ -204,7 +271,11 @@ func TestScanQUOTE(t *testing.T) {
 		scanner := NewScanner(strings.NewReader(`'fo"o" \'\"bar' bogus`))
 		token := scanner.scanQUOTE()
 		assert.Equal(t, token, scanner.Current())
-		assert.Equal(t, Token{Type: QUOTE, Tokens: []Token(nil), Pos: buf.Position{}, Text: `'fo"o" \'\"bar'`}, token)
+		assert.Equal(t, Token{Type: QUOTE, Text: `'fo"o" \'\"bar'`, Tokens: []Token{
+			{Type: LQUOTE, Text: "'"},
+			{Type: VALUE, Pos: buf.Position{0, 1, 1}, Text: `fo"o" \'\"bar`},
+			{Type: RQUOTE, Pos: buf.Position{0, 14, 14}, Text: "'"},
+		}}, token)
 	}
 
 	// single mixed quote with escape
@@ -212,7 +283,11 @@ func TestScanQUOTE(t *testing.T) {
 		scanner := NewScanner(strings.NewReader(`'fo"o" \'bar' bogus`))
 		token := scanner.scanQUOTE()
 		assert.Equal(t, token, scanner.Current())
-		assert.Equal(t, Token{Type: QUOTE, Tokens: []Token(nil), Pos: buf.Position{}, Text: `'fo"o" \'bar'`}, token)
+		assert.Equal(t, Token{Type: QUOTE, Text: `'fo"o" \'bar'`, Tokens: []Token{
+			{Type: LQUOTE, Text: "'"},
+			{Type: VALUE, Pos: buf.Position{0, 1, 1}, Text: `fo"o" \'bar`},
+			{Type: RQUOTE, Pos: buf.Position{0, 12, 12}, Text: "'"},
+		}}, token)
 	}
 
 	// single quote with escape
@@ -220,7 +295,11 @@ func TestScanQUOTE(t *testing.T) {
 		scanner := NewScanner(strings.NewReader(`'foo \'bar' bogus`))
 		token := scanner.scanQUOTE()
 		assert.Equal(t, token, scanner.Current())
-		assert.Equal(t, Token{Type: QUOTE, Tokens: []Token(nil), Pos: buf.Position{}, Text: `'foo \'bar'`}, token)
+		assert.Equal(t, Token{Type: QUOTE, Text: `'foo \'bar'`, Tokens: []Token{
+			{Type: LQUOTE, Text: "'"},
+			{Type: VALUE, Pos: buf.Position{0, 1, 1}, Text: `foo \'bar`},
+			{Type: RQUOTE, Pos: buf.Position{0, 10, 10}, Text: "'"},
+		}}, token)
 	}
 
 	// single quote
@@ -228,7 +307,11 @@ func TestScanQUOTE(t *testing.T) {
 		scanner := NewScanner(strings.NewReader("'foo bar' bogus"))
 		token := scanner.scanQUOTE()
 		assert.Equal(t, token, scanner.Current())
-		assert.Equal(t, Token{Type: QUOTE, Tokens: []Token(nil), Pos: buf.Position{}, Text: "'foo bar'"}, token)
+		assert.Equal(t, Token{Type: QUOTE, Text: "'foo bar'", Tokens: []Token{
+			{Type: LQUOTE, Text: "'"},
+			{Type: VALUE, Pos: buf.Position{0, 1, 1}, Text: "foo bar"},
+			{Type: RQUOTE, Pos: buf.Position{0, 8, 8}, Text: "'"},
+		}}, token)
 	}
 
 	// single quote - no ending
@@ -236,18 +319,28 @@ func TestScanQUOTE(t *testing.T) {
 		scanner := NewScanner(strings.NewReader("'foo bar bogus"))
 		token := scanner.scanQUOTE()
 		assert.Equal(t, token, scanner.Current())
-		assert.Equal(t, Token{Type: ILLEGAL, Tokens: []Token(nil), Pos: buf.Position{}, Text: ""}, token)
+		assert.Equal(t, Token{Type: ILLEGAL}, token)
 	}
 }
 
 func TestScanCOMMENT(t *testing.T) {
 
-	// none
+	// none with offset
 	{
 		scanner := NewScanner(strings.NewReader("  foo"))
 		token := scanner.scanWS()
 		assert.Equal(t, token, scanner.Current())
+		assert.Equal(t, Token{Type: WS, Text: "  "}, token)
+
 		token = scanner.scanCOMMENT()
+		assert.Equal(t, token, scanner.Current())
+		assert.Equal(t, Token{Type: ILLEGAL, Pos: buf.Position{0, 2, 2}}, token)
+	}
+
+	// none
+	{
+		scanner := NewScanner(strings.NewReader("  foo"))
+		token := scanner.scanCOMMENT()
 		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: ILLEGAL}, token)
 	}
@@ -257,7 +350,7 @@ func TestScanCOMMENT(t *testing.T) {
 		scanner := NewScanner(strings.NewReader("# foo bar"))
 		token := scanner.scanCOMMENT()
 		assert.Equal(t, token, scanner.Current())
-		assert.Equal(t, Token{Type: COMMENT, Tokens: []Token(nil), Pos: buf.Position{}, Text: "# foo bar"}, token)
+		assert.Equal(t, Token{Type: COMMENT, Text: "# foo bar", Tokens: []Token{{Type: VALUE, Text: "# foo bar"}}}, token)
 	}
 
 	// oneline eol
@@ -265,11 +358,23 @@ func TestScanCOMMENT(t *testing.T) {
 		scanner := NewScanner(strings.NewReader("# foo bar\n"))
 		token := scanner.scanCOMMENT()
 		assert.Equal(t, token, scanner.Current())
-		assert.Equal(t, Token{Type: COMMENT, Tokens: []Token(nil), Pos: buf.Position{}, Text: "# foo bar\n"}, token)
+		assert.Equal(t, Token{Type: COMMENT, Text: "# foo bar\n", Tokens: []Token{{Type: VALUE, Text: "# foo bar"}, {Type: EOL, Pos: buf.Position{0, 9, 9}, Text: "\n"}}}, token)
 	}
 }
 
 func TestScanWS(t *testing.T) {
+
+	// offset with none
+	{
+		scanner := NewScanner(strings.NewReader("\n\n"))
+		token := scanner.scanEOL()
+		assert.Equal(t, token, scanner.Current())
+		assert.Equal(t, Token{Type: EOL, Text: "\n"}, token)
+
+		token = scanner.scanWS()
+		assert.Equal(t, token, scanner.Current())
+		assert.Equal(t, Token{Type: ILLEGAL, Pos: buf.Position{1, 0, 1}}, token)
+	}
 
 	// none
 	{
@@ -284,7 +389,7 @@ func TestScanWS(t *testing.T) {
 		scanner := NewScanner(strings.NewReader("\t \t "))
 		token := scanner.scanWS()
 		assert.Equal(t, token, scanner.Current())
-		assert.Equal(t, Token{Type: WS, Tokens: []Token(nil), Pos: buf.Position{}, Text: "\t \t "}, token)
+		assert.Equal(t, Token{Type: WS, Text: "\t \t "}, token)
 	}
 
 	// spaces
@@ -292,11 +397,27 @@ func TestScanWS(t *testing.T) {
 		scanner := NewScanner(strings.NewReader("  "))
 		token := scanner.scanWS()
 		assert.Equal(t, token, scanner.Current())
-		assert.Equal(t, Token{Type: WS, Tokens: []Token(nil), Pos: buf.Position{}, Text: "  "}, token)
+		assert.Equal(t, Token{Type: WS, Text: "  "}, token)
 	}
 }
 
 func TestScanEOL(t *testing.T) {
+
+	// offset with none
+	{
+		scanner := NewScanner(strings.NewReader("  \n  "))
+		token := scanner.scanWS()
+		assert.Equal(t, token, scanner.Current())
+		assert.Equal(t, Token{Type: WS, Text: "  "}, token)
+
+		token = scanner.scanEOL()
+		assert.Equal(t, token, scanner.Current())
+		assert.Equal(t, Token{Type: EOL, Pos: buf.Position{0, 2, 2}, Text: "\n"}, token)
+
+		token = scanner.scanEOL()
+		assert.Equal(t, token, scanner.Current())
+		assert.Equal(t, Token{Type: ILLEGAL, Pos: buf.Position{1, 0, 3}}, token)
+	}
 
 	// none
 	{
@@ -311,10 +432,10 @@ func TestScanEOL(t *testing.T) {
 		scanner := NewScanner(strings.NewReader("\n\n"))
 		token := scanner.scanEOL()
 		assert.Equal(t, token, scanner.Current())
-		assert.Equal(t, Token{Type: EOL, Tokens: []Token(nil), Pos: buf.Position{}, Text: "\n"}, token)
+		assert.Equal(t, Token{Type: EOL, Text: "\n"}, token)
 
 		token = scanner.scanEOL()
-		assert.Equal(t, Token{Type: EOL, Tokens: []Token(nil), Pos: buf.Position{1, 0, 1}, Text: "\n"}, token)
+		assert.Equal(t, Token{Type: EOL, Pos: buf.Position{1, 0, 1}, Text: "\n"}, token)
 	}
 
 	// linux
@@ -322,7 +443,7 @@ func TestScanEOL(t *testing.T) {
 		scanner := NewScanner(strings.NewReader("\n"))
 		token := scanner.scanEOL()
 		assert.Equal(t, token, scanner.Current())
-		assert.Equal(t, Token{Type: EOL, Tokens: []Token(nil), Pos: buf.Position{}, Text: "\n"}, token)
+		assert.Equal(t, Token{Type: EOL, Text: "\n"}, token)
 	}
 }
 
