@@ -51,8 +51,10 @@ const (
 	RQUOTE             // single right quote
 	LDQUOTE            // double left quote
 	RDQUOTE            // double right quote
-	VALUE              // SCALAR | ARRAY | FUNC
-	ARRAY              // array type value: ARRAY{}
+	VALUE              // base primitive others encapsulate
+	ARRAY              // array type value: ARRAY{LPAREN, VALUE|QUOTE..., RPAREN}
+	LPAREN             // left parenthesis
+	RPAREN             // rgiht parenthesis
 	VARIABLE           // IDENT, EQUAL, VALUE
 )
 
@@ -155,6 +157,7 @@ func (s *Scanner) Scan() Token {
 		// Construct variable
 		if s.Current().Type == VARNAME {
 			s.Unscan()
+			//s.scanVARIABLE()
 		}
 	}
 
@@ -165,82 +168,88 @@ func (s *Scanner) Scan() Token {
 func (s *Scanner) Unscan() {
 	tok := s.Current()
 
-	switch tok.Type {
-	case EOL, WS, COMMENT, IDENT:
-		for range tok.Text {
-			s.buf.Unread()
-		}
-		s.pop()
+	for range tok.Text {
+		s.buf.Unread()
 	}
+	s.pop()
 }
 
 // scanVARIABLE consumes Bash variables <ident>=<value>
 func (s *Scanner) scanVARIABLE() (tok Token) {
 	var buf bytes.Buffer
-	toks := []Token{}
-	pos := s.buf.Pos
+	tok.Pos = s.buf.Pos
 
-	// for {
-	// 	var t Token
-	// 	if r := s.next(); r == eof {
-	// 		break
-	// 	} else if r == '=' {
+	equal := false
+	for {
+		if next := s.buf.Peek(); next == eof {
+			break
+		} else if !equal && isIDENT(next) {
+			t := s.scanIDENT()
+			tok.Tokens = append(tok.Tokens, t)
+			buf.WriteString(t.Text)
+		} else if next == '=' {
+			equal = true
+			tok.Tokens = append(tok.Tokens, Token{Type: EQUAL, Pos: s.buf.Pos, Text: string(next)})
+			buf.WriteRune(s.buf.Read())
+		} else if equal {
+			t := s.scanVALUE()
+			tok.Tokens = append(tok.Tokens, t)
+			buf.WriteString(t.Text)
+		}
+	}
 
-	// 	} else if isIDENT(r) {
-	// 		t = s.scanIDENT()
-	// 		toks = append(toks, t)
-	// 		buf.WriteString(t.Text)
-	// 	} else {
-	// 		buf.WriteRune(s.read())
-	// 	}
-
-	// 	// Break out on errors
-	// 	if t.Type == ILLEGAL {
-	// 		break
-	// 	}
-	// }
-
-	// // Check for errors
-	// if t := tok.Check(); t.Type == ILLEGAL {
-	// 	return t
-	// } else if len(toks) != 3 {
-	// 	return Token{Type: ILLEGAL, Pos: pos}
-	// }
-	return Token{Type: VARIABLE, Tokens: toks, Text: buf.String(), Pos: pos}
+	txt := buf.String()
+	if txt == "" {
+		tok.Type = ILLEGAL
+		tok.Tokens = []Token(nil)
+	} else if t := tok.FirstILLEGAL(); t.Type == ILLEGAL {
+		tok = t
+	} else {
+		tok.Type = VARIABLE
+		tok.Text = txt
+	}
+	s.push(tok)
+	return
 }
 
 // scanIDENT consumes Bash identifiers i.e. variable names, keywords or function names
 func (s *Scanner) scanIDENT() (tok Token) {
 	tok = s.scanFunc(IDENT, func(r rune) bool { return isIDENT(r) })
 	if tok.Type != ILLEGAL {
-		dup := tok
 		if isKEYWORD(tok.Text) {
-			dup.Type = KEYWORD
-		} else if s.buf.Peek() != '=' {
-			dup.Type = FUNCNAME
+			tok.Type = KEYWORD
+		} else if s.buf.Peek() == '=' {
+			tok.Type = VARNAME
 		} else {
-			dup.Type = VARNAME
+			tok.Type = FUNCNAME
 		}
-		tok.Tokens = []Token{dup}
-		s.Tokens[s.Index] = tok
+		s.pop()
+		s.push(tok)
 	}
 	return
 }
 
-// scanVALUE consumes Bash variable value/array
-// handles: no quotes, single quotes, double quotes, nested quotes and arrays
+// scanVALUE consumes a value may return VALUE | WS | QUOTE | ARRAY
 func (s *Scanner) scanVALUE() (tok Token) {
 	var buf bytes.Buffer
 	tok.Pos = s.buf.Pos
 
+	value := false
 	for {
 		if next := s.buf.Peek(); next == eof {
 			break
+		} else if value && isNotVALUE(next) {
+			break
+		} else if isWS(next) {
+			return s.scanWS()
 		} else if isQUOTE(next) {
-			quote := s.scanQUOTE()
-			tok.Tokens = append(tok.Tokens, quote)
-			buf.WriteString(quote.Text)
+			return s.scanQUOTE()
+		} else if next == '(' {
+			return s.scanARRAY()
+		} else if isNotVALUE(next) {
+			break
 		} else {
+			value = true
 			buf.WriteRune(s.buf.Read())
 		}
 	}
@@ -248,8 +257,11 @@ func (s *Scanner) scanVALUE() (tok Token) {
 	txt := buf.String()
 	if txt == "" {
 		tok.Type = ILLEGAL
+		tok.Tokens = []Token(nil)
+	} else if t := tok.FirstILLEGAL(); t.Type == ILLEGAL {
+		tok = t
 	} else {
-		tok.Type = QUOTE
+		tok.Type = VALUE
 		tok.Text = txt
 	}
 	s.push(tok)
@@ -258,6 +270,7 @@ func (s *Scanner) scanVALUE() (tok Token) {
 }
 
 // scanARRAY handle bash arrays
+// composed of: ARRAY{LPAREN, VALUE|QUOTE..., RPAREN}
 func (s *Scanner) scanARRAY() (tok Token) {
 
 	// Ensure we are working the correct type
@@ -277,25 +290,30 @@ func (s *Scanner) scanARRAY() (tok Token) {
 			break
 		} else if next == '(' {
 			openParen = true
-		} else if isQUOTE(next) {
-			quote := s.scanQUOTE()
-			tok.Tokens = append(tok.Tokens, quote)
-			buf.WriteString(quote.Text)
+			tok.Tokens = append(tok.Tokens, Token{Type: LPAREN, Pos: s.buf.Pos, Text: string(next)})
+			s.buf.Read()
 		} else if next == ')' {
 			if openParen {
+				tok.Tokens = append(tok.Tokens, Token{Type: RPAREN, Pos: s.buf.Pos, Text: string(next)})
 				success = true
+				break
 			}
-			break
+			s.buf.Read()
 		} else {
-			buf.WriteRune(s.buf.Read())
+			value := s.scanVALUE()
+			tok.Tokens = append(tok.Tokens, value)
+			buf.WriteString(value.Text)
 		}
 	}
 
 	if !success {
 		tok.Type = ILLEGAL
+		tok.Tokens = []Token(nil)
+	} else if t := tok.FirstILLEGAL(); t.Type == ILLEGAL {
+		tok = t
 	} else {
 		tok.Type = ARRAY
-		tok.Text = buf.String()
+		tok.Text = fmt.Sprintf("%s%s%s", tok.First().Text, buf.String(), tok.Last().Text)
 	}
 	s.push(tok)
 	return
@@ -360,6 +378,8 @@ func (s *Scanner) scanQUOTE() (tok Token) {
 	if !success || len(tok.Tokens) != 3 {
 		tok.Type = ILLEGAL
 		tok.Tokens = []Token(nil)
+	} else if t := tok.FirstILLEGAL(); t.Type == ILLEGAL {
+		tok = t
 	} else {
 		tok.Type = QUOTE
 		tok.Text = fmt.Sprintf("%s%s%s", tok.Tokens[0].Text, tok.Tokens[1].Text, tok.Tokens[2].Text)
@@ -435,6 +455,8 @@ func (s *Scanner) scanFunc(typ TokenType, f func(rune) bool) (tok Token) {
 	txt := buf.String()
 	if txt == "" {
 		tok.Type = ILLEGAL
+	} else if t := tok.FirstILLEGAL(); t.Type == ILLEGAL {
+		tok = t
 	} else {
 		tok.Type = typ
 		tok.Text = txt
@@ -443,11 +465,30 @@ func (s *Scanner) scanFunc(typ TokenType, f func(rune) bool) (tok Token) {
 	return
 }
 
+// First token or UNSET
+func (t Token) First() Token {
+	if len(t.Tokens) > 0 {
+		return t.Tokens[0]
+	}
+	return Token{Type: UNSET}
+}
+
+// Last token or UNSET
+func (t Token) Last() Token {
+	if len(t.Tokens) > 0 {
+		return t.Tokens[len(t.Tokens)-1]
+	}
+	return Token{Type: UNSET}
+}
+
 // FirstILLEGAL simply loops over the tokens and gets the first ILLEGAL else UNSET
 func (t Token) FirstILLEGAL() Token {
 	for _, tok := range t.Tokens {
 		if tok.Type == ILLEGAL {
 			return tok
+		}
+		if _tok := tok.FirstILLEGAL(); _tok.Type == ILLEGAL {
+			return _tok
 		}
 	}
 	return Token{Type: UNSET}
@@ -475,7 +516,11 @@ func isIDENT(r rune) bool {
 	return (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || (r == '_')
 }
 
-// Bash puncuation
-func isPunctuation(r rune) bool {
+func isPUNCUATION(r rune) bool {
 	return r == '(' || r == ')' || r == ';' || r == '<' || r == '>' || r == '|' || r == '&'
+}
+
+// not value chars
+func isNotVALUE(r rune) bool {
+	return isWS(r) || isQUOTE(r) || isPUNCUATION(r) || r == eof
 }
