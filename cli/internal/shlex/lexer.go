@@ -38,24 +38,25 @@ const (
 	ILLEGAL  TokenType = iota
 	UNSET              // no current type
 	EOF                // errors or end of file
-	EOL                // end of line handle both \r\n and \n
 	WS                 // one or more whitespaces
 	COMMENT            // comment: COMMENT{VALUE, [EOL]}
-	IDENT              // NAME | KEYWORD
-	VARNAME            // variable name
-	KEYWORD            // language operator
-	FUNCNAME           // function name
-	EQUAL              // assignment operator
-	QUOTE              // single or double quoted value: QUOTE{LQUOTE|LDQUOTE, VALUE, RQUOTE|RDQUOTE}
-	LQUOTE             // single left quote
-	RQUOTE             // single right quote
-	LDQUOTE            // double left quote
-	RDQUOTE            // double right quote
-	VALUE              // base primitive others encapsulate
-	ARRAY              // array type value: ARRAY{LPAREN, VALUE|QUOTE..., RPAREN}
-	LPAREN             // left parenthesis
-	RPAREN             // rgiht parenthesis
 	VARIABLE           // IDENT, EQUAL, VALUE
+	EQUAL              // assignment operator
+
+	IDENT    // NAME | KEYWORD
+	VARNAME  // variable name
+	KEYWORD  // language operator
+	FUNCNAME // function name
+
+	VALUE   // base primitive others encapsulate
+	QUOTE   // single or double quoted value: QUOTE{LQUOTE|LDQUOTE, VALUE, RQUOTE|RDQUOTE}
+	LQUOTE  // single left quote
+	RQUOTE  // single right quote
+	LDQUOTE // double left quote
+	RDQUOTE // double right quote
+	ARRAY   // array type value: ARRAY{LPAREN, VALUE|QUOTE..., RPAREN}
+	LPAREN  // left parenthesis
+	RPAREN  // rgiht parenthesis
 )
 
 // Token encapsulates components needed to track tokens
@@ -129,39 +130,37 @@ func (s *Scanner) push(tok Token) Token {
 }
 
 // Scan for the the next token
-func (s *Scanner) Scan() Token {
+func (s *Scanner) Scan() (tok Token) {
 	next := s.buf.Peek()
 
 	switch {
 
 	// EOF
 	case next == eof:
-		s.push(Token{Type: EOF})
-
-	// EOL
-	case next == '\n':
-		s.scanEOL()
+		tok = s.push(Token{Type: EOF})
 
 	// Whitespace
 	case isWS(next):
-		s.scanWS()
+		tok = s.scanWS()
 
 	// Comment
 	case next == '#':
-		s.scanCOMMENT()
+		tok = s.scanCOMMENT()
 
 	// Identity
 	default:
-		s.scanIDENT()
+		if tok = s.scanIDENT(); tok.Type == ILLEGAL {
+			return
+		}
 
 		// Construct variable
-		if s.Current().Type == VARNAME {
+		if tok.Type == VARNAME {
 			s.Unscan()
-			//s.scanVARIABLE()
+			tok = s.scanVARIABLE()
 		}
 	}
 
-	return s.Current()
+	return
 }
 
 // Unscan the previous token rewinding internal buffer, but doesn't clear the cached Token
@@ -195,6 +194,7 @@ func (s *Scanner) scanVARIABLE() (tok Token) {
 			t := s.scanVALUE()
 			tok.Tokens = append(tok.Tokens, t)
 			buf.WriteString(t.Text)
+			break
 		}
 	}
 
@@ -240,8 +240,6 @@ func (s *Scanner) scanVALUE() (tok Token) {
 			break
 		} else if value && isNotVALUE(next) {
 			break
-		} else if isWS(next) {
-			return s.scanWS()
 		} else if isQUOTE(next) {
 			return s.scanQUOTE()
 		} else if next == '(' {
@@ -293,16 +291,22 @@ func (s *Scanner) scanARRAY() (tok Token) {
 			tok.Tokens = append(tok.Tokens, Token{Type: LPAREN, Pos: s.buf.Pos, Text: string(next)})
 			s.buf.Read()
 		} else if next == ')' {
+			pos := s.buf.Pos
+			s.buf.Read()
 			if openParen {
-				tok.Tokens = append(tok.Tokens, Token{Type: RPAREN, Pos: s.buf.Pos, Text: string(next)})
 				success = true
+				tok.Tokens = append(tok.Tokens, Token{Type: RPAREN, Pos: pos, Text: string(next)})
 				break
 			}
-			s.buf.Read()
 		} else {
-			value := s.scanVALUE()
-			tok.Tokens = append(tok.Tokens, value)
-			buf.WriteString(value.Text)
+			var t Token
+			if isWS(next) {
+				t = s.scanWS()
+			} else {
+				t = s.scanVALUE()
+			}
+			tok.Tokens = append(tok.Tokens, t)
+			buf.WriteString(t.Text)
 		}
 	}
 
@@ -390,6 +394,8 @@ func (s *Scanner) scanQUOTE() (tok Token) {
 
 // scanCOMMENT consumes the current rune and all characters up and including EOL;
 // composed of: COMMENT{VALUE, [EOL]}
+// There is no way to terminate a comment. It includes everything after the comment to the EOL
+// including other hash symbols.
 func (s *Scanner) scanCOMMENT() (tok Token) {
 
 	// Ensure we are working the correct type
@@ -410,27 +416,11 @@ func (s *Scanner) scanCOMMENT() (tok Token) {
 
 	// Include newline
 	if s.buf.Peek() == '\n' {
-		tok.Tokens = append(tok.Tokens, Token{Type: EOL, Pos: s.buf.Pos, Text: "\n"})
+		tok.Tokens = append(tok.Tokens, Token{Type: WS, Pos: s.buf.Pos, Text: "\n"})
 		tok.Text += string(s.buf.Read())
 	}
 	s.Tokens[s.Index] = tok
 	return
-}
-
-// scanEOL consumes one Linux newline;
-// composed of: EOL
-func (s *Scanner) scanEOL() Token {
-	newlines := 0
-	return s.scanFunc(EOL, func(r rune) bool {
-		if r == '\n' {
-			newlines++
-			if newlines > 1 {
-				return false
-			}
-			return true
-		}
-		return false
-	})
 }
 
 // scanWS consumes the current rune and all contiguous whitespace;
@@ -496,7 +486,7 @@ func (t Token) FirstILLEGAL() Token {
 
 // Spaces or tabs, tracking newlines as EOL
 func isWS(r rune) bool {
-	return r == ' ' || r == '\t'
+	return r == ' ' || r == '\t' || r == '\n'
 }
 
 func isQUOTE(r rune) bool {
