@@ -242,6 +242,8 @@ func (s *Scanner) scanVALUE() (tok Token) {
 			break
 		} else if isQUOTE(next) {
 			return s.scanQUOTE()
+		} else if next == '#' {
+			return s.scanCOMMENT()
 		} else if next == '(' {
 			return s.scanARRAY()
 		} else if isNotVALUE(next) {

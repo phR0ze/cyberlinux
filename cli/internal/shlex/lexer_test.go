@@ -170,6 +170,59 @@ func TestScan(t *testing.T) {
 		}},
 	}}, scanner.Scan())
 	assert.Equal(t, Token{Type: WS, Pos: buf.Position{16, 18, 572}, Text: "\n"}, scanner.Scan())
+
+	// line 18
+	assert.Equal(t, Token{Type: VARIABLE, Text: `_srcname=archlinux-linux`, Pos: buf.Position{17, 0, 573}, Tokens: []Token{
+		{Type: VARNAME, Pos: buf.Position{17, 0, 573}, Text: `_srcname`},
+		{Type: EQUAL, Pos: buf.Position{17, 8, 581}, Text: `=`},
+		{Type: VALUE, Pos: buf.Position{17, 9, 582}, Text: `archlinux-linux`},
+	}}, scanner.Scan())
+	assert.Equal(t, Token{Type: WS, Pos: buf.Position{17, 24, 597}, Text: "\n"}, scanner.Scan())
+
+	// line 19
+	assert.Equal(t, Token{Type: VARIABLE, Text: "source=(\n  \"$_srcname::git+https://git.archlinux.org/linux.git?signed#tag=v$_srcver\"\n  config         # the main kernel config file\n  60-linux.hook  # pacman hook for depmod\n  90-linux.hook  # pacman hook for initramfs regeneration\n  linux.preset   # standard config files for mkinitcpio ramdisk\n)", Pos: buf.Position{18, 0, 598}, Tokens: []Token{
+		{Type: VARNAME, Pos: buf.Position{18, 0, 598}, Text: `source`},
+		{Type: EQUAL, Pos: buf.Position{18, 6, 604}, Text: `=`},
+		{Type: ARRAY, Pos: buf.Position{18, 7, 605}, Text: "(\n  \"$_srcname::git+https://git.archlinux.org/linux.git?signed#tag=v$_srcver\"\n  config         # the main kernel config file\n  60-linux.hook  # pacman hook for depmod\n  90-linux.hook  # pacman hook for initramfs regeneration\n  linux.preset   # standard config files for mkinitcpio ramdisk\n)", Tokens: []Token{
+			{Type: LPAREN, Pos: buf.Position{18, 7, 605}, Text: `(`},
+			{Type: WS, Pos: buf.Position{18, 8, 606}, Text: "\n  "},
+			{Type: QUOTE, Pos: buf.Position{19, 2, 609}, Text: `"$_srcname::git+https://git.archlinux.org/linux.git?signed#tag=v$_srcver"`, Tokens: []Token{
+				{Type: LDQUOTE, Pos: buf.Position{19, 2, 609}, Text: `"`},
+				{Type: VALUE, Pos: buf.Position{19, 3, 610}, Text: `$_srcname::git+https://git.archlinux.org/linux.git?signed#tag=v$_srcver`},
+				{Type: RDQUOTE, Pos: buf.Position{19, 74, 681}, Text: `"`},
+			}},
+			{Type: WS, Pos: buf.Position{19, 75, 682}, Text: "\n  "},
+			{Type: VALUE, Pos: buf.Position{20, 2, 685}, Text: `config`},
+			{Type: WS, Pos: buf.Position{20, 8, 691}, Text: "         "},
+			{Type: COMMENT, Pos: buf.Position{20, 17, 700}, Text: "# the main kernel config file\n", Tokens: []Token{
+				{Type: VALUE, Pos: buf.Position{20, 17, 700}, Text: "# the main kernel config file"},
+				{Type: WS, Pos: buf.Position{20, 46, 729}, Text: "\n"},
+			}},
+			{Type: WS, Pos: buf.Position{21, 0, 730}, Text: "  "},
+			{Type: VALUE, Pos: buf.Position{21, 2, 732}, Text: `60-linux.hook`},
+			{Type: WS, Pos: buf.Position{21, 15, 745}, Text: "  "},
+			{Type: COMMENT, Pos: buf.Position{21, 17, 747}, Text: "# pacman hook for depmod\n", Tokens: []Token{
+				{Type: VALUE, Pos: buf.Position{21, 17, 747}, Text: "# pacman hook for depmod"},
+				{Type: WS, Pos: buf.Position{21, 41, 771}, Text: "\n"},
+			}},
+			{Type: WS, Pos: buf.Position{22, 0, 772}, Text: "  "},
+			{Type: VALUE, Pos: buf.Position{22, 2, 774}, Text: `90-linux.hook`},
+			{Type: WS, Pos: buf.Position{22, 15, 787}, Text: "  "},
+			{Type: COMMENT, Pos: buf.Position{22, 17, 789}, Text: "# pacman hook for initramfs regeneration\n", Tokens: []Token{
+				{Type: VALUE, Pos: buf.Position{22, 17, 789}, Text: "# pacman hook for initramfs regeneration"},
+				{Type: WS, Pos: buf.Position{22, 57, 829}, Text: "\n"},
+			}},
+			{Type: WS, Pos: buf.Position{23, 0, 830}, Text: "  "},
+			{Type: VALUE, Pos: buf.Position{23, 2, 832}, Text: `linux.preset`},
+			{Type: WS, Pos: buf.Position{23, 14, 844}, Text: "   "},
+			{Type: COMMENT, Pos: buf.Position{23, 17, 847}, Text: "# standard config files for mkinitcpio ramdisk\n", Tokens: []Token{
+				{Type: VALUE, Pos: buf.Position{23, 17, 847}, Text: "# standard config files for mkinitcpio ramdisk"},
+				{Type: WS, Pos: buf.Position{23, 63, 893}, Text: "\n"},
+			}},
+			{Type: RPAREN, Pos: buf.Position{24, 0, 894}, Text: `)`},
+		}},
+	}}, scanner.Scan())
+	assert.Equal(t, Token{Type: WS, Pos: buf.Position{24, 1, 895}, Text: "\n"}, scanner.Scan())
 }
 
 func TestUnscan(t *testing.T) {
