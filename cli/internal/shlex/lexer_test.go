@@ -75,7 +75,12 @@ func TestScan(t *testing.T) {
 	assert.Equal(t, Token{Type: VARIABLE, Pos: buf.Position{7, 0, 320}, Text: `pkgver=${_srcver//-/.}`, Tokens: []Token{
 		{Type: VARNAME, Pos: buf.Position{7, 0, 320}, Text: `pkgver`},
 		{Type: EQUAL, Pos: buf.Position{7, 6, 326}, Text: `=`},
-		{Type: VALUE, Pos: buf.Position{7, 7, 327}, Text: `${_srcver//-/.}`},
+		{Type: REFERENCE, Text: `${_srcver//-/.}`, Pos: buf.Position{7, 7, 327}, Tokens: []Token{
+			{Type: DOLLAR, Pos: buf.Position{7, 7, 327}, Text: "$"},
+			{Type: LCURLY, Pos: buf.Position{7, 8, 328}, Text: "{"},
+			{Type: VALUE, Pos: buf.Position{7, 9, 329}, Text: `_srcver//-/.`},
+			{Type: RCURLY, Pos: buf.Position{7, 21, 341}, Text: "}"},
+		}},
 	}}, scanner.Scan())
 	assert.Equal(t, Token{Type: WS, Pos: buf.Position{7, 22, 342}, Text: "\n"}, scanner.Scan())
 
@@ -312,7 +317,12 @@ func TestScan(t *testing.T) {
 	assert.Equal(t, Token{Type: VARIABLE, Pos: buf.Position{36, 0, 1460}, Text: `_kernelname=${pkgbase#linux}`, Tokens: []Token{
 		{Type: VARNAME, Pos: buf.Position{36, 0, 1460}, Text: `_kernelname`},
 		{Type: EQUAL, Pos: buf.Position{36, 11, 1471}, Text: `=`},
-		{Type: VALUE, Pos: buf.Position{36, 12, 1472}, Text: `${pkgbase#linux}`},
+		{Type: REFERENCE, Text: `${pkgbase#linux}`, Pos: buf.Position{36, 12, 1472}, Tokens: []Token{
+			{Type: DOLLAR, Pos: buf.Position{36, 12, 1472}, Text: "$"},
+			{Type: LCURLY, Pos: buf.Position{36, 13, 1473}, Text: "{"},
+			{Type: VALUE, Pos: buf.Position{36, 14, 1474}, Text: `pkgbase#linux`},
+			{Type: RCURLY, Pos: buf.Position{36, 27, 1487}, Text: "}"},
+		}},
 	}}, scanner.Scan())
 	// assert.Equal(t, Token{Type: WS, Pos: buf.Position{37, 0, 1489}, Text: "\n"}, scanner.Scan())
 }
@@ -484,6 +494,78 @@ func TestScanVALUE(t *testing.T) {
 		token = scanner.scanVALUE()
 		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: VALUE, Text: "bar", Pos: buf.Position{0, 4, 4}}, token)
+	}
+}
+
+func TestScanREFERENCE(t *testing.T) {
+
+	// ident and ref with #
+	{
+		scanner := NewScanner(strings.NewReader("_kernelname=${pkgbase#linux}"))
+		token := scanner.scanIDENT()
+		assert.Equal(t, token, scanner.Current())
+		assert.Equal(t, Token{Type: VARNAME, Text: "_kernelname"}, token)
+
+		scanner.buf.Read()
+		token = scanner.scanREFERENCE()
+		assert.Equal(t, token, scanner.Current())
+		assert.Equal(t, Token{Type: REFERENCE, Text: `${pkgbase#linux}`, Pos: buf.Position{0, 12, 12}, Tokens: []Token{
+			{Type: DOLLAR, Pos: buf.Position{0, 12, 12}, Text: "$"},
+			{Type: LCURLY, Pos: buf.Position{0, 13, 13}, Text: "{"},
+			{Type: VALUE, Pos: buf.Position{0, 14, 14}, Text: `pkgbase#linux`},
+			{Type: RCURLY, Pos: buf.Position{0, 27, 27}, Text: "}"},
+		}}, token)
+	}
+
+	// ident and ref with symbols
+	{
+		scanner := NewScanner(strings.NewReader("pkgver=${_srcver//-/.}"))
+		token := scanner.scanIDENT()
+		assert.Equal(t, token, scanner.Current())
+		assert.Equal(t, Token{Type: VARNAME, Text: "pkgver"}, token)
+
+		scanner.buf.Read()
+		token = scanner.scanREFERENCE()
+		assert.Equal(t, token, scanner.Current())
+		assert.Equal(t, Token{Type: REFERENCE, Text: `${_srcver//-/.}`, Pos: buf.Position{0, 7, 7}, Tokens: []Token{
+			{Type: DOLLAR, Pos: buf.Position{0, 7, 7}, Text: "$"},
+			{Type: LCURLY, Pos: buf.Position{0, 8, 8}, Text: "{"},
+			{Type: VALUE, Pos: buf.Position{0, 9, 9}, Text: `_srcver//-/.`},
+			{Type: RCURLY, Pos: buf.Position{0, 21, 21}, Text: "}"},
+		}}, token)
+	}
+
+	// simple
+	{
+		scanner := NewScanner(strings.NewReader("${foo}"))
+		token := scanner.scanREFERENCE()
+		assert.Equal(t, token, scanner.Current())
+		assert.Equal(t, Token{Type: REFERENCE, Text: `${foo}`, Pos: buf.Position{0, 0, 0}, Tokens: []Token{
+			{Type: DOLLAR, Pos: buf.Position{0, 0, 0}, Text: "$"},
+			{Type: LCURLY, Pos: buf.Position{0, 1, 1}, Text: "{"},
+			{Type: VALUE, Pos: buf.Position{0, 2, 2}, Text: `foo`},
+			{Type: RCURLY, Pos: buf.Position{0, 5, 5}, Text: "}"},
+		}}, token)
+	}
+
+	// none with offset
+	{
+		scanner := NewScanner(strings.NewReader("  foo"))
+		token := scanner.scanWS()
+		assert.Equal(t, token, scanner.Current())
+		assert.Equal(t, Token{Type: WS, Text: "  "}, token)
+
+		token = scanner.scanREFERENCE()
+		assert.Equal(t, token, scanner.Current())
+		assert.Equal(t, Token{Type: ILLEGAL, Pos: buf.Position{0, 2, 2}}, token)
+	}
+
+	// none
+	{
+		scanner := NewScanner(strings.NewReader("foo"))
+		token := scanner.scanREFERENCE()
+		assert.Equal(t, token, scanner.Current())
+		assert.Equal(t, Token{Type: ILLEGAL}, token)
 	}
 }
 

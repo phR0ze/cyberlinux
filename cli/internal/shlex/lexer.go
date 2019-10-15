@@ -171,10 +171,9 @@ func (s *Scanner) Scan() (tok Token) {
 	return
 }
 
-// Unscan the previous token rewinding internal buffer, but doesn't clear the cached Token
+// Unscan the previous token rewinding the internal buffer, but doesn't clear the cached Token
 func (s *Scanner) Unscan() {
 	tok := s.Current()
-
 	for range tok.Text {
 		s.buf.Unread()
 	}
@@ -244,7 +243,7 @@ func (s *Scanner) scanVALUE() (tok Token) {
 
 	value := false
 	for {
-		// next := s.buf.Peek(1)
+		next := s.buf.Peek(1)
 		prev := s.buf.PeekPrev()
 		if curr := s.buf.Peek(); curr == eof {
 			break
@@ -252,8 +251,8 @@ func (s *Scanner) scanVALUE() (tok Token) {
 			break
 		} else if isQUOTE(curr) {
 			return s.scanQUOTE()
-			// } else if curr == '$' && next == '{' {
-			// 	return s.scanREFERENCE()
+		} else if curr == '$' && next == '{' {
+			return s.scanREFERENCE()
 		} else if curr == '#' && isWS(prev) {
 			return s.scanCOMMENT()
 		} else if curr == '(' {
@@ -326,14 +325,14 @@ func (s *Scanner) scanREFERENCE() (tok Token) {
 		}
 	}
 
-	if !success || len(tok.Tokens) != 3 {
+	if !success || len(tok.Tokens) != 4 {
 		tok.Type = ILLEGAL
 		tok.Tokens = []Token(nil)
 	} else if t := tok.FirstILLEGAL(); t.Type == ILLEGAL {
 		tok = t
 	} else {
 		tok.Type = REFERENCE
-		tok.Text = fmt.Sprintf("%s%s%s", tok.Tokens[0].Text, tok.Tokens[1].Text, tok.Tokens[2].Text)
+		tok.Text = fmt.Sprintf("%s%s%s%s", tok.Tokens[0].Text, tok.Tokens[1].Text, tok.Tokens[2].Text, tok.Tokens[3].Text)
 	}
 	s.push(tok)
 	return
@@ -579,7 +578,7 @@ func isIDENT(r rune) bool {
 }
 
 func isVALUE(r rune) bool {
-	return isIDENT(r) || r == '.' || r == '/' || r == '-' || r == '#' || r == '$' || r == '{' || r == '}'
+	return isIDENT(r) || r == '.' || r == '/' || r == '-' || r == '#'
 }
 
 func isPUNCUATION(r rune) bool {
