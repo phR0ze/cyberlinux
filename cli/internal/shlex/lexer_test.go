@@ -75,7 +75,7 @@ func TestScan(t *testing.T) {
 	assert.Equal(t, Token{Type: VARIABLE, Pos: buf.Position{7, 0, 320}, Text: `pkgver=${_srcver//-/.}`, Tokens: []Token{
 		{Type: VARNAME, Pos: buf.Position{7, 0, 320}, Text: `pkgver`},
 		{Type: EQUAL, Pos: buf.Position{7, 6, 326}, Text: `=`},
-		{Type: REFERENCE, Text: `${_srcver//-/.}`, Pos: buf.Position{7, 7, 327}, Tokens: []Token{
+		{Type: PARAM, Text: `${_srcver//-/.}`, Pos: buf.Position{7, 7, 327}, Tokens: []Token{
 			{Type: DOLLAR, Pos: buf.Position{7, 7, 327}, Text: "$"},
 			{Type: LCURLY, Pos: buf.Position{7, 8, 328}, Text: "{"},
 			{Type: VALUE, Pos: buf.Position{7, 9, 329}, Text: `_srcver//-/.`},
@@ -317,14 +317,28 @@ func TestScan(t *testing.T) {
 	assert.Equal(t, Token{Type: VARIABLE, Pos: buf.Position{36, 0, 1460}, Text: `_kernelname=${pkgbase#linux}`, Tokens: []Token{
 		{Type: VARNAME, Pos: buf.Position{36, 0, 1460}, Text: `_kernelname`},
 		{Type: EQUAL, Pos: buf.Position{36, 11, 1471}, Text: `=`},
-		{Type: REFERENCE, Text: `${pkgbase#linux}`, Pos: buf.Position{36, 12, 1472}, Tokens: []Token{
+		{Type: PARAM, Text: `${pkgbase#linux}`, Pos: buf.Position{36, 12, 1472}, Tokens: []Token{
 			{Type: DOLLAR, Pos: buf.Position{36, 12, 1472}, Text: "$"},
 			{Type: LCURLY, Pos: buf.Position{36, 13, 1473}, Text: "{"},
 			{Type: VALUE, Pos: buf.Position{36, 14, 1474}, Text: `pkgbase#linux`},
 			{Type: RCURLY, Pos: buf.Position{36, 27, 1487}, Text: "}"},
 		}},
 	}}, scanner.Scan())
-	// assert.Equal(t, Token{Type: WS, Pos: buf.Position{37, 0, 1489}, Text: "\n"}, scanner.Scan())
+	assert.Equal(t, Token{Type: WS, Pos: buf.Position{36, 28, 1488}, Text: "\n"}, scanner.Scan())
+
+	// line 38-39
+	assert.Equal(t, Token{Type: NOP, Pos: buf.Position{37, 0, 1489}, Text: ":"}, scanner.Scan())
+	assert.Equal(t, Token{Type: WS, Pos: buf.Position{37, 1, 1490}, Text: " "}, scanner.Scan())
+	assert.Equal(t, Token{Type: PARAM, Text: `${_kernelname:=-ARCH}`, Pos: buf.Position{37, 2, 1491}, Tokens: []Token{
+		{Type: DOLLAR, Pos: buf.Position{37, 2, 1491}, Text: "$"},
+		{Type: LCURLY, Pos: buf.Position{37, 3, 1492}, Text: "{"},
+		{Type: VALUE, Pos: buf.Position{37, 4, 1493}, Text: `_kernelname:=-ARCH`},
+		{Type: RCURLY, Pos: buf.Position{37, 22, 1511}, Text: "}"},
+	}}, scanner.Scan())
+	assert.Equal(t, Token{Type: WS, Pos: buf.Position{37, 23, 1512}, Text: "\n\n"}, scanner.Scan())
+
+	// line 40-64
+	// assert.Equal(t, Token{Type: NOP, Pos: buf.Position{37, 0, 1489}, Text: ":"}, scanner.Scan())
 }
 
 func TestUnscan(t *testing.T) {
@@ -497,9 +511,9 @@ func TestScanVALUE(t *testing.T) {
 	}
 }
 
-func TestScanREFERENCE(t *testing.T) {
+func TestScanPARAM(t *testing.T) {
 
-	// ident and ref with #
+	// ident and ${} with #
 	{
 		scanner := NewScanner(strings.NewReader("_kernelname=${pkgbase#linux}"))
 		token := scanner.scanIDENT()
@@ -507,9 +521,9 @@ func TestScanREFERENCE(t *testing.T) {
 		assert.Equal(t, Token{Type: VARNAME, Text: "_kernelname"}, token)
 
 		scanner.buf.Read()
-		token = scanner.scanREFERENCE()
+		token = scanner.scanPARAM()
 		assert.Equal(t, token, scanner.Current())
-		assert.Equal(t, Token{Type: REFERENCE, Text: `${pkgbase#linux}`, Pos: buf.Position{0, 12, 12}, Tokens: []Token{
+		assert.Equal(t, Token{Type: PARAM, Text: `${pkgbase#linux}`, Pos: buf.Position{0, 12, 12}, Tokens: []Token{
 			{Type: DOLLAR, Pos: buf.Position{0, 12, 12}, Text: "$"},
 			{Type: LCURLY, Pos: buf.Position{0, 13, 13}, Text: "{"},
 			{Type: VALUE, Pos: buf.Position{0, 14, 14}, Text: `pkgbase#linux`},
@@ -517,7 +531,7 @@ func TestScanREFERENCE(t *testing.T) {
 		}}, token)
 	}
 
-	// ident and ref with symbols
+	// ident and ${} with symbols
 	{
 		scanner := NewScanner(strings.NewReader("pkgver=${_srcver//-/.}"))
 		token := scanner.scanIDENT()
@@ -525,9 +539,9 @@ func TestScanREFERENCE(t *testing.T) {
 		assert.Equal(t, Token{Type: VARNAME, Text: "pkgver"}, token)
 
 		scanner.buf.Read()
-		token = scanner.scanREFERENCE()
+		token = scanner.scanPARAM()
 		assert.Equal(t, token, scanner.Current())
-		assert.Equal(t, Token{Type: REFERENCE, Text: `${_srcver//-/.}`, Pos: buf.Position{0, 7, 7}, Tokens: []Token{
+		assert.Equal(t, Token{Type: PARAM, Text: `${_srcver//-/.}`, Pos: buf.Position{0, 7, 7}, Tokens: []Token{
 			{Type: DOLLAR, Pos: buf.Position{0, 7, 7}, Text: "$"},
 			{Type: LCURLY, Pos: buf.Position{0, 8, 8}, Text: "{"},
 			{Type: VALUE, Pos: buf.Position{0, 9, 9}, Text: `_srcver//-/.`},
@@ -535,16 +549,27 @@ func TestScanREFERENCE(t *testing.T) {
 		}}, token)
 	}
 
-	// simple
+	// simple ${}
 	{
 		scanner := NewScanner(strings.NewReader("${foo}"))
-		token := scanner.scanREFERENCE()
+		token := scanner.scanPARAM()
 		assert.Equal(t, token, scanner.Current())
-		assert.Equal(t, Token{Type: REFERENCE, Text: `${foo}`, Pos: buf.Position{0, 0, 0}, Tokens: []Token{
+		assert.Equal(t, Token{Type: PARAM, Text: `${foo}`, Pos: buf.Position{0, 0, 0}, Tokens: []Token{
 			{Type: DOLLAR, Pos: buf.Position{0, 0, 0}, Text: "$"},
 			{Type: LCURLY, Pos: buf.Position{0, 1, 1}, Text: "{"},
 			{Type: VALUE, Pos: buf.Position{0, 2, 2}, Text: `foo`},
 			{Type: RCURLY, Pos: buf.Position{0, 5, 5}, Text: "}"},
+		}}, token)
+	}
+
+	// simple $
+	{
+		scanner := NewScanner(strings.NewReader("$foo"))
+		token := scanner.scanPARAM()
+		assert.Equal(t, token, scanner.Current())
+		assert.Equal(t, Token{Type: PARAM, Text: `$foo`, Pos: buf.Position{0, 0, 0}, Tokens: []Token{
+			{Type: DOLLAR, Pos: buf.Position{0, 0, 0}, Text: "$"},
+			{Type: VALUE, Pos: buf.Position{0, 1, 1}, Text: `foo`},
 		}}, token)
 	}
 
@@ -555,7 +580,7 @@ func TestScanREFERENCE(t *testing.T) {
 		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: WS, Text: "  "}, token)
 
-		token = scanner.scanREFERENCE()
+		token = scanner.scanPARAM()
 		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: ILLEGAL, Pos: buf.Position{0, 2, 2}}, token)
 	}
@@ -563,7 +588,7 @@ func TestScanREFERENCE(t *testing.T) {
 	// none
 	{
 		scanner := NewScanner(strings.NewReader("foo"))
-		token := scanner.scanREFERENCE()
+		token := scanner.scanPARAM()
 		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: ILLEGAL}, token)
 	}

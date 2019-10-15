@@ -40,23 +40,24 @@ const (
 	EOF                // errors or end of file
 	WS                 // one or more whitespaces
 	COMMENT            // comment: COMMENT{VALUE, [EOL]}
-	VARIABLE           // variable: VARIABLE{IDENT, EQUAL, VALUE}
+	VARIABLE           // variable: VARIABLE{VARNAME, EQUAL, VALUE}
+	FUNCTION           // function: FUNCTION{FUNCNAME, [WS], LPAREN, ,RPAREN, LCURLY, FUNCBODY, RCURLY}
 
 	EQUAL // = is the assignment operator
 	// DEFAULT // := is the default operator i.e. set value if empty
 	// COLON   // : is the nop operator i.e. no assignment only side affects
 
-	IDENT    // VARNAME | KEYWORD | FUNCNAME
+	NOP      // : nop
 	VARNAME  // variable name
 	KEYWORD  // language operator
 	FUNCNAME // function name
 
-	VALUE     // base primitive
-	REFERENCE // ${} reference for value: REFERENCE{LCURLY, VALUE, RCURLY}
-	DOLLAR    // single dollar symbol
-	LCURLY    // single left curly bracket
-	RCURLY    // single right curly bracket
+	VALUE // base primitive
 	// COMMAND   // $() or `` execute then place output; type of VALUE
+	PARAM   // ${} parameter for value: PARAM{[LCURLY], VALUE, [RCURLY]}
+	DOLLAR  // single dollar symbol
+	LCURLY  // single left curly bracket
+	RCURLY  // single right curly bracket
 	QUOTE   // single or double quoted value: QUOTE{LQUOTE|LDQUOTE, VALUE, RQUOTE|RDQUOTE}
 	LQUOTE  // single left quote
 	RQUOTE  // single right quote
@@ -151,20 +152,29 @@ func (s *Scanner) Scan() (tok Token) {
 	case isWS(next):
 		tok = s.scanWS()
 
+	// NOP
+	case next == ':':
+		pos := s.buf.Pos
+		tok = s.push(Token{Type: NOP, Pos: pos, Text: string(s.buf.Read())})
+
 	// Comment
 	case next == '#':
 		tok = s.scanCOMMENT()
 
-	// Identity
 	default:
-		if tok = s.scanIDENT(); tok.Type == ILLEGAL {
-			return
-		}
 
-		// Construct variable
-		if tok.Type == VARNAME {
-			s.Unscan()
-			tok = s.scanVARIABLE()
+		// Identity
+		if tok = s.scanIDENT(); tok.Type != ILLEGAL {
+
+			// Construct variable
+			if tok.Type == VARNAME {
+				s.Unscan()
+				tok = s.scanVARIABLE()
+			}
+		} else if tok = s.scanPARAM(); tok.Type != ILLEGAL {
+			// valid param
+		} else {
+			return Token{Type: ILLEGAL, Pos: s.buf.Pos}
 		}
 	}
 
@@ -221,7 +231,7 @@ func (s *Scanner) scanVARIABLE() (tok Token) {
 
 // scanIDENT consumes Bash identifiers i.e. variable names, keywords or function names
 func (s *Scanner) scanIDENT() (tok Token) {
-	tok = s.scanFunc(IDENT, func(r rune) bool { return isIDENT(r) })
+	tok = s.scanFunc(UNSET, func(r rune) bool { return isIDENT(r) })
 	if tok.Type != ILLEGAL {
 		if isKEYWORD(tok.Text) {
 			tok.Type = KEYWORD
@@ -243,7 +253,6 @@ func (s *Scanner) scanVALUE() (tok Token) {
 
 	value := false
 	for {
-		next := s.buf.Peek(1)
 		prev := s.buf.PeekPrev()
 		if curr := s.buf.Peek(); curr == eof {
 			break
@@ -251,8 +260,8 @@ func (s *Scanner) scanVALUE() (tok Token) {
 			break
 		} else if isQUOTE(curr) {
 			return s.scanQUOTE()
-		} else if curr == '$' && next == '{' {
-			return s.scanREFERENCE()
+		} else if curr == '$' {
+			return s.scanPARAM()
 		} else if curr == '#' && isWS(prev) {
 			return s.scanCOMMENT()
 		} else if curr == '(' {
@@ -280,12 +289,13 @@ func (s *Scanner) scanVALUE() (tok Token) {
 
 }
 
-// scanREFERENCE handle bash variable references
-// composed of: REFERENCE{LCURLY, [WS]VALUE[WS]..., RCURLY}
-func (s *Scanner) scanREFERENCE() (tok Token) {
+// scanPARAM handle bash variable references
+// composed of: PARAM{[LCURLY], VALUE..., [RCURLY]}.
+// https://wiki.bash-hackers.org/syntax/pe
+func (s *Scanner) scanPARAM() (tok Token) {
 
 	// Ensure we are working the correct type
-	if s.buf.Peek() != '$' && s.buf.Peek(1) == '{' {
+	if s.buf.Peek() != '$' {
 		tok = Token{Type: ILLEGAL, Pos: s.buf.Pos}
 		s.push(tok)
 		return
@@ -293,19 +303,20 @@ func (s *Scanner) scanREFERENCE() (tok Token) {
 
 	var buf bytes.Buffer
 	tok.Pos = s.buf.Pos
-	var openCurly, success bool
+	var openCurly, closeCurly, success bool
 
 	for {
-		next := s.buf.Peek(1)
 		if curr := s.buf.Peek(); curr == eof {
 			break
-		} else if curr == '$' && next == '{' {
-			openCurly = true
+		} else if curr == '$' {
 			pos := s.buf.Pos
 			tok.Tokens = append(tok.Tokens, Token{Type: DOLLAR, Pos: pos, Text: string(s.buf.Read())})
-			pos = s.buf.Pos
+		} else if curr == '{' {
+			openCurly = true
+			pos := s.buf.Pos
 			tok.Tokens = append(tok.Tokens, Token{Type: LCURLY, Pos: pos, Text: string(s.buf.Read())})
 		} else if curr == '}' {
+			closeCurly = true
 			pos := s.buf.Pos
 			s.buf.Read()
 			if openCurly {
@@ -314,25 +325,24 @@ func (s *Scanner) scanREFERENCE() (tok Token) {
 				break
 			}
 		} else {
-			var t Token
-			if isWS(curr) {
-				t = s.scanWS()
-			} else {
-				t = s.scanVALUE()
-			}
+			t := s.scanVALUE()
 			tok.Tokens = append(tok.Tokens, t)
 			buf.WriteString(t.Text)
 		}
 	}
 
-	if !success || len(tok.Tokens) != 4 {
+	if (openCurly || closeCurly) && !success {
 		tok.Type = ILLEGAL
 		tok.Tokens = []Token(nil)
 	} else if t := tok.FirstILLEGAL(); t.Type == ILLEGAL {
 		tok = t
 	} else {
-		tok.Type = REFERENCE
-		tok.Text = fmt.Sprintf("%s%s%s%s", tok.Tokens[0].Text, tok.Tokens[1].Text, tok.Tokens[2].Text, tok.Tokens[3].Text)
+		tok.Type = PARAM
+		if len(tok.Tokens) > 2 {
+			tok.Text = fmt.Sprintf("%s%s%s%s", tok.Tokens[0].Text, tok.Tokens[1].Text, tok.Tokens[2].Text, tok.Tokens[3].Text)
+		} else {
+			tok.Text = fmt.Sprintf("%s%s", tok.Tokens[0].Text, tok.Tokens[1].Text)
+		}
 	}
 	s.push(tok)
 	return
@@ -578,7 +588,7 @@ func isIDENT(r rune) bool {
 }
 
 func isVALUE(r rune) bool {
-	return isIDENT(r) || r == '.' || r == '/' || r == '-' || r == '#'
+	return isIDENT(r) || r == '.' || r == '/' || r == '-' || r == '#' || r == ':' || r == '='
 }
 
 func isPUNCUATION(r rune) bool {
