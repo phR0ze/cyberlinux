@@ -46,7 +46,7 @@ func TestScan(t *testing.T) {
 	assert.Equal(t, Token{Type: WS, Pos: buf.Position{3, 0, 179}, Text: "\n"}, scanner.Scan())
 
 	// line 5
-	assert.Equal(t, Token{Type: VARIABLE, Text: `pkgbase=linux`, Pos: buf.Position{4, 0, 180}, Tokens: []Token{
+	assert.Equal(t, Token{Type: VARIABLE, Pos: buf.Position{4, 0, 180}, Text: `pkgbase=linux`, Tokens: []Token{
 		{Type: VARNAME, Pos: buf.Position{4, 0, 180}, Text: `pkgbase`},
 		{Type: EQUAL, Pos: buf.Position{4, 7, 187}, Text: `=`},
 		{Type: VALUE, Pos: buf.Position{4, 8, 188}, Text: `linux`},
@@ -64,7 +64,7 @@ func TestScan(t *testing.T) {
 	}}, scanner.Scan())
 
 	// line 7
-	assert.Equal(t, Token{Type: VARIABLE, Text: `_srcver=5.3.1-arch1`, Pos: buf.Position{6, 0, 300}, Tokens: []Token{
+	assert.Equal(t, Token{Type: VARIABLE, Pos: buf.Position{6, 0, 300}, Text: `_srcver=5.3.1-arch1`, Tokens: []Token{
 		{Type: VARNAME, Pos: buf.Position{6, 0, 300}, Text: `_srcver`},
 		{Type: EQUAL, Pos: buf.Position{6, 7, 307}, Text: `=`},
 		{Type: VALUE, Pos: buf.Position{6, 8, 308}, Text: `5.3.1-arch1`},
@@ -72,7 +72,7 @@ func TestScan(t *testing.T) {
 	assert.Equal(t, Token{Type: WS, Pos: buf.Position{6, 19, 319}, Text: "\n"}, scanner.Scan())
 
 	// line 8
-	assert.Equal(t, Token{Type: VARIABLE, Text: `pkgver=${_srcver//-/.}`, Pos: buf.Position{7, 0, 320}, Tokens: []Token{
+	assert.Equal(t, Token{Type: VARIABLE, Pos: buf.Position{7, 0, 320}, Text: `pkgver=${_srcver//-/.}`, Tokens: []Token{
 		{Type: VARNAME, Pos: buf.Position{7, 0, 320}, Text: `pkgver`},
 		{Type: EQUAL, Pos: buf.Position{7, 6, 326}, Text: `=`},
 		{Type: VALUE, Pos: buf.Position{7, 7, 327}, Text: `${_srcver//-/.}`},
@@ -80,7 +80,7 @@ func TestScan(t *testing.T) {
 	assert.Equal(t, Token{Type: WS, Pos: buf.Position{7, 22, 342}, Text: "\n"}, scanner.Scan())
 
 	// line 9
-	assert.Equal(t, Token{Type: VARIABLE, Text: `pkgrel=1`, Pos: buf.Position{8, 0, 343}, Tokens: []Token{
+	assert.Equal(t, Token{Type: VARIABLE, Pos: buf.Position{8, 0, 343}, Text: `pkgrel=1`, Tokens: []Token{
 		{Type: VARNAME, Pos: buf.Position{8, 0, 343}, Text: `pkgrel`},
 		{Type: EQUAL, Pos: buf.Position{8, 6, 349}, Text: `=`},
 		{Type: VALUE, Pos: buf.Position{8, 7, 350}, Text: `1`},
@@ -88,7 +88,7 @@ func TestScan(t *testing.T) {
 	assert.Equal(t, Token{Type: WS, Pos: buf.Position{8, 8, 351}, Text: "\n"}, scanner.Scan())
 
 	// line 10
-	assert.Equal(t, Token{Type: VARIABLE, Text: `arch=(x86_64)`, Pos: buf.Position{9, 0, 352}, Tokens: []Token{
+	assert.Equal(t, Token{Type: VARIABLE, Pos: buf.Position{9, 0, 352}, Text: `arch=(x86_64)`, Tokens: []Token{
 		{Type: VARNAME, Pos: buf.Position{9, 0, 352}, Text: `arch`},
 		{Type: EQUAL, Pos: buf.Position{9, 4, 356}, Text: `=`},
 		{Type: ARRAY, Text: `(x86_64)`, Pos: buf.Position{9, 5, 357}, Tokens: []Token{
@@ -100,7 +100,7 @@ func TestScan(t *testing.T) {
 	assert.Equal(t, Token{Type: WS, Pos: buf.Position{9, 13, 365}, Text: "\n"}, scanner.Scan())
 
 	// line 11
-	assert.Equal(t, Token{Type: VARIABLE, Text: `url="https://git.archlinux.org/linux.git/log/?h=v$_srcver"`, Pos: buf.Position{10, 0, 366}, Tokens: []Token{
+	assert.Equal(t, Token{Type: VARIABLE, Pos: buf.Position{10, 0, 366}, Text: `url="https://git.archlinux.org/linux.git/log/?h=v$_srcver"`, Tokens: []Token{
 		{Type: VARNAME, Pos: buf.Position{10, 0, 366}, Text: `url`},
 		{Type: EQUAL, Pos: buf.Position{10, 3, 369}, Text: `=`},
 		{Type: QUOTE, Pos: buf.Position{10, 4, 370}, Text: `"https://git.archlinux.org/linux.git/log/?h=v$_srcver"`, Tokens: []Token{
@@ -112,7 +112,7 @@ func TestScan(t *testing.T) {
 	assert.Equal(t, Token{Type: WS, Pos: buf.Position{10, 58, 424}, Text: "\n"}, scanner.Scan())
 
 	// line 12
-	assert.Equal(t, Token{Type: VARIABLE, Text: `license=(GPL2)`, Pos: buf.Position{11, 0, 425}, Tokens: []Token{
+	assert.Equal(t, Token{Type: VARIABLE, Pos: buf.Position{11, 0, 425}, Text: `license=(GPL2)`, Tokens: []Token{
 		{Type: VARNAME, Pos: buf.Position{11, 0, 425}, Text: `license`},
 		{Type: EQUAL, Pos: buf.Position{11, 7, 432}, Text: `=`},
 		{Type: ARRAY, Text: `(GPL2)`, Pos: buf.Position{11, 8, 433}, Tokens: []Token{
@@ -124,7 +124,7 @@ func TestScan(t *testing.T) {
 	assert.Equal(t, Token{Type: WS, Pos: buf.Position{11, 14, 439}, Text: "\n"}, scanner.Scan())
 
 	// line 13 - 16
-	assert.Equal(t, Token{Type: VARIABLE, Text: "makedepends=(\n  xmlto kmod inetutils bc libelf git python-sphinx python-sphinx_rtd_theme\n  graphviz imagemagick\n)", Pos: buf.Position{12, 0, 440}, Tokens: []Token{
+	assert.Equal(t, Token{Type: VARIABLE, Pos: buf.Position{12, 0, 440}, Text: "makedepends=(\n  xmlto kmod inetutils bc libelf git python-sphinx python-sphinx_rtd_theme\n  graphviz imagemagick\n)", Tokens: []Token{
 		{Type: VARNAME, Pos: buf.Position{12, 0, 440}, Text: `makedepends`},
 		{Type: EQUAL, Pos: buf.Position{12, 11, 451}, Text: `=`},
 		{Type: ARRAY, Pos: buf.Position{12, 12, 452}, Text: "(\n  xmlto kmod inetutils bc libelf git python-sphinx python-sphinx_rtd_theme\n  graphviz imagemagick\n)", Tokens: []Token{
@@ -156,7 +156,7 @@ func TestScan(t *testing.T) {
 	assert.Equal(t, Token{Type: WS, Pos: buf.Position{15, 1, 553}, Text: "\n"}, scanner.Scan())
 
 	// line 17
-	assert.Equal(t, Token{Type: VARIABLE, Text: `options=('!strip')`, Pos: buf.Position{16, 0, 554}, Tokens: []Token{
+	assert.Equal(t, Token{Type: VARIABLE, Pos: buf.Position{16, 0, 554}, Text: `options=('!strip')`, Tokens: []Token{
 		{Type: VARNAME, Pos: buf.Position{16, 0, 554}, Text: `options`},
 		{Type: EQUAL, Pos: buf.Position{16, 7, 561}, Text: `=`},
 		{Type: ARRAY, Text: `('!strip')`, Pos: buf.Position{16, 8, 562}, Tokens: []Token{
@@ -172,15 +172,15 @@ func TestScan(t *testing.T) {
 	assert.Equal(t, Token{Type: WS, Pos: buf.Position{16, 18, 572}, Text: "\n"}, scanner.Scan())
 
 	// line 18
-	assert.Equal(t, Token{Type: VARIABLE, Text: `_srcname=archlinux-linux`, Pos: buf.Position{17, 0, 573}, Tokens: []Token{
+	assert.Equal(t, Token{Type: VARIABLE, Pos: buf.Position{17, 0, 573}, Text: `_srcname=archlinux-linux`, Tokens: []Token{
 		{Type: VARNAME, Pos: buf.Position{17, 0, 573}, Text: `_srcname`},
 		{Type: EQUAL, Pos: buf.Position{17, 8, 581}, Text: `=`},
 		{Type: VALUE, Pos: buf.Position{17, 9, 582}, Text: `archlinux-linux`},
 	}}, scanner.Scan())
 	assert.Equal(t, Token{Type: WS, Pos: buf.Position{17, 24, 597}, Text: "\n"}, scanner.Scan())
 
-	// line 19
-	assert.Equal(t, Token{Type: VARIABLE, Text: "source=(\n  \"$_srcname::git+https://git.archlinux.org/linux.git?signed#tag=v$_srcver\"\n  config         # the main kernel config file\n  60-linux.hook  # pacman hook for depmod\n  90-linux.hook  # pacman hook for initramfs regeneration\n  linux.preset   # standard config files for mkinitcpio ramdisk\n)", Pos: buf.Position{18, 0, 598}, Tokens: []Token{
+	// line 19-25
+	assert.Equal(t, Token{Type: VARIABLE, Pos: buf.Position{18, 0, 598}, Text: "source=(\n  \"$_srcname::git+https://git.archlinux.org/linux.git?signed#tag=v$_srcver\"\n  config         # the main kernel config file\n  60-linux.hook  # pacman hook for depmod\n  90-linux.hook  # pacman hook for initramfs regeneration\n  linux.preset   # standard config files for mkinitcpio ramdisk\n)", Tokens: []Token{
 		{Type: VARNAME, Pos: buf.Position{18, 0, 598}, Text: `source`},
 		{Type: EQUAL, Pos: buf.Position{18, 6, 604}, Text: `=`},
 		{Type: ARRAY, Pos: buf.Position{18, 7, 605}, Text: "(\n  \"$_srcname::git+https://git.archlinux.org/linux.git?signed#tag=v$_srcver\"\n  config         # the main kernel config file\n  60-linux.hook  # pacman hook for depmod\n  90-linux.hook  # pacman hook for initramfs regeneration\n  linux.preset   # standard config files for mkinitcpio ramdisk\n)", Tokens: []Token{
@@ -223,6 +223,98 @@ func TestScan(t *testing.T) {
 		}},
 	}}, scanner.Scan())
 	assert.Equal(t, Token{Type: WS, Pos: buf.Position{24, 1, 895}, Text: "\n"}, scanner.Scan())
+
+	// line 26-30
+	assert.Equal(t, Token{Type: VARIABLE, Pos: buf.Position{25, 0, 896}, Text: "validpgpkeys=(\n  'ABAF11C65A2970B130ABE3C479BE3E4300411886'  # Linus Torvalds\n  '647F28654894E3BD457199BE38DBBDC86092693E'  # Greg Kroah-Hartman\n  '8218F88849AAC522E94CF470A5E9288C4FA415FA'  # Jan Alexander Steffens (heftig)\n)", Tokens: []Token{
+		{Type: VARNAME, Pos: buf.Position{25, 0, 896}, Text: `validpgpkeys`},
+		{Type: EQUAL, Pos: buf.Position{25, 12, 908}, Text: `=`},
+		{Type: ARRAY, Pos: buf.Position{25, 13, 909}, Text: "(\n  'ABAF11C65A2970B130ABE3C479BE3E4300411886'  # Linus Torvalds\n  '647F28654894E3BD457199BE38DBBDC86092693E'  # Greg Kroah-Hartman\n  '8218F88849AAC522E94CF470A5E9288C4FA415FA'  # Jan Alexander Steffens (heftig)\n)", Tokens: []Token{
+			{Type: LPAREN, Pos: buf.Position{25, 13, 909}, Text: `(`},
+			{Type: WS, Pos: buf.Position{25, 14, 910}, Text: "\n  "},
+			{Type: QUOTE, Pos: buf.Position{26, 2, 913}, Text: `'ABAF11C65A2970B130ABE3C479BE3E4300411886'`, Tokens: []Token{
+				{Type: LQUOTE, Pos: buf.Position{26, 2, 913}, Text: `'`},
+				{Type: VALUE, Pos: buf.Position{26, 3, 914}, Text: `ABAF11C65A2970B130ABE3C479BE3E4300411886`},
+				{Type: RQUOTE, Pos: buf.Position{26, 43, 954}, Text: `'`},
+			}},
+			{Type: WS, Pos: buf.Position{26, 44, 955}, Text: "  "},
+			{Type: COMMENT, Pos: buf.Position{26, 46, 957}, Text: "# Linus Torvalds\n", Tokens: []Token{
+				{Type: VALUE, Pos: buf.Position{26, 46, 957}, Text: "# Linus Torvalds"},
+				{Type: WS, Pos: buf.Position{26, 62, 973}, Text: "\n"},
+			}},
+			{Type: WS, Pos: buf.Position{27, 0, 974}, Text: "  "},
+			{Type: QUOTE, Pos: buf.Position{27, 2, 976}, Text: `'647F28654894E3BD457199BE38DBBDC86092693E'`, Tokens: []Token{
+				{Type: LQUOTE, Pos: buf.Position{27, 2, 976}, Text: `'`},
+				{Type: VALUE, Pos: buf.Position{27, 3, 977}, Text: `647F28654894E3BD457199BE38DBBDC86092693E`},
+				{Type: RQUOTE, Pos: buf.Position{27, 43, 1017}, Text: `'`},
+			}},
+			{Type: WS, Pos: buf.Position{27, 44, 1018}, Text: "  "},
+			{Type: COMMENT, Pos: buf.Position{27, 46, 1020}, Text: "# Greg Kroah-Hartman\n", Tokens: []Token{
+				{Type: VALUE, Pos: buf.Position{27, 46, 1020}, Text: "# Greg Kroah-Hartman"},
+				{Type: WS, Pos: buf.Position{27, 66, 1040}, Text: "\n"},
+			}},
+			{Type: WS, Pos: buf.Position{28, 0, 1041}, Text: "  "},
+			{Type: QUOTE, Pos: buf.Position{28, 2, 1043}, Text: `'8218F88849AAC522E94CF470A5E9288C4FA415FA'`, Tokens: []Token{
+				{Type: LQUOTE, Pos: buf.Position{28, 2, 1043}, Text: `'`},
+				{Type: VALUE, Pos: buf.Position{28, 3, 1044}, Text: `8218F88849AAC522E94CF470A5E9288C4FA415FA`},
+				{Type: RQUOTE, Pos: buf.Position{28, 43, 1084}, Text: `'`},
+			}},
+			{Type: WS, Pos: buf.Position{28, 44, 1085}, Text: "  "},
+			{Type: COMMENT, Pos: buf.Position{28, 46, 1087}, Text: "# Jan Alexander Steffens (heftig)\n", Tokens: []Token{
+				{Type: VALUE, Pos: buf.Position{28, 46, 1087}, Text: "# Jan Alexander Steffens (heftig)"},
+				{Type: WS, Pos: buf.Position{28, 79, 1120}, Text: "\n"},
+			}},
+			{Type: RPAREN, Pos: buf.Position{29, 0, 1121}, Text: `)`},
+		}},
+	}}, scanner.Scan())
+	assert.Equal(t, Token{Type: WS, Pos: buf.Position{29, 1, 1122}, Text: "\n"}, scanner.Scan())
+
+	// line 31-35
+	assert.Equal(t, Token{Type: VARIABLE, Pos: buf.Position{30, 0, 1123}, Text: "sha256sums=('SKIP'\n            '166ee15de54cd8385ed12599cf8402009df5e5c59e961e0547c7745fa385b6a2'\n            'ae2e95db94ef7176207c690224169594d49445e04249d2499e9d2fbc117a0b21'\n            'c043f3033bb781e2688794a59f6d1f7ed49ef9b13eb77ff9a425df33a244a636'\n            'ad6344badc91ad0630caacde83f7f9b97276f80d26a20619a87952be65492c65')", Tokens: []Token{
+		{Type: VARNAME, Pos: buf.Position{30, 0, 1123}, Text: `sha256sums`},
+		{Type: EQUAL, Pos: buf.Position{30, 10, 1133}, Text: `=`},
+		{Type: ARRAY, Pos: buf.Position{30, 11, 1134}, Text: "('SKIP'\n            '166ee15de54cd8385ed12599cf8402009df5e5c59e961e0547c7745fa385b6a2'\n            'ae2e95db94ef7176207c690224169594d49445e04249d2499e9d2fbc117a0b21'\n            'c043f3033bb781e2688794a59f6d1f7ed49ef9b13eb77ff9a425df33a244a636'\n            'ad6344badc91ad0630caacde83f7f9b97276f80d26a20619a87952be65492c65')", Tokens: []Token{
+			{Type: LPAREN, Pos: buf.Position{30, 11, 1134}, Text: `(`},
+			{Type: QUOTE, Pos: buf.Position{30, 12, 1135}, Text: `'SKIP'`, Tokens: []Token{
+				{Type: LQUOTE, Pos: buf.Position{30, 12, 1135}, Text: `'`},
+				{Type: VALUE, Pos: buf.Position{30, 13, 1136}, Text: `SKIP`},
+				{Type: RQUOTE, Pos: buf.Position{30, 17, 1140}, Text: `'`},
+			}},
+			{Type: WS, Pos: buf.Position{30, 18, 1141}, Text: "\n            "},
+			{Type: QUOTE, Pos: buf.Position{31, 12, 1154}, Text: `'166ee15de54cd8385ed12599cf8402009df5e5c59e961e0547c7745fa385b6a2'`, Tokens: []Token{
+				{Type: LQUOTE, Pos: buf.Position{31, 12, 1154}, Text: `'`},
+				{Type: VALUE, Pos: buf.Position{31, 13, 1155}, Text: `166ee15de54cd8385ed12599cf8402009df5e5c59e961e0547c7745fa385b6a2`},
+				{Type: RQUOTE, Pos: buf.Position{31, 77, 1219}, Text: `'`},
+			}},
+			{Type: WS, Pos: buf.Position{31, 78, 1220}, Text: "\n            "},
+			{Type: QUOTE, Pos: buf.Position{32, 12, 1233}, Text: `'ae2e95db94ef7176207c690224169594d49445e04249d2499e9d2fbc117a0b21'`, Tokens: []Token{
+				{Type: LQUOTE, Pos: buf.Position{32, 12, 1233}, Text: `'`},
+				{Type: VALUE, Pos: buf.Position{32, 13, 1234}, Text: `ae2e95db94ef7176207c690224169594d49445e04249d2499e9d2fbc117a0b21`},
+				{Type: RQUOTE, Pos: buf.Position{32, 77, 1298}, Text: `'`},
+			}},
+			{Type: WS, Pos: buf.Position{32, 78, 1299}, Text: "\n            "},
+			{Type: QUOTE, Pos: buf.Position{33, 12, 1312}, Text: `'c043f3033bb781e2688794a59f6d1f7ed49ef9b13eb77ff9a425df33a244a636'`, Tokens: []Token{
+				{Type: LQUOTE, Pos: buf.Position{33, 12, 1312}, Text: `'`},
+				{Type: VALUE, Pos: buf.Position{33, 13, 1313}, Text: `c043f3033bb781e2688794a59f6d1f7ed49ef9b13eb77ff9a425df33a244a636`},
+				{Type: RQUOTE, Pos: buf.Position{33, 77, 1377}, Text: `'`},
+			}},
+			{Type: WS, Pos: buf.Position{33, 78, 1378}, Text: "\n            "},
+			{Type: QUOTE, Pos: buf.Position{34, 12, 1391}, Text: `'ad6344badc91ad0630caacde83f7f9b97276f80d26a20619a87952be65492c65'`, Tokens: []Token{
+				{Type: LQUOTE, Pos: buf.Position{34, 12, 1391}, Text: `'`},
+				{Type: VALUE, Pos: buf.Position{34, 13, 1392}, Text: `ad6344badc91ad0630caacde83f7f9b97276f80d26a20619a87952be65492c65`},
+				{Type: RQUOTE, Pos: buf.Position{34, 77, 1456}, Text: `'`},
+			}},
+			{Type: RPAREN, Pos: buf.Position{34, 78, 1457}, Text: `)`},
+		}},
+	}}, scanner.Scan())
+	assert.Equal(t, Token{Type: WS, Pos: buf.Position{34, 79, 1458}, Text: "\n\n"}, scanner.Scan())
+
+	// line 37
+	assert.Equal(t, Token{Type: VARIABLE, Pos: buf.Position{36, 0, 1460}, Text: `_kernelname=${pkgbase#linux}`, Tokens: []Token{
+		{Type: VARNAME, Pos: buf.Position{36, 0, 1460}, Text: `_kernelname`},
+		{Type: EQUAL, Pos: buf.Position{36, 11, 1471}, Text: `=`},
+		{Type: VALUE, Pos: buf.Position{36, 12, 1472}, Text: `${pkgbase#linux}`},
+	}}, scanner.Scan())
+	// assert.Equal(t, Token{Type: WS, Pos: buf.Position{37, 0, 1489}, Text: "\n"}, scanner.Scan())
 }
 
 func TestUnscan(t *testing.T) {

@@ -40,15 +40,23 @@ const (
 	EOF                // errors or end of file
 	WS                 // one or more whitespaces
 	COMMENT            // comment: COMMENT{VALUE, [EOL]}
-	VARIABLE           // IDENT, EQUAL, VALUE
-	EQUAL              // assignment operator
+	VARIABLE           // variable: VARIABLE{IDENT, EQUAL, VALUE}
 
-	IDENT    // NAME | KEYWORD
+	EQUAL // = is the assignment operator
+	// DEFAULT // := is the default operator i.e. set value if empty
+	// COLON   // : is the nop operator i.e. no assignment only side affects
+
+	IDENT    // VARNAME | KEYWORD | FUNCNAME
 	VARNAME  // variable name
 	KEYWORD  // language operator
 	FUNCNAME // function name
 
-	VALUE   // base primitive others encapsulate
+	VALUE     // base primitive
+	REFERENCE // ${} reference for value: REFERENCE{LCURLY, VALUE, RCURLY}
+	DOLLAR    // single dollar symbol
+	LCURLY    // single left curly bracket
+	RCURLY    // single right curly bracket
+	// COMMAND   // $() or `` execute then place output; type of VALUE
 	QUOTE   // single or double quoted value: QUOTE{LQUOTE|LDQUOTE, VALUE, RQUOTE|RDQUOTE}
 	LQUOTE  // single left quote
 	RQUOTE  // single right quote
@@ -236,17 +244,21 @@ func (s *Scanner) scanVALUE() (tok Token) {
 
 	value := false
 	for {
-		if next := s.buf.Peek(); next == eof {
+		// next := s.buf.Peek(1)
+		prev := s.buf.PeekPrev()
+		if curr := s.buf.Peek(); curr == eof {
 			break
-		} else if value && isNotVALUE(next) {
+		} else if value && !isVALUE(curr) {
 			break
-		} else if isQUOTE(next) {
+		} else if isQUOTE(curr) {
 			return s.scanQUOTE()
-		} else if next == '#' {
+			// } else if curr == '$' && next == '{' {
+			// 	return s.scanREFERENCE()
+		} else if curr == '#' && isWS(prev) {
 			return s.scanCOMMENT()
-		} else if next == '(' {
+		} else if curr == '(' {
 			return s.scanARRAY()
-		} else if isNotVALUE(next) {
+		} else if !isVALUE(curr) {
 			break
 		} else {
 			value = true
@@ -267,6 +279,64 @@ func (s *Scanner) scanVALUE() (tok Token) {
 	s.push(tok)
 	return
 
+}
+
+// scanREFERENCE handle bash variable references
+// composed of: REFERENCE{LCURLY, [WS]VALUE[WS]..., RCURLY}
+func (s *Scanner) scanREFERENCE() (tok Token) {
+
+	// Ensure we are working the correct type
+	if s.buf.Peek() != '$' && s.buf.Peek(1) == '{' {
+		tok = Token{Type: ILLEGAL, Pos: s.buf.Pos}
+		s.push(tok)
+		return
+	}
+
+	var buf bytes.Buffer
+	tok.Pos = s.buf.Pos
+	var openCurly, success bool
+
+	for {
+		next := s.buf.Peek(1)
+		if curr := s.buf.Peek(); curr == eof {
+			break
+		} else if curr == '$' && next == '{' {
+			openCurly = true
+			pos := s.buf.Pos
+			tok.Tokens = append(tok.Tokens, Token{Type: DOLLAR, Pos: pos, Text: string(s.buf.Read())})
+			pos = s.buf.Pos
+			tok.Tokens = append(tok.Tokens, Token{Type: LCURLY, Pos: pos, Text: string(s.buf.Read())})
+		} else if curr == '}' {
+			pos := s.buf.Pos
+			s.buf.Read()
+			if openCurly {
+				success = true
+				tok.Tokens = append(tok.Tokens, Token{Type: RCURLY, Pos: pos, Text: string(curr)})
+				break
+			}
+		} else {
+			var t Token
+			if isWS(curr) {
+				t = s.scanWS()
+			} else {
+				t = s.scanVALUE()
+			}
+			tok.Tokens = append(tok.Tokens, t)
+			buf.WriteString(t.Text)
+		}
+	}
+
+	if !success || len(tok.Tokens) != 3 {
+		tok.Type = ILLEGAL
+		tok.Tokens = []Token(nil)
+	} else if t := tok.FirstILLEGAL(); t.Type == ILLEGAL {
+		tok = t
+	} else {
+		tok.Type = REFERENCE
+		tok.Text = fmt.Sprintf("%s%s%s", tok.Tokens[0].Text, tok.Tokens[1].Text, tok.Tokens[2].Text)
+	}
+	s.push(tok)
+	return
 }
 
 // scanARRAY handle bash arrays
@@ -508,11 +578,10 @@ func isIDENT(r rune) bool {
 	return (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || (r == '_')
 }
 
-func isPUNCUATION(r rune) bool {
-	return r == '(' || r == ')' || r == ';' || r == '<' || r == '>' || r == '|' || r == '&'
+func isVALUE(r rune) bool {
+	return isIDENT(r) || r == '.' || r == '/' || r == '-' || r == '#' || r == '$' || r == '{' || r == '}'
 }
 
-// not value chars
-func isNotVALUE(r rune) bool {
-	return isWS(r) || isQUOTE(r) || isPUNCUATION(r) || r == eof
+func isPUNCUATION(r rune) bool {
+	return r == '(' || r == ')' || r == ';' || r == '<' || r == '>' || r == '|' || r == '&'
 }
