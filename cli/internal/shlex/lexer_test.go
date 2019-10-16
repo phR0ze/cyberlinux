@@ -25,53 +25,71 @@ func TestScan(t *testing.T) {
 	scanner := NewScanner(file)
 
 	// line 1
+	token := scanner.Scan()
 	assert.Equal(t, Token{Type: COMMENT, Text: "# Maintainer: Jan Alexander Steffens (heftig) <jan.steffens@gmail.com>\n", Tokens: []Token{
 		{Type: VALUE, Text: "# Maintainer: Jan Alexander Steffens (heftig) <jan.steffens@gmail.com>"},
 		{Type: WS, Pos: buf.Position{0, 70, 70}, Text: "\n"},
-	}}, scanner.Scan())
+	}}, token)
+	assert.Equal(t, token, scanner.Current())
 
 	// line 2
+	token = scanner.Scan()
 	assert.Equal(t, Token{Type: COMMENT, Pos: buf.Position{1, 0, 71}, Text: "# Maintainer: Tobias Powalowski <tpowa@archlinux.org>\n", Tokens: []Token{
 		{Type: VALUE, Pos: buf.Position{1, 0, 71}, Text: "# Maintainer: Tobias Powalowski <tpowa@archlinux.org>"},
 		{Type: WS, Pos: buf.Position{1, 53, 124}, Text: "\n"},
-	}}, scanner.Scan())
+	}}, token)
+	assert.Equal(t, token, scanner.Current())
 
 	// line 3
+	token = scanner.Scan()
 	assert.Equal(t, Token{Type: COMMENT, Pos: buf.Position{2, 0, 125}, Text: "# Contributor: Thomas Baechler <thomas@archlinux.org>\n", Tokens: []Token{
 		{Type: VALUE, Pos: buf.Position{2, 0, 125}, Text: "# Contributor: Thomas Baechler <thomas@archlinux.org>"},
 		{Type: WS, Pos: buf.Position{2, 53, 178}, Text: "\n"},
-	}}, scanner.Scan())
+	}}, token)
+	assert.Equal(t, token, scanner.Current())
 
 	// line 4
-	assert.Equal(t, Token{Type: WS, Pos: buf.Position{3, 0, 179}, Text: "\n"}, scanner.Scan())
+	token = scanner.Scan()
+	assert.Equal(t, Token{Type: WS, Pos: buf.Position{3, 0, 179}, Text: "\n"}, token)
+	assert.Equal(t, token, scanner.Current())
 
 	// line 5
+	token = scanner.Scan()
 	assert.Equal(t, Token{Type: VARIABLE, Pos: buf.Position{4, 0, 180}, Text: `pkgbase=linux`, Tokens: []Token{
 		{Type: VARNAME, Pos: buf.Position{4, 0, 180}, Text: `pkgbase`},
 		{Type: EQUAL, Pos: buf.Position{4, 7, 187}, Text: `=`},
 		{Type: VALUE, Pos: buf.Position{4, 8, 188}, Text: `linux`},
-	}}, scanner.Scan())
-	assert.Equal(t, Token{Type: WS, Pos: buf.Position{4, 13, 193}, Text: "               "}, scanner.Scan())
+	}}, token)
+	token = scanner.Scan()
+	assert.Equal(t, Token{Type: WS, Pos: buf.Position{4, 13, 193}, Text: "               "}, token)
+	assert.Equal(t, token, scanner.Current())
+	token = scanner.Scan()
 	assert.Equal(t, Token{Type: COMMENT, Pos: buf.Position{4, 28, 208}, Text: "# Build stock -ARCH kernel\n", Tokens: []Token{
 		{Type: VALUE, Pos: buf.Position{4, 28, 208}, Text: "# Build stock -ARCH kernel"},
 		{Type: WS, Pos: buf.Position{4, 54, 234}, Text: "\n"},
-	}}, scanner.Scan())
+	}}, token)
+	assert.Equal(t, token, scanner.Current())
 
 	// line 6
+	token = scanner.Scan()
 	assert.Equal(t, Token{Type: COMMENT, Pos: buf.Position{5, 0, 235}, Text: "#pkgbase=linux-custom       # Build kernel with a different name\n", Tokens: []Token{
 		{Type: VALUE, Pos: buf.Position{5, 0, 235}, Text: "#pkgbase=linux-custom       # Build kernel with a different name"},
 		{Type: WS, Pos: buf.Position{5, 64, 299}, Text: "\n"},
-	}}, scanner.Scan())
+	}}, token)
+	assert.Equal(t, token, scanner.Current())
 
 	// line 7
+	token = scanner.Scan()
 	assert.Equal(t, Token{Type: VARIABLE, Pos: buf.Position{6, 0, 300}, Text: `_srcver=5.3.1-arch1`, Tokens: []Token{
 		{Type: VARNAME, Pos: buf.Position{6, 0, 300}, Text: `_srcver`},
 		{Type: EQUAL, Pos: buf.Position{6, 7, 307}, Text: `=`},
 		{Type: VALUE, Pos: buf.Position{6, 8, 308}, Text: `5.3.1-arch1`},
-	}}, scanner.Scan())
+	}}, token)
+	assert.Equal(t, token, scanner.Current())
 	assert.Equal(t, Token{Type: WS, Pos: buf.Position{6, 19, 319}, Text: "\n"}, scanner.Scan())
 
 	// line 8
+	token = scanner.Scan()
 	assert.Equal(t, Token{Type: VARIABLE, Pos: buf.Position{7, 0, 320}, Text: `pkgver=${_srcver//-/.}`, Tokens: []Token{
 		{Type: VARNAME, Pos: buf.Position{7, 0, 320}, Text: `pkgver`},
 		{Type: EQUAL, Pos: buf.Position{7, 6, 326}, Text: `=`},
@@ -81,15 +99,18 @@ func TestScan(t *testing.T) {
 			{Type: VALUE, Pos: buf.Position{7, 9, 329}, Text: `_srcver//-/.`},
 			{Type: RCURLY, Pos: buf.Position{7, 21, 341}, Text: "}"},
 		}},
-	}}, scanner.Scan())
+	}}, token)
+	assert.Equal(t, token, scanner.Current())
 	assert.Equal(t, Token{Type: WS, Pos: buf.Position{7, 22, 342}, Text: "\n"}, scanner.Scan())
 
 	// line 9
+	token = scanner.Scan()
 	assert.Equal(t, Token{Type: VARIABLE, Pos: buf.Position{8, 0, 343}, Text: `pkgrel=1`, Tokens: []Token{
 		{Type: VARNAME, Pos: buf.Position{8, 0, 343}, Text: `pkgrel`},
 		{Type: EQUAL, Pos: buf.Position{8, 6, 349}, Text: `=`},
 		{Type: VALUE, Pos: buf.Position{8, 7, 350}, Text: `1`},
-	}}, scanner.Scan())
+	}}, token)
+	assert.Equal(t, token, scanner.Current())
 	assert.Equal(t, Token{Type: WS, Pos: buf.Position{8, 8, 351}, Text: "\n"}, scanner.Scan())
 
 	// line 10
@@ -314,6 +335,7 @@ func TestScan(t *testing.T) {
 	assert.Equal(t, Token{Type: WS, Pos: buf.Position{34, 79, 1458}, Text: "\n\n"}, scanner.Scan())
 
 	// line 37
+	token = scanner.Scan()
 	assert.Equal(t, Token{Type: VARIABLE, Pos: buf.Position{36, 0, 1460}, Text: `_kernelname=${pkgbase#linux}`, Tokens: []Token{
 		{Type: VARNAME, Pos: buf.Position{36, 0, 1460}, Text: `_kernelname`},
 		{Type: EQUAL, Pos: buf.Position{36, 11, 1471}, Text: `=`},
@@ -323,7 +345,8 @@ func TestScan(t *testing.T) {
 			{Type: VALUE, Pos: buf.Position{36, 14, 1474}, Text: `pkgbase#linux`},
 			{Type: RCURLY, Pos: buf.Position{36, 27, 1487}, Text: "}"},
 		}},
-	}}, scanner.Scan())
+	}}, token)
+	assert.Equal(t, token, scanner.Current())
 	assert.Equal(t, Token{Type: WS, Pos: buf.Position{36, 28, 1488}, Text: "\n"}, scanner.Scan())
 
 	// line 38-39
@@ -359,32 +382,87 @@ func TestUnscan(t *testing.T) {
 	// Scan and check ident1
 	ident1 := Token{Type: VARNAME, Pos: buf.Position{2, 0, 11}, Text: "foo"}
 	assert.Equal(t, ident1, scanner.scanIDENT())
-	assert.Equal(t, ident1, scanner.Current())
-	assert.Len(t, scanner.Tokens, 3)
+	assert.Len(t, scanner.Tokens, 2)
+	assert.Equal(t, newline1, scanner.Current())
 
 	// Unscan and rescan and check ident1
-	scanner.Unscan()
-	assert.Equal(t, newline1, scanner.Current())
+	scanner.unread(ident1)
 	assert.Len(t, scanner.Tokens, 2)
 	assert.Equal(t, ident1, scanner.scanIDENT())
-	assert.Equal(t, ident1, scanner.Current())
-	assert.Len(t, scanner.Tokens, 3)
-
-	// Unscan and check newline1
-	scanner.Unscan()
-	assert.Equal(t, newline1, scanner.Current())
 	assert.Len(t, scanner.Tokens, 2)
+	assert.Equal(t, newline1, scanner.Current())
 
 	// Unscan and check comment1
 	scanner.Unscan()
-	assert.Equal(t, comment1, scanner.Current())
 	assert.Len(t, scanner.Tokens, 1)
+	assert.Equal(t, comment1, scanner.Current())
 
+	// Unscan comment and check current
 	scanner.Unscan()
 	assert.Equal(t, Token{Type: ILLEGAL}, scanner.Current())
 	assert.Equal(t, 0, scanner.Index)
 	scanner.Unscan()
 	assert.Equal(t, 0, scanner.Index)
+}
+
+func TestFirstAndLast(t *testing.T) {
+	scanner := NewScanner(strings.NewReader(`foo="bar"`))
+
+	// ILLEGAL
+	assert.Equal(t, Token{Type: ILLEGAL}, scanner.First())
+	assert.Equal(t, Token{Type: ILLEGAL}, scanner.Last())
+
+	token := scanner.Scan()
+	assert.Equal(t, token, scanner.First())
+	assert.Equal(t, token, scanner.Last())
+}
+
+func TestScanIDENT(t *testing.T) {
+
+	// function no parens
+	{
+		scanner := NewScanner(strings.NewReader("foo {"))
+		token := scanner.scanIDENT()
+		assert.Equal(t, Token{Type: FUNCNAME, Text: "foo"}, token)
+	}
+
+	// function normal
+	{
+		scanner := NewScanner(strings.NewReader("foo() {"))
+		token := scanner.scanIDENT()
+		assert.Equal(t, Token{Type: FUNCNAME, Text: "foo"}, token)
+	}
+
+	// keyword
+	{
+		scanner := NewScanner(strings.NewReader("if [ x eq 1 ]"))
+		token := scanner.scanIDENT()
+		assert.Equal(t, Token{Type: KEYWORD, Text: "if"}, token)
+	}
+
+	// underscores and numbers
+	{
+		scanner := NewScanner(strings.NewReader("_foo1=bar"))
+		token := scanner.scanIDENT()
+		assert.Equal(t, Token{Type: VARNAME, Text: "_foo1"}, token)
+	}
+
+	// regular
+	{
+		scanner := NewScanner(strings.NewReader("foo=bar"))
+		token := scanner.scanIDENT()
+		assert.Equal(t, Token{Type: VARNAME, Text: "foo"}, token)
+	}
+}
+
+func TestScanFUNCTION(t *testing.T) {
+
+	// regular
+	{
+		scanner := NewScanner(strings.NewReader("foo=bar"))
+		token := scanner.scanIDENT()
+		assert.Equal(t, Token{Type: VARNAME, Text: "foo"}, token)
+	}
 }
 
 func TestScanVARIABLE(t *testing.T) {
@@ -393,7 +471,6 @@ func TestScanVARIABLE(t *testing.T) {
 	{
 		scanner := NewScanner(strings.NewReader(`foo="bar"`))
 		token := scanner.scanVARIABLE()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: VARIABLE, Text: `foo="bar"`, Tokens: []Token{
 			{Type: VARNAME, Text: `foo`},
 			{Type: EQUAL, Pos: buf.Position{0, 3, 3}, Text: `=`},
@@ -409,55 +486,22 @@ func TestScanVARIABLE(t *testing.T) {
 	{
 		scanner := NewScanner(strings.NewReader("foo=bar"))
 		token := scanner.scanVARIABLE()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: VARIABLE, Text: `foo=bar`, Tokens: []Token{
 			{Type: VARNAME, Text: `foo`},
 			{Type: EQUAL, Pos: buf.Position{0, 3, 3}, Text: `=`},
 			{Type: VALUE, Pos: buf.Position{0, 4, 4}, Text: `bar`},
 		}}, token)
 	}
-}
 
-func TestScanIDENT(t *testing.T) {
-
-	// function no parens
-	{
-		scanner := NewScanner(strings.NewReader("foo {"))
-		token := scanner.scanIDENT()
-		assert.Equal(t, token, scanner.Current())
-		assert.Equal(t, Token{Type: FUNCNAME, Text: "foo"}, token)
-	}
-
-	// function normal
-	{
-		scanner := NewScanner(strings.NewReader("foo() {"))
-		token := scanner.scanIDENT()
-		assert.Equal(t, token, scanner.Current())
-		assert.Equal(t, Token{Type: FUNCNAME, Text: "foo"}, token)
-	}
-
-	// keyword
-	{
-		scanner := NewScanner(strings.NewReader("if [ x eq 1 ]"))
-		token := scanner.scanIDENT()
-		assert.Equal(t, token, scanner.Current())
-		assert.Equal(t, Token{Type: KEYWORD, Text: "if"}, token)
-	}
-
-	// underscores and numbers
-	{
-		scanner := NewScanner(strings.NewReader("_foo1=bar"))
-		token := scanner.scanIDENT()
-		assert.Equal(t, token, scanner.Current())
-		assert.Equal(t, Token{Type: VARNAME, Text: "_foo1"}, token)
-	}
-
-	// regular
+	// single value variable
 	{
 		scanner := NewScanner(strings.NewReader("foo=bar"))
-		token := scanner.scanIDENT()
-		assert.Equal(t, token, scanner.Current())
-		assert.Equal(t, Token{Type: VARNAME, Text: "foo"}, token)
+		token := scanner.scanVARIABLE()
+		assert.Equal(t, Token{Type: VARIABLE, Text: `foo=bar`, Tokens: []Token{
+			{Type: VARNAME, Text: `foo`},
+			{Type: EQUAL, Pos: buf.Position{0, 3, 3}, Text: `=`},
+			{Type: VALUE, Pos: buf.Position{0, 4, 4}, Text: `bar`},
+		}}, token)
 	}
 }
 
@@ -467,12 +511,10 @@ func TestScanVALUE(t *testing.T) {
 	{
 		scanner := NewScanner(strings.NewReader(`foo="${bar}"`))
 		token := scanner.scanIDENT()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: VARNAME, Text: "foo"}, token)
 
 		scanner.buf.Read()
 		token = scanner.scanVALUE()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: QUOTE, Text: `"${bar}"`, Pos: buf.Position{0, 4, 4}, Tokens: []Token{
 			{Type: LDQUOTE, Pos: buf.Position{0, 4, 4}, Text: `"`},
 			{Type: VALUE, Pos: buf.Position{0, 5, 5}, Text: `${bar}`},
@@ -484,12 +526,10 @@ func TestScanVALUE(t *testing.T) {
 	{
 		scanner := NewScanner(strings.NewReader("foo='bar'"))
 		token := scanner.scanIDENT()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: VARNAME, Text: "foo"}, token)
 
 		scanner.buf.Read()
 		token = scanner.scanVALUE()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: QUOTE, Text: `'bar'`, Pos: buf.Position{0, 4, 4}, Tokens: []Token{
 			{Type: LQUOTE, Pos: buf.Position{0, 4, 4}, Text: "'"},
 			{Type: VALUE, Pos: buf.Position{0, 5, 5}, Text: `bar`},
@@ -501,12 +541,10 @@ func TestScanVALUE(t *testing.T) {
 	{
 		scanner := NewScanner(strings.NewReader("foo=bar"))
 		token := scanner.scanIDENT()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: VARNAME, Text: "foo"}, token)
 
 		scanner.buf.Read()
 		token = scanner.scanVALUE()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: VALUE, Text: "bar", Pos: buf.Position{0, 4, 4}}, token)
 	}
 }
@@ -517,12 +555,10 @@ func TestScanPARAM(t *testing.T) {
 	{
 		scanner := NewScanner(strings.NewReader("_kernelname=${pkgbase#linux}"))
 		token := scanner.scanIDENT()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: VARNAME, Text: "_kernelname"}, token)
 
 		scanner.buf.Read()
 		token = scanner.scanPARAM()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: PARAM, Text: `${pkgbase#linux}`, Pos: buf.Position{0, 12, 12}, Tokens: []Token{
 			{Type: DOLLAR, Pos: buf.Position{0, 12, 12}, Text: "$"},
 			{Type: LCURLY, Pos: buf.Position{0, 13, 13}, Text: "{"},
@@ -535,12 +571,10 @@ func TestScanPARAM(t *testing.T) {
 	{
 		scanner := NewScanner(strings.NewReader("pkgver=${_srcver//-/.}"))
 		token := scanner.scanIDENT()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: VARNAME, Text: "pkgver"}, token)
 
 		scanner.buf.Read()
 		token = scanner.scanPARAM()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: PARAM, Text: `${_srcver//-/.}`, Pos: buf.Position{0, 7, 7}, Tokens: []Token{
 			{Type: DOLLAR, Pos: buf.Position{0, 7, 7}, Text: "$"},
 			{Type: LCURLY, Pos: buf.Position{0, 8, 8}, Text: "{"},
@@ -553,7 +587,6 @@ func TestScanPARAM(t *testing.T) {
 	{
 		scanner := NewScanner(strings.NewReader("${foo}"))
 		token := scanner.scanPARAM()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: PARAM, Text: `${foo}`, Pos: buf.Position{0, 0, 0}, Tokens: []Token{
 			{Type: DOLLAR, Pos: buf.Position{0, 0, 0}, Text: "$"},
 			{Type: LCURLY, Pos: buf.Position{0, 1, 1}, Text: "{"},
@@ -566,7 +599,6 @@ func TestScanPARAM(t *testing.T) {
 	{
 		scanner := NewScanner(strings.NewReader("$foo"))
 		token := scanner.scanPARAM()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: PARAM, Text: `$foo`, Pos: buf.Position{0, 0, 0}, Tokens: []Token{
 			{Type: DOLLAR, Pos: buf.Position{0, 0, 0}, Text: "$"},
 			{Type: VALUE, Pos: buf.Position{0, 1, 1}, Text: `foo`},
@@ -577,11 +609,9 @@ func TestScanPARAM(t *testing.T) {
 	{
 		scanner := NewScanner(strings.NewReader("  foo"))
 		token := scanner.scanWS()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: WS, Text: "  "}, token)
 
 		token = scanner.scanPARAM()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: ILLEGAL, Pos: buf.Position{0, 2, 2}}, token)
 	}
 
@@ -589,7 +619,6 @@ func TestScanPARAM(t *testing.T) {
 	{
 		scanner := NewScanner(strings.NewReader("foo"))
 		token := scanner.scanPARAM()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: ILLEGAL}, token)
 	}
 }
@@ -603,7 +632,6 @@ func TestScanARRAY(t *testing.T) {
 		)`))
 
 		token := scanner.scanARRAY()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: ARRAY, Text: `(
 			xmlto kmod inetutils bc libelf git python-sphinx python-sphinx_rtd_theme
 			graphviz imagemagick
@@ -638,7 +666,6 @@ func TestScanARRAY(t *testing.T) {
 	{
 		scanner := NewScanner(strings.NewReader(`("foo" "bar")`))
 		token := scanner.scanARRAY()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: ARRAY, Text: `("foo" "bar")`, Tokens: []Token{
 			{Type: LPAREN, Text: `(`},
 			{Type: QUOTE, Pos: buf.Position{0, 1, 1}, Text: `"foo"`, Tokens: []Token{
@@ -660,7 +687,6 @@ func TestScanARRAY(t *testing.T) {
 	{
 		scanner := NewScanner(strings.NewReader(`('foo')`))
 		token := scanner.scanARRAY()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: ARRAY, Text: `('foo')`, Tokens: []Token{
 			{Type: LPAREN, Text: `(`},
 			{Type: QUOTE, Pos: buf.Position{0, 1, 1}, Text: `'foo'`, Tokens: []Token{
@@ -676,7 +702,6 @@ func TestScanARRAY(t *testing.T) {
 	{
 		scanner := NewScanner(strings.NewReader("(foo bar)"))
 		token := scanner.scanARRAY()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: ARRAY, Text: `(foo bar)`, Tokens: []Token{
 			{Type: LPAREN, Text: `(`},
 			{Type: VALUE, Pos: buf.Position{0, 1, 1}, Text: `foo`},
@@ -690,7 +715,6 @@ func TestScanARRAY(t *testing.T) {
 	{
 		scanner := NewScanner(strings.NewReader("(foo)"))
 		token := scanner.scanARRAY()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: ARRAY, Text: `(foo)`, Tokens: []Token{
 			{Type: LPAREN, Text: `(`},
 			{Type: VALUE, Pos: buf.Position{0, 1, 1}, Text: `foo`},
@@ -702,11 +726,9 @@ func TestScanARRAY(t *testing.T) {
 	{
 		scanner := NewScanner(strings.NewReader("  foo"))
 		token := scanner.scanWS()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: WS, Text: "  "}, token)
 
 		token = scanner.scanARRAY()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: ILLEGAL, Pos: buf.Position{0, 2, 2}}, token)
 	}
 
@@ -714,7 +736,6 @@ func TestScanARRAY(t *testing.T) {
 	{
 		scanner := NewScanner(strings.NewReader("  foo"))
 		token := scanner.scanARRAY()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: ILLEGAL}, token)
 	}
 }
@@ -725,11 +746,9 @@ func TestScanQUOTE(t *testing.T) {
 	{
 		scanner := NewScanner(strings.NewReader("  foo"))
 		token := scanner.scanWS()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: WS, Text: "  "}, token)
 
 		token = scanner.scanQUOTE()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: ILLEGAL, Pos: buf.Position{0, 2, 2}}, token)
 	}
 
@@ -737,7 +756,6 @@ func TestScanQUOTE(t *testing.T) {
 	{
 		scanner := NewScanner(strings.NewReader("  foo"))
 		token := scanner.scanQUOTE()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: ILLEGAL}, token)
 	}
 
@@ -745,7 +763,6 @@ func TestScanQUOTE(t *testing.T) {
 	{
 		scanner := NewScanner(strings.NewReader(`"fo'o' \"\'bar" bogus`))
 		token := scanner.scanQUOTE()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: QUOTE, Text: `"fo'o' \"\'bar"`, Tokens: []Token{
 			{Type: LDQUOTE, Text: `"`},
 			{Type: VALUE, Pos: buf.Position{0, 1, 1}, Text: `fo'o' \"\'bar`},
@@ -757,7 +774,6 @@ func TestScanQUOTE(t *testing.T) {
 	{
 		scanner := NewScanner(strings.NewReader(`"fo'o' \"bar" bogus`))
 		token := scanner.scanQUOTE()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: QUOTE, Text: `"fo'o' \"bar"`, Tokens: []Token{
 			{Type: LDQUOTE, Text: `"`},
 			{Type: VALUE, Pos: buf.Position{0, 1, 1}, Text: `fo'o' \"bar`},
@@ -769,7 +785,6 @@ func TestScanQUOTE(t *testing.T) {
 	{
 		scanner := NewScanner(strings.NewReader(`"foo \"bar" bogus`))
 		token := scanner.scanQUOTE()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: QUOTE, Text: `"foo \"bar"`, Tokens: []Token{
 			{Type: LDQUOTE, Text: `"`},
 			{Type: VALUE, Pos: buf.Position{0, 1, 1}, Text: `foo \"bar`},
@@ -781,7 +796,6 @@ func TestScanQUOTE(t *testing.T) {
 	{
 		scanner := NewScanner(strings.NewReader("\"foo bar\" bogus"))
 		token := scanner.scanQUOTE()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: QUOTE, Text: `"foo bar"`, Tokens: []Token{
 			{Type: LDQUOTE, Text: `"`},
 			{Type: VALUE, Pos: buf.Position{0, 1, 1}, Text: `foo bar`},
@@ -793,7 +807,6 @@ func TestScanQUOTE(t *testing.T) {
 	{
 		scanner := NewScanner(strings.NewReader("\"foo bar bogus"))
 		token := scanner.scanQUOTE()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: ILLEGAL}, token)
 	}
 
@@ -801,7 +814,6 @@ func TestScanQUOTE(t *testing.T) {
 	{
 		scanner := NewScanner(strings.NewReader(`'fo"o" \'\"bar' bogus`))
 		token := scanner.scanQUOTE()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: QUOTE, Text: `'fo"o" \'\"bar'`, Tokens: []Token{
 			{Type: LQUOTE, Text: "'"},
 			{Type: VALUE, Pos: buf.Position{0, 1, 1}, Text: `fo"o" \'\"bar`},
@@ -813,7 +825,6 @@ func TestScanQUOTE(t *testing.T) {
 	{
 		scanner := NewScanner(strings.NewReader(`'fo"o" \'bar' bogus`))
 		token := scanner.scanQUOTE()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: QUOTE, Text: `'fo"o" \'bar'`, Tokens: []Token{
 			{Type: LQUOTE, Text: "'"},
 			{Type: VALUE, Pos: buf.Position{0, 1, 1}, Text: `fo"o" \'bar`},
@@ -825,7 +836,6 @@ func TestScanQUOTE(t *testing.T) {
 	{
 		scanner := NewScanner(strings.NewReader(`'foo \'bar' bogus`))
 		token := scanner.scanQUOTE()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: QUOTE, Text: `'foo \'bar'`, Tokens: []Token{
 			{Type: LQUOTE, Text: "'"},
 			{Type: VALUE, Pos: buf.Position{0, 1, 1}, Text: `foo \'bar`},
@@ -837,7 +847,6 @@ func TestScanQUOTE(t *testing.T) {
 	{
 		scanner := NewScanner(strings.NewReader("'foo bar' bogus"))
 		token := scanner.scanQUOTE()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: QUOTE, Text: "'foo bar'", Tokens: []Token{
 			{Type: LQUOTE, Text: "'"},
 			{Type: VALUE, Pos: buf.Position{0, 1, 1}, Text: "foo bar"},
@@ -849,7 +858,6 @@ func TestScanQUOTE(t *testing.T) {
 	{
 		scanner := NewScanner(strings.NewReader("'foo bar bogus"))
 		token := scanner.scanQUOTE()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: ILLEGAL}, token)
 	}
 }
@@ -860,11 +868,9 @@ func TestScanCOMMENT(t *testing.T) {
 	{
 		scanner := NewScanner(strings.NewReader("  foo"))
 		token := scanner.scanWS()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: WS, Text: "  "}, token)
 
 		token = scanner.scanCOMMENT()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: ILLEGAL, Pos: buf.Position{0, 2, 2}}, token)
 	}
 
@@ -872,7 +878,6 @@ func TestScanCOMMENT(t *testing.T) {
 	{
 		scanner := NewScanner(strings.NewReader("  foo"))
 		token := scanner.scanCOMMENT()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: ILLEGAL}, token)
 	}
 
@@ -880,7 +885,6 @@ func TestScanCOMMENT(t *testing.T) {
 	{
 		scanner := NewScanner(strings.NewReader("# foo bar"))
 		token := scanner.scanCOMMENT()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: COMMENT, Text: "# foo bar", Tokens: []Token{{Type: VALUE, Text: "# foo bar"}}}, token)
 	}
 
@@ -888,7 +892,6 @@ func TestScanCOMMENT(t *testing.T) {
 	{
 		scanner := NewScanner(strings.NewReader("# foo bar\n"))
 		token := scanner.scanCOMMENT()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: COMMENT, Text: "# foo bar\n", Tokens: []Token{{Type: VALUE, Text: "# foo bar"}, {Type: WS, Pos: buf.Position{0, 9, 9}, Text: "\n"}}}, token)
 	}
 }
@@ -899,7 +902,6 @@ func TestScanWS(t *testing.T) {
 	{
 		scanner := NewScanner(strings.NewReader("  \n  \t"))
 		token := scanner.scanWS()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: WS, Text: "  \n  \t"}, token)
 	}
 
@@ -907,7 +909,6 @@ func TestScanWS(t *testing.T) {
 	{
 		scanner := NewScanner(strings.NewReader("\n\n"))
 		token := scanner.scanWS()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: WS, Text: "\n\n"}, token)
 	}
 
@@ -915,7 +916,6 @@ func TestScanWS(t *testing.T) {
 	{
 		scanner := NewScanner(strings.NewReader("\n"))
 		token := scanner.scanWS()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: WS, Text: "\n"}, token)
 	}
 
@@ -923,9 +923,24 @@ func TestScanWS(t *testing.T) {
 	{
 		scanner := NewScanner(strings.NewReader("foo"))
 		token := scanner.scanWS()
-		assert.Equal(t, token, scanner.Current())
 		assert.Equal(t, Token{Type: ILLEGAL}, token)
 	}
+}
+
+func TestFirstIllegalToken(t *testing.T) {
+	// First level
+	assert.Equal(t, Token{Type: ILLEGAL}, (Token{Tokens: []Token{{Type: ILLEGAL}}}).FirstILLEGAL())
+
+	// Second level
+	assert.Equal(t, Token{Type: ILLEGAL}, (Token{Tokens: []Token{{Type: WS, Tokens: []Token{{Type: ILLEGAL}}}}}).FirstILLEGAL())
+}
+
+func TestFirstAndLastToken(t *testing.T) {
+	assert.Equal(t, Token{Type: UNSET}, (Token{}).First())
+	assert.Equal(t, Token{Type: UNSET}, (Token{}).Last())
+
+	assert.Equal(t, Token{Type: WS}, (Token{Tokens: []Token{{Type: WS}}}).First())
+	assert.Equal(t, Token{Type: WS}, (Token{Tokens: []Token{{Type: WS}}}).Last())
 }
 
 func reset() {

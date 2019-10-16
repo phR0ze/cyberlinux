@@ -117,9 +117,6 @@ func (s *Scanner) Last() Token {
 func (s *Scanner) pop() Token {
 	if len(s.Tokens) != 0 {
 		s.Index = len(s.Tokens) - 1
-		if s.Index < 0 {
-			s.Index = 0
-		}
 		tok := s.Tokens[s.Index]
 		s.Tokens = s.Tokens[0:s.Index]
 		s.Index--
@@ -171,7 +168,7 @@ func (s *Scanner) Scan() (tok Token) {
 		if tok = s.scanIDENT(); tok.Type == ILLEGAL {
 			return
 		}
-		s.Unscan()
+		s.unread(tok)
 
 		// Read in the operation based on the identifier
 		if tok.Type == VARNAME {
@@ -180,7 +177,15 @@ func (s *Scanner) Scan() (tok Token) {
 			tok = s.scanFUNCTION()
 		}
 	}
+	s.push(tok)
 	return
+}
+
+// unread the given token
+func (s *Scanner) unread(tok Token) {
+	for range tok.Text {
+		s.buf.Unread()
+	}
 }
 
 // Unscan the previous token rewinding the internal buffer, but doesn't clear the cached Token
@@ -203,7 +208,6 @@ func (s *Scanner) scanIDENT() (tok Token) {
 		} else {
 			tok.Type = FUNCNAME
 		}
-		s.Tokens[s.Index] = tok
 	}
 	return
 }
@@ -243,7 +247,6 @@ func (s *Scanner) scanFUNCTION() (tok Token) {
 		tok.Type = FUNCTION
 		tok.Text = txt
 	}
-	s.push(tok)
 	return
 }
 
@@ -282,7 +285,6 @@ func (s *Scanner) scanVARIABLE() (tok Token) {
 		tok.Type = VARIABLE
 		tok.Text = txt
 	}
-	s.push(tok)
 	return
 }
 
@@ -324,9 +326,7 @@ func (s *Scanner) scanVALUE() (tok Token) {
 		tok.Type = VALUE
 		tok.Text = txt
 	}
-	s.push(tok)
 	return
-
 }
 
 // scanPARAM handle bash variable references
@@ -384,7 +384,6 @@ func (s *Scanner) scanPARAM() (tok Token) {
 			tok.Text = fmt.Sprintf("%s%s", tok.Tokens[0].Text, tok.Tokens[1].Text)
 		}
 	}
-	s.push(tok)
 	return
 }
 
@@ -440,7 +439,6 @@ func (s *Scanner) scanARRAY() (tok Token) {
 		tok.Type = ARRAY
 		tok.Text = fmt.Sprintf("%s%s%s", tok.First().Text, buf.String(), tok.Last().Text)
 	}
-	s.push(tok)
 	return
 }
 
@@ -509,7 +507,6 @@ func (s *Scanner) scanQUOTE() (tok Token) {
 		tok.Type = QUOTE
 		tok.Text = fmt.Sprintf("%s%s%s", tok.Tokens[0].Text, tok.Tokens[1].Text, tok.Tokens[2].Text)
 	}
-	s.push(tok)
 	return
 }
 
@@ -540,7 +537,6 @@ func (s *Scanner) scanCOMMENT() (tok Token) {
 		tok.Tokens = append(tok.Tokens, Token{Type: WS, Pos: s.buf.Pos, Text: "\n"})
 		tok.Text += string(s.buf.Read())
 	}
-	s.Tokens[s.Index] = tok
 	return
 }
 
@@ -550,7 +546,7 @@ func (s *Scanner) scanWS() Token {
 	return s.scanFunc(WS, func(r rune) bool { return isWS(r) })
 }
 
-// scanFunc provides a generic way to scan for rune sets
+// scanFunc provides a generic way to scan for rune sets; doesn't affect history
 func (s *Scanner) scanFunc(typ TokenType, f func(rune) bool) (tok Token) {
 	var buf bytes.Buffer
 	tok.Pos = s.buf.Pos
@@ -572,7 +568,6 @@ func (s *Scanner) scanFunc(typ TokenType, f func(rune) bool) (tok Token) {
 		tok.Type = typ
 		tok.Text = txt
 	}
-	s.push(tok)
 	return
 }
 
