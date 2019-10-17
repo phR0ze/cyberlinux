@@ -386,7 +386,7 @@ func TestUnscan(t *testing.T) {
 	assert.Equal(t, newline1, scanner.Current())
 
 	// Unscan and rescan and check ident1
-	scanner.unread(ident1)
+	scanner.unscan(ident1)
 	assert.Len(t, scanner.Tokens, 2)
 	assert.Equal(t, ident1, scanner.scanIDENT())
 	assert.Len(t, scanner.Tokens, 2)

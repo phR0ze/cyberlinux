@@ -137,6 +137,22 @@ func (s *Scanner) push(tok Token) Token {
 
 // Scan for the the next token
 func (s *Scanner) Scan() (tok Token) {
+	tok = s.scan()
+	s.push(tok)
+	return
+}
+
+// Unscan the previous token rewinding the internal buffer, but doesn't clear the cached Token
+func (s *Scanner) Unscan() {
+	tok := s.Current()
+	for range tok.Text {
+		s.buf.Unread()
+	}
+	s.pop()
+}
+
+// Scan for the next token without modifying history
+func (s *Scanner) scan() (tok Token) {
 	curr := s.buf.Peek()
 
 	switch {
@@ -168,7 +184,7 @@ func (s *Scanner) Scan() (tok Token) {
 		if tok = s.scanIDENT(); tok.Type == ILLEGAL {
 			return
 		}
-		s.unread(tok)
+		s.unscan(tok)
 
 		// Read in the operation based on the identifier
 		if tok.Type == VARNAME {
@@ -177,27 +193,18 @@ func (s *Scanner) Scan() (tok Token) {
 			tok = s.scanFUNCTION()
 		}
 	}
-	s.push(tok)
 	return
 }
 
-// unread the given token
-func (s *Scanner) unread(tok Token) {
+// unscan the given token without modifying history
+func (s *Scanner) unscan(tok Token) {
 	for range tok.Text {
 		s.buf.Unread()
 	}
 }
 
-// Unscan the previous token rewinding the internal buffer, but doesn't clear the cached Token
-func (s *Scanner) Unscan() {
-	tok := s.Current()
-	for range tok.Text {
-		s.buf.Unread()
-	}
-	s.pop()
-}
-
-// scanIDENT operation identities: VARNAME, KEYWORD, FUNCNAME
+// scanIDENT operation identities;
+// composed of: VARNAME | KEYWORD | FUNCNAME
 func (s *Scanner) scanIDENT() (tok Token) {
 	tok = s.scanFunc(UNSET, func(r rune) bool { return isIDENT(r) })
 	if tok.Type != ILLEGAL {
@@ -212,24 +219,41 @@ func (s *Scanner) scanIDENT() (tok Token) {
 	return
 }
 
-// scanFUNCTION consumes Bash functions
+// scanFUNCTION consumes Bash functions:
+// composed of: FUNCTION{FUNCNAME, [WS], LPAREN, ,RPAREN, LCURLY, FUNCBODY, RCURLY}
 func (s *Scanner) scanFUNCTION() (tok Token) {
 	var buf bytes.Buffer
 	tok.Pos = s.buf.Pos
+	var openParen, closeParen, openCurly, closeCurly bool
 
-	equal := false
 	for {
 		if curr := s.buf.Peek(); curr == eof {
 			break
-		} else if !equal && isIDENT(curr) {
+		} else if isIDENT(curr) {
 			t := s.scanIDENT()
 			tok.Tokens = append(tok.Tokens, t)
 			buf.WriteString(t.Text)
-		} else if curr == '=' {
-			equal = true
-			tok.Tokens = append(tok.Tokens, Token{Type: EQUAL, Pos: s.buf.Pos, Text: string(curr)})
-			buf.WriteRune(s.buf.Read())
-		} else if equal {
+		} else if isWS(curr) {
+			tok = s.scanWS()
+			tok.Tokens = append(tok.Tokens, tok)
+			buf.WriteString(tok.Text)
+		} else if curr == '(' {
+			openParen = true
+			tok.Tokens = append(tok.Tokens, Token{Type: LPAREN, Pos: s.buf.Pos, Text: string(curr)})
+			s.buf.Read()
+		} else if openParen && curr == ')' {
+			closeParen = true
+			tok.Tokens = append(tok.Tokens, Token{Type: RPAREN, Pos: s.buf.Pos, Text: string(curr)})
+			s.buf.Read()
+		} else if curr == '{' {
+			openCurly = true
+			tok.Tokens = append(tok.Tokens, Token{Type: LCURLY, Pos: s.buf.Pos, Text: string(curr)})
+			s.buf.Read()
+		} else if openCurly && curr == '}' {
+			closeCurly = true
+			tok.Tokens = append(tok.Tokens, Token{Type: RCURLY, Pos: s.buf.Pos, Text: string(curr)})
+			s.buf.Read()
+		} else if closeParen && openCurly {
 			t := s.scanVALUE()
 			tok.Tokens = append(tok.Tokens, t)
 			buf.WriteString(t.Text)
@@ -238,7 +262,7 @@ func (s *Scanner) scanFUNCTION() (tok Token) {
 	}
 
 	txt := buf.String()
-	if txt == "" {
+	if txt == "" || (openParen && !closeParen) || (openCurly && !closeCurly) {
 		tok.Type = ILLEGAL
 		tok.Tokens = []Token(nil)
 	} else if t := tok.FirstILLEGAL(); t.Type == ILLEGAL {
@@ -250,7 +274,8 @@ func (s *Scanner) scanFUNCTION() (tok Token) {
 	return
 }
 
-// scanVARIABLE consumes Bash variables <ident>=<value>
+// scanVARIABLE consumes Bash variables <ident>=<value>;
+// composed of: VARIABLE{VARNAME, EQUAL, VALUE}
 func (s *Scanner) scanVARIABLE() (tok Token) {
 	var buf bytes.Buffer
 	tok.Pos = s.buf.Pos
@@ -288,7 +313,8 @@ func (s *Scanner) scanVARIABLE() (tok Token) {
 	return
 }
 
-// scanVALUE consumes a value may return VALUE | WS | QUOTE | ARRAY
+// scanVALUE consumes a value;
+// composed of: VALUE | WS | QUOTE | ARRAY | PARAM
 func (s *Scanner) scanVALUE() (tok Token) {
 	var buf bytes.Buffer
 	tok.Pos = s.buf.Pos
@@ -329,7 +355,7 @@ func (s *Scanner) scanVALUE() (tok Token) {
 	return
 }
 
-// scanPARAM handle bash variable references
+// scanPARAM handle bash variable references;
 // composed of: PARAM{[LCURLY], VALUE..., [RCURLY]}.
 // https://wiki.bash-hackers.org/syntax/pe
 func (s *Scanner) scanPARAM() (tok Token) {
@@ -343,27 +369,23 @@ func (s *Scanner) scanPARAM() (tok Token) {
 
 	var buf bytes.Buffer
 	tok.Pos = s.buf.Pos
-	var openCurly, closeCurly, success bool
+	var openCurly, closeCurly bool
 
 	for {
 		if curr := s.buf.Peek(); curr == eof {
 			break
 		} else if curr == '$' {
-			pos := s.buf.Pos
-			tok.Tokens = append(tok.Tokens, Token{Type: DOLLAR, Pos: pos, Text: string(s.buf.Read())})
+			tok.Tokens = append(tok.Tokens, Token{Type: DOLLAR, Pos: s.buf.Pos, Text: string(curr)})
+			s.buf.Read()
 		} else if curr == '{' {
 			openCurly = true
-			pos := s.buf.Pos
-			tok.Tokens = append(tok.Tokens, Token{Type: LCURLY, Pos: pos, Text: string(s.buf.Read())})
-		} else if curr == '}' {
-			closeCurly = true
-			pos := s.buf.Pos
+			tok.Tokens = append(tok.Tokens, Token{Type: LCURLY, Pos: s.buf.Pos, Text: string(curr)})
 			s.buf.Read()
-			if openCurly {
-				success = true
-				tok.Tokens = append(tok.Tokens, Token{Type: RCURLY, Pos: pos, Text: string(curr)})
-				break
-			}
+		} else if openCurly && curr == '}' {
+			closeCurly = true
+			tok.Tokens = append(tok.Tokens, Token{Type: RCURLY, Pos: s.buf.Pos, Text: string(curr)})
+			s.buf.Read()
+			break
 		} else {
 			t := s.scanVALUE()
 			tok.Tokens = append(tok.Tokens, t)
@@ -371,7 +393,7 @@ func (s *Scanner) scanPARAM() (tok Token) {
 		}
 	}
 
-	if (openCurly || closeCurly) && !success {
+	if openCurly && !closeCurly {
 		tok.Type = ILLEGAL
 		tok.Tokens = []Token(nil)
 	} else if t := tok.FirstILLEGAL(); t.Type == ILLEGAL {
@@ -401,7 +423,7 @@ func (s *Scanner) scanARRAY() (tok Token) {
 	// Scan array
 	var buf bytes.Buffer
 	tok.Pos = s.buf.Pos
-	var openParen, success bool
+	var openParen, closeParen bool
 
 	for {
 		if curr := s.buf.Peek(); curr == eof {
@@ -410,14 +432,11 @@ func (s *Scanner) scanARRAY() (tok Token) {
 			openParen = true
 			tok.Tokens = append(tok.Tokens, Token{Type: LPAREN, Pos: s.buf.Pos, Text: string(curr)})
 			s.buf.Read()
-		} else if curr == ')' {
-			pos := s.buf.Pos
+		} else if openParen && curr == ')' {
+			closeParen = true
+			tok.Tokens = append(tok.Tokens, Token{Type: RPAREN, Pos: s.buf.Pos, Text: string(curr)})
 			s.buf.Read()
-			if openParen {
-				success = true
-				tok.Tokens = append(tok.Tokens, Token{Type: RPAREN, Pos: pos, Text: string(curr)})
-				break
-			}
+			break
 		} else {
 			var t Token
 			if isWS(curr) {
@@ -430,7 +449,7 @@ func (s *Scanner) scanARRAY() (tok Token) {
 		}
 	}
 
-	if !success {
+	if openParen && !closeParen {
 		tok.Type = ILLEGAL
 		tok.Tokens = []Token(nil)
 	} else if t := tok.FirstILLEGAL(); t.Type == ILLEGAL {
