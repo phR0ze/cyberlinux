@@ -1,0 +1,18 @@
+[package]
+name = "cli"
+version = "0.2.400"
+edition = "2018"
+authors = ["phR0ze"]
+license = "MIT OR Apache-2.0"
+description = "CLI for cyberlinux"
+readme = "README.md"
+homepage = "https://github.com/phR0ze/cyberlinux/cli"
+repository = "https://github.com/phR0ze/cyberlinux/cli"
+keywords = ["cyberlinux"]
+categories = ["command-line-utilities"]
+
+# https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+log = "0.4.8"
+clap = "2.33.0"

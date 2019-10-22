@@ -1,16 +1,47 @@
 {
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Launch",
-            "type": "go",
+            "type": "lldb",
             "request": "launch",
-            "mode": "auto",
-            "program": "${workspaceFolder}/cmd/reduce/reduce.go",
+            "name": "Debug executable 'cli'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=cli",
+                    "--package=cli"
+                ],
+                "filter": {
+                    "name": "cli",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
             "cwd": "${workspaceFolder}",
-            "env": {},
-            "args": [
-            ]
+            "sourceLanguages": ["rust"]
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'cli'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=cli",
+                    "--package=cli"
+                ],
+                "filter": {
+                    "name": "cli",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "sourceLanguages": ["rust"]
         }
     ]
 }
