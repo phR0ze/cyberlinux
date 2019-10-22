@@ -19,47 +19,7 @@
 #LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
-
-# Read target file and capture Sem Version string and set result
-get_version() {
-  local file="$1"     # target version file to read from
-  local regex="$2"    # version regex to use when looking for version
-  local result=$3     # captured version set as result
-
-  # If target exists read line by line and check for match
-  if [ -f "$file" ]; then
-
-    # IFS= prevents leading/trailing whitespace from being ignored
-    # -r prevents backslash escapes from being interpreted
-    # || [[ -n $line ]] prevents the last line from being ignored if it doesn't end with a \n
-    while IFS= read -r line || [[ -n "$line" ]]; do
-      if [[ "$line" =~ $regex ]]; then
-        eval $result="'${BASH_REMATCH[1]}'"
-        break
-      fi
-    done < "$file"
-  fi
-}
-
-# Read commit message and prepend version if it doesn't exist
-prepend_version(){
-  local msg=$(<$1)    # read in the message file
-  local regex="$2"    # regex to use to detect version in message
-  local ver="$3"      # version to use when prepending to message
-
-  # Don't modify the message if a version wasn't given
-  if [[ "x$ver" != "x" ]]; then
-
-    # Prepend the version to the message if no version is present
-    if ! [[ "$msg" =~ $regex ]]; then
-      echo "$ver: $msg" > $1
-    else
-
-      # Replace the pepended message version if version present
-      echo "$ver: ${BASH_REMATCH[1]}" > $1
-    fi
-  fi
-}
+source .githooks/util.sh
 
 # Prepend version to every commit message (use POSIX ERE for compatibility)
 # Note: the cwd is always the full path of your project root

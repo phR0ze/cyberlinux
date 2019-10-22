@@ -7,41 +7,45 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug executable 'cli'",
+            "name": "Debug executable 'reduce'",
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=cli",
-                    "--package=cli"
+                    "--bin=reduce",
+                    "--package=reduce"
                 ],
                 "filter": {
-                    "name": "cli",
+                    "name": "reduce",
                     "kind": "bin"
                 }
             },
             "args": [],
             "cwd": "${workspaceFolder}",
-            "sourceLanguages": ["rust"]
+            "sourceLanguages": [
+                "rust"
+            ]
         },
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug unit tests in executable 'cli'",
+            "name": "Debug unit tests in executable 'reduce'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
-                    "--bin=cli",
-                    "--package=cli"
+                    "--bin=reduce",
+                    "--package=reduce"
                 ],
                 "filter": {
-                    "name": "cli",
+                    "name": "reduce",
                     "kind": "bin"
                 }
             },
             "args": [],
             "cwd": "${workspaceFolder}",
-            "sourceLanguages": ["rust"]
+            "sourceLanguages": [
+                "rust"
+            ]
         }
     ]
 }

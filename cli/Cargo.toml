@@ -1,6 +1,6 @@
 [package]
-name = "cli"
-version = "0.2.400"
+name = "reduce"
+version = "0.2.401"
 edition = "2018"
 authors = ["phR0ze"]
 license = "MIT OR Apache-2.0"
@@ -12,7 +12,6 @@ keywords = ["cyberlinux"]
 categories = ["command-line-utilities"]
 
 # https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 log = "0.4.8"
 clap = "2.33.0"
