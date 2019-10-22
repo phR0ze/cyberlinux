@@ -56,7 +56,7 @@ dependencies = [
 
 [[package]]
 name = "reduce"
-version = "0.2.401"
+version = "0.2.402"
 dependencies = [
  "clap 2.33.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
