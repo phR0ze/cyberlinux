@@ -13,6 +13,10 @@ build:
 check:
 	@${CARGO} check
 
+release:
+	@${CARGO} build --release
+	@strip target/release/${NAME}
+
 bench:
 	@${CARGO} bench
 
