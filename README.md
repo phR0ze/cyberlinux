@@ -2391,6 +2391,15 @@ Welcome to Example VPN!
 ```
 
 ### Trouble shooting DNS failures
+
+#### systemd-resolved and vpn dns
+`systemd-resolved` first checks for system overrides at `/etc/systemd/resolved.conf` then for network
+configuration at `/etc/systemd/network/*.network`, then vpn dns configuration and finally falls back
+on the fallback configuration in `/etc/systemd/resolved.conf`. I've found the most reliable way to
+get vpn dns to work correctly is to not set anything except the fallback configuration so that dns is
+configured by openconnect and when not on the vpn dns is configured by the fallback.
+
+#### systemd-resolved nsswitch configuration
 cyberlinux just worked out of the box but Ubuntu, although using `systemd-resolved` doesn't have
 `nsswitch` setup correctly.
 

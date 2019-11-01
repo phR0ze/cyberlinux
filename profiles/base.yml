@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.403
+  release: 0.2.404
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -35,8 +35,8 @@ vars:
   grub_iso_theme: /boot/grub/themes/cyberlinux
 
   # Networking
-  dns1: 1.1.1.1
-  dns2: 1.0.0.1
+  dns1: 8.8.8.8
+  dns2: 8.8.4.4
 
   # Vagrant networking
   netname: vboxnet0
