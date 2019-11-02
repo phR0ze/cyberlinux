@@ -1,0 +1,11 @@
+[package]
+name = "laconic"
+version = "0.0.1"
+edition = "2018"
+authors = ["phR0ze"]
+license = "MIT OR Apache-2.0"
+description = "Macros to make Rust more laconic"
+readme = "README.md"
+homepage = "https://github.com/phR0ze/rs/laconic"
+repository = "https://github.com/phR0ze/rs/laconic"
+keywords = ["macros"]

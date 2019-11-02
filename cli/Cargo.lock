@@ -42,6 +42,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "laconic"
+version = "0.0.1"
+
+[[package]]
 name = "libc"
 version = "0.2.65"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -56,9 +60,10 @@ dependencies = [
 
 [[package]]
 name = "reduce"
-version = "0.2.404"
+version = "0.2.405"
 dependencies = [
  "clap 2.33.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "laconic 0.0.1",
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -66,6 +71,10 @@ dependencies = [
 name = "strsim"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "sys"
+version = "0.0.1"
 
 [[package]]
 name = "textwrap"

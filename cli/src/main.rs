@@ -1,3 +1,11 @@
+//! `reduce` is the cyberlinux CLI
+//!
+//! ## About
+//!
+//! `reduce` is the cyberlinux CLI
+use laconic::*;
+use reduce::core;
+
 extern crate clap;
 extern crate log;
 
@@ -7,6 +15,7 @@ const APP_VERSION: &'static str = env!("CARGO_PKG_VERSION");
 const APP_DESCRIPTION: &'static str = env!("CARGO_PKG_DESCRIPTION");
 
 fn main() {
+    // Parse cli args
     let cmds = clap::App::new(APP_NAME)
         .version(&format!("v{}", APP_VERSION)[..])
         .about(APP_DESCRIPTION)
@@ -19,29 +28,34 @@ fn main() {
                 .subcommand(clap::SubCommand::with_name("all").about("Build everything"))
                 .subcommand(clap::SubCommand::with_name("builder").about("Build builder"))
                 .subcommand(clap::SubCommand::with_name("initramfs").about("Build initramfs image"))
-                .subcommand(
-                    clap::SubCommand::with_name("multiboot").about("Build grub multiboot image"),
-                )
+                .subcommand(clap::SubCommand::with_name("multiboot").about("Build grub multiboot image"))
                 .subcommand(clap::SubCommand::with_name("iso").about("Build bootable ISO"))
-                .subcommand(
-                    clap::SubCommand::with_name("isofull")
-                        .about("Build initramfs, multiboot and iso"),
-                ),
+                .subcommand(clap::SubCommand::with_name("isofull").about("Build initramfs, multiboot and iso")),
         )
         .get_matches();
 
     // Execute build command
     if let Some(ref matches) = cmds.subcommand_matches("build") {
         if matches.is_present("all") {
-            println!("Version: {}", format!("v{}", APP_VERSION).to_string());
+            let reduce = core::Reduce::new().unwrap();
+            println!("{}", reduce.root());
+            println!("{}", reduce.outpath.to_str().unwrap());
+            println!("{}", reduce.workpath.to_str().unwrap());
+            println!("{}", reduce.pacman_path.to_str().unwrap());
+            load_profile("targets")
         } else {
             println!("no sub command given");
         }
     }
 }
 
-// // Parse the command line arguments
-// fn run(matches: ArgMatches) -> Result<(), String> {
+// // Create a new instance of reduce
+// fn new() {
+//     //    @rootpath = File.dirname(File.expand_path(__FILE__))
+// }
+
+// Execute the command line arguments
+// fn execute(matches: ArgMatches) -> Result<(), String> {
 //     let min_log_level = match matches.occurrences_of("verbose") {
 //         0 => log::Level::Info,
 //         1 => log::Level::Debug,
@@ -57,3 +71,13 @@ fn main() {
 //     info!(logger, "processing_started");
 //     // ...
 // }
+
+#[cfg(test)]
+mod tests {
+    // use super::*;
+
+    #[test]
+    fn test_example() {
+        assert_eq!(4, 4);
+    }
+}

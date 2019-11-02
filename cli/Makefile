@@ -33,7 +33,7 @@ run: build
 	@${CARGO} run
 
 test: build
-	@${CARGO} test
+	@${CARGO} test --all
 
 update:
 	@${CARGO} update

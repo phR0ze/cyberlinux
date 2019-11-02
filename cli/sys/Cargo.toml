@@ -1,0 +1,10 @@
+[package]
+name = "sys"
+version = "0.0.1"
+edition = "2018"
+authors = ["phR0ze"]
+license = "MIT OR Apache-2.0"
+description = "System utilities"
+readme = "README.md"
+homepage = "https://github.com/phR0ze/rs/sys"
+repository = "https://github.com/phR0ze/rs/sys"
