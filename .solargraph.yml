@@ -1,7 +1,0 @@
-include:
-  - ./reduce
-  - ./lib/*.rb
-  - ./test/*.rb
-  - ./packer/*.rb
-exclude:
-  - temp/**/*

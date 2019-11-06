@@ -12,7 +12,7 @@ macro_rules! s {
 #[cfg(test)]
 mod tests {
     #[test]
-    fn it_works() {
+    fn test_laconic() {
         assert_eq!(2 + 2, 4);
     }
 }

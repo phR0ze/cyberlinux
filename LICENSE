@@ -1,11 +1,11 @@
 cyberlinux is leveraging many open source works that coupled with original
 source content by the developer phR0ze make up cyberlinux.  As such many
-open source licenses are in play.  However all source is publlicly available
+open source licenses are in play.  However all source is publicly available
 via github and all original licenses intact as specified by the originators,
 thus any GPL or other open source licenses should be satisfied.
 
 Any source developed by phR0ze in the making of this project such as Reduce
-(i.e. reduce.rb and supporting ruby libs, tests and scripts) as well as yaml
+(e.g. reduce.rb and supporting ruby libs, tests and scripts) as well as yaml
 configuration, shell scripts etc.. made by phR0ze are licensed under the 
 MIT License below where not conflicting with existing licenses.  In the case
 of existing software that has been included or modified the license of the

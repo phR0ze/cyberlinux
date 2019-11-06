@@ -3,11 +3,12 @@
 //! ## About
 //!
 //! `reduce` is the cyberlinux CLI
-use laconic::*;
-use reduce::core;
-
 extern crate clap;
 extern crate log;
+
+use laconic::*;
+
+mod core;
 
 // Cargo information
 const APP_NAME: &'static str = env!("CARGO_PKG_NAME");
@@ -38,11 +39,11 @@ fn main() {
     if let Some(ref matches) = cmds.subcommand_matches("build") {
         if matches.is_present("all") {
             let reduce = core::Reduce::new().unwrap();
-            println!("{}", reduce.root());
-            println!("{}", reduce.outpath.to_str().unwrap());
-            println!("{}", reduce.workpath.to_str().unwrap());
-            println!("{}", reduce.pacman_path.to_str().unwrap());
-            load_profile("targets")
+            println!("{:?}", reduce.root());
+            println!("{:?}", reduce.out_dir);
+            println!("{:?}", reduce.work_dir);
+            println!("{:?}", reduce.pacman_dir);
+            println!("{:?}", reduce.pacman_src_mirrors);
         } else {
             println!("no sub command given");
         }
@@ -77,7 +78,7 @@ mod tests {
     // use super::*;
 
     #[test]
-    fn test_example() {
+    fn test_main() {
         assert_eq!(4, 4);
     }
 }
