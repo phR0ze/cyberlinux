@@ -39,11 +39,9 @@ fn main() {
     if let Some(ref matches) = cmds.subcommand_matches("build") {
         if matches.is_present("all") {
             let reduce = core::Reduce::new().unwrap();
-            println!("{:?}", reduce.root());
-            println!("{:?}", reduce.out_dir);
-            println!("{:?}", reduce.work_dir);
-            println!("{:?}", reduce.pacman_dir);
+            println!("{:?}", reduce.root_dir);
             println!("{:?}", reduce.pacman_src_mirrors);
+            println!("{:?}", reduce.image_dirs);
         } else {
             println!("no sub command given");
         }

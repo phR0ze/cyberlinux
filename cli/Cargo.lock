@@ -43,12 +43,8 @@ dependencies = [
 
 [[package]]
 name = "errors"
-version = "0.0.1"
-
-[[package]]
-name = "errors"
 version = "0.0.5"
-source = "git+https://github.com/phR0ze/rs#4f01cb1c80e00276fab71950c560e0007aa9679a"
+source = "git+https://github.com/phR0ze/rs#13bdb7c40c3161b286a3a8095c595d789cd00cb2"
 
 [[package]]
 name = "glob"
@@ -74,24 +70,14 @@ dependencies = [
 
 [[package]]
 name = "reduce"
-version = "0.2.406"
+version = "0.2.407"
 dependencies = [
  "clap 2.33.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "errors 0.0.1",
+ "errors 0.0.5 (git+https://github.com/phR0ze/rs)",
  "glob 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "laconic 0.0.1",
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
- "rs 0.0.6 (git+https://github.com/phR0ze/rs)",
- "sys 0.0.6 (git+https://github.com/phR0ze/rs)",
-]
-
-[[package]]
-name = "rs"
-version = "0.0.6"
-source = "git+https://github.com/phR0ze/rs#4f01cb1c80e00276fab71950c560e0007aa9679a"
-dependencies = [
- "errors 0.0.5 (git+https://github.com/phR0ze/rs)",
- "sys 0.0.6 (git+https://github.com/phR0ze/rs)",
+ "sys 0.0.11 (git+https://github.com/phR0ze/rs)",
 ]
 
 [[package]]
@@ -101,8 +87,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "sys"
-version = "0.0.6"
-source = "git+https://github.com/phR0ze/rs#4f01cb1c80e00276fab71950c560e0007aa9679a"
+version = "0.0.11"
+source = "git+https://github.com/phR0ze/rs#13bdb7c40c3161b286a3a8095c595d789cd00cb2"
+dependencies = [
+ "errors 0.0.5 (git+https://github.com/phR0ze/rs)",
+ "glob 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
 
 [[package]]
 name = "textwrap"
@@ -151,9 +141,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum glob 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)" = "9b919933a397b79c37e33b77bb2aa3dc8eb6e165ad809e58ff75bc7db2e34574"
 "checksum libc 0.2.65 (registry+https://github.com/rust-lang/crates.io-index)" = "1a31a0627fdf1f6a39ec0dd577e101440b7db22672c0901fe00a9a6fbb5c24e8"
 "checksum log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)" = "14b6052be84e6b71ab17edffc2eeabf5c2c3ae1fdb464aae35ac50c67a44e1f7"
-"checksum rs 0.0.6 (git+https://github.com/phR0ze/rs)" = "<none>"
 "checksum strsim 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)" = "8ea5119cdb4c55b55d432abb513a0429384878c15dde60cc77b1c99de1a95a6a"
-"checksum sys 0.0.6 (git+https://github.com/phR0ze/rs)" = "<none>"
+"checksum sys 0.0.11 (git+https://github.com/phR0ze/rs)" = "<none>"
 "checksum textwrap 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)" = "d326610f408c7a4eb6f51c37c330e496b08506c9457c9d34287ecc38809fb060"
 "checksum unicode-width 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)" = "7007dbd421b92cc6e28410fe7362e2e0a2503394908f417b68ec8d1c364c4e20"
 "checksum vec_map 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)" = "05c78687fb1a80548ae3250346c3db86a80a7cdd77bda190189f2d0a0987c81a"

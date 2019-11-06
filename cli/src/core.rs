@@ -2,7 +2,7 @@ use glob::glob;
 use std::env;
 use std::path::{Path, PathBuf};
 
-use rs::Result;
+use errors::Result;
 use sys::*;
 
 #[derive(Debug, Default)]
@@ -75,6 +75,7 @@ impl Reduce {
         self.deployments_dir = self.work_dir.join("deployments");
         self.motd_path = self.config_dir.join("shell/etc/motd");
         self.pacman_src_conf = self.config_dir.join("shell/etc/pacman.conf");
+        self.pacman_src_mirrors = sys::getpaths(&self.config_dir.join("shell/etc/pacman.d/*.mirrorlist"))?;
         self.boot_iso = self.iso_dir.join("boot");
         self.efi_iso = self.iso_dir.join("efi/boot");
         self.deployment_images = self.iso_dir.join("images");
@@ -91,10 +92,10 @@ impl Reduce {
         self.packer_src = self.root_dir.join("packer");
         self.packer_work = self.work_dir.join("packer");
 
-        // let path_str = self.config_dir.join("shell/etc/pacman.d/*.mirrorlist").to_str()?;
-        // let paths = glob(self.config_dir.join("shell/etc/pacman.d/*.mirrorlist").to_str().unwrap())?;
-        // let other: Vec<_> = paths.map(|x| x?).collect();
-        //self.pacman_src_mirrors = paths.collect();
+        // Configure image dirs
+        self.image_dirs.push(self.out_dir.join("images"));
+        self.image_dirs.push(PathBuf::from(&self.deployment_images));
+        //self.image_dirs.push(self.out_dir.join("images"));
         Ok(())
     }
 

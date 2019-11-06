@@ -1,6 +1,6 @@
 [package]
 name = "reduce"
-version = "0.2.406"
+version = "0.2.407"
 edition = "2018"
 authors = ["phR0ze"]
 license = "MIT OR Apache-2.0"
@@ -31,7 +31,6 @@ members = ["laconic"]
 log = "0.4.8"
 clap = "2.33.0"
 glob = "0.3.0"
-errors = { path = "errors" }
 laconic = { path = "laconic" }
-rs = { git = "https://github.com/phR0ze/rs", branch = "master" }
-sys = { git = "https://github.com/phR0ze/rs", path = "sys", branch = "master" }
+errors = { git = "https://github.com/phR0ze/rs", branch = "master" }
+sys = { git = "https://github.com/phR0ze/rs", branch = "master" }
