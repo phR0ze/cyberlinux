@@ -7,11 +7,6 @@ use clap;
 mod core;
 pub use crate::core::*;
 
-// Cargo information
-const APP_NAME: &'static str = env!("CARGO_PKG_NAME");
-const APP_VERSION: &'static str = env!("CARGO_PKG_VERSION");
-const APP_DESCRIPTION: &'static str = env!("CARGO_PKG_DESCRIPTION");
-
 fn main() {
     // Parse cli args
     let cmds = clap::App::new(APP_NAME)

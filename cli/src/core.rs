@@ -1,27 +1,52 @@
-use slog::{info, o, Drain};
+use colored::*;
+use errors::Result;
+use log;
+use logs;
 use std::cell::RefCell;
 use std::io::{self, Write};
 use std::path::PathBuf;
 use std::rc::Rc;
-
-use errors::Result;
 use sys::*;
 
-// Configure logging for the app
-pub(crate) fn configure_logging() -> Result<slog::Logger> {
-    let decorator = slog_term::TermDecorator::new().build();
-    let drain = slog_term::FullFormat::new(decorator).build().fuse();
-    let drain = slog_async::Async::new(drain).build().fuse();
-    // let log = slog::Logger::root(drain, o!("version" => "0.5"));
-    let log = slog::Logger::root(drain, o!());
-    Ok(log)
+pub const APP_NAME: &'static str = env!("CARGO_PKG_NAME");
+pub const APP_VERSION: &'static str = env!("CARGO_PKG_VERSION");
+pub const APP_DESCRIPTION: &'static str = env!("CARGO_PKG_DESCRIPTION");
+
+// Reduce options
+// -------------------------------------------------------------------------------------------------
+#[derive(Clone)]
+pub enum Opt {
+    Stdout(Rc<RefCell<dyn io::Write>>),
+    LogLevel(log::Level),
+    Filepath(PathBuf),
+}
+pub trait OptsExt {
+    fn stdout(&self) -> Rc<RefCell<dyn io::Write>>;
+    fn log_level(&self) -> log::Level;
+}
+impl OptsExt for Vec<Opt> {
+    fn stdout(&self) -> Rc<RefCell<dyn io::Write>> {
+        for opt in self {
+            if let Opt::Stdout(stdout) = opt.clone() {
+                return stdout;
+            }
+        }
+        Rc::new(RefCell::new(io::stdout()))
+    }
+    fn log_level(&self) -> log::Level {
+        for opt in self {
+            if let Opt::LogLevel(level) = opt.clone() {
+                return level;
+            }
+        }
+        log::Level::Info
+    }
 }
 
+// Reduce implementation
+// -------------------------------------------------------------------------------------------------
 pub struct Reduce {
-    // Standard io fields
-    // pub(crate) log: slog::Logger,
-    pub(crate) out: Rc<RefCell<dyn Write>>,
-    pub(crate) err: Rc<RefCell<dyn Write>>,
+    pub(crate) out: Rc<RefCell<dyn io::Write>>,
 
     // Pathing fields
     pub(crate) home_dir: PathBuf,
@@ -60,7 +85,6 @@ impl Default for Reduce {
     fn default() -> Self {
         Self {
             out: Rc::new(RefCell::new(io::stdout())),
-            err: Rc::new(RefCell::new(io::stderr())),
             home_dir: Default::default(),
             root_dir: Default::default(),
             out_dir: Default::default(),
@@ -96,11 +120,21 @@ impl Default for Reduce {
     }
 }
 impl Reduce {
+    // Create a new reduce instance with defaults.
     pub fn new() -> Result<Reduce> {
-        let log = configure_logging()?;
-        info!(log, "Starting up app...");
+        Reduce::new_with(vec![])
+    }
 
-        let mut reduce: Self = Default::default();
+    // Create a new reduce instance with the given options.
+    pub fn new_with(opts: Vec<Opt>) -> Result<Reduce> {
+        let mut reduce = Self { out: opts.stdout(), ..Default::default() };
+        println!("{}", format!("{} v{}", APP_NAME, APP_VERSION).cyan());
+
+        // Configure logging based off the Opt::LogLevel option
+        logs::init_with(vec![logs::Opt::Level(opts.log_level())])?;
+
+        // Startup reduce instance
+        log::info!("Starting up app...");
         reduce.resolve_root_dir()?;
         reduce.configure_pathing()?;
         Ok(reduce)
@@ -164,11 +198,11 @@ impl Reduce {
         println!("Target profile: {}", target)
     }
 
-    // // Print to stdout field
-    // pub(crate) fn println<T: AsRef<str>>(msg: &T) {
-    //     let mut out = self.out.borrow_mut();
-    //     write!(out, "{}", self.msg).unwrap();
-    // }
+    // Print to stdout field
+    pub(crate) fn println(&self, msg: &String) {
+        let mut out = self.out.borrow_mut();
+        write!(out, "{}", msg).unwrap();
+    }
 }
 
 #[cfg(test)]
