@@ -3,9 +3,7 @@
 //! ## About
 //!
 //! `reduce` is the cyberlinux CLI
-extern crate clap;
-extern crate log;
-
+use clap;
 mod core;
 pub use crate::core::*;
 

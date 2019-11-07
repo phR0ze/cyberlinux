@@ -1,11 +1,29 @@
+use slog::{info, o, Drain};
+use std::cell::RefCell;
+use std::io::{self, Write};
 use std::path::PathBuf;
+use std::rc::Rc;
 
 use errors::Result;
 use sys::*;
 
-#[derive(Debug, Default)]
+// Configure logging for the app
+pub(crate) fn configure_logging() -> Result<slog::Logger> {
+    let decorator = slog_term::TermDecorator::new().build();
+    let drain = slog_term::FullFormat::new(decorator).build().fuse();
+    let drain = slog_async::Async::new(drain).build().fuse();
+    // let log = slog::Logger::root(drain, o!("version" => "0.5"));
+    let log = slog::Logger::root(drain, o!());
+    Ok(log)
+}
+
 pub struct Reduce {
-    // Pathing
+    // Standard io fields
+    // pub(crate) log: slog::Logger,
+    pub(crate) out: Rc<RefCell<dyn Write>>,
+    pub(crate) err: Rc<RefCell<dyn Write>>,
+
+    // Pathing fields
     pub(crate) home_dir: PathBuf,
     pub(crate) root_dir: PathBuf,
     pub(crate) aur_dir: PathBuf,
@@ -38,15 +56,57 @@ pub struct Reduce {
     pub(crate) packer_work: PathBuf,
     pub(crate) image_dirs: Vec<PathBuf>,
 }
+impl Default for Reduce {
+    fn default() -> Self {
+        Self {
+            out: Rc::new(RefCell::new(io::stdout())),
+            err: Rc::new(RefCell::new(io::stderr())),
+            home_dir: Default::default(),
+            root_dir: Default::default(),
+            out_dir: Default::default(),
+            aur_dir: Default::default(),
+            config_dir: Default::default(),
+            vagrant_dir: Default::default(),
+            work_dir: Default::default(),
+            pacman_dir: Default::default(),
+            pacman_cache: Default::default(),
+            tmp_dir: Default::default(),
+            iso_dir: Default::default(),
+            deployments_dir: Default::default(),
+            motd_path: Default::default(),
+            pacman_src_conf: Default::default(),
+            pacman_src_mirrors: Default::default(),
+            boot_iso: Default::default(),
+            efi_iso: Default::default(),
+            deployment_images: Default::default(),
+            grub_iso: Default::default(),
+            grub_work: Default::default(),
+            kernel_dir: Default::default(),
+            kernel_prefix: Default::default(),
+            memtest_image: Default::default(),
+            ucode_image: Default::default(),
+            initramfs_dir: Default::default(),
+            initramfs_prefix: Default::default(),
+            initramfs_src: Default::default(),
+            initramfs_work: Default::default(),
+            packer_src: Default::default(),
+            packer_work: Default::default(),
+            image_dirs: Default::default(),
+        }
+    }
+}
 impl Reduce {
     pub fn new() -> Result<Reduce> {
+        let log = configure_logging()?;
+        info!(log, "Starting up app...");
+
         let mut reduce: Self = Default::default();
         reduce.resolve_root_dir()?;
         reduce.configure_pathing()?;
         Ok(reduce)
     }
 
-    // Determines the root directory for the application
+    // Determines the root directory for the app
     pub(crate) fn resolve_root_dir(&mut self) -> Result<()> {
         self.root_dir = sys::exec_dir()?;
 
@@ -60,7 +120,7 @@ impl Reduce {
         Ok(())
     }
 
-    // Configure pathing for the application
+    // Configure pathing
     pub(crate) fn configure_pathing(&mut self) -> Result<()> {
         self.home_dir = sys::home_dir()?;
         self.out_dir = self.root_dir.join("temp");
@@ -99,14 +159,16 @@ impl Reduce {
         Ok(())
     }
 
-    pub fn root(&self) -> &str {
-        self.root_dir.to_str().unwrap()
-    }
-
     // Load the given profile
-    fn load_profile(target: &str) {
+    pub(crate) fn load_profile(&self, target: &str) {
         println!("Target profile: {}", target)
     }
+
+    // // Print to stdout field
+    // pub(crate) fn println<T: AsRef<str>>(msg: &T) {
+    //     let mut out = self.out.borrow_mut();
+    //     write!(out, "{}", self.msg).unwrap();
+    // }
 }
 
 #[cfg(test)]
