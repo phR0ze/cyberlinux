@@ -25,10 +25,6 @@ source .githooks/util.sh
 # Note: the cwd is always the full path of your project root
 update_copyright 'Copyright \(c\)'
 increment_version 'profiles/base.yml' '(.*release:.*)([0-9]+\.[0-9]+\.[0-9]+)(.*)'
-
-# Cargo.lock is more complicated to find the correct version so using old version to find it
-get_version 'cli/Cargo.toml' '.*version =.*"([0-9]+\.[0-9]+\.[0-9]+)".*' ver
-increment_version 'cli/Cargo.lock' '(.*version =.*")('$ver')(".*)'
 increment_version 'cli/Cargo.toml' '(.*version =.*")([0-9]+\.[0-9]+\.[0-9]+)(".*)'
 
 # vim: ts=2:sw=2:sts=2

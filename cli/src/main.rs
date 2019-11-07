@@ -6,9 +6,8 @@
 extern crate clap;
 extern crate log;
 
-use laconic::*;
-
 mod core;
+pub use crate::core::*;
 
 // Cargo information
 const APP_NAME: &'static str = env!("CARGO_PKG_NAME");
@@ -38,7 +37,7 @@ fn main() {
     // Execute build command
     if let Some(ref matches) = cmds.subcommand_matches("build") {
         if matches.is_present("all") {
-            let reduce = core::Reduce::new().unwrap();
+            let reduce = Reduce::new().unwrap();
             println!("{:?}", reduce.root_dir);
             println!("{:?}", reduce.pacman_src_mirrors);
             println!("{:?}", reduce.image_dirs);
@@ -47,29 +46,6 @@ fn main() {
         }
     }
 }
-
-// // Create a new instance of reduce
-// fn new() {
-//     //    @rootpath = File.dirname(File.expand_path(__FILE__))
-// }
-
-// Execute the command line arguments
-// fn execute(matches: ArgMatches) -> Result<(), String> {
-//     let min_log_level = match matches.occurrences_of("verbose") {
-//         0 => log::Level::Info,
-//         1 => log::Level::Debug,
-//         2 | _ => slog::Level::Trace,
-//     };
-//     let drain = slog::level_filter(min_log_level, slog_term::streamer().build()).fuse();
-//     let logger = slog::Logger::root(drain, o!());
-//     trace!(logger, "app_setup");
-//     // setting up app...
-//     debug!(logger, "load_configuration");
-//     trace!(logger, "app_setup_complete");
-//     // starting processing...
-//     info!(logger, "processing_started");
-//     // ...
-// }
 
 #[cfg(test)]
 mod tests {

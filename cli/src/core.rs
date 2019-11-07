@@ -1,6 +1,4 @@
-use glob::glob;
-use std::env;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use errors::Result;
 use sys::*;
@@ -8,6 +6,7 @@ use sys::*;
 #[derive(Debug, Default)]
 pub struct Reduce {
     // Pathing
+    pub(crate) home_dir: PathBuf,
     pub(crate) root_dir: PathBuf,
     pub(crate) aur_dir: PathBuf,
     pub(crate) config_dir: PathBuf,
@@ -63,6 +62,7 @@ impl Reduce {
 
     // Configure pathing for the application
     pub(crate) fn configure_pathing(&mut self) -> Result<()> {
+        self.home_dir = sys::home_dir()?;
         self.out_dir = self.root_dir.join("temp");
         self.aur_dir = self.root_dir.join("aur");
         self.config_dir = self.aur_dir.join("cyberlinux-config/config");
@@ -95,18 +95,18 @@ impl Reduce {
         // Configure image dirs
         self.image_dirs.push(self.out_dir.join("images"));
         self.image_dirs.push(PathBuf::from(&self.deployment_images));
-        //self.image_dirs.push(self.out_dir.join("images"));
+        self.image_dirs.push(self.home_dir.join("Downloads/images"));
         Ok(())
     }
 
     pub fn root(&self) -> &str {
         self.root_dir.to_str().unwrap()
     }
-}
 
-// Load the given profile
-fn load_profile(target: &str) {
-    println!("Target profile: {}", target)
+    // Load the given profile
+    fn load_profile(target: &str) {
+        println!("Target profile: {}", target)
+    }
 }
 
 #[cfg(test)]
