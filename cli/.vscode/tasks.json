@@ -4,7 +4,7 @@
         {
             "label": "Build",
             "type": "shell",
-            "command": "make build",
+            "command": "cargo build",
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -13,7 +13,7 @@
         {
             "label": "Test",
             "type": "shell",
-            "command": "make test",
+            "command": "cargo test --all",
             "group": {
                 "kind": "test",
                 "isDefault": true

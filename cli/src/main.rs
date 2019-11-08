@@ -5,7 +5,9 @@
 //! `reduce` is the cyberlinux CLI
 use clap;
 mod core;
+mod opts;
 pub use crate::core::*;
+pub use crate::opts::*;
 
 fn main() {
     // Parse cli args

@@ -1,55 +1,29 @@
 use colored::*;
 use errors::Result;
 use log;
-use logs;
+use logs::{self, out};
 use std::cell::RefCell;
+use std::fmt;
 use std::io::{self, Write};
 use std::path::PathBuf;
 use std::rc::Rc;
 use sys::*;
 
+use crate::opts::*;
+
 pub const APP_NAME: &'static str = env!("CARGO_PKG_NAME");
 pub const APP_VERSION: &'static str = env!("CARGO_PKG_VERSION");
 pub const APP_DESCRIPTION: &'static str = env!("CARGO_PKG_DESCRIPTION");
 
-// Reduce options
-// -------------------------------------------------------------------------------------------------
-#[derive(Clone)]
-pub enum Opt {
-    Stdout(Rc<RefCell<dyn io::Write>>),
-    LogLevel(log::Level),
-    Filepath(PathBuf),
-}
-pub trait OptsExt {
-    fn stdout(&self) -> Rc<RefCell<dyn io::Write>>;
-    fn log_level(&self) -> log::Level;
-}
-impl OptsExt for Vec<Opt> {
-    fn stdout(&self) -> Rc<RefCell<dyn io::Write>> {
-        for opt in self {
-            if let Opt::Stdout(stdout) = opt.clone() {
-                return stdout;
-            }
-        }
-        Rc::new(RefCell::new(io::stdout()))
-    }
-    fn log_level(&self) -> log::Level {
-        for opt in self {
-            if let Opt::LogLevel(level) = opt.clone() {
-                return level;
-            }
-        }
-        log::Level::Info
-    }
-}
-
 // Reduce implementation
 // -------------------------------------------------------------------------------------------------
 pub struct Reduce {
+    pub(crate) debug: bool,
+    pub(crate) quiet: bool,
+    pub(crate) home_dir: PathBuf,
     pub(crate) out: Rc<RefCell<dyn io::Write>>,
 
     // Pathing fields
-    pub(crate) home_dir: PathBuf,
     pub(crate) root_dir: PathBuf,
     pub(crate) aur_dir: PathBuf,
     pub(crate) config_dir: PathBuf,
@@ -84,8 +58,10 @@ pub struct Reduce {
 impl Default for Reduce {
     fn default() -> Self {
         Self {
-            out: Rc::new(RefCell::new(io::stdout())),
+            debug: Default::default(),
+            quiet: Default::default(),
             home_dir: Default::default(),
+            out: Rc::new(RefCell::new(io::stdout())),
             root_dir: Default::default(),
             out_dir: Default::default(),
             aur_dir: Default::default(),
@@ -127,8 +103,14 @@ impl Reduce {
 
     // Create a new reduce instance with the given options.
     pub fn new_with(opts: Vec<Opt>) -> Result<Reduce> {
-        let mut reduce = Self { out: opts.stdout(), ..Default::default() };
-        println!("{}", format!("{} v{}", APP_NAME, APP_VERSION).cyan());
+        let mut reduce = Self {
+            debug: opts.debug(),
+            quiet: opts.quiet(),
+            home_dir: opts.home(),
+            out: opts.stdout(),
+            ..Default::default()
+        };
+        writeln!(reduce, "{}", format!("<<{{ {} v{} }}>>", APP_NAME, APP_VERSION).green().bold());
 
         // Configure logging based off the Opt::LogLevel option
         logs::init_with(vec![logs::Opt::Level(opts.log_level())])?;
@@ -156,7 +138,6 @@ impl Reduce {
 
     // Configure pathing
     pub(crate) fn configure_pathing(&mut self) -> Result<()> {
-        self.home_dir = sys::home_dir()?;
         self.out_dir = self.root_dir.join("temp");
         self.aur_dir = self.root_dir.join("aur");
         self.config_dir = self.aur_dir.join("cyberlinux-config/config");
@@ -194,14 +175,17 @@ impl Reduce {
     }
 
     // Load the given profile
-    pub(crate) fn load_profile(&self, target: &str) {
-        println!("Target profile: {}", target)
+    pub(crate) fn load_profile(&mut self, target: &str) {
+        writeln!(self, "Target profile: {}", target)
     }
 
-    // Print to stdout field
-    pub(crate) fn println(&self, msg: &String) {
-        let mut out = self.out.borrow_mut();
-        write!(out, "{}", msg).unwrap();
+    // Implement support for write*! macro varients to use Reduce as a Writer.
+    // We actually don't need to implement the entire fmt::Write trait only this func
+    // as macros don't seem to honor the full trait contractd only existance of the func.
+    pub fn write_fmt(&mut self, fmt: fmt::Arguments<'_>) {
+        if !self.quiet {
+            self.out.borrow_mut().write_fmt(fmt).unwrap();
+        }
     }
 }
 
