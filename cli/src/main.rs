@@ -32,7 +32,10 @@ fn main() {
     // Execute build command
     if let Some(ref matches) = cmds.subcommand_matches("build") {
         if matches.is_present("all") {
-            let reduce = Reduce::new().unwrap();
+            let debug = false;
+            let quiet = false;
+            let home = sys::home_dir().unwrap();
+            let reduce = Reduce::new_with(vec![Opt::Debug(debug), Opt::Quiet(quiet), Opt::Home(home)]).unwrap();
             println!("{:?}", reduce.root_dir);
             println!("{:?}", reduce.pacman_src_mirrors);
             println!("{:?}", reduce.image_dirs);

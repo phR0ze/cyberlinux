@@ -1,10 +1,10 @@
 use colored::*;
 use errors::Result;
 use log;
-use logs::{self, out};
+use logs;
 use std::cell::RefCell;
 use std::fmt;
-use std::io::{self, Write};
+use std::io;
 use std::path::PathBuf;
 use std::rc::Rc;
 use sys::*;
@@ -54,6 +54,7 @@ pub struct Reduce {
     pub(crate) packer_src: PathBuf,
     pub(crate) packer_work: PathBuf,
     pub(crate) image_dirs: Vec<PathBuf>,
+    pub(crate) loaded_profiles: Vec<String>,
 }
 impl Default for Reduce {
     fn default() -> Self {
@@ -92,6 +93,7 @@ impl Default for Reduce {
             packer_src: Default::default(),
             packer_work: Default::default(),
             image_dirs: Default::default(),
+            loaded_profiles: Default::default(),
         }
     }
 }
@@ -110,34 +112,32 @@ impl Reduce {
             out: opts.stdout(),
             ..Default::default()
         };
-        writeln!(reduce, "{}", format!("<<{{ {} v{} }}>>", APP_NAME, APP_VERSION).green().bold());
 
-        // Configure logging based off the Opt::LogLevel option
+        // Print startup and configure logging based off the Opt::LogLevel option
         logs::init_with(vec![logs::Opt::Level(opts.log_level())])?;
+        //writeln!(reduce, "{}", format!("<<{{ {} v{} }}>>", APP_NAME, APP_VERSION).green().bold());
+        log::info!("{}", format!("<<{{ {} v{} }}>>", APP_NAME, APP_VERSION).green().bold());
 
-        // Startup reduce instance
-        log::info!("Starting up app...");
-        reduce.resolve_root_dir()?;
+        // Configure pathing and load profile
         reduce.configure_pathing()?;
+        reduce.load_profile("base")?;
         Ok(reduce)
     }
 
-    // Determines the root directory for the app
-    pub(crate) fn resolve_root_dir(&mut self) -> Result<()> {
-        self.root_dir = sys::exec_dir()?;
+    // Configure pathing
+    pub(crate) fn configure_pathing(&mut self) -> Result<()> {
+        log::info!("Configuring pathing...");
 
-        // work our way up the path until we find `initramfs` or fail
+        // Resolve root directory working our way up the path until we find `initramfs`
+        self.root_dir = sys::exec_dir()?;
         loop {
             if self.root_dir.join("initramfs").exists() {
                 break;
             }
             self.root_dir = self.root_dir.dirname()?;
         }
-        Ok(())
-    }
 
-    // Configure pathing
-    pub(crate) fn configure_pathing(&mut self) -> Result<()> {
+        // Configure all other paths based off root or home
         self.out_dir = self.root_dir.join("temp");
         self.aur_dir = self.root_dir.join("aur");
         self.config_dir = self.aur_dir.join("cyberlinux-config/config");
@@ -175,8 +175,14 @@ impl Reduce {
     }
 
     // Load the given profile
-    pub(crate) fn load_profile(&mut self, target: &str) {
-        writeln!(self, "Target profile: {}", target)
+    pub(crate) fn load_profile(&mut self, target: &str) -> Result<()> {
+        if self.loaded_profiles.contains(&target.to_string()) {
+            return Ok(());
+        }
+        log::info!("Loading target profile: {}", target.cyan());
+
+        self.loaded_profiles.push(target.to_string());
+        Ok(())
     }
 
     // Implement support for write*! macro varients to use Reduce as a Writer.
@@ -195,10 +201,20 @@ mod tests {
     use std::env;
 
     #[test]
-    fn resolve_root_dir() {
+    fn test_configure_pathing() {
         let mut reduce: Reduce = Default::default();
         assert_eq!("", reduce.root_dir.to_str().unwrap());
-        assert_eq!(true, reduce.resolve_root_dir().is_ok());
+        assert_eq!(true, reduce.configure_pathing().is_ok());
+
+        let root = env::current_dir().unwrap().parent().unwrap().to_path_buf();
+        assert_eq!(root, reduce.root_dir);
+    }
+
+    #[test]
+    fn test_load_profile() {
+        let mut reduce: Reduce = Default::default();
+        assert_eq!("", reduce.root_dir.to_str().unwrap());
+        assert_eq!(true, reduce.load_profile("base").is_ok());
 
         let root = env::current_dir().unwrap().parent().unwrap().to_path_buf();
         assert_eq!(root, reduce.root_dir);

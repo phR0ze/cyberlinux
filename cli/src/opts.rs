@@ -55,7 +55,12 @@ impl OptsExt for Vec<Opt> {
         }
         Rc::new(RefCell::new(io::stdout()))
     }
+
+    // Get the log level given during init. Override to error if quiet=true
     fn log_level(&self) -> log::Level {
+        if self.quiet() {
+            return log::Level::Error;
+        }
         for opt in self {
             if let Opt::LogLevel(level) = opt.clone() {
                 return level;
