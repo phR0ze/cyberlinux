@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.414
+  release: 0.2.415
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -57,7 +57,7 @@ vars:
 ################################################################################
 defaults:
   machine:
-    type: machine
+    kind: machine
     multilib: true
     vars:
       fontsize: 10
@@ -68,7 +68,7 @@ defaults:
 # Container for building components for ISO
 ################################################################################
 builder:
-  type: container
+  kind: container
   multilib: true
 
   # Source is applied top to bottom
@@ -239,8 +239,8 @@ apps:
     - core-tools
     - keyrings:
       - install: archlinux-keyring
-      - {install: blackarch-keyring, type: BLACKARCH}
-      - {install: cyberlinux-keyring, type: CYBERLINUX}
+      - {install: blackarch-keyring, kind: BLACKARCH}
+      - {install: cyberlinux-keyring, kind: CYBERLINUX}
     - system:
       - {install: htop,             desc: Interactive process viewer, alt: top }
       - {install: iftop,            desc: Display bandwidth usage on an interface }
@@ -251,7 +251,7 @@ apps:
     - compression:
       - {install: tar,              desc: File store backup and transport utility }
     - network:
-      - {install: bindip,           desc: Bind a service to a specifc IP Address, type: CYBERLINUX }
+      - {install: bindip,           desc: Bind a service to a specifc IP Address, kind: CYBERLINUX }
       - {install: curl,             desc: Adding curl command to pull in packer scripts }
       - {install: dnsutils,         desc: Network utilities dig/host/nslookup }
       - {install: gnu-netcat,       desc: Network piping application }
@@ -275,7 +275,7 @@ apps:
       - {install: gptfdisk,         desc: Text-mode paritioning tools e.g. sgdisk }
       - {install: haveged,          desc: Entropy harvesting, depof: pacman-key --init }
       - {install: logrotate,        desc: Rotates system logs automatically }
-      - {install: cyberlinux-screenfetch, desc: CLI bash script to show system theme for screenshots, type: CYBERLINUX }
+      - {install: cyberlinux-screenfetch, desc: CLI bash script to show system theme for screenshots, kind: CYBERLINUX }
     - compression:
       - {install: p7zip,            desc: Comman-line file archiver for 7zip format, depof: thunar }
       - {install: unrar,            desc: The RAR uncompression program }
@@ -331,21 +331,21 @@ apps:
       - {install: ruby,             desc: Ruby lang quick and easy programming }
       - {install: strace,           desc: A diagnostic, debugging and instructional userspace tracer }
       - {install: texinfo,          desc: Documentation for online information, group: [base-devel]}
-      - {install: yay,              desc: Pacman wrapper and AUR helper written in go, type: BLACKARCH }
+      - {install: yay,              desc: Pacman wrapper and AUR helper written in go, kind: BLACKARCH }
       - {install: yq,               desc: Command-line YAML processor - jq wrapper for YAML documents }
     - ruby-gems:
-      - {install: ruby-amatch,      desc: Fuzzy string matching, depof: watchman, type: CYBERLINUX }
+      - {install: ruby-amatch,      desc: Fuzzy string matching, depof: watchman, kind: CYBERLINUX }
       - {install: ruby-bundler,     desc: Gem management, depof: reduce }
       - {install: ruby-colorize,    desc: Colorized output, depof: reduce }
-      - {install: ruby-filesize,    desc: Filesize to string maipulations, depof: reduce, type: CYBERLINUX }
-      - {install: ruby-net-scp,     desc: Pure Ruby SCP client protocol, depof: reduce, type: CYBERLINUX }
-      - {install: ruby-net-sftp,    desc: Pure Ruby SFTP client protocol, depof: reduce, type: CYBERLINUX }
-      - {install: ruby-net-ssh,     desc: Pure Ruby SSH2 client protocol, depof: reduce, type: CYBERLINUX }
-      - {install: ruby-nokogiri,    desc: HTML parser, depof: chromium build, type: BLACKARCH }
-      - {install: ruby-nub,         desc: Collection of useful Ruby utils, depof: vpnctl, type: CYBERLINUX }
-      - {install: ruby-mechanize,   desc: Automate interation with websites, depof: chromium build, type: BLACKARCH }
-      - {install: ruby-pry,         desc: Ruby debugger, type: CYBERLINUX }
-      - {install: ruby-rest-client, desc: Simple HTTP and REST client, depof: reduce, type: CYBERLINUX }
+      - {install: ruby-filesize,    desc: Filesize to string maipulations, depof: reduce, kind: CYBERLINUX }
+      - {install: ruby-net-scp,     desc: Pure Ruby SCP client protocol, depof: reduce, kind: CYBERLINUX }
+      - {install: ruby-net-sftp,    desc: Pure Ruby SFTP client protocol, depof: reduce, kind: CYBERLINUX }
+      - {install: ruby-net-ssh,     desc: Pure Ruby SSH2 client protocol, depof: reduce, kind: CYBERLINUX }
+      - {install: ruby-nokogiri,    desc: HTML parser, depof: chromium build, kind: BLACKARCH }
+      - {install: ruby-nub,         desc: Collection of useful Ruby utils, depof: vpnctl, kind: CYBERLINUX }
+      - {install: ruby-mechanize,   desc: Automate interation with websites, depof: chromium build, kind: BLACKARCH }
+      - {install: ruby-pry,         desc: Ruby debugger, kind: CYBERLINUX }
+      - {install: ruby-rest-client, desc: Simple HTTP and REST client, depof: reduce, kind: CYBERLINUX }
     - config-makepkg:
       - {edit: /etc/makepkg.conf, regex: '^#(MAKEFLAGS)=.*', value: '\1="-j8"'}
       - {edit: /etc/makepkg.conf, regex: '^(COMPRESSXZ)=.*', value: '\1=(xz -c -z - --threads=0)'}
@@ -384,7 +384,7 @@ apps:
       - {install: galculator,       desc: Office/Calculator }
       - {install: gsimplecal,       desc: Simple calendar like windows systray calendar }
       - {install: powerline,        desc: Status line plugin for bash }
-      - {install: powerline-gitstatus, desc: Powerline plugin for git status, type: CYBERLINUX }
+      - {install: powerline-gitstatus, desc: Powerline plugin for git status, kind: CYBERLINUX }
       - {install: powerline-fonts,  desc: Powerline font symbols }
       - {install: xfce4-screenshooter, desc: Plugin that makes screenshots for the Xfce panel }
       - filelight
@@ -399,12 +399,12 @@ apps:
       - {install: smplayer-skins,   desc: Skins for SMPlayer }
       - {install: smplayer-themes,  desc: Themes for SMPlayer }
       - {install: vlc,              desc: Multi-platform MPEG, VCD/DVD, and DivX player }
-      - {install: winff,            desc: GUI for ffmpeg, type: CYBERLINUX }
-      - {install: xnviewmp,         desc: A digital photo organizer, type: CYBERLINUX }
+      - {install: winff,            desc: GUI for ffmpeg, kind: CYBERLINUX }
+      - {install: xnviewmp,         desc: A digital photo organizer, kind: CYBERLINUX }
       - audacious
     - network:
-      - {install: chromium,         desc: Opensource project behind Chrome, type: CYBERLINUX }
-      - {install: chromium-widevine, desc: Chromium support for Netflix, type: CYBERLINUX }
+      - {install: chromium,         desc: Opensource project behind Chrome, kind: CYBERLINUX }
+      - {install: chromium-widevine, desc: Chromium support for Netflix, kind: CYBERLINUX }
       - {install: flashplugin,      desc: Adobe Flash Player NPAPI }
       - {install: pepper-flash,     desc: Chromium flash support }
       - {install: filezilla,        desc: Network/Transfer }
@@ -426,14 +426,14 @@ apps:
       - {install: ttf-bitstream-vera, desc: Bitstream vera fonts }
       - {install: ttf-dejavu,       desc: Bitstream Vera Fonts w/more characters }
       - {install: ttf-droid,        desc: Google Android general purpose fonts }
-      - {install: ttf-google-fonts-fun, desc: Handful of fun fonts from the Google Fonts project, type: CYBERLINUX }
-      - {install: ttf-google-fonts-work, desc: 40 best fonts from the Google Fonts project, type: CYBERLINUX }
+      - {install: ttf-google-fonts-fun, desc: Handful of fun fonts from the Google Fonts project, kind: CYBERLINUX }
+      - {install: ttf-google-fonts-work, desc: 40 best fonts from the Google Fonts project, kind: CYBERLINUX }
       - {install: ttf-hack,         desc: Hand groomed/optically balanced typeface based on Bitstream Vera Mono }
-      - {install: ttf-inconsolata-g, desc: Best monospace terminal font, type: CYBERLINUX }
+      - {install: ttf-inconsolata-g, desc: Best monospace terminal font, kind: CYBERLINUX }
       - {install: ttf-indic-otf,    desc: Indic Opentype Fonts collection }
       - {install: ttf-liberation,   desc: Red Hats Liberation fonts.  }
-      - {install: ttf-ms-fonts,     desc: Microsoft core fonts, type: CYBERLINUX }
-      - {install: ttf-nerd-fonts-symbols, desc: Nerd Font Symbols, type: CYBERLINUX }
+      - {install: ttf-ms-fonts,     desc: Microsoft core fonts, kind: CYBERLINUX }
+      - {install: ttf-nerd-fonts-symbols, desc: Nerd Font Symbols, kind: CYBERLINUX }
     - config-lite
 
   # Desktop configuration
@@ -464,11 +464,11 @@ apps:
     - {install: openshot,           desc: Simple powerful Video Editor, alt: pitivi, kdenlive }
     - {install: scribus,            desc: Open Source Desktop Publishing }
     - develop:
-      - {install: awf-git,          desc: Widget Factory for developing GTK themes, type: CYBERLINUX }
+      - {install: awf-git,          desc: Widget Factory for developing GTK themes, kind: CYBERLINUX }
       - {install: glade,            desc: User Interface Builder for GTK+ applications }
       - {install: meld,             desc: Develop/Diff Tool - Graphical diff tool cross platform }
       - {install: ripgrep,          desc: A search tool combining the usability of ag with speed of grep, depof: vscode }
-      - {install: visual-studio-code-bin, desc: Editor for modern development, type: CYBERLINUX }
+      - {install: visual-studio-code-bin, desc: Editor for modern development, kind: CYBERLINUX }
 
   # Netbook configuration
   # Lighter deployment for smaller, less powerfull mobile devices
@@ -485,8 +485,8 @@ apps:
     - libreoffice
     - veracrypt
     - wpa-supplicant
-    - {install: light, desc: Control laptop backlights screen and keyboard, type: CYBERLINUX }
-    - {install: openvpn-update-systemd-resolved, desc: OpenVPN systemd-resolved updater, type: CYBERLINUX }
+    - {install: light, desc: Control laptop backlights screen and keyboard, kind: CYBERLINUX }
+    - {install: openvpn-update-systemd-resolved, desc: OpenVPN systemd-resolved updater, kind: CYBERLINUX }
     - {install: remmina, desc: Network/Remoting - Nice remoting UI for RDP }
 
     # Toggle script for toggling radios and displays
@@ -576,7 +576,7 @@ apps:
 
   # Abiword is a lite weight word processor
   abiword:
-    - {install: abiword-gtk2, desc: lite weight word processor, type: CYBERLINUX }
+    - {install: abiword-gtk2, desc: lite weight word processor, kind: CYBERLINUX }
     - {menu: Office, entry: Abiword, icon: /usr/share/icons/hicolor/32x32/apps/abiword.png, exec: abiword }
 
   # Android tooling
@@ -594,7 +594,7 @@ apps:
     - {menu: Multimedia, entry: Audacious, icon: /usr/share/icons/hicolor/32x32/apps/audacious.png, exec: audacious }
 
   cinnamon-screensaver:
-    - {install: cinnamon-screensaver, desc: Screensaver for the Cinnamon desktop, type: CYBERLINUX }
+    - {install: cinnamon-screensaver, desc: Screensaver for the Cinnamon desktop, kind: CYBERLINUX }
     - edit: /etc/skel/.config/autostart/cinnamon-screensaver.desktop
       insert: append
       values:
@@ -650,7 +650,7 @@ apps:
   docker:
     - groups: [docker]
     - {install: docker, desc: Run applications as containers, depof: reduce }
-    - {install: systemd-docker, desc: Wrapper for docker so systemd works better, type: CYBERLINUX }
+    - {install: systemd-docker, desc: Wrapper for docker so systemd works better, kind: CYBERLINUX }
     - edit: /etc/docker/daemon.json
       insert: append
       values:
@@ -743,7 +743,7 @@ apps:
 
   # Lightweight desktop icons for X
   idesk:
-    - {install: idesk, type: CYBERLINUX }
+    - {install: idesk, kind: CYBERLINUX }
     - edit: /etc/skel/.config/autostart/idesk.desktop
       insert: append
       values:
@@ -800,8 +800,8 @@ apps:
 
   # Packages needed to host manage a kubernetes cluster
   k8shost:
-    - {install: helm,               desc: Kubernetes package manager, type: CYBERLINUX}
-    - {install: kubectl,            desc: K8s cluster controller, type: CYBERLINUX}
+    - {install: helm,               desc: Kubernetes package manager, kind: CYBERLINUX}
+    - {install: kubectl,            desc: K8s cluster controller, kind: CYBERLINUX}
 
   # Apps needed for a kubernetes node
   # i.e. standard terminal tools, ssh and k8s tools
@@ -815,10 +815,10 @@ apps:
     - install: ebtables             # required by k8s
     - install: ethtool              # required by k8s
     - install: jq                   # required for command line configuration of k8s
-    - {install: cri-tools,          desc: CLI for Kubelet Container Runtime interface, type: CYBERLINUX }
-    - {install: kubeadm,            desc: K8s cluster bootstrap, type: CYBERLINUX}
-    - {install: kubecni,            desc: K8s CNI pod networking, type: CYBERLINUX}
-    - {install: kubelet,            desc: K8s node control agent, type: CYBERLINUX}
+    - {install: cri-tools,          desc: CLI for Kubelet Container Runtime interface, kind: CYBERLINUX }
+    - {install: kubeadm,            desc: K8s cluster bootstrap, kind: CYBERLINUX}
+    - {install: kubecni,            desc: K8s CNI pod networking, kind: CYBERLINUX}
+    - {install: kubelet,            desc: K8s node control agent, kind: CYBERLINUX}
     - chroot: systemctl enable kubelet.service
 
   # Cross platform password manager
@@ -863,8 +863,8 @@ apps:
       - install: xdg-utils            # Desktop integration utilities
       - install: xsel                 # Tool for getting/setting X selection
       - install: xterm                # X terminal emulator
-      - {install: pnmixer,          desc: Volume controls in system tray, type: CYBERLINUX }
-      - {install: xcursor-numix-frost, desc: Numix frost cursor theme, type: CYBERLINUX }
+      - {install: pnmixer,          desc: Volume controls in system tray, kind: CYBERLINUX }
+      - {install: xcursor-numix-frost, desc: Numix frost cursor theme, kind: CYBERLINUX }
       - nitrogen
       - thunar
     - lxdm:
@@ -912,8 +912,8 @@ apps:
           - '[ -r ~/.bashrc ] && source ~/.bashrc'
     - themes:
       - install: lxappearance-obconf # Openbox support for lxappearance
-      - {install: numix-frost-themes, desc: Numix frost GTK2, GTK3 and OpenBox themes, type: CYBERLINUX }
-      - {install: paper-icon-theme, desc: Paper icon theme, type: CYBERLINUX }
+      - {install: numix-frost-themes, desc: Numix frost GTK2, GTK3 and OpenBox themes, kind: CYBERLINUX }
+      - {install: paper-icon-theme, desc: Paper icon theme, kind: CYBERLINUX }
     - menu-lxde:
       - {menu: Settings>Desktop/Login, entry: Tint2 Panel, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.config/tint2/tint2rc }
       - {menu: Settings>Pacman/Servers, entry: Pacman Config, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: sudo gvim /etc/pacman.conf }
@@ -934,7 +934,7 @@ apps:
     - {install: handbrake,          desc: Video/Encoding - Video encoding tool for mp4/mkv }
     - {install: handbrake-cli,      desc: Video/Encoding - Video encoding tool for mp4/mkv }
     - {install: mkvtoolnix-gui,     desc: Set of tools to create, edit and inspect MKV files }
-    - {install: tiny-media-manager, desc: Cross platform media manager, type: CYBERLINUX }
+    - {install: tiny-media-manager, desc: Cross platform media manager, kind: CYBERLINUX }
     - {menu: Multimedia, entry: HandBrake, icon: /usr/share/icons/hicolor/scalable/apps/hb-icon.svg, exec: ghb }
     - {menu: Multimedia, entry: MKVToolNix, icon: /usr/share/icons/hicolor/32x32/apps/mkvtoolnix-gui.png, exec: mkvtoolnix-gui }
     - {menu: Multimedia, entry: Tiny Media Manager, icon: /usr/share/icons/hicolor/32x32/apps/tiny-media-manager.png, exec: tiny-media-manager }
@@ -972,7 +972,7 @@ apps:
     - {install: grep,               desc: search text util, depof: [mkinitcpio], group: [build-devel]}
     - {install: findutils,          desc: find/xargs, depof: [mkinicpio, curl], group: [base-devel]}
     - install: mkinitcpio
-    - {install: mkinitcpio-vt-colors, type: CYBERLINUX } # vt console colors
+    - {install: mkinitcpio-vt-colors, kind: CYBERLINUX } # vt console colors
     - {install: shadow,             desc: Account mgmt e.g. passwd/useradd/usermod/groupadd, depof: [util-linux] }
     - {install: util-linux,         desc: blkid/fdisk/rename/cp etc..., depof: [mkinicpio, php-gd], group: [build-devel]}
     - edit: /etc/mkinitcpio.conf
@@ -1150,7 +1150,7 @@ apps:
     - {menu: System, entry: Veracrypt, icon: /usr/share/pixmaps/veracrypt.xpm, exec: veracrypt }
 
   virtualbox-host:
-    - {install: packer,             desc: HashiCorp's vagrant box builder, type: CYBERLINUX }
+    - {install: packer,             desc: HashiCorp's vagrant box builder, kind: CYBERLINUX }
     - {install: vagrant,            desc: Build and distribute virtualized dev environments }
     - {install: virtualbox,         desc: Cross platform virtualization with UI }
     - {install: virtualbox-guest-iso, desc: VirtualBox Guest Additions ISO image }
@@ -1174,13 +1174,13 @@ apps:
   # MakeMKV is free while in beta but is a commercial product required a license normally
   # https://www.makemkv.com/forum2/viewtopic.php?f=5&t=1053
   makemkv:
-    - {install: makemkv, desc: DVD and Blu-ray to MKV converter, type: CYBERLINUX }
+    - {install: makemkv, desc: DVD and Blu-ray to MKV converter, kind: CYBERLINUX }
     - {menu: Multimedia, entry: MakeMKV, icon: /usr/share/icons/hicolor/32x32/apps/makemkv.png, exec: makemkv }
 
   # Teamviewer is free for personal use but not for commercial use
   # https://www.teamviewer.com/en/credentials/free-for-personal-use/
   teamviewer:
-    - {install: teamviewer, desc: All-In-One Software for Remote Support and Online Meetings, type: CYBERLINUX }
+    - {install: teamviewer, desc: All-In-One Software for Remote Support and Online Meetings, kind: CYBERLINUX }
     - {menu: Network, entry: Teamviewer, icon: /usr/share/icons/Paper/32x32/apps/teamviewer.png, exec: teamviewer }
     - edit: /etc/skel/.config/autostart/teamviewer.desktop
       insert: append
@@ -1228,12 +1228,12 @@ apps:
   # The Extension Pack binaries are released under the VirtualBox Personal Use and Evaluation License (PUEL).
   # https://www.virtualbox.org/wiki/Downloads
   virtualbox-ext-oracle:
-    - {install: virtualbox-ext-oracle, desc: Oracle VM VirtualBox Extension Pack, type: CYBERLINUX }
+    - {install: virtualbox-ext-oracle, desc: Oracle VM VirtualBox Extension Pack, kind: CYBERLINUX }
 
   # Utilities supporting WPA wireless networks
   wpa-supplicant:
     - install: wpa_supplicant
-    - {install: wpa_gui, type: CYBERLINUX }
+    - {install: wpa_gui, kind: CYBERLINUX }
     - edit: /etc/systemd/network/10-wlo1.link
       insert: append
       values:

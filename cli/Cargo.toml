@@ -1,6 +1,6 @@
 [package]
-name = "reduce"
-version = "0.2.414"
+name = "reduce-cli"
+version = "0.2.415"
 edition = "2018"
 authors = ["phR0ze"]
 license = "MIT OR Apache-2.0"
@@ -11,15 +11,16 @@ repository = "https://github.com/phR0ze/cyberlinux/cli"
 keywords = ["cyberlinux", "cli"]
 categories = ["command-line-utilities"]
 
+[workspace]
+members = ["reduce"]
+
+# [[bin]]
+# name = "reduce"
+# path = "src/main.rs"
+
 [profile.release]
 lto = true
 
 [dependencies]
-clap = "2.33.0"
-glob = "0.3.0"
-log = "0.4.8"
-colored = "1.8.0"
-yaml-rust = "0.4.3"
-errors = { git = "https://github.com/phR0ze/rs", branch = "master" }
-logs = { git = "https://github.com/phR0ze/rs", branch = "master" }
-sys = { git = "https://github.com/phR0ze/rs", branch = "master" }
+clap = "2.33"
+# reduce = { path = "reduce" }

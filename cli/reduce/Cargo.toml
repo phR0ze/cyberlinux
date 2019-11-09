@@ -1,0 +1,22 @@
+[package]
+name = "reduce"
+version = "0.2.414"
+edition = "2018"
+authors = ["phR0ze"]
+license = "MIT OR Apache-2.0"
+description = "CLI for cyberlinux"
+readme = "README.md"
+homepage = "https://github.com/phR0ze/cyberlinux/cli/reduce"
+repository = "https://github.com/phR0ze/cyberlinux/cli/reduce"
+keywords = ["cyberlinux", "cli"]
+categories = ["command-line-utilities"]
+
+[dependencies]
+glob = "0.3"
+log = "0.4"
+colored = "1.8"
+serde_yaml = "0.8"
+serde = { version = "1.0", features = ["derive"] }
+errors = { git = "https://github.com/phR0ze/rs", branch = "master" }
+logs = { git = "https://github.com/phR0ze/rs", branch = "master" }
+sys = { git = "https://github.com/phR0ze/rs", branch = "master" }

@@ -2,15 +2,16 @@ use colored::*;
 use errors::Result;
 use log;
 use logs;
+use serde_yaml;
 use std::cell::RefCell;
 use std::fmt;
 use std::fs;
 use std::io;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::rc::Rc;
 use sys::*;
-use yaml_rust::YamlLoader;
 
+use crate::keys;
 use crate::model;
 use crate::opts::*;
 
@@ -26,6 +27,7 @@ pub struct Reduce {
     pub(crate) home_dir: PathBuf,
     pub(crate) out: Rc<RefCell<dyn io::Write>>,
     pub(crate) paths: model::Paths,
+    pub(crate) vars: model::Vars,
 }
 impl Default for Reduce {
     fn default() -> Self {
@@ -35,6 +37,7 @@ impl Default for Reduce {
             home_dir: Default::default(),
             out: Rc::new(RefCell::new(io::stdout())),
             paths: Default::default(),
+            vars: Default::default(),
         }
     }
 }
@@ -61,7 +64,7 @@ impl Reduce {
 
         // Configure pathing and load profile
         reduce.configure_pathing()?;
-        reduce.load_profile("base")?;
+        //reduce.load_profile(self.paths.)?;
         Ok(reduce)
     }
 
@@ -73,16 +76,16 @@ impl Reduce {
     }
 
     // Load the given profile
-    pub(crate) fn load_profile(&mut self, target: &str) -> Result<()> {
-        if self.paths.loaded_profiles.contains(&target.to_string()) {
+    pub(crate) fn load_profile<T: AsRef<Path>>(&mut self, path: T) -> Result<()> {
+        let target = PathBuf::from(path.as_ref());
+        if self.paths.loaded_profiles.contains(&target) {
             return Ok(());
         }
-        log::info!("Loading target profile: {}", target.cyan());
-        let profile_path = self.paths.profiles_dir.join(format!("{}.yml", target));
-        let data = fs::read_to_string(profile_path)?;
-        let profile = YamlLoader::load_from_str(&data)?;
+        log::info!("Loading target profile: {}", path.as_ref().to_str().unwrap().cyan());
+        let file = fs::File::open(path.as_ref())?;
+        let profile: model::Profile = serde_yaml::from_reader(file)?;
 
-        self.paths.loaded_profiles.push(target.to_string());
+        self.paths.loaded_profiles.push(target);
         Ok(())
     }
 
@@ -100,6 +103,12 @@ impl Reduce {
 mod tests {
     use super::*;
     use std::env;
+
+    // Get the test dir `cli/test` path
+    fn test_dir() -> PathBuf {
+        let cwd = env::current_dir().unwrap();
+        cwd.join("../test")
+    }
 
     #[test]
     fn test_reduce_opts() {
@@ -137,6 +146,8 @@ mod tests {
     fn test_load_profile() {
         let mut reduce: Reduce = Default::default();
         reduce.configure_pathing().unwrap();
-        reduce.load_profile("base").unwrap();
+
+        let profile = test_dir().join("base.yml");
+        reduce.load_profile(profile).unwrap();
     }
 }

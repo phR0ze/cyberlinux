@@ -1,35 +1,9 @@
 use errors::Result;
+use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 use sys::*;
 
-#[derive(Debug, Default, Clone)]
-pub struct Vars {
-    pub(crate) arch: String,            // e.g. x86_64
-    pub(crate) release: String,         // e.g. 0.2.241
-    pub(crate) distro: String,          // e.g. cyberlinux
-    pub(crate) language: String,        // e.g. en_US
-    pub(crate) character_set: String,   // e.g. UTF-8
-    pub(crate) timezone: String,        // e.g. US/Mountain
-    pub(crate) country: String,         // e.g. United_States
-    pub(crate) color_light: String,     // e.g. '#39AEF4'
-    pub(crate) color_dark: String,      // e.g. '#216A94'
-    pub(crate) gfxmode: String,         // e.g. 1280x1024,1024x768,auto
-    pub(crate) grub_iso_theme: PathBuf, // e.g. /boot/grub/themes/cyberlinux
-    pub(crate) dns1: String,            // DNS1 to use for fallback resolved e.g. 8.8.8.8
-    pub(crate) dns2: String,            // DNS2 to use for fallback resolved e.g. 8.8.4.4
-    pub(crate) netname: String,         // Vagrant network name e.g. vboxnet0
-    pub(crate) netip: String,           // Vagrant network ip e.g. 192.168.56.1
-    pub(crate) subnet: String,          // Vagrant subnet e.g. 255.255.255.0
-    pub(crate) nfscidr: String,         // NFS allowed cidr
-
-    // Kernel params
-    // ----------------------------------------------------------------------------
-    // ipv6.disable=1              // don't really need or want ipv6
-    // rd.systemd.show_status=auto // reduce systemd boot logging
-    // rd.udev.log_priority=3      // reduce udev boot logging
-    // e.g. kernel_params: rd.systemd.show_status=auto rd.udev.log_priority=3 ipv6.disable=1
-    pub(crate) kernel_params: String,
-}
+use crate::keys;
 
 #[derive(Debug, Default, Clone)]
 pub struct Paths {
@@ -49,7 +23,7 @@ pub struct Paths {
     pub(crate) iso_dir: PathBuf,
     pub(crate) kernel_dir: PathBuf,
     pub(crate) kernel_prefix: String,
-    pub(crate) loaded_profiles: Vec<String>,
+    pub(crate) loaded_profiles: Vec<PathBuf>,
     pub(crate) memtest_image: PathBuf,
     pub(crate) motd_path: PathBuf,
     pub(crate) out_dir: PathBuf,
@@ -116,4 +90,151 @@ impl Paths {
         paths.image_dirs.push(home.as_ref().join("Downloads/images"));
         Ok(paths)
     }
+}
+
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Profile {
+    pub vars: Vars,
+    pub defaults: Defaults,
+    pub builder: Container,
+}
+
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Vars {
+    // e.g. x86_64
+    #[serde(default)]
+    pub arch: String,
+
+    // e.g. 0.2.241
+    #[serde(default)]
+    pub release: String,
+
+    // e.g. cyberlinux
+    #[serde(default)]
+    pub distro: String,
+
+    // e.g. en_US
+    #[serde(default)]
+    pub language: String,
+
+    // e.g. UTF-8
+    #[serde(default)]
+    pub character_set: String,
+
+    // e.g. US/Mountain
+    #[serde(default)]
+    pub timezone: String,
+
+    // e.g. United_States
+    #[serde(default)]
+    pub country: String,
+
+    // e.g. '#39AEF4'
+    #[serde(default)]
+    pub color_light: String,
+
+    // e.g. '#216A94'
+    #[serde(default)]
+    pub color_dark: String,
+
+    // e.g. 1280x1024,1024x768,auto
+    #[serde(default)]
+    pub gfxmode: String,
+
+    #[serde(default)]
+    pub grub_iso_theme: String, // e.g. /boot/grub/themes/cyberlinux
+
+    // Default fontsize to use e.g. 10
+    #[serde(default)]
+    pub fontsize: u8,
+
+    // Wallpaper to use e.g. /usr/share/wallpaper/dreamfusion003_1280x1024.jpg
+    #[serde(default)]
+    pub wallpaper: String,
+
+    // DNS1 to use for fallback resolved e.g. 8.8.8.8
+    #[serde(default)]
+    pub dns1: String,
+
+    // DNS2 to use for fallback resolved e.g. 8.8.4.4
+    #[serde(default)]
+    pub dns2: String,
+
+    // Vagrant network name e.g. vboxnet0
+    #[serde(default)]
+    pub netname: String,
+
+    // Vagrant network ip e.g. 192.168.56.1
+    #[serde(default)]
+    pub netip: String,
+
+    // Vagrant subnet e.g. 255.255.255.0
+    #[serde(default)]
+    pub subnet: String,
+
+    // NFS allowed cidr
+    #[serde(default)]
+    pub nfscidr: String,
+
+    // Kernel params
+    // ----------------------------------------------------------------------------
+    // ipv6.disable=1              // don't really need or want ipv6
+    // rd.systemd.show_status=auto // reduce systemd boot logging
+    // rd.udev.log_priority=3      // reduce udev boot logging
+    // e.g. kernel_params: rd.systemd.show_status=auto rd.udev.log_priority=3 ipv6.disable=1
+    #[serde(default)]
+    pub kernel_params: String,
+}
+
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Defaults {
+    pub machine: Machine,
+}
+
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Machine {
+    pub multilib: bool,
+
+    #[serde(default)]
+    pub vars: Vars,
+
+    #[serde(default)]
+    pub vagrant: Vagrant,
+
+    #[serde(default)]
+    pub config: Vec<String>,
+
+    #[serde(default)]
+    pub apps: Vec<String>,
+}
+
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Container {
+    pub multilib: bool,
+
+    #[serde(default)]
+    pub vars: Vars,
+
+    #[serde(default)]
+    pub docker: Docker,
+
+    #[serde(default)]
+    pub config: Vec<String>,
+
+    #[serde(default)]
+    pub apps: Vec<String>,
+}
+
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Docker {
+    pub command: String,
+    pub params: String,
+}
+
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Vagrant {
+    pub vram: u16,
+    pub cpus: u16,
+    pub ram: u16,
+    pub v3d: bool,
 }

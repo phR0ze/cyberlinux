@@ -1,4 +1,5 @@
 pub mod core;
+pub mod keys;
 pub mod model;
 pub mod opts;
 pub use crate::core::*;
