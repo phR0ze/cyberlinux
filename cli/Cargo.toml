@@ -1,6 +1,6 @@
 [package]
 name = "reduce"
-version = "0.2.412"
+version = "0.2.413"
 edition = "2018"
 authors = ["phR0ze"]
 license = "MIT OR Apache-2.0"
@@ -10,16 +10,6 @@ homepage = "https://github.com/phR0ze/cyberlinux/cli"
 repository = "https://github.com/phR0ze/cyberlinux/cli"
 keywords = ["cyberlinux", "cli"]
 categories = ["command-line-utilities"]
-exclude = [
-	"examples",
-	"tests",
-	"benches/*"
-]
-include = [
-	"src/**/*",
-	"Cargo.toml",
-	"README.md"
-]
 
 [profile.release]
 lto = true
@@ -29,6 +19,7 @@ clap = "2.33.0"
 glob = "0.3.0"
 log = "0.4.8"
 colored = "1.8.0"
+yaml-rust = "0.4.3"
 errors = { git = "https://github.com/phR0ze/rs", branch = "master" }
 logs = { git = "https://github.com/phR0ze/rs", branch = "master" }
 sys = { git = "https://github.com/phR0ze/rs", branch = "master" }

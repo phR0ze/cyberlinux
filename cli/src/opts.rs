@@ -69,3 +69,46 @@ impl OptsExt for Vec<Opt> {
         log::Level::Info
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::env;
+
+    #[test]
+    fn test_home() {
+        let home = sys::home_dir().unwrap();
+        let opts: Vec<Opt> = vec![];
+        assert_eq!(home, opts.home());
+
+        let opts = vec![Opt::Home(PathBuf::from("/foo"))];
+        assert_eq!(PathBuf::from("/foo"), opts.home());
+    }
+
+    #[test]
+    fn test_debug() {
+        let opts: Vec<Opt> = vec![];
+        assert_eq!(false, opts.debug());
+
+        let opts = vec![Opt::Debug(true)];
+        assert_eq!(true, opts.debug());
+    }
+
+    #[test]
+    fn test_quiet() {
+        let opts: Vec<Opt> = vec![];
+        assert_eq!(false, opts.quiet());
+
+        let opts = vec![Opt::Quiet(true)];
+        assert_eq!(true, opts.quiet());
+    }
+
+    #[test]
+    fn test_log_level() {
+        let opts: Vec<Opt> = vec![];
+        assert_eq!(log::Level::Info, opts.log_level());
+
+        let opts = vec![Opt::LogLevel(log::Level::Debug)];
+        assert_eq!(log::Level::Debug, opts.log_level());
+    }
+}

@@ -4,10 +4,7 @@
 //!
 //! `reduce` is the cyberlinux CLI
 use clap;
-mod core;
-mod opts;
-pub use crate::core::*;
-pub use crate::opts::*;
+use reduce::*;
 
 fn main() {
     // Parse cli args
@@ -36,9 +33,6 @@ fn main() {
             let quiet = false;
             let home = sys::home_dir().unwrap();
             let reduce = Reduce::new_with(vec![Opt::Debug(debug), Opt::Quiet(quiet), Opt::Home(home)]).unwrap();
-            println!("{:?}", reduce.root_dir);
-            println!("{:?}", reduce.pacman_src_mirrors);
-            println!("{:?}", reduce.image_dirs);
         } else {
             println!("no sub command given");
         }
