@@ -23,7 +23,7 @@
 ################################################################################
 vars:
   arch: x86_64
-  release: 0.2.415
+  release: 0.2.416
   distro: cyberlinux
   language: en_US
   character_set: UTF-8
@@ -115,34 +115,35 @@ apps:
   ruby:
     - core
     - openssl-without-perl
-    - {install: ruby,               desc: Ruby, depends-on: [gdbm, openssl, libffi, libyaml, gmp, zlib], size: 11.15 MiB }
-    - {install: gdbm,               desc: GNU database library, depends-on: [glibc, bash], size: 443.00 KiB }
-    - {install: gmp,                desc: Library for precision arithmetic, depends-on: [gcc-libs, bash], size: 945.00 KiB }
-    - {install: libffi,             desc: Portable foreign function interface, depends-on: [glibc], size: 64.00 KiB }
+    installs:
+    - {name: ruby,               desc: Ruby, depends_on: [gdbm, openssl, libffi, libyaml, gmp, zlib], size: 11.15 MiB }
+    - {name: gdbm,               desc: GNU database library, depends_on: [glibc, bash], size: 443.00 KiB }
+    - {name: gmp,                desc: Library for precision arithmetic, depends_on: [gcc-libs, bash], size: 945.00 KiB }
+    - {name: libffi,             desc: Portable foreign function interface, depends_on: [glibc], size: 64.00 KiB }
     - {install: libyaml,            desc: YAML 1.1 library, size: 177.00 KiB }
-    - {install: rubygems,           desc: Package management framework for Ruby, depends-on: [ruby], size: 1026.00 KiB }
-    - {install: zlib,               desc: Compression got gzip and pkzip, depends-on: [glibc], size: 326.00 KiB }
+    - {install: rubygems,           desc: Package management framework for Ruby, depends_on: [ruby], size: 1026.00 KiB }
+    - {install: zlib,               desc: Compression got gzip and pkzip, depends_on: [glibc], size: 326.00 KiB }
 
   # Smallest set of packages possible for a functioning container with bash
   # Size: 53.14 MiB
   # ----------------------------------------------------------------------------
   core:
     - groups: [lp, wheel, network, storage, users]
-    - {install: bash,               desc: GNU Bourne Again shell, depends-on: [readline, glibc, ncurses], size: 7321.00 KiB}
+    - {install: bash,               desc: GNU Bourne Again shell, depends_on: [readline, glibc, ncurses], size: 7321.00 KiB}
     - {install: bash-completion,    desc: Bash tab completion, size: 799.00 KiB}
     - {install: ca-certificates,    desc: CAcert.org root certificates, size: 7.05 KiB }
     - {install: ca-certificates-mozilla, desc: Mozilla's set of CA certificates, size: 923 KiB }
     - {install: ca-certificates-utils, desc: Common CA certificates, size: 7 KiB }
-    - {install: coreutils,          desc: Utils ls/cp/mv, depends-on: [glibc, acl, attr, gmp, libcap, openssl], size: 13.79 MiB }
-    - {install: gcc-libs,           desc: GCC runtime libraries, depends-on: [glibc], size: 105.27 MiB}
-    - {install: glibc,              desc: GNU C Library, depends-on: [linux-api-headers, tzdata, filesystem], size: 41.40 MiB}
+    - {install: coreutils,          desc: Utils ls/cp/mv, depends_on: [glibc, acl, attr, gmp, libcap, openssl], size: 13.79 MiB }
+    - {install: gcc-libs,           desc: GCC runtime libraries, depends_on: [glibc], size: 105.27 MiB}
+    - {install: glibc,              desc: GNU C Library, depends_on: [linux-api-headers, tzdata, filesystem], size: 41.40 MiB}
     - {install: gzip,               desc: GNU compression utility, depof: locale-gen, group: [build-devel]}
-    - {install: filesystem,         desc: Base Arch Linux files, depends-on: [iana-etc], size: 9.00 KiB}
+    - {install: filesystem,         desc: Base Arch Linux files, depends_on: [iana-etc], size: 9.00 KiB}
     - {install: iana-etc,           desc: /etc/protocols and /etc/services provided by IANA, size: 3941.00 KiB}
     - {install: linux-api-headers,  desc: Kernel headers sanitized for use in userspace, size: 4168.00 KiB}
     - {install: lsb-release,        desc: LSB version query program, size: 17.00 Kib }
-    - {install: ncurses,            desc: System V curses emulation library, depends-on: [glibc, gcc-libs], size: 3645.00 KiB}
-    - {install: readline,           desc: GNU readline library, depends-on: [glibc, ncurses], size: 731.00 KiB}
+    - {install: ncurses,            desc: System V curses emulation library, depends_on: [glibc, gcc-libs], size: 3645.00 KiB}
+    - {install: readline,           desc: GNU readline library, depends_on: [glibc, ncurses], size: 731.00 KiB}
     - {install: sed,                desc: GNU stream editor, depof: locale-gen, group: [build-devel], size: 1MB }
     - {install: tzdata,             desc: Sources for time zone and daylight savings time data, size: 1861.00 KiB}
     - config-proxy
@@ -211,11 +212,11 @@ apps:
   # perl is huge, slow, outdated and useless, however some packages still use it.
   # containers should use the without-perl option to reduce size while machines will need to use with to behave normally
   openssl-with-perl:
-    - {install: openssl,            desc: Secure sockets layer and TLS, depends-on: [perl], size: 6.36 MiB }
-    - {install: perl,               desc: Perl language, depends-on: [gdbm, db, glibc], size: 52.00 MiB }
+    - {install: openssl,            desc: Secure sockets layer and TLS, depends_on: [perl], size: 6.36 MiB }
+    - {install: perl,               desc: Perl language, depends_on: [gdbm, db, glibc], size: 52.00 MiB }
   openssl-without-perl:
-    - {install: openssl,            desc: Secure sockets layer and TLS, nodeps: true, depends-on: [perl], size: 6.36 MiB }
-    - {install: perl,               desc: Perl language, ignore: true, depends-on: [gdbm, db, glibc], size: 52.00 MiB }
+    - {install: openssl,            desc: Secure sockets layer and TLS, nodeps: true, depends_on: [perl], size: 6.36 MiB }
+    - {install: perl,               desc: Perl language, ignore: true, depends_on: [gdbm, db, glibc], size: 52.00 MiB }
 
   # Minimal bootable base for any machine
   # Still requires a kernel is chosen in the deployment yaml e.g. - kernel

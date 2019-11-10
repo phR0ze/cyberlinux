@@ -97,8 +97,10 @@ pub struct Profile {
     pub vars: Vars,
     pub defaults: Defaults,
     pub builder: Container,
+    pub blocks: Vec<Block>,
 }
 
+// Global variables to use when templating.
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Vars {
     // e.g. x86_64
@@ -195,34 +197,44 @@ pub struct Defaults {
 pub struct Machine {
     pub multilib: bool,
 
+    // Variable overrides to use for a specific machine.
     #[serde(default)]
     pub vars: Vars,
 
+    // Vagrant configuration to use when deploying machine.
     #[serde(default)]
     pub vagrant: Vagrant,
 
+    // Configuration to copy to the deployment from `.../cyberlinux/aur/cyberlinux-config/config`.
     #[serde(default)]
     pub config: Vec<String>,
 
+    // Names of blocks acting as references to the top level `blocks` section.
+    // e.g. kernel => blocks.kernel
     #[serde(default)]
-    pub apps: Vec<String>,
+    pub blocks: Vec<String>,
 }
 
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Container {
     pub multilib: bool,
 
+    // Variable overrides to use for a specific machine.
     #[serde(default)]
     pub vars: Vars,
 
+    // Docker command arguments to use when deploying container.
     #[serde(default)]
     pub docker: Docker,
 
+    // Configuration to copy to the deployment from `.../cyberlinux/aur/cyberlinux-config/config`.
     #[serde(default)]
     pub config: Vec<String>,
 
+    // Names of blocks acting as references to the top level `blocks` section.
+    // e.g. kernel => blocks.kernel
     #[serde(default)]
-    pub apps: Vec<String>,
+    pub blocks: Vec<String>,
 }
 
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
@@ -237,4 +249,84 @@ pub struct Vagrant {
     pub cpus: u16,
     pub ram: u16,
     pub v3d: bool,
+}
+
+// Building blocks for automating the linux build. A block has a name and three
+// sections: `before`, `steps`, and `after` which are executed in that order.
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Block {
+    // Required name of the block
+    pub name: String,
+
+    // Optional blocks by name to execute before the main steps are executed.
+    #[serde(default)]
+    pub before: Vec<String>,
+
+    // Required steps to execute, such as installs and configuration.
+    // All install steps will occur before other step types. Other step types
+    // will be executed in the order they are in the yaml.
+    pub steps: Vec<Step>,
+
+    // Optional blocks by name to execute after the main steps are executed.
+    #[serde(default)]
+    pub after: Vec<String>,
+}
+
+// Automation steps to execute to install and/or configuration applications.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum Step {
+    Install(Install),
+    Chroot(Chroot),
+    Exec(Exec),
+    Edit(Edit),
+}
+
+// Describes an Arch Linux package to install.
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Install {
+    // Required package name
+    pub install: String,
+
+    // Optional package description
+    #[serde(default)]
+    pub desc: String,
+
+    // Optional list of packages this packages depends on
+    #[serde(default)]
+    pub depends_on: Vec<String>,
+
+    // Optional size of the package
+    #[serde(default)]
+    pub size: String,
+}
+
+// Chroot command to execute in the context of the deployment.
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Chroot {
+    pub chroot: String,
+}
+
+// Command to execute without chrooting into the deployment. Paths by default refer to the root
+// of the deployment e.g. /etc/environment is actually .../cyberlinux/temp/work/shell/etc/environment
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Exec {
+    pub exec: String,
+}
+
+// Edit configuration file to `insert`, `append`, or `prepend` values.
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Edit {
+    // Path to the file to edit
+    pub edit: String,
+
+    // Edit mode `insert`, `append`, `prepend`.
+    pub mode: String,
+
+    // Value to use with mode.
+    #[serde(default)]
+    pub value: String,
+
+    #[serde(default)]
+    pub values: Vec<String>,
 }
