@@ -1,5 +1,6 @@
 use errors::Result;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use sys::*;
 
@@ -94,12 +95,32 @@ impl Paths {
 
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Profile {
-    pub vars: Vars,
+    // Profile structure version.
+    pub version: u8,
+
+    // Defaults to use when values are not set and variables to use for templating.
     pub defaults: Defaults,
+
+    // Defaults to use when values are not set and variables to use for templating.
     pub builder: Container,
-    pub blocks: Vec<Block>,
+
+    // Fundamental building blocks for Linux distro
+    pub blocks: HashMap<String, Block>,
 }
 
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Defaults {
+    // Required default global variables
+    pub vars: Vars,
+
+    // Optional defaults for machines
+    #[serde(default)]
+    pub machine: Machine,
+
+    // Optional defaults for containers
+    #[serde(default)]
+    pub container: Container,
+}
 // Global variables to use when templating.
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Vars {
@@ -144,7 +165,7 @@ pub struct Vars {
     pub gfxmode: String,
 
     #[serde(default)]
-    pub grub_iso_theme: String, // e.g. /boot/grub/themes/cyberlinux
+    pub grub_iso_theme: PathBuf, // e.g. /boot/grub/themes/cyberlinux
 
     // Default fontsize to use e.g. 10
     #[serde(default)]
@@ -152,7 +173,7 @@ pub struct Vars {
 
     // Wallpaper to use e.g. /usr/share/wallpaper/dreamfusion003_1280x1024.jpg
     #[serde(default)]
-    pub wallpaper: String,
+    pub wallpaper: PathBuf,
 
     // DNS1 to use for fallback resolved e.g. 8.8.8.8
     #[serde(default)]
@@ -186,11 +207,6 @@ pub struct Vars {
     // e.g. kernel_params: rd.systemd.show_status=auto rd.udev.log_priority=3 ipv6.disable=1
     #[serde(default)]
     pub kernel_params: String,
-}
-
-#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Defaults {
-    pub machine: Machine,
 }
 
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
@@ -255,16 +271,12 @@ pub struct Vagrant {
 // sections: `before`, `steps`, and `after` which are executed in that order.
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Block {
-    // Required name of the block
-    pub name: String,
-
     // Optional blocks by name to execute before the main steps are executed.
     #[serde(default)]
     pub before: Vec<String>,
 
     // Required steps to execute, such as installs and configuration.
-    // All install steps will occur before other step types. Other step types
-    // will be executed in the order they are in the yaml.
+    // Steps are executed in the order the the are listed.
     pub steps: Vec<Step>,
 
     // Optional blocks by name to execute after the main steps are executed.
@@ -273,13 +285,21 @@ pub struct Block {
 }
 
 // Automation steps to execute to install and/or configuration applications.
+// Steps are executed in order.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum Step {
+    Groups(Groups),
     Install(Install),
     Chroot(Chroot),
     Exec(Exec),
     Edit(Edit),
+}
+
+// Describes the groups that should be used
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Groups {
+    pub groups: Vec<String>,
 }
 
 // Describes an Arch Linux package to install.
@@ -287,6 +307,10 @@ pub enum Step {
 pub struct Install {
     // Required package name
     pub install: String,
+
+    // Optional repo for package: Repo::ArchLinux.
+    #[serde(default)]
+    pub repo: String,
 
     // Optional package description
     #[serde(default)]

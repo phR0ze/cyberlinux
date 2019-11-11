@@ -1,38 +1,37 @@
-vars:
-  arch: x86_64
-  release: 0.2.414
-  distro: cyberlinux
-  language: en_US
-  character_set: UTF-8
-  timezone: US/Mountain
-  country: United_States
-  color_light: '#39AEF4'  # 256 color ~ #5fafff
-  color_dark: '#216A94'   # 256 color ~ #005f87
-  gfxmode: 1280x1024,1024x768,auto
-  grub_iso_theme: /boot/grub/themes/cyberlinux
-
-  # Networking
-  dns1: 8.8.8.8
-  dns2: 8.8.4.4
-
-  # Vagrant networking
-  netname: vboxnet0
-  netip: 192.168.56.1
-  subnet: 255.255.255.0
-
-  # NFS allowed cidr
-  nfscidr: 192.168.56.0/24
-
-  # Kernel params
-  # ----------------------------------------------------------------------------
-  # ipv6.disable=1              // don't really need or want ipv6
-  # rd.systemd.show_status=auto // reduce systemd boot logging
-  # rd.udev.log_priority=3      // reduce udev boot logging
-  kernel_params: rd.systemd.show_status=auto rd.udev.log_priority=3 ipv6.disable=1
-
-# Defaults provide a base used when a value is not given for deployments
-################################################################################
+version: 1
 defaults:
+  vars:
+    arch: x86_64
+    release: 0.2.414
+    distro: cyberlinux
+    language: en_US
+    character_set: UTF-8
+    timezone: US/Mountain
+    country: United_States
+    color_light: '#39AEF4'  # 256 color ~ #5fafff
+    color_dark: '#216A94'   # 256 color ~ #005f87
+    gfxmode: 1280x1024,1024x768,auto
+    grub_iso_theme: /boot/grub/themes/cyberlinux
+
+    # Networking
+    dns1: 8.8.8.8
+    dns2: 8.8.4.4
+
+    # Vagrant networking
+    netname: vboxnet0
+    netip: 192.168.56.1
+    subnet: 255.255.255.0
+
+    # NFS allowed cidr
+    nfscidr: 192.168.56.0/24
+
+    # Kernel params
+    # ----------------------------------------------------------------------------
+    # ipv6.disable=1              // don't really need or want ipv6
+    # rd.systemd.show_status=auto // reduce systemd boot logging
+    # rd.udev.log_priority=3      // reduce udev boot logging
+    kernel_params: rd.systemd.show_status=auto rd.udev.log_priority=3 ipv6.disable=1
+
   machine:
     multilib: true
     vars:
@@ -56,26 +55,25 @@ builder:
     - builder
 
 blocks:
-  - name: builder
-    before:
+  builder:
       - core-boot
-    steps:
-      - install: dosfstools           # require mkfs.vfat
+      - groups: [lp, wheel, network, storage, users]
+      - {install: dosfstools, desc: Dos file system tools, repo: ARCH_LINUX }
       - install: gptfdisk             # require sgdisk for ISO installer
       - install: licenses             # require Standard licenses for ISO installer
       - install: memtest86+           # require memtest.bin for ISO install menu
       - install: rsync                # require rsync for installing ISO deployments
+
+      # config-build-user
       - chroot: 'useradd -m -G lp,wheel,network,storage,users -s /bin/bash builder || true'
       - exec: "echo 'TERM=xterm' > /etc/environment"
       - {edit: /etc/sudoers, mode: append, value: "builder ALL=(ALL) NOPASSWD: ALL"}
-    after:
-      - config-build-user
-  - name: core-boot
+  core-boot:
     steps:
       - install: gnutls               # required by systemd-resolved to work
       - install: gettext              # required by grub
       - install: intel-ucode          # require Intel Microcode update files to boot
       - install: cyberlinux-grub      # require Grub Booloader to boot
-  - name: config-build-user
+  config-build-user:
     steps:
       - {edit: /etc/sudoers, mode: append, value: "builder ALL=(ALL) NOPASSWD: ALL"}

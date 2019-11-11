@@ -18,46 +18,47 @@
 #LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
+version: 0.3.0
 
-# Provides globally useful vars for templating
-################################################################################
-vars:
-  arch: x86_64
-  release: 0.2.416
-  distro: cyberlinux
-  language: en_US
-  character_set: UTF-8
-  timezone: US/Mountain
-  country: United_States
-  color_light: '#39AEF4'  # 256 color ~ #5fafff
-  color_dark: '#216A94'   # 256 color ~ #005f87
-  gfxmode: 1280x1024,1024x768,auto
-  grub_iso_theme: /boot/grub/themes/cyberlinux
-
-  # Networking
-  dns1: 8.8.8.8
-  dns2: 8.8.4.4
-
-  # Vagrant networking
-  netname: vboxnet0
-  netip: 192.168.56.1
-  subnet: 255.255.255.0
-
-  # NFS allowed cidr
-  nfscidr: 192.168.56.0/24
-
-  # Kernel params
-  # ----------------------------------------------------------------------------
-  # ipv6.disable=1              // don't really need or want ipv6
-  # rd.systemd.show_status=auto // reduce systemd boot logging
-  # rd.udev.log_priority=3      // reduce udev boot logging
-  kernel_params: rd.systemd.show_status=auto rd.udev.log_priority=3 ipv6.disable=1
-
-# Defaults provide a base used when a value is not given for deployments
-################################################################################
 defaults:
+
+  # Provides globally useful vars for templating
+  ################################################################################
+  vars:
+    arch: x86_64
+    release: 0.3.1
+    distro: cyberlinux
+    language: en_US
+    character_set: UTF-8
+    timezone: US/Mountain
+    country: United_States
+    color_light: '#39AEF4'  # 256 color ~ #5fafff
+    color_dark: '#216A94'   # 256 color ~ #005f87
+    gfxmode: 1280x1024,1024x768,auto
+    grub_iso_theme: /boot/grub/themes/cyberlinux
+
+    # Networking
+    dns1: 8.8.8.8
+    dns2: 8.8.4.4
+
+    # Vagrant networking
+    netname: vboxnet0
+    netip: 192.168.56.1
+    subnet: 255.255.255.0
+
+    # NFS allowed cidr
+    nfscidr: 192.168.56.0/24
+
+    # Kernel params
+    # --------------------------------------------------------------------------
+    # ipv6.disable=1              // don't really need or want ipv6
+    # rd.systemd.show_status=auto // reduce systemd boot logging
+    # rd.udev.log_priority=3      // reduce udev boot logging
+    kernel_params: rd.systemd.show_status=auto rd.udev.log_priority=3 ipv6.disable=1
+
+  # Defaults provide a base used when a value is not given for deployments
+  ##############################################################################
   machine:
-    kind: machine
     multilib: true
     vars:
       fontsize: 10
@@ -68,42 +69,47 @@ defaults:
 # Container for building components for ISO
 ################################################################################
 builder:
-  kind: container
   multilib: true
 
-  # Source is applied top to bottom
+  # Config is applied top to bottom
   # Ordered it this way to get get the .vimrc from core not shell
-  source:
+  config:
     - shell
     - core
   docker:
     # Note: need privileged=true to allow mount to work inside container
     params: '-e TERM=xterm -v /var/run/docker.sock:/var/run/docker.sock --privileged=true'
     command: 'bash -c "while :; do sleep 5; done"'
-  apps:
+  blocks:
     - kernel
     - builder
 
 # Collection of packages and configuration needed for apps
 ################################################################################
-apps:
+blocks:
   kernel:
-    - install: linux                # Linux kernel and supporting modules
+    steps:
+      - install: linux                # Linux kernel and supporting modules
   kernel-full:
-    - kernel
-    - install: linux-docs           # Linux kernel docs
-    - install: linux-headers        # Linux kernel headers
+    before:
+      - kernel
+    steps:
+      - install: linux-docs           # Linux kernel docs
+      - install: linux-headers        # Linux kernel headers
 
   # Packages and configs for building initramfs etc...
   # ----------------------------------------------------------------------------
   builder:
-    - core-boot
-    - install: dosfstools           # require mkfs.vfat
-    - install: gptfdisk             # require sgdisk for ISO installer
-    - install: licenses             # require Standard licenses for ISO installer
-    - install: memtest86+           # require memtest.bin for ISO install menu
-    - install: rsync                # require rsync for installing ISO deployments
-    - config-build-user:
+    before:
+      - core-boot
+    steps:
+      - install: dosfstools           # require mkfs.vfat
+      - install: gptfdisk             # require sgdisk for ISO installer
+      - install: licenses             # require Standard licenses for ISO installer
+      - install: memtest86+           # require memtest.bin for ISO install menu
+      - install: rsync                # require rsync for installing ISO deployments
+
+      # config-build-user
       - chroot: 'useradd -m -G lp,wheel,network,storage,users -s /bin/bash builder || true'
       - exec: "echo 'TERM=xterm' > /etc/environment"
       - {edit: /etc/sudoers, insert: append, value: "builder ALL=(ALL) NOPASSWD: ALL"}
@@ -113,39 +119,41 @@ apps:
   # Size: 79 MiB
   # ----------------------------------------------------------------------------
   ruby:
-    - core
-    - openssl-without-perl
-    installs:
-    - {name: ruby,               desc: Ruby, depends_on: [gdbm, openssl, libffi, libyaml, gmp, zlib], size: 11.15 MiB }
-    - {name: gdbm,               desc: GNU database library, depends_on: [glibc, bash], size: 443.00 KiB }
-    - {name: gmp,                desc: Library for precision arithmetic, depends_on: [gcc-libs, bash], size: 945.00 KiB }
-    - {name: libffi,             desc: Portable foreign function interface, depends_on: [glibc], size: 64.00 KiB }
-    - {install: libyaml,            desc: YAML 1.1 library, size: 177.00 KiB }
-    - {install: rubygems,           desc: Package management framework for Ruby, depends_on: [ruby], size: 1026.00 KiB }
-    - {install: zlib,               desc: Compression got gzip and pkzip, depends_on: [glibc], size: 326.00 KiB }
+    before:
+      - core
+      - openssl-without-perl
+    steps:
+      - {install: ruby,               desc: Ruby, depends_on: [gdbm, openssl, libffi, libyaml, gmp, zlib], size: 11.15 MiB }
+      - {install: gdbm,               desc: GNU database library, depends_on: [glibc, bash], size: 443.00 KiB }
+      - {install: gmp,                desc: Library for precision arithmetic, depends_on: [gcc-libs, bash], size: 945.00 KiB }
+      - {install: libffi,             desc: Portable foreign function interface, depends_on: [glibc], size: 64.00 KiB }
+      - {install: libyaml,            desc: YAML 1.1 library, size: 177.00 KiB }
+      - {install: rubygems,           desc: Package management framework for Ruby, depends_on: [ruby], size: 1026.00 KiB }
+      - {install: zlib,               desc: Compression got gzip and pkzip, depends_on: [glibc], size: 326.00 KiB }
 
   # Smallest set of packages possible for a functioning container with bash
   # Size: 53.14 MiB
   # ----------------------------------------------------------------------------
   core:
-    - groups: [lp, wheel, network, storage, users]
-    - {install: bash,               desc: GNU Bourne Again shell, depends_on: [readline, glibc, ncurses], size: 7321.00 KiB}
-    - {install: bash-completion,    desc: Bash tab completion, size: 799.00 KiB}
-    - {install: ca-certificates,    desc: CAcert.org root certificates, size: 7.05 KiB }
-    - {install: ca-certificates-mozilla, desc: Mozilla's set of CA certificates, size: 923 KiB }
-    - {install: ca-certificates-utils, desc: Common CA certificates, size: 7 KiB }
-    - {install: coreutils,          desc: Utils ls/cp/mv, depends_on: [glibc, acl, attr, gmp, libcap, openssl], size: 13.79 MiB }
-    - {install: gcc-libs,           desc: GCC runtime libraries, depends_on: [glibc], size: 105.27 MiB}
-    - {install: glibc,              desc: GNU C Library, depends_on: [linux-api-headers, tzdata, filesystem], size: 41.40 MiB}
-    - {install: gzip,               desc: GNU compression utility, depof: locale-gen, group: [build-devel]}
-    - {install: filesystem,         desc: Base Arch Linux files, depends_on: [iana-etc], size: 9.00 KiB}
-    - {install: iana-etc,           desc: /etc/protocols and /etc/services provided by IANA, size: 3941.00 KiB}
-    - {install: linux-api-headers,  desc: Kernel headers sanitized for use in userspace, size: 4168.00 KiB}
-    - {install: lsb-release,        desc: LSB version query program, size: 17.00 Kib }
-    - {install: ncurses,            desc: System V curses emulation library, depends_on: [glibc, gcc-libs], size: 3645.00 KiB}
-    - {install: readline,           desc: GNU readline library, depends_on: [glibc, ncurses], size: 731.00 KiB}
-    - {install: sed,                desc: GNU stream editor, depof: locale-gen, group: [build-devel], size: 1MB }
-    - {install: tzdata,             desc: Sources for time zone and daylight savings time data, size: 1861.00 KiB}
+    steps:
+      - groups: [lp, wheel, network, storage, users]
+      - {install: bash,               desc: GNU Bourne Again shell, depends_on: [readline, glibc, ncurses], size: 7321.00 KiB}
+      - {install: bash-completion,    desc: Bash tab completion, size: 799.00 KiB}
+      - {install: ca-certificates,    desc: CAcert.org root certificates, size: 7.05 KiB }
+      - {install: ca-certificates-mozilla, desc: Mozilla's set of CA certificates, size: 923 KiB }
+      - {install: ca-certificates-utils, desc: Common CA certificates, size: 7 KiB }
+      - {install: coreutils,          desc: Utils ls/cp/mv, depends_on: [glibc, acl, attr, gmp, libcap, openssl], size: 13.79 MiB }
+      - {install: gcc-libs,           desc: GCC runtime libraries, depends_on: [glibc], size: 105.27 MiB}
+      - {install: glibc,              desc: GNU C Library, depends_on: [linux-api-headers, tzdata, filesystem], size: 41.40 MiB}
+      - {install: gzip,               desc: GNU compression utility, depof: locale-gen, group: [build-devel]}
+      - {install: filesystem,         desc: Base Arch Linux files, depends_on: [iana-etc], size: 9.00 KiB}
+      - {install: iana-etc,           desc: /etc/protocols and /etc/services provided by IANA, size: 3941.00 KiB}
+      - {install: linux-api-headers,  desc: Kernel headers sanitized for use in userspace, size: 4168.00 KiB}
+      - {install: lsb-release,        desc: LSB version query program, size: 17.00 Kib }
+      - {install: ncurses,            desc: System V curses emulation library, depends_on: [glibc, gcc-libs], size: 3645.00 KiB}
+      - {install: readline,           desc: GNU readline library, depends_on: [glibc, ncurses], size: 731.00 KiB}
+      - {install: sed,                desc: GNU stream editor, depof: locale-gen, group: [build-devel], size: 1MB }
+      - {install: tzdata,             desc: Sources for time zone and daylight savings time data, size: 1861.00 KiB}
     - config-proxy
     - config-bash:
       - {edit: /root/.bashrc, regex: '^(export PATH.*)', value: '\1:/opt/<%=distro%>/bin'}
@@ -240,8 +248,8 @@ apps:
     - core-tools
     - keyrings:
       - install: archlinux-keyring
-      - {install: blackarch-keyring, kind: BLACKARCH}
-      - {install: cyberlinux-keyring, kind: CYBERLINUX}
+      - {install: blackarch-keyring, repo: BLACKARCH}
+      - {install: cyberlinux-keyring, repo: CYBERLINUX}
     - system:
       - {install: htop,             desc: Interactive process viewer, alt: top }
       - {install: iftop,            desc: Display bandwidth usage on an interface }
@@ -252,7 +260,7 @@ apps:
     - compression:
       - {install: tar,              desc: File store backup and transport utility }
     - network:
-      - {install: bindip,           desc: Bind a service to a specifc IP Address, kind: CYBERLINUX }
+      - {install: bindip,           desc: Bind a service to a specifc IP Address, repo: CYBERLINUX }
       - {install: curl,             desc: Adding curl command to pull in packer scripts }
       - {install: dnsutils,         desc: Network utilities dig/host/nslookup }
       - {install: gnu-netcat,       desc: Network piping application }
@@ -276,7 +284,7 @@ apps:
       - {install: gptfdisk,         desc: Text-mode paritioning tools e.g. sgdisk }
       - {install: haveged,          desc: Entropy harvesting, depof: pacman-key --init }
       - {install: logrotate,        desc: Rotates system logs automatically }
-      - {install: cyberlinux-screenfetch, desc: CLI bash script to show system theme for screenshots, kind: CYBERLINUX }
+      - {install: cyberlinux-screenfetch, desc: CLI bash script to show system theme for screenshots, repo: CYBERLINUX }
     - compression:
       - {install: p7zip,            desc: Comman-line file archiver for 7zip format, depof: thunar }
       - {install: unrar,            desc: The RAR uncompression program }
@@ -332,21 +340,21 @@ apps:
       - {install: ruby,             desc: Ruby lang quick and easy programming }
       - {install: strace,           desc: A diagnostic, debugging and instructional userspace tracer }
       - {install: texinfo,          desc: Documentation for online information, group: [base-devel]}
-      - {install: yay,              desc: Pacman wrapper and AUR helper written in go, kind: BLACKARCH }
+      - {install: yay,              desc: Pacman wrapper and AUR helper written in go, repo: BLACKARCH }
       - {install: yq,               desc: Command-line YAML processor - jq wrapper for YAML documents }
     - ruby-gems:
-      - {install: ruby-amatch,      desc: Fuzzy string matching, depof: watchman, kind: CYBERLINUX }
+      - {install: ruby-amatch,      desc: Fuzzy string matching, depof: watchman, repo: CYBERLINUX }
       - {install: ruby-bundler,     desc: Gem management, depof: reduce }
       - {install: ruby-colorize,    desc: Colorized output, depof: reduce }
-      - {install: ruby-filesize,    desc: Filesize to string maipulations, depof: reduce, kind: CYBERLINUX }
-      - {install: ruby-net-scp,     desc: Pure Ruby SCP client protocol, depof: reduce, kind: CYBERLINUX }
-      - {install: ruby-net-sftp,    desc: Pure Ruby SFTP client protocol, depof: reduce, kind: CYBERLINUX }
-      - {install: ruby-net-ssh,     desc: Pure Ruby SSH2 client protocol, depof: reduce, kind: CYBERLINUX }
-      - {install: ruby-nokogiri,    desc: HTML parser, depof: chromium build, kind: BLACKARCH }
-      - {install: ruby-nub,         desc: Collection of useful Ruby utils, depof: vpnctl, kind: CYBERLINUX }
-      - {install: ruby-mechanize,   desc: Automate interation with websites, depof: chromium build, kind: BLACKARCH }
-      - {install: ruby-pry,         desc: Ruby debugger, kind: CYBERLINUX }
-      - {install: ruby-rest-client, desc: Simple HTTP and REST client, depof: reduce, kind: CYBERLINUX }
+      - {install: ruby-filesize,    desc: Filesize to string maipulations, depof: reduce, repo: CYBERLINUX }
+      - {install: ruby-net-scp,     desc: Pure Ruby SCP client protocol, depof: reduce, repo: CYBERLINUX }
+      - {install: ruby-net-sftp,    desc: Pure Ruby SFTP client protocol, depof: reduce, repo: CYBERLINUX }
+      - {install: ruby-net-ssh,     desc: Pure Ruby SSH2 client protocol, depof: reduce, repo: CYBERLINUX }
+      - {install: ruby-nokogiri,    desc: HTML parser, depof: chromium build, repo: BLACKARCH }
+      - {install: ruby-nub,         desc: Collection of useful Ruby utils, depof: vpnctl, repo: CYBERLINUX }
+      - {install: ruby-mechanize,   desc: Automate interation with websites, depof: chromium build, repo: BLACKARCH }
+      - {install: ruby-pry,         desc: Ruby debugger, repo: CYBERLINUX }
+      - {install: ruby-rest-client, desc: Simple HTTP and REST client, depof: reduce, repo: CYBERLINUX }
     - config-makepkg:
       - {edit: /etc/makepkg.conf, regex: '^#(MAKEFLAGS)=.*', value: '\1="-j8"'}
       - {edit: /etc/makepkg.conf, regex: '^(COMPRESSXZ)=.*', value: '\1=(xz -c -z - --threads=0)'}
@@ -385,7 +393,7 @@ apps:
       - {install: galculator,       desc: Office/Calculator }
       - {install: gsimplecal,       desc: Simple calendar like windows systray calendar }
       - {install: powerline,        desc: Status line plugin for bash }
-      - {install: powerline-gitstatus, desc: Powerline plugin for git status, kind: CYBERLINUX }
+      - {install: powerline-gitstatus, desc: Powerline plugin for git status, repo: CYBERLINUX }
       - {install: powerline-fonts,  desc: Powerline font symbols }
       - {install: xfce4-screenshooter, desc: Plugin that makes screenshots for the Xfce panel }
       - filelight
@@ -400,12 +408,12 @@ apps:
       - {install: smplayer-skins,   desc: Skins for SMPlayer }
       - {install: smplayer-themes,  desc: Themes for SMPlayer }
       - {install: vlc,              desc: Multi-platform MPEG, VCD/DVD, and DivX player }
-      - {install: winff,            desc: GUI for ffmpeg, kind: CYBERLINUX }
-      - {install: xnviewmp,         desc: A digital photo organizer, kind: CYBERLINUX }
+      - {install: winff,            desc: GUI for ffmpeg, repo: CYBERLINUX }
+      - {install: xnviewmp,         desc: A digital photo organizer, repo: CYBERLINUX }
       - audacious
     - network:
-      - {install: chromium,         desc: Opensource project behind Chrome, kind: CYBERLINUX }
-      - {install: chromium-widevine, desc: Chromium support for Netflix, kind: CYBERLINUX }
+      - {install: chromium,         desc: Opensource project behind Chrome, repo: CYBERLINUX }
+      - {install: chromium-widevine, desc: Chromium support for Netflix, repo: CYBERLINUX }
       - {install: flashplugin,      desc: Adobe Flash Player NPAPI }
       - {install: pepper-flash,     desc: Chromium flash support }
       - {install: filezilla,        desc: Network/Transfer }
@@ -427,14 +435,14 @@ apps:
       - {install: ttf-bitstream-vera, desc: Bitstream vera fonts }
       - {install: ttf-dejavu,       desc: Bitstream Vera Fonts w/more characters }
       - {install: ttf-droid,        desc: Google Android general purpose fonts }
-      - {install: ttf-google-fonts-fun, desc: Handful of fun fonts from the Google Fonts project, kind: CYBERLINUX }
-      - {install: ttf-google-fonts-work, desc: 40 best fonts from the Google Fonts project, kind: CYBERLINUX }
+      - {install: ttf-google-fonts-fun, desc: Handful of fun fonts from the Google Fonts project, repo: CYBERLINUX }
+      - {install: ttf-google-fonts-work, desc: 40 best fonts from the Google Fonts project, repo: CYBERLINUX }
       - {install: ttf-hack,         desc: Hand groomed/optically balanced typeface based on Bitstream Vera Mono }
-      - {install: ttf-inconsolata-g, desc: Best monospace terminal font, kind: CYBERLINUX }
+      - {install: ttf-inconsolata-g, desc: Best monospace terminal font, repo: CYBERLINUX }
       - {install: ttf-indic-otf,    desc: Indic Opentype Fonts collection }
       - {install: ttf-liberation,   desc: Red Hats Liberation fonts.  }
-      - {install: ttf-ms-fonts,     desc: Microsoft core fonts, kind: CYBERLINUX }
-      - {install: ttf-nerd-fonts-symbols, desc: Nerd Font Symbols, kind: CYBERLINUX }
+      - {install: ttf-ms-fonts,     desc: Microsoft core fonts, repo: CYBERLINUX }
+      - {install: ttf-nerd-fonts-symbols, desc: Nerd Font Symbols, repo: CYBERLINUX }
     - config-lite
 
   # Desktop configuration
@@ -465,11 +473,11 @@ apps:
     - {install: openshot,           desc: Simple powerful Video Editor, alt: pitivi, kdenlive }
     - {install: scribus,            desc: Open Source Desktop Publishing }
     - develop:
-      - {install: awf-git,          desc: Widget Factory for developing GTK themes, kind: CYBERLINUX }
+      - {install: awf-git,          desc: Widget Factory for developing GTK themes, repo: CYBERLINUX }
       - {install: glade,            desc: User Interface Builder for GTK+ applications }
       - {install: meld,             desc: Develop/Diff Tool - Graphical diff tool cross platform }
       - {install: ripgrep,          desc: A search tool combining the usability of ag with speed of grep, depof: vscode }
-      - {install: visual-studio-code-bin, desc: Editor for modern development, kind: CYBERLINUX }
+      - {install: visual-studio-code-bin, desc: Editor for modern development, repo: CYBERLINUX }
 
   # Netbook configuration
   # Lighter deployment for smaller, less powerfull mobile devices
@@ -486,8 +494,8 @@ apps:
     - libreoffice
     - veracrypt
     - wpa-supplicant
-    - {install: light, desc: Control laptop backlights screen and keyboard, kind: CYBERLINUX }
-    - {install: openvpn-update-systemd-resolved, desc: OpenVPN systemd-resolved updater, kind: CYBERLINUX }
+    - {install: light, desc: Control laptop backlights screen and keyboard, repo: CYBERLINUX }
+    - {install: openvpn-update-systemd-resolved, desc: OpenVPN systemd-resolved updater, repo: CYBERLINUX }
     - {install: remmina, desc: Network/Remoting - Nice remoting UI for RDP }
 
     # Toggle script for toggling radios and displays
@@ -577,7 +585,7 @@ apps:
 
   # Abiword is a lite weight word processor
   abiword:
-    - {install: abiword-gtk2, desc: lite weight word processor, kind: CYBERLINUX }
+    - {install: abiword-gtk2, desc: lite weight word processor, repo: CYBERLINUX }
     - {menu: Office, entry: Abiword, icon: /usr/share/icons/hicolor/32x32/apps/abiword.png, exec: abiword }
 
   # Android tooling
@@ -595,7 +603,7 @@ apps:
     - {menu: Multimedia, entry: Audacious, icon: /usr/share/icons/hicolor/32x32/apps/audacious.png, exec: audacious }
 
   cinnamon-screensaver:
-    - {install: cinnamon-screensaver, desc: Screensaver for the Cinnamon desktop, kind: CYBERLINUX }
+    - {install: cinnamon-screensaver, desc: Screensaver for the Cinnamon desktop, repo: CYBERLINUX }
     - edit: /etc/skel/.config/autostart/cinnamon-screensaver.desktop
       insert: append
       values:
@@ -651,7 +659,7 @@ apps:
   docker:
     - groups: [docker]
     - {install: docker, desc: Run applications as containers, depof: reduce }
-    - {install: systemd-docker, desc: Wrapper for docker so systemd works better, kind: CYBERLINUX }
+    - {install: systemd-docker, desc: Wrapper for docker so systemd works better, repo: CYBERLINUX }
     - edit: /etc/docker/daemon.json
       insert: append
       values:
@@ -744,7 +752,7 @@ apps:
 
   # Lightweight desktop icons for X
   idesk:
-    - {install: idesk, kind: CYBERLINUX }
+    - {install: idesk, repo: CYBERLINUX }
     - edit: /etc/skel/.config/autostart/idesk.desktop
       insert: append
       values:
@@ -801,8 +809,8 @@ apps:
 
   # Packages needed to host manage a kubernetes cluster
   k8shost:
-    - {install: helm,               desc: Kubernetes package manager, kind: CYBERLINUX}
-    - {install: kubectl,            desc: K8s cluster controller, kind: CYBERLINUX}
+    - {install: helm,               desc: Kubernetes package manager, repo: CYBERLINUX}
+    - {install: kubectl,            desc: K8s cluster controller, repo: CYBERLINUX}
 
   # Apps needed for a kubernetes node
   # i.e. standard terminal tools, ssh and k8s tools
@@ -816,10 +824,10 @@ apps:
     - install: ebtables             # required by k8s
     - install: ethtool              # required by k8s
     - install: jq                   # required for command line configuration of k8s
-    - {install: cri-tools,          desc: CLI for Kubelet Container Runtime interface, kind: CYBERLINUX }
-    - {install: kubeadm,            desc: K8s cluster bootstrap, kind: CYBERLINUX}
-    - {install: kubecni,            desc: K8s CNI pod networking, kind: CYBERLINUX}
-    - {install: kubelet,            desc: K8s node control agent, kind: CYBERLINUX}
+    - {install: cri-tools,          desc: CLI for Kubelet Container Runtime interface, repo: CYBERLINUX }
+    - {install: kubeadm,            desc: K8s cluster bootstrap, repo: CYBERLINUX}
+    - {install: kubecni,            desc: K8s CNI pod networking, repo: CYBERLINUX}
+    - {install: kubelet,            desc: K8s node control agent, repo: CYBERLINUX}
     - chroot: systemctl enable kubelet.service
 
   # Cross platform password manager
@@ -864,8 +872,8 @@ apps:
       - install: xdg-utils            # Desktop integration utilities
       - install: xsel                 # Tool for getting/setting X selection
       - install: xterm                # X terminal emulator
-      - {install: pnmixer,          desc: Volume controls in system tray, kind: CYBERLINUX }
-      - {install: xcursor-numix-frost, desc: Numix frost cursor theme, kind: CYBERLINUX }
+      - {install: pnmixer,          desc: Volume controls in system tray, repo: CYBERLINUX }
+      - {install: xcursor-numix-frost, desc: Numix frost cursor theme, repo: CYBERLINUX }
       - nitrogen
       - thunar
     - lxdm:
@@ -913,8 +921,8 @@ apps:
           - '[ -r ~/.bashrc ] && source ~/.bashrc'
     - themes:
       - install: lxappearance-obconf # Openbox support for lxappearance
-      - {install: numix-frost-themes, desc: Numix frost GTK2, GTK3 and OpenBox themes, kind: CYBERLINUX }
-      - {install: paper-icon-theme, desc: Paper icon theme, kind: CYBERLINUX }
+      - {install: numix-frost-themes, desc: Numix frost GTK2, GTK3 and OpenBox themes, repo: CYBERLINUX }
+      - {install: paper-icon-theme, desc: Paper icon theme, repo: CYBERLINUX }
     - menu-lxde:
       - {menu: Settings>Desktop/Login, entry: Tint2 Panel, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: gvim ~/.config/tint2/tint2rc }
       - {menu: Settings>Pacman/Servers, entry: Pacman Config, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: sudo gvim /etc/pacman.conf }
@@ -935,7 +943,7 @@ apps:
     - {install: handbrake,          desc: Video/Encoding - Video encoding tool for mp4/mkv }
     - {install: handbrake-cli,      desc: Video/Encoding - Video encoding tool for mp4/mkv }
     - {install: mkvtoolnix-gui,     desc: Set of tools to create, edit and inspect MKV files }
-    - {install: tiny-media-manager, desc: Cross platform media manager, kind: CYBERLINUX }
+    - {install: tiny-media-manager, desc: Cross platform media manager, repo: CYBERLINUX }
     - {menu: Multimedia, entry: HandBrake, icon: /usr/share/icons/hicolor/scalable/apps/hb-icon.svg, exec: ghb }
     - {menu: Multimedia, entry: MKVToolNix, icon: /usr/share/icons/hicolor/32x32/apps/mkvtoolnix-gui.png, exec: mkvtoolnix-gui }
     - {menu: Multimedia, entry: Tiny Media Manager, icon: /usr/share/icons/hicolor/32x32/apps/tiny-media-manager.png, exec: tiny-media-manager }
@@ -973,7 +981,7 @@ apps:
     - {install: grep,               desc: search text util, depof: [mkinitcpio], group: [build-devel]}
     - {install: findutils,          desc: find/xargs, depof: [mkinicpio, curl], group: [base-devel]}
     - install: mkinitcpio
-    - {install: mkinitcpio-vt-colors, kind: CYBERLINUX } # vt console colors
+    - {install: mkinitcpio-vt-colors, repo: CYBERLINUX } # vt console colors
     - {install: shadow,             desc: Account mgmt e.g. passwd/useradd/usermod/groupadd, depof: [util-linux] }
     - {install: util-linux,         desc: blkid/fdisk/rename/cp etc..., depof: [mkinicpio, php-gd], group: [build-devel]}
     - edit: /etc/mkinitcpio.conf
@@ -1151,7 +1159,7 @@ apps:
     - {menu: System, entry: Veracrypt, icon: /usr/share/pixmaps/veracrypt.xpm, exec: veracrypt }
 
   virtualbox-host:
-    - {install: packer,             desc: HashiCorp's vagrant box builder, kind: CYBERLINUX }
+    - {install: packer,             desc: HashiCorp's vagrant box builder, repo: CYBERLINUX }
     - {install: vagrant,            desc: Build and distribute virtualized dev environments }
     - {install: virtualbox,         desc: Cross platform virtualization with UI }
     - {install: virtualbox-guest-iso, desc: VirtualBox Guest Additions ISO image }
@@ -1175,13 +1183,13 @@ apps:
   # MakeMKV is free while in beta but is a commercial product required a license normally
   # https://www.makemkv.com/forum2/viewtopic.php?f=5&t=1053
   makemkv:
-    - {install: makemkv, desc: DVD and Blu-ray to MKV converter, kind: CYBERLINUX }
+    - {install: makemkv, desc: DVD and Blu-ray to MKV converter, repo: CYBERLINUX }
     - {menu: Multimedia, entry: MakeMKV, icon: /usr/share/icons/hicolor/32x32/apps/makemkv.png, exec: makemkv }
 
   # Teamviewer is free for personal use but not for commercial use
   # https://www.teamviewer.com/en/credentials/free-for-personal-use/
   teamviewer:
-    - {install: teamviewer, desc: All-In-One Software for Remote Support and Online Meetings, kind: CYBERLINUX }
+    - {install: teamviewer, desc: All-In-One Software for Remote Support and Online Meetings, repo: CYBERLINUX }
     - {menu: Network, entry: Teamviewer, icon: /usr/share/icons/Paper/32x32/apps/teamviewer.png, exec: teamviewer }
     - edit: /etc/skel/.config/autostart/teamviewer.desktop
       insert: append
@@ -1229,12 +1237,12 @@ apps:
   # The Extension Pack binaries are released under the VirtualBox Personal Use and Evaluation License (PUEL).
   # https://www.virtualbox.org/wiki/Downloads
   virtualbox-ext-oracle:
-    - {install: virtualbox-ext-oracle, desc: Oracle VM VirtualBox Extension Pack, kind: CYBERLINUX }
+    - {install: virtualbox-ext-oracle, desc: Oracle VM VirtualBox Extension Pack, repo: CYBERLINUX }
 
   # Utilities supporting WPA wireless networks
   wpa-supplicant:
     - install: wpa_supplicant
-    - {install: wpa_gui, kind: CYBERLINUX }
+    - {install: wpa_gui, repo: CYBERLINUX }
     - edit: /etc/systemd/network/10-wlo1.link
       insert: append
       values:
