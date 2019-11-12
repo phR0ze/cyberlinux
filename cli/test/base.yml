@@ -56,24 +56,25 @@ builder:
 
 blocks:
   builder:
-      - core-boot
-      - groups: [lp, wheel, network, storage, users]
-      - {install: dosfstools, desc: Dos file system tools, repo: ARCH_LINUX }
-      - install: gptfdisk             # require sgdisk for ISO installer
-      - install: licenses             # require Standard licenses for ISO installer
-      - install: memtest86+           # require memtest.bin for ISO install menu
-      - install: rsync                # require rsync for installing ISO deployments
-
-      # config-build-user
+    - core-boot
+    - groups: [lp, wheel, network, storage, users]
+    - {install: dosfstools, desc: Dos file system tools, repo: ARCH_LINUX }
+    - install: gptfdisk             # require sgdisk for ISO installer
+    - install: licenses             # require Standard licenses for ISO installer
+    - install: memtest86+           # require memtest.bin for ISO install menu
+    - install: rsync                # require rsync for installing ISO deployments
+    - config-build-user:
       - chroot: 'useradd -m -G lp,wheel,network,storage,users -s /bin/bash builder || true'
       - exec: "echo 'TERM=xterm' > /etc/environment"
-      - {edit: /etc/sudoers, mode: append, value: "builder ALL=(ALL) NOPASSWD: ALL"}
+      - {edit: /etc/sudoers, insert: append, values: ["builder ALL=(ALL) NOPASSWD: ALL"]}
   core-boot:
-    steps:
-      - install: gnutls               # required by systemd-resolved to work
-      - install: gettext              # required by grub
-      - install: intel-ucode          # require Intel Microcode update files to boot
-      - install: cyberlinux-grub      # require Grub Booloader to boot
-  config-build-user:
-    steps:
-      - {edit: /etc/sudoers, mode: append, value: "builder ALL=(ALL) NOPASSWD: ALL"}
+    - install: gnutls               # required by systemd-resolved to work
+    - install: gettext              # required by grub
+    - install: intel-ucode          # require Intel Microcode update files to boot
+    - install: cyberlinux-grub      # require Grub Booloader to boot
+  config-multi-value-edit:
+    - edit: /etc/locale.conf
+      insert: append
+      values:
+        - 'LANG=<%=language%>.<%=character_set%>'
+        - 'LANGUAGE=<%=language%>.<%=character_set%>'

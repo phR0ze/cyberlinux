@@ -84,6 +84,7 @@ impl Reduce {
         log::info!("Loading target profile: {}", path.as_ref().to_str().unwrap().cyan());
         let file = fs::File::open(path.as_ref())?;
         let profile: model::Profile = serde_yaml::from_reader(file)?;
+        println!("{:#?}", profile);
 
         self.paths.loaded_profiles.push(target);
         Ok(())
@@ -147,7 +148,8 @@ mod tests {
         let mut reduce: Reduce = Default::default();
         reduce.configure_pathing().unwrap();
 
-        let profile = test_dir().join("base.yml");
+        //let profile = test_dir().join("base.yml");
+        let profile = reduce.paths.profiles_dir.join("base.yml");
         reduce.load_profile(profile).unwrap();
     }
 }

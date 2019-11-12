@@ -18,15 +18,14 @@
 #LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
-version: 0.3.0
-
+version: 1
 defaults:
 
   # Provides globally useful vars for templating
   ################################################################################
   vars:
     arch: x86_64
-    release: 0.3.1
+    release: 0.3.2
     distro: cyberlinux
     language: en_US
     character_set: UTF-8
@@ -64,7 +63,7 @@ defaults:
       fontsize: 10
       wallpaper: /usr/share/wallpaper/dreamfusion003_1280x1024.jpg
     install: {kernel: linux}
-    vagrant: {vram: 32, cpus: 2, ram: 2048, v3d: 'on'}
+    vagrant: {vram: 32, cpus: 2, ram: 2048, v3d: true }
 
 # Container for building components for ISO
 ################################################################################
@@ -88,89 +87,80 @@ builder:
 ################################################################################
 blocks:
   kernel:
-    steps:
-      - install: linux                # Linux kernel and supporting modules
+    - install: linux                # Linux kernel and supporting modules
   kernel-full:
-    before:
-      - kernel
-    steps:
-      - install: linux-docs           # Linux kernel docs
-      - install: linux-headers        # Linux kernel headers
+    - kernel
+    - install: linux-docs           # Linux kernel docs
+    - install: linux-headers        # Linux kernel headers
 
   # Packages and configs for building initramfs etc...
   # ----------------------------------------------------------------------------
   builder:
-    before:
-      - core-boot
-    steps:
-      - install: dosfstools           # require mkfs.vfat
-      - install: gptfdisk             # require sgdisk for ISO installer
-      - install: licenses             # require Standard licenses for ISO installer
-      - install: memtest86+           # require memtest.bin for ISO install menu
-      - install: rsync                # require rsync for installing ISO deployments
-
-      # config-build-user
+    - core-boot
+    - install: dosfstools           # require mkfs.vfat
+    - install: gptfdisk             # require sgdisk for ISO installer
+    - install: licenses             # require Standard licenses for ISO installer
+    - install: memtest86+           # require memtest.bin for ISO install menu
+    - install: rsync                # require rsync for installing ISO deployments
+    - config-build-user:
       - chroot: 'useradd -m -G lp,wheel,network,storage,users -s /bin/bash builder || true'
       - exec: "echo 'TERM=xterm' > /etc/environment"
-      - {edit: /etc/sudoers, insert: append, value: "builder ALL=(ALL) NOPASSWD: ALL"}
+      - {edit: /etc/sudoers, insert: append,  "builder ALL=(ALL) NOPASSWD: ALL"}
 
   # Smallest set of packages required to have a ruby container
   # bash is a dependency of gdbm which is a dependency of ruby so ruby inludes core
   # Size: 79 MiB
   # ----------------------------------------------------------------------------
   ruby:
-    before:
-      - core
-      - openssl-without-perl
-    steps:
-      - {install: ruby,               desc: Ruby, depends_on: [gdbm, openssl, libffi, libyaml, gmp, zlib], size: 11.15 MiB }
-      - {install: gdbm,               desc: GNU database library, depends_on: [glibc, bash], size: 443.00 KiB }
-      - {install: gmp,                desc: Library for precision arithmetic, depends_on: [gcc-libs, bash], size: 945.00 KiB }
-      - {install: libffi,             desc: Portable foreign function interface, depends_on: [glibc], size: 64.00 KiB }
-      - {install: libyaml,            desc: YAML 1.1 library, size: 177.00 KiB }
-      - {install: rubygems,           desc: Package management framework for Ruby, depends_on: [ruby], size: 1026.00 KiB }
-      - {install: zlib,               desc: Compression got gzip and pkzip, depends_on: [glibc], size: 326.00 KiB }
+    - core
+    - openssl-without-perl
+    - {install: ruby,               desc: Ruby, depends_on: [gdbm, openssl, libffi, libyaml, gmp, zlib], size: 11.15 MiB }
+    - {install: gdbm,               desc: GNU database library, depends_on: [glibc, bash], size: 443.00 KiB }
+    - {install: gmp,                desc: Library for precision arithmetic, depends_on: [gcc-libs, bash], size: 945.00 KiB }
+    - {install: libffi,             desc: Portable foreign function interface, depends_on: [glibc], size: 64.00 KiB }
+    - {install: libyaml,            desc: YAML 1.1 library, size: 177.00 KiB }
+    - {install: rubygems,           desc: Package management framework for Ruby, depends_on: [ruby], size: 1026.00 KiB }
+    - {install: zlib,               desc: Compression got gzip and pkzip, depends_on: [glibc], size: 326.00 KiB }
 
   # Smallest set of packages possible for a functioning container with bash
   # Size: 53.14 MiB
   # ----------------------------------------------------------------------------
   core:
-    steps:
-      - groups: [lp, wheel, network, storage, users]
-      - {install: bash,               desc: GNU Bourne Again shell, depends_on: [readline, glibc, ncurses], size: 7321.00 KiB}
-      - {install: bash-completion,    desc: Bash tab completion, size: 799.00 KiB}
-      - {install: ca-certificates,    desc: CAcert.org root certificates, size: 7.05 KiB }
-      - {install: ca-certificates-mozilla, desc: Mozilla's set of CA certificates, size: 923 KiB }
-      - {install: ca-certificates-utils, desc: Common CA certificates, size: 7 KiB }
-      - {install: coreutils,          desc: Utils ls/cp/mv, depends_on: [glibc, acl, attr, gmp, libcap, openssl], size: 13.79 MiB }
-      - {install: gcc-libs,           desc: GCC runtime libraries, depends_on: [glibc], size: 105.27 MiB}
-      - {install: glibc,              desc: GNU C Library, depends_on: [linux-api-headers, tzdata, filesystem], size: 41.40 MiB}
-      - {install: gzip,               desc: GNU compression utility, depof: locale-gen, group: [build-devel]}
-      - {install: filesystem,         desc: Base Arch Linux files, depends_on: [iana-etc], size: 9.00 KiB}
-      - {install: iana-etc,           desc: /etc/protocols and /etc/services provided by IANA, size: 3941.00 KiB}
-      - {install: linux-api-headers,  desc: Kernel headers sanitized for use in userspace, size: 4168.00 KiB}
-      - {install: lsb-release,        desc: LSB version query program, size: 17.00 Kib }
-      - {install: ncurses,            desc: System V curses emulation library, depends_on: [glibc, gcc-libs], size: 3645.00 KiB}
-      - {install: readline,           desc: GNU readline library, depends_on: [glibc, ncurses], size: 731.00 KiB}
-      - {install: sed,                desc: GNU stream editor, depof: locale-gen, group: [build-devel], size: 1MB }
-      - {install: tzdata,             desc: Sources for time zone and daylight savings time data, size: 1861.00 KiB}
+    - groups: [lp, wheel, network, storage, users]
+    - {install: bash,               desc: GNU Bourne Again shell, depends_on: [readline, glibc, ncurses], size: 7321.00 KiB}
+    - {install: bash-completion,    desc: Bash tab completion, size: 799.00 KiB}
+    - {install: ca-certificates,    desc: CAcert.org root certificates, size: 7.05 KiB }
+    - {install: ca-certificates-mozilla, desc: Mozilla's set of CA certificates, size: 923 KiB }
+    - {install: ca-certificates-utils, desc: Common CA certificates, size: 7 KiB }
+    - {install: coreutils,          desc: Utils ls/cp/mv, depends_on: [glibc, acl, attr, gmp, libcap, openssl], size: 13.79 MiB }
+    - {install: gcc-libs,           desc: GCC runtime libraries, depends_on: [glibc], size: 105.27 MiB}
+    - {install: glibc,              desc: GNU C Library, depends_on: [linux-api-headers, tzdata, filesystem], size: 41.40 MiB}
+    - {install: gzip,               desc: GNU compression utility, depof: locale-gen, group: [build-devel]}
+    - {install: filesystem,         desc: Base Arch Linux files, depends_on: [iana-etc], size: 9.00 KiB}
+    - {install: iana-etc,           desc: /etc/protocols and /etc/services provided by IANA, size: 3941.00 KiB}
+    - {install: linux-api-headers,  desc: Kernel headers sanitized for use in userspace, size: 4168.00 KiB}
+    - {install: lsb-release,        desc: LSB version query program, size: 17.00 Kib }
+    - {install: ncurses,            desc: System V curses emulation library, depends_on: [glibc, gcc-libs], size: 3645.00 KiB}
+    - {install: readline,           desc: GNU readline library, depends_on: [glibc, ncurses], size: 731.00 KiB}
+    - {install: sed,                desc: GNU stream editor, depof: locale-gen, group: [build-devel], size: 1MB }
+    - {install: tzdata,             desc: Sources for time zone and daylight savings time data, size: 1861.00 KiB}
     - config-proxy
     - config-bash:
-      - {edit: /root/.bashrc, regex: '^(export PATH.*)', value: '\1:/opt/<%=distro%>/bin'}
-      - {edit: /etc/skel/.bashrc, regex: '^(export PATH.*)', value: '\1:/opt/<%=distro%>/bin'}
+      - {edit: /root/.bashrc, regex: '|^(export PATH.*)|\1:/opt/<%=distro%>/bin|'}
+      - {edit: /etc/skel/.bashrc, regex: '|^(export PATH.*)|\1:/opt/<%=distro%>/bin|'}
     - config-hosts:
       - exec: 'rm -f /etc/hosts'
-      - {edit: /etc/hosts, insert: append, value: '127.0.0.1 localhost'}
+      - {edit: /etc/hosts, insert: append,  '127.0.0.1 localhost'}
     - config-locale:
       - edit: /etc/locale.conf
         insert: append
         values:
           - 'LANG=<%=language%>.<%=character_set%>'
           - 'LANGUAGE=<%=language%>.<%=character_set%>'
-      - {edit: /etc/locale.gen, regex: '^#(<%=language%>\..*)', value: '\1'}
+      - {edit: /etc/locale.gen, regex: '|^#(<%=language%>\..*)|\1|'}
       - chroot: locale-gen
-      - {edit: /etc/profile.d/locale.sh, insert: append, value: 'export LC_COLLATE=C'}
-      - {edit: /etc/profile.d/locale.sh, insert: append, value: 'export LC_ALL=<%=language%>.<%=character_set%>'}
+      - {edit: /etc/profile.d/locale.sh, insert: append,  'export LC_COLLATE=C'}
+      - {edit: /etc/profile.d/locale.sh, insert: append,  'export LC_ALL=<%=language%>.<%=character_set%>'}
     - config-lsb-release:
       - exec: 'rm -f /etc/lsb-release'
       - edit: /etc/lsb-release
@@ -191,15 +181,15 @@ blocks:
           - 'PRETTY_NAME=<%=distro%>'
     - config-sysctld:
       # Minimal amount of swapping without disabling it entirely
-      - {edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "vm.swappiness = 1"}
+      - {edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append,  "vm.swappiness = 1"}
       # Enable kernel ipv4 forwarding for containers
-      - {edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "net.ipv4.ip_forward = 1"}
+      - {edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append,  "net.ipv4.ip_forward = 1"}
       # Disable ipv6 forwarding
-      - {edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "net.ipv6.conf.all.forwarding = 0"}
+      - {edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append,  "net.ipv6.conf.all.forwarding = 0"}
       # Increase the number of user file watches to max
-      - {edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "fs.inotify.max_user_watches = 524288"}
+      - {edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append,  "fs.inotify.max_user_watches = 524288"}
     - config-vconsole:
-      - {edit: /etc/vconsole.conf, insert: append, value: 'KEYMAP=us'}
+      - {edit: /etc/vconsole.conf, insert: append,  'KEYMAP=us'}
     - remove-waste:
       - exec: 'find /var/log -type f -delete'
       - exec: 'rm -rf /usr/share/{man,doc}'
@@ -356,8 +346,8 @@ blocks:
       - {install: ruby-pry,         desc: Ruby debugger, repo: CYBERLINUX }
       - {install: ruby-rest-client, desc: Simple HTTP and REST client, depof: reduce, repo: CYBERLINUX }
     - config-makepkg:
-      - {edit: /etc/makepkg.conf, regex: '^#(MAKEFLAGS)=.*', value: '\1="-j8"'}
-      - {edit: /etc/makepkg.conf, regex: '^(COMPRESSXZ)=.*', value: '\1=(xz -c -z - --threads=0)'}
+      - {edit: /etc/makepkg.conf, regex: '|^#(MAKEFLAGS)=.*|\1="-j8"|'}
+      - {edit: /etc/makepkg.conf, regex: '|^(COMPRESSXZ)=.*|\1=(xz -c -z - --threads=0)|'}
     - remove-waste:
       - exec: find /var/log -type f -delete
       - exec: rm -rf /var/tmp/*
@@ -379,7 +369,7 @@ blocks:
     - ruby-gems:
       - {install: ruby-gtk3,        desc: Ruby binding of GTK3, depof: vpnctl }
     - config-modprobed:
-      - {edit: /etc/modprobe.d/pcspkr.conf, insert: append, value: "blacklist pcspkr"}
+      - {edit: /etc/modprobe.d/pcspkr.conf, insert: append,  "blacklist pcspkr"}
 
   # Lite weight X11 evironment
   # ----------------------------------------------------------------------------
@@ -559,7 +549,7 @@ blocks:
       - {chroot: "echo 'options nfs nfs4_disable_idmapping=0' > /etc/modprobe.d/nfs.conf" }
 
       # Share pacman cache with other machines on the LAN
-      - {edit: /etc/fstab, insert: append, value: "/var/cache/pacman/pkg /srv/nfs/Cache none bind 0 0" }
+      - {edit: /etc/fstab, insert: append,  "/var/cache/pacman/pkg /srv/nfs/Cache none bind 0 0" }
 
       # Manually mount on client side with this
       # sudo mount <%=nfscidr%>:/srv/nfs/Install /mnt/Install
@@ -879,15 +869,15 @@ blocks:
     - lxdm:
       - install: lxdm                 # Lightweight display manager
       - {exec: ln -sf //usr/lib/systemd/system/lxdm.service /etc/systemd/system/display-manager.service }
-      - {edit: /usr/share/lxdm/themes/Industrial/gtk.css, regex: '^(\s*font: Sans).*', value: '\1 18;' }
-      - {edit: /usr/share/lxdm/themes/Industrial/gtk.css, regex: '^(\s*color:) #000000.*', value: '\1 #ffffff;' }
-      - {edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(session)=.*', value: '\1=/usr/bin/startx' }
-      - {edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(numlock)=.*', value: '\1=1' }
-      - {edit: /etc/lxdm/lxdm.conf, regex: '^(gtk_theme)=.*', value: '\1=<%=distro%>' }
-      - {edit: /etc/lxdm/lxdm.conf, regex: '^#\s*(bg)=.*', value: '\1=<%=wallpaper%>' }
-      - {edit: /etc/lxdm/lxdm.conf, regex: '^(bottom_pane)=.*', value: '\1=0' }
-      - {edit: /etc/lxdm/lxdm.conf, regex: '^(theme)=.*', value: '\1=Industrial' }
-      - {edit: /etc/lxdm/lxdm.conf, regex: '^(disable)=.*', value: '\1=1' }
+      - {edit: /usr/share/lxdm/themes/Industrial/gtk.css, regex: '|^(\s*font: Sans).*|\1 18;|' }
+      - {edit: /usr/share/lxdm/themes/Industrial/gtk.css, regex: '|^(\s*color:) #000000.*|\1 #ffffff;|' }
+      - {edit: /etc/lxdm/lxdm.conf, regex: '|^#\s*(session)=.*|\1=/usr/bin/startx|' }
+      - {edit: /etc/lxdm/lxdm.conf, regex: '|^#\s*(numlock)=.*|\1=1|' }
+      - {edit: /etc/lxdm/lxdm.conf, regex: '|^(gtk_theme)=.*|\1=<%=distro%>|' }
+      - {edit: /etc/lxdm/lxdm.conf, regex: '|^#\s*(bg)=.*|\1=<%=wallpaper%>|' }
+      - {edit: /etc/lxdm/lxdm.conf, regex: '|^(bottom_pane)=.*|\1=0|' }
+      - {edit: /etc/lxdm/lxdm.conf, regex: '|^(theme)=.*|\1=Industrial|' }
+      - {edit: /etc/lxdm/lxdm.conf, regex: '|^(disable)=.*|\1=1|' }
       - {edit: /usr/sbin/lxdm, insert: before, regex: 'exec', values: ['/opt/<%=distro%>/bin/pre-xorg'] }
       - {menu: Settings>Desktop/Login, entry: LXDM Config, icon: /usr/share/icons/Paper/32x32/apps/gvim.png, exec: sudo gvim /etc/lxdm/lxdm.conf }
     - openbox:
@@ -947,7 +937,7 @@ blocks:
     - {menu: Multimedia, entry: HandBrake, icon: /usr/share/icons/hicolor/scalable/apps/hb-icon.svg, exec: ghb }
     - {menu: Multimedia, entry: MKVToolNix, icon: /usr/share/icons/hicolor/32x32/apps/mkvtoolnix-gui.png, exec: mkvtoolnix-gui }
     - {menu: Multimedia, entry: Tiny Media Manager, icon: /usr/share/icons/hicolor/32x32/apps/tiny-media-manager.png, exec: tiny-media-manager }
-    - {edit: /usr/share/applications/fr.handbrake.ghb.desktop, regex: '^(Icon).*', value: '\1=hb-icon.svg'}
+    - {edit: /usr/share/applications/fr.handbrake.ghb.desktop, regex: '|^(Icon).*|\1=hb-icon.svg|'}
 
   menu-structure:
     - menu-header:
@@ -985,8 +975,7 @@ blocks:
     - {install: shadow,             desc: Account mgmt e.g. passwd/useradd/usermod/groupadd, depof: [util-linux] }
     - {install: util-linux,         desc: blkid/fdisk/rename/cp etc..., depof: [mkinicpio, php-gd], group: [build-devel]}
     - edit: /etc/mkinitcpio.conf
-      regex: '^(HOOKS).*'
-      value: '\1="base udev autodetect vt-colors modconf block filesystems keyboard"'
+      regex: '|^(HOOKS).*|\1="base udev autodetect vt-colors modconf block filesystems keyboard"|'
 
   # Lightweight wallpaper manager
   nitrogen:
@@ -1075,9 +1064,9 @@ blocks:
   # Open source SSH server/client
   sshd:
     - install: openssh
-    - {edit: /etc/ssh/sshd_config, regex: '^#(PermitRootLogin).*', value: '\1 no'}
-    - {edit: /etc/ssh/sshd_config, regex: '^#(PermitEmptyPasswords).*', value: '\1 no'}
-    - {edit: /etc/ssh/sshd_config, regex: '^#(UsePrivilegeSeparation).*', value: '\1 sandbox'}
+    - {edit: /etc/ssh/sshd_config, regex: '|^#(PermitRootLogin).*|\1 no|'}
+    - {edit: /etc/ssh/sshd_config, regex: '|^#(PermitEmptyPasswords).*|\1 no|'}
+    - {edit: /etc/ssh/sshd_config, regex: '|^#(UsePrivilegeSeparation).*|\1 sandbox|'}
     - chroot: systemctl enable sshd.service
 
   # Elevate user commands on demand to root
@@ -1085,7 +1074,7 @@ blocks:
     - install: sudo
     - edit: /etc/sudoers
       insert: append
-      value: 'Defaults env_keep += "ftp_proxy http_proxy https_proxy no_proxy"'
+       'Defaults env_keep += "ftp_proxy http_proxy https_proxy no_proxy"'
 
   # Excellent cross platform keyboard/mouse sharing i.e. virtual KVM
   synergy:
@@ -1097,20 +1086,20 @@ blocks:
     - install: systemd              # System and service manager
     - install: systemd-sysvcompat   # Sysinit compat for systemd
     # Change the default timeout values from 90s. Nothing takes that long its annoying
-    - {edit: /etc/systemd/system.conf, regex: '^#(DefaultTimeoutStopSec)=.*', value: '\1=10s'}
-    - {edit: /etc/systemd/system.conf, regex: '^#(DefaultTimeoutStartSec)=.*', value: '\1=10s'}
+    - {edit: /etc/systemd/system.conf, regex: '|^#(DefaultTimeoutStopSec)=.*|\1=10s|'}
+    - {edit: /etc/systemd/system.conf, regex: '|^#(DefaultTimeoutStartSec)=.*|\1=10s|'}
     - config-journald:
       # Avoid "Failed to start Create Volatile Files and Directories"
       - exec: 'rm -rf /var/log/journal'
       # Restrict journal disk size to avoid filling disks and crashing system
-      - {edit: /etc/systemd/journald.conf, regex: '^#(SystemMaxUse).*', value: '\1=100M'}
+      - {edit: /etc/systemd/journald.conf, regex: '|^#(SystemMaxUse).*|\1=100M|'}
     - config-logind:
-      - {edit: /etc/systemd/logind.conf, regex: '^#(KillUserProcesses)=.*', value: '\1=yes'}
-      - {edit: /etc/systemd/logind.conf, regex: '^#(HandlePowerKey)=.*', value: '\1=poweroff'}
-      - {edit: /etc/systemd/logind.conf, regex: '^#(HandleSuspendKey)=.*', value: '\1=suspend'}
-      - {edit: /etc/systemd/logind.conf, regex: '^#(HandleHibernateKey)=.*', value: '\1=hibernate'}
-      - {edit: /etc/systemd/logind.conf, regex: '^#(HandleLidSwitch)=.*', value: '\1=suspend'}
-      - {edit: /etc/systemd/logind.conf, regex: '^#(HandleLidSwitchDocked)=.*', value: '\1=ignore'}
+      - {edit: /etc/systemd/logind.conf, regex: '|^#(KillUserProcesses)=.*|\1=yes|'}
+      - {edit: /etc/systemd/logind.conf, regex: '|^#(HandlePowerKey)=.*|\1=poweroff|'}
+      - {edit: /etc/systemd/logind.conf, regex: '|^#(HandleSuspendKey)=.*|\1=suspend|'}
+      - {edit: /etc/systemd/logind.conf, regex: '|^#(HandleHibernateKey)=.*|\1=hibernate|'}
+      - {edit: /etc/systemd/logind.conf, regex: '|^#(HandleLidSwitch)=.*|\1=suspend|'}
+      - {edit: /etc/systemd/logind.conf, regex: '|^#(HandleLidSwitchDocked)=.*|\1=ignore|'}
     - config-timesyncd:
       - exec: rm -f /etc/systemd/timesyncd.conf
       - edit: /etc/systemd/timesyncd.conf
@@ -1120,7 +1109,7 @@ blocks:
           - 'NTP=0.arch.pool.ntp.org 1.arch.pool.ntp.org 2.arch.pool.ntp.org 3.arch.pool.ntp.org'
           - 'FallbackNTP=0.pool.ntp.org 1.pool.ntp.org 0.fr.pool.ntp.org'
     - config-resolved:
-      - {edit: /etc/systemd/resolved.conf, regex: '^#(DNSSEC=).*', value: '\1false'}
+      - {edit: /etc/systemd/resolved.conf, regex: '|^#(DNSSEC=).*|\1false|'}
     - enable-systemd-services:
       - chroot: systemctl enable systemd-networkd.service
       - chroot: systemctl enable systemd-networkd-wait-online.service
@@ -1231,8 +1220,8 @@ blocks:
     - {chroot: systemctl enable teamviewerd.service }
   teamviewer-host:
     - teamviewer
-    - {edit: /opt/<%=distro%>/bin/config-teamviewer, regex: 'systemctl disable teamviewerd', value: '  :' }
-    - {edit: /opt/<%=distro%>/bin/config-teamviewer, regex: 'systemctl stop teamviewerd', value: '  :' }
+    - {edit: /opt/<%=distro%>/bin/config-teamviewer, regex: '|systemctl disable teamviewerd|  :|' }
+    - {edit: /opt/<%=distro%>/bin/config-teamviewer, regex: '|systemctl stop teamviewerd|  :|' }
 
   # The Extension Pack binaries are released under the VirtualBox Personal Use and Evaluation License (PUEL).
   # https://www.virtualbox.org/wiki/Downloads

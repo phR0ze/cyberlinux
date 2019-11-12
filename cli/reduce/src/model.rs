@@ -105,7 +105,7 @@ pub struct Profile {
     pub builder: Container,
 
     // Fundamental building blocks for Linux distro
-    pub blocks: HashMap<String, Block>,
+    pub blocks: HashMap<String, Vec<Step>>,
 }
 
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
@@ -267,33 +267,19 @@ pub struct Vagrant {
     pub v3d: bool,
 }
 
-// Building blocks for automating the linux build. A block has a name and three
-// sections: `before`, `steps`, and `after` which are executed in that order.
-#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Block {
-    // Optional blocks by name to execute before the main steps are executed.
-    #[serde(default)]
-    pub before: Vec<String>,
-
-    // Required steps to execute, such as installs and configuration.
-    // Steps are executed in the order the the are listed.
-    pub steps: Vec<Step>,
-
-    // Optional blocks by name to execute after the main steps are executed.
-    #[serde(default)]
-    pub after: Vec<String>,
-}
-
 // Automation steps to execute to install and/or configuration applications.
 // Steps are executed in order.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum Step {
+    BlockRef(String),
     Groups(Groups),
     Install(Install),
     Chroot(Chroot),
     Exec(Exec),
     Edit(Edit),
+    Menu(Menu),
+    Block(HashMap<String, Vec<Step>>),
 }
 
 // Describes the groups that should be used
@@ -344,13 +330,33 @@ pub struct Edit {
     // Path to the file to edit
     pub edit: String,
 
-    // Edit mode `insert`, `append`, `prepend`.
-    pub mode: String,
-
-    // Value to use with mode.
+    // Optional regex to execute to match or search replace
     #[serde(default)]
-    pub value: String,
+    pub regex: String,
 
+    // Edit insert mode `after`, `before`, `append`.
+    #[serde(default)]
+    pub insert: String,
+
+    // Values to use with mode.
     #[serde(default)]
     pub values: Vec<String>,
+}
+
+// Menu configuration for an application
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Menu {
+    // Menu folder.
+    pub menu: String,
+
+    // Menu icon path for the folder or for the entry.
+    pub icon: PathBuf,
+
+    // Optional menu entry that the icon would apply.
+    #[serde(default)]
+    pub entry: String,
+
+    // Optional menu entry executable string to use to execute the entry.
+    #[serde(default)]
+    pub exec: String,
 }
