@@ -4,8 +4,6 @@ use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use sys::*;
 
-use crate::keys;
-
 #[derive(Debug, Default, Clone)]
 pub struct Paths {
     pub(crate) aur_dir: PathBuf,

@@ -11,7 +11,6 @@ use std::path::{Path, PathBuf};
 use std::rc::Rc;
 use sys::*;
 
-use crate::keys;
 use crate::model;
 use crate::opts::*;
 
@@ -139,7 +138,7 @@ mod tests {
         assert_eq!("", reduce.paths.root_dir.to_str().unwrap());
         assert_eq!(true, reduce.configure_pathing().is_ok());
 
-        let root = env::current_dir().unwrap().parent().unwrap().to_path_buf();
+        let root = env::current_dir().unwrap().parent().unwrap().parent().unwrap().to_path_buf();
         assert_eq!(root, reduce.paths.root_dir);
     }
 
