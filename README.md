@@ -31,9 +31,6 @@ fork it and make their own configuration ***profiles***
   * [Bare metal deployment](#bare-metal-deployment)
   * [Brown field deployment](#brown-field-deployment)
 * [Configure cyberlinux](#configure-cyberlinux)
-  * [Configure Proxy](#configure-proxy)
-    * [Enable Proxy](#enable-proxy)
-    * [Disable Proxy](#disable-proxy)
   * [Configure Backlight](#configure-backlight)
     * [HP ZBook 15 Display](#hp-zbook-15-display)
   * [Toggle Devices](#toggle-devices)
@@ -123,40 +120,9 @@ Using an existing arch linux system to deploy cyberlinux is more complicated as 
 dependencies. I'll be documenting them here:
 
 * cyberlinux-grub
-* ruby
-* docker
+* podman
 
 # Configure cyberlinux <a name="configure-cyberlinux"/></a>
-
-## Configure Proxy <a name="configure-proxy"/></a>
-
-### Enable Proxy <a name="enable-proxy"/></a>
-cyberlinux uses the ***/opt/cyberlinux/bin/setproxy*** script to configure the proxy given during install for:
-
-1. Shells via ***/etc/profile.d/setproxy.sh***
-2. XWindows apps via ***/etc/dconf/db/local.d/00-proxy***
-3. Docker via ***/etc/systemd/system/docker.service.d/20-proxy.conf***
-
-Run the script to see help: 
-```bash
-sudo setproxy
-setproxy_v0.0.1
---------------------------------------------------------------------------------
-Usage: sudo setproxy CMD [PROXY] [NO_PROXY]
-Examples:
-sudo setproxy disable
-sudo setproxy enable http://example.com:8080
-sudo setproxy enable http://example.com:8080 localhost,127.0.0.1
-```
-
-Enable proxy:
-1. Run: `sudo setproxy enable http://example.com:8080 localhost,127.0.0.1`
-2. Logout and back in
-
-### Disable Proxy <a name="disable-proxy"/></a>
-Disable proxy:
-1. Run: `sudo setproxy disable`
-2. Logout and back in
 
 ## Configure Backlight <a name="configure-backlight"/></a>
 cyberlinux uses the ***https://aur.archlinux.org/packages/light/*** script to configure the
@@ -275,7 +241,7 @@ Key:
 | pjproject                       | 2.7-1             | ?
 | pnmixer                         | 0.7.2-1           | ?
 | postman-bin                     | 6.1.3-2           | ?
-| powerline-gitstatus             | 1.2.1-2           | ?
+| powerline-gitstatus             | 1.3.1-1           | Custom: provides gitstatus in PS1 using powerline
 | ruby-amatch                     | 0.4.0-1           | ?
 | ruby-byebug                     | 11.0.0-1          | ?
 | ruby-coderay                    | 1.1.2-3           | ?
@@ -485,7 +451,9 @@ either system.
 * [Display Manager](#display-manager)
   * [LXDM](#lxdm)
     * [xprofile](#xprofile)
-* [Docker](#docker)
+* [Containers](#containers)
+  * [Podman](#podman)
+    * [Migrate from Docker](#migrate-from-docker)
   * [Build container](#build-container)
   * [Run container](#run-container)
   * [Upload container](#upload-container)
@@ -498,6 +466,8 @@ either system.
   * [Distro Fonts](#distro-fonts)
   * [Fontconfig](#fongconfig)
   * [Manually Install Fonts](#manually-install-fonts)
+* [Kernel](#kernel)
+  * [Switch Kernel](#switch-kernel)
 * [Launchers](#launchers)
   * [Plank](#plank)
 * [Media](#media)
@@ -540,7 +510,7 @@ either system.
     * [Convert Images to PDF](#convert-images-to-pdf)
 * [Packages](#packages)
   * [Init Database](#init-database)
-  * [Mirror Lists](#mirror-lists)
+  * [Update Mirrorlist](#update-mirrorlist)
 * [Patching](#patching)
   * [Create Patch](#create-patch)
   * [Apply Patch](#apply-patch)
@@ -568,8 +538,11 @@ either system.
   * [Wipe Drive](#wipe-drive)
   * [RAID Drives](#raid-drives)
   * [Test Drive](#test-drive)
-* [Systemd](#systemd)
-  * [Boot Performance](#boot-performance)
+* [System](#system)
+  * [Shell](#shell)
+    * [Powerline](#powerline)
+  * [System Update](#system-update)
+  * [Systemd Boot Performance](#systemd-boot-performance)
     * [See How long boot takes](#see-how-long-boot-takes)
     * [Rank services by startup time](#rank-services-by-startup-time)
     * [Remove lvm2 service](#remove-lvm2-service)
@@ -738,6 +711,25 @@ xrandr --output VGA-1 --off --output eDP-1 --auto
 # Mapping this to Win + P or other hot key combo
 # Launch lxrandr
 # Select resolution of 1280x1024 for both monitors
+```
+
+### Quadro FX 880M <a name="quadro-fx-880m"/></a>
+The driver for this card i.e. `nvidia-340xx` is no longer carried in the Arch Linux repos, but has a
+maintained version in the cyberlinux repo.
+
+```bash
+# Determine graphics card
+$ inxi -G
+Graphics:  Card-1: NVIDIA GT200GL [Quadro FX 3800]
+...
+
+# Installing the DKMS driver will allow kernel updates without
+# requiring the corresponding rebuilds of the drivers
+$ sudo pacman -Rns xf86-video-nouveau
+$ sudo pacman -S nvidia-340xx-dkms libxnvctrl
+
+# Reboot
+$ sudo reboot
 ```
 
 ### Quadro FX 3800 <a name="quadro-fx-3800"/></a>
@@ -1015,33 +1007,64 @@ The following display managers natively source it at the right time:
 * LXDM
 * SDDM
 
-# Docker <a name="docker"/></a>
+# Containers <a name="containers"/></a>
+
+## Podman <a name="podman"/></a>
+Podman replaces the docker cli and docker daemon with a cli that emulates the docker cli but calls
+the registry etc... directly via `runC` rather than using a go between daemon as docker does. This
+has all kinds of advantages, one being not daemon running in the background consuming resources on
+development machines.
+
+### Migrate from Docker <a name="migrate-from-docker"/></a>
+1. Remove all docker volumes, images and containers:
+   ```bash
+   $ docker system prune
+   ```
+2. Shutdown docker daemon and uninstall:
+   ```bash
+   $ sudo systemctl stop docker
+   $ sudo pacman -Rns docker
+   $ gpasswd -d <user> docker
+   ```
+3. Install podman and configure uids/gids to use for containers:
+   ```bash
+   # Install podman
+   $ sudo pacman -S podman buildah
+
+   # Create and set the uid/gid mappings for containers
+   $ sudo touch /etc/subuid
+   $ sudo touch /etc/subgid
+   $ sudo usermod --add-subuids 10000-65536 <user>
+   $ sudo usermod --add-subgids 10000-65536 <user>
+
+   $ reboot
+   ```
 
 ## Build container <a name="build-container"/></a>
 From the directory that contains your ***Dockerfile*** run:
 
 ```bash
-docker build -t alpine-base:latest  .
+$ podman build -t alpine-base:latest  .
 ```
 
 ## Run container <a name="run-container"/></a>
 ```bash
-docker run --rm -it alpine-base:latest bash
+$ podman run --rm -it alpine-base:latest bash
 ```
 
 ## Upload container <a name="upload-cyberlinux-container"/></a>
 1. Build and deploy a cyberlinux container see [Build cyberlinux container](#build-cyberlinux-container)
-2. List out your docker images: `docker images`
-3. Login to dockerhub.com: `docker login`
+2. List out your docker images: `podman images`
+3. Login to dockerhub.com: `podman login`
 4. Tag and push the versioned and latest tags
   ```bash
   # Tag and push the versioned image
-  docker tag net-0.2.197:latest phr0ze/cyberlinux-net:0.2.197
-  docker push phR0ze/cyberlinux-net:0.2.197
+  $ podman tag net-0.2.197:latest phr0ze/cyberlinux-net:0.2.197
+  $ podman push phR0ze/cyberlinux-net:0.2.197
 
   # Tag and push the latest image
-  docker tag net-0.2.197:latest phr0ze/cyberlinux-net:latest
-  docker push phr0ze/cyberlinux-net:latest
+  $ podmane tag net-0.2.197:latest phr0ze/cyberlinux-net:latest
+  $ podman push phr0ze/cyberlinux-net:latest
   ```
 
 ## Build cyberlinux container <a name="build-cyberlinux-container"/></a>
@@ -1049,13 +1072,13 @@ Build, deploy and run a cyberlinux container
 
 ```bash
 # Build net container
-sudo ./reduce clean build -d net -p containers
+$ sudo ./reduce clean build -d net -p containers
 
 # Deploy net container to local docker
-sudo ./reduce deploy net -p containers
+$ sudo ./reduce deploy net -p containers
 
 # Run net container with docker
-docker run --rm -it net-0.2.197:latest bash
+$ podman run --rm -it net-0.2.197:latest bash
 ```
 
 # Grub <a name="Grub"/></a>
@@ -1237,6 +1260,22 @@ fonts that you may want to individually use.
 
 ## Conky Fonts <a name="conky-fonts"/></a>
 Conky will need to be restarted to pick up new fonts
+
+# Kernel <a name="kernel"/></a>
+## Switch Kernel <a name="switch-kernel"/></a>
+1. Install the target kernel
+   ```bash
+   $ sudo pacman -S linux-lts linux-tls-docs linux-lts-headers
+   ```
+2. Update the bootloader to point to the target kernel
+   ```bash
+   $ sudo grub-mkconfig -o /boot/grub/grub.cfg
+   $ sudo reboot
+   ```
+3. Remove old kernel packages
+   ```bash
+   $ sudo pacman -R linux linux-docs linux-headers
+   ```
 
 # Launchers <a name="launchers"/></a>
 ## Plank <a name="plank"/></a>
@@ -1799,15 +1838,21 @@ $ sudo pacman -Sy
 $ sudo pkgfile --update
 ```
 
-## Mirror Lists <a name="mirror-lists"/></a>
-1. Install the latest mirror list  
-  a. Install: `sudo pacman -S pacman-mirrorlist`  
-  b. Update: `sudo mv /etc/pacman.d/mirrorlist.pacnew /etc/pacman.d/mirrorlist`  
-2. Prep mirror list for sorting  
-  a. Edit list and uncomment ***US*** mirrors  
-  b. Delete everything else  
-3. Sort by speed  
-  a. Run: `sudo bash -c 'rankmirrors -n 20 /etc/pacman.d/mirrorlist.bak > /etc/pacman.d/archlinux.mirrorlist'`  
+## Update mirrorlist <a name="update-mirrorlist"/></a>
+Install latest mirrorlist and rank by fastest 20
+
+```bash
+# Install the latest mirror list
+$ sudo pacman -S pacman-mirrorlist
+$ sudo mv /etc/pacman.d/mirrorlist.pacnew /etc/pacman.d/mirrorlist`  
+
+# Sort mirrorlist by speed  
+# First uncomment all the US mirrors then delete everything else
+$ sudo bash -c 'rankmirrors -n 20 /etc/pacman.d/mirrorlist > /etc/pacman.d/archlinux.mirrorlist'
+
+# Clean up
+$ sudo rm /etc/pacman.d/archlinux.mirrorlist
+```
 
 # Patching <a name="patching"/></a>
 
@@ -1975,7 +2020,7 @@ $ sudo pacman -Rns mesa xf86-video-nouveau
 If you are unable to login via LXDM but have got past the Graphicl target that means your video
 driver is working properly. In this case it may be something in the chain of scripts and apps that
 boot the desktop i.e. LXDM settings, `startx` or user scripts like `.bashrc`. I've seen powerline
-initialization in in `.bashrc` fail causing the login to fail.
+initialization in `.bashrc` fail causing the login to fail.
 
 ### Try logging in while tailing the logs
 1. Switch to TTY and get the ip of the system then loging and tail the logs
@@ -2189,9 +2234,26 @@ Num  Test_Description    Status                  Remaining  LifeTime(hours)  LBA
 # 3  Extended offline    Aborted by host               90%         2         -
 ```
 
-# Systemd <a name="systemd"/></a>
+# System <a name="system"/></a>
 
-## System Status <a name="system-status"/></a>
+## Shell <a name="shell"/></a>
+### Powerline <a name="powerline"/></a>
+https://powerline.readthedocs.io/en/latest/usage/shell-prompts.html#bash-prompt
+
+If powerline git status is not working try upgrading
+
+## System Update <a name="system-update"/></a>
+1. Update keyring first
+   ```bash
+   $ sudo pacman -Sy archlinux-keyring
+   ```
+2. [Update mirrorlist](#update-mirrorlist)
+3. Update full system
+   ```bash
+   $ sudo pacman -Syu
+   ```
+
+## Systemd Status <a name="systemd-status"/></a>
 
 ```bash
 # By leaving off a specific unit to get status about we see the status of the entire system
@@ -2201,9 +2263,7 @@ $ systemctl status
 $ systemctl
 ```
 
-## Boot Kernel <a name="boot-kernel"/></a>
-
-## Boot Performance <a name="boot-performance"/></a>
+## Systemd Boot Performance <a name="systemd-boot-performance"/></a>
 https://wiki.archlinux.org/index.php/Improving_performance/Boot_process
 
 ### See How long boot takes <a name="see-how-long-boot-takes"/></a>
