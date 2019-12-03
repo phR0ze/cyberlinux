@@ -436,6 +436,7 @@ either system.
     * [Adapt Output Toggle](#adapt-output-toggle)
     * [Dual Output](#dual-output)
     * [VGA Output](#vga-output)
+    * [Quadro FX 880M](#quadro-fx-880m)
     * [Quadro FX 3800](#quadro-fx-3800)
     * [Nvidia Proprietary](#nvidia-proprietary)
     * [Overscan/Underscan](#overscan-underscan)
@@ -720,11 +721,10 @@ maintained version in the cyberlinux repo.
 ```bash
 # Determine graphics card
 $ inxi -G
-Graphics:  Card-1: NVIDIA GT200GL [Quadro FX 3800]
+Graphics:  Card-1: NVIDIA [Quadro FX 880M]
 ...
 
-# Installing the DKMS driver will allow kernel updates without
-# requiring the corresponding rebuilds of the drivers
+# Installing the DKMS driver will allow kernel updates without requiring rebuilds
 $ sudo pacman -Rns xf86-video-nouveau
 $ sudo pacman -S nvidia-340xx-dkms libxnvctrl
 
