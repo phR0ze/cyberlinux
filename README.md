@@ -736,17 +736,30 @@ $ sudo reboot
 The driver for this card i.e. `nvidia-340xx` is no longer carried in the Arch Linux repos, but has a
 maintained version in the cyberlinux repo.
 
+**Determine graphics card:**
 ```bash
-# Determine graphics card
 $ inxi -G
 Graphics:  Card-1: NVIDIA GT200GL [Quadro FX 3800]
 ...
+```
 
-# Build nvidia-340xx drivers
-$ yay -G nvidia-340xx-utils
+**Build nvidia-340xx drivers if necessary:**
+```bash
+$ yay -Ga nvidia-340xx-utils
+$ cd nvidia-340xx-utils
+$ makepkg -s
 
-# Installing the DKMS driver will allow kernel updates without
-# requiring the corresponding rebuilds of the drivers
+$ yay -Ga nvidia-340xx-settings
+$ cd nvidia-340xx-settings
+$ makepkg -s
+
+$ yay -Ga nvidia-340xx
+$ cd nvidia-340xx
+$ makepkg -s
+```
+
+**Install the DKMS version which allows for kernel updates without driver rebuilds:**
+```bash
 $ sudo pacman -Rns xf86-video-nouveau
 $ sudo pacman -S nvidia-340xx-dkms libxnvctrl
 
@@ -2036,6 +2049,11 @@ initialization in `.bashrc` fail causing the login to fail.
 4. Install xinit `sudo pacman -S xorg-xinit`
 5. Launch `startx openbox-session`
 
+### Try reinstalling the target video driver
+I noticed that when I tried reinstalling the correct video driver that the `dkms` module failed to
+compile and install with the new kernel. So I rebuilt the drivers and installed the new one and it
+worked. So apparently the dkms doesn't always work.
+
 ## Boot from Live USB <a name="boot-from-live-usb"/></a>
 ```bash
 # Mount the HDD
@@ -2078,22 +2096,23 @@ sudo grub-mkconfig -o /boot/grub/grub.cfg
 ## Check Logs for Errors <a name="check-logs-for-errors"/></a>
 ```bash
 # Check LXDM unit logs
-sudo systemctl status lxdm
+$ sudo systemctl status lxdm
 
 # LXDM logs
-sudo vim /var/log/lxdm.log
+$ sudo vim /var/log/lxdm.log
 
 # Xorg logs - often telling when unable to login or black screens
 # Search for EE e.g.
 # [     3.932] (EE) Failed to load module "vboxvideo" (module does not exist, 0)
 # [     3.935] (EE) Failed to load module "fbdev" (module does not exist, 0)
-vim /var/log/Xorg.0.log
+$ vim /var/log/Xorg.0.log
 
-# Follow journal logs
-journalctl -f
+# Check system logs
+$ journalctl --system
+
 
 # Journal boot logs
-journalctl -b
+$ journalctl -b
 ```
 
 # Session <a name="session"/></a>
