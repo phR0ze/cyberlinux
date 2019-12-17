@@ -727,8 +727,10 @@ $ inxi -G
 Graphics:  Card-1: NVIDIA [Quadro FX 880M]
 ...
 
-# Installing the DKMS driver will allow kernel updates without requiring rebuilds
+# Remove the opensource driver if it is installed
 $ sudo pacman -Rns xf86-video-nouveau
+
+# Installing the DKMS driver will allow kernel updates without requiring rebuilds
 $ sudo pacman -S nvidia-340xx-dkms libxnvctrl
 
 # Reboot
@@ -763,7 +765,10 @@ $ makepkg -s
 
 **Install the DKMS version which allows for kernel updates without driver rebuilds:**
 ```bash
+# Remove the opensource driver if it is installed
 $ sudo pacman -Rns xf86-video-nouveau
+
+# Install the nvidia dkms driver
 $ sudo pacman -S nvidia-340xx-dkms libxnvctrl
 
 # Reboot
