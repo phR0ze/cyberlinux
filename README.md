@@ -1136,6 +1136,8 @@ $ sudo blkid
 /dev/sda1: PARTLABEL="BIOS boot" PARTUUID="xxx-xxx..."
 /dev/sda3: LABEL="root" UUID="xxx-xxx..." TYPE="ext4" PARTLABEL="Linux filesystem" PARTUUID="xxx-xxx..."
 $ sudo tune2fs -L cyberlinux /dev/sda3
+$ sudo blkid
+/dev/sda3: LABEL="cyberlinux" UUID="xxx-xxx..." TYPE="ext4" PARTLABEL="Linux filesystem" PARTUUID="xxx-xxx..."
 
 # Install grub boot loader to disk
 $ sudo grub-install --target=i386-pc /dev/sda
@@ -1286,16 +1288,21 @@ Conky will need to be restarted to pick up new fonts
 ## Switch Kernel <a name="switch-kernel"/></a>
 1. Install the target kernel
    ```bash
-   $ sudo pacman -S linux-lts linux-tls-docs linux-lts-headers
+   $ sudo pacman -S linux-lts linux-lts-headers
    ```
-2. Update the bootloader to point to the target kernel
-   ```bash
-   $ sudo grub-mkconfig -o /boot/grub/grub.cfg
-   $ sudo reboot
-   ```
-3. Remove old kernel packages
+2. Remove old kernel packages
    ```bash
    $ sudo pacman -R linux linux-docs linux-headers
+   ```
+3. Update the bootloader to point to the target kernel
+   ```bash
+   # Edit: vim /boot/grub/grub.cfg
+   # linux /boot/vmlinuz-linux root=LABEL=cyberlinux rw rd.systemd.show_status=auto rd.udev.log_priority=3 ipv6.disable=1
+   # initrd /boot/intel-ucode.img /boot/initramfs-linux.img
+   $ cat /boot/grub/grub.cfg
+   # linux /boot/vmlinuz-linux-lts root=LABEL=cyberlinux rw rd.systemd.show_status=auto rd.udev.log_priority=3 ipv6.disable=1
+   # initrd /boot/intel-ucode.img /boot/initramfs-linux-lts.img
+   $ sudo reboot
    ```
 
 # Launchers <a name="launchers"/></a>
