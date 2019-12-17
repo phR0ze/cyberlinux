@@ -76,7 +76,7 @@ export PS1="${cyber}[\u@\h:\w]\$${none} "
 export PATH=$PATH:$HOME/bin:$GOPATH/bin:/opt/cyberlinux/bin
 
 # Powerline configuration
-if [ -f /usr/bin/powerline ] && [ -f /usr/bin/Xorg ]; then
+if [[ $(tty) != *"tty"* ]] && [ -f /usr/bin/powerline ]; then
   powerline-daemon -q
   POWERLINE_BASH_CONTINUATION=1
   POWERLINE_BASH_SELECT=1
