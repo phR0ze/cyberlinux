@@ -520,12 +520,15 @@ either system.
   * [Teamviewer](#teamviewer)
   * [Zoom](#zoom)
 * [Rescue](#resuce)
+  * [Switch to TTY](#switch-to-tty)
   * [Graphical Target](#graphical-target)
     * [Check Xorg logs](#check-xorg-logs)
     * [Reset Xorg settings](#check-xorg-settings)
     * [Opensource Driver](#opensource-driver)
   * [Unable to Login](#unable-to-login)
-    * [Switch to TTY](#switch-to-tty)
+    * [Try logging in while tailing the logs](#try-logging-in-while-tailing-the-logs)
+    * [Try running openbox directly](#try-running-openbox-directly)
+    * [Try reinstalling the target video driver](#try-reinstallig-the-target-video-driver)
   * [Boot from Live USB](#boot-from-live-usb)
   * [Black Screen](#black-screen)
   * [Check Logs for Errors](#check-logs-for-errors)
@@ -1988,7 +1991,6 @@ VirtualBox:
 * `right ctrl+F2` should switch to console  
 * `right ctrl+F1` should switch back to UI
 
-
 ## Graphical Target <a name="graphical-target"/></a>
 When you're system boots the last thing you'll see before the display manager is loaded is that the
 `Graphical Target` is being started. If it hangs here its safe to say either LXDM is failing or Xorg
@@ -2035,21 +2037,22 @@ driver is working properly. In this case it may be something in the chain of scr
 boot the desktop i.e. LXDM settings, `startx` or user scripts like `.bashrc`. I've seen powerline
 initialization in `.bashrc` fail causing the login to fail.
 
-### Try logging in while tailing the logs
+### Try logging in while tailing the logs <a name="try-logging-in-while-tailing-the-logs"/></a>
 1. Switch to TTY and get the ip of the system then loging and tail the logs
    ```bash
    $ journalctl -f
    ```
 2. Switch back to LXDM and attempt to loging and watch the logs
 
-### Try running openbox directly. This will eliminate possibilities.
+### Try running openbox directly <a name="try-running-openbox-directly"/></a>
+This will eliminate possiblities
 1. Use one of the methods below to get shell access.
 2. Disable LXDM `sudo systemctl disable lxdm`
 3. Restart your system `sudo reboot`
 4. Install xinit `sudo pacman -S xorg-xinit`
 5. Launch `startx openbox-session`
 
-### Try reinstalling the target video driver
+### Try reinstalling the target video driver <a name="try-reinstallig-the-target-video-driver"/></a>
 I noticed that when I tried reinstalling the correct video driver that the `dkms` module failed to
 compile and install with the new kernel. So I rebuilt the drivers and installed the new one and it
 worked. So apparently the dkms doesn't always work.
