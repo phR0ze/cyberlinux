@@ -446,6 +446,7 @@ either system.
     * [Configure Keyboard Rate](#configure-keyboard-rate)
   * [Printer](#printer)
     * [Workforce WF-7710](#printer-workforce-wf-7710)
+    * [Pending - Out of Paper](#pending-out-of-paper)
   * [Scanner](#scanner)
     * [Workforce WF-7710](#scanner-workforce-wf-7710)
   * [Sound](#sound)
@@ -917,7 +918,7 @@ $ sudo systemctl start org.cups.cupsd
 $ groups
 ```
 
-### Workforce WF-7710<a name="printer-workforce-wf-7710"/></a>
+### Workforce WF-7710 <a name="printer-workforce-wf-7710"/></a>
 The package that works for the WF-7710 is actually a wrapped version that comes from Epson directly
 
 1. Download and install the correct Epson driver  
@@ -936,6 +937,12 @@ The package that works for the WF-7710 is actually a wrapped version that comes 
      Note: it automatically showed up in the list  
   c. Click `Forward`  
   d. Click `Apply`  
+
+### Pending - Out of Paper <a name="pending-out-of-paper"/></a>
+The printer driver got stuck after one failed print and continually reported the printer was out of
+paper. Opening the `Printer Preferences` i.e. `system-config-printer` app showed a yellow caution
+overlay indicating the problem. I right clicked on it and set it to `enabled` and double clicked to
+establish a connection and it started working after that.
 
 ## Scanner <a name="scanner"/></a>
 https://wiki.archlinux.org/index.php/SANE
