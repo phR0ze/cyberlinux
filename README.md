@@ -2065,7 +2065,8 @@ This will eliminate possiblities
 5. Launch `startx openbox-session`
 
 ### Try an aternate window manager <a name="try-an-alternate-window-manager"/></a>
-If this works you know you've got an openbox issue
+If this works you know you might have an openbox issue or in my case I had a lxdm issue that that I
+fixed by uninstalling `lxdm` and instead installing `lxdm-gtk3`.
 
 ```bash
 $ sudo pacman -S xfwm4 xfce4-session xfce4-settings
