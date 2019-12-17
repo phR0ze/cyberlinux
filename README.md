@@ -2064,6 +2064,14 @@ This will eliminate possiblities
 4. Install xinit `sudo pacman -S xorg-xinit`
 5. Launch `startx openbox-session`
 
+### Try an aternate window manager <a name="try-an-alternate-window-manager"/></a>
+If this works you know you've got an openbox issue
+
+```bash
+$ sudo pacman -S xfwm4 xfce4-session xfce4-settings
+$ startxfce4
+```
+
 ### Try reinstalling the target video driver <a name="try-reinstallig-the-target-video-driver"/></a>
 I noticed that when I tried reinstalling the correct video driver that the `dkms` module failed to
 compile and install with the new kernel. So I rebuilt the drivers and installed the new one and it
