@@ -23,4 +23,5 @@ lto = true
 
 [dependencies]
 clap = "2.33"
+sys = { git = "https://github.com/phR0ze/rs", version = "0.0.42" }
 # reduce = { path = "reduce" }

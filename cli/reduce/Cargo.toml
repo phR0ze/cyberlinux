@@ -17,6 +17,6 @@ log = "0.4"
 colored = "1.8"
 serde_yaml = "0.8"
 serde = { version = "1.0", features = ["derive"] }
-errors = { git = "https://github.com/phR0ze/rs", branch = "master" }
-logs = { git = "https://github.com/phR0ze/rs", branch = "master" }
-sys = { git = "https://github.com/phR0ze/rs", branch = "master" }
+core = { git = "https://github.com/phR0ze/rs", version = "0.0.42" }
+logs = { git = "https://github.com/phR0ze/rs", version = "0.0.42" }
+sys = { git = "https://github.com/phR0ze/rs", version = "0.0.42" }
