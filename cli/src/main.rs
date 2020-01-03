@@ -4,9 +4,10 @@
 //!
 //! `reduce` is the cyberlinux CLI
 use clap;
+use fungus::prelude::*;
 use reduce::*;
 
-fn main() {
+fn main() -> Result<()> {
     // Parse cli args
     let cmds = clap::App::new(APP_NAME)
         .version(&format!("v{}", APP_VERSION)[..])
@@ -31,20 +32,20 @@ fn main() {
         if matches.is_present("all") {
             let debug = false;
             let quiet = false;
-            let home = sys::home_dir().unwrap();
-            let reduce = Reduce::new_with(vec![Opt::Debug(debug), Opt::Quiet(quiet), Opt::Home(home)]).unwrap();
+            let _reduce = Reduce::new()?.debug(debug).quiet(quiet).loglevel(log::Level::Trace).init()?;
         } else {
             println!("no sub command given");
         }
     }
+    Ok(())
 }
 
 #[cfg(test)]
 mod tests {
-    // use super::*;
 
-    #[test]
-    fn test_main() {
-        assert_eq!(4, 4);
-    }
+    // #[test]
+    // fn test_main() {
+    //     let name = sys::exec_name().unwrap();
+    //     println!("{:?}", name);
+    // }
 }

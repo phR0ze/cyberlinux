@@ -14,14 +14,19 @@ categories = ["command-line-utilities"]
 [workspace]
 members = ["reduce"]
 
-# [[bin]]
-# name = "reduce"
-# path = "src/main.rs"
-
 [profile.release]
 lto = true
 
+[[bin]]
+name = "reduce"
+path = "src/main.rs"
+
 [dependencies]
 clap = "2.33"
-sys = { git = "https://github.com/phR0ze/rs", version = "0.0.42" }
-# reduce = { path = "reduce" }
+reduce = { path = "reduce" }
+
+[dependencies.fungus]
+features = ["_libc_", "_crypto_"]
+
+[patch.crates-io]
+fungus = { path = "../../fungus" }

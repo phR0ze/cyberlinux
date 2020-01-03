@@ -444,6 +444,7 @@ either system.
     * [Configure Mouse Speed](#configure-mouse-speed)
   * [Keyboard](#keyboard)
     * [Configure Keyboard Rate](#configure-keyboard-rate)
+    * [Disable Numlock on Boot](#disable-numlock-on-boot)
   * [Printer](#printer)
     * [Workforce WF-7710](#printer-workforce-wf-7710)
     * [Pending - Out of Paper](#pending-out-of-paper)
@@ -464,6 +465,7 @@ either system.
   * [Boot Kernel](#boot-kernel)
     * [BIOS Boot](#bios-boot)
     * [UEFI Boot](#uefi-boot)
+  * [Boot Resolution](#boot-resolution)
 * [Fonts](#fonts)
   * [Distro Fonts](#distro-fonts)
   * [Fontconfig](#fongconfig)
@@ -555,7 +557,8 @@ either system.
 * [Time/Date](#time-date)
   * [Set Time/Date](#set-time-date)
 * [Users/Groups](#users-groups)
-  * [Add system user](#add-system-user)
+  * [Add user](#add-user)
+  * [Rename user](#rename-user)
 * [VeraCrypt](#veracrypt)
 * [VPNs](#vpns)
   * [OpenConnect](#openconnect)
@@ -895,13 +898,18 @@ $ sudo udevadm trigger /dev/input/event1
 ## Keyboard <a name="keyboard"/></a>
 
 ### Configure Keyboard Rate <a name="configure-keyboard-rate"/></a>
-
 Set this in your `~/.xprofile`
 ```bash
 # First number is after how many ms the key will start repeating
 # Second number is how many repititions per second, so after 190ms will output 40 a sec
 xset r rate 200 40
 ```
+
+### Disable Numlock on Boot <a name="disable-numlock-on-boot"/></a>
+LXDM has a nice configuration setting allowing you to enable or disable numlock on boot.
+
+1. Edit `/etc/lxdm/lxdm.conf`
+2. Set `numlock=0` to disable
 
 ## Printer <a name="printer"/></a>
 Any printer will require the default CUPS installation
@@ -1199,6 +1207,24 @@ $ sudo umount /mnt/tmp
 $ sudo reboot
 ```
 
+## Boot Resolution <a name="boot-resolution"/></a>
+Grub has the ability to configure the boot resolution that is used during boot and inherited by LXDM.
+To configure this modify the `/boot/grub/grub.cfg` file.
+
+Change the `set gfxmode="1920x1080,auto"` to something that makes sense for your machine. For example
+I needed to set this to `set gfxmode="1024x600,auto"` for my Asus Aspire One 532h.
+
+Additionally create the `X11` resolution `/etc/X11/xorg.conf.d/10-display.conf`:
+```bash
+Section "Screen"
+  Identifier "Screen0"
+  SubSection "Display"
+    Depth 24
+    Modes "1024x600"
+  EndSubSection
+EndSection
+```
+
 # Fonts <a name="fonts"/></a>
 https://wiki.archlinux.org/index.php/fonts
 
@@ -1297,9 +1323,12 @@ Conky will need to be restarted to pick up new fonts
    ```bash
    $ sudo pacman -S linux-lts linux-lts-headers
    ```
-2. Remove old kernel packages
+2. Update the boot loader config to point to the correct kernel
    ```bash
-   $ sudo pacman -R linux linux-docs linux-headers
+   $ sudo vim /boot/grub/grub.cfg
+   # Modify the `vmlinuz-linux` and `initramfs-linux` to use
+   # `vmlinuz-linux-lts` and `initramfs-linux-lts`
+   $ sudo reboot
    ```
 3. Update the bootloader to point to the target kernel
    ```bash
@@ -1678,6 +1707,7 @@ sudo systemctl restart systemd-networkd
   sudo systemctl daemon-reload
   sudo systemctl enable wpa_supplicant@wlo1
   sudo systemctl start wpa_supplicant@wlo1
+  sudo systemctl status wpa_supplicant@wlo1
   ```
 4. Launch with ***WPA UI***:
   ```bash
@@ -1864,7 +1894,7 @@ need arise to clean it and start fresh this is what you do.
 $ sudo pacman-key --init
 
 # Populate with repo keys
-$ sudo pacman-key --populate archlinux blackarch antergos
+$ sudo pacman-key --populate archlinux blackarch
 
 # Update database
 $ sudo pacman -Sy
@@ -2430,7 +2460,7 @@ sudo timedatectl set-time "2019-01-17 09:12:20"
 
 # Users/Groups <a name="users-groups"/></a>
 
-## Add system user <a name="add-system-user"/></a>
+## Add user <a name="add-user"/></a>
 https://wiki.archlinux.org/index.php/users_and_groups#Example_adding_a_system_user
 
 Add a user without a home directory or ability to login for running daemons
@@ -2438,6 +2468,13 @@ Add a user without a home directory or ability to login for running daemons
 # e.g. useradd -r -s /usr/bin/nologin <username>
 useradd -r -s /usr/bin/nologin teamviewer
 ```
+
+## Rename user <a name="rename-user"/></a>
+1. Login using root
+2. Rename user `usermod -l newname oldname`
+3. Rename user home directory `mv /home/oldname /home/newname`
+4. Change user home `usermod -d /home/newname -m newname`
+5. Rename user group `groupmod -n newname oldname`
 
 # VeraCrypt <a name="veracrypt"/></a>
 VeraCrypt is the go forward fork of TrueCrypt providing virtual drives with encryption you can

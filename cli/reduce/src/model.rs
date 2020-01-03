@@ -1,8 +1,6 @@
-use errors::Result;
+use fungus::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::path::{Path, PathBuf};
-use sys::*;
 
 #[derive(Debug, Default, Clone)]
 pub struct Paths {
@@ -40,48 +38,71 @@ pub struct Paths {
     pub(crate) work_dir: PathBuf,
 }
 impl Paths {
-    pub fn init<T: AsRef<Path>>(home: &T) -> Result<Self> {
+    pub fn init<T: AsRef<Path>, U: AsRef<Path>>(home: &T, root: &U) -> Result<Self> {
+        let width = 21;
         let mut paths: Self = Default::default();
 
-        // Resolve root directory working our way up the path until we find `initramfs`
-        paths.root_dir = sys::exec_dir()?;
-        loop {
-            if paths.root_dir.join("initramfs").exists() {
-                break;
-            }
-            paths.root_dir = paths.root_dir.dirname()?;
-        }
+        // Set the root directory
+        paths.root_dir = root.as_ref().abs()?;
+        debug!("{:>w$}: {}", "Root Dir", paths.root_dir.to_string()?.cyan(), w = width);
 
         // Configure all other paths based off root or home
         paths.out_dir = paths.root_dir.join("temp");
+        debug!("{:>w$}: {}", "Out Dir", paths.out_dir.to_string()?.cyan(), w = width);
         paths.aur_dir = paths.root_dir.join("aur");
+        debug!("{:>w$}: {}", "Aur Dir", paths.aur_dir.to_string()?.cyan(), w = width);
         paths.config_dir = paths.aur_dir.join("cyberlinux-config/config");
+        debug!("{:>w$}: {}", "Config Dir", paths.config_dir.to_string()?.cyan(), w = width);
         paths.vagrant_dir = paths.root_dir.join("vagrant");
+        debug!("{:>w$}: {}", "Vagrant Dir", paths.vagrant_dir.to_string()?.cyan(), w = width);
         paths.work_dir = paths.out_dir.join("work");
+        debug!("{:>w$}: {}", "Work Dir", paths.work_dir.to_string()?.cyan(), w = width);
         paths.pacman_dir = paths.out_dir.join("pacman");
+        debug!("{:>w$}: {}", "Pacman Dir", paths.pacman_dir.to_string()?.cyan(), w = width);
         paths.pacman_cache = paths.pacman_dir.join("cache");
+        debug!("{:>w$}: {}", "Pacman Cache Dir", paths.pacman_cache.to_string()?.cyan(), w = width);
         paths.tmp_dir = paths.work_dir.join("tmp");
+        debug!("{:>w$}: {}", "Temp Dir", paths.tmp_dir.to_string()?.cyan(), w = width);
         paths.iso_dir = paths.work_dir.join("_iso_");
+        debug!("{:>w$}: {}", "ISO Dir", paths.iso_dir.to_string()?.cyan(), w = width);
         paths.deployments_dir = paths.work_dir.join("deployments");
+        debug!("{:>w$}: {}", "Deployments Dir", paths.deployments_dir.to_string()?.cyan(), w = width);
         paths.motd_path = paths.config_dir.join("shell/etc/motd");
+        debug!("{:>w$}: {}", "motd Path", paths.motd_path.to_string()?.cyan(), w = width);
         paths.pacman_src_conf = paths.config_dir.join("shell/etc/pacman.conf");
-        paths.pacman_src_mirrors = sys::getpaths(&paths.config_dir.join("shell/etc/pacman.d/*.mirrorlist"))?;
+        debug!("{:>w$}: {}", "pacman.conf Path", paths.pacman_src_conf.to_string()?.cyan(), w = width);
+        paths.pacman_src_mirrors = sys::glob(&paths.config_dir.join("shell/etc/pacman.d/*.mirrorlist"))?;
+        for x in &paths.pacman_src_mirrors {
+            debug!("{:>w$}: {}", "Pacman Mirror Paths", x.to_string()?.cyan(), w = width);
+        }
         paths.boot_iso = paths.iso_dir.join("boot");
+        debug!("{:>w$}: {}", "Boot ISO Dir", paths.boot_iso.to_string()?.cyan(), w = width);
         paths.efi_iso = paths.iso_dir.join("efi/boot");
+        debug!("{:>w$}: {}", "EFI ISO Dir", paths.efi_iso.to_string()?.cyan(), w = width);
         paths.deployment_images = paths.iso_dir.join("images");
+        debug!("{:>w$}: {}", "Deployment Images Dir", paths.deployment_images.to_string()?.cyan(), w = width);
         paths.grub_iso = paths.boot_iso.join("grub");
-        paths.grub_work = paths.work_dir.join("boot/grub_iso");
+        debug!("{:>w$}: {}", "Grub ISO Dir", paths.grub_iso.to_string()?.cyan(), w = width);
         paths.kernel_dir = PathBuf::from(&paths.boot_iso);
+        debug!("{:>w$}: {}", "Kernel Dir", paths.kernel_dir.to_string()?.cyan(), w = width);
+        paths.grub_work = paths.work_dir.join("boot/grub_iso");
+        debug!("{:>w$}: {}", "Grub Work Dir", paths.grub_work.to_string()?.cyan(), w = width);
         paths.kernel_prefix = "vmlinuz".to_string();
         paths.memtest_image = paths.boot_iso.join("memtest");
         paths.ucode_image = paths.boot_iso.join("intel-ucode");
         paths.initramfs_dir = PathBuf::from(&paths.boot_iso);
+        debug!("{:>w$}: {}", "Initramfs Dir", paths.initramfs_dir.to_string()?.cyan(), w = width);
         paths.initramfs_prefix = "initramfs".to_string();
         paths.initramfs_src = paths.root_dir.join("initramfs");
+        debug!("{:>w$}: {}", "Initramfs Src Dir", paths.initramfs_src.to_string()?.cyan(), w = width);
         paths.initramfs_work = paths.work_dir.join("initramfs");
+        debug!("{:>w$}: {}", "Initramfs Work Dir", paths.initramfs_work.to_string()?.cyan(), w = width);
         paths.packer_src = paths.root_dir.join("packer");
+        debug!("{:>w$}: {}", "Packer Src Dir", paths.packer_src.to_string()?.cyan(), w = width);
         paths.packer_work = paths.work_dir.join("packer");
+        debug!("{:>w$}: {}", "Packer Work Dir", paths.packer_work.to_string()?.cyan(), w = width);
         paths.profiles_dir = paths.root_dir.join("profiles");
+        debug!("{:>w$}: {}", "Profiles Dir", paths.profiles_dir.to_string()?.cyan(), w = width);
 
         // Configure image dirs
         paths.image_dirs.push(paths.out_dir.join("images"));
@@ -357,4 +378,68 @@ pub struct Menu {
     // Optional menu entry executable string to use to execute the entry.
     #[serde(default)]
     pub exec: String,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use fungus::prelude::*;
+
+    // Reusable teset setup
+    struct Setup {
+        temp: PathBuf,
+        root: PathBuf,
+    }
+    impl Setup {
+        fn init() -> Self {
+            let setup = Self {
+                temp: PathBuf::from("tests/temp").abs().unwrap(),
+                root: env::current_dir().unwrap().parent().unwrap().parent().unwrap().to_path_buf(),
+            };
+            sys::mkdir(&setup.temp).unwrap();
+            setup
+        }
+    }
+
+    #[test]
+    fn test_paths_init() {
+        let setup = Setup::init();
+        let homedir = user::home().unwrap();
+        let paths = Paths::init(&homedir, &setup.root).unwrap();
+
+        let root = paths.root_dir.to_string().unwrap() + "/";
+
+        assert_eq!(paths.out_dir.trim_prefix(&root), PathBuf::from("temp"));
+        assert_eq!(paths.aur_dir.trim_prefix(&root), PathBuf::from("aur"));
+        assert_eq!(paths.config_dir.trim_prefix(&root), PathBuf::from("aur/cyberlinux-config/config"));
+        assert_eq!(paths.vagrant_dir.trim_prefix(&root), PathBuf::from("vagrant"));
+        assert_eq!(paths.work_dir.trim_prefix(&root), PathBuf::from("temp/work"));
+        assert_eq!(paths.pacman_dir.trim_prefix(&root), PathBuf::from("temp/pacman"));
+        assert_eq!(paths.pacman_cache.trim_prefix(&root), PathBuf::from("temp/pacman/cache"));
+        assert_eq!(paths.tmp_dir.trim_prefix(&root), PathBuf::from("temp/work/tmp"));
+        assert_eq!(paths.iso_dir.trim_prefix(&root), PathBuf::from("temp/work/_iso_"));
+        assert_eq!(paths.deployments_dir.trim_prefix(&root), PathBuf::from("temp/work/deployments"));
+        assert_eq!(paths.motd_path.trim_prefix(&root), PathBuf::from("aur/cyberlinux-config/config/shell/etc/motd"));
+        assert_eq!(
+            paths.pacman_src_conf.trim_prefix(&root),
+            PathBuf::from("aur/cyberlinux-config/config/shell/etc/pacman.conf")
+        );
+        // paths.pacman_src_mirrors = sys::glob(&paths.config_dir.join("shell/etc/pacman.d/*.mirrorlist"))?;
+        // paths.boot_iso = paths.iso_dir.join("boot");
+        // paths.efi_iso = paths.iso_dir.join("efi/boot");
+        // paths.deployment_images = paths.iso_dir.join("images");
+        // paths.grub_iso = paths.boot_iso.join("grub");
+        // paths.kernel_dir = PathBuf::from(&paths.boot_iso);
+        // paths.grub_work = paths.work_dir.join("boot/grub_iso");
+        // paths.kernel_prefix = "vmlinuz".to_string();
+        // paths.memtest_image = paths.boot_iso.join("memtest");
+        // paths.ucode_image = paths.boot_iso.join("intel-ucode");
+        // paths.initramfs_dir = PathBuf::from(&paths.boot_iso);
+        // paths.initramfs_prefix = "initramfs".to_string();
+        // paths.initramfs_src = paths.root_dir.join("initramfs");
+        // paths.initramfs_work = paths.work_dir.join("initramfs");
+        // paths.packer_src = paths.root_dir.join("packer");
+        // paths.packer_work = paths.work_dir.join("packer");
+        // paths.profiles_dir = paths.root_dir.join("profiles");
+    }
 }
