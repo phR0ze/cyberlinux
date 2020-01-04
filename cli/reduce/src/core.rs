@@ -15,26 +15,28 @@ pub const BASE_PROFILE: &'static str = "base";
 // Reduce implementation
 // -------------------------------------------------------------------------------------------------
 pub struct Reduce {
+    pub(crate) test: bool,
     pub(crate) debug: bool,
     pub(crate) quiet: bool,
     pub(crate) homedir: PathBuf,
     pub(crate) rootdir: PathBuf,
     pub(crate) loglevel: log::Level,
-    pub(crate) out: Rc<RefCell<dyn io::Write>>,
     pub(crate) paths: model::Paths,
     pub(crate) vars: model::Vars,
+    pub(crate) out: Rc<RefCell<dyn io::Write>>,
 }
 impl Default for Reduce {
     fn default() -> Self {
         Self {
+            test: Default::default(),
             debug: Default::default(),
             quiet: Default::default(),
             homedir: Default::default(),
             rootdir: Default::default(),
             loglevel: log::Level::Info,
-            out: Rc::new(RefCell::new(io::stdout())),
             paths: Default::default(),
             vars: Default::default(),
+            out: Rc::new(RefCell::new(io::stdout())),
         }
     }
 }
@@ -45,16 +47,25 @@ impl Reduce {
         Ok(Self { homedir: homedir, ..Default::default() })
     }
 
-    /// Set the debug mode with the given `yes` value.
+    /// Set test mode with the given `yes` value.
+    pub fn test(&mut self, yes: bool) -> &mut Self {
+        self.test = yes;
+        self
+    }
+
+    /// Set debug mode with the given `yes` value.
     pub fn debug(&mut self, yes: bool) -> &mut Self {
         self.debug = yes;
         self
     }
 
-    /// Set the quiet mode with the given `yes` value.
+    /// Set quiet mode with the given `yes` value.
     pub fn quiet(&mut self, yes: bool) -> &mut Self {
         self.quiet = yes;
-        Logger::enable_silence();
+        match yes {
+            true => Logger::enable_silence(),
+            false => Logger::disable_silence(),
+        }
         self
     }
 
@@ -81,29 +92,29 @@ impl Reduce {
         // Configure logging and print out startup
         Logger::init()?;
         Logger::set_level(self.loglevel);
+        if self.test {
+            Logger::enable_buffer();
+        }
         info!("{}", format!("<<{{ {} v{} }}>>", APP_NAME, APP_VERSION).green().bold());
 
         // Configure pathing and load profile
         self.configure_pathing()?;
         self.load_profile(self.paths.profiles_dir.mash(format!("{}.yml", BASE_PROFILE)))?;
+        self.create_directory_structure()?;
 
         Ok(self)
     }
 
     /// Configure pathing
     pub(crate) fn configure_pathing(&mut self) -> Result<()> {
-        info!("Configuring pathing...");
-
-        // Resolve root directory working our way up the path until we find `initramfs` if not set
+        // Resolve root directory if not set by working our way up the path until we find `initramfs`
         if self.rootdir == PathBuf::new() {
             self.rootdir = exec::dir()?;
-            loop {
-                if self.rootdir.join("initramfs").exists() {
-                    break;
-                }
+            while !self.rootdir.join("initramfs").exists() {
                 self.rootdir = self.rootdir.dir()?;
             }
         }
+        info!("Configuring pathing at root: {}", self.rootdir.cyan()?);
         self.paths = model::Paths::init(&self.homedir, &self.rootdir)?;
         Ok(())
     }
@@ -131,7 +142,7 @@ impl Reduce {
         ];
         for x in &paths {
             if !x.exists() {
-                info!("Creating dir: {}", x.to_string()?.cyan());
+                info!("Creating dir: {}", x.cyan()?);
                 sys::mkdir(&x)?;
                 changed = true;
             }
@@ -146,10 +157,10 @@ impl Reduce {
         if self.paths.loaded_profiles.contains(&target) {
             return Ok(());
         }
-        info!("Loading target profile: {}", target.to_string()?.cyan());
+        info!("Loading profile: {}", target.cyan()?);
         let file = fs::File::open(&target)?;
         let profile: model::Profile = serde_yaml::from_reader(file)?;
-        debug!("{:#?}", profile);
+        //debug!("{:#?}", profile);
 
         self.paths.loaded_profiles.push(target);
         Ok(())
@@ -179,23 +190,54 @@ mod tests {
         fn init() -> Self {
             let setup = Self {
                 temp: PathBuf::from("tests/temp").abs().unwrap(),
-                root: env::current_dir().unwrap().parent().unwrap().parent().unwrap().to_path_buf(),
+                root: env::current_dir().unwrap().mash("../../").abs().unwrap(),
             };
             sys::mkdir(&setup.temp).unwrap();
             setup
         }
     }
 
+    fn copy_profile_to<T: AsRef<Path>>(path: T) -> Result<()> {
+        let profile = env::current_dir()?.mash("../../profiles/base.yml").abs()?;
+        sys::mkdir(profile.dir()?)?;
+        sys::copyfile(profile, path)?;
+        Ok(())
+    }
+
     #[test]
     fn test_init() {
         let setup = Setup::init();
-        let mut reduce = Reduce::new().unwrap();
-        reduce.quiet(true);
+        let root = setup.temp.mash("init");
+        let profile = root.mash("profiles/base.yml");
+        assert!(sys::remove_all(&root).is_ok());
+        assert!(copy_profile_to(&profile).is_ok());
 
+        let mut reduce = Reduce::new().unwrap();
+        reduce.rootdir(&root).unwrap().quiet(true);
         assert!(reduce.init().is_ok());
-        assert_eq!(reduce.paths.root_dir, setup.root);
+
+        // Validate root path
+        assert_eq!(reduce.paths.root_dir, root);
+
+        // Validate base profile loaded
         let profile = reduce.paths.profiles_dir.mash(format!("{}.yml", BASE_PROFILE));
         assert!(reduce.paths.loaded_profiles.contains(&profile));
+
+        // Validate that the correct directory structure was created
+        assert!(reduce.paths.work_dir.exists());
+        assert!(reduce.paths.tmp_dir.exists());
+        assert!(reduce.paths.grub_work.exists());
+        assert!(reduce.paths.deployments_dir.exists());
+        assert!(reduce.paths.initramfs_dir.exists());
+        assert!(reduce.paths.grub_iso.exists());
+        assert!(reduce.paths.efi_iso.exists());
+        assert!(reduce.paths.deployment_images.exists());
+        assert!(reduce.paths.packer_work.exists());
+        assert!(reduce.paths.image_dirs.first().unwrap().exists());
+        assert!(reduce.paths.vagrant_dir.exists());
+        assert!(reduce.paths.profiles_dir.mash(format!("{}.yml", BASE_PROFILE)).exists());
+
+        assert!(sys::remove_all(&root).is_ok());
     }
 
     #[test]

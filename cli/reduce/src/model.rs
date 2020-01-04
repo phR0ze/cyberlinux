@@ -44,65 +44,65 @@ impl Paths {
 
         // Set the root directory
         paths.root_dir = root.as_ref().abs()?;
-        debug!("{:>w$}: {}", "Root Dir", paths.root_dir.to_string()?.cyan(), w = width);
+        debug!("{:>w$}: {}", "Root Dir", paths.root_dir.cyan()?, w = width);
 
         // Configure all other paths based off root or home
         paths.out_dir = paths.root_dir.join("temp");
-        debug!("{:>w$}: {}", "Out Dir", paths.out_dir.to_string()?.cyan(), w = width);
+        debug!("{:>w$}: {}", "Out Dir", paths.out_dir.cyan()?, w = width);
         paths.aur_dir = paths.root_dir.join("aur");
-        debug!("{:>w$}: {}", "Aur Dir", paths.aur_dir.to_string()?.cyan(), w = width);
+        debug!("{:>w$}: {}", "Aur Dir", paths.aur_dir.cyan()?, w = width);
         paths.config_dir = paths.aur_dir.join("cyberlinux-config/config");
-        debug!("{:>w$}: {}", "Config Dir", paths.config_dir.to_string()?.cyan(), w = width);
+        debug!("{:>w$}: {}", "Config Dir", paths.config_dir.cyan()?, w = width);
         paths.vagrant_dir = paths.root_dir.join("vagrant");
-        debug!("{:>w$}: {}", "Vagrant Dir", paths.vagrant_dir.to_string()?.cyan(), w = width);
+        debug!("{:>w$}: {}", "Vagrant Dir", paths.vagrant_dir.cyan()?, w = width);
         paths.work_dir = paths.out_dir.join("work");
-        debug!("{:>w$}: {}", "Work Dir", paths.work_dir.to_string()?.cyan(), w = width);
+        debug!("{:>w$}: {}", "Work Dir", paths.work_dir.cyan()?, w = width);
         paths.pacman_dir = paths.out_dir.join("pacman");
-        debug!("{:>w$}: {}", "Pacman Dir", paths.pacman_dir.to_string()?.cyan(), w = width);
+        debug!("{:>w$}: {}", "Pacman Dir", paths.pacman_dir.cyan()?, w = width);
         paths.pacman_cache = paths.pacman_dir.join("cache");
-        debug!("{:>w$}: {}", "Pacman Cache Dir", paths.pacman_cache.to_string()?.cyan(), w = width);
+        debug!("{:>w$}: {}", "Pacman Cache Dir", paths.pacman_cache.cyan()?, w = width);
         paths.tmp_dir = paths.work_dir.join("tmp");
-        debug!("{:>w$}: {}", "Temp Dir", paths.tmp_dir.to_string()?.cyan(), w = width);
+        debug!("{:>w$}: {}", "Temp Dir", paths.tmp_dir.cyan()?, w = width);
         paths.iso_dir = paths.work_dir.join("_iso_");
-        debug!("{:>w$}: {}", "ISO Dir", paths.iso_dir.to_string()?.cyan(), w = width);
+        debug!("{:>w$}: {}", "ISO Dir", paths.iso_dir.cyan()?, w = width);
         paths.deployments_dir = paths.work_dir.join("deployments");
-        debug!("{:>w$}: {}", "Deployments Dir", paths.deployments_dir.to_string()?.cyan(), w = width);
+        debug!("{:>w$}: {}", "Deployments Dir", paths.deployments_dir.cyan()?, w = width);
         paths.motd_path = paths.config_dir.join("shell/etc/motd");
-        debug!("{:>w$}: {}", "motd Path", paths.motd_path.to_string()?.cyan(), w = width);
+        debug!("{:>w$}: {}", "motd Path", paths.motd_path.cyan()?, w = width);
         paths.pacman_src_conf = paths.config_dir.join("shell/etc/pacman.conf");
-        debug!("{:>w$}: {}", "pacman.conf Path", paths.pacman_src_conf.to_string()?.cyan(), w = width);
+        debug!("{:>w$}: {}", "pacman.conf Path", paths.pacman_src_conf.cyan()?, w = width);
         paths.pacman_src_mirrors = sys::glob(&paths.config_dir.join("shell/etc/pacman.d/*.mirrorlist"))?;
         for x in &paths.pacman_src_mirrors {
-            debug!("{:>w$}: {}", "Pacman Mirror Paths", x.to_string()?.cyan(), w = width);
+            debug!("{:>w$}: {}", "Pacman Mirror Paths", x.cyan()?, w = width);
         }
         paths.boot_iso = paths.iso_dir.join("boot");
-        debug!("{:>w$}: {}", "Boot ISO Dir", paths.boot_iso.to_string()?.cyan(), w = width);
+        debug!("{:>w$}: {}", "Boot ISO Dir", paths.boot_iso.cyan()?, w = width);
         paths.efi_iso = paths.iso_dir.join("efi/boot");
-        debug!("{:>w$}: {}", "EFI ISO Dir", paths.efi_iso.to_string()?.cyan(), w = width);
+        debug!("{:>w$}: {}", "EFI ISO Dir", paths.efi_iso.cyan()?, w = width);
         paths.deployment_images = paths.iso_dir.join("images");
-        debug!("{:>w$}: {}", "Deployment Images Dir", paths.deployment_images.to_string()?.cyan(), w = width);
+        debug!("{:>w$}: {}", "Deployment Images Dir", paths.deployment_images.cyan()?, w = width);
         paths.grub_iso = paths.boot_iso.join("grub");
-        debug!("{:>w$}: {}", "Grub ISO Dir", paths.grub_iso.to_string()?.cyan(), w = width);
+        debug!("{:>w$}: {}", "Grub ISO Dir", paths.grub_iso.cyan()?, w = width);
         paths.kernel_dir = PathBuf::from(&paths.boot_iso);
-        debug!("{:>w$}: {}", "Kernel Dir", paths.kernel_dir.to_string()?.cyan(), w = width);
+        debug!("{:>w$}: {}", "Kernel Dir", paths.kernel_dir.cyan()?, w = width);
         paths.grub_work = paths.work_dir.join("boot/grub_iso");
-        debug!("{:>w$}: {}", "Grub Work Dir", paths.grub_work.to_string()?.cyan(), w = width);
+        debug!("{:>w$}: {}", "Grub Work Dir", paths.grub_work.cyan()?, w = width);
         paths.kernel_prefix = "vmlinuz".to_string();
         paths.memtest_image = paths.boot_iso.join("memtest");
         paths.ucode_image = paths.boot_iso.join("intel-ucode");
         paths.initramfs_dir = PathBuf::from(&paths.boot_iso);
-        debug!("{:>w$}: {}", "Initramfs Dir", paths.initramfs_dir.to_string()?.cyan(), w = width);
+        debug!("{:>w$}: {}", "Initramfs Dir", paths.initramfs_dir.cyan()?, w = width);
         paths.initramfs_prefix = "initramfs".to_string();
         paths.initramfs_src = paths.root_dir.join("initramfs");
-        debug!("{:>w$}: {}", "Initramfs Src Dir", paths.initramfs_src.to_string()?.cyan(), w = width);
+        debug!("{:>w$}: {}", "Initramfs Src Dir", paths.initramfs_src.cyan()?, w = width);
         paths.initramfs_work = paths.work_dir.join("initramfs");
-        debug!("{:>w$}: {}", "Initramfs Work Dir", paths.initramfs_work.to_string()?.cyan(), w = width);
+        debug!("{:>w$}: {}", "Initramfs Work Dir", paths.initramfs_work.cyan()?, w = width);
         paths.packer_src = paths.root_dir.join("packer");
-        debug!("{:>w$}: {}", "Packer Src Dir", paths.packer_src.to_string()?.cyan(), w = width);
+        debug!("{:>w$}: {}", "Packer Src Dir", paths.packer_src.cyan()?, w = width);
         paths.packer_work = paths.work_dir.join("packer");
-        debug!("{:>w$}: {}", "Packer Work Dir", paths.packer_work.to_string()?.cyan(), w = width);
+        debug!("{:>w$}: {}", "Packer Work Dir", paths.packer_work.cyan()?, w = width);
         paths.profiles_dir = paths.root_dir.join("profiles");
-        debug!("{:>w$}: {}", "Profiles Dir", paths.profiles_dir.to_string()?.cyan(), w = width);
+        debug!("{:>w$}: {}", "Profiles Dir", paths.profiles_dir.cyan()?, w = width);
 
         // Configure image dirs
         paths.image_dirs.push(paths.out_dir.join("images"));

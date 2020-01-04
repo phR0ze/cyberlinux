@@ -1,6 +1,6 @@
 [package]
 name = "reduce"
-version = "0.3.13"
+version = "0.3.14"
 edition = "2018"
 authors = ["phR0ze"]
 license = "MIT OR Apache-2.0"
@@ -14,12 +14,6 @@ categories = ["command-line-utilities"]
 [dependencies]
 serde_yaml = "0.8"
 serde = { version = "1.0", features = ["derive"] }
-<<<<<<< HEAD
-core = { git = "https://github.com/phR0ze/rs", version = "0.0.42" }
-logs = { git = "https://github.com/phR0ze/rs", version = "0.0.42" }
-sys = { git = "https://github.com/phR0ze/rs", version = "0.0.42" }
-=======
 
 [dependencies.fungus]
 features = ["_libc_", "_crypto_"]
->>>>>>> 0.3.7: Working on rust implementation

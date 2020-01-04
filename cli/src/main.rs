@@ -42,10 +42,11 @@ fn main() -> Result<()> {
 
 #[cfg(test)]
 mod tests {
+    use fungus::prelude::*;
+    use reduce::*;
 
-    // #[test]
-    // fn test_main() {
-    //     let name = sys::exec_name().unwrap();
-    //     println!("{:?}", name);
-    // }
+    #[test]
+    fn test_main() {
+        let reduce = Reduce::new().unwrap().loglevel(log::Level::Trace).init().unwrap();
+    }
 }

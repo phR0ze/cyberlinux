@@ -7,23 +7,42 @@
         {
             "type": "lldb",
             "request": "launch",
+            "name": "Debug unit tests in library 'reduce'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=reduce"
+                ],
+                "filter": {
+                    "name": "reduce",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
             "name": "Debug executable 'reduce'",
             "cargo": {
                 "args": [
                     "build",
                     "--bin=reduce",
-                    "--package=reduce"
+                    "--package=reduce-cli"
                 ],
                 "filter": {
                     "name": "reduce",
                     "kind": "bin"
                 }
             },
-            "args": [],
-            "cwd": "${workspaceFolder}",
-            "sourceLanguages": [
-                "rust"
-            ]
+            "args": [
+                "build",
+                "all"
+            ],
+            "cwd": "${workspaceFolder}"
         },
         {
             "type": "lldb",
@@ -34,7 +53,7 @@
                     "test",
                     "--no-run",
                     "--bin=reduce",
-                    "--package=reduce"
+                    "--package=reduce-cli"
                 ],
                 "filter": {
                     "name": "reduce",
@@ -42,10 +61,7 @@
                 }
             },
             "args": [],
-            "cwd": "${workspaceFolder}",
-            "sourceLanguages": [
-                "rust"
-            ]
+            "cwd": "${workspaceFolder}"
         }
     ]
 }
