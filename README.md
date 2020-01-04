@@ -1,4 +1,9 @@
 # cyberlinux
+[![build-badge](https://travis-ci.com/phR0ze/cyberlinux.svg?branch=master)](https://travis-ci.com/phR0ze/cyberlinux)
+[![coverage-badge](https://coveralls.io/repos/github/phR0ze/cyberlinux/badge.svg?branch=master)](https://coveralls.io/github/phR0ze/cyberlinux?branch=master)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
+### Disclaimer
 <img align="left" width="48" height="48" src="art/logo_256x256.png">
 <b><i>cyberlinux</i></b> was designed to provide the unobtrusive beauty and power of Arch Linux as a fully
 customized automated offline multi-deployment ISO. Using clean declarative yaml profiles,
@@ -7,11 +12,6 @@ which are bundled as a bootable ISO. Many common use cases are available as depl
 right out of the box, but the option to build your own infinitely flexible deployment is yours
 for the taking.
 
-[![build-badge](https://travis-ci.com/phR0ze/cyberlinux.svg?branch=master)](https://travis-ci.com/phR0ze/cyberlinux)
-[![coverage-badge](https://coveralls.io/repos/github/phR0ze/cyberlinux/badge.svg?branch=master)](https://coveralls.io/github/phR0ze/cyberlinux?branch=master)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-
-### Disclaimer
 ***cyberlinux*** comes with absolutely no guarantees or support of any kind. It is to be used at
 your own risk.  Any damages, issues, losses or problems caused by the use of ***cyberlinux*** are
 strictly the responsiblity of the user and not the developer/creator of ***cyberlinux***.
