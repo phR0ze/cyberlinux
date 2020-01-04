@@ -1,10 +1,27 @@
-#language: ruby
-#sudo: false
-#cache: bundler
-#rvm:
-#  - 2.5.0
-#before_install:
-#  - gem update --system
-#script: 'bundle exec rake'
-#notifications:
-#  email: false
+language: rust
+sudo: required
+dist: bionic
+addons:
+  apt:
+    packages:
+      - libssl-dev
+cache: cargo
+rust:
+  - stable
+
+before_cache: |
+  if [[ "$TRAVIS_RUST_VERSION" == stable ]]; then
+    cargo install cargo-tarpaulin -f
+  fi
+
+script:
+- cargo build
+
+after_success: |
+  if [[ "$TRAVIS_RUST_VERSION" == stable ]]; then
+    cargo tarpaulin --ciserver travis-ci --coveralls $TRAVIS_JOB_ID
+  fi
+
+notifications:
+  email:
+    on_success: never
