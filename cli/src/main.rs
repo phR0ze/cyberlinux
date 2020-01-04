@@ -47,6 +47,6 @@ mod tests {
 
     #[test]
     fn test_main() {
-        let reduce = Reduce::new().unwrap().loglevel(log::Level::Trace).init().unwrap();
+        //let reduce = Reduce::new().unwrap().loglevel(log::Level::Trace).init().unwrap();
     }
 }
