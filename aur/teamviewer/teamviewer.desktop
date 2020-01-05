@@ -1,9 +1,0 @@
-[Desktop Entry]
-Name=Teamviewer
-Comment=Remote control and meeting solution
-Exec=teamviewer
-Icon=teamviewer
-Terminal=false
-StartupNotify=true
-Type=Application
-Categories=Network;

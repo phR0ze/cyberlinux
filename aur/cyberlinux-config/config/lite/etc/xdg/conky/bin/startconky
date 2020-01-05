@@ -1,2 +1,0 @@
-#!/bin/bash
-sleep 2 && exec conky -c /etc/xdg/conky/.conkyrc
