@@ -758,6 +758,11 @@ Graphics:  Card-1: NVIDIA GT200GL [Quadro FX 3800]
 $ yay -Ga nvidia-340xx-utils
 $ cd nvidia-340xx-utils
 $ makepkg -s
+$ sudo pacman -U nvidia-340xx-utils-340.108-1-x86_64.pkg.tar.xz
+
+$ yay -Ga lib32-nvidia-340xx-utils
+$ cd lib32-nvidia-340xx-utils
+$ makepkg -s
 
 $ yay -Ga nvidia-340xx-settings
 $ cd nvidia-340xx-settings
