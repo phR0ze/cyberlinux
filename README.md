@@ -513,6 +513,10 @@ either system.
   * [PDFs](#pdfs)
     * [Combine PDFs](#combine-pdfs)
     * [Convert Images to PDF](#convert-images-to-pdf)
+* [Games](#games)
+  * [HedgeWars](#hedgewars)
+    * [Install HedgeWars](#install-hedgewars)
+    * [libGL nvidia-340xx fix](#libgl-nvidia-340xx-fix)
 * [Packages](#packages)
   * [Init Database](#init-database)
   * [Update Mirrorlist](#update-mirrorlist)
@@ -1886,6 +1890,36 @@ $ sudo vim /etc/ImageMagick-7/policy.xml
 # Convert images to pdf
 # -quality is the jpeg compression to use for images
 $ convert -resize 50% -quality 98 -units pixelsperinch -density 150 image1.jpg image2.jpg output.pdf
+```
+
+# Games <a name="games"/></a>
+## HedgeWars <a name="hedgewars"/></a>
+HedgeWars is a Worms clone and a lot of fun.
+
+### Install HedgeWars <a name="install-hedgewars"/></a>
+Install:
+```bash
+$ sudo pacman -S hedgewars
+```
+
+### libGL nvidia-340xx fix <a name="libgl-nvidia-340xx-fix"/></a>
+Unfortunately when using the older `nvidia-340xx` proprietary driver it has issues with `libGL`
+[library linkage](https://forum.manjaro.org/t/hedgewars-nvidia-problem-with-proprietary-driver-cant-launch-game-libglnvd-conflict/45955).
+
+To fix the issue we need to update the libs to use the nvidia versions:
+```bash
+# List out the faulty libs
+sudo ldconfig -p | grep libGL.so.1
+	libGL.so.1 (libc6,x86-64) => /usr/lib/nvidia/libGL.so.1
+	libGL.so.1 (libc6,x86-64) => /usr/lib/libGL.so.1
+	libGL.so.1 (libc6) => /usr/lib32/nvidia/libGL.so.1
+	libGL.so.1 (libc6) => /usr/lib32/libGL.so.1
+
+# Fix the linkage
+sudo rm /usr/lib/libGL.so.1
+sudo rm /usr/lib32/libGL.so.1
+sudo ln -s /usr/lib/nvidia/libGL.so.1 /usr/lib/libGL.so.1
+sudo ln -s /usr/lib32/nvidia/libGL.so.1 /usr/lib32/libGL.so.1
 ```
 
 # Packages <a name="packages"/></a>
