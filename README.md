@@ -509,6 +509,7 @@ either system.
     * [Turn off Smart Quotes](#turn-off-smart-quotes)
     * [Turn off Replace Dashes](#turn-off-replace-dashes)
     * [Turn off Automatic Strikeout](#turn-off-automatic-strikeout)
+    * [Fix Spellcheck Issue](#fix-spellcheck-issue)
     * [Repeatable Config](#repeatable-config)
   * [PDFs](#pdfs)
     * [Combine PDFs](#combine-pdfs)
@@ -1857,6 +1858,26 @@ $ sudo exportfs -v
 1. Navigate to ***Tools >AutoCorrect >AutoCorrect Options...***  
 2. Select the ***Options*** tab  
 3. Uncheck ***Automatic bold,italic,strikeout,underline***   
+
+### Fix Spellcheck Issue <a name="fix-spellcheck-issue"/></a>
+LibreWriter has a notorious issue with getting the spell checker to work correctly when you it `F7`.
+The problem is that first of all LibreWriter allows the default language to be set in multiple places
+and second that you have to have your curser on a line that has text before pressing `F7` or it won't
+be able to determine the correct language to use.
+
+Default language override order:
+1. In the global settings `Tools >Options... >Language Settings >Languages >Western >English (USA)`
+2. In the paragraph styles `k`
+
+Ensure the paragraph style is set correctly in any custom templates:
+1. Open `~/.config/libreoffice/4/user/template/standard.ott`
+2. Open the template styles by clicking the hamburger on the right and choosing `Styles`
+3. Right click on the `Default Style` and choose `Modify...`
+4. Select the `Font` tab
+5. Set the `Language` to `English (USA)`
+6. Note at the bottom the language called out `English (USA)`
+7. Click `Save as Template...`
+8. Choose `My Templates` and name `standard`
 
 ### Repeatable Config <a name="repeatable-config"/></a>
 LibreOffice stores its user configuration in the `~/.config/libreoffice/4/user/registrymodifications.xdu` file.
