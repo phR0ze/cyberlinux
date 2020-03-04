@@ -1970,7 +1970,7 @@ Install latest mirrorlist and rank by fastest 20
 ```bash
 # Install the latest mirror list
 $ sudo pacman -S pacman-mirrorlist
-$ sudo mv /etc/pacman.d/mirrorlist.pacnew /etc/pacman.d/mirrorlist`  
+$ sudo mv /etc/pacman.d/mirrorlist.pacnew /etc/pacman.d/mirrorlist
 
 # Sort mirrorlist by speed  
 # First uncomment all the US mirrors then delete everything else
