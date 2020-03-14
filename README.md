@@ -547,8 +547,7 @@ either system.
 * [Storage](#storage)
   * [Add Drive](#add-drive)
   * [Clone Drive](#clone-drive)
-  * [Shred Drive](#shred-drive)
-  * [Wipe Drive](#wipe-drive)
+  * [Securely Wipe Drive](#securely-wipe-drive)
   * [RAID Drives](#raid-drives)
   * [Test Drive](#test-drive)
 * [System](#system)
@@ -2298,16 +2297,14 @@ sudo dd if=/dev/sdX of=/dev/sdY bs=1M conv=sync,noerror
 watch -n10 'sudo kill -USR1 $(pgrep ^dd)'
 ```
 
-## Shred Drive <a name="shred-drive"/></a>
-```bash
-sudo shred -v --random-source=/dev/urandom -n1 /dev/sdX
-```
+## Secure Wipe Drive <a name="secure-wipe-drive"/></a>
+To securely shred all data on a drive you can use the shred tool:
+* `-v` - verbose output
+* `-z` - add a final pass of zeros to hide shredding
+* `-n` - number of shred passes default to 3
 
-## Wipe Drive <a name="wipe-drive"/></a>
 ```bash
-sudo dd if=/dev/zero of=/dev/sdX bs=512 count=2048
-sudo bash -c 'dd if=/dev/zero of=/dev/sdX bs=512 count=2048 seek=$((`blockdev --getsz /dev/sdX` - 2048))'
-sudo wipefs --all --force /dev/sdX
+sudo shred -vzn 3 --random-source=/dev/urandom /dev/sdX
 ```
 
 ## RAID Drives <a name="raid-drives"/></a>
