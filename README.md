@@ -2297,7 +2297,7 @@ sudo dd if=/dev/sdX of=/dev/sdY bs=1M conv=sync,noerror
 watch -n10 'sudo kill -USR1 $(pgrep ^dd)'
 ```
 
-## Secure Wipe Drive <a name="secure-wipe-drive"/></a>
+## Securely Wipe Drive <a name="securely-wipe-drive"/></a>
 To securely shred all data on a drive you can use the shred tool:
 * `-v` - verbose output
 * `-z` - add a final pass of zeros to hide shredding
