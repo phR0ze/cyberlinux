@@ -2261,31 +2261,49 @@ sleep 2 && exec conky -c /etc/xdg/conky/.conkyrc
 # Storage <a name="storage"/></a>
 
 ## Add Drive <a name="add-drive"/></a>
-```bash
-# Get device names
-$ sudo fdisk -l
+1. Get device names
+   ```bash
+   $ lsblk
+   ```
 
-# Partition a drive via gdisk (greater than 2TB)
-$ sudo gdisk /dev/sdb
-# n to start create a new partition wizard
-# Accept default Partition number, hit enter
-# Accept defaults for First sector and Last sector
-# Accept default Hex code 8300 for Linux filesystem
-# w to write out the changes
+2. Destroy any RAID information if reusing the drive
+   ```bash
+   # Destroy RAID info from the begining of the drive
+   $ sudo dd if=/dev/zero of=/dev/sdX bs=512 count=2048
 
-# To tell kernel about changes  
-$ sudo partprobe /dev/sdb
+   # Destroy RAID info from the end of the drive
+   $ sudo bash -c 'dd if=/dev/zero of=/dev/sdX bs=512 count=2048 seek=$((`blockdev --getsz /dev/sdX` - 2048))'
+   ```
 
-# Format and Tune Drive  
-$ sudo mkfs.ext4 /dev/sdb1
+2. Partition the drive via `gdisk`
+   ```bash
+   $ sudo gdisk /dev/sdb
+   # n to start create a new partition wizard
+   # Accept default Partition number, hit enter
+   # Accept defaults for First sector and Last sector
+   # Accept default Hex code 8300 for Linux filesystem
+   # w to write out the changes
+   ```
 
-# For storage only set reserved blocks which defaults to 5% to 0 as it is unneeded.  These
-# reserved blocks are only used as a security measure on boot disks to that system functions can
-# continue to operate correctly even if a user has stuffed the drive.
-$ sudo tune2fs -m 0 /dev/sdb1
-```
+3. To tell kernel about changes
+   ```bash
+   $ sudo partprobe /dev/sdb
+   ```
 
-Most likely you'll want to also automount it [Add Automount using FSTAB](#add-automount-using-fstab)
+4. Format drive for `ext4`
+   ```bash
+   $ sudo mkfs.ext4 /dev/sdb1
+   ```
+
+5. Tune the drive to use its full capacity
+   ```bash
+   # For storage only set reserved blocks which defaults to 5% to 0 as it is unneeded.  These
+   # reserved blocks are only used as a security measure on boot disks to that system functions can
+   # continue to operate correctly even if a user has stuffed the drive.
+   $ sudo tune2fs -m 0 /dev/sdb1
+   ```
+
+6. [Automount using FSTAB](#add-automount-using-fstab)
 
 ## Clone Drive <a name="clone-drive"/></a>
 ```bash
@@ -2352,8 +2370,8 @@ recommended polling time: 	 ( 333) minutes.
 # Run short drive test in foreground
 $ sudo smartctl -t short -C /dev/sda
 
-# Run long test
-$ sudo smartctl -t long /dev/sda
+# Run long test in foreground
+$ sudo smartctl -t long -C /dev/sda
 
 # Show overall health check from tests once all tests have been run
 $ sudo smartctl -H /dev/sda
