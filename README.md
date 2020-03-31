@@ -978,7 +978,7 @@ $ scanimage -L
 
 Slow detection black list devices:
 ```bash
-# Firt time i detected devices
+# First time I detected devices
 $ scanimage -L
 device `v4l:/dev/video0' is a Noname HP Webcam 3110: HP Webcam 3110 virtual device
 
@@ -2370,8 +2370,9 @@ recommended polling time: 	 ( 333) minutes.
 # Run short drive test in foreground
 $ sudo smartctl -t short -C /dev/sda
 
-# Run long test in foreground
-$ sudo smartctl -t long -C /dev/sda
+# Run long test
+# Note: captive forground doesn't seem to work
+$ sudo smartctl -t long /dev/sda
 
 # Show overall health check from tests once all tests have been run
 $ sudo smartctl -H /dev/sda
