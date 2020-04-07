@@ -500,7 +500,8 @@ either system.
   * [NFS Shares](#nfs-shares)
     * [NFS Client Config](#nfs-server-config)
     * [NFS Server Config](#nfs-server-config)
-  * [File Sharing](#file-sharing)
+  * [OpenVPN](#openvpn)
+    * [Split DNS Resolution](#split-dns-resolution)
 * [Office](#office)
   * [LibreOffice](#libreoffice)
     * [Config Navigation](#config-navigation)
@@ -966,7 +967,6 @@ establish a connection and it started working after that.
 https://wiki.archlinux.org/index.php/SANE
 
 SANE is the defacto standard in the Linux community for scanning software.
-
 ```bash
 # Install
 $ sudo pacman -S sane
@@ -974,9 +974,10 @@ $ sudo pacman -S sane
 # Test if your scanner is reconized by SANE
 $ scanimage -L
 ```
+
 ### Workforce WF-7710<a name="scanner-workforce-wf-7710"/></a>
 
-Slow detection black list devices:
+**Slow detection black list devices:**
 ```bash
 # First time I detected devices
 $ scanimage -L
@@ -998,7 +999,7 @@ and saw the `WF-7710 Series` had a `Scanner Driver` package available which when
 and found the [Image Scan v3](https://wiki.archlinux.org/index.php/SANE/Scanner-specific_problems#Image_Scan_v3) 
 backend driver support section.
 
-Working throught the driver install process:
+**Working through the driver install process:**
 ```bash
 # Install imagescan
 $ sudo pacman -S imagescan
@@ -1014,7 +1015,7 @@ $ yaourt -S imagescan-plugin-networkscan
 # wf7710.model = WF-7710
 ```
 
-Scan a black and white document:
+**Scan a black and white document:**
 1. Launch the scanner with `utsushi`
 2. Set `Scan Area` to `Letter/Portrait`
 3. Set `Resolution` to `150`
@@ -1800,6 +1801,46 @@ $ sudo systemctl restart nfs-server
 # Check what is currently being served
 $ sudo exportfs -v
 ```
+
+## OpenVPN <a name="openvpn"/></a>
+Many VPN services are based on OpenVPN. In this section I'll be working through common configuration
+options.
+
+### OpenVPN Overview <a name="openvpn-overview"/></a>
+OpenVPN client configuration files are stored in `/etc/openvpn/client` usually with the `.ovpn`
+extension.
+
+### Split DNS Resolution <a name="split-dns-resolution"/></a>
+Split DNS resolution allows for using the VPN's DNS name servers for resolution for all things over
+the VPN and your normal DNS name servers for everything else.
+[update-systemd-resolved](https://github.com/jonathanio/update-systemd-resolved) is a helper script
+that reads from the `dhcp-option` in the server or client config then applies them dynamically to
+`systemd` via the `dbus`.
+
+1. Install from the cyberlinux repo:
+   ```bash
+   $ sudo pacman -S openvpn-update-systemd-resolved
+   ```
+2. Install OpenVPN client configuration file:
+   ```bash
+   $ sudo mv <client>.ovpn /etc/openvpn/client
+   ```
+3. Revoke read permissions on the client config to keep secrets secure:
+   ```bash
+   $ sudo chmod og-r /etc/openvpn/client/<client>.ovpn
+   ```
+4. Establish the VPN connection with Split DNS Resolution:
+   ```bash
+   $ sudo openvpn --config /etc/openvpn/client/<client>.ovpn --setenv PATH \
+     '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin' \
+     --script-security 2 --up /etc/openvpn/scripts/update-systemd-resolved \
+     --down /etc/openvpn/scripts/update-systemd-resolved --down-pre
+   ```
+5. Check that the Split DNS was configured correctly:
+   ```bash
+   # Look for new nameserver entries for the vpn
+   $ cat /etc/resolv.conf
+   ```
 
 # Office <a name="office"/></a>
 ## LibreOffice <a name="libreoffice"/></a>
