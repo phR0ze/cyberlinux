@@ -512,8 +512,11 @@ either system.
     * [Turn off Automatic Strikeout](#turn-off-automatic-strikeout)
     * [Fix Spellcheck Issue](#fix-spellcheck-issue)
     * [Repeatable Config](#repeatable-config)
+  * [OCR](#ocr)
+    * [Tesseract](#tesseract)
   * [PDFs](#pdfs)
     * [Combine PDFs](#combine-pdfs)
+    * [Rotate PDFs](#rotate-pdfs)
     * [Convert Images to PDF](#convert-images-to-pdf)
 * [Games](#games)
   * [HedgeWars](#hedgewars)
@@ -1928,6 +1931,13 @@ git to detect the diffs between the defaults and any changes you make.
 # Remove the existing configuration to have it defaulted
 ```
 
+## OCR <a name="ocr"/></a>
+
+### Tesseract <a name="tesseract"/></a>
+```bash
+$ tesseract input.png out
+```
+
 ## PDFs <a name="pdfs"/></a>
 
 ### Combine PDFs <a name="combine-pdfs"/></a>
@@ -1937,6 +1947,11 @@ $ sudo pacman -S pdfjoin
 
 # Join pdfs
 $ pdfjoin 1.pdf 2.pdf -o combined.pdf
+```
+
+### Rotate PDFs <a name="rotate-pdfs"/></a>
+```bash
+$ qpdf in.pdf out.pdf --rotate=[+|-]angle[:page-range]
 ```
 
 ### Convert Images to PDF <a name="convert-images-to-pdf"/></a>
