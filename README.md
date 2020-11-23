@@ -437,6 +437,7 @@ either system.
     * [Adapt Output Toggle](#adapt-output-toggle)
     * [Dual Output](#dual-output)
     * [VGA Output](#vga-output)
+    * [Quadro K600](#quadro-k600)
     * [Quadro FX 880M](#quadro-fx-880m)
     * [Quadro FX 3800](#quadro-fx-3800)
     * [Nvidia Proprietary](#nvidia-proprietary)
@@ -525,6 +526,7 @@ either system.
 * [Packages](#packages)
   * [Init Database](#init-database)
   * [Update Mirrorlist](#update-mirrorlist)
+  * [Create Repo Database](#create-repo-database)
 * [Patching](#patching)
   * [Create Patch](#create-patch)
   * [Apply Patch](#apply-patch)
@@ -545,6 +547,7 @@ either system.
   * [Boot from Live USB](#boot-from-live-usb)
   * [Black Screen](#black-screen)
   * [Check Logs for Errors](#check-logs-for-errors)
+  * [Update Old System](#update-old-system)
 * [Sesion](#session)
   * [XDG Autostart](#xdg-autostart)
     * [Exec Script](#exec-script)
@@ -728,6 +731,15 @@ xrandr --output VGA-1 --off --output eDP-1 --auto
 # Mapping this to Win + P or other hot key combo
 # Launch lxrandr
 # Select resolution of 1280x1024 for both monitors
+```
+
+### Quadro K600 <a name="quadro-k600"/></a>
+Use the `nvidia-340xx` driver in the cyberlinux repo
+```bash
+$ inxi -G
+Graphics:  Device-1: NVIDIA GK107GL [Quadro K600]
+
+$ sudo pacman -S nvidia-340xx
 ```
 
 ### Quadro FX 880M <a name="quadro-fx-880m"/></a>
@@ -1337,21 +1349,11 @@ Conky will need to be restarted to pick up new fonts
    ```bash
    $ sudo pacman -S linux-lts linux-lts-headers
    ```
-2. Update the boot loader config to point to the correct kernel
+2. Update the boot loader config to point to the target kernel
    ```bash
    $ sudo vim /boot/grub/grub.cfg
-   # Modify the `vmlinuz-linux` and `initramfs-linux` to use
+   # Modify the `vmlinuz-linux` and `initramfs-linux` entries to the target kernel
    # `vmlinuz-linux-lts` and `initramfs-linux-lts`
-   $ sudo reboot
-   ```
-3. Update the bootloader to point to the target kernel
-   ```bash
-   # Edit: vim /boot/grub/grub.cfg
-   # linux /boot/vmlinuz-linux root=LABEL=cyberlinux rw rd.systemd.show_status=auto rd.udev.log_priority=3 ipv6.disable=1
-   # initrd /boot/intel-ucode.img /boot/initramfs-linux.img
-   $ cat /boot/grub/grub.cfg
-   # linux /boot/vmlinuz-linux-lts root=LABEL=cyberlinux rw rd.systemd.show_status=auto rd.udev.log_priority=3 ipv6.disable=1
-   # initrd /boot/intel-ucode.img /boot/initramfs-linux-lts.img
    $ sudo reboot
    ```
 
@@ -1684,7 +1686,19 @@ sudo systemctl restart systemd-networkd
   # Network:   Card-1: Intel Ethernet Connection I217-LM driver: e1000e 
   #            Card-2: Intel Centrino Advanced-N 6235 driver: iwlwifi 
   ```
-2. Ensure ***systemd-networkd*** has been configured:
+2. Rename wifi id to something predictable:
+  ```bash
+  sudo tee /etc/systemd/network/10-wlo1.link <<EOL
+  [Match]
+  OriginalName=wl*
+
+  [Link]
+  Name=wlo1
+  EOL
+  sudo reboot
+  ```
+
+3. Ensure ***systemd-networkd*** has been configured:
   ```bash
   sudo tee /etc/systemd/network/30-wireless.network <<EOL
   [Match]
@@ -1701,33 +1715,27 @@ sudo systemctl restart systemd-networkd
   sudo systemctl daemon-reload
   sudo systemctl restart systemd-networkd
   ```
-3. Ensure ***wpa_supplicant*** is configured:
+4. Create minimal ***wpa_supplicant*** config:
   ```bash
+  sudo pacman -S wpa_supplicant wpa_gui
   sudo tee /etc/wpa_supplicant/wpa_supplicant-wlo1.conf <<EOL
   ctrl_interface=/run/wpa_supplicant
   ctrl_interface_group=wheel
   update_config=1
   p2p_disabled=1
-
-  network={
-    ssid="My Network"
-    psk="secret-key"
-    proto=RSN
-    key_mgmt=WPA-PSK
-    pairwise=CCMP
-    auth_alg=OPEN
-  }
   EOL
   sudo systemctl daemon-reload
   sudo systemctl enable wpa_supplicant@wlo1
   sudo systemctl start wpa_supplicant@wlo1
   sudo systemctl status wpa_supplicant@wlo1
   ```
-4. Launch with ***WPA UI***:
-  ```bash
-  sudo wpa_gui
-  # Click connect
-  ```
+4. Configure Wifi Connection:
+   a. Launch the gui: `sudo wpa_gui`  
+   b. Click `Scan >Scan`  
+   c. Double click the target network   
+   d. Choose `CCMP` as the Encryption method for `AES` endpoints  
+   e. Enter the `PSK` and click `Add`  
+   f. Click `Close` and you should see it is already `Completed` i.e. connected  
 
 ## NFS Shares <a name="nfs-shares"/></a>
 https://wiki.archlinux.org/index.php/NFS
@@ -2032,7 +2040,20 @@ $ sudo mv /etc/pacman.d/mirrorlist.pacnew /etc/pacman.d/mirrorlist
 $ sudo bash -c 'rankmirrors -n 20 /etc/pacman.d/mirrorlist > /etc/pacman.d/archlinux.mirrorlist'
 
 # Clean up
-$ sudo rm /etc/pacman.d/archlinux.mirrorlist
+$ sudo rm /etc/pacman.d/mirrorlist
+```
+
+## Create Repo Database <a name="create-repo-database"/></a>
+Creating a repo database from a directory of packages is a simple process:
+```bash
+# Navigate into the target directory
+$ cd ~/Projects/cyberlinux-repo/cyberlinux/x86_64
+
+# Remove prior database files
+$ rm -rf cyberlinux.*
+
+# Create the database
+$ repo-add cyberlinux.db.tar.gz *.pkg.tar.*
 ```
 
 # Patching <a name="patching"/></a>
@@ -2292,6 +2313,25 @@ $ journalctl --system
 $ journalctl -b
 ```
 
+## Update Old System <a name="update-old-system"/></a>
+When updating a really old system you'll need to do a few things:
+1. Get the keyring updated
+   ```bash
+   $ sudo scp -r /etc/pacman.d user@target-system.com:~/
+   $ ssh suer@target-system.com
+   $ sudo rm /etc/pacman.d
+   $ sudo mv ~/pacman.d /etc
+   ```
+2. Grab the static pacman with zst support
+   ```bash
+   $ wget https://pkgbuild.com/~eschwartz/repo/x86_64-extracted/pacman-static
+   ```
+3. Update your system keyring first
+   ```bash
+   $ sudo ./pacman-static -S archlinux-keyring
+   $ sudo ./pacman-static -Syu
+   ```
+
 # Session <a name="session"/></a>
 cyberlinux uses `lxsession` to manage its session which is started by the `/usr/bin/startx` in the
 `cyberlinux-lite-config` package which in turn is started by `lxdm`. LXSession will also kick off any
@@ -2459,6 +2499,9 @@ If powerline git status is not working try upgrading
 1. Update keyring first
    ```bash
    $ sudo pacman -Sy archlinux-keyring
+
+   # Note if your system is so old that it doesn't trust any keys you can
+   # copy the keys from a different machine: sudo scp -r /etc/pacman.d
    ```
 2. [Update mirrorlist](#update-mirrorlist)
 3. Update full system
