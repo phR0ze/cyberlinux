@@ -2088,17 +2088,17 @@ reduce the number of packages being downloaded.
 
 1. Setup an NFS share see [Share Package Cache](#share-package-cache) on your server
 2. Setup your client system to use the server's NFS share see [NFS Client Config](#nfs-client-config)
-3. Double check that the `Cache` share has the following properties set
-   * `rw,no_root_squash,insecure,no_subtree_check`
-4. Clear out the local pacman cache:
-   ```bash
-   $ sudo pacman -Scc
+3. Double check that the server config for the `Cache` share has the following properties set:
+   * `/srv/nfs/Cache       192.168.1.0/24(rw,no_root_squash,insecure,no_subtree_check)`
+4. Double check that the client config for the `Cache` share has the following properties set:
+   * `192.168.1.2:/srv/nfs/Cache /mnt/Cache nfs auto,noacl,noatime,nodiratime,rsize=8192,wsize=8192,timeo=15,_netdev 0 0`
+4. Update your `/etc/pacman.conf` to use the new cache:
    ```
-5. Now bind mount your share to the pacman cache location:
+   # Using an alternate path to /var/cache/pacman/pkg as it interferred with tmp-filesystem mounting
+   CacheDir = /mnt/Cache
+   ```
+5. Now mount the share manually and check that it worked:
    ```bash
-   $ sudo tee -a /etc/fstab <<EOL
-   /mnt/Cache /var/cache/pacman/pkg none bind 0 0
-   EOL
    $ sudo mount -a
    ```
 6. Occasionally you'll want to clean the cache:
@@ -2106,6 +2106,59 @@ reduce the number of packages being downloaded.
    # Remove all but the last package installed
    $ sudo paccache -rk 1
    ```
+
+Trouble shooting failure to mount on boot:
+```bash
+# Find name of mount unit
+$ sudo systemctl | grep Cache
+mnt-Cache.mount
+
+# List out the dependencies and found `systemd-networkd-wait-online.service` was in red
+$ sudo systemctl list-dependencies mnt-Cache.mount
+mnt-Cache.mount
+● ├─system.slice
+● └─network-online.target
+●   └─systemd-networkd-wait-online.service
+
+# Checking the status of `system-networkd-wait-online`
+$ sudo systemctl status systemd-networkd-wait-online.service
+...
+     Active: failed (Result: exit-code) since Sun 2020-12-27 16:36:39 MST; 9min ago
+       Docs: man:systemd-networkd-wait-online.service(8)
+   Main PID: 468 (code=exited, status=1/FAILURE)
+...
+
+# Network status indicated it timed out waiting for a network interface that was not yet configured
+# https://github.com/systemd/systemd/issues/2713
+$ sudo networkctl status
+...
+Dec 27 16:36:39 main4 systemd[1]: Failed to start Wait for Network to be Configured.
+
+# Checkint my interfaces I have one in a `configuring` state i.e. not ready
+$ sudo networkctl -a
+IDX LINK    TYPE     OPERATIONAL SETUP      
+  1 lo      loopback carrier     unmanaged  
+  2 eno1    ether    no-carrier  configuring
+  3 enp1s0  ether    routable    configured 
+
+# Turns out that by default `systemd-networkd-wait-online` will wait for `all` network interfaces
+# to be line even if they are not currently being used. So we need to modify its configuration
+# so that it only waits for at least 1 to be ready by default.
+# https://askubuntu.com/questions/1217252/boot-process-hangs-at-systemd-networkd-wait-online
+
+# Create this override file to tell it to only wait for 1 interface
+$ sudo mkdir -p /etc/systemd/system/systemd-networkd-wait-online.service.d
+$ sudo tee -a /etc/systemd/system/systemd-networkd-wait-online.service.d/override.conf <<EOL
+[Service]
+# To replace values here we need to first clear out the value
+ExecStart=
+# Then set it to what we want, else it will be addative
+ExecStart=/usr/lib/systemd/systemd-networkd-wait-online --any
+EOL
+
+# Restarting the service completes immediately meaning we fixed it
+$ sudo systemctl restart systemd-networkd-wait-online
+```
 
 # Patching <a name="patching"/></a>
 
@@ -2541,10 +2594,40 @@ Num  Test_Description    Status                  Remaining  LifeTime(hours)  LBA
 # System <a name="system"/></a>
 
 ## Shell <a name="shell"/></a>
+
 ### Powerline <a name="powerline"/></a>
 https://powerline.readthedocs.io/en/latest/usage/shell-prompts.html#bash-prompt
 
-If powerline git status is not working try upgrading
+### Toubleshooting Powerline <a name="troubleshooting-powerline"/></a>
+Try linting the configuration:
+```bash
+$ powerline-lint
+```
+
+Try killing the daemon then running a command in a shell with powerline already enabled:
+1. Kill the daemon
+   ```bash
+   $ sudo killall powerline-daemon
+   ```
+2. Run a command and watch the output
+   ```bash
+   $ ls
+   gitstatus.install  PKGBUILD
+   2020-12-22 16:02:43,239:ERROR:shell:segment_generator:Failed to import attr gitstatus from module powerline_gitstatus: No module named 'powerline_gitstatus'
+   Traceback (most recent call last):
+     File "/usr/lib/python3.9/site-packages/powerline/__init__.py", line 392, in get_module_attr
+       return getattr(__import__(module, fromlist=(attr,)), attr)
+   ModuleNotFoundError: No module named 'powerline_gitstatus'
+   2020-12-22 16:02:43,240:ERROR:shell:segment_generator:Failed to generate segment from {'function': 'powerline_gitstatus.gitstatus', 'priority': 50}: Failed to obtain segment function
+   Traceback (most recent call last):
+     File "/usr/lib/python3.9/site-packages/powerline/segment.py", line 328, in get
+       contents, _contents_func, module, function_name, name = get_segment_info(data, segment)
+     File "/usr/lib/python3.9/site-packages/powerline/segment.py", line 69, in get_function
+       raise ImportError('Failed to obtain segment function')
+   ImportError: Failed to obtain segment function
+   ```
+3. Notice that the `powerline_gitstatus` module is missing for python 3.9
+4. Rebuilding the `powerline-gitstatus` packages and updating fixed it
 
 ## System Update <a name="system-update"/></a>
 1. Update keyring first
