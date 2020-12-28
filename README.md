@@ -501,6 +501,7 @@ either system.
   * [NFS Shares](#nfs-shares)
     * [NFS Client Config](#nfs-server-config)
     * [NFS Server Config](#nfs-server-config)
+    * [systemd-networkd-wait-online timing out](#systemd-networkd-wait-oneline-timing-out)
   * [OpenVPN](#openvpn)
     * [Split DNS Resolution](#split-dns-resolution)
 * [Office](#office)
@@ -1839,6 +1840,66 @@ $ sudo exportfs -r
 $ sudo exportfs -v
 ```
 
+### systemd-networkd-wait-online timing out <a name="systemd-networkd-wait-online-timing-out"/></a>
+While trouble shooting a NFS share failing to mount I ran into this interesting tid bit of
+information. Turns out that `systemd-networkd-wait-online` by default will wait for all network
+interfaces to be ready. This means if you have a system with multiple nics and only use one the
+others will be in a perpetual `configuring` state which cause `systemd-networkd-wait-online` to
+always time out which is super annoying. A better default would be to have it to use the `--any` flag
+which will cause it to succeed if any nics are online.
+
+```bash
+# Find name of mount unit
+$ sudo systemctl | grep Cache
+mnt-Cache.mount
+
+# List out the dependencies and found `systemd-networkd-wait-online.service` was in red
+$ sudo systemctl list-dependencies mnt-Cache.mount
+mnt-Cache.mount
+● ├─system.slice
+● └─network-online.target
+●   └─systemd-networkd-wait-online.service
+
+# Checking the status of `system-networkd-wait-online`
+$ sudo systemctl status systemd-networkd-wait-online.service
+...
+     Active: failed (Result: exit-code) since Sun 2020-12-27 16:36:39 MST; 9min ago
+       Docs: man:systemd-networkd-wait-online.service(8)
+   Main PID: 468 (code=exited, status=1/FAILURE)
+...
+
+# Network status indicated it timed out waiting for a network interface that was not yet configured
+# https://github.com/systemd/systemd/issues/2713
+$ sudo networkctl status
+...
+Dec 27 16:36:39 main4 systemd[1]: Failed to start Wait for Network to be Configured.
+
+# Checkint my interfaces I have one in a `configuring` state i.e. not ready
+$ sudo networkctl -a
+IDX LINK    TYPE     OPERATIONAL SETUP      
+  1 lo      loopback carrier     unmanaged  
+  2 eno1    ether    no-carrier  configuring
+  3 enp1s0  ether    routable    configured 
+
+# Turns out that by default `systemd-networkd-wait-online` will wait for `all` network interfaces
+# to be line even if they are not currently being used. So we need to modify its configuration
+# so that it only waits for at least 1 to be ready by default.
+# https://askubuntu.com/questions/1217252/boot-process-hangs-at-systemd-networkd-wait-online
+
+# Create this override file to tell it to only wait for 1 interface
+$ sudo mkdir -p /etc/systemd/system/systemd-networkd-wait-online.service.d
+$ sudo tee -a /etc/systemd/system/systemd-networkd-wait-online.service.d/override.conf <<EOL
+[Service]
+# To replace values here we need to first clear out the value
+ExecStart=
+# Then set it to what we want, else it will be addative
+ExecStart=/usr/lib/systemd/systemd-networkd-wait-online --any
+EOL
+
+# Restarting the service completes immediately meaning we fixed it
+$ sudo systemctl restart systemd-networkd-wait-online
+```
+
 ## OpenVPN <a name="openvpn"/></a>
 Many VPN services are based on OpenVPN. In this section I'll be working through common configuration
 options.
@@ -2086,79 +2147,34 @@ $ repo-add cyberlinux.db.tar.gz *.pkg.tar.*
 When running more than one arch linux based machine sharing the package cache can be usefull to
 reduce the number of packages being downloaded.
 
+Note: I removed the step to bind mount to `/var/cache/pacman/pkg` as this cause some weird issue with
+the `tmp-fs` service.
+
 1. Setup an NFS share see [Share Package Cache](#share-package-cache) on your server
 2. Setup your client system to use the server's NFS share see [NFS Client Config](#nfs-client-config)
 3. Double check that the server config for the `Cache` share has the following properties set:
    * `/srv/nfs/Cache       192.168.1.0/24(rw,no_root_squash,insecure,no_subtree_check)`
-4. Double check that the client config for the `Cache` share has the following properties set:
-   * `192.168.1.2:/srv/nfs/Cache /mnt/Cache nfs auto,noacl,noatime,nodiratime,rsize=8192,wsize=8192,timeo=15,_netdev 0 0`
-4. Update your `/etc/pacman.conf` to use the new cache:
+4. Ensure your `/etc/fstab` config for the `Cache` share has the following properties set:
    ```
-   # Using an alternate path to /var/cache/pacman/pkg as it interferred with tmp-filesystem mounting
-   CacheDir = /mnt/Cache
+   192.168.1.2:/srv/nfs/Cache /mnt/Cache nfs auto,noacl,noatime,nodiratime,rsize=8192,wsize=8192,timeo=15,_netdev 0 0
    ```
 5. Now mount the share manually and check that it worked:
    ```bash
+   # First clear out the existing cache
+   $ sudo pacman -Scc
+
+   # Manually mount
    $ sudo mount -a
    ```
-6. Occasionally you'll want to clean the cache:
+6. Edit the pacman config `/etc/pacman.conf` and change the cache directory
+   ```
+   CacheDir     = /mnt/Cache
+   ```
+7. Occasionally you'll want to clean the cache:
    ```bash
    # Remove all but the last package installed
    $ sudo paccache -rk 1
    ```
-
-Trouble shooting failure to mount on boot:
-```bash
-# Find name of mount unit
-$ sudo systemctl | grep Cache
-mnt-Cache.mount
-
-# List out the dependencies and found `systemd-networkd-wait-online.service` was in red
-$ sudo systemctl list-dependencies mnt-Cache.mount
-mnt-Cache.mount
-● ├─system.slice
-● └─network-online.target
-●   └─systemd-networkd-wait-online.service
-
-# Checking the status of `system-networkd-wait-online`
-$ sudo systemctl status systemd-networkd-wait-online.service
-...
-     Active: failed (Result: exit-code) since Sun 2020-12-27 16:36:39 MST; 9min ago
-       Docs: man:systemd-networkd-wait-online.service(8)
-   Main PID: 468 (code=exited, status=1/FAILURE)
-...
-
-# Network status indicated it timed out waiting for a network interface that was not yet configured
-# https://github.com/systemd/systemd/issues/2713
-$ sudo networkctl status
-...
-Dec 27 16:36:39 main4 systemd[1]: Failed to start Wait for Network to be Configured.
-
-# Checkint my interfaces I have one in a `configuring` state i.e. not ready
-$ sudo networkctl -a
-IDX LINK    TYPE     OPERATIONAL SETUP      
-  1 lo      loopback carrier     unmanaged  
-  2 eno1    ether    no-carrier  configuring
-  3 enp1s0  ether    routable    configured 
-
-# Turns out that by default `systemd-networkd-wait-online` will wait for `all` network interfaces
-# to be line even if they are not currently being used. So we need to modify its configuration
-# so that it only waits for at least 1 to be ready by default.
-# https://askubuntu.com/questions/1217252/boot-process-hangs-at-systemd-networkd-wait-online
-
-# Create this override file to tell it to only wait for 1 interface
-$ sudo mkdir -p /etc/systemd/system/systemd-networkd-wait-online.service.d
-$ sudo tee -a /etc/systemd/system/systemd-networkd-wait-online.service.d/override.conf <<EOL
-[Service]
-# To replace values here we need to first clear out the value
-ExecStart=
-# Then set it to what we want, else it will be addative
-ExecStart=/usr/lib/systemd/systemd-networkd-wait-online --any
-EOL
-
-# Restarting the service completes immediately meaning we fixed it
-$ sudo systemctl restart systemd-networkd-wait-online
-```
 
 # Patching <a name="patching"/></a>
 
