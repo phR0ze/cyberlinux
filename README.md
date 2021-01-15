@@ -574,6 +574,8 @@ either system.
   * [Add user](#add-user)
   * [Rename user](#rename-user)
 * [VeraCrypt](#veracrypt)
+* [Virtual Box](#virtual-box)
+  * [USB Access in VM](#usb-access-in-vm)
 * [VPNs](#vpns)
   * [OpenConnect](#openconnect)
 * [Wine](#wine)
@@ -2834,6 +2836,20 @@ Create a new ***100GB Volume***
   a. Browse to ***/mnt/veracrypt1*** and drag and drop it to ***Places***  
 6. Configure autostart for veracrypt  
   `cp /usr/share/applications/veracrypt.desktop ~/.config/autostart`
+
+# Virtual Box <a name="virtual-box"/></a>
+
+## USB Access in VM <a name="usb-access-in-vm"/></a>
+[Accessing host USB devices in guest](https://wiki.archlinux.org/index.php/VirtualBox#Accessing_host_USB_devices_in_guest)
+requires that your user be part of the vboxusers group.
+
+```bash
+# Check which groups your user is in
+$ groups
+
+# Add your use to the vboxusers group
+$ sudo usermod -a -G vboxusers <USER>
+```
 
 # VPNs <a name="vpns"/></a>
 
