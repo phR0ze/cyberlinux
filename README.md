@@ -517,6 +517,7 @@ either system.
   * [OCR](#ocr)
     * [Tesseract](#tesseract)
   * [PDFs](#pdfs)
+    * [PDF Manipulation](#pdf-manipulation)
     * [Combine PDFs](#combine-pdfs)
     * [Rotate PDFs](#rotate-pdfs)
     * [Convert Images to PDF](#convert-images-to-pdf)
@@ -2036,6 +2037,13 @@ $ tesseract input.png out
 ```
 
 ## PDFs <a name="pdfs"/></a>
+
+### PDF Manipulation <a name="pdf-manipulation"/></a>
+For general PDF manipulation `pdfmod` works well
+
+```bash
+$ sudo pacman -S pdfmod
+```
 
 ### Combine PDFs <a name="combine-pdfs"/></a>
 ```bash
