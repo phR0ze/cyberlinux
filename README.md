@@ -950,8 +950,8 @@ Any printer will require the default CUPS installation
 $ sudo pacman -S cups-pdf system-config-printer
 
 # Start the CUPS service
-$ sudo systemctl enable org.cups.cupsd
-$ sudo systemctl start org.cups.cupsd
+$ sudo systemctl enable cups
+$ sudo systemctl start cups
 
 # Ensure your user is part of the 'lp' group
 $ groups

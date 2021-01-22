@@ -25,7 +25,7 @@ defaults:
   ################################################################################
   vars:
     arch: x86_64
-    release: 0.3.35
+    release: 0.3.36
     distro: cyberlinux
     language: en_US
     character_set: UTF-8
