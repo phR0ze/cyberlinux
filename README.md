@@ -580,8 +580,12 @@ either system.
 * [VPNs](#vpns)
   * [OpenConnect](#openconnect)
 * [Wine](#wine)
-  * [Config Wine](#config-wine)
-  * [Config Prefix](#config-prefix)
+  * [Install Wine](#install-wine)
+  * [Wine Prefixes](#wine-prefixes)
+    * [Create new 32bit Wine Prefix](#create-new-32bit-wine-prefix)
+    * [Delete a Wine prefix](#delete-a-wine-prefix)
+    * [Reset dll overrides](#reset-dll-overrides)
+  * [Warcraft II Battle.net Edition](#warcraft-2-battle-net-edition)
 
 # Arch Linux Help <a name="arch-linux-help"/></a>
 The [arch wiki](https://wiki.archlinux.org/) is the best place to go for help. I've just collected a
@@ -2916,51 +2920,142 @@ hosts: files mdns4_minimal resolve [NOTFOUND=return] dns myhostname
 Wine uses the `WINEPREFIX` as separate C-drive/registries. Typically you'll want one per app unless
 the apps are sharing configuration or depend on each other.
 
-## Config Wine <a name="config-wine"/></a>
+## Install Wine <a name="install-wine"/></a>
 https://wiki.archlinux.org/index.php/wine
 
 ```bash
 # Install Wine
-$ sudo pacman -S winetricks wine_gecko wine-mono
+$ sudo pacman -S winetricks wine-gecko wine-mono
 
 # Ensure the multilib freetype is installed
 $ sudo pacman -S multilib/lib32-freetype2
 ```
 
-## Config Prefix <a name="config-prefix"/></a>
-Wine prefixes are where all the registry, apps etc... live and are installed.
+## Wine Prefixes <a name="wine-prefixes"/></a>
+Wine prefixes, a.k.a wine bottle, are simply a folder where wine will store all files like the
+registry, apps etc... for your session. Often it is useful to have a prefix per application if the
+target application needs a specific version of windows and a lot of custom settings and fixes.
 
-Delete a prefix:
+### Create new 32bit Wine Prefix <a name="createa-a-new-32bit-wine-prefix"/></a>
+Wine by default creates a single `~/.wine` prefix as 64bit but often its old Windows apps were trying
+to run so we'll need a new 32bit prefix created.
+
 ```bash
-$ rm -rf ~/.wine/steam
+$ WINEARCH=win32 WINEPREFIX=~/.wine/prefixes/<prefix> wincfg
 ```
 
-Create new 32bit Wine Prefix:
-```bash
-$ mkdir ~/.wine
-$ WINEARCH=win32 WINEPREFIX=~/.wine/win32 wineboot -u
+### Delete a Wine prefix <a name="delete-a-wine-prefix"/></a>
+Since a wine prefix is just a directory, all you need to do is delete the directory associated with
+it. Typically they will be stored in `~/.wine` or `~/.wine/prefixes`.
 
-# Configure new Prefix if desired, defaults to Windows 7
-$ WINEARCH=win32 WINEPREFIX=~/.wine/win32 wincfg
+```bash
+$ rm -rf ~/.wine/prefixes/steam
 ```
 
-## Wine Sketchup <a name="wine-sketchup"/></a>
-```bash
-$ Install Sketchup via Winetricks
-$ WINEARCH=win32 WINEPREFIX=~/.wine/sketchup winetricks sketchup
-
-# Note you can see the download location in the output of the shell
-# https://dl.google.com/sketchup/GoogleSketchUpWEN.exe
-
-# Launch after installation find the exe and launch
-$ WINEARCH=win32 WINEPREFIX=~/.wine/sketchup wine ~/.wine/sketchup/drive_c/Program\ Files/Google/Google\ SketchUp\ 8/SketchUp.exe
-
+### Reset dll overrides <a name="reset-dll-overrides"/></a>
+```
+$ WINEARCH=win32 WINEPREFIX=~/.wine/prefixes/warcraft2 winetricks alldlls=default
 ```
 
-## Wine Steam <a name="wine-steam"/></a>
+## Warcraft II Battle.net Edition <a name="warcraft-2-battle-net-edition"/></a>
+
+* [Lutris Script](https://lutris.net/games/install/12552/view)
+* [Wine HQ guide](https://appdb.winehq.org/objectManager.php?sClass=version&iId=592)
+
+### Warcraft II prerequisites <a name="warcraft-2-prerequisites"/></a>
+1. Install [see Install Wine](#install-wine)
+2. Purchase Warcraft 2 from [GOG](https://www.gog.com)
+3. Download using the `Download offline backup game installers` option
+4. Create a new win32 winprefix
+   ```bash
+   $ WINEARCH=win32 WINEPREFIX=~/.wine/prefixes/warcraft2 winecfg
+   ```
+
+5. Set the target windows version:  
+   a. Navigate to the `Applications` tab  
+   b. Choose `Windows Version: >Windows 7` at the bottom  
+
+6. Set the default audio devices:  
+   a. Navigate to the `Audio` tab  
+   b. Select your audio devices  
+
+7. Close Wine configuration by clicking `OK`
+
+### Install Warcraft II <a name="install-warcraft-2"/></a>
+By default the GOG installer will install to `C:\GOG Games\Warcraft II BNE` which with our prefix
+will be `~/.wine/prefixes/warcraft2/drive_c/GOG\ Games/Warcraft\ II\ BNE/`
+
+1. Launch the installer
+   ```bash
+   $ WINEARCH=win32 WINEPREFIX=~/.wine/prefixes/warcraft2 wine ./setup_warcraft_ii_2.02_v4_\(28734\).exe
+   ```
+2. Select Setup Language: `English` and click `OK`
+3. Check `Yes, I have read and accept EULA` then click `Install`
+4. Click `Exit`
+
+5. Setup Direct X windowing as desired:  
+   a. Launch the direct x config tool  
+      ```
+      $ WINEARCH=win32 WINEPREFIX=~/.wine/prefixes/warcraft2 wine ~/.wine/prefixes/warcraft2/drive_c/GOG\ Games/Warcraft\ II\ BNE/dxcfg.exe`
+      ```
+   b. Set `Display mode> 1280x1024 G0Hz`  
+   c. Set `Presentation >Windowed`  
+   d. Set `Enhancements >Anisotropic filtering > Enabled - AF 16x`    
+   e. Set `Enhancements >Antialiasing > Enabled - MSAA 8x`    
+   f. Click `Save` then `Exit`  
+
+6. Override `wsock32.dll` with one from a legit Windows 7 `C:\Windows\System32\wsock32.dll`  
+   a. Copy the target dll to `~/.wine/prefixes/warcraft2/drive_c/windows/system32`  
+   b. Launch wine config to override the dll  
+      ```
+      $ WINEARCH=win32 WINEPREFIX=~/.wine/prefixes/warcraft2 winecfg`
+      ```
+   c. Select the `Libraries` tab  
+   d. Enter `wsock32` into the `New override for library` drop down  
+   e. Click `Add` accept the warning and you'll get `wsock32(native,builtin)` in the `Existing Overrides`  
+   f. Click `Apply` and `OK`  
+
+7. Setup IPX Configuration:  
+   a. Launch the IPX configuration binary sitting along side the game files:
+      ```
+      $ WINEARCH=win32 WINEPREFIX=~/.wine/prefixes/warcraft2 wine ~/.wine/prefixes/warcraft2/drive_c/GOG\ Games/Warcraft\ II\ BNE/ipxconfig.exe`
+      ```
+   b. Select your active NIC e.g. `enp1s0`  
+   c. Ensure `Enable Interface` is checked  
+   d. Ensure `Enable Windows 95 SO_BROADCAST but` is checked  
+   e. Click `Apply` then `OK`  
+
+### Host a Warcraft 2 LAN multi player game <a name="host-a-warcraft2-lan-multi-player-game"/></a>
+1. Launch warcraft 2:
+   ```
+   $ WINEARCH=win32 WINEPREFIX=~/.wine/prefixes/warcraft2 wine ~/.wine/prefixes/warcraft2/drive_c/GOG\ Games/Warcraft\ II\ BNE/Warcraft\ II\ BNE_dx.exe
+   ```
+2. Click through the intro
+3. Navigate to `Multi Player Game > Enhanced >IPX network`
+4. Click `Connect`
+5. Enter your desired username e.g. `foobar`
+6. Click `Create Game`
+
+# Flatpak <a name="flatpak"/></a>
+[Flatpak](https://flatpak.org/) provides the ability to have Linux apps that run anywhere by
+including the applications dependencies with the application.
+
+**Resources**
+* [Flatpak docs](https://docs.flatpak.org/en/latest/)
+* [Arch Linux docs](https://wiki.archlinux.org/index.php/Flatpak)
+* [Comparision of Flatpak](https://github.com/AppImage/AppImageKit/wiki/Similar-projects#comparison)
+
+## Config flatpak <a name="config-flatpak"/></a>
+
+
+### Install flatpak <a name="install-flatpak"/></a>
 ```bash
-$ WINEARCH=win32 WINEPREFIX=~/.wine/steam winetricks steam
+$ sudo pacman -S flatpak flatpak-builder elfutils patch xdg-desktop-portal-gtk
 ```
+
+## Build flatpak packages <a name="build-flatpak-packages"/></a>
+* warcraft 2
+* hedgewars
 
 <!-- 
 vim: ts=2:sw=2:sts=2
