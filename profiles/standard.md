@@ -21,7 +21,7 @@ resource wise, it is still built with speed and efficiency in mind. It is built 
 ***Lite*** deployment thus having all the new features below layered on top of the existing Lite
 applications and configuration.
 
-<a href="../doc/images/cyberlinux-deployment-02.jpg"><img width="820" height="480" src="../doc/images/cyberlinux-deployment-02.jpg"></a>
+<a href="../docs/images/cyberlinux-deployment-02.jpg"><img width="820" height="480" src="../docs/images/cyberlinux-deployment-02.jpg"></a>
 
 **Features:** 
 * System
@@ -43,7 +43,7 @@ Slimmed down minimal Xorg desktop environment with selected light weight apps bu
 ***Shell*** deployment thus having all the new features below layered on top of the existing shell
 applications and configuration.
 
-<a href="../doc/images/lite-deployment.jpg"><img width="639" height="480" src="../doc/images/lite-deployment.jpg"></a>
+<a href="../docs/images/lite-deployment.jpg"><img width="639" height="480" src="../docs/images/lite-deployment.jpg"></a>
 
 **Features:**
 * System
@@ -60,7 +60,7 @@ applications and configuration.
 ### Shell Deployment <a name="shell-deployment"/></a>
 Intended as a full shell development environment the ***Shell*** deployment provides:
 
-<a href="../doc/images/standard-shell.jpg"><img width="639" height="480" src="../doc/images/standard-shell.jpg"></a>
+<a href="../docs/images/standard-shell.jpg"><img width="639" height="480" src="../docs/images/standard-shell.jpg"></a>
 
 **Features:**
 * Filesystem utilities

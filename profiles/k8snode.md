@@ -14,7 +14,7 @@ strictly the responsiblity of the user and not the developer/creator of ***cyber
 * [k8snode Deployment](#k8snode-deployment)
 
 ## k8snode Deployment <a name="k8snode-deployment"/></a>
-![K8snode](../doc/images/k8snode-virtualbox.png)
+![K8snode](../docs/images/k8snode-virtualbox.png)
 
 ```bash
 # Example: deploy a k8snode with ip address of 192.168.56.10

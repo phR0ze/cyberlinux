@@ -67,7 +67,7 @@ changes useful for a laptop such as:
 * Backlight configuration
 * Conky widgets statistics showing networking, storage, battery, cpu and ram usage and date and time
 
-<a href="../doc/images/personal-laptop.jpg"><img width="820" height="480" src="../doc/images/personal-laptop.jpg"></a>
+<a href="../docs/images/personal-laptop.jpg"><img width="820" height="480" src="../docs/images/personal-laptop.jpg"></a>
 
 ## Dell Inspiron 1545 <a name="dell-inspiron-1545"/></a>
 * 4GB RAM
@@ -95,7 +95,7 @@ be run on lower end headless hardware. It is built on top of teh ***lite*** depl
 * Media Processing
     * Handbrake, makemkv-cli
 
-<a href="../doc/images/server-deployment.jpg"><img width="639" height="480" src="../doc/images/server-deployment.jpg"></a>
+<a href="../docs/images/server-deployment.jpg"><img width="639" height="480" src="../docs/images/server-deployment.jpg"></a>
 
 # Netbook Deployment <a name="netbook-deployment"/></a>
 The ***netbook*** deployment builds on the lite deployment by adding the following features.
@@ -122,7 +122,7 @@ Slimmed down minimal Xorg desktop environment with selected light weight apps bu
 * Office
     * Evince, GVim, Leafpad
 
-<a href="../doc/images/lite-deployment.jpg"><img width="639" height="480" src="../doc/images/lite-deployment.jpg"></a>
+<a href="../docs/images/lite-deployment.jpg"><img width="639" height="480" src="../docs/images/lite-deployment.jpg"></a>
 
 # Shell Deployment <a name="shell-deployment"/></a>
 Intended as a full shell development environment the ***Shell*** deployment provides:
@@ -139,4 +139,4 @@ Intended as a full shell development environment the ***Shell*** deployment prov
 * System utilities
     * htop, iftop
 
-<a href="../doc/images/shell-deployment.png"><img width="639" height="480" src="../doc/images/shell-deployment.png"></a>
+<a href="../docs/images/shell-deployment.png"><img width="639" height="480" src="../docs/images/shell-deployment.png"></a>

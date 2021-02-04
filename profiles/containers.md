@@ -75,4 +75,4 @@ sudo ./reduce deploy shell -p containers
 docker run --rm -it shell-0.2.197:latest bash
 ```
 
-![shell container](../doc/images/shell-container.jpg)
+![shell container](../docs/images/shell-container.jpg)
