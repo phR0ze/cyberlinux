@@ -127,7 +127,7 @@ will be `~/.wine/prefixes/warcraft2/drive_c/GOG\ Games/Warcraft\ II\ BNE/`
 5. Setup Direct X windowing as desired:  
    a. Launch the direct x config tool  
       ```
-      $ WINEARCH=win32 WINEPREFIX=~/.wine/prefixes/warcraft2 wine ~/.wine/prefixes/warcraft2/drive_c/GOG\ Games/Warcraft\ II\ BNE/dxcfg.exe`
+      $ WINEARCH=win32 WINEPREFIX=~/.wine/prefixes/warcraft2 wine ~/.wine/prefixes/warcraft2/drive_c/GOG\ Games/Warcraft\ II\ BNE/dxcfg.exe
       ```
    b. Set `Display mode> 1280x1024 G0Hz`  
    c. Set `Presentation >Windowed`  
@@ -150,11 +150,12 @@ will be `~/.wine/prefixes/warcraft2/drive_c/GOG\ Games/Warcraft\ II\ BNE/`
 7. Setup IPX Configuration:  
    a. Launch the IPX configuration binary sitting along side the game files:
       ```
-      $ WINEARCH=win32 WINEPREFIX=~/.wine/prefixes/warcraft2 wine ~/.wine/prefixes/warcraft2/drive_c/GOG\ Games/Warcraft\ II\ BNE/ipxconfig.exe`
+      $ WINEARCH=win32 WINEPREFIX=~/.wine/prefixes/warcraft2 wine ~/.wine/prefixes/warcraft2/drive_c/GOG\ Games/Warcraft\ II\ BNE/ipxconfig.exe
       ```
    b. Select your active NIC e.g. `enp1s0`  
    c. Ensure `Enable Interface` is checked  
    d. Ensure `Enable Windows 95 SO_BROADCAST but` is checked  
+   d. Ensure `Automatically create Windows Firewall exceptions` is checked  
    e. Click `Apply` then `OK`  
 
 ### Host Warcraft 2 LAN multi player game <a name="host-warcraft2-lan-multi-player-game"/></a>
