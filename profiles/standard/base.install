@@ -1,0 +1,109 @@
+# MIT License
+# Copyright (c) 2021 phR0ze
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+post_install()
+{
+  # System configuration
+  # ---------------------------------------------------------------------------
+
+  # Added the 'vt-colors' hook to the end of the HOOKS list which provides a cusotimzed
+  # color theme for the virtual terminal that scrolls by during boot.
+  # see http://github.com/phR0ze/cyberlinux-aur/mkinitcpio-vt-colors
+  mv -f /etc/mkinitcpio.conf_sideload /etc/mkinitcpio.conf
+
+  # Restrict journald to 100M of space instead of the default 10% of disk
+  # SystemMaxuse=100M
+  mv -f /etc/systemd/journald.conf_sideload /etc/systemd/journald.conf
+
+  # Configure user login controls
+  # KillUserProcesses=yes
+  # HandlepowerKey=poweroff
+  # HandleSuspendKey=suspend
+  # HandleHibernateKey=hibernate
+  # HandleLidSwitch=suspend
+  # HandleLidSwitchDocked=ignore
+  mv -f /etc/systemd/logind.conf_sideload /etc/systemd/logind.conf
+
+  # Configure NTP servers and fallback servers
+  # NTP=0.arch.pool.ntp.org 1.arch.pool.ntp.org 2.arch.pool.ntp.org 3.arch.pool.ntp.org
+  # FallbackNTP=0.pool.ntp.org 1.pool.ntp.org 0.fr.pool.ntp.org
+  mv -f /etc/systemd/timesyncd.conf_sideload /etc/systemd/timesyncd.conf
+
+  # Configure DNS to use CloudFlare by default and fallback on Google
+  # DNS=1.1.1.1 1.0.0.1
+  # FallbackDNS=8.8.8.8 8.8.4.4
+  mv -f /etc/systemd/resolved.conf_sideload /etc/systemd/resolved.conf
+
+  # Disable pc speaker
+  # /etc/modprobe.d/pcspkr.conf
+
+  # Pacman configuration
+  # ---------------------------------------------------------------------------
+  # Custom arch linux mirrorlist location
+  # rankmirrors -n 10 profiles/openbox/base/etc/pacman.d/archlinux.mirrorlist
+  # /etc/pacman.d/archlinux.mirrorlist
+
+  # BlackArch linux mirrorlist location
+  # rankmirrors -n 10 profiles/openbox/base/etc/pacman.d/blackarch.mirrorlist
+  # /etc/pacman.d/blackarch.mirrorlist
+
+  # Added configuration to make use of multiple CPU cores
+  # MAKEFLAGS="-j8" use more parallel threads
+  # COMPRESSXZ=(xz -c -z - --threads=0) which enables multi core use
+  mv -f /etc/makepkg.conf_sideload /etc/makepkg.conf
+
+  # Added in the following property changes:
+  # Set Color
+  # Set ILoveCandy
+  # Set ParallelDownloads = 5
+  # Added the cyberlinux repo  
+  # Uncommented the multilib repo
+  # Switched the repo mirrorlist to /etc/pacman.d/archlinux.mirrorlist
+  # Added the blackarch repo mirrorlist entry
+  mv -f /etc/pacman.conf_sideload /etc/pacman.conf
+
+  # Network configuration
+  # ---------------------------------------------------------------------------
+  # Change systemd-networkd-wait-online to only wait for a single NIC rather than
+  # block on waiting on all NICs to start that are not configured. This is critical
+  # for systems with multiple unconfigured physical or virtual NICs
+  # /etc/systemd/system/systemd-networkd-wait-oneline.service.d/override.conf
+
+  # SSH login banner for cyberlinux
+  mv -f /etc/motd_sideload /etc/motd
+
+  # Disable SSH root login
+  mv -f /etc/ssh/sshd_config_sideload /etc/ssh/sshd_config
+
+  # Enable core services
+  # ---------------------------------------------------------------------------
+  systemctl enable -f systemd-networkd.service
+  systemctl enable -f systemd-networkd-wait-online.service
+  systemctl enable -f systemd-resolved.service
+  systemctl enable -f systemd-timesyncd.service
+  systemctl enable -f sshd.service
+}
+
+post_upgrade() {
+	post_install
+}
+
+# vim: ts=2:sw=2:sts=2

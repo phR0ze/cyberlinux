@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Plank
+Comment=Simple Clean Dock
+Type=Application
+Exec=plank
+Icon=plank
+NoDisplay=false
+Categories=Utility;

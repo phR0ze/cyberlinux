@@ -1,0 +1,104 @@
+#!/usr/bin/bash
+#---------------------------------------------------------------------------------------------------
+# Dependencies:
+# bc, sed, i3lock-color, imagemagick, xdpyinfo, awk
+#---------------------------------------------------------------------------------------------------
+
+alpha='dd'
+dark_gray_blue='#073642'
+gray_blue='#586e75'
+red='#dc322f'
+blue='#268bd2'
+cyber='#39aef4' # cyberlinux blue
+green='#859900'
+light_gray='#d0d0d0'
+dark_gray='#6e6e6e'
+white='#ffffff'
+
+# Prepare image and cache it
+#---------------------------------------------------------------------------------------------------
+wallpaper=$(sed -nr 's/^file=(.+)/\1/p' ~/.config/nitrogen/bg-saved.cfg)
+cached_image="${HOME}/.cache/i3lock/$(basename ${wallpaper})"
+
+#rm -f "${cached_image}"
+if [ ! -r "${cached_image}" ]; then
+  mkdir -p $(dirname "${cached_image}")
+
+  # Screen resolution
+  resolution=$(xdpyinfo | awk '/dimensions/ {print $2}')
+
+  # Add text message
+  convert "${wallpaper}" \
+    \
+    `# Apply dim affect -colorize VALUE` \
+    -fill black -colorize 30 \
+    \
+    `# First shrink the image before applying the blur to speed it up` \
+    -resize 50% \
+    \
+    `# Apply blur affect -blur=RADIUSxSIGMA` \
+    `# use RADIUS 0 to have it automatically computed` \
+    `# use as smallest float value of SIGMA as possible to speed up` \
+    -blur 0x0.4 \
+    \
+    `# Scale up the blurred image with ^ to completely fill resolution` \
+    `# center the result and trim off anything that falls outside resolution` \
+    -resize $resolution^ -gravity center -extent $resolution \
+    \
+    `# Write out the result` \
+    "${cached_image}"
+fi
+
+# Apply the lock
+#---------------------------------------------------------------------------------------------------
+i3lock --image "${cached_image}" \
+  \
+  `# General settings` \
+  --screen 1                            `# Show the lock image on screen 1` \
+  --indicator                           `# For the indicator to always be visible, instead of only on activity` \
+  \
+  `# Ring settings` \
+  --greeter-text="STATION LOCKED"       `# Greeter text `\
+  --greeter-font="Audiowide"            `# Greeter font` \
+  --greeter-color=$white                `# Greeter font color `\
+  --greeter-size=80                     `# Greeter font size` \
+  \
+  `# Clock settings` \
+  --clock                               `# Display the clock` \
+  --time-color=$cyber                   `# Color to use for the time` \
+  --time-str="%l:%M%P"                 `# Time string format` \
+  --time-font="Roboto-Regular"          `# Time string font` \
+  --time-size=40                        `# Time string font size` \
+  --date-color=$cyber                   `# Color to use for the date` \
+  --date-str="%a %b %e %Y"              `# Date string format` \
+  --date-font="Audiowide"               `# Date string font` \
+  --date-size=15                        `# Date string font size` \
+  \
+  `# General ring settings` \
+  --radius=100                          `# Radius length of the string, defaults to 90` \
+  --ring-width=20                       `# Width of the ring, defaults to 7` \
+  --bshl-color=$red$alpha               `# Lite up segments of the ring with this color when backspacing` \
+  --keyhl-color=$green$alpha            `# Lite up segments of the ring with this color when entering text` \
+  --line-uses-ring                      `# Leaves a weird gap in the ring when not set` \
+  \
+  `# Idle ring settings` \
+  --ring-color=$cyber$alpha             `# Color to use for the ring when idle` \
+  --inside-color=$dark_gray_blue$alpha  `# Color to use inside the ring` \
+  --separator-color=$gray_blue$alpha    `# Color to use on the segment edges for key presses` \
+  \
+  `# Verify ring settings` \
+  --verif-font="Audiowide"              `# Verify font` \
+  --verif-text="CHECKING"               `# Verify text` \
+  --verif-color=$green                  `# Color to use for the verify ring` \
+  --ringver-color=$green$alpha \
+  --insidever-color=$dark_gray_blue$alpha \
+  \
+  `# Wrong ring settings` \
+  --wrong-font="Audiowide"              `# Auth failure font` \
+  --wrong-text="DENIED"                 `# Auth failure text` \
+  --noinput="NO INPUT"                  `# Message to show when backspacing and nothing is there` \
+  --wrong-color=$red \
+  --ringwrong-color=$red$alpha \
+  --insidewrong-color=$dark_gray_blue$alpha \
+
+# vim: ft=sh:ts=2:sw=2:sts=2

@@ -1,0 +1,30 @@
+{
+  "deployments": [
+    {
+      "name": "x11",
+      "entry": "Install X11 system         // Lite X11 env w/out window manager",
+      "kernel": "linux",
+      "layers": "standard/core,standard/base,standard/shell,standard/x11",
+      "groups": "lp,wheel,network,storage,users,disk"
+    },
+    {
+      "name": "shell",
+      "entry": "Install openbox shell      // Minimal bash system to build from",
+      "kernel": "linux",
+      "layers": "standard/core,standard/base,standard/shell",
+      "groups": "lp,wheel,network,storage,users,disk"
+    },
+    {
+      "name": "base",
+      "entry": "Install openbox base       // Bare bash system with pacman",
+      "kernel": "linux",
+      "layers": "standard/core,standard/base",
+      "groups": "lp,wheel,network,storage,users,disk"
+    },
+    {
+      "name": "core",
+      "entry": "Minimal bash container",
+      "layers": "standard/core"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Set resolution for virtuabox deployment by default to 1280x1024
+display_conf=/etc/X11/xorg.conf.d/10-display.conf
+if [ ! -f $display_conf ]; then
+  if [ $(lsmod | grep "vboxvideo" &>/dev/null; echo $?) == 0 ]; then
+    echo 'Section "Screen"' > $display_conf
+    echo '    Identifier "Screen0"' >> $display_conf
+    echo '    SubSection "Display"' >> $display_conf
+    echo '        Depth 24' >> $display_conf
+    echo '        Modes "1280x1024"' >> $display_conf
+    echo '    EndSubSection' >> $display_conf
+    echo 'EndSection' >> $display_conf
+  fi
+fi

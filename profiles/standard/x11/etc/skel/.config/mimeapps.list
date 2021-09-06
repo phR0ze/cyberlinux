@@ -1,0 +1,30 @@
+[Default Applications]
+application/x-executable=geany.desktop;
+application/pdf=evince.desktop;
+text/plain=geany.desktop;
+application/xml=geany.desktop;
+application/x-shellscript=geany.desktop;
+image/png=gpicview.desktop;
+inode/directory=thunar.deskop;
+
+[Added Associations]
+audio/mpeg=audacious.desktop;
+audio/x-wav=audacious.desktop;
+application/pdf=evince.desktop;
+application/msword=libreoffice-writer.desktop;
+application/rtf=libreoffice-writer.desktop;
+application/vnd.ms-powerpoint=libreoffice-impress.desktop;
+application/vnd.openxmlformats-officedocument.wordprocessingml.document=libreoffice-writer.desktop;
+application/xml=geany.desktop;
+application/x-shellscript=geany.desktop;
+image/gif=gpicview.desktop;
+image/jpeg=gpicview.desktop;
+image/png=gpicview.desktop;
+inode/directory=thunar.deskop;
+text/csv=libreoffice-calc.desktop;
+text/plain=geany.desktop;
+text/html=firefox.desktop;
+video/quicktime=smplayer.desktop;
+video/x-matroska=smplayer.desktop;
+video/mp4=smplayer.desktop;
+video/mpeg=smplayer.desktop;

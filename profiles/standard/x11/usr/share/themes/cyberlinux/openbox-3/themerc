@@ -1,0 +1,125 @@
+# cyberlinux by phR0ze 
+#-------------------------------------------------------------------------------
+# Highlight:    Active #39AEF4  Inactive: #216A94
+# Dark:         Active #202020  Inactive: #191919
+#-------------------------------------------------------------------------------
+
+# Borders
+#-------------------------------------------------------------------------------
+border.width: 1
+
+# Spacing b/w window buttons
+padding.width: 10 
+padding.height: 2
+
+# Window external border color
+window.*.border.color: #39AEF4
+
+# Color of separator b/w title and client
+window.*.title.separator.color: #39AEF4
+
+window.handle.width: 0
+
+# Size of the inner border around content
+window.client.padding.width: 0
+window.client.padding.height: 0
+
+# Titlebar
+#-------------------------------------------------------------------------------
+window.active.title.bg: Flat
+window.active.title.bg.color: #202020
+window.inactive.title.bg.color: #191919
+
+# Title Text
+window.label.text.justify: center
+window.*.label.bg: Parentrelative
+window.active.label.text.color: #FFFFFF
+window.inactive.label.text.color: #909090
+
+# Window Buttons
+#-------------------------------------------------------------------------------
+
+# Pressed
+window.*.button.pressed.bg: Flat
+window.active.button.pressed.bg.color: #202020
+window.active.button.pressed.image.color: #39AEF4
+window.inactive.button.pressed.bg.color: #000000
+window.inactive.button.pressed.image.color: #216A94
+
+# Disabled
+window.*.button.disabled.bg: Flat
+window.active.button.disabled.bg.color: #202020
+window.active.button.disabled.image.color: #39AEF4
+window.inactive.button.disabled.bg.color: #000000
+window.inactive.button.disabled.image.color: #216A94
+
+# Unpressed
+window.*.button.unpressed.bg: Flat
+window.active.button.unpressed.bg.color: #202020
+window.active.button.unpressed.image.color: #39AEF4
+window.inactive.button.unpressed.bg.color: #000000
+window.inactive.button.unpressed.image.color: #216A94
+
+# Toggled Pressed
+window.*.button.toggled.pressed.bg: Flat
+window.active.button.toggled.pressed.bg.color: #202020
+window.active.button.toggled.pressed.image.color: #39AEF4
+window.inactive.button.toggled.pressed.bg.color: #000000
+window.inactive.button.toggled.pressed.image.color: #216A94
+
+# Toggled Unpressed
+window.*.button.toggled.unpressed.bg: Flat
+window.active.button.toggled.unpressed.bg.color: #202020
+window.active.button.toggled.unpressed.image.color: #39AEF4
+window.inactive.button.toggled.unpressed.bg.color: #000000
+window.inactive.button.toggled.unpressed.image.color: #216A94
+
+# Hover
+window.*.button.hover.bg: Flat
+window.active.button.hover.bg.color: #39AEF4
+window.active.button.hover.image.color: #000000
+
+# Toggled Hover
+window.*.button.toggled.hover.bg: Flat
+window.active.button.toggled.hover.bg.color: #39AEF4
+window.active.button.toggled.hover.image.color: #000000
+
+# Menu
+#-------------------------------------------------------------------------------
+menu.overlap: 0
+
+# Font Shadows
+menu.items.font:shadow=n:shadowtint=30
+
+# Menu Background
+menu.items.bg: Flat
+menu.items.bg.color: #080808
+
+# Menu Headers
+menu.title.bg: Flat
+menu.title.bg.color: #202020
+menu.title.text.color: #39AEF4
+menu.title.text.justify: center
+
+# Menu Text
+menu.items.justify: left
+menu.items.text.color: #FFFFFF
+menu.items.disabled.text.color: #606060
+
+# Selected Menu Item
+menu.items.active.bg: Flat 
+menu.items.active.bg.color: #39AEF4
+menu.items.active.text.color: #000000
+
+# On-screen Dialogs, e.g. Alt-Tab
+#-------------------------------------------------------------------------------
+osd.bg: Flat
+osd.bg.color: #303030
+osd.label.bg: Parentrelative
+osd.label.bg.color: #efefef
+osd.label.bg.border.color: #616161
+osd.label.text.color: #FFFFFF
+osd.hilight.bg: Flat
+osd.hilight.bg.color: #51B4DB
+osd.unhilight.bg: Flat
+osd.unhilight.bg.color: #616161

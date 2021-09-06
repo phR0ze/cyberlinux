@@ -1,0 +1,7 @@
+table Icon
+  Icon: /usr/share/icons/hicolor/96x96/actions/system-shutdown.png
+  X: 60
+  Y: 935
+  Command[0]: systemctl poweroff
+end
+

@@ -1,0 +1,38 @@
+!****************************************************************************************
+! File:     .Xresources
+! Purpose:  Configure X and X applications
+! Note:     You can find the Xresources supported by a particular appliction by pulling 
+!           up its man page and searching for RESOURCES
+!****************************************************************************************
+
+! Configure X11
+!****************************************************************************************
+Xft.dpi: 96
+Xft.rgba: rgb
+Xft.hinting: true
+Xft.antialias: true
+Xft.hintstyle: hintfull
+Xft.lcdfilter: lcddefault
+XScreenSaver.dpmsEnabled: false
+
+! Configure terminals
+!****************************************************************************************
+*loginShell: true
+*saveLines: 65535
+
+! Configure colors: taken from .vimrc
+*background: #1c1c1c
+*foreground: #d0d0d0
+*cursorColor: #ff5f00
+*cursorColor2: #000000
+
+! Configure fonts
+*fontName: Inconsolata-g:style=medium:size=11
+
+! Configure scrollbar
+*scrollBar: true
+xterm*rightScrollBar: true
+URxvt*scrollBar_right: true
+
+! X window geometry; option -geometry.
+!URxvt*geometry: 20x20

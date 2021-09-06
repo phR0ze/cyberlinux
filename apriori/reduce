@@ -1,0 +1,1441 @@
+#!/usr/bin/env ruby
+#MIT License
+#Copyright (c) 2017-2019 phR0ze
+#
+#Permission is hereby granted, free of charge, to any person obtaining a copy
+#of this software and associated documentation files (the "Software"), to deal
+#in the Software without restriction, including without limitation the rights
+#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#copies of the Software, and to permit persons to whom the Software is
+#furnished to do so, subject to the following conditions:
+#
+#The above copyright notice and this permission notice shall be included in all
+#copies or substantial portions of the Software.
+#
+#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+#SOFTWARE.
+
+require 'fileutils'             # advanced file utils: FileUtils
+require 'open-uri'              # easily read HTTP
+require 'ostruct'               # OpenStruct
+require 'open3'                 # Better system commands
+require 'rubygems/package'      # tar
+require 'yaml'                  # YAML
+
+require_relative 'lib/config'   # Programatic file editor and command runner
+
+# Gems that should already be installed
+begin
+  require 'nub'
+  require 'filesize'
+rescue Exception => e
+  puts("Error: missing package '#{e.message.split(' ').last.sub('/', '-')}'")
+  !puts("Error: install missing packages with 'bundle install --system") and exit
+end
+
+class Reduce
+  attr_accessor(:vars)
+
+  # Profile encapsulates profile YAML data
+  Profile ||= Struct.new(:vars, :defaults, :builder, :deployments, :apps, :configs) do
+    def initialize(*)
+      super
+      self.vars ||= {}
+      self.defaults ||= {}
+      self.builder ||= {}
+      self.deployments ||= {}
+      self.apps ||= {}
+      self.configs ||= {}
+    end
+  end
+
+  def initialize
+    @type = OpenStruct.new({
+      img: 'img',   # Boot images
+      iso: 'iso',   # Deployable ISO images
+      box: 'box',   # Vagrant box images
+      tgz: 'tgz',   # Container filesystem images
+      sqfs: 'sqfs'  # SquashFS filesystems for deployment from ISO
+    })
+    @k = OpenStruct.new({
+      all: 'all',
+      all_groups: 'all_groups',
+      apps: 'apps',
+      base: 'base',
+      builder: 'builder',
+      configs: 'configs',
+      command: 'command',
+      cpus: 'cpus',
+      conflict: 'conflict',
+      container: 'container',
+      defaults: 'defaults',
+      desc: 'desc',
+      deployments: 'deployments',
+      docker: 'docker',
+      label: 'label',
+      force: 'force',
+      groups: 'groups',
+      i686: 'i686',
+      ignore: 'ignore',
+      install: 'install',
+      kernel: 'kernel',
+      kernel_params: 'kernel_params',
+      machine: 'machine',
+      mirrors: 'mirrors',
+      multilib: 'multilib',
+      name: 'name',
+      nodeps: 'nodeps',
+      off: 'off',
+      order: 'order',
+      packages: 'packages',
+      params: 'params',
+      pgp_key: 'pgp_key',
+      ram: 'ram',
+      source: 'source',
+      type: 'type',
+      vagrant: 'vagrant',
+      vars: 'vars',
+      vram: 'vram',
+      v3d: 'v3d',
+      x86_64: 'x86_64',
+    })
+    @vars = OpenStruct.new
+    @rootpath = File.dirname(File.expand_path(__FILE__))
+    @sudoinv = User.root? ? "sudo -Hu #{User.name} " : ''
+    @runuser = "runuser #{User.name} -c"
+
+    # Set proxy vars
+    @proxyenv = {
+      'ftp_proxy' => ENV['ftp_proxy'],
+      'http_proxy' => ENV['http_proxy'],
+      'https_proxy' => ENV['https_proxy'],
+      'no_proxy' => ENV['no_proxy']
+    }
+    @proxy = ENV['http_proxy']
+    @proxy_export = @proxy ? (@proxyenv.map{|k,v| "export #{k}=#{v}"} * ';') + ";" : nil
+    @vars.proxy = @proxy
+
+    # Set paths
+    @outpath = File.join(@rootpath, 'temp')
+    @workpath = File.join(@outpath, 'work')
+    @pacman_path = File.join(@outpath, 'pacman')
+    @pacman_cache = File.join(@pacman_path, 'cache')
+    @tmp_dir = File.join(@workpath, 'tmp')
+    @isopath = File.join(@workpath, '_iso_')
+    @deployments_src = File.join(@rootpath, 'source')
+    @deployments_work = File.join(@workpath, 'deployments')
+    @vagrantpath = File.join(@rootpath, 'vagrant')
+
+    @motd_path = File.join(@deployments_src, 'shell/etc/motd')
+    @pacman_src_conf = File.join(@deployments_src, 'shell/etc/pacman.conf')
+    @pacman_src_mirrors = Dir[File.join(@deployments_src, "shell/etc/pacman.d/*.mirrorlist")]
+
+    @boot_dst = File.join(@isopath, 'boot')
+    @efi_dst = File.join(@isopath, 'efi/boot')
+    @deployment_images_dst = File.join(@isopath, 'images')
+    @grub_iso_dst = File.join(@boot_dst, 'grub')
+    @grub_iso_work = File.join(@workpath, 'boot/grub_iso')
+
+    @kernel_path = @boot_dst
+    @kernel_prefix = 'vmlinuz'
+    @memtest_image = File.join(@boot_dst, 'memtest')
+    @ucode_image = File.join(@boot_dst, 'intel-ucode')
+
+    @initramfs_path = @boot_dst
+    @initramfs_prefix = 'initramfs'
+    @initramfs_src = File.join(@rootpath, 'boot/initramfs')
+    @initramfs_work = File.join(@workpath, 'boot/initramfs')
+
+    @packer_src = File.join(@rootpath, 'packer')
+    @packer_work = File.join(@workpath, 'packer')
+
+    @imagepaths = [
+      File.join(@outpath, 'images'),
+      @deployment_images_dst,
+      "/home/#{User.name}/Downloads/images"
+    ]
+
+    # Load base profile
+    @loaded_profiles = []
+    self.load_profile('base')
+  end
+
+  # Load and return the given profile
+  # @param name [String] name of the profile to load
+  def load_profile(name)
+    return if @loaded_profiles.include?(name)
+    profile_path = File.join(@rootpath, "profiles/#{name}.yml")
+
+    begin
+      profile = YAML.load_file(profile_path)
+
+      # Load vars and validate base vars
+      profile[@k.vars].each{|k,v| @vars[k.to_sym] = v} if profile[@k.vars]
+
+      if base = profile[@k.base]
+        self.load_profile(base)
+        @vars.profile = name
+      else
+        validate = ->(name, pred){
+          Log.die("'#{name}' is invalid in '#{profile}'") unless pred
+        }
+        validate.call('arch', [@k.i686, @k.x86_64].include?(@vars.arch))
+        validate.call('release', @vars.release)
+        validate.call('distro', @vars.distro)
+        validate.call('language', @vars.language)
+        validate.call('character_set', @vars.character_set)
+        validate.call('timezone', @vars.timezone)
+        validate.call('country', @vars.country)
+        validate.call('color_light', @vars.color_light)
+        validate.call('color_dark', @vars.color_dark)
+        validate.call('gfxmode', @vars.gfxmode)
+        validate.call('grub_iso_theme', @vars.grub_iso_theme)
+
+        @vars[@k.kernel_params] ||= ""
+        @vars.label = "#{@vars.distro.upcase}_#{@vars.release.gsub('.', '')}"
+      end
+
+      # Load and merge profiles
+      @profile = Profile.new unless defined?(@profile)
+      @profile.defaults.deep_merge!(profile[@k.defaults]) if profile[@k.defaults]
+      @profile.builder.deep_merge!(profile[@k.builder]) if profile[@k.builder]
+      @profile.apps.deep_merge!(profile[@k.apps]) if profile[@k.apps]
+      @profile.configs.deep_merge!(profile[@k.configs]) if profile[@k.configs]
+      @profile.deployments.deep_merge!(profile[@k.deployments]) if profile[@k.deployments]
+
+      # Merging deployment over the top of defaults so it takes precedents
+      @profile.deployments.each{|k,v|
+        v.deep_merge!((@profile.defaults[v[@k.type] || @k.machine] || {}).deep_merge(v))
+        v[@k.source] = (v[@k.source] || [k])
+          .map{|x| x.include?(@deployments_src) ? x : File.join(@deployments_src, x)}}
+      @profile.builder[@k.source] = (@profile.builder[@k.source] || [@k.builder])
+        .map{|x| x.include?(@deployments_src) ? x : File.join(@deployments_src, x)}
+
+      # Set variables as needed
+      @vars[@k.all_groups] ||= []
+      @profile.deployments.each{|k,v|
+        @vars["#{k}_deployment"] = self.get_deployments(k) * ',' if v[@k.type] == @k.machine}
+      @profile.deployments.each{|k,v|
+        @vars["#{k}_groups"] = self.getapps(k, @profile.deployments[k])[1].map{|x| x[@k.groups]}.compact.flatten.uniq
+        @vars.all_groups = (@vars.all_groups + @vars["#{k}_groups"]).uniq
+        @vars[@k.groups] = @vars.all_groups * ","}
+      @vars["#{@k.builder}_groups"] = self.getapps(@k.builder, @profile.builder)[1].map{|x| x[@k.groups]}.compact.flatten.uniq
+
+    rescue Exception => e
+      puts("Error: invalid yaml in '#{profile_path}'".colorize(:red))
+      puts(e.to_s.colorize(:red))
+      raise
+    end
+
+    @loaded_profiles << name
+  end
+
+  # Create directory structure for project
+  def create_dir_structure
+    changed = false
+    uid, gid = User.drop_privileges
+
+    changed |= !Dir.exist?(@pacman_cache)
+    changed |= !Dir.exist?(@workpath)
+    changed |= !Dir.exist?(@tmp_dir)
+    changed |= !Dir.exist?(@isopath)
+    changed |= !Dir.exist?(@deployment_images_dst)
+    changed |= !Dir.exist?(@boot_dst)
+    changed |= !Dir.exist?(@efi_dst)
+    changed |= !Dir.exist?(@grub_iso_dst)
+    changed |= !Dir.exist?(@grub_iso_work)
+    changed |= !Dir.exist?(@deployments_work)
+    changed |= !Dir.exist?(@initramfs_work)
+    changed |= !Dir.exist?(@imagepaths.first)
+    changed |= !Dir.exist?(@packer_work)
+    changed |= !Dir.exist?(@vagrantpath)
+    puts("Creating directory structure") if changed
+
+    FileUtils.mkdir_p(@pacman_cache)
+    FileUtils.mkdir_p(@workpath)
+    FileUtils.mkdir_p(@tmp_dir)
+    FileUtils.mkdir_p(@isopath)
+    FileUtils.mkdir_p(@deployment_images_dst)
+    FileUtils.mkdir_p(@boot_dst)
+    FileUtils.mkdir_p(@efi_dst)
+    FileUtils.mkdir_p(@grub_iso_dst)
+    FileUtils.mkdir_p(@grub_iso_work)
+    FileUtils.mkdir_p(@deployments_work)
+    FileUtils.mkdir_p(@initramfs_work)
+    FileUtils.mkdir_p(@imagepaths.first)
+    FileUtils.mkdir_p(@packer_work)
+    FileUtils.mkdir_p(@vagrantpath)
+
+    User.raise_privileges(uid, gid)
+  end
+
+  # Print out distro information
+  def info
+    # Scrape Arch Linux kernel package
+    opts = { ssl_verify_mode: 0, proxy:@proxy }
+    page = open("https://www.archlinux.org/packages/core/x86_64/linux", opts).read
+    puts(page[/<title>(.*?)<\/title>/, 1])
+    @vars.kernel = page[/<title>(.*?)<\/title>/, 1][/.*(\d+\.\d+\.\d+)\.arch.*/, 1]
+
+    puts("Distro: #{@vars.distro.colorize(:cyan)}")
+    puts("Release: #{@vars.release.colorize(:cyan)}")
+    puts("Arch: #{@vars.arch.colorize(:cyan)}")
+    puts("Kernel: #{@vars.kernel.colorize(:cyan)}")
+    puts("Source path: #{@rootpath.colorize(:cyan)}")
+    puts("Output path: #{@outpath.colorize(:cyan)}")
+    puts("Proxy: #{@proxyenv['http_proxy'].colorize(:cyan)}") if @proxy
+  end
+
+  # List components as directed
+  # @param items [Array] all components to list out
+  def list(items)
+    boxes = items && items.include?('boxes') || false
+    isos = items && items.include?('isos') || false
+    images = items && items.include?('images') || false
+    menus = items && items.include?('menus') || false
+    all = items && items.include?('all') || ![boxes, isos, images, menus].any?
+
+    # Formatting block for images
+    putimages = ->(type, live, name){
+      puts("#{name.ljust(100, ' ')}Size:".colorize(:cyan))
+      self.getimages(type, live:live).each{|x|
+        size = x.last.to_s.count("a-zA-Z").zero? ? Filesize.from("#{x.last} B").to_s('MiB') : x.last
+        puts("#{x.first.ljust(100, ' ')}#{size}")
+      }
+      puts
+    }
+
+    putimages.call(@type.box, false, 'Boxes:') if boxes or all
+    putimages.call(@type.iso, false, 'ISOs:') if isos or all
+    putimages.call(@type.img, false, 'Boot Images:') if isos or all
+    putimages.call(@type.sqfs, false, 'Machine Images:') if isos or all
+    putimages.call(@type.tgz, false, 'Container Images:') if images or all
+    putimages.call(@type.tgz, true, 'Container Deployed Images:') if images or all
+
+    # List out menus
+    if menus
+      @profile.deployments.each{|deployment,v|
+        deployment_yml = self.get_deployment_yml(deployment)
+        _, configs = self.getapps(deployment, deployment_yml)
+        menu_entries = configs.select{|x| x['menu']}
+        if menu_entries.any?
+          puts("Menu for #{deployment}\n#{'-' * 80}".colorize(:light_yellow))
+          puts(menu_entries * ",\n")
+        end
+      }
+    end
+  end
+
+  # Clean components as directed
+  # @param targets [Array] components to clean
+  # @param deployments [Array] deployments to clean
+  # @param pacman [Bool] clean pacman repos
+  # @param cache [Bool] clean pacman repos and cache
+  # @param vms [Bool] clean vms
+  def clean(targets, deployments:nil, pacman:nil, cache:nil, vms:nil)
+    deployments ||= []
+    iso = targets && targets.include?('iso') || false
+    isofull = targets && targets.include?('isofull') || false
+    initramfs = targets && targets.include?('initramfs') || false
+    multiboot = targets && targets.include?('multiboot') || false
+    all = targets && targets.include?('all') || false
+    deployments << @k.builder if targets && targets.include?('builder')
+    Log.die("must be executed as root") unless Process.uid.zero?
+
+    # Clean all
+    if all
+      puts("Cleaning all...".colorize(:cyan))
+      puts("Deleting #{@workpath}".colorize(:red)) if File.exist?(@workpath)
+      Sys.rm_rf(@workpath)
+    end
+
+    # Clean initramfs component
+    if !all and (initramfs or isofull)
+      puts("Cleaning initamfs...".colorize(:cyan))
+      puts("Deleting #{@initramfs_work}".colorize(:red)) if File.exist?(@initramfs_work)
+      Sys.rm_rf(@initramfs_work)
+      Dir[File.join(@initramfs_path, "#{@initramfs_prefix}*")].each{|x|
+        puts("Deleting #{x}".colorize(:red))
+        Sys.rm_rf(x)
+      }
+    end
+
+    # Clean multiboot components
+    if !all and (multiboot or isofull)
+      puts("Cleaning multiboot...".colorize(:cyan))
+      [@grub_iso_work, @grub_iso_dst].each{|x|
+        puts("Deleting #{x}".colorize(:red)) if File.exist?(x)
+        Sys.rm_rf(x)
+      }
+      (Dir[File.join(@kernel_path, "#{@kernel_prefix}*")] + ["#{@ucode_image}.img",
+        "#{@ucode_image}.LICENSE", @memtest_image, "#{@memtest_image}.LICENSE"]).each{|x|
+        puts("Deleting #{x}".colorize(:red)) if File.exist?(x)
+        File.delete(x) if File.exist?(x)
+      }
+    end
+
+    # Clean given deployments or all
+    if all || (Dir.exist?(@deployments_work) && deployments.any?)
+      deployments = @profile.deployments.keys if all
+      deployments.each{|deployment|
+        puts("Cleaning deployment '#{deployment}'...".colorize(:cyan))
+        path = File.join(@deployments_work, deployment)
+        puts("Deleting #{path}".colorize(:red)) if File.exist?(path)
+        Sys.rm_rf(path)
+        @imagepaths[0..1].each{|path|
+          Dir[File.join(path, "#{deployment}*")].each{|x|
+            puts("Deleting #{x}".colorize(:red))
+            File.delete(x)}
+        }
+        filter = "#{@vars.distro.downcase}-#{@vars.profile}-#{deployment}"
+        evalimages!(@type.tgz, filter:filter, live:true, force:true)
+      }
+    end
+
+    # Clean pacman
+    if cache
+      puts("Cleaning pacman cache...".colorize(:cyan))
+      puts("Deleting #{@pacman_cache}".colorize(:red)) if Dir.exist?(@pacman_cache)
+      Sys.rm_rf(@pacman_cache)
+    end
+
+    # Clean iso path
+    if all or isofull
+      puts("Cleaning iso path except for images...".colorize(:cyan))
+      puts("Deleting #{@boot_dst}".colorize(:red)) if File.exist?(@boot_dst)
+      Sys.rm_rf(@boot_dst)
+      puts("Deleting #{@efi_dst}".colorize(:red)) if File.exist?(@efi_dst)
+      Sys.rm_rf(@efi_dst)
+    end
+
+    # Clean iso image
+    if all or deployments.any? or iso or isofull
+      puts("Cleaning iso image...".colorize(:cyan))
+        Dir[File.join(@imagepaths.first, "*-#{@vars.profile}-*.iso")].each{|x|
+        puts("Deleting #{x}".colorize(:red))
+        File.delete(x)
+      }
+    end
+
+    # Clean vagrant vms that are no longer deployed
+    if all or vms
+      puts("Cleaning vagrant vms...".colorize(:cyan))
+      if File.exist?(@vagrantpath)
+        vgout = `#{@sudoinv}vagrant global-status --prune`.split("\n")
+        puts(vgout)
+        vms = vgout.select{|x| x.include?('virtualbox')}.map{|x| x.split(' ')[1]}
+        Dir[File.join(@vagrantpath, '*')].map{|x| File.basename(x)}.each{|vm|
+          if !vms.include?(vm)
+            path = File.join(@vagrantpath, vm)
+            puts("Removing vagrant env. for missing VM #{path}".colorize(:red))
+            Sys.rm_rf(path)
+          end
+        }
+      end
+    end
+  end
+
+  # Build components as directed
+  # @param targets [Array] components to build
+  # @param deployments [Array] build given deployments
+  def build(targets, deployments:nil)
+    deployments ||= []
+    iso = targets && targets.include?('iso') || false
+    isofull = targets && targets.include?('isofull') || false
+    initramfs = targets && targets.include?('initramfs') || false
+    multiboot = targets && targets.include?('multiboot') || false
+    all = targets && targets.include?('all')
+    deployments << @k.builder if targets && targets.include?('builder')
+    Log.die("target not given") if (targets.nil? or targets.empty?) && deployments.empty?
+
+    changed = false
+    self.info  # required to get the current kernel version
+    self.create_dir_structure
+    Log.die("must be executed as root") unless Process.uid.zero?
+
+    # Build implicated deployments
+    deployments = @profile.deployments.keys if all
+    deployments.each{|deployment| changed |= self.build_deployments(deployment)} if deployments.any?
+
+    # Only trigger ISO creation if we are building a machine
+    if initramfs || multiboot || isofull ||
+      @profile.deployments.select{|k,v| deployments.include?(k)}.any?{|k,v| v[@k.type] == @k.machine}
+
+      # Build the builder container for initramfs/multiboot
+      changed |= self.build_deployments(@k.builder) if not deployments.include?(@k.builder)
+
+      # Build early userspace ramdisk for install executed by grub
+      clean(initramfs:true) if changed
+      changed |= self.build_initramfs_installer if [all, isofull, initramfs, changed].any?
+
+      # Build GRUB UI that boots initramfs installer and in turn the real kernel
+      changed |= self.build_multiboot if [all, isofull, multiboot].any?
+
+      # Create ISO Hybrid CD/USB bootable image
+      # http://lukeluo.blogspot.co.uk/2013/06/grub-how-to-2-make-boot-able-iso-with.html
+      # Test as USB: sudo qemu-system-x86_64 -usb image.iso
+      # Test as CD-ROM: sudo qemu-system-x86_64 -cdrom image.iso
+      @vars.isofile = File.join(@imagepaths.first,
+        "#{@vars.distro.downcase}-#{@vars.profile.downcase}-#{@vars.release}-#{@vars.kernel}-#{@vars.arch}.iso")
+      if [iso, isofull, all].any?
+        puts("Building ISO Hybrid CD/USB bootable image...\n#{'-' * 80}".colorize(:light_yellow))
+        if changed or not File.exist?(@vars.isofile)
+
+          # Use -as mkisofs to support options how grub-mkrescue does it
+          cmd = "xorriso -as mkisofs "
+          cmd += "--modification-date=#{Time.now.strftime("%Y%m%d%H%M%S00")} "
+
+          # General configuration
+          cmd += "-volid #{@vars.label} "       # Identifier for installer to use to find install medium
+          cmd += "-graft-points "               # Interpret target path in ISO together with input path
+          cmd += "--sort-weight 0 / "           # Store files other than /boot further away from center of CD
+          cmd += "--sort-weight 1 /boot "       # Store /boot files closer to center of CD
+
+          # Configure BIOS/UEFI CD-ROM/USB bootable images
+          embedded_img_path = File.join(@grub_iso_work, 'embedded.img')
+          cmd += "-b boot/grub/i386-pc/eltorito.img "             # Boot from BIOS CD-ROMs
+          cmd += "-no-emul-boot "                                 # GRUB2 requires this
+          cmd += "-boot-info-table "                              # GRUB2: Write boot info table into boot image
+          cmd += "--embedded-boot #{embedded_img_path} "          # Boot from USB
+          cmd += "--protective-msdos-label "                      # Generate partition table to preserve space for MBR
+          cmd += "--efi-boot /efi/boot/bootx64.efi "              # Boot from EFI image
+
+          # Use Rock Ridge and best iso level for standard USB/CDROM ISO features
+          cmd += "-r -iso-level 3 "
+
+          # Create the ISO from @isopath named as the -o specifies
+          cmd += "-o #{@vars.isofile} #{@isopath}"
+
+          msg = "ISO Hybrid CD/USB bootable image:\n#{@vars.isofile}"
+          if Sys.exec(cmd)
+            puts("Successfully built #{msg}".colorize(:green))
+          else
+            Log.die("failed to build #{msg}")
+          end
+        end
+      end
+    end
+  end
+
+  # Create the initramfs.img
+  # which provides the boot environment we will install from
+  # @returns true on changed
+  def build_initramfs_installer
+    changed = false
+    self.create_dir_structure
+    initramfs_digests = File.join(@initramfs_work, 'digests')
+    initramfs_names = @profile.deployments.select{|k,v| v[@k.type] == @k.machine}
+      .map{|k,v| v[@k.install][@k.kernel]}.uniq.map{|x| "#{@initramfs_prefix}-#{x}"}
+
+    puts("Building initramfs images...\n#{'-' * 80}".colorize(:light_yellow))
+    if self.syncfiles(File.basename(@initramfs_work), @initramfs_src, @initramfs_work, initramfs_digests) or
+        not Dir[File.join(@initramfs_path, "#{@initramfs_prefix}*")].any?
+      changed |= true
+      installer = File.join(@initramfs_work, 'installer')
+      installer_conf = File.join(@initramfs_work, 'installer.conf')
+      mkinitcpio_conf = File.join(@initramfs_work, 'mkinitcpio.conf')
+
+      # Resolve template
+      FileUtils.resolve(installer, @vars)
+
+      # Build initramfs images in build container
+      docker(@k.builder, @k.builder){|cont, home, cp, exec, execs, runuser|
+
+        # Inject installer configuration
+        cp.call("#{installer} #{cont}:/usr/lib/initcpio/hooks")
+        cp.call("#{installer_conf} #{cont}:/usr/lib/initcpio/install/installer")
+        cp.call("#{mkinitcpio_conf} #{cont}:/etc")
+        #exec.call('bash -c "while :; do sleep 5; done"')
+
+        # Build an initramfs for each installed kernel
+        `#{execs} ls /lib/modules`.split(" ").compact.reject{|x| x.include?('extra')}.each{|kernel|
+          name = "-" + kernel.split("-").last
+          name = '' if name.upcase.include?("ARCH")
+          initramfs_name = initramfs_names.find{|x| x == "#{@initramfs_prefix}-linux#{name}"}
+          puts("Creating #{initramfs_name}...".colorize(:cyan))
+          puts("Using kernel: #{kernel}".colorize(:green))
+          initramfs_image = File.join('/root', "#{initramfs_name}.img")
+
+          exec.call("mkinitcpio -k #{kernel} -g #{initramfs_image}")
+          cp.call("#{cont}:#{initramfs_image} #{@initramfs_path}")
+          puts("Successfully built initramfs image #{@initramfs_path}/#{initramfs_name}.img".colorize(:green))
+        }
+      }
+    end
+
+    return changed
+  end
+
+  # Build bootable GRUB images for BIOS/UEFI support
+  # https://www.rodsbooks.com/efi-bootloaders/index.html
+  # https://wiki.archlinux.org/index.php/Multiboot_USB_drive#Using_GRUB_and_loopback_devices
+  # @returns true on changed
+  def build_multiboot
+    changed = false
+    self.create_dir_structure
+    grub_iso_path = File.join(@grub_iso_work, 'boot/grub')
+    kernels = @profile.deployments.select{|k,v| v[@k.type] == @k.machine}
+      .map{|k,v| v[@k.install][@k.kernel]}.compact.uniq.map{|x| "#{@kernel_prefix}-#{x}"}
+
+    FileUtils.mkdir_p(grub_iso_path)
+    puts("Building multiboot...\n#{'-' * 80}".colorize(:light_yellow))
+    if !Dir[File.join(@kernel_path, "#{@kernel_prefix}*")].any?
+      changed |= true
+
+      # Inject deploy entries from deployments into
+      # i.e. cyberlinux/temp/work/boot/grub_iso/boot/grub/boot.cfg
+      motd = File.readlines(@motd_path)
+      File.open(File.join(grub_iso_path, 'boot.cfg'), 'w'){|f|
+        @profile.deployments.select{|k,v| v[@k.type] == @k.machine}
+          .sort_by{|k,v| v[@k.install][@k.order]}.each{|x|
+          kernel = "#{@kernel_prefix}-#{x.last[@k.install][@k.kernel]}"
+          params = x.last[@k.install][@k.params] || ""
+          params = "#{params} " if !params.empty?
+          params += "kernel=#{x.last[@k.install][@k.kernel]}"
+          layers = @vars["#{x.first}_deployment"]
+
+          f << "    menuentry --class=deployment '#{x.last[@k.install][@k.label]}' {\n"
+          f << "        echo\necho\n"
+          motd.each{|line| f << "        echo $\"          #{line.gsub("\n", "")}\"\n" }
+          f << "        linux /boot/#{kernel} efi=$efi layers=#{layers} #{@vars.kernel_params} #{params if params}\n"
+          f << "        initrd /boot/intel-ucode.img /boot/#{@initramfs_prefix}-#{x.last[@k.install][@k.kernel]}.img\n"
+          f << "    }\n"
+        }
+      }
+      FileUtils.resolve(File.join(grub_iso_path, 'boot.cfg'), @vars)
+
+      # Create themes directory in advance to only copy out cyberlinux theme
+      # i.e. cyberlinux/temp/work/boot/grub_iso/boot/grub/themes
+      themes_dir = File.join(grub_iso_path, 'themes')
+      FileUtils.mkdir_p(themes_dir)
+      docker(@k.builder, 'root'){|cont, home, cp, exec, execs, runuser|
+
+        # Extract Grub boot configs and themes
+        # i.e. cyberlinux/temp/work/boot/grub_iso/boot/grub
+        cp.call("#{cont}:/usr/share/grub/grub.cfg #{grub_iso_path}")
+        cp.call("#{cont}:/usr/share/grub/loopback.cfg #{grub_iso_path}")
+        cp.call("#{cont}:/usr/share/grub/unicode.pf2 #{grub_iso_path}")
+        cp.call("#{cont}:/usr/share/grub/themes/#{@vars.distro} #{themes_dir}")
+
+        # Extract kernel, intel ucode patch, memtest etc...
+        # i.e. cyberlinux/temp/work/_iso_/boot
+        cp.call("#{cont}:/boot/intel-ucode.img #{@ucode_image}.img")
+        cp.call("#{cont}:/usr/share/licenses/intel-ucode/LICENSE #{@ucode_image}.LICENSE")
+        cp.call("#{cont}:/boot/memtest86+/memtest.bin #{@memtest_image}")
+        cp.call("#{cont}:/usr/share/licenses/common/GPL2/license.txt #{@memtest_image}.LICENSE")
+        kernels.each{|kernel| cp.call("#{cont}:/boot/#{kernel} #{@kernel_path}")}
+
+        # Build and extract BIOS boot files
+        # i.e. cyberlinux/temp/work/boot/grub_iso/boot/grub/i386-pc
+        i386pc = "/usr/lib/grub/i386-pc/"
+        shared_modules = "iso9660 part_gpt ext2"
+        exec.call("mkdir -p /root/iso/boot/grub")
+        exec.call("cp -r #{i386pc} /root/iso/boot/grub")
+        exec.call("rm /root/iso/boot/grub/i386-pc/*.img")
+        exec.call("cd ~/;grub-mkimage -O i386-pc -d #{i386pc} -o core.img -p /boot/grub biosdisk #{shared_modules}")
+        exec.call("cat #{File.join(i386pc, 'cdboot.img')} /root/core.img > /root/iso/boot/grub/i386-pc/eltorito.img")
+        exec.call("cat #{File.join(i386pc, 'boot.img')} /root/core.img > /root/embedded.img")
+        cp.call("#{cont}:/root/embedded.img #{@grub_iso_work}")
+        cp.call("#{cont}:/root/iso/boot/grub/i386-pc #{grub_iso_path}")
+
+        # Build and extract UEFI boot files
+        # i.e. cyberlinux/temp/work/boot/grub_iso/boot/grub/x86_64-efi
+        x86_64efi = "/usr/lib/grub/x86_64-efi/"
+        exec.call("cp -r #{x86_64efi} /root/iso/boot/grub")
+        exec.call("rm /root/iso/boot/grub/x86_64-efi/*.img")
+        exec.call("cd ~/;grub-mkimage -O x86_64-efi -d #{x86_64efi} -o efi.img -p /boot/grub fat efi_gop efi_uga #{shared_modules}")
+        cp.call("#{cont}:/root/efi.img #{@grub_iso_work}/bootx64.efi")
+        cp.call("#{cont}:/root/iso/boot/grub/x86_64-efi #{grub_iso_path}")
+      }
+
+      puts("Copying grub multiboot to destination...".colorize(:cyan))
+      puts("Copying: ...to #{@efi_dst}")
+      FileUtils.cp(File.join(@grub_iso_work, 'bootx64.efi'), @efi_dst)
+      Dir.glob(File.join(@grub_iso_work, 'boot', '**/*'), File::FNM_DOTMATCH).each{|x|
+        if File.file?(x)
+          dst = x.sub(@grub_iso_work, @isopath)
+          puts("Copying: ...to #{dst}")
+          FileUtils.mkdir_p(File.dirname(dst))
+          FileUtils.cp(x, dst)
+        end
+      }
+
+      puts("Successfully built grub multiboot".colorize(:green))
+    end
+
+    return changed
+  end
+
+  # Pack the given deployment or all deployments if no specific deployment given
+  # @param deployments [list] deployments to pack into an image else all
+  # @param disksize [int] disk size to use for pack
+  # @param force [bool] pack even if already exists
+  def pack(deployments, disksize:nil, force:nil)
+    _deployments = @profile.deployments.select{|k,v| v[@k.type] == @k.machine}
+    deployments = deployments || _deployments.reject{|k,v| k == 'live'}.keys
+    puts("Packing deployments #{deployments * ','}\n#{'-' * 80}".colorize(:light_yellow))
+    Log.die("must be executed as non-root user") unless not Process.uid.zero?
+    create_dir_structure
+
+    # Ensure we have the right binaries available
+    Log.die("ensure 'packer' https://www.packer.io/downloads.html is in the path") unless FileUtils.exec?('packer')
+    Log.die("install 'virtualbox' via 'sudo pacman -S virtualbox'") unless FileUtils.exec?('vboxmanage')
+
+    # Locate latest iso for profile
+    filter = "#{@vars.distro.downcase}-#{@vars.profile}"
+    isos = self.getimages(@type.iso, filter:filter).map{|x| x.first}
+    Log.die("no ISOs found") unless isos.any?
+    @vars.isofile = isos.shift
+
+    @vars.release = @vars.isofile[/#{@vars.profile}-(.*?)-/, 1]
+    puts("Release: #{@vars.release}".colorize(:cyan))
+    puts("ISO: #{@vars.isofile}".colorize(:cyan))
+
+    # Configure host-only network
+    config_network = "#{@sudoinv}vboxmanage hostonlyif ipconfig "
+    config_network += "#{@vars.netname} -ip #{@vars.netip} -netmask #{@vars.subnet}"
+    if not Sys.exec(config_network, die:false)
+      Sys.exec("#{@sudoinv}vboxmanage hostonlyif create")
+      Sys.exec(config_network)
+    end
+
+    # Pack implicated deployments into vagrant boxes
+    installables = _deployments.sort_by{|k,v| v[@k.install][@k.order]}.map{|x| x.first}
+    deployments.each do |deployment|
+      i = installables.index(deployment)
+
+      # Remove old boxes and/or skip if current
+      image = self.evalimages!(@type.box, filter:"#{filter}-#{deployment}", force:force)
+      !puts("Box #{image} already exists".colorize(:green)) and next if image
+
+      # Clean up build artifacts and prep for build
+      puts("Building vagrant image with packer for deployment '#{deployment}'".colorize(:cyan))
+      output_dir = File.join(@packer_work, deployment)
+      puts("Removing old packer artifacts at #{output_dir}".colorize(:red))
+      Sys.rm_rf(output_dir)
+
+      # Copy over and resolve packer template and scripts
+      puts("Copy over and resolve packer template and scripts".colorize(:cyan))
+      Dir.glob(File.join(@packer_src, '*.sh')).each{|x|
+        puts("Copying: #{x} => #{@packer_work}")
+        FileUtils.cp(x, @packer_work)
+        FileUtils.resolve(File.join(@packer_work, File.basename(x)), @vars)
+      }
+
+      template = File.join(@packer_work, "#{deployment}.json")
+      FileUtils.cp(File.join(@packer_src, 'packer.json'), template)
+      @vars.deployment = deployment
+      @vars.disksize = disksize || '40000'
+      commands = ['"<enter>"', '"<wait4s>"', '"1<enter>"']
+      commands = ['"<down>"'] * i + commands if i > 0
+      @vars.vagrant_boot_commands = commands * ","
+      FileUtils.resolve(template, @vars)
+
+      # Create a new vagrant image for the given deployment
+      puts("Building vagrant image using packer".colorize(:cyan))
+      pwd = Dir.pwd and Dir.chdir(@packer_work)
+      Sys.exec("packer build -only=virtualbox-iso #{deployment}.json")
+    end
+  end
+
+  # Deploy vagrant node/s
+  # @param deployment [String] deployment to deploy
+  # @param name [string] name to give the specific node/container being created
+  # @param run [string] run the container with default run
+  # @param exec [string] specific command to run in the container
+  # @param nodes [list] list of node ids to deploy
+  # @param ipv6 [bool] enable ipv6 on the node/s being deployed
+  # @param vagrantfile [bool] export the vagrant file only
+  # @param force [bool] deploy even if already exists
+  def deploy(deployment, name:nil, run:nil, exec:nil, nodes:nil, ipv6:nil, vagrantfile:nil, force:nil)
+    puts("Deploying deployment '#{deployment}'\n#{'-' * 80}".colorize(:light_yellow))
+    self.create_dir_structure
+    deployment_yml = self.get_deployment_yml(deployment)
+
+    # Deploy vagrant VM
+    #---------------------------------------------------------------------------
+    if deployment_yml[@k.type] == @k.machine
+      uid, gid = User.drop_privileges
+
+      # Check that vagrant is on the path and clean previously deployed VMs
+      Log.die("ensure 'vagrant' https://www.vagrantup.com/downloads.html is in the path") unless FileUtils.exec?('vagrant')
+      clean(vms:true)
+
+      # Choose a vagrant box to use and update registry if needed
+      vagrant_box = "#{@vars.distro.downcase}-#{@vars.profile}-#{deployment}"
+      box = self.getimages(@type.box, filter:vagrant_box).map{|x| x.first}.shift
+      if !box
+        vagrant_box = "phR0ze/#{vagrant_box}"
+        puts("Downloading '#{vagrant_box}' from vagrantup.com".colorize(:cyan))
+      else
+        Log.die("no box found for #{vagrant_box}, please pack the box first") unless box
+        puts("Updating vagrant registry for '#{vagrant_box}'".colorize(:cyan))
+        Sys.exec("#{@sudoinv}vagrant box add #{vagrant_box} #{box} --force")
+      end
+
+      # Configure host-only network
+      Log.die("ensure 'virtualbox' https://www.virtualbox.org/wiki/Downloads is in the path") unless FileUtils.exec?('vboxmanage')
+      config_network = "#{@sudoinv}vboxmanage hostonlyif ipconfig "
+      config_network += "#{@vars.netname} -ip #{@vars.netip} -netmask #{@vars.subnet}"
+      if not Sys.exec(config_network, die:false)
+        Sys.exec("#{@sudoinv}vboxmanage hostonlyif create")
+        Sys.exec(config_network)
+      end
+
+      # Generate vagrant node parameters
+      #---------------------------------------------------------------------------
+      profiles = []
+      (nodes || [rand(2..254)]).each do |node|
+        host = name || deployment
+        host = "#{host}#{node.to_s}".gsub(' ', '-').gsub('/', '-').gsub('_', '-')
+        profile = {
+          host: host,
+          ip: "#{@vars.netip[0..-2]}#{node}/24",
+          box: vagrant_box,
+          cpus: deployment_yml[@k.vagrant][@k.cpus] || 1,
+          ram: deployment_yml[@k.vagrant][@k.ram] || 512,
+          vram: deployment_yml[@k.vagrant][@k.vram] || 8,
+          net: @vars.netname,
+          v3d: deployment_yml[@k.vagrant][@k.v3d] || @k.off,
+          proxy: @proxyenv['http_proxy'],
+          no_proxy: @proxyenv['no_proxy'],
+          ipv6: ipv6
+        }
+        profiles << profile
+        puts("Generating node: #{profile.to_s}".colorize(:cyan))
+      end
+
+      # Create Vagrantfile for deployment
+      vagrantfile_path = File.join(@vagrantpath, 'Vagrantfile')
+      FileUtils.cp(File.join(@packer_src, 'Vagrantfile'), vagrantfile_path)
+      @vars.nodes = profiles.map{|x| '  ' + x.to_s} * ",\n"
+      FileUtils.resolve(vagrantfile_path, @vars)
+
+      # Initialize a new vagrant instance
+      #-----------------------------------------------------------------------
+      if not vagrantfile
+        puts("Initializing vagrant node from deployment '#{deployment}'".colorize(:cyan))
+        vmpath = File.expand_path(FileUtils.mkdir_p(File.join(@vagrantpath, profiles.first[:host])).shift)
+        FileUtils.cp(vagrantfile_path, vmpath)
+        File.delete(vagrantfile_path)
+
+        # Weird UI issue in that X apps can't open display :0 until reboot
+        Dir.chdir(vmpath)
+        Sys.exec("#{@sudoinv}vagrant up")
+        Sys.exec("#{@sudoinv}vagrant reload")
+      end
+
+      User.raise_privileges(uid, gid)
+
+    # Deploy docker container
+    #---------------------------------------------------------------------------
+    elsif deployment_yml[@k.type] == @k.container
+      Log.die("must be executed as root") unless Process.uid.zero?
+
+      # Remove old 'live' images or skip if current
+      image = self.evalimages!(@type.tgz, filter:deployment, live:true, force:force)
+      puts("Image #{image} already exists".colorize(:green)) if image
+
+      # Load disk image if it exists
+      if not image
+        image = self.evalimages!(@type.tgz, filter:deployment, live:false)
+        image ? puts("Image #{image} exists importing".colorize(:green)) :
+          Log.die("need to first build image '#{image}'")
+        Sys.exec("cat #{image} | docker import - #{File.basename(image, '.*')}:latest")
+        image = File.basename(image, '.*')
+      end
+
+      # Run container
+      #-------------------------------------------------------------------------
+      if run or exec
+
+        # Get docker params
+        params = []
+        deployments = self.get_deployments(deployment).reverse[0..-1].each{|x|
+          docker = self.get_deployment_yml(x)[@k.docker]
+          Log.die("docker field is missing from deployment yaml") if !docker
+          params << docker[@k.params] if docker[@k.params]
+        }
+        puts("docker: using params #{params}".colorize(:cyan))
+
+        # Run docker container
+        # Ex: docker run --rm --name dev66 -h dev66 -e TERM=xterm build-1.0.59 bash -c "while :; do sleep 5; done"
+        cont = name || 'dev'
+        env = '' and @proxyenv.each{|k,v| env << "-e #{k}=#{v} " if v}
+        params = exec ? "-it #{env} #{image} #{exec}" :
+          (params << "#{image} #{deployment_yml[@k.docker][@k.command]}").flatten * ' '
+        begin
+          Sys.exec("docker run --rm --name #{cont} --hostname #{cont} #{params}", die:false)
+        ensure
+          exists = `docker ps -a --format "{{.Names}}"`.split("\n").find{|x| x == cont}
+          Sys.exec("docker kill #{cont}") if exists
+        end
+      end
+    end
+  end
+
+  # Build the implicated deployments
+  # @param target_deployment [string] specific deployment to build
+  # @returns true if changed
+  def build_deployments(target_deployment)
+    changed = false
+    if target_deployment != @k.builder && !@profile.deployments[target_deployment]
+      Log.die("deployment '#{target_deployment}' doesn't exist")
+    end
+
+    # Build in reverse order to layer deployments
+    deployments = self.get_deployments(target_deployment).reverse
+    create_dir_structure
+
+    deployments.each do |deployment|
+      deployment_changed = false
+      deployment_yml = get_deployment_yml(deployment)
+      deployment_deps = self.get_deployments(deployment)[1..-1]
+      deployment_work = FileUtils.mkdir_p(File.join(@deployments_work, deployment)).shift
+      deployment_image = deployment_yml[@k.type] == @k.machine ? File.join(@deployment_images_dst, "#{deployment}.sqfs") :
+        File.join(@imagepaths.first, "#{deployment}-#{@vars.release}.tgz")
+      puts("Building deployment '#{deployment}'\n#{'-' * 80}".colorize(:light_yellow))
+
+      begin
+        # Mount all dependent deployments starting with base
+        # Note: lowerdirs stacked from right to left (e.g. heavy, lite, base)
+        if deployment_deps.any?
+          puts("Mount deployment dependencies #{deployment_deps} for deployment '#{deployment}'".colorize(:cyan))
+          Sys.exec("mount -t overlay -o lowerdir=%s,upperdir=%s,workdir=%s none %s" %
+            [deployment_deps.map{|x| File.join(@deployments_work, x)} * ':', deployment_work, @tmp_dir, deployment_work])
+        else
+          puts("Bind mount deployment '#{deployment}' for arch-chroot ".colorize(:cyan))
+          Sys.exec("mount --bind %s %s" % [deployment_work, deployment_work])
+        end
+
+        # Install deployment specific packages via pacman
+        deployment_changed |= self.installapps(deployment, deployment_image, deployment_work, deployment_yml)
+
+        # Build deployment image if needed
+        if deployment_changed or not File.exist?(deployment_image)
+          puts("Creating #{deployment_image}...".colorize(:cyan))
+          Sys.umount(deployment_work, retries:10) if deployment_yml[@k.type] == @k.machine
+          self.relocate_tracking_files(deployment_work)
+
+          # Create squashfs image for machine deployments
+          if deployment_yml[@k.type] == @k.machine
+            Sys.exec("nice -n 19 mksquashfs #{deployment_work} #{deployment_image} -noappend -comp xz -b 256K -Xbcj x86")
+          else
+            # Create compressed tarball for container deployments
+            Sys.exec("nice -n 19 tar --numeric-owner --xattrs --acls -C #{deployment_work} -czf #{deployment_image} .")
+          end
+
+          puts("Successfully built #{deployment_image}".colorize(:green))
+          self.relocate_tracking_files(deployment_work, restore:true)
+          deployment_changed |= true
+        else
+          puts("Image already built #{deployment_image}".colorize(:green))
+        end
+
+      ensure
+        # Ensure joined file system is unmounted
+        Sys.umount(deployment_work, retries:10)
+        Sys.rm_rf(File.join(@tmp_dir, '*'))
+      end
+      changed |= deployment_changed
+    end
+
+    return changed
+  end
+
+  # Install packages for the given deployment
+  # @param deployment [string] deployment name to work with
+  # @param deployment_image [String] deployment name to work with
+  # @param deployment_work [String] path deployment work directory to work with
+  # @param deployment_yml [YAML] deployment yaml to work with
+  # @returns true if any apps were installed else false
+  def installapps(deployment, deployment_image, deployment_work, deployment_yml)
+    changed = false
+    msg = "Installing apps for '#{deployment}'..."
+    appfile = File.join(deployment_work, 'packages')
+    deployment_deps = self.get_deployments(deployment)[1..-1]
+    deployment_digests = File.join(deployment_work, 'digests')
+
+    # Handle packages differently based on type
+    #---------------------------------------------------------------------------
+    all_apps, all_configs = self.getapps(deployment, deployment_yml)
+    apps = {
+      reg: all_apps.map{|x| x[@k.install] if !x[@k.ignore] and !x[@k.force] and !x[@k.nodeps]}.compact,
+      nodeps: all_apps.map{|x| x[@k.install] if x[@k.nodeps]}.compact,
+      force: all_apps.map{|x| x[@k.install] if x[@k.force]}.compact,
+      ignore: all_apps.map{|x| x[@k.install] if x[@k.ignore]}.compact,
+      conflict: all_apps.map{|x| "CONFLICT:#{x[@k.conflict]}" if x[@k.conflict]}.compact
+    }
+
+    # Filter out already installed packages
+    #---------------------------------------------------------------------------
+    if File.exist?(appfile)
+      puts("Filtering out packages that are already installed".colorize(:cyan))
+      installed_apps = nil
+      File.open(appfile){|f| installed_apps = f.readlines.map{|x| x.strip}}
+      [:reg, :conflict].each{|x| apps[x] = apps[x].select{|y| not installed_apps.include?(y)}}
+    end
+
+    # Install any missing packages
+    #---------------------------------------------------------------------------
+    if apps.any?{|k,v| v.any? if k != :conflict and k != :ignore}
+      puts("#{msg}".colorize(:cyan))
+      puts("Packages: #{apps[:reg]}")
+      puts("Force Apps: #{apps[:force]}")
+      puts("Nodeps Apps: #{apps[:nodeps]}")
+      puts("Ignore Apps: #{apps[:ignore]}")
+      puts("Conflict Apps: #{apps[:conflict].map{|x| x.split(':').last}}")
+
+      if apps[:conflict].any? or apps[:reg].any? or apps[:force].any? or apps[:nodeps].any?
+        begin
+
+          # Prepare pacman for use
+          Pacman.init(@pacman_path, deployment_work, @pacman_src_conf, @pacman_src_mirrors)
+
+          # Remove these packages first
+          if apps[:conflict].any?
+            puts("Removing conflicting packages for '#{deployment}'...".colorize(:cyan))
+            Pacman.remove_conflict(apps[:conflict].map{|x| x.split(':').last})
+          end
+
+          # Install nodeps packages
+          if apps[:nodeps].any?
+            puts("Pacstrap package nodeps installs for '#{deployment}'...".colorize(:cyan))
+            Pacman.install(apps[:nodeps], flags: ['--nodeps', '--nodeps'])
+          end
+
+          # Install normal packages
+          if apps[:reg].any?
+            puts("Pacstrap package regular installs for '#{deployment}'...".colorize(:cyan))
+            Pacman.install(apps[:reg], flags: apps[:ignore].any? ? ['--ignore', apps[:ignore] * ','] : nil)
+          end
+
+          # Install force packages
+          if apps[:force].any?
+            puts("Pacstrap package force installs for '#{deployment}'...".colorize(:cyan))
+            flags = apps[:ignore].any? ? ['--ignore', apps[:ignore] * ','] : []
+            flags += ['--force']
+            Pacman.install(apps[:force], flags: flags)
+          end
+        ensure
+          # Kill gpg-agent as for some reason it doesn't stop itself
+          Process.killall("gpg-agent --homedir #{deployment_work}")
+          Sys.umount(File.join(deployment_work, 'dev'), retries: 10)
+        end
+
+        # Update list of packages that were installed
+        File.open(appfile, 'a'){|f| f.puts(apps[:reg])} if apps[:reg].any?
+        changed |= true
+      end
+    else
+      puts("#{msg}skipping".colorize(:cyan))
+    end
+
+    # Copy over all deployment data if it exists
+    #---------------------------------------------------------------------------
+    changed |= self.syncfiles(deployment, deployment_yml[@k.source], deployment_work, deployment_digests)
+
+    # Apply app configuration changes
+    #---------------------------------------------------------------------------
+    changedfile = File.join(deployment_work, 'changed')
+    if all_configs.any? && (changed || !File.exist?(changedfile) || !File.exist?(deployment_image))
+      puts("Applying configs...".colorize(:cyan))
+      vars = deployment_yml[@k.vars] ? @vars.to_h.merge(deployment_yml[@k.vars]) : @vars
+      changed |= Config.apply(all_configs || [],
+        OpenStruct.new({root: deployment_work, vars: vars, configs: @profile.configs}))
+      File.open(changedfile, 'w'){|f|}
+
+      # Failures in exec app changes will result in mounts being left around
+      # deployments/shell/dev/pts
+      # deployments/shell/dev/shm
+      # deployments/shell/dev
+      # deployments/shell/proc
+      # deployments/shell/run
+      # deployments/shell/sys
+      # deployments/shell/tmp
+      # deployments/shell/etc/resolv.conf
+    end
+
+    # Sync user files with root to have a seamless experience
+    #---------------------------------------------------------------------------
+    puts("Sync user files with root files for seamless experience...".colorize(:cyan))
+    skel = File.join(deployment_work, 'etc/skel')
+    Dir.glob(File.join(skel, '*'), File::FNM_DOTMATCH)
+      .reject{|x| ['.', '..'].include?(File.basename(x))}.each{|x|
+      target = File.join(deployment_work, 'root', x.split(skel).last)
+      puts("Recursive copy: #{x} => #{target}")
+      FileUtils.cp_r(x, File.join(deployment_work, 'root'))
+    }
+
+    return changed
+  end
+
+  # Get app configuration for the given deployment
+  # @param deployment [string] deployment name
+  # @param deployment_yml [yml] deployment yaml to work with
+  # @returns (pkgs,configs) list of packages and list of configs for the given deployment
+  def getapps(deployment, deployment_yml)
+    pkgs, configs = [], []
+
+    # Detect multilib value
+    multilib = deployment_yml[@k.multilib] || false
+
+    # Get all packages for given app
+    resolve = ->(entry){
+
+      # Lookup entry reference
+      if entry.is_a?(String)
+        _entry = @profile.apps[entry] || @profile.configs[entry]
+        Log.die("invalid entry reference '#{entry}'") unless _entry
+        _entry.each{|x| resolve.call(x)}
+
+      # Drill in on grouper
+      elsif entry.size == 1 && !(Config.ops + [@k.install]).any?{|x| entry[x]}
+        entry.first.last.each{|x| resolve.call(x)}
+
+      # Get entry pkgs
+      elsif entry[@k.install]
+        pkgs << entry if entry[@k.multilib] == nil || entry[@k.multilib] == multilib
+
+      # Get entry configs
+      elsif !entry[@k.install]
+        configs << entry
+      end
+    }
+    (deployment_yml[@k.apps] || []).each{|x| resolve.call(x)}
+
+    # Resolve any templating
+    vars = deployment_yml[@k.vars] ? @vars.to_h.merge(deployment_yml[@k.vars]) : @vars
+    pkgs = pkgs.uniq.sort_by{|x| x[@k.install]}.erb(vars)
+    configs = configs.uniq.erb(vars)
+
+    return pkgs, configs
+  end
+
+  # Spins up indicated container and executes the given block
+  # in the container then terminates the container.
+  # @param deployment [string] container to use
+  # @param user [string] user to work with
+  # @param block [block] block of code to execute
+  def docker(deployment, user, &block)
+
+    # Spin up given container and wait for it to be ready
+    #---------------------------------------------------------------------------
+    cont = "dev#{rand(10..99)}"
+    thread = Thread.new{deploy(deployment, name:cont, run:true)}
+    (1..100).each{|i|
+      if not `docker ps`.include?(cont)
+        puts("Waiting for container '#{cont}' to be ready...") if i % 2 == 0
+        sleep(1)
+      else
+        break
+      end
+    }
+
+    # Execute in container
+    #---------------------------------------------------------------------------
+    vars = '' and @proxyenv.each{|k,v| vars << "export #{k}=#{v} && " if v}
+    home = user == 'root' ? "/root" : "/home/#{user}"
+    cp = ->(cmd){Sys.exec("docker cp #{cmd}")}
+    exec = ->(cmd){Sys.exec("docker exec #{cont} bash -c \"#{vars}#{cmd.gsub(/"/, '\"')}\"")}
+    execs = "docker exec #{cont}"
+    runuser = ->(cmd){Sys.exec("docker exec #{cont} runuser #{user} -c \"#{vars}#{cmd.gsub(/"/, '\"')}\"")}
+    block.call(cont, home, cp, exec, execs, runuser)
+
+    # Shutdown container
+    #---------------------------------------------------------------------------
+    thread.kill
+    thread.join
+  end
+
+  # Syncs the source and work directories for a given deployment
+  # @param deployment [string] deployment to work with
+  # @param deployment_src [path or paths] deployment source directories to work with
+  # @param deployment_work [path] deployment work directory to work with
+  # @param deployment_digests [path] deployment digests file
+  def syncfiles(deployment, deployment_src, deployment_work, deployment_digests)
+    changed = false
+    deployment_src = [deployment_src] if deployment_src.is_a?(String)
+    return changed if !deployment_src.any?{|x| Dir.exist?(x)}
+
+    msg = "Syncing from #{deployment_src}"
+    sources = deployment_src.select{|x| Dir.exist?(x)}
+    reversed = sources.sort.reverse
+    files = sources.map{|src| Dir.glob(File.join(src, '**/*'), File::FNM_DOTMATCH).reject{|x| File.directory?(x)}}.flatten
+    newfiles, modifiedfiles, deletedfiles = FileUtils.digests_changed?(deployment, deployment_digests, files)
+    if newfiles.any? or modifiedfiles.any? or deletedfiles.any? or not File.exist?(deployment_digests)
+      changed |= true
+      puts(msg.colorize(:cyan))
+
+      # Remove files that no longer exist from work dir not data dir
+      deletedfiles.each{|x|
+        mask = reversed.find{|y| x.include?(y)}
+        target = File.join(deployment_work, x.split(mask).last)
+        puts("Deleting #{target}".colorize(:red))
+        File.delete(target)
+      }
+
+      # Copy over files from data dir to work dir
+      files.each{|x|
+        mask = reversed.find{|y| x.include?(y)}
+        target = File.join(deployment_work, x.split(mask).last)
+        puts("Copying: #{x} => #{target}")
+        FileUtils.mkdir_p(File.dirname(target))
+        FileUtils.cp(x, target)
+      }
+
+      # Update digests
+      FileUtils.update_digests(deployment, deployment_digests, files)
+    else
+      puts("#{msg}...skipping".colorize(:cyan))
+    end
+
+    puts("Completed constructing/modifiying files for '#{deployment}' deployment".colorize(:green))
+
+    return changed
+  end
+
+  # Evaluate images matching type and deployment; removing if stale
+  # @param type [string] image type to get
+  # @param filter [string] to filter images with
+  # @param live [bool] evaluate live(true) vs disk(false)
+  # @param force [bool] remove images matching conditions
+  # @returns image matching the version
+  def evalimages!(type, filter:nil, live:nil, force:nil)
+    image_exists = nil
+    curver = @vars.release.split('.').map{|x| x.to_i}
+
+    self.getimages(type, filter:filter, live:live).map{|x| x.first}.each{|image|
+      puts("Evaluating '#{live ? 'live' : 'disk'}' image #{image}".colorize(:cyan))
+      name = live ? image[/-(.*)/, 1] : image[/-(.*?)\.#{type}/, 1]
+      imagever = name.split('.').map{|x| x.to_i}
+      if force or (imagever <=> curver) == -1
+        puts("Removing image '#{live ? 'live' : 'disk'}' #{image} - #{force ? 'forced' : 'outdated'}".colorize(:red))
+        if not live
+          File.delete(image)
+        elsif type == @type.tgz
+
+          # Remove any old containers that depend on that image
+          cntrs = `sudo docker ps -a --format "{{.Image}}:{{.ID}}"`.split("\n")
+            .select{|x| x.start_with?(image)}
+          cntrs.each{|x| Sys.exec("sudo docker rm #{x.split(':')[1]}")}
+
+          # Remove image
+          Sys.exec("sudo docker rmi #{image} --force")
+        end
+      else
+        image_exists = image
+      end
+    }
+
+    return image_exists
+  end
+
+  # Get all images sorted newest to oldest
+  # @param type [string] image type to get
+  # @param filter [string] to filter images with
+  # @param live [bool] get live(true) vs disk(false)
+  # @param die [bool] die on error
+  # @returns all images sorted by version and optionally filtered by deployment
+  def getimages(type, filter:nil, live:nil, die:false)
+    sorted_images = []
+
+    # Get deployed image data
+    #---------------------------------------------------------------------------
+    if live and type == @type.tgz
+      images = `sudo docker images --format "{{.Repository}}:{{.Size}}"`.split("\n")
+        .select{|x| filter ? x.start_with?("#{filter}-") : true}.map{|x| x.split(':')}
+      images.sort_by{|x| (x.first[/-(\d+\.\d+\.\d+).*/, 1] || "none.").split('.').map{|y| y.to_i}}
+        .reverse.each{|x| sorted_images << x}
+
+    # Get disk image data
+    #---------------------------------------------------------------------------
+    elsif not live
+
+      # Get all files of the given type from the watched locations
+      files = []
+      files += @imagepaths.map{|x| Dir.exist?(x) ? Dir[File.join(x, "*.#{type}")] : []}.flatten
+
+      # For isos and boxes filter on files that contain the distro name
+      if [@type.box, @type.iso].include?(type)
+        files.delete_if{|x| !File.basename(x).start_with?(@vars.distro)}
+      end
+
+      # Filter results then sort by version
+      images = filter ? files.select{|x| x.include?(filter)} : files
+      images = [@type.sqfs, @type.img].include?(type) ? images.sort :
+        images.sort_by{|x| x[/-(\d+\.\d+\.\d+).*/, 1].split('.').map{|y| y.to_i}}.reverse
+
+      # Add file size to each entry
+      images.each{|x| sorted_images << [x, File.size(x)]}
+    end
+
+    # Print result for single search
+    if filter
+      if sorted_images.any?
+        puts("Located '#{live ? 'live' : 'disk'}' image #{sorted_images.first.first}".colorize(:cyan))
+      elsif die
+        Log.die("could not find image type '#{type}' for '#{filter}'")
+      end
+    end
+
+    return sorted_images
+  end
+
+  # Relocate the tracking files
+  # @param deployment_work [path] directory to get tracking files from
+  # @param restore [bool] move the relocated files back to their original location
+  # @returns image matching the version
+  def relocate_tracking_files(deployment_work, restore:false)
+    digests = File.join(deployment_work, 'digests')
+    packages = File.join(deployment_work, 'packages')
+    changed = File.join(deployment_work, 'changed')
+    if not restore
+      FileUtils.mv(digests, @tmp_dir) if File.exist?(digests)
+      FileUtils.mv(packages, @tmp_dir) if File.exist?(packages)
+      FileUtils.mv(changed, @tmp_dir) if File.exist?(changed)
+    end
+
+    _digests = File.join(@tmp_dir, File.basename(digests))
+    _packages = File.join(@tmp_dir, File.basename(packages))
+    _changed = File.join(@tmp_dir, File.basename(changed))
+    if restore
+      FileUtils.mv(_digests, deployment_work) if File.exist?(_digests)
+      FileUtils.mv(_packages, deployment_work) if File.exist?(_packages)
+      FileUtils.mv(_changed, deployment_work) if File.exist?(_changed)
+    end
+  end
+
+  # Get deployment dependencies
+  # @param deployment [string] the deployment to get dependencies for
+  # @returns list of deployments (e.g. heavy => heavy, lite, shell, base)
+  def get_deployments(deployment)
+    deployments = [deployment]
+    return deployments if deployment == @k.builder
+    Log.die("invalid deployment '#{deployment}'") if !@profile.deployments[deployment]
+
+    _deployment = deployment
+    while _deployment
+      _deployment = @profile.deployments[_deployment][@k.base]
+      deployments << _deployment if _deployment
+    end
+
+    return deployments
+  end
+
+  # Get deployment yaml by name and resolve templating
+  # @param deployment [string] deployment name to get yaml for
+  # @returns yaml for the indicated deployment
+  def get_deployment_yml(deployment)
+    yml = deployment == @k.builder ? @profile.builder : @profile.deployments[deployment]
+    Log.die("invalid deployment '#{deployment}'") if !yml
+
+    # Configure/merge deployment vars
+    vars = Hash[@vars.to_h.map{|k,v| [k.to_s, v]}]
+    yml[@k.vars] = yml[@k.vars] ? vars.merge(yml[@k.vars]) : vars
+    yml = yml.erb(yml[@k.vars])
+
+    return yml
+  end
+end
+
+#-------------------------------------------------------------------------------
+# Main entry point
+#-------------------------------------------------------------------------------
+if __FILE__ == $0
+  app = 'reduce'
+  reduce = Reduce.new
+  version = reduce.vars.release
+  examples = "Full ISO Build: sudo ./#{app} clean build all -p personal\n".colorize(:green)
+  examples += "Single Deployment: sudo ./#{app} clean build isofull -d lite -p personal\n".colorize(:green)
+  examples += "Rebuild initramfs: sudo ./#{app} clean build initramfs,iso -p personal\n".colorize(:green)
+  examples += "Rebuild multiboot: sudo ./#{app} clean build multiboot,iso -p personal\n".colorize(:green)
+
+  cmdr = Commander.new(app:app, version:version, examples:examples)
+  cmdr.add_global('-p|--profile=PROFILE', 'Profile to use', type:String)
+  cmdr.add('info', 'List build info')
+  cmdr.add('list', 'List out components', nodes:[
+    Option.new(nil, 'Components to list', type:Array, allowed:{
+      all: 'List all components',
+      boxes: 'List all boxes',
+      isos: 'List all isos',
+      images: 'List all docker images',
+      menus: 'List all menus'
+    })
+  ], examples: "List all menus: ./#{app} list menus -p personal")
+  cmdr.add('clean', 'Clean ISO components', nodes:[
+    Option.new(nil, 'Components to clean', type:Array, allowed:{
+      all: 'Clean all components including deployments',
+      initramfs: 'Clean initramfs image',
+      multiboot: 'Clean grub multiboot image',
+      builder: 'Clean builder',
+      iso: 'Clean bootable ISO',
+      isofull: 'Clean initramfs, multiboot and iso'
+    }),
+    Option.new('--cache', "Clean pacman package cache"),
+    Option.new('--vms', "Clean VMs that are no longer deployed"),
+    Option.new('-d|--deployments=DEPLOYMENTS', "Deployments to clean", type:Array)
+  ], examples: "Clean pacman cache: sudo ./#{app} clean --cache")
+  cmdr.add('build', 'Build ISO components', nodes:[
+    Option.new(nil, 'Components to build', type:Array, allowed:{
+      all: 'Build all components including deployments',
+      initramfs: 'Build initramfs image',
+      multiboot: 'Build grub multiboot image',
+      builder: 'Build builder',
+      iso: 'Build bootable ISO',
+      isofull: 'Build initramfs, multiboot and iso'
+    }),
+    Option.new('-d|--deployments=DEPLOYMENTS', "Deployments to build", type:Array)
+  ], examples: "Build shell deployment: sudo ./#{app} clean build isofull -d shell -p standard")
+  cmdr.add('pack', 'Pack ISO deployments into vagrant boxes', nodes:[
+    Option.new(nil, "Deployments to pack", type:Array, required:true),
+    Option.new('--disksize=DISKSIZE', "Set the disk size in MB e.g. 10000", type:String),
+    Option.new('--force', "Pack the given deployment/s even if they already exist")
+  ], examples: "Pack k8snode machine: ./#{app} pack k8snode -p k8snode")
+  cmdr.add('deploy', 'Deploy VMs or containers', nodes:[
+    Option.new(nil, "Deployment to deploy", type:String, required:true),
+    Option.new(nil, "Comma delimited list of last octet IPs (e.g. 10,11,12", type:Array),
+    Option.new('-n|--name=NAME', "Give a name to the nodes being deployed", type:String),
+    Option.new('-f|--force', "Deploy the given deployment/s even if they already exist"),
+    Option.new('-r|--run', "Run the container with defaults"),
+    Option.new('-e|--exec=CMD', "Specific command to run in container", type:String),
+    Option.new('--ipv6', "Enable IPv6 on the given nodes"),
+    Option.new('--vagrantfile', "Export the Vagrantfile only"),
+  ], examples:"Deploy core container: sudo ./#{app} deploy core -p containers\n" +
+              "Deploy k8snode machine: sudo ./#{app} deploy k8snode 10,11,12 -p k8snode")
+  cmdr.parse!
+
+  # Load target profile
+  reduce.load_profile(cmdr[:global][:profile]) if cmdr[:global][:profile]
+  if !reduce.vars.profile && (cmdr[:build] || cmdr[:deploy] || cmdr[:pack])
+    Log.die("profile must be given")
+  end
+
+  # Execute 'info' command
+  reduce.info if cmdr[:info]
+
+  # Execute 'list' command
+  reduce.list(cmdr[:list][:list0]) if cmdr[:list]
+
+  # Execute 'clean' command
+  reduce.clean(cmdr[:clean][:clean0], deployments: cmdr[:clean][:deployments],
+    pacman: cmdr[:clean][:pacman], cache: cmdr[:clean][:cache], vms: cmdr[:vms]) if cmdr[:clean]
+
+  # Execute 'build' command
+  reduce.build(cmdr[:build][:build0], deployments: cmdr[:build][:deployments]) if cmdr[:build]
+
+  # Execute 'pack' command
+  reduce.pack(cmdr[:pack][:pack0], disksize: cmdr[:pack][:disksize], force: cmdr[:pack][:force]) if cmdr[:pack]
+
+  # Execute 'deploy' command
+  reduce.deploy(cmdr[:deploy][:deploy0], nodes: cmdr[:deploy][:deploy1], name: cmdr[:deploy][:name],
+    run: cmdr[:deploy][:run], exec: cmdr[:deploy][:exec], ipv6: cmdr[:ipv6],
+    vagrantfile: cmdr[:vagrantfile], force: cmdr[:force]) if cmdr[:deploy]
+end
+
+# vim: ft=ruby:ts=2:sw=2:sts=2

@@ -1,0 +1,90 @@
+# MIT License
+# Copyright (c) 2021 phR0ze
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+post_install()
+{
+  # General configuration
+  # ---------------------------------------------------------------------------
+  # Added wallpaper
+  # /usr/share/backgrounds
+
+  # Added missing icons to the hicolor fallback icons
+  # convert -background none -density 384 -resize x32 /usr/share/icons/hicolor/scalable/apps/audacious.svg \
+  #   /usr/share/icons/hicolor/32x32/apps/audacious.png
+  # /usr/share/icons/hicolor
+  # /usr/share/icons/hicolor/96x96/actions/system-reboot.png
+  # /usr/share/icons/hicolor/96x96/actions/system-shutdown.png
+
+  # Added some useful fonts and their licences
+  # /usr/share/fonts/TTF
+  # /usr/share/doc/TTF
+
+  # Configure default user directories
+  # Documents, Downloads, Music, Pictures, Projects, bin
+  mv -f /etc/xdg/user-dirs.defaults_sideload /etc/xdg/user-dirs.defaults
+
+  # X11 configuration
+  # ---------------------------------------------------------------------------
+
+  # Disable blanking of screen 
+  # /etc/X11/xorg.conf.d/20-dpms.conf
+
+  # Configure monitors, keyboard and touchpads to be controlled by libinput
+  # Set mouse acceleration to 0.6
+  # Set touchpad to tapping, accleration 1, naturalscrolling on
+  # /etc/X11/xorg.conf.d/40-input.conf
+
+  # GTK configuration
+  # ---------------------------------------------------------------------------
+
+  # Set file chooser to
+  # show-hidden=true
+  # sort-directories-first=true
+  # /etc/dconf/db/local.d/02-gtk
+
+  # LXDM configuration
+  # ---------------------------------------------------------------------------
+
+  # Modifying the original lxdm script to inject a hook to execute
+  # /usr/bin/pre-xorg for dynamic system adjustments
+  mv -f /usr/sbin_sideload/lxdm /usr/sbin/lxdm
+
+  # - enable numlock on boot
+  # - set /usr/bin/lxsession -s default -e default as the session manager
+  # - set bg=/usr/share/backgrounds/dreamfusion003_1280x1024.jpg
+  # - disabled the user list control
+  # - disabled the bottom panel from being displayed
+  mv -f /etc/lxdm/lxdm.conf_sideload /etc/lxdm/lxdm.conf
+
+  # Modify the default Industrial lxdm theme
+  # - change the prompt to white 18 font size
+  mv -f /usr/share/lxdm/themes/Industrial/gtkrc_sideload /usr/share/lxdm/themes/Industrial/gtkrc
+
+  # Enable lxdm service to start at boot
+  # -f will automatically disable the old display manager
+  systemctl enable -f lxdm
+}
+
+post_upgrade() {
+	post_install
+}
+
+# vim: ts=2:sw=2:sts=2

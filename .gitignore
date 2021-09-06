@@ -1,0 +1,9 @@
+*.swo
+*.swp
+.yardoc
+mkmf.log
+temp
+vagrant
+profiles/VERSION
+usb.vmdk
+clover.sh

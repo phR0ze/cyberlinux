@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Guake Terminal
+Comment=Quake like drop down term
+Type=Application
+Exec=guake
+Icon=guake
+StartupNotify=true
+Categories=System;Utility;TerminalEmulator;

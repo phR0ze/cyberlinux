@@ -1,0 +1,380 @@
+# MIT License
+# Copyright (c) 2017-2021 phR0ze
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+#-------------------------------------------------------------------------------
+# Maintainer: phR0ze
+#-------------------------------------------------------------------------------
+pkgbase=cyberlinux-standard
+pkgname=(
+    "${pkgbase}-core"
+    "${pkgbase}-base"
+    "${pkgbase}-shell"
+    "${pkgbase}-x11"
+)
+pkgver=0
+pkgrel=1
+pkgdesc='Configuration packages for cyberlinux standard profile'
+arch=('any')
+license=('MIT')
+url="https://github.com/phR0ze/cyberlinux/blob/master/profiles/standard"
+
+# Configure environment
+shopt -s dotglob
+shopt -s extglob
+_none="\e[m"
+_cyan="\e[1;36m"
+
+pkgver()
+{
+  cat "${startdir}/../VERSION"
+}
+
+# Because were running the makepkg in a container at a specific location
+# the staging location is /home/build/PKG
+pkg()
+{
+  local name=$1                       # e.g. core
+  install=$name.install               # Specific installer script for deployment package
+  local configs="${startdir}/${name}" # /home/build/profiles/standard/core
+
+  if [ -d "${configs}" ]; then
+    msg "${_cyan}Installing '${name}' configuration files${_none}"
+    cp -a "$configs"/* "${pkgdir}"
+  fi
+}
+
+package_cyberlinux-standard-core()
+{
+  pkgdesc="Minimal bash container"
+  depends=(
+    'bash'                      # Bourne Again shell
+    'bash-completion'           # Bash tab completion
+    'ca-certificates'           # Trusted list of CAs: foundational for any encryption
+    'coreutils'                 # Basic linux utilities like ls, cp, mv
+    'lsb-release'               # LSB version query program
+    'sed'                       # GNU stream editor
+  )
+  pkg core
+}
+
+package_cyberlinux-standard-base()
+{
+  pkgdesc="Minimal bash system - a building block for lite deployments"
+  depends=(
+    "cyberlinux-standard-core>=${pkgver}"
+
+    'base'                      # Requireed for all Arch Packages, provides: pacman, makepkg, repo-add, useradd ...
+    'gnutls'                    # required by systemd-resolved to work
+    'mkinitcpio-vt-colors'      # vt-colors, mkintcpio, find, xargs, gawk, grep
+    'efibootmgr'                # Provide the ability to modify the EFI boot manager entries
+    'grub'                      # Required to boot legacy BIOS systems
+    'intel-ucode'               # required for Intel Microcode update files to boot
+    'linux'                     # Linux kernel and supporting modules
+    'linux-firmware'            # Fills in missing drivers for initramfs builds
+    'linux-headers'             # Linux kernel headers
+
+    # Essential networking
+    'archlinux-keyring'         # Arch linux keyring for installing packages
+    'blackarch-keyring'         # Adding curl command to pull in packer scripts
+    'pacman-contrib'            # rankmirrors, pacdiff, pactree, paclist, pacsearch
+    'openssh'                   # SSH server/client, openssl
+    'wget'                      # Retrieve files from the Web
+    'curl'                      # Adding curl command to pull in packer scripts
+
+    # Essential tools
+    'git'                       # Fast distributed version control system
+    'sudo'                      # Elevate user commands on demand to root
+    'cyberlinux-nvim'           # Installs and configures neovim, vim-plug and default plugins for cyberlinux
+  )
+
+  pkg base
+}
+
+package_cyberlinux-standard-shell()
+{
+  pkgdesc="Full bash system - a building block for heavy deployments"
+  depends=(
+    "cyberlinux-standard-base>=${pkgver}"
+
+    # system tools
+    'cdrtools'                  # isoinfo, mkisofs
+    'cyberlinux-screenfetch'    # CLI bash script to show system theme for screenshots
+    'dos2unix'                  # Text file format converter
+    'dosfstools'                # mkfs.fat, mkfs.vfat, fsck.fat, fsck.vfat
+    'gptfdisk'                  # sgdisk, gdisk, cgdisk
+    'logrotate'                 # Rotates system logs automatically
+    'inxi'                      # System info display tool for CPUs/RAM/Kernel etc...
+    'libisoburn'                # xorriso ISO creation tools
+    'lsof'                      # Lists open files for running processes
+    'man-db'                    # A utility for reading man pages
+    'man-pages'                 # Linux man pages
+    'moreutils'                 # Linux utils e.g. parallel-moreutils
+    'multipath-tools'           # Partition mapping tools like kpartx
+    'pacutils'                  # Pacman helper utilities for libalpm
+    'parallel'                  # Shell tool for executing jobs in parallel
+    'pkgfile'                   # A pacman files and metadata explorer
+    'psmisc'                    # fuser, killall, pstree
+    'smartmontools'             # Control/monitor S.M.A.R.T. Drives
+    'tmux'                      # Terminal multiplexer built off screen
+    'udisks2'                   # Enumerate and operate on storage devices
+    'usbutils'                  # USB device utilities including lsusb
+    'squashfs-tools'            # mksquashfs, unsquashfs
+    'yay'                       # Pacman wrapper and AUR helper written in golang, repo: blackarch
+
+    # recovery tools
+    'ddrescue'                  # GNU data recovery tool
+    'testdisk'                  # Checks and undeletes partitions + photorec
+
+    # networking tools
+    'bindip'                    # Bind a service to a specifc IP Address, repo: cyberlinux
+    'dnsutils'                  # Network utilities dig/host/nslookup
+    'gnu-netcat'                # Network piping application
+    'inetutils'                 # hostname, ftp, telnet
+    'iproute2'                  # ip, ifcfg, arpd, bridge, ctstate, ifstate etc...
+    'net-tools'                 # arp, ifconfig, iptunnel, netstat
+    'nfs-utils'                 # Support programs for Network File Systems
+    'nmap'                      # Network discovery and security auditing
+    'rsync'                     # Remote file transfer sync utility
+    'tcpdump'                   # Network monitoring and data acquisition
+
+    # archive tools
+    'p7zip'                     # Comman-line file archiver for 7zip format, depof: thunar
+    'unrar'                     # The RAR uncompression program
+    'unzip'                     # Extract and view files in .zip archives
+    'zip'                       # Zip file compression utilities
+
+    # base-devel
+    # groups can't be made as dependencies, pacman -Sg base-devel
+    'autoconf'                  # Automatically configure source code, group: base-devel
+    'automake'                  # Automatically create Makefiles, group: base-devel
+    'binutils'                  # Manipulate binary and object files, group: base-devel
+    'bison'                     # General purpose parser generator, group: base-devel
+    'fakeroot'                  # Tool for simulating supersuer privileges, group: base-devel
+    'file'                      # File type identification utility, group: base-devel
+    'findutils'                 # File type identification utility, group: base-devel
+    'flex'                      # Generate text-scanning programs, group: base-devel
+    'gawk'                      # GNU version of awk, group: base-devel
+    'gcc'                       # GNU Compiler Collection, multilib: false, group: base-devel
+    'gettext'                   # GNU internationalization library, group: base-devel
+    'grep'                      # String search utility, group: base-devel
+    'groff'                     # GNU trof text-formatting system, group: base-devel
+    'gzip'                      # GNU trof text-formatting system, group: base-devel
+    'libtool'                   # Generic library support script, group: base-devel
+    'm4'                        # GNU macro processor, group: base-devel
+    'make'                      # GNU utility to build programs, group: base-devel
+    'patch'                     # Utility to apply patches to files, group: base-devel
+    'pkgconfig'                 # System for managing library flags, group: base-devel
+    'texinfo'                   # Documentation for online information, group: base-devel
+    'which'                     # Show the full path of commnds, depof: .bashrc, group: build-devel
+
+    # other dev tools
+    'arch-install-scripts'      # arch-chroot, genfstab, pacstrap
+    'clang'                     # C language family frontend for LLVM
+    'diffutils'                 # Patch file utility programs: diff, cmp
+    'gdb'                       # The GNU debugger
+    'gcc-multilib'              # GNU Compiler Collection
+    'jq'                        # Command line JSON processor, depof: kubectl
+    'lld'                       # Linker from the LLVM project
+    'llvm'                      # Low Level compiler infrastructure
+    'ltrace'                    # Tracks runtime library calls in dynamically linked programs
+    'python-pip'                # The PyPA recommended tool for installing Python packages
+    'strace'                    # A diagnostic, debugging and instructional userspace tracer
+    'yq'                        # Command-line YAML processor - jq wrapper for YAML documents
+
+    # Ruby
+    'ruby'                      # Excellent scripting language
+
+    # Rust
+    'lldb'                      # Next generation, high-performance debugger
+    'rust'                      # Systems programming language focused on safety, speed and concurrency
+    'rust-musl'                 # Musl target for Rust
+
+    # Golang
+    'delve'                     # A debugger for the Go Programming Language
+    'go'                        # Compiler and tools for the Go programming lang
+    'go-bindata'                # Embed any file as Go code
+    'go-tools'                  # Developer tools for the Go programming lang
+  )
+  pkg shell
+}
+
+package_cyberlinux-standard-x11()
+{
+  pkgdesc="X11 base system - a building block for specialized x11 deployments"
+  depends=(
+    "cyberlinux-standard-shell>=${pkgver}"
+
+    # Desktop components
+    'arcologout'                # Simple clean logout overlay from, repo: cyberlinux
+    'lxdm'                      # Lightweight display manager, xorg: lxde
+    'lxsession'                 # Enable .desktop files in ~/.config/autostart, /etc/xdg/autostart, group: lxde
+    'thunar'                    # Lightweight File Manager from Xfce
+    'thunar-archive-plugin'     # Thunar integration with file-roller
+    'thunar-media-tags-plugin'  # Thunar plugin to view media details
+    'thunar-volman'             # Thunar plugin to automatically manage removeable devices
+    'tumbler'                   # D-Bus thumbnail service for apps like Thunar
+    'xdg-user-dirs'             # Manage user directories like ~/Desktop
+    'xdg-utils'                 # Desktop integration utilities
+    'xfce4-screenshooter'       # Plugin that makes screenshots for the Xfce panel
+
+    # Utilities
+    'dconf'                     # A low-level configuration system
+    'dconf-editor'              # General configuration manager that replaces gconf
+    'desktop-file-utils'        # Command line utilities for working with desktop entries
+    'dmenu'                     # Super light weight application runner
+    'filelight'                 # View disk usage information
+    'file-roller'               # System/Compression integrates well in Thunar
+    'ffmpegthumbnailer'         # Lightweight video thumbnailer that can be used by file managers
+    'galculator'                # Office/Calculator
+    'gvfs'                      # Support for Trash and USB, depof: thunar-volman
+    'powerline'                 # Status line plugin for bash
+    'powerline-fonts'           # Powerline font symbols
+    'powerline-gitstatus'       # Powerline plugin for git status, repo: cyberlinux
+    'qt5-base'                  # A cross-platform application and UI framework, depof: mkvtoolnix-gui
+
+    # Media
+    'audacious'                 # Lightweight advanced audio player
+    'dvdbackup'                 # Tool to rip video DVDs from the command line
+    'flac'                      # Free lossless audio codec
+    'gpicview'                  # Image viewer, alt: shotwell, viewnior
+    'lame'                      # High quality MPEG layer III audio encoder
+    'smplayer'                  # UI wrapper around mplayer with click to pause, alt: vlc
+    'smplayer-skins'            # Skins for SMPlayer
+    'smplayer-themes'           # Themes for SMPlayer
+    'vlc'                       # Multi-platform MPEG, VCD/DVD, and DivX player
+    'winff'                     # GUI for ffmpeg, repo: cyberlinux
+    'xnviewmp'                  # A digital photo organizer, repo: cyberlinux
+
+    # Media-codecs
+    'gst-libav'                 # GStreamer libav Plugin
+    'gst-plugins-bad'           # GStreamer Bad Plugins
+    'gst-plugins-base'          # GStreamer Base Plugins
+    'gst-plugins-good'          # GStreamer Good Plugins
+    'gst-plugins-ugly'          # GStreamer Ugly Plugins
+    'libdvdcss'                 # DVD media codec support
+    'x264'                      # Open Source H264/AVC video encoder, depof: smplayer
+
+    # Network
+    'firefox'                   # Standalone web browser from mozilla.org 
+    'filezilla'                 # Network/Transfer
+    'openvpn'                   # An easy-to-use, robust and highly configurable VPN (Virtual Private Network)
+    'vopono'                    # Run applications through VPN connections in network namespaces, repo: cyberlinux
+    'openvpn-update-systemd-resolved' # OpenVPN systemd-resolved updater, repo: cyberlinux
+
+    # Office
+    'evince'                    # Document viewer for PDF, djvu, tiff, dvi, XPS, cbr, cbz, cb7, cbt
+    'geany'                     # Fast and lightweight IDE
+    'geany-plugins'             # Plugins for Geany
+    'imagescan'                 # EPSON Image Scan v3 front-end for scanners and all-in-ones
+    'imagescan-plugin-networkscan' # Plugin for using Epson scanners with Image scan v3 over network
+    'keepass'                   # Password manager written in .net
+
+    # Android  access
+    'android-tools'             # Android platform tools
+    'gvfs-mtp'                  # Android phone storage automount on plug-in
+
+    # opengl
+    'libglvnd'                  # GL Vendor-Neutral Dispatch, depof: mesa
+    'lib32-mesa'                # OpenGL opensource implementation, depof: kodi, steam
+    'lib32-mesa-vdpau'          # Mesa vdpau drivers, depof: kodi,steam
+    'mesa'                      # Open-source OpenGL implementation
+    'mesa-demos'                # Mesa demos and tools e.g glxinfo, glxgears
+    'mesa-vdpau'                # Mesa vdpau drivers, depof: kodi, steam
+
+    # Themes and icons
+    'numix-frost-themes'        # Numix frost GTK2, GTK3 and OpenBox themes, repo: cyberlinux
+    'paper-icon-theme'          # Paper icon theme, git version is fixed, repo: cyberlinux
+    'xcursor-numix-frost'       # Numix frost cursor theme, repo: cyberlinux
+
+    # virtualbox-guest
+    'virtualbox-guest-utils'    # VirtualBox guest drivers/utilities
+
+    # X11-fonts
+    'adobe-source-code-pro-fonts'  # Mono-spaced coding environments
+    'terminus-font'             # Monospace bitmap font for consoles
+    'ttf-bitstream-vera'        # Bitstream vera fonts
+    'ttf-dejavu'                # Bitstream Vera Fonts w/more characters
+    'ttf-droid'                 # Google Android general purpose fonts
+    'ttf-google-fonts-fun'      # Handful of fun fonts from the Google Fonts project, repo: cyberlinux
+    'ttf-google-fonts-work'     # 40 best fonts from the Google Fonts project, repo: cyberlinux
+    'ttf-hack'                  # Hand groomed/optically balanced typeface based on Bitstream Vera Mono
+    'ttf-inconsolata-g'         # Best monospace terminal font, repo: cyberlinux
+    'ttf-indic-otf'             # Indic Opentype Fonts collection
+    'ttf-liberation'            # Red Hats Liberation fonts. 
+    'ttf-nerd-fonts-symbols'    # Nerd Font Symbols, repo: cyberlinux
+
+    # xorg
+    'xf86-input-libinput'       # x.org generic input driver, group: xorg-drivers
+    'xf86-video-vesa'           # x.org vesa video driver, group: xorg, xorg-drivers
+    'xorg-bdftopcf'             # Convert X font from Bitmap to PNG, group: xorg, xorg-apps
+    'xorg-docs'                 # X.org documentation, group: xorg
+    'xorg-font-util'            # X.org font utilities, group: xorg
+    'xorg-fonts-100dpi'         # X.org 100dpi fonts, group: xorg
+    'xorg-fonts-75dpi'          # X.org 75dpi fonts, group: xorg
+    'xorg-fonts-encodings'      # X.org font encoding files, group: xorg
+    'xorg-iceauth'              # ICE authority file utility, gruop: xorg
+    'xorg-mkfontscale'          # Create an index of scalable font files for X, group: xorg, xorg-apps
+    'xorg-server'               # Xorg X server, group: xorg
+    'xorg-server-common'        # Xorg X server common files, group: xorg
+    'xorg-server-devel'         # Development files for X.org X server, group: xorg
+    'xorg-server-xephyr'        # A nested X server that runs as an X application, group: xorg
+    'xorg-server-xnest'         # A nested X server that runs as an X application, group: xorg
+    'xorg-server-xvfb'          # Virtual framebuffer X server, group: xorg
+    'xorg-sessreg'              # Register X sessions in system utmp/utmpx database, group: xorg
+    'xorg-setxkbmap'            # Set the keyboard using the X Keyboard Extension, group: xorg, xorg-apps
+    'xorg-smproxy'              # Allows X applications that do not support X11R6 session, group: xorg
+    'xorg-x11perf'              # Simple X server performance benchmarker, group: xorg
+    'xorg-xauth'                # X.Org authorization settings program, group: xorg, xorg-apps
+    'xorg-xbacklight'           # RandR-based backlight control application, group: xorg
+    'xorg-xcmsdb'               # Device Color Characterization utility for X Color Management System, group: xorg
+    'xorg-xcursorgen'           # Create an X cursor file from PNG images, group: xorg, xorg-apps
+    'xorg-xdpyinfo'             # Display information utility for X, group: xorg, xorg-apps
+    'xorg-xdriinfo'             # Query configuration information of DRI drivers
+    'xorg-xev'                  # Print contents of X events, group: xorg, xorg-apps
+    'xorg-xgamma'               # Alter a monitor's gamma correction, group: xorg
+    'xorg-xhost'                # Server access control program for X, group: xorg
+    'xorg-xinput'               # Small commandline tool to configure devices, group: xorg, xorg-apps
+    'xorg-xkbcomp'              # X Keyboard description compiler, group: xorg, xorg-apps
+    'xorg-xkbevd'               # XKB event daemon, group: xorg, xorg-apps
+    'xorg-xkbutils'             # XKB utility demos, group: xorg, xorg-apps
+    'xorg-xkill'                # Kill a client by its X resource, group: xorg, xorg-apps
+    'xorg-xlsatoms'             # List interned atoms defined on server, group: xorg
+    'xorg-xlsclients'           # List client applications running on a display, group: xorg
+    'xorg-xmodmap'              # Utility for modifying keymaps and button mappings, group: xorg, xorg-apps
+    'xorg-xpr'                  # Print an X window dump from xwda, group: xorg
+    'xorg-xprop'                # Property displayer for X, group: xorg, xorg-apps
+    'xorg-xrandr'               # Primitive command line interface to RandR extension, group: xorg, xorg-apps
+    'xorg-xrdb'                 # X server resource database utility, group: xorg
+    'xorg-xrefresh'             # Refresh all or part of an X screen, group: xorg
+    'xorg-xset'                 # User preference utility for X, group: xorg, xorg-apps
+    'xorg-xsetroot'             # X utility to set your root window background to a pattern or color, group: xorg
+    'xorg-xvinfo'               # Prints out the capabilities of any video adaptors, group: xorg
+    'xorg-xwayland'             # Run X clients under wayland, group: xorg
+    'xorg-xwd'                  # X Window System image dumping utility, group: xorg
+    'xorg-xwininfo'             # Command-line util to print info about windows, group: xorg, xorg-apps
+    'xorg-xwud'                 # X Window System image undumping utility, group: xorg
+    'wmctrl'                    # Control your EWMH compliant window manager from command line
+    'xsel'                      # Tool for getting/setting X selection
+  ) 
+  pkg x11
+}
+
+# vim: ts=2:sw=2:sts=2

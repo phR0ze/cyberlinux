@@ -1,0 +1,256 @@
+# MIT License
+# Copyright (c) 2017-2021 phR0ze
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+#-------------------------------------------------------------------------------
+# Maintainer: phR0ze
+#-------------------------------------------------------------------------------
+pkgbase=cyberlinux-openbox
+pkgname=(
+    "${pkgbase}-lite"
+    "${pkgbase}-server"
+    "${pkgbase}-netbook"
+    "${pkgbase}-desktop"
+    "${pkgbase}-theater"
+    "${pkgbase}-laptop"
+    "${pkgbase}-live"
+)
+pkgver=0
+pkgrel=1
+pkgdesc='Configuration packages for the cyberlinux openbox profile'
+arch=('any')
+license=('MIT')
+url="https://github.com/phR0ze/cyberlinux/blob/master/profiles/openbox"
+
+# Configure environment
+shopt -s dotglob
+shopt -s extglob
+_none="\e[m"
+_cyan="\e[1;36m"
+
+pkgver()
+{
+  cat "${startdir}/../VERSION"
+}
+
+# Because were running the makepkg in a container at a specific location
+# the staging location is /home/build/PKG
+pkg()
+{
+  local name=$1                       # e.g. core
+  install=$name.install               # Specific installer script for deployment package
+  local configs="${startdir}/${name}" # /home/build/profiles/openbox/core i.e. inside container
+
+  if [ -d "${configs}" ]; then
+    msg "${_cyan}Installing '${name}' configuration files${_none}"
+    cp -a "$configs"/* "${pkgdir}"
+  fi
+}
+
+package_cyberlinux-openbox-lite()
+{
+  pkgdesc="Lite openbox system - a building block specialized openbox deployments"
+  depends=(
+    "cyberlinux-standard-x11>=${pkgver}"
+
+    # lxde
+    'gtk-engines'               # GTK theme engines for cyberlinux theme
+    'gtk-engine-murrine'        # GTK theme engine for cyberlinux theme
+    'lxappearance'              # Feature-rich GTK+ theme switcher of the LXDE Desktop, group: lxde
+    'lxappearance-obconf'       # Plugin for LXAppearance to configure Openbox, group: lxde
+    'lxde-common'               # Common files of the LXDE Desktop, group: lxde
+    'lxhotkey'                  # Keyboard shortcuts configurator, xorg: lxde
+    'lxinput'                   # Keyboard and mouse configuration utility, group: lxde
+    'lxrandr'                   # Monitor configuration tool, group: lxde
+    'lxterminal'                # Terminal for LXDE, alt: terminator, group: lxde
+    'openbox'                   # Lightweight X11 window manager, group: lxde
+
+    # Utilities
+    'gsimplecal'                # Simple calendar like windows systray calendar
+    'gtk2fontsel'               # Simple font viewer
+    'nitrogen'                  # Lightweight wallpaper manager
+    'paprefs'                   # Configuration dialog for pulse audio
+    'pavucontrol'               # PulseAudio Volume Control
+    'pnmixer'                   # Volume controls in system tray, repo: cyberlinux
+    'pulseaudio-alsa'           # ALSA Configuration for PulseAudio
+    'tint2'                     # Lightweight taskmanager and system tray
+  ) 
+  pkg lite
+}
+
+package_cyberlinux-openbox-server()
+{
+  pkgdesc="Server x11 system - built on the lite deployment adding server apps"
+  depends=(
+    "cyberlinux-openbox-lite>=${pkgver}"
+
+    # Utils
+    'docker'                    # Pack, ship and run any application as a lightweight container
+    'systemd-docker'            # Wrapper for "docker run" to handle systemd quirks, repo: cyberlinux
+
+    # Media
+    'handbrake'                 # Video encoding tool for mp4/mkv
+    'handbrake-cli'             # Video encoding tool for mp4/mkv
+    'mkvtoolnix-gui'            # Set of tools to create, edit and inspect MKV files
+
+    # Network
+    'qbittorrent'               # BitTorrent client written in C++, based on Qt and libtorrent-rasterbar
+    'tiny-media-manager'        # Cross platform media manager, repo: cyberlinux
+
+    # Personal use only licensing restriction
+    'teamviewer'                # Excellent remoting software
+  )
+  pkg server
+}
+
+package_cyberlinux-openbox-netbook()
+{
+  pkgdesc="Netbook x11 system - built on the lite deployment adding productivity apps"
+  depends=(
+    "cyberlinux-openbox-lite>=${pkgver}"
+
+    # Utils
+    'conky'                     # Lightweight system monitor for X
+    'i3lock-color'              # Simple lightweight screen locker
+    'light'                     # Control laptop backlights both screen and keyboard
+
+    # Media
+    'gimp'                      # Excellent image editor
+
+    # Office
+    'hunspell-en_US'            # US dictionaries for spell checking
+    'libreoffice-fresh'         # Libreoffice with new features and enhancments
+    'pdfmod'                    # Simple PDF editor
+
+    # Network
+    'blueman'                   # Bluetooth management tool
+    'pulseaudio-bluetooth'      # Pulse Audio plugin for bluetooth output
+    'freerdp'                   # RDP client plugin for remmina
+    'remmina'                   # Nice remoting UI for RDP and other protocols
+    'wpa_gui'                   # A Qt frontend to wpa_supplicant, repo: cyberlinux
+    'wpa_supplicant'            # A utility providing key negotiation for WPA wireless networks
+  )
+  pkg netbook
+}
+
+package_cyberlinux-openbox-desktop()
+{
+  pkgdesc="Full desktop system - built on top of netbook with additional media and productivity apps"
+  depends=(
+    "cyberlinux-openbox-netbook>=${pkgver}"
+
+    # Utils
+    'catfish'                   # System/File Search - File search tool
+    'cyberlinux-plank'          # Light weight, simple clean app dock
+    'docker'                    # Pack, ship and run any application as a lightweight container
+    'idesk'                     # Lightweight desktop icons for X
+    'gnome-multi-writer'        # Write an ISO file to multiple USB devices at once
+    'guake'                     # Drop-down python based guake style terminal
+    'systemd-docker'            # Wrapper for "docker run" to handle systemd quirks, repo: cyberlinux
+
+    # Printing
+    'cups-pdf'                  # System/Printer Driver with PDF print support
+    'epson-inkjet-printer-escpr2' # Epson printer drivers for newer Workforce printers
+    'system-config-printer'     # A CUPS printer configuration tool and status applet
+
+    # Develop
+    'awf-git'                   # Widget Factory for developing GTK themes, repo: CYBERLINUX
+    'glade'                     # User Interface Builder for GTK+ applications
+    'meld'                      # Develop/Diff Tool - Graphical diff tool cross platform
+    'ripgrep'                   # A search tool combining the usability of ag with speed of grep, depof: vscode
+    'virtualbox'                # Cross platform virtualization with UI
+    'virtualbox-guest-iso'      # VirtualBox guest additions iso image
+    'visual-studio-code-bin'    # Editor for modern development, repo: CYBERLINUX
+
+    # Games
+    'lib32-freetype2'           # TrueType font rendering library (32-bit)
+    'lib32-libpulse'            # A featureful, general-purpose sound server (32-bit client libraries)
+    'lib32-mpg123'              # A console based real time MPEG Audio Player for Layer 1, 2 and 3 (32-bit)
+    'lib32-libusb'              # A cross-platform user library to access USB devices (32-bit)
+    'winetricks'                # Script to install various redistributable runtime libraries in Wine
+    'wine-gecko'                # Wine's built-in replacement for Microsoft's Internet Explorer
+    'wine-mono'                 # Wine's built-in replacement for Microsoft's .NET Framework
+    'zenity'                    # Display graphical dialog boxes from shell scripts
+
+    # Graphics
+    'inkscape'                  # Professional vector graphics editor
+
+    # Media
+    'asunder'                   # A lean and friendly audio CD ripper and encoder
+    'audacity'                  # Audio editor - cross platform, tried and tested
+    'avidemux-qt'               # Graphical tool to edit video (filter/re-encode/split) - Qt GUI
+    'brasero'                   # Burning tool, alt: k3b, xfburn
+    'devede'                    # A program to create VideoDVDs and CDs
+    'handbrake'                 # Video encoding tool for mp4/mkv
+    'handbrake-cli'             # Video encoding tool for mp4/mkv
+    'kodi'                      # A software media player and entertainment hub for digital media
+    'losslesscut-bin'           # Crossplatform GUI tool for lossless trimming/cuttong of video/audio files
+    'mkvtoolnix-gui'            # Set of tools to create, edit and inspect MKV files
+    'openshot'                  # Simple powerful Video Editor, alt: pitivi, kdenlive
+    'simplescreenrecorder'      # Awesome screen recorder
+
+    # Network
+    'chromium'                  # Open source base of Google's Chrome browser
+    'qbittorrent'               # BitTorrent client written in C++, based on Qt and libtorrent-rasterbar
+    'synergy'                   # Share a single mouse and keyboard between multiple computers
+    'zoom'                      # Video Conferencing and Web Conferencing Service
+
+    # Office
+    'fbreader'                  # An e-book reader for linux
+    'hardinfo'                  # A system information and benchmark tool
+    'id3v2'                     # Utility to edit id3v2 tags
+    'kolourpaint'               # Paint application that saves jpg in format for GFXBoot
+    'scribus'                   # Open Source Desktop Publishing
+
+    # Personal use only licensing restriction
+    'teamviewer'                # Excellent remoting software
+    'ttf-ms-fonts'              # Core TTF Fonts from Microsoft
+  )
+  pkg desktop
+}
+
+package_cyberlinux-openbox-theater()
+{
+  pkgdesc="Theater system - a lean back entertainment experience"
+  depends=(
+    "cyberlinux-openbox-desktop>=${pkgver}"
+  )
+  pkg theater
+}
+
+package_cyberlinux-openbox-laptop()
+{
+  pkgdesc="Laptop system - built on top of desktop with laptop configuration"
+  depends=(
+    "cyberlinux-openbox-desktop>=${pkgver}"
+  )
+  pkg laptop
+}
+
+package_cyberlinux-openbox-live()
+{
+  pkgdesc="Live system - built on top of desktop for recovery"
+  depends=(
+    "cyberlinux-openbox-desktop>=${pkgver}"
+  )
+  pkg live
+}
+
+# vim: ts=2:sw=2:sts=2

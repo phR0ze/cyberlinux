@@ -1,0 +1,56 @@
+# MIT License
+# Copyright (c) 2021 phR0ze
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+post_install()
+{
+  # Runtime kernel variable overrides
+  # ---------------------------------------------------------------------------
+  # Set minimal amount of swapping without disabling it entirely
+  # Enable kernel IPv4 forwarding for containers
+  # Disable IPv6 forwarding
+  # Increase the number of user files to max
+  # /etc/sysctl.d/10-cyberlinux.conf
+
+  # Customize terminal colors to use
+  # /etc/skel/.dircolors
+
+  # Customize .bash_profile
+  # Make it simply load .bashrc
+  mv -f /etc/skel/.bash_profile_sideload /etc/skel/.bash_profile
+
+  # Customize .bashrc
+  mv -f /etc/skel/.bashrc_sideload /etc/skel/.bashrc
+
+  # Customize hosts
+  # 127.0.0.1 localhost
+  mv -f /etc/hosts_sideload /etc/hosts
+
+  # Customize the lsb-release and os-release configs
+  mv -f /etc/lsb-release_sideload /etc/lsb-release
+  cp /usr/lib/os-release_sideload /etc/os-release
+  mv -f /usr/lib/os-release_sideload /usr/lib/os-release
+}
+
+post_upgrade() {
+	post_install
+}
+
+# vim: ts=2:sw=2:sts=2

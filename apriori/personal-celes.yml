@@ -1,0 +1,78 @@
+#MIT License
+#Copyright (c) 2017-2021 phR0ze
+#
+#Permission is hereby granted, free of charge, to any person obtaining a copy
+#of this software and associated documentation files (the "Software"), to deal
+#in the Software without restriction, including without limitation the rights
+#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#copies of the Software, and to permit persons to whom the Software is
+#furnished to do so, subject to the following conditions:
+#
+#The above copyright notice and this permission notice shall be included in all
+#copies or substantial portions of the Software.
+#
+#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+#SOFTWARE.
+base: base
+
+builder:
+  apps:
+    - {install: linux-celes,                  desc: Linux kernel and supporting modules, type: CYBERLINUX }
+    - builder
+
+deployments:
+  live:
+    base: desktop
+    install:
+      order: 1
+      label: "Start <%=distro%>-recovery                 // Live environment"
+      kernel: linux-celes
+  netbook:
+    base: shell
+    install:
+      order: 2
+      label: "Deploy <%=distro%>-netbook                 // Full X11 env."
+      kernel: linux-celes
+    source: [lite, desktop, netbook]
+    apps:
+      # Set Hot Keys for chromebooks
+      - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'A-Print', value: 'A-S-W-F5' }
+      - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'Print', value: 'A-W-F5' }
+      - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'XF86AudioMute', value: 'W-F8' }
+      - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'XF86AudioLowerVolume', value: 'W-F9' }
+      - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'XF86AudioRaiseVolume', value: 'W-F10' }
+      - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'XF86MonBrightnessUp', value: 'W-F7' }
+      - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'xbacklight +10', value: 'sudo backlight +100' }
+      - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'XF86MonBrightnessDown', value: 'W-F6' }
+      - { edit: /etc/skel/.config/openbox/rc.xml, regex: 'xbacklight -10', value: 'sudo backlight -100' }
+  shell:
+    install:
+      order: 3
+      label: "Deploy <%=distro%>-shell                   // Minimal shell"
+      kernel: linux-celes
+    source: [core, shell]
+    apps:
+      - {install: linux-celes,                  desc: Linux kernel and supporting modules, type: CYBERLINUX }
+      - {install: linux-celes-headers,          desc: Linux kernel headers }
+      - {install: galliumos-braswell-config,    desc: GalliumOS configuration files for braswell, force: true, type: CYBERLINUX }
+      - core-boot
+      - shell
+
+      # Memory pages that have been cached/queued to be async written to disk are said to be dirty.
+      # Lower the dirty values to decrease the use of async disk write outs stored in cache
+      - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "vm.dirty_ratio = 20" }
+      - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "vm.dirty_background_ratio = 10" }
+      # How often should pdflush/flush/kdmflush processes wake up and check to see if work needs to be done
+      - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "vm.dirty_writeback_centisecs = 1500" }
+      # The watchdog timer is meant for embedded/mission critical systems and is not needed for normal desktop use
+      - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "kernel.watchdog = 0" }
+      - { edit: '/etc/sysctl.d/10-<%=distro%>.conf', insert: append, value: "kernel.rr_interval = 6" }
+
+      # Work around issues in the iwlwifi driver for celes' Intel 7265D wifi card
+      - { exec: 'rm -f /etc/modprobe.d/iwlwifi.conf'}
+      - { edit: /etc/modprobe.d/iwlwifi.conf, insert: append, values: ['options iwlwifi 11n_disable=8 bt_coex_active=0 swcrypto=1']}

@@ -1,0 +1,855 @@
+#!/bin/bash
+# MIT License
+# Copyright (c) 2017-2021 phR0ze
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+# Configure color codes using tput which requires terminfo set
+# I've overridden bold using the mkinitcpio-vt-colors package to cyberlinux blue
+# which is why simply using blue here will give use cyberlinux blue.
+export TERMINFO=/usr/lib/terminfo
+_bold=$(tput bold)
+none=$(tput sgr0)
+red=${_bold}$(tput setaf 1)
+green=${_bold}$(tput setaf 2)
+yellow=${_bold}$(tput setaf 3)
+cyber=$(tput bold)
+
+exit_to_shell()
+{
+    alias ll='ls -lah'
+    export PS1="${cyber}[rootfs:\w]\$ ${none}"
+    echo -e "\n${cyber}:: Interactive Shell${none}"
+    launch_interactive_shell
+}
+
+fail_to_shell()
+{
+    echo -e "${red}failed!${none}"
+    launch_interactive_shell
+}
+
+check_status()
+{
+    if [ $? -ne 0 ]; then
+        fail_to_shell
+    else
+        [ "$1" != "nomsg" ] && echo -e "${green}success!${none}"
+    fi
+}
+
+# Get a simple user input
+getinput()
+{
+    local _result=$1                                # Return value container
+    local input=$2                                  # User input value to prompt for
+    local result=$3                                 # Default value to use if not set
+    local silent=$4                                 # Don't echo when set
+
+    echo -en "   ${input} (default=${cyber}${result}${none}): "
+    [ "x$DEFAULT" == "xy" ] && echo ''
+    if [ "x$DEFAULT" == "xn" ]; then
+        if [ $silent ]; then
+            read -s value
+            echo ''
+        else
+            read value
+        fi
+        [ "$value" == "exit" ] && exit_to_shell
+        [ "x$value" != "x" ] && local result="$value"
+    fi
+
+    eval "$_result"="$result"
+}
+
+getsel()
+{
+    local _result=$1                                # Return value container
+    local options=$2                                # Space separate options
+
+    local result=''
+    local out_of_bounds=1
+    for x in $options; do
+        local out_of_bounds=$(($out_of_bounds+1))
+    done
+    while true; do
+        echo -en "   Enter a number (default=${cyber}1${none}): "
+        [ "x$DEFAULT" == "xy" ] && echo '' || read choice
+        [ "$choice" == "exit" ] && exit_to_shell
+        [ "x$choice" == "x" ] && choice=1
+        if [ $choice -gt 0 ] && [ $choice -le $out_of_bounds ]; then
+            local result=$(echo $options | awk "{print \$$choice}")
+            break
+        else
+            echo -e "   ${red}Invalid selection, please try again${none}"
+       fi
+    done
+
+    eval $_result=$result
+}
+
+# Wait for install device to register with system then mount it.
+# Use wellknown install device label to detect its existance
+mount_install_device()
+{
+    echo -en ":: Locating install device labeled ${INSTALLER_LABEL}..."
+
+    local i=0
+    local success=0
+    while [ $success -eq 0 ]; do
+        sleep 0.25 # Sleep for a bit
+
+        # Find device by label
+        SRCDEV=$(blkid -L ${INSTALLER_LABEL}) &>/dev/null
+        if [ "x${SRCDEV}" != "x" ]; then
+            check_status
+
+            # Get install device file system type for mount
+            local fstype=$(blkid -s TYPE -o value ${SRCDEV}) &>/dev/null
+
+            # Trim partition off if not iso to get media type
+            # /dev/sda3 to /dev/sda in USB case
+            # /dev/sr0 in CD/ISO case
+            local isodev=$SRCDEV
+            if [ "x${fstype}" != "xiso9660" ]; then
+                isodev=${SRCDEV%?}
+            fi
+
+            # Using base iso device get device type and trim to first word
+            local install_type=$(echo $(lsblk -nl -o TYPE ${isodev})) &>/dev/null
+            install_type=${install_type%% *}
+
+            # Mount iso device found by label with correct fstype
+            echo -en "   Mounting install ${cyber}${install_type}${none} [${cyber}${SRCDEV}${none}] to ${ISO_MNT}..."
+            mount -r -t ${fstype} -o noatime ${SRCDEV} ${ISO_MNT} &>/dev/null
+            check_status && success=1
+
+            # The ISO is the first mount
+            MOUNTS="${ISO_MNT}"
+        fi
+
+        # Timeout if takes more than 10 seconds
+        let "i+1"
+        [ $i -eq 40 ] && fail_to_shell
+    done
+}
+
+mount_layers()
+{
+    echo -e "\n:: Mounting layers ${cyber}${LAYERS}${none}"
+    echo -e "${cyber}:: $(bash -c "printf '%0.1s' '-'{1..107}")${none}"
+
+    local images_path=$1                            # e.g. ${ISO_MNT}/images
+    local layered_mnt=$2                            # e.g. ${WRITE_MNT}/root
+    local layered_tmp=$3                            # e.g. ${WRITE_MNT}/temp
+
+    # Mount all implicated sqfs images
+    local layer_dirs=""
+    for x in ${LAYERS//,/ }; do
+        local img_mnt="${READ_MNT}/${x}"            # i.e. ${READ_MNT}/{base,devel,lite, etc...}
+        local img_path="${images_path}/${x}.sqfs"   # e.g. ${ISO_MNT}/images/base.sqfs
+
+        # Concatenate the layers together separated by colon. The right most is the lowest
+        # layer and left most is the top i.e. layer2:layer1
+        layer_dirs="${layer_dirs}${img_mnt}:"
+
+        echo -en ":: Detecting presence of layer ${cyber}${img_path}${none}..."
+        if [ ! -f ${img_path} ]; then
+            echo -e "${red}failed!${none}"
+            echo -e ":: ${red}Please build and include the missing deployment layer!${none}\n"
+            launch_interactive_shell
+        else
+            [ "$1" != "nomsg" ] && echo -e "${green}success!${none}"
+        fi
+
+        echo -en ":: Mounting ${cyber}${img_path}${none} at ${cyber}${img_mnt}${none}..."
+        mkdir -p "${img_mnt}"
+        mount -r -t squashfs ${img_path} ${img_mnt} &>/dev/null
+        check_status
+
+        # Order these mounts first for unmounting
+        MOUNTS="${img_mnt} ${MOUNTS}"
+    done
+    # Trim off the un-needed last colon
+    layer_dirs=${layer_dirs%?}
+
+    # Layer squashfs images as implicated by $(LAYERS)
+    # e.g. new writable root = (live,desktop,lite,shell,base,core)
+    echo -en ":: Overlay ${cyber}${layer_dirs}${none}..."
+    mkdir -p ${layered_mnt}
+    mkdir -p ${layered_tmp}
+    mount -t overlay -o lowerdir=${layer_dirs},upperdir=${layered_mnt},workdir=${layered_tmp} none ${layered_mnt}
+    check_status
+
+    # Overlay mount point needs to be first in umounting
+    MOUNTS="${layered_mnt} ${MOUNTS}"
+}
+
+# Partition disk and mount for install at ${NEW_ROOT}
+partition_and_mount_disk()
+{
+    echo -e "\n:: Partitioning and mounting destination disk ${cyber}${DESTDEV}${none}..."
+    echo -e "${cyber}:: $(bash -c "printf '%0.1s' '-'{1..107}")${none}"
+
+    # Wipe, partition and format disk
+    #---------------------------------------------------------------------------
+    echo -en ":: Disk ${cyber}${DESTDEV}${none} identified as destination disk..."
+    [ "x${DESTDEV}" != "x" ]
+    check_status
+
+    echo -en ":: Destroying any magic strings and/or signatures on ${cyber}${DESTDEV}${none}..."
+    wipefs --all --force ${DESTDEV} &>/dev/null
+    check_status
+
+    echo -en ":: Wiping partition table on ${cyber}${DESTDEV}${none}..."
+    sgdisk --zap ${DESTDEV} &>/dev/null
+    check_status
+
+    # Set partition identifiers
+    if [ "x${SSD}" == "x1" ]; then
+        PART_BOOT="${DESTDEV}p1"
+        PART_SWAP="${DESTDEV}p2"
+        PART_ROOT="${DESTDEV}p3"
+    else
+        PART_BOOT="${DESTDEV}1"
+        PART_SWAP="${DESTDEV}2"
+        PART_ROOT="${DESTDEV}3"
+    fi
+
+    # EFI: Create a ESP boot partition EF00
+    # https://wiki.archlinux.org/index.php/EFI_System_Partition#Create_the_partition
+    if [ "x${EFI}" == "x1" ]; then
+        echo -en ":: Creating ${cyber}${PART_BOOT}${none} as ${cyber}ESP boot partition${none}..."
+        sgdisk -n 0:0:+512M -t 0:EF00 -c 0:"EFI system" ${DESTDEV} &>/dev/null
+        check_status
+
+        echo -en ":: Formatting ${cyber}${PART_BOOT}${none} (ESP) as ${cyber}FAT32${none}..."
+        mkfs.vfat -n "BOOT" ${PART_BOOT} &>/dev/null
+        check_status
+
+    # BIOS: Create a BIOS boot partition EF00
+    else
+        echo -en ":: Creating ${cyber}${PART_BOOT}${none} as ${cyber}BIOS boot partition${none}..."
+        sgdisk -n 0:0:+2M -t 0:EF02 -c 0:"BIOS system" ${DESTDEV} &>/dev/null
+        check_status
+    fi
+
+    # Create SWAP partition
+    echo -en ":: Creating ${cyber}${PART_SWAP}${none} as ${cyber}Linux swap partition${none}..."
+    sgdisk -n 0:0:+4G -t 0:8200 -c 0:"Linux swap" ${DESTDEV} &>/dev/null
+    check_status
+
+    # Create root partition
+    echo -en ":: Creating ${cyber}${PART_ROOT}${none} as ${cyber}Linux filesystem partition${none}..."
+    sgdisk -n 0:0:0 -t 0:8300 -c 0:"Linux filesystem" ${DESTDEV} &>/dev/null
+    check_status
+
+    # Set boot flag for device
+    echo -en ":: Setting boot flag on ${cyber}${DESTDEV}${none}..."
+    sgdisk ${DESTDEV} --attributes=3:set:2 &>/dev/null
+    check_status
+
+    # Configure swap partition
+    echo -en ":: Formatting ${cyber}${PART_SWAP}${none} as ${cyber}swap${none}..."
+    mkswap -L SWAP ${PART_SWAP} &>/dev/null
+    check_status
+    echo -en ":: Starting swap on ${cyber}${PART_SWAP}${none}..."
+    swapon ${PART_SWAP} &>/dev/null
+    check_status
+
+    # mkfs.ext4 option descriptions
+    # -F            force creation even if some params don't make sense
+    # -L            set volume name to well known label used by bootloaders
+    # -m 0          don't reserve blocks for super user daemons
+    # -q            run in quiet mode for scripts
+    echo -en ":: Formatting ${cyber}${PART_ROOT}${none} as ${cyber}ext4${none}..."
+    mkfs.ext4 -F -m 0 -q -L ${ROOT_LABEL} ${PART_ROOT} &>/dev/null
+    check_status
+
+    # Mount root as NEW_ROOT and disable access time writes (speeds things up)
+    echo -en ":: Mounting ${cyber}${PART_ROOT}${none} as ${cyber}${NEW_ROOT}${none}..."
+    mount -o noatime ${PART_ROOT} ${NEW_ROOT} &>/dev/null
+    check_status
+
+    # UEFI: boot partition needs to be mounted over the root at /boot to capture the Arch Linus
+    # standard boot file install e.g. kernel and initramfs. We keep them on the same partition
+    # as the EFI/BOOT/BOOTX64.efi as EFI can't mount a ext4 filesystem.
+    # BIOS: boot partition shouldn't be formatted or mounted in this case as its just for the MBR
+    if [ "x${EFI}" == "x1" ]; then
+        echo -en ":: Mounting ${cyber}${PART_BOOT}${none} (ESP) as ${cyber}${NEW_ROOT}/boot${none}..."
+        mkdir -p ${NEW_ROOT}/boot
+        mount ${PART_BOOT} ${NEW_ROOT}/boot &>/dev/null
+        check_status
+    fi
+}
+
+# Install the appropriate bootloader for BIOS and UEFI systems
+install_bootloader()
+{
+    echo -e "\n:: Installing bootloader to ${cyber}${PART_BOOT}${none}..."
+    echo -e "${cyber}:: $(bash -c "printf '%0.1s' '-'{1..107}")${none}"
+
+    # bootctl will copy the systemd-boot loader to the wellknown EFI boot file EFI/BOOT/BOOTX64.efi
+    # location and its own EFI/systemd-bootx64.efi and will set systemd-boot as the default EFI
+    # entry. The bootloader will use the configuration stored at $esp/loader/loader.conf to find the
+    # default configuration to load.
+    if [ "x${EFI}" == "x1" ]; then
+        local esp_mnt="${NEW_ROOT}/boot"
+        local boot_conf="${NEW_ROOT}/boot/loader/entries/arch.conf"
+
+        echo -en ":: Installing systemd-boot bootloader to ${cyber}${DESTDEV}${none}..."
+        chroot ${NEW_ROOT} bootctl install &>/dev/null
+        check_status
+
+        echo -en ":: Setting default boot entry to be ${cyber}${boot_conf}/${none}..."
+        mkdir -p ${NEW_ROOT}/boot/loader &>/dev/null
+        echo "default arch.conf" > ${NEW_ROOT}/boot/loader/loader.conf
+        check_status
+
+        echo -en ":: Configuring systemd-boot at ${cyber}${boot_conf}${none}..."
+        echo "title   ${ROOT_LABEL}" > $boot_conf
+        echo "linux   /vmlinuz-${KERNEL}" >> $boot_conf
+        echo "initrd  /intel-ucode.img" >> $boot_conf
+        echo "initrd  /initramfs-${KERNEL}.img" >> $boot_conf
+        echo "options root=LABEL=${ROOT_LABEL} rw ${KERNEL_PARAMS}" >> $boot_conf
+        check_status
+
+    # BIOS legacy systems will boot from the MBR which will be created by the GRUB i386-pc
+    # bootloader via 'grub-install' which when booted loads the configuration from ${grub_dir}
+    # with any customizations from ${grub_dir}/grub.cfg
+    else
+        local platform=i386-pc
+        local grub_dir="${NEW_ROOT}/boot/grub"
+        local shared_modules="ext2 all_video font gfxterm"
+
+        echo -en ":: Installing GRUB BIOS bootloader to ${cyber}${DESTDEV}${none}..."
+        mkdir -p ${grub_dir} &>/dev/null
+        chroot ${NEW_ROOT} grub-install --target=${platform} \
+            --modules="part_msdos ${shared_modules}" ${DESTDEV} &>/dev/null
+        check_status
+
+        # Install custom GRUB configuration /new_root/boot/grub/grub.cfg to be read at boot
+        echo -en ":: Installing GRUB config at ${cyber}${grub_dir}${none}..."
+        echo -e "default=0\ntimeout=0\n" > ${grub_dir}/grub.cfg
+        echo -e 'set gfxmode="1280x1024,1024x768,auto"' >> ${grub_dir}/grub.cfg
+        echo -e 'loadfont fonts/unicode.pf2' >> ${grub_dir}/grub.cfg
+        echo -e 'terminal_input console' >> ${grub_dir}/grub.cfg
+        echo -e "terminal_output gfxterm\n" >> ${grub_dir}/grub.cfg
+        echo -e "menuentry \"${ROOT_LABEL}\" {" >> ${grub_dir}/grub.cfg
+        echo -e "    set gfxpayload=keep" >> ${grub_dir}/grub.cfg
+        echo -e "    search --no-floppy --set=root --label ${ROOT_LABEL}" >> ${grub_dir}/grub.cfg
+        echo -e "    linux /boot/vmlinuz-${KERNEL} root=LABEL=${ROOT_LABEL} rw ${KERNEL_PARAMS}" >> ${grub_dir}/grub.cfg
+        echo -e "    initrd /boot/intel-ucode.img /boot/initramfs-${KERNEL}.img" >> ${grub_dir}/grub.cfg
+        echo -e "}" >> ${grub_dir}/grub.cfg
+        check_status
+    fi
+
+    # Hit the "/dev must be mounted" issue reported below and employing the same fix
+    # https://wiki.archlinux.org/title/mkinitcpio#%22/dev_must_be_mounted%22_when_it_already_is
+    echo -en ":: Generating new initramfs specific to this machine..."
+    [ ! -e ${NEW_ROOT}/dev/fd ] && ln -s /proc/self/fd /dev/
+    chroot ${NEW_ROOT} mkinitcpio -p $KERNEL &>/dev/null
+    check_status
+}
+
+mount_chroot_dirs()
+{
+    # Ensure mount point directories exist
+    for x in "sys proc dev dev/pts"; do
+        mkdir -p ${NEW_ROOT}/${x} &>/dev/null
+    done
+
+    # Mount current system in newchroot
+    mount -t sysfs sysfs ${NEW_ROOT}/sys &>/dev/null
+    mount -t proc /proc ${NEW_ROOT}/proc &>/dev/null
+    mount -o bind /dev ${NEW_ROOT}/dev &>/dev/null
+    mount -t devpts /dev/pts ${NEW_ROOT}/dev/pts &>/dev/null
+
+    # Required for UEFI systems to get access to the efivars during bootloader install
+    if [ "x${EFI}" == "x1" ]; then
+        mount -o bind /sys/firmware/efi/efivars ${NEW_ROOT}/sys/firmware/efi/efivars &>/dev/null
+    fi
+}
+
+umount_chroot_dirs()
+{
+    # First umount the efivars mount point
+    if [ "x${EFI}" == "x1" ]; then
+        umount -f ${NEW_ROOT}/sys/firmware/efi/efivars &>/dev/null
+    fi
+
+    for x in "dev/pts dev proc sys"; do
+        umount -f ${NEW_ROOT}/${x} &>/dev/null
+    done
+}
+
+umount_all()
+{
+    for x in ${MOUNTS}; do
+        echo -en ":: Unmounting ${x}..."
+        umount -f ${x} &>/dev/null
+        check_status
+    done
+}
+
+config_system()
+{
+    local pass=""
+    [ "x$DEFAULT" == "xy" ] && pass=" (default: ${cyber}${DEFAULT_PASS}${none})"
+
+    # Configuring the root user
+    #---------------------------------------------------------------------------
+    echo -e "\n:: Configuring root user..."
+    echo -e "${cyber}:: $(bash -c "printf '%0.1s' '-'{1..107}")${none}"
+
+    # Note the new pam rules require SHA512 encryption else first login will require reset
+    echo -en ":: Setting root user password${pass}..."
+    chroot ${NEW_ROOT} /bin/bash -c "echo 'root:${PASS}' | chpasswd -c SHA512"
+    check_status
+
+    echo -en ":: Copying skel configs to root user..."
+    chroot ${NEW_ROOT} /bin/bash -c "shopt -s dotglob; cp -r /etc/skel/* /root"
+    check_status
+
+    # Configure general system settings
+    #---------------------------------------------------------------------------
+    echo -e "\n:: Configuring general system settings..."
+    echo -e "${cyber}:: $(bash -c "printf '%0.1s' '-'{1..107}")${none}"
+
+    echo -en ":: Set unique machine-id..."
+    chroot ${NEW_ROOT} dbus-uuidgen --ensure=/etc/machine-id &>/dev/null
+    chroot ${NEW_ROOT} ln -sf /etc/machine-id /var/lib/dbus/machine-id &>/dev/null
+    check_status
+
+    # Configure localization to US by default
+    LOCALE="en_US"
+    echo -en ":: Setting localization to ${cyber}${LOCALE}${none}..."
+    echo "LANG=${LOCALE}.UTF-8" > ${NEW_ROOT}/etc/locale.conf
+    echo "LANGUAGE=${LOCALE}.UTF-8" >> ${NEW_ROOT}/etc/locale.conf
+    echo "${LOCALE}.UTF-8 UTF-8" > ${NEW_ROOT}/etc/locale.gen
+    chroot ${NEW_ROOT} locale-gen &>/dev/null
+    check_status
+
+    # Configure time and date
+    #---------------------------------------------------------------------------
+    if [ "x$TIMEDATE_SET" == "xy" ]; then
+        local now=$(date --iso-8601=seconds)
+        echo -en ":: Set time and date to ${cyber}${now}${none}..."
+        chroot ${NEW_ROOT} date -s ${now} &>/dev/null
+        check_status
+    fi
+
+    echo -en ":: Setting timezone to ${cyber}${TIMEZONE}${none}..."
+    chroot ${NEW_ROOT} ln -sf /usr/share/zoneinfo/$TIMEZONE /etc/localtime &>/dev/null
+    check_status
+
+    echo -en ":: Set hwclock to system clock ${cyber}${TIMEDATE}${none}..."
+    chroot ${NEW_ROOT} hwclock --systohc &>/dev/null
+    check_status
+
+    # Configure networking
+    #---------------------------------------------------------------------------
+    echo -e "\n:: Configuring networking out of box experience..."
+    echo -e "${cyber}:: $(bash -c "printf '%0.1s' '-'{1..107}")${none}"
+
+    echo -en ":: Setting hostname to ${cyber}${HOSTNAME}${none}..."
+    echo $HOSTNAME > "${NEW_ROOT}/etc/hostname"
+    check_status
+
+    # Configure wifi before user is created to pick up autostart
+    if [ "x$ENABLE_WIFI" == "x1" ]; then
+        echo -en ":: Enabling Wifi..."
+        chroot ${NEW_ROOT} systemctl enable wpa_supplicant@wlo1 &>/dev/null
+        check_status
+    fi
+
+    if [ "x$ENABLE_BLUETOOTH" == "x1" ]; then
+        echo -en ":: Enabling Bluetooth..."
+        chroot ${NEW_ROOT} systemctl enable bluetooth &>/dev/null
+        check_status
+    fi
+
+    # Configure static LAN
+    netmatch='en* eth*'
+    if [ "x${NETIP}" != "xDHCP" ]; then
+        local conf="${NEW_ROOT}/etc/systemd/network/10-static.network"
+        echo -en ":: Configuring ${cyber}static${none} networking..."
+        echo -e "[Match]\nName=${netmatch}\n" > $conf
+        echo -e "[Network]\nAddress=${NETIP}\nGateway=${gateway}\nDNS=${DNS1}\nDNS=${DNS2}" >> $conf
+        echo -e "IPForward=kernel" >> $conf
+        check_status
+
+    # Configure DHCP LAN
+    else
+        local conf="${NEW_ROOT}/etc/systemd/network/20-dhcp.network"
+        echo -en ":: Configuring ${cyber}dhcp${none} networking..."
+        echo -e "[Match]\nName=${netmatch}\n" > $conf
+        echo -e "[Network]\nDHCP=ipv4\nIPForward=kernel\n" >> $conf
+        echo -e "[DHCP]\nUseDomains=true" >> $conf
+        check_status
+    fi
+
+    # Configure wireless
+    local conf="${NEW_ROOT}/etc/systemd/network/30-wireless.network"
+    echo -en ":: Configuring ${cyber}dhcp wireless${none} networking..."
+    echo -e "[Match]\nName=wl*\n" > $conf
+    echo -e "[Network]\nDHCP=ipv4\nIPForward=kernel\n" >> $conf
+    echo -e "[DHCP]\nRouteMetric=20\nUseDomains=true" >> $conf
+    check_status
+
+    # Configure root access for sshd if default deployment
+    if [ -e "${NEW_ROOT}/etc/ssh/sshd_config" ]; then
+        if [ "x$DEFAULT" == "xy" ]; then
+            echo -en ":: Enable sshd root access for ${cyber}auto default${none} deployment..."
+            sed -i -e 's/^PermitRootLogin.*/PermitRootLogin yes/' "${NEW_ROOT}/etc/ssh/sshd_config"
+            check_status
+        fi
+    fi
+
+    # Configuring the new user
+    #---------------------------------------------------------------------------
+    echo -e "\n:: Configuring new user ${cyber}${USER}${none}..."
+    echo -e "${cyber}:: $(bash -c "printf '%0.1s' '-'{1..107}")${none}"
+
+    echo -en ":: Creating user group ${cyber}${USER}${none}..."
+    chroot ${NEW_ROOT} groupadd ${USER}
+    check_status
+
+    # Filter groups down to just those that exist
+    local groups=""
+    for x in ${GROUPS//,/ }; do
+        if [ $(grep -E "^$x:" ${NEW_ROOT}/etc/group) ]; then
+            [ $groups ] && groups="${groups},${x}" || groups="${x}"
+        fi
+    done
+
+    echo -en ":: Creating user ${cyber}${USER}${none} with groups ${cyber}${groups}${none}..."
+    chroot ${NEW_ROOT} useradd -m -g ${USER} -G ${groups} -s /bin/bash ${USER}
+    check_status
+
+    # Note the new pam rules require SHA512 encryption else first login will require reset
+    echo -en ":: Setting user password${pass}..."
+    chroot ${NEW_ROOT} /bin/bash -c "echo '${USER}:${PASS}' | chpasswd -c SHA512"
+    check_status
+
+    echo -en ":: Adding new user to sudoers list..."
+    chroot ${NEW_ROOT} /bin/bash -c "echo '${USER} ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers"
+    check_status
+
+    # Autologin if lxdm exists and parameter is set
+    if [ -e "${NEW_ROOT}/etc/lxdm/lxdm.conf" ]; then
+        if [ "x$AUTOLOGIN" == "x1" ]; then
+            echo -en ":: Enable autologin for LXDM..."
+            sed -i -e "s/^#\s*autologin=.*/autologin=${USER}/" "${NEW_ROOT}/etc/lxdm/lxdm.conf"
+            check_status
+        fi
+    fi
+
+    # Configure pacman
+    #---------------------------------------------------------------------------
+    echo -e "\n:: Configuring pacman first run experience..."
+    echo -e "${cyber}:: $(bash -c "printf '%0.1s' '-'{1..107}")${none}"
+
+    echo -en ":: Initializing the pacman keyring..."
+    chroot ${NEW_ROOT} pacman-key --init &>/dev/null
+    check_status
+
+    echo -en ":: Populating the pacman keyring..."
+    chroot ${NEW_ROOT} pacman-key --populate archlinux blackarch &>/dev/null
+    check_status
+
+    # Inject a longer delay for conky if live
+    #---------------------------------------------------------------------------
+    if [ $LAYER == "live" ]; then
+        sed -i -e "s/sleep 1/sleep 2/" "${NEW_ROOT}/home/${USER}/.config/autostart/conky.desktop"
+    fi
+}
+
+# Create a new system mount then overlay layers as specified
+# called by initcpio system with /new_root as param
+installer()
+{
+    # Welcome message, centered
+    #---------------------------------------------------------------------------
+    local msg="--===<<<[[ ${INSTALLER_LABEL} ]]>>>===--"
+    local len=$((105 - ${#msg}))
+    local padleft=$(bash -c "printf '%0.1s' ' '{1..$((len/2))} $pad")
+    local padright=$(bash -c "printf '%0.1s' ' '{1..$((len/2))} $pad")
+    [ $((len%2)) == 1 ] && local padright="$padright "
+    echo -e "${cyber}:: $(bash -c "printf '%0.1s' '*'{1..107}")${none}"
+    echo -e "${cyber}:: *${padleft}${msg}${padright}*${none}"
+    echo -e "${cyber}:: $(bash -c "printf '%0.1s' '*'{1..107}")${none}"
+
+    # Print out the given params
+    echo -e ":: Incoming deployment options"
+    echo -e "   deployment=$LAYER"
+    for x in ${PARAMS}; do
+        [[ "$x" != BOOT_IMAGE=* ]] && echo -e "   ${x}"
+    done
+    echo -e "${cyber}:: $(bash -c "printf '%0.1s' '-'{1..107}")${none}"
+
+    # Mount install source device
+    #---------------------------------------------------------------------------
+    mount_install_device
+
+    # Set defaults for live and default deployments
+    #---------------------------------------------------------------------------
+    SSD=0
+    DEFAULT="n"
+    ENABLE_WIFI=0
+    ENABLE_BLUETOOTH=0
+    HOSTNAME="${DISTRO}-${LAYER}"
+    NETIP='DHCP'
+    USER='admin'
+    PASS='admin'
+    DEFAULT_PASS='admin'
+
+    # Ask for user input if not live deployment
+    #---------------------------------------------------------------------------
+    if [ "$LAYER" != 'live' ]; then
+
+        # Read in the destination disk options to present to the user filtering out
+        # the USB installer device $SRCDEV e.g. /dev/sda
+        DISKS_DETAILED=$(lsblk -dn -o NAME,SIZE,MODEL,TYPE -x NAME --json | \
+            jq -rc --arg SRCDEV "${SRCDEV//\/dev\/}" '[.blockdevices[]|select(.type=="disk" and .name!=$SRCDEV)]')
+        DISKS=$(echo ${DISKS_DETAILED} | jq -rc '[.[].name]|map("/dev/"+.)|.[]')
+        DESTDEV=$(echo ${DISKS_DETAILED} | jq -rc '[.[].name]|map("/dev/"+.)|.[0]')
+
+        # Determine if this is a default deployment
+        echo -e "\n${cyber}:: Automatically deploy with defaults?${none}"
+        getinput DIRECTIVE 'Use automatic mode with defaults' 'n'
+
+        # Build in a way to pass optional params for testing
+        if [ "x$DIRECTIVE" != "xn" ]; then
+            DEFAULT="y"
+        fi
+
+        if [ "x$DEFAULT" == "xy" ]; then
+            AUTOLOGIN=1
+        else
+            # Collect install destination device
+            #-----------------------------------------------------------------------
+            echo -e "\n${cyber}:: Select a disk as your install destination:${none}"
+            local i=0
+            echo $DISKS_DETAILED | jq -rc '.[]' | while read x; do
+                i=$((i+1))
+                local disk="/dev/$(echo $x | jq -r '.name')"
+                local size="$(echo $x | jq -r '.size')"
+                local model="$(echo $x | jq -r '.model')"
+                echo -en "   ${i}) [${cyber}${disk}${none}](${cyber}${size}${none})"
+                [ "$model" != "null" ] && echo -en " - ${model}"
+                echo ""
+            done
+            getsel DESTDEV "$DISKS"
+
+            # Determine the type of storage from the three most common types:
+            # SSD type storage either NVMe or MMC both use a similar partition naming
+            # convention so we really only need to determine if its not an HDD.
+            # SCSI: /dev/sda        partition1: /dev/sda1
+            # NVMe: /dev/nvme0n1    partition1: /dev/nvme0n1p1
+            # MMC: /dev/mmcblk0     partition1: /dev/mmcblk0p1
+            [ ${DESTDEV//sda} != "/dev/" ] && SSD=1
+
+            # Configure networking
+            #----------------------------------------------------------------------
+            echo -e "\n${cyber}:: Configure networking:${none}"
+            getinput HOSTNAME 'Enter hostname' $HOSTNAME
+            getinput NETIP 'Enter static IP, e.g. 192.168.1.2/24' 'DHCP'
+            if [ "x${NETIP}" != "xDHCP" ]; then
+                getinput gateway 'Enter gateway' $(echo $NETIP | awk -F. '{print $1"."$2"."$3".1"}')
+            fi
+            getinput ENABLE_WIFI 'Enter wifi state' 0
+            getinput ENABLE_BLUETOOTH 'Enter bluetooth state' 0
+
+            # Configure time and date
+            #----------------------------------------------------------------------
+            echo -e "\n${cyber}:: Configure time and date:${none}"
+            getinput TIMEZONE 'Enter timezone' "$TIMEZONE"
+            getinput TIMEDATE_SET "Change time ${cyber}$(date --iso-8601=seconds) UTC${none}" 'n'
+            if [ "x$TIMEDATE_SET" == "xy" ]; then
+                while true; do
+                    getinput TIMEDATE "Use ${cyber}ISO 8601 seconds${none} format" "$(date --iso-8601=seconds)"
+                    date -s "${TIMEDATE}" &>/dev/null
+                    [ $? -eq 0 ] && break
+                done
+            fi
+
+            # Create new user account
+            #----------------------------------------------------------------------
+            echo -e "\n${cyber}:: Create new user account:${none}"
+            getinput USER 'Enter new username' $USER
+            while true; do
+                getinput PASS 'Enter new password' 'admin' 1
+                getinput PASS2 'Enter password again' 'admin' 1
+                [ "x$PASS" == "x$PASS2" ] && break
+                echo -e "   ${red}Passwords don't match, please try again${none}"
+            done
+
+            # Prompt for autologin
+            if [ "x$AUTOLOGIN" != "x1" ]; then
+                getinput autologin 'Enter autologin' 0
+            fi
+        fi
+    fi
+
+    # Mount live system / Install to local disk
+    #---------------------------------------------------------------------------
+    NEW_ROOT="${1}"     # /new_root passed in as 1st param from initcpio porcess
+    local rw_ram_size="75%"
+    local mode=$([ "$LAYER" == 'live' ] && echo 'Starting' || echo 'Installing')
+    echo -e "\n${cyber}:: $(bash -c "printf '%0.1s' '-'{1..107}")${none}"
+    echo -e ":: ${mode} ${cyber}${LAYER}${none} multi-layer deployment"
+    echo -e "${cyber}:: $(bash -c "printf '%0.1s' '-'{1..107}")${none}"
+
+    echo -e ":: Options being used for installation"
+    echo -e "   hostname=${cyber}${HOSTNAME}${none}"
+    echo -e "   networking=${cyber}${NETIP}${none}"
+    echo -e "   user=${cyber}${USER}${none}"
+    if [ "x$DEFAULT" == "xy" ] || [ $LAYER == "live" ]; then
+        echo -e "   pass=${cyber}${DEFAULT_PASS}${none}"
+    else
+        echo -e "   pass=${cyber}********${none}"
+    fi
+    echo -e "   timezone=${cyber}${TIMEZONE}${none}"
+    echo -e "   autologin=${cyber}${AUTOLOGIN}${none}"
+    echo -e "   install_dev=${cyber}${DESTDEV}${none}"
+    echo -e "   EFI=${cyber}${EFI}${none}"
+
+    if [ $LAYER == "live" ]; then
+        echo -en ":: Creating live tmpfs filesystem for writes, ${cyber}size=${rw_ram_size}${none}..."
+        mount -t tmpfs -o "size=${rw_ram_size}",mode=0755 none ${WRITE_MNT} &>/dev/null
+        check_status
+        mount_layers "${ISO_MNT}/images" ${WRITE_MNT}/root ${WRITE_MNT}/temp
+
+        echo -en ":: Re-bind ${WRITE_MNT}/root to new root location ${cyber}${NEW_ROOT}${none}..."
+        mount -o bind ${WRITE_MNT}/root ${NEW_ROOT} &>/dev/null
+        check_status
+    else
+        # Copies /mnt/read/root/ to /new_root
+        mount_layers "${ISO_MNT}/images" ${READ_MNT}/root ${READ_MNT}/temp
+        partition_and_mount_disk
+        echo -e "\n:: Copying deployment overlay ${cyber}${READ_MNT}/root${none} to destination ${cyber}${NEW_ROOT}${none}"
+        echo -e "${cyber}:: $(bash -c "printf '%0.1s' '-'{1..107}")${none}"
+        rsync -ah --info=progress2 ${READ_MNT}/root/* ${NEW_ROOT}
+    fi
+
+    # Install bootloader and initramfs
+    #---------------------------------------------------------------------------
+    mount_chroot_dirs
+    if [ $LAYER != "live" ]; then
+        install_bootloader
+    fi
+
+    # Configure system
+    #---------------------------------------------------------------------------
+    config_system
+
+    # Unmount chroot dirs for either
+    umount_chroot_dirs
+
+    # Umount everything after install only
+    [ $LAYER != "live" ] && umount_all
+
+    # Successfully deployed
+    #---------------------------------------------------------------------------
+    if [ $LAYER != "live" ]; then
+        local msg="--===<<<[[ SUCCESS ]]>>>===--"
+        local len=$((105 - ${#msg}))
+        local padleft=$(bash -c "printf '%0.1s' ' '{1..$((len/2))} $pad")
+        local padright=$(bash -c "printf '%0.1s' ' '{1..$((len/2))} $pad")
+        [ $((len%2)) == 1 ] && local padright="$padright "
+        echo -e "${cyber}:: $(bash -c "printf '%0.1s' '*'{1..107}")${none}"
+        echo -e "${cyber}:: *${padleft}${msg}${padright}*${none}"
+        echo -e "${cyber}:: $(bash -c "printf '%0.1s' '*'{1..107}")${none}"
+
+        if [ "x$DIRECTIVE" == "xexit_end" ]; then
+            exit_to_shell
+        fi
+
+        # Eject media
+        eject --force &>/dev/null
+    fi
+
+    # this function will return control back to the initramfs process which
+    # will boot into the /new_root we just constructed
+}
+
+#----------------------------------------------------------------------------------------
+# Early user space hook
+#----------------------------------------------------------------------------------------
+run_hook()
+{
+    # Set cmdline params as variables to use during install
+    PARAMS=$(cat /proc/cmdline)
+    for x in ${PARAMS}; do
+        case "${x}" in
+            'kernel'=*) KERNEL=${x//kernel=} ;;
+            'layers'=*) LAYERS=${x//layers=} ;;
+            'params'=*) KERNEL_PARAMS=${x//params=} ;;
+            'distro'=*) DISTRO=${x//distro=} ;;
+            'timezone'=*) TIMEZONE=${x//timezone=} ;;
+            'groups'=*) GROUPS=${x//groups=} ;;
+            'dns1'=*) DNS1=${x//dns1=} ;;
+            'dns2'=*) DNS2=${x//dns2=} ;;
+            'autologin'=*) AUTOLOGIN=${x//autologin=} ;;
+            *) continue ;;
+        esac
+    done
+
+    # Set additional variables
+    MOUNTS=""
+    ISO_MNT=/mnt/iso
+    READ_MNT=/mnt/read
+    WRITE_MNT=/mnt/write
+
+    # Default distro and set labels based on it
+    [ -z ${DISTRO+x} ] && DISTRO="cyberlinux"
+    ROOT_LABEL="$(echo ${DISTRO} | tr a-z A-Z)"
+    INSTALLER_LABEL="${ROOT_LABEL}_INSTALLER"
+
+    # Configure various options
+    [ -z ${DNS1+x} ] && DNS1="1.1.1.1"
+    [ -z ${DNS2+x} ] && DNS2="1.0.0.1"
+    [ -z ${TIMEZONE+x} ] && TIMEZONE="America/Boise"
+    [ -z ${GROUPS+x} ] && GROUPS="lp,wheel,network,storage,users,video,audio,adbusers,uucp,disk,docker,vboxusers"
+    [ -z ${KERNEL_PARAMS+x} ] && KERNEL_PARAMS="rd.systemd.show_status=auto rd.udev.log_priority=3 ipv6.disable=1"
+
+    # Detect an EFI supported system
+    [ -d /sys/firmware/efi ] && EFI=1 || EFI=0
+
+    # Reverse the layer order using awk as busybox doesn't support arrays
+    # Essentially were looping over array in reverse but skipping $1 which we then print
+    # at the end to handle the comma delimits properly i.e. layer1,layer2 => layer2,layer1
+    LAYERS=$(echo $LAYERS | awk -F, '{for(i=NF;i>1;i--)printf "%s,",$i;printf "%s",$1}')
+
+    # Get the first layer which will be our target
+    LAYER=$(basename $(echo $LAYERS | awk -F, '{print $1}'))
+
+    # Default autologin if live is the target layer
+    [ -z ${AUTOLOGIN+x} ] && AUTOLOGIN=0
+    [ "$LAYER" == "live" ] && AUTOLOGIN=1
+
+    # Set the function name to use to mount the root filesystem.
+    # In this case we are subverting the normal boot process to first mount all desired squashfs
+    # layers, then to install and configure this new root filesystem and ultimately return from that
+    # function and allow the initramfs to continue the process boot into the /new_root
+    mount_handler="installer"
+}
+
+# vim: ft=sh:ts=4:sw=4:sts=4

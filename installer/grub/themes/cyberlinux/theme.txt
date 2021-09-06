@@ -1,0 +1,123 @@
+# GRUB2 cyberlinux theme
+# ----------------------------------------
+# http://grub.gibibit.com/Theme_format
+# http://wiki.rosalab.ru/en/index.php/Grub2_theme_tutorial
+# Components: images, labels, styled boxes, progress indicators and containers
+# Generate fonts: grub-mkfont -o hack-10.pf2 -s 10 /usr/share/fonts/TTF/Hack-Regular.ttf
+# Get font name: fc-fonts | grep hack
+
+# Global options
+# http://wiki.rosalab.ru/en/index.php/Grub2_theme_/_reference#Global_options
+title-text: ""
+message-color: "#7f8c8d"
+message-bg-color: "#4d4d4d"
+desktop-image: "background.png"
+terminal-top: "10%"
+terminal-left: "10%"
+terminal-width: "80%"
+terminal-height: "85%"
+terminal-box: "terminal_*.png"
+terminal-font: "Terminus Bold 16"
+
+# Boot menu options
+# http://wiki.rosalab.ru/en/index.php/Grub2_theme_/_reference#Boot_menu_.28boot_menu.29
++ boot_menu {
+    left = 17%
+    width = 70%
+    top = 28%
+    height = 45%
+    item_height = 30
+    item_padding = 5
+    icon_width = 32
+    icon_height = 32
+    item_icon_space = 20
+    item_spacing = 5
+    item_color = "#DDDDDD"
+    selected_item_color = "#39AEF4"
+    selected_item_pixmap_style = "select_*.png"
+    menu_pixmap_style = "menu_*.png"
+}
+
+# Features
++ hbox {
+    top = 22%
+    left = 17%
+    + label { color = "#cccccc" font = "Terminus Bold 18" text = "tactical | multifunction | dystopian | cyberpunk | tech ninja" }
+}
+
+# Display progress for time remaining before default option is selected
++ progress_bar {
+    id = "__timeout__"
+    left = 17%
+    top = 75%-20
+    width = 70%-5
+    show_text = true
+    text_color = "#ffffff"
+    font = "Terminus Bold 18"
+    bar_style = "progress_bar_*.png"
+    highlight_style = "progress_bar_hl_*.png"
+    text = "@TIMEOUT_NOTIFICATION_MIDDLE@"
+}
+
+# EULA
++ vbox {
+    top = 80%-15
+    left = 17%
+    + label {
+        color = "#cccccc"
+        font = "Terminus Regular 16"
+        text = "EULA"
+    }
+    + label {
+        color = "#cccccc"
+        font = "Terminus Regular 12"
+        text = "use this product at your own risk.  cyberlinux disclaims all warranties, express or implied, including without limitation,"
+    }
+    + label {
+        color = "#cccccc"
+        font = "Terminus Regular 12"
+        text = "warranties of merchantability and fitness for a particular purpose.  cyberlinux disclaims liability for any direct, indirect,"
+    }
+    + label {
+        color = "#cccccc"
+        font = "Terminus Regular 12"
+        text = "or incidental, special, consequential, exemplary, punitive or other damages, or lost profits that may result directly or"
+    }
+    + label {
+        color = "#cccccc"
+        font = "Terminus Regular 12"
+        text = "indirectly from the use of this product.  this includes, without limitation, any damage to computer hardware or software"
+    }
+    + label {
+        color = "#cccccc"
+        font = "Terminus Regular 12"
+        text = ", loss of data, or any other performance failures, any errors, bugs, viruses or other defects that result from, or are"
+    }
+   + label {
+        color = "#cccccc"
+        font = "Terminus Regular 12"
+        text = "associated with the use of this product. we accept no liability for any damage or loss arising from your use or reliance on"
+    }
+    + label {
+        color = "#cccccc"
+        font = "Terminus Regular 12"
+        text = "this product and expressly disclaim any implied warranties to the fullest extent permissible by law."
+    }
+    + label {
+        color = "#cccccc"
+        font = "Terminus Regular 16"
+        text = "By using this product you are agreeing to these terms"
+    }
+}
+
+# Help at bottom
++ hbox {
+    top = 100%-20
+    left = 15%
+    + label { color = "#39AEF4" text = "[↑ ↓] " }
+    + label { color = "#cccccc" text = "Navigation  " }
+    + label { color = "#39AEF4" text = "[↵] " }
+    + label { color = "#cccccc" text = "Activate selected option  " }
+    + label { color = "#39AEF4" text = "[Esc] " }
+    + label { color = "#cccccc" text = "Cancel or return from menu  " }
+}
