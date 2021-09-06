@@ -1,0 +1,145 @@
+# MIT License
+# Copyright (c) 2017-2021 phR0ze
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+#-------------------------------------------------------------------------------
+# Maintainer: phR0ze
+#-------------------------------------------------------------------------------
+pkgbase=cyberlinux-xfce
+pkgname=(
+    "${pkgbase}-lite"
+    "${pkgbase}-netbook"
+    "${pkgbase}-live"
+)
+pkgver=0
+pkgrel=1
+pkgdesc='Configuration packages for the cyberlinux xfce profile'
+arch=('any')
+license=('MIT')
+url="https://github.com/phR0ze/cyberlinux/blob/master/profiles/xfce"
+
+# Configure environment
+shopt -s dotglob
+shopt -s extglob
+_none="\e[m"
+_cyan="\e[1;36m"
+
+pkgver()
+{
+  cat "${startdir}/../VERSION"
+}
+
+# Because were running the makepkg in a container at a specific location
+# the staging location is /home/build/PKG
+pkg()
+{
+  local name=$1                       # e.g. core
+  install=$name.install               # Specific installer script for deployment package
+  local configs="${startdir}/${name}" # /home/build/profiles/xfce/core i.e. inside container
+
+  if [ -d "${configs}" ]; then
+    msg "${_cyan}Installing '${name}' configuration files${_none}"
+    cp -a "$configs"/* "${pkgdir}"
+  fi
+}
+
+package_cyberlinux-xfce-lite()
+{
+  pkgdesc="Lite xfce system - a building block specialized xfce deployments"
+  depends=(
+    "cyberlinux-standard-x11>=${pkgver}"
+
+    # XFCE
+    'exo'                       # Application library for Xfce
+    'garcon'                    # Implementation of the freedesktop menu specification
+    'thunar'                    # Lightweight File Manager from Xfce
+    'thunar-volman'             # Thunar plugin to automatically manage removeable devices
+    'thunar-archive-plugin'     # Thunar integration with file-roller
+    'thunar-media-tags-plugin'  # Thunar plugin to view media details
+    'tumbler'                   # D-Bus thumbnail service for apps like Thunar
+    'xfce4-panel'               # Panel for the Xfce desktop environment
+    'xfce4-power-manager'       # Power manager for the Xfce desktop
+    'xfce4-session'             # Session manager for Xfce
+    'xfce4-settings'            # Settings manager for Xfce
+    'xfconf'                    # Configuration management system over gconf and dconf
+    'xfdesktop'                 # Desktop manager for Xfce
+    'xfwm4'                     # Xfce's window manager
+    'xfwm4-themse'              # Xfce's window manager themes
+
+    # Desktop components
+    'arcologout'                # Simple clean logout overlay from, repo: cyberlinux
+    'gsimplecal'                # Simple calendar like windows systray calendar
+    'gtk2fontsel'               # Simple font viewer
+    'lxdm'                      # Lightweight display manager, xorg: lxde
+    'lxsession'                 # Enable .desktop files in ~/.config/autostart, /etc/xdg/autostart, group: lxde
+    'nitrogen'                  # Lightweight wallpaper manager
+    'xfce4-screenshooter'       # Plugin that makes screenshots for the Xfce panel
+    'lxappearance'              # Feature-rich GTK+ theme switcher of the LXDE Desktop, group: lxde
+    'lxappearance-obconf'       # Plugin for LXAppearance to configure Openbox, group: lxde
+    'lxde-common'               # Common files of the LXDE Desktop, group: lxde
+    'lxhotkey'                  # Keyboard shortcuts configurator, xorg: lxde
+    'lxinput'                   # Keyboard and mouse configuration utility, group: lxde
+    'lxrandr'                   # Monitor configuration tool, group: lxde
+    'lxterminal'                # Terminal for LXDE, alt: terminator, group: lxde
+    'openbox'                   # Lightweight X11 window manager, group: lxde
+    'paprefs'                   # Configuration dialog for pulse audio
+    'pavucontrol'               # PulseAudio Volume Control
+    'pnmixer'                   # Volume controls in system tray, repo: cyberlinux
+    'pulseaudio-alsa'           # ALSA Configuration for PulseAudio
+    'tint2'                     # Lightweight taskmanager and system tray
+  )
+  pkg lite
+}
+
+package_cyberlinux-xfce-netbook()
+{
+  pkgdesc="Netbook x11 system - built on the lite deployment adding productivity apps"
+  depends=(
+    "cyberlinux-xfce-lite>=${pkgver}"
+
+    # Desktop components
+    'xfce4-battery-plugin'      # A battery monitor plugin for the Xfce panel
+    'xfce4-datetime-plugin'     # A date and time display plugin for the Xfce panel
+    'xfce4-pulseaudio-plugin'   # Pulseaudio plugin for Xfce4 panel
+    'conky'                     # Lightweight system monitor for X
+    'i3lock-color'              # Simple lightweight screen locker
+    'light'                     # Control laptop backlights both screen and keyboard
+
+    # Media
+    'gimp'                      # Excellent image editor
+
+    # Office
+    'hunspell-en_US'            # US dictionaries for spell checking
+    'libreoffice-fresh'         # Libreoffice with new features and enhancments
+    'pdfmod'                    # Simple PDF editor
+
+    # Network
+    'blueman'                   # Bluetooth management tool
+    'pulseaudio-bluetooth'      # Pulse Audio plugin for bluetooth output
+    'freerdp'                   # RDP client plugin for remmina
+    'remmina'                   # Nice remoting UI for RDP and other protocols
+    'wpa_gui'                   # A Qt frontend to wpa_supplicant, repo: cyberlinux
+    'wpa_supplicant'            # A utility providing key negotiation for WPA wireless networks
+  )
+  pkg netbook
+}
+
+
+# vim: ts=2:sw=2:sts=2

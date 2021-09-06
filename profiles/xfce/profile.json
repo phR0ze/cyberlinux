@@ -1,0 +1,20 @@
+{
+  "deployments": [
+    {
+      "name": "live",
+      "entry": "Start live environment     // Recovery env for Personal Use Only",
+      "kernel": "linux",
+      "layers": "standard/core,standard/base,standard/shell,standard/x11,xfce/lite"
+    },
+    {
+      "name": "lite",
+      "entry": "Install xfce lite          // Lite xfce env with minimal apps",
+      "kernel": "linux",
+      "layers": "standard/core,standard/base,standard/shell,standard/x11,xfce/lite",
+      "groups": "lp,wheel,network,storage,users,video,audio,disk"
+    }
+  ],
+  "optionalPkgs": [
+    "cyberlinux-braswell"
+  ]
+}

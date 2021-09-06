@@ -46,6 +46,8 @@ on the [Arch Linux Wiki](https://wiki.archlinux.org/) should work just fine as w
   * [Sound](#sound)
     * [Simultaneous output to multiple devices](#simultaneous-output-to-multiple-devices)
     * [Google Meet Headset](#google-meet-headset)
+* [Display Manager](#display-manager)
+  * [LXDM](#lxdm)
 * [Containers](#containers)
   * [Podman](#podman)
     * [Migrate from Docker](#migrate-from-docker)
@@ -137,9 +139,17 @@ on the [Arch Linux Wiki](https://wiki.archlinux.org/) should work just fine as w
     * [Configure BlackArch repo](#configure-blackarch-repo)
     * [BlackArch Signature issue](#blackarch-signature-issue)
   * [Flatpak](docs/FLATPAK.md)
+* [Panels](#panels)
+  * [Tint2](#tint2)
+  * [XFCE4 Panel](#xfce4-panel)
 * [Patching](#patching)
   * [Create Patch](#create-patch)
   * [Apply Patch](#apply-patch)
+* [Power Management](#power-management)
+  * [XFCE4 Power Manager](#xfce4-power-manager)
+    * [Battery Status](#battery-status)
+    * [Display Brightness](#display-brightness)
+  * [Suspend](#suspend)
 * [Remoting](#remoting)
   * [Synergy](#synergy)
   * [Teamviewer](#teamviewer)
@@ -190,12 +200,11 @@ on the [Arch Linux Wiki](https://wiki.archlinux.org/) should work just fine as w
   * [USB Access in VM](#usb-access-in-vm)
 * [VPNs](#vpns)
   * [OpenConnect](#openconnect)
+* [Window Manager](#window-manager)
+  * [Openbox](#openbox)
+  * [XFWM](#xfwm)
 * [Wine](docs/WINE.md)
 * [X Windows](#x-windows)
-  * [Display Manager](#display-manager)
-    * [LXDM](#lxdm)
-  * [Window Manager](#window-manager)
-    * [Openbox](#openbox)
   * [Persist X Configs](#persist-x-configs)
     * [xprofile](#xprofile)
     * [XDG Autostart](#xdg-autostart)
@@ -711,6 +720,21 @@ tend to use Firefox for speed and privacy but other will be similar.
    b. Switch to the `Playback` tab and switch `Firefox: AudioCallbackDriver on` to use the `Simultaneous` option  
    c. Switch to the `Recording` tab and switch `Firefox: AudioCallbackDriver from` to use your headset  
 4. Test the call in google meet
+
+# Display Manager <a name="display-manager"/></a>
+A [display manager](https://wiki.archlinux.org/index.php/Display_manager) is a graphical user
+interface that is displayed at the end of the boot process in place of the default shell.
+***cyberlinux*** uses systemd as its init system which invokes LXDM as the `display-manager.service`.
+LXDM works in conjunction with the systemd service `systemd-logind` managed with `loginctl`.
+
+Systemd will create the `display-manager.service` link to LXDM for you with:
+```bash
+$ sudo systemctl enable lxdm
+```
+
+## LXDM <a name="lxdm"/></a>
+[LXDM](https://wiki.archlinux.org/index.php/LXDM) is a lightweight display manager for the LXDE
+desktop environment.
 
 # Containers <a name="containers"/></a>
 
@@ -2079,6 +2103,17 @@ error: failed to update blackarch (invalid or corrupted database (PGP signature)
 error: database 'blackarch' is not valid (invalid or corrupted database (PGP signature))
 ```
 
+# Panels <a name="panels"/></a>
+
+## Tint2 <a name="tint2"/></a>
+
+## XFCE4 Panel <a name="xfce4-panel"/></a>
+
+### Install XFCE4 Panel <a name="install-xfce4-panel"/></a>
+```bash
+$ sudo pacman -S xfce4-panel xfce4-pulseaudio-plugin xfce4-battery-plugin xfce4-datetime-plugin
+```
+
 # Patching <a name="patching"/></a>
 
 ## Create Patch <a name="create-patch"/></a>
@@ -2097,6 +2132,48 @@ $ diff -ruN a b > <patch-name>.patch
 ```bash
 $ patch -Np1 -i <patch-name>.patch
 ```
+
+# Power Management <a name="power-management"/></a>
+Originally I was using conky and a few scripts to handle battery status and screen dimness, but I 
+kept loosing track of the script names and keyboard shortcuts. I'm switching over to use XFCE's Power 
+Management application.
+
+## XFCE4 Power Manager <a name="xfce4-power-manager"/></a>
+Note the icon is called `/usr/share/icons/hicolor/48x48/apps/org.xfce.powermanager.png` and has no 
+`32x32` size option.
+
+1. Install xfce4-power-manager
+   ```bash
+   $ sudo pacman -S xfce4-power-manager
+   ```
+2. Launch power manager
+   ```bash
+   $ xfce4-power-manager-settings
+   ```
+3. Configure power manager
+   a. Under the `General` tab  
+   a. Set `Handle display brightness keys` on  
+   b. Set `Status notification` on  
+   c. Set `System tray icon` on  
+
+### Battery Status <a name="battery-status"/></a>
+To keep the OS as light as possible I decided to use 
+[conky](https://github.com/phR0ze/cyberlinux/blob/master/profiles/openbox/desktop/etc/skel/conky/netbook) to 
+provide ***Date***, ***Time***, ***Calendar***, and ***Battery status*** as well as a few other 
+monitoring widgets.
+
+### Display Brightness <a name="display-brightness"/></a>
+1. Launch power manager
+   ```bash
+   $ xfce4-power-manager-settings
+   ```
+2. Under the `General` tab  
+   a. Set `Handle display brightness keys` on  
+   b. Set `Status notification` on  
+   c. Set `System tray icon` on  
+
+## Suspend <a name="suspend"/></a>
+Suspend works out of the box with ***systemd*** as the default system manager
 
 # Remoting <a name="remoting"/></a>
 
@@ -2899,31 +2976,30 @@ Example of fixed:
 hosts: files mdns4_minimal resolve [NOTFOUND=return] dns myhostname
 ```
 
-# X Windows <a name="x-windows"/></a>
-X Windows, X Window system, X11 or simply X is the most common windowing system in Linux.
-
-## Display Manager <a name="display-manager"/></a>
-A [display manager](https://wiki.archlinux.org/index.php/Display_manager) is a graphical user
-interface that is displayed at the end of the boot process in place of the default shell.
-***cyberlinux*** uses systemd as its init system which invokes LXDM as the `display-manager.service`.
-LXDM works in conjunction with the systemd service `systemd-logind` managed with `loginctl`.
-
-Systemd will create the `display-manager.service` link to LXDM for you with:
-```bash
-$ sudo systemctl enable lxdm
-```
-
-### LXDM <a name="lxdm"/></a>
-[LXDM](https://wiki.archlinux.org/index.php/LXDM) is a lightweight display manager for the LXDE
-desktop environment.
-
-## Window Manager <a name="window-manager"/></a>
+# Window Manager <a name="window-manager"/></a>
 A window manager controls the placment and appearance of windows within a windowing system like X
 Windows.
 
-### Openbox <a name="openbox"/></a>
+## Openbox <a name="openbox"/></a>
 Openbox is a lightweight, powerful and highly configurable stacking window manager with extensive
 standards support.
+
+## XFWM <a name="xfwm"/></a>
+
+### XFCE Menu <a name="xfce-menu"/></a>
+XFCE will read from the `~/.config/menus/xfce-applications.menu`
+
+1. Create the menu directory
+   ```bash
+   $ mkdir -p ~/.config/menus
+   ```
+2. Copy the global menu there for editing
+   ```bash
+   $ cp /etc/xdg/menus/xfce-applications.menu ~/.config/menus
+   ```
+
+# X Windows <a name="x-windows"/></a>
+X Windows, X Window system, X11 or simply X is the most common windowing system in Linux.
 
 ## Persist X Configs <a name="persist-x-configs"/></a>
 Linux has a plethera of ways to persist configuration depending on which system components your

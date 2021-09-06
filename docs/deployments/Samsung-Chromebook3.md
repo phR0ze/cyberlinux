@@ -11,17 +11,18 @@ Documenting the steps I went through to deploy <b><i>cyberlinux</i></b> onto the
 * [Prerequisites](#prerequsites)
 * [Install cyberlinux](#install-cyberlinux)
 * [Configure cyberlinux](#configure-cyberlinux)
-  * [Battery Status](#battery-status)
   * [BlueTooth](#bluetooth)
-  * [Brightness](#brightness)
   * [Headset](#headset)
   * [HDMI Output](#hdmi-output)
   * [Kernel](#kernel)
   * [Key Mappings](#key-mappings)
   * [Keyboard Shortcuts](#keyboard-shortcuts)
   * [MicroSD Storage](#micro-sd-storge)
+  * [Power Management](#power-management)
+    * [Battery Status](#battery-status)
+    * [Display Brightness](#display-brightness)
+    * [Suspend](#suspend)
   * [Sound](#sound)
-  * [Suspend](#suspend)
   * [Touchpad](#touchpad)
   * [USB Storage](#usb-storage)
   * [Video](#video)
@@ -53,12 +54,6 @@ and associated Arch Linux packages seem to work pretty smooth.
 1. Copy over ssh keys to `~/.ssh`
 2. Copy over any wallpaper to `/usr/share/backgrounds`
 
-### Battery Status <a name="battery-status"/></a>
-To keep the OS as light as possible I decided to use 
-[conky](https://github.com/phR0ze/cyberlinux/blob/master/profiles/openbox/desktop/etc/skel/conky/netbook) to 
-provide ***Date***, ***Time***, ***Calendar***, and ***Battery status*** as well as a few other 
-monitoring widgets.
-
 ### BlueTooth <a name="bluetooth"/></a>
 BlueTooth seems to work fine out of the box
 
@@ -75,21 +70,6 @@ BlueTooth seems to work fine out of the box
    ```bash
    $ blueman-applet
    ```
-
-### Brightness <a name="brightness"/></a>
-The simplest way to fix this was to just install the `xfce4-power-manager` tool.
-1. Install
-   ```bash
-   $ sudo pacman -S xfce4-power-manager
-   ```
-2. Launch power manager
-   ```bash
-   $ xfce4-power-manager-settings
-   ```
-3. Under the `General` tab  
-   a. Set `Handle display brightness keys` on  
-   b. Set `Status notification` on  
-   c. Set `System tray icon` on  
 
 ### Headset <a name="headset"/></a>
 TBD
@@ -256,6 +236,24 @@ Prepare SD card for use and persistently mount:
    sudo chown -R $USER: /mnt/storage
    ```
 
+## Power Management <a name="power-management"/></a>
+
+### Battery Status <a name="battery-status"/></a>
+To keep the OS as light as possible I decided to use 
+[conky](https://github.com/phR0ze/cyberlinux/blob/master/profiles/openbox/desktop/etc/skel/conky/netbook) to 
+provide ***Date***, ***Time***, ***Calendar***, and ***Battery status*** as well as a few other 
+monitoring widgets.
+
+### Display Brightness <a name="display-brightness"/></a>
+1. Launch power manager from the menu `Settings >Power Manager`
+2. Under the `General` tab  
+   a. Set `Handle display brightness keys` on  
+   b. Set `Status notification` on  
+   c. Set `System tray icon` on  
+
+### Suspend <a name="suspend"/></a>
+Suspend works out of the box with ***systemd*** as the default system manager
+
 ### Sound <a name="sound"/></a>
 Audio required using the [GalliumOS Braswell Config](https://aur.archlinux.org/packages/galliumos-braswell-config/),
 but after that seems to work well for both the speakers as well as headphones with jack detection working correctly.
@@ -264,9 +262,6 @@ I adapted the package and made it available in the cyberlinux repo as `cyberlinu
 ```bash
 $ sudo pacman -S cyberlinux-braswell
 ```
-
-### Suspend <a name="suspend"/></a>
-Suspend works out of the box with ***systemd*** as the default system manager
 
 ### Touchpad <a name="touchpad"/></a>
 Touchpad appears to work fine with the latest Arch Linux `5.13.13` kernel. However it used to have 

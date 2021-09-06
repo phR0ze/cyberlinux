@@ -222,19 +222,6 @@ package_cyberlinux-standard-x11()
   depends=(
     "cyberlinux-standard-shell>=${pkgver}"
 
-    # Desktop components
-    'arcologout'                # Simple clean logout overlay from, repo: cyberlinux
-    'lxdm'                      # Lightweight display manager, xorg: lxde
-    'lxsession'                 # Enable .desktop files in ~/.config/autostart, /etc/xdg/autostart, group: lxde
-    'thunar'                    # Lightweight File Manager from Xfce
-    'thunar-archive-plugin'     # Thunar integration with file-roller
-    'thunar-media-tags-plugin'  # Thunar plugin to view media details
-    'thunar-volman'             # Thunar plugin to automatically manage removeable devices
-    'tumbler'                   # D-Bus thumbnail service for apps like Thunar
-    'xdg-user-dirs'             # Manage user directories like ~/Desktop
-    'xdg-utils'                 # Desktop integration utilities
-    'xfce4-screenshooter'       # Plugin that makes screenshots for the Xfce panel
-
     # Utilities
     'dconf'                     # A low-level configuration system
     'dconf-editor'              # General configuration manager that replaces gconf
@@ -244,11 +231,15 @@ package_cyberlinux-standard-x11()
     'file-roller'               # System/Compression integrates well in Thunar
     'ffmpegthumbnailer'         # Lightweight video thumbnailer that can be used by file managers
     'galculator'                # Office/Calculator
+    'gtk-engines'               # GTK theme engines for cyberlinux theme
+    'gtk-engine-murrine'        # GTK theme engine for cyberlinux theme
     'gvfs'                      # Support for Trash and USB, depof: thunar-volman
     'powerline'                 # Status line plugin for bash
     'powerline-fonts'           # Powerline font symbols
     'powerline-gitstatus'       # Powerline plugin for git status, repo: cyberlinux
     'qt5-base'                  # A cross-platform application and UI framework, depof: mkvtoolnix-gui
+    'xdg-user-dirs'             # Manage user directories like ~/Desktop
+    'xdg-utils'                 # Desktop integration utilities
 
     # Media
     'audacious'                 # Lightweight advanced audio player

@@ -41,6 +41,7 @@ strictly the responsiblity of the user and not the developer/creator of ***cyber
     * [Build the ISO](#build-the-iso)
     * [Burn the ISO to USB](#burn-the-iso-to-usb)
     * [Test the USB in VirtualBox](#test-the-usb-in-virtualbox)
+  * [Download cyberlinux ISO](#download-cyberlinux-iso)
 * [Deploy cyberlinux](#deploy-cyberlinux)
   * [ACEPC AK1](docs/deployments/ACEPC-AK1.md)
   * [Dell XPS 13 9310](#Dell-xps-13-9310.md)
@@ -57,6 +58,9 @@ strictly the responsiblity of the user and not the developer/creator of ***cyber
 * [Contributions](#contributions)
   * [Git-Hook Version Increment](#git-hook-version-increment)
 * [Licenses](#licenses)
+* [Backlog](#backlog)
+* [Testlog](#testlog)
+* [Changelog](docs/CHANGELOG.md)
 
 ---
 
@@ -147,6 +151,9 @@ First ensure you satisfy the [Prerequisites](#prerequisites)
    a. On the `Virtual Hard Disk` option choose `Use existing hard disk`  
    b. Browse to and select the `usb.vmdk` you just created  
    c. Start up the new VM  
+
+# Download cyberlinux ISO <a name="download-cyberlinux-iso"/></a>
+***cyberlinux*** ISOs are being hosted at https://osdn.net/projects/cyberlinux
 
 # Deploy cyberlinux <a name="deploy-cyberlinux"/></a>
 For the most part deploying ***cyberlinux*** is as simple as:
@@ -288,6 +295,8 @@ boot/initramfs/installer bash code base is likewise MIT licensed.
 ---
 
 # Backlog <a name="backlog"/></a>
+* Netbook: integrate `xfce-power-manager`
+
 * Detect and install braswell config at install time
 * Add slack to desktop
 * Braswell screen brightness
@@ -323,21 +332,9 @@ boot/initramfs/installer bash code base is likewise MIT licensed.
 
 # Testing <a name="testing"/></a>
 * Theater based on desktop
-* Lite: fixed powerline default showing up on right
 * Netbook: Bluetooth
 * Laptop: wpa ui autostart is disabled
-* Desktop:
-  * Added Zoom to the network menu
-
-# Changelog <a name="changelog"/></a>
-* Migrated to nvim via cyberlinux-nvim
-* Replaced cinnamon-screensaver with i3lock-color
-* Replaced oblogout with arcologout a simple clean overlay logout app
-* Powerline font doesn't look right in bash - solved set fontconfig
-* Fixed keyboard repeat rate with lxsession config
-* Install yay from blackarch into the shell deployment
-* Set standard language defaults: `LANG = "en_US.UTF-8"`
-* Passwords need to be SHA512 to avoid being flagged by pam policies
+* Desktop: Added Zoom to the network menu
 
 <!-- 
 vim: ts=2:sw=2:sts=2

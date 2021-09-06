@@ -2,7 +2,7 @@ cyberlinux WINE documentation
 ====================================================================================================
 
 ### Quick Links
-* [.. up dir](../README.md)
+* [.. up dir](https://github.com/phR0ze/cyberlinux)
 * [Overview](#overview)
 * [Install Wine](#install-wine)
 * [Wine Prefixes](#wine-prefixes)
