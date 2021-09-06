@@ -1,0 +1,10 @@
+.git
+.githooks
+.gitignore
+build.sh
+art
+apriori
+docs
+temp
+LICENSE-APACHE
+LICENSE-MIT
