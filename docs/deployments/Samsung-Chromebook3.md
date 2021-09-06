@@ -7,7 +7,7 @@ Documenting the steps I went through to deploy <b><i>cyberlinux</i></b> onto the
 
 
 ### Quick Links
-* [.. up dir](../../README.md)
+* [.. up dir](https://github.com/phR0ze/cyberlinux)
 * [Prerequisites](#prerequsites)
 * [Install cyberlinux](#install-cyberlinux)
 * [Configure cyberlinux](#configure-cyberlinux)

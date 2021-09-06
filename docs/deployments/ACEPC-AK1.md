@@ -6,13 +6,13 @@ Documenting the steps I went through to deploy <b><i>cyberlinux</i></b> onto the
 configuration changes to enable WiFi 
 
 ### Quick Links
-* [.. up dir](../../README.md)
+* [.. up dir](https://github.com/phR0ze/cyberlinux)
 * [Install cyberlinux](#install-cyberlinux)
 * [Configure cyberlinux](#configure-cyberlinux)
-  * [Configure Graphics](#configure-graphics)
-  * [Configure WiFi](#configure-wifi)
-  * [Configure Teamviewer](#configure-teamviewer)
-  * [Configure Kodi](#configure-kodi)
+  * [Graphics](#graphics)
+  * [WiFi](#wifi)
+  * [Teamviewer](#teamviewer)
+  * [Kodi](#kodi)
 
 ## Install cyberlinux <a name="install-cyberlinux"/></a>
 Note because of the `xHCI` USB driver being used by the newer firmware on the ACEPC AK1 you must
@@ -39,7 +39,7 @@ choose an `UEFI` boot option in order to get keyboard support during the install
 1. Copy over ssh keys to `~/.ssh`
 2. Copy over any wallpaper to `/usr/share/backgrounds`
 
-### Configure Graphics <a name="configure-graphics"/></a>
+### Graphics <a name="graphics"/></a>
 [Hardware Video Acceleration](https://wiki.archlinux.org/title/Hardware_video_acceleration)
 
 1. Install hardwar acceleration drivers:
@@ -55,7 +55,7 @@ choose an `UEFI` boot option in order to get keyboard support during the install
    $ vdpauinfo
    ```
 
-### Configure WiFi <a name="configure-wifi"/></a>
+### WiFi <a name="wifi"/></a>
 1. WPA GUI will be launched automatically
 2. Select `Scan >Scan` then doblue click the chosen `SSID`
 3. Enter the pre-shared secret `PSK` and click `Add`
@@ -77,13 +77,13 @@ choose an `UEFI` boot option in order to get keyboard support during the install
    $ sudo systemctl restart systemd-networkd
    ```
 
-### Configure Teamviewer <a name="configure-teamviewer"/></a>
+### Teamviewer <a name="teamviewer"/></a>
 1. Launch Teamviewer from the tray icon
 2. Navigate to `Extras >Options`
 3. Set `Choose a theme` to `Dark` and hit `Apply`
 4. Navigate to `Advanced` and set `Personal password` and hit `OK`
 
-### Configure Kodi <a name="configure-kodi"/></a>
+### Kodi <a name="kodi"/></a>
 1. Hover over selecting `Remove this main menu item` for those not used `Muic Videos, TV, Radio, Games, Favourites`  
 2. Add NFS shares as desired  
 3. Navigate to `Movies > Enter files selection > Files >Add videos...`  
