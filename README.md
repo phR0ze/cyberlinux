@@ -50,7 +50,6 @@ strictly the responsiblity of the user and not the developer/creator of ***cyber
   * [cyberlinux help](#cyberlinux-help)
   * [Roll your own](profiles/README.md)
   * [cyberlinux-repo](docs/CYBERLINUX_REPO.md)
-  * [Caching packages](#caching-packages)
 * [Background](#background)
   * [Evolution](#evolution)
   * [My take on Arch](#my-take-on-arch)
@@ -159,43 +158,9 @@ For the most part deploying ***cyberlinux*** is as simple as:
 6. Rebooting
 
 ## Advancecd concepts <a name="advanced-concepts"/></a>
-While building the various components required for the multiboot ISO and constructing the various
-deployment flavors a number of system specific commands are run. The only way I've found to safely
-reproduce the desired results regardless to the host systems state is to build components in
-containers.
-
-References:
-* [Go Formatting](https://docs.docker.com/config/formatting)
-
-**Shell into a running container**:
-```bash
-$ docker exec -it builder bash
-```
-
-**Create image from directory**:
-```bash
-$ sudo tar -c . | docker import - builder
-```
-
-**Check if image exists**:
-```bash
-$ docker container ls --format='{{json .}}' | jq
-```
-
-### Caching packages <a name="caching-packages"/></a>
-Docker has a limitation that it can't mount a volume during build and we'd really like to cache
-package downloading so we're not constantly downloading the same packages over and over again. Its
-slow and annoying. To avoid this we can use the off the shelf image `archlinux:base-devel` with a
-mounted volume to download them and store them for us using the same lates image version that we'll
-be using to build with thus avoiding host dependencies.
-
-Arch Linux uses the `/var/cache/pacman/pkg` location as its package cache and provides a nifty
-download only option `-w` that will allow us to download the target packages to the cache.
-
-```bash
-$ docker run --name builder --rm -it -v "${pwd}/temp/cache":/var/cache/pacman/pkg archlinux:base-devel bash
-$ pacman -Syw --noconfirm grub
-```
+* [cyberlinux help](#cyberlinux-help)
+* [Roll your own](profiles/README.md)
+* [cyberlinux-repo](docs/CYBERLINUX_REPO.md)
 
 # Background <a name="background"></a>
 ***cyberlinux*** is an evolution of an idea come to fruition.  The origin was the need for an

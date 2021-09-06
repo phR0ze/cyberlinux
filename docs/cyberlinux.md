@@ -10,7 +10,14 @@ on the [Arch Linux Wiki](https://wiki.archlinux.org/) should work just fine as w
 ### Quick Links
 * [.. up dir](https://github.com/phR0ze/cyberlinux)
 * [Apps to use](#apps-to-use)
+* [Bash](#bash)
+  * [heredoc](#heredoc)
+    * [Save heredoc into a variable](#save-heredoc-into-a-variable)
 * [Certificates](#certificates)
+  * [Add Root CA](#add-root-ca)
+* [Configuration](#configuration)
+  * [dconf](#dconf)
+    * [Dump dconf settings to file](#dump-dconf-settings-to-file)
 * [Develop](#develop)
   * [Git](#git)
   * [Rewrite Git History](#rewrite-git-history)
@@ -44,9 +51,16 @@ on the [Arch Linux Wiki](https://wiki.archlinux.org/) should work just fine as w
     * [Migrate from Docker](#migrate-from-docker)
   * [Docker ipv6 issue](#docker-ipv6-issue)
   * [Build container](#build-container)
+    * [Build from filesystem](#build-from-filesystem)
   * [Run container](#run-container)
+    * [Shell into a running container](#shell-into-a-running-container)
+    * [Check if container exists](#check-if-container-exists)
   * [Upload container](#upload-container)
   * [Build cyberliux container](#build-cyberlinux-container)
+* [Games](#games)
+  * [HedgeWars](#hedgewars)
+    * [Install HedgeWars](#install-hedgewars)
+    * [libGL nvidia-340xx fix](#libgl-nvidia-340xx-fix)
 * [Grub](#grub)
   * [Boot Kernel](#boot-kernel)
     * [BIOS Boot](#bios-boot)
@@ -113,15 +127,12 @@ on the [Arch Linux Wiki](https://wiki.archlinux.org/) should work just fine as w
     * [Combine PDFs](#combine-pdfs)
     * [Rotate PDFs](#rotate-pdfs)
     * [Convert Images to PDF](#convert-images-to-pdf)
-* [Games](#games)
-  * [HedgeWars](#hedgewars)
-    * [Install HedgeWars](#install-hedgewars)
-    * [libGL nvidia-340xx fix](#libgl-nvidia-340xx-fix)
 * [pacman packages](#pacman-packages)
   * [Init Database](#init-database)
   * [Update Mirrorlist](#update-mirrorlist)
   * [Create Repo Database](#create-repo-database)
   * [Share Package Cache](#share-package-cache)
+  * [Download packages only](#download-packages-only)
   * [BlackArch repo](#blackarch-repo)
     * [Configure BlackArch repo](#configure-blackarch-repo)
     * [BlackArch Signature issue](#blackarch-signature-issue)
@@ -192,6 +203,25 @@ on the [Arch Linux Wiki](https://wiki.archlinux.org/) should work just fine as w
 # Apps to use <a name="apps-to-use"/></a>
 [List of apps to use from Arch Linux Wiki](https://wiki.archlinux.org/index.php/List_of_applications/Utilities)
 
+# Bash <a name="bash"/></a>
+Although bash isn't the most elegant or fastest scripting language out there it has the largest reach 
+and most pervasive install base and most importantly is almost never changes. For this reason it is 
+an excellent technology for small scripts that you want to just work over an extended period of time.
+
+## heredoc <a name="heredoc"/></a>
+
+### Save heredoc into a variable <a name="save-here-doc-into-a-variable"/></a>
+Changing `EOF` to `'EOF'` ignores variable expansion
+
+```bash
+local DOC=$(cat << 'EOF'
+[cyberlinux]
+SigLevel = Optional TrustAll
+Server = https://phr0ze.github.io/cyberlinux-repo/$repo/$arch
+EOF
+)
+```
+
 # Certificates <a name="certificates"/></a>
 
 ## Add Root CA <a name="add-root-ca"/></a>
@@ -204,6 +234,18 @@ unzip CA1.zip && rename CA1.cer CA1.crt
 
 # Install new CA cert, original file can then be deleted
 sudo trust anchor CA1.crt
+```
+
+# Configuration <a name="configuration"/></a>
+## dconf <a name="dconf"/></a>
+
+### Dump dconf settings to file <a name="dump-dconf-settings-to-file"/></a>
+To get setting persisted from dconf configure the target app as desired then dump the settings out
+and save them in the dconf load location.
+
+Dump out the target app setttings to the load area
+```bash
+$ dconf dump /apps/guake/ > /etc/dconf/db/local.d/03-guake
 ```
 
 # Develop <a name="develop"/></a>
@@ -728,9 +770,30 @@ From the directory that contains your ***Dockerfile*** run:
 $ docker build -t alpine-base:latest  .
 ```
 
+### Build from filesystem <a name="build-from-filesystem"/></a>
+You can create a container image from a fileystem
+
+Navigate to the directory of your filesystem then run:
+```bash
+$ sudo tar -c . | docker import - builder
+```
+
 ## Run container <a name="run-container"/></a>
 ```bash
 $ docker run --rm -it alpine-base:latest bash
+```
+
+### Shell into a running container <a name="shell-into-a-running-container"/></a>
+```bash
+$ docker exec -it builder bash
+```
+
+### Check if container exists <a name="check-if-container-exists"/></a>
+You can check if a container exists in a programatic way using Docker Go templating and JSON output 
+with the `jq` binary for extracing key information.
+
+```bash
+$ docker container ls --format='{{json .}}' | jq
 ```
 
 ## Upload container <a name="upload-cyberlinux-container"/></a>
@@ -768,6 +831,36 @@ $ sudo ./reduce deploy net -p containers
 
 # Run net container with docker
 $ docker run --rm -it net-0.2.197:latest bash
+```
+
+# Games <a name="games"/></a>
+## HedgeWars <a name="hedgewars"/></a>
+HedgeWars is a Worms clone and a lot of fun.
+
+### Install HedgeWars <a name="install-hedgewars"/></a>
+Install:
+```bash
+$ sudo pacman -S hedgewars
+```
+
+### libGL nvidia-340xx fix <a name="libgl-nvidia-340xx-fix"/></a>
+Unfortunately when using the older `nvidia-340xx` proprietary driver it has issues with `libGL`
+[library linkage](https://forum.manjaro.org/t/hedgewars-nvidia-problem-with-proprietary-driver-cant-launch-game-libglnvd-conflict/45955).
+
+To fix the issue we need to update the libs to use the nvidia versions:
+```bash
+# List out the faulty libs
+sudo ldconfig -p | grep libGL.so.1
+	libGL.so.1 (libc6,x86-64) => /usr/lib/nvidia/libGL.so.1
+	libGL.so.1 (libc6,x86-64) => /usr/lib/libGL.so.1
+	libGL.so.1 (libc6) => /usr/lib32/nvidia/libGL.so.1
+	libGL.so.1 (libc6) => /usr/lib32/libGL.so.1
+
+# Fix the linkage
+sudo rm /usr/lib/libGL.so.1
+sudo rm /usr/lib32/libGL.so.1
+sudo ln -s /usr/lib/nvidia/libGL.so.1 /usr/lib/libGL.so.1
+sudo ln -s /usr/lib32/nvidia/libGL.so.1 /usr/lib32/libGL.so.1
 ```
 
 # Grub <a name="Grub"/></a>
@@ -1849,36 +1942,6 @@ $ sudo vim /etc/ImageMagick-7/policy.xml
 $ convert -resize 50% -quality 98 -units pixelsperinch -density 150 image1.jpg image2.jpg output.pdf
 ```
 
-# Games <a name="games"/></a>
-## HedgeWars <a name="hedgewars"/></a>
-HedgeWars is a Worms clone and a lot of fun.
-
-### Install HedgeWars <a name="install-hedgewars"/></a>
-Install:
-```bash
-$ sudo pacman -S hedgewars
-```
-
-### libGL nvidia-340xx fix <a name="libgl-nvidia-340xx-fix"/></a>
-Unfortunately when using the older `nvidia-340xx` proprietary driver it has issues with `libGL`
-[library linkage](https://forum.manjaro.org/t/hedgewars-nvidia-problem-with-proprietary-driver-cant-launch-game-libglnvd-conflict/45955).
-
-To fix the issue we need to update the libs to use the nvidia versions:
-```bash
-# List out the faulty libs
-sudo ldconfig -p | grep libGL.so.1
-	libGL.so.1 (libc6,x86-64) => /usr/lib/nvidia/libGL.so.1
-	libGL.so.1 (libc6,x86-64) => /usr/lib/libGL.so.1
-	libGL.so.1 (libc6) => /usr/lib32/nvidia/libGL.so.1
-	libGL.so.1 (libc6) => /usr/lib32/libGL.so.1
-
-# Fix the linkage
-sudo rm /usr/lib/libGL.so.1
-sudo rm /usr/lib32/libGL.so.1
-sudo ln -s /usr/lib/nvidia/libGL.so.1 /usr/lib/libGL.so.1
-sudo ln -s /usr/lib32/nvidia/libGL.so.1 /usr/lib32/libGL.so.1
-```
-
 # pacman packages <a name="pacman-packages"/></a>
 * Create repo: `repo-add cyberlinux.db.tar.gz *.pkg.tar.*`
 
@@ -1964,6 +2027,23 @@ the `tmp-fs` service. Instead I simply mount it at `/mnt/Cache` and setup pacman
    # Remove all but the last package installed
    $ sudo paccache -rk 1
    ```
+
+## Download packages only <a name="download-packages-only"/></a>
+Sometimes its useful to download packages ahead of time to use in an offline usecase. For example
+Docker has a limitation that it can't mount a volume during build and we'd really like to cache
+package downloading so we're not constantly downloading the same packages over and over again. Its
+slow and annoying. To avoid this we can use the off the shelf image `archlinux:base-devel` with a
+mounted volume to download them and store them for us using the same lates image version that we'll
+be using to build with thus avoiding host dependencies.
+
+Arch Linux uses the `/var/cache/pacman/pkg` location as its package cache and provides a nifty
+download only option `--downloadonly` a.k.a. `-w` that will allow us to download the target packages 
+to the cache without installing them.
+
+```bash
+$ docker run --name builder --rm -it -v "${pwd}/temp":/var/cache/pacman/pkg archlinux:base-devel bash
+$ pacman -Syw --noconfirm grub
+```
 
 ## BlackArch repo <a name="blackarch-repo"/></a>
 
