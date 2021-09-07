@@ -1,7 +1,7 @@
 cyberlinux help
 ====================================================================================================
 
-<img align="left" width="48" height="48" src="../../art/logo_256x256.png">
+<img align="left" width="48" height="48" src="../art/logo_256x256.png">
 Documenting general Arch Linux help here as well as <b><i>cyberlinux</i></b> specific instructions. 
 Since <b><i>cyberlinux</i></b> is just a preconfigured version of Arch Linux general Arch Linux help 
 on the [Arch Linux Wiki](https://wiki.archlinux.org/) should work just fine as well.
