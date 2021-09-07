@@ -5,7 +5,10 @@ Documentation for various technically related subjects
 <br><br>
 
 ### Quick Links
-* [.. up dir](https://github.com/phR0ze/cyberlinux)
+* [.. up dir](..)
 * [cyberlinux Help](cyberlinux.md)
+* [cyberlinux CHANGELOG](CHANGELOG.md)
 * [Deployments](deployments)
-* [Develop](develop)
+* [Development](development)
+* [Networking](networking)
+* [System](system)

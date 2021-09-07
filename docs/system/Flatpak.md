@@ -1,6 +1,5 @@
 cyberlinux FLATPAK documentation
 ====================================================================================================
-
 <img align="left" width="48" height="48" src="../art/logo_256x256.png">
 <b><i>cyberlinux</i></b> was designed to provide the unobtrusive beauty and power of Arch Linux as a
 fully customized automated offline multi-deployment ISO. Using clean declarative yaml profiles,

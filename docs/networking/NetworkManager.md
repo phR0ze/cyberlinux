@@ -1,7 +1,9 @@
 NetworkManager configuration
 ====================================================================================================
+<img align="left" width="48" height="48" src="../../art/logo_256x256.png">
 [NetworkManager](https://wiki.archlinux.org/title/NetworkManager) is heavy with a lot of dependencies 
 but it provides a nice system tray and simple network experience on par with OS X.
+<br><br>
 
 ### Quick Links
 * [.. up dir](../../README.md)

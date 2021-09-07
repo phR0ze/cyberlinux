@@ -1,7 +1,9 @@
 distro comparison
 ====================================================================================================
+<img align="left" width="48" height="48" src="../art/logo_256x256.png">
 Reviewing the various Linux distros that have caught my eye and the components they are composed
 from.
+<br><br>
 
 All of the Distros below are being reviewed in a VirtualBox VM with 4GB of RAM and (2)
 `Intel E5-2637 Cores`. Obviously this will be highly subjective and serves more as a reference for

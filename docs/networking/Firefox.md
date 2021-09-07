@@ -1,6 +1,8 @@
 Firefox configuration
 ====================================================================================================
+<img align="left" width="48" height="48" src="../../art/logo_256x256.png">
 Documenting how I like to configure Firefox
+<br><br>
 
 ### Quick Links
 * [.. up dir](../../README.md)

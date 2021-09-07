@@ -1,12 +1,11 @@
 HP ZBook 15 deployment
 ====================================================================================================
-
 <img align="left" width="48" height="48" src="../../art/logo_256x256.png">
 Documenting the steps I went through to deploy <b><i>cyberlinux</i></b> onto the HP ZBook 15
-<br><br><br>
+<br><br>
 
 ### Quick Links
-* [.. up dir](https://github.com/phR0ze/cyberlinux)
+* [.. up dir](..)
 * [Install cyberlinux](#install-cyberlinux)
 * [Configure cyberlinux](#configure-cyberlinux)
   * [Graphics](#graphics)

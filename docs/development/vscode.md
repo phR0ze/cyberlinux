@@ -1,7 +1,11 @@
 # vscode
+====================================================================================================
+<img align="left" width="48" height="48" src="../../art/logo_256x256.png">
 Develop with Visual Studio Code
+<br><br>
 
-### Table of Contents
+### Quick Links
+* [.. up dir](..)
 * [Install](#install)
 * [Install Extensions](#install-extensions)
 * [Keyboard Shortcuts](#keyboard-shortcuts)

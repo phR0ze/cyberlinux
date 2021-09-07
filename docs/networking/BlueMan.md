@@ -1,7 +1,9 @@
 BlueMan configuration
 ====================================================================================================
+<img align="left" width="48" height="48" src="../../art/logo_256x256.png">
 [BlueMan](https://wiki.archlinux.org/title/Blueman) is a full featured Bluetooth manager written in 
 Python using GTK.
+<br><br>
 
 ### Quick Links
 * [.. up dir](../../README.md)

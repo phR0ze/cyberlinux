@@ -2191,30 +2191,27 @@ the Nvidia drivers rather than the free ones.
   d. Select ***Server (share this computer's mouse and keyboard)*** and click ***Finish***  
      Note: ignore the ***Failed to get local IP address...*** error and click ***OK***  
   e. Select ***Configure interactively*** and then click ***Configure Server...***  
-  f. Drage a new monitor from top left down to be to the right of ***cyberlinux-desktop***  
-  g. Double click the new monitor and name it ***cyberlinux-laptop*** and click ***OK***  
+  f. Drage a new monitor from top right down to be to the right of ***desktop***  
+  g. Double click the new monitor and name it ***laptop*** and click ***OK***  
+     Note: the name used here must match the 'Client name' used in the Client section  
   i. Navigate to ***File >Save configuration as...*** and save ***synergy.conf*** in your home dir  
   j. Now move it to etc: `sudo mv ~/synergy.conf /etc`
 2. Configure systemd unit  
   Synergy needs to attach to your user's X session which means it needs to run as your user. Synergy
   provides `/usr/lib/systemd/user/synergys.service` which when run with `systemctl --user
-  enable synergys` will create the link ***~/.config/systemd/user/default.target.wants/synergys.service***  
+  enable synergys` will create the link `~/.config/systemd/user/default.target.wants/synergys.service`  
   a. Enable synergy: `systemctl --user enable synergys`  
   b. Start synergy: `systemctl --user start synergys`  
-3. Configure Slave Nodes as Clients i.e. don't have keyboard/mouse
+3. Configure Client nodes i.e. don't have keyboard/mouse
   a. Launch: `synergy`  
   b. Click ***Next*** to accept ***English*** as the default language  
   c. Select ***Client (use another computer's mouse and keyboard)*** then ***Finish***  
   d. Uncheck ***Auto config***  
-  e. Enter server hostname e.g. ***cyberlinux-desktop***  
+  e. Enter server hostname e.g. ***192.168.1.4***  
   f. Click ***Start***  
   g. Navigate to ***Edit >Settings*** and check ***Hide on startup*** then ***OK***  
   h. Click ***File >Save configuration as...*** and save as ***~/.config/synergy.conf***  
   i. Create autostart for client: `cp /usr/share/applications/synergy.desktop ~/.config/autostart`
-4. Configure AutoLogin with Lock  
-  Display refreshes don't seem to happen normally after this  
-  a. Autologin: `echo "autologin=$USER" | sudo tee -a /etc/lxdm/lxdm.conf`  
-  b. Lock immediately: `echo 'sleep 2 && cinnamon-screensaver-command --lock' | sudo tee -a /etc/lxdm/PostLogin`  
 
 ## Teamviewer <a name="teamviewer"/></a>
 Typically I configure TV to only be accessible from my LAN and tunnel in.
