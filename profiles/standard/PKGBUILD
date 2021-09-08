@@ -29,7 +29,7 @@ pkgname=(
     "${pkgbase}-shell"
     "${pkgbase}-x11"
 )
-pkgver=0
+pkgver=0.0.141
 pkgrel=1
 pkgdesc='Configuration packages for cyberlinux standard profile'
 arch=('any')

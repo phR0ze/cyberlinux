@@ -141,5 +141,13 @@ package_cyberlinux-xfce-netbook()
   pkg netbook
 }
 
+package_cyberlinux-xfce-live()
+{
+  pkgdesc="Live system - built on top of desktop for recovery"
+  depends=(
+    "cyberlinux-xfce-lite>=${pkgver}"
+  )
+  pkg live
+}
 
 # vim: ts=2:sw=2:sts=2
