@@ -10,7 +10,7 @@ All of the Distros below are being reviewed in a VirtualBox VM with 4GB of RAM a
 myself.
 
 ### Quick Links
-* [.. up dir](../README.md)
+* [.. up dir](README.md)
 * [Arch Linux Distros](#arch-linux-distros)
   * [Arco Linux - Openbox](#arco-linux-openbox)
   * [Hefftor Linux](#hefftor-linux)

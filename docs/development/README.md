@@ -6,4 +6,5 @@ Documenting various development technologies
 
 ### Quick Links
 * [.. up dir](..)
-* [neovim](neovim.md)
+* [Neovim](neovim.md)
+* [VS Code](vscode.md)

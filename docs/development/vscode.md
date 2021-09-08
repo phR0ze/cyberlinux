@@ -5,7 +5,7 @@ Develop with Visual Studio Code
 <br><br>
 
 ### Quick Links
-* [.. up dir](..)
+* [.. up dir](README.md)
 * [Install](#install)
 * [Install Extensions](#install-extensions)
 * [Keyboard Shortcuts](#keyboard-shortcuts)

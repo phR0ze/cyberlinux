@@ -5,7 +5,7 @@ Documenting how I like to configure Firefox
 <br><br>
 
 ### Quick Links
-* [.. up dir](../../README.md)
+* [.. up dir](README.md)
 * [Extensions](#extensions)
   * [ublock origin](#ublock-origin)
 

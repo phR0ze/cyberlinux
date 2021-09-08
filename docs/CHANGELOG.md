@@ -1,13 +1,12 @@
 Changelog
 ====================================================================================================
-
-<img align="left" width="48" height="48" src="../../art/logo_256x256.png">
+<img align="left" width="48" height="48" src="../art/logo_256x256.png">
 Simply documenting changes I've made to the distro and the dates the changes were rolled out for 
 reference. 
 <br><br>
 
 ### Quick Links
-* [.. up dir](https://github.com/phR0ze/cyberlinux)
+* [.. up dir](README.md)
 
 ### Testlog <a name="testlog"/></a>
 * 2021-09-06:: Netbook: adding xfce4-power-manager

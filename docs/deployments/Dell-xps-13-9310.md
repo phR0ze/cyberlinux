@@ -5,7 +5,7 @@ Documenting the steps I went through to deploy <b><i>cyberlinux</i></b> onto the
 <br><br>
 
 ### Quick Links
-* [.. up dir](..)
+* [.. up dir](README.md)
 * [Install cyberlinux](#install-cyberlinux)
 * [Configure cyberlinux](#configure-cyberlinux)
   * [Graphics](#graphics)

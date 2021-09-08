@@ -6,7 +6,7 @@ Python using GTK.
 <br><br>
 
 ### Quick Links
-* [.. up dir](../../README.md)
+* [.. up dir](README.md)
 * [Overview](#overview)
   * [Install](#install)
 

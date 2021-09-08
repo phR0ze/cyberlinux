@@ -5,7 +5,7 @@ Documentation for various wine related settings
 <br><br>
 
 ### Quick Links
-* [.. up dir](https://github.com/phR0ze/cyberlinux)
+* [.. up dir](README.md)
 * [Overview](#overview)
 * [Install Wine](#install-wine)
 * [Wine Prefixes](#wine-prefixes)

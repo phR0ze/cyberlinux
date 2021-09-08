@@ -6,7 +6,7 @@ but it provides a nice system tray and simple network experience on par with OS 
 <br><br>
 
 ### Quick Links
-* [.. up dir](../../README.md)
+* [.. up dir](README.md)
 * [Overview](#overview)
   * [Install](#install)
   * [Configure](#configure)

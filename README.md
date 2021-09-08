@@ -297,6 +297,8 @@ boot/initramfs/installer bash code base is likewise MIT licensed.
 # Backlog <a name="backlog"/></a>
 * Netbook: integrate `xfce-power-manager`
 
+* Desktop: vscode configs are not saved
+
 * Detect and install braswell config at install time
 * Add slack to desktop
 * Braswell screen brightness

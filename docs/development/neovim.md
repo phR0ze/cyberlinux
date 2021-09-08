@@ -5,7 +5,7 @@ NeoVim is a fork of Vim aiming to improve user experience and plugin implementat
 <br><br>
 
 ### Quick Links
-* [.. up dir](..)
+* [.. up dir](README.md)
 * [Overview](#overview)
   * [Getting started](#getting-started)
     * [Install NeoVim](#install-neovim)
