@@ -291,6 +291,7 @@ package_cyberlinux-standard-x11()
     'mesa-vdpau'                # Mesa vdpau drivers, depof: kodi, steam
 
     # Themes and icons
+    'arc-gtk-theme'             # A flat theme with transparent elements for GTK 3, GTK 2 and Gnome-Shell
     'numix-frost-themes'        # Numix frost GTK2, GTK3 and OpenBox themes, repo: cyberlinux
     'paper-icon-theme'          # Paper icon theme, git version is fixed, repo: cyberlinux
     'xcursor-numix-frost'       # Numix frost cursor theme, repo: cyberlinux

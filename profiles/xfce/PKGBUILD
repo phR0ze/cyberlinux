@@ -67,8 +67,16 @@ package_cyberlinux-xfce-lite()
     "cyberlinux-standard-x11>=${pkgver}"
 
     # XFCE
+    'arcologout'                # Simple clean logout overlay from, repo: cyberlinux
     'exo'                       # Application library for Xfce
+    'gtk2fontsel'               # Simple font viewer
     'garcon'                    # Implementation of the freedesktop menu specification
+    'i3lock-color'              # Simple lightweight screen locker
+    'lxdm'                      # Lightweight display manager, xorg: lxde
+    'paprefs'                   # Configuration dialog for pulse audio
+    'pavucontrol'               # PulseAudio Volume Control
+    'pnmixer'                   # Volume controls in system tray, repo: cyberlinux
+    'pulseaudio-alsa'           # ALSA Configuration for PulseAudio
     'thunar'                    # Lightweight File Manager from Xfce
     'thunar-volman'             # Thunar plugin to automatically manage removeable devices
     'thunar-archive-plugin'     # Thunar integration with file-roller
@@ -78,32 +86,12 @@ package_cyberlinux-xfce-lite()
     'xfce4-power-manager'       # Power manager for the Xfce desktop
     'xfce4-session'             # Session manager for Xfce
     'xfce4-settings'            # Settings manager for Xfce
+    'xfce4-taskmanager'         # Task manager for Xfce
+    'xfce4-terminal'            # Termminal for Xfce
     'xfconf'                    # Configuration management system over gconf and dconf
     'xfdesktop'                 # Desktop manager for Xfce
-    'xfwm4'                     # Xfce's window manager
-    'xfwm4-themse'              # Xfce's window manager themes
-
-    # Desktop components
-    'arcologout'                # Simple clean logout overlay from, repo: cyberlinux
-    'gsimplecal'                # Simple calendar like windows systray calendar
-    'gtk2fontsel'               # Simple font viewer
-    'lxdm'                      # Lightweight display manager, xorg: lxde
-    'lxsession'                 # Enable .desktop files in ~/.config/autostart, /etc/xdg/autostart, group: lxde
-    'nitrogen'                  # Lightweight wallpaper manager
     'xfce4-screenshooter'       # Plugin that makes screenshots for the Xfce panel
-    'lxappearance'              # Feature-rich GTK+ theme switcher of the LXDE Desktop, group: lxde
-    'lxappearance-obconf'       # Plugin for LXAppearance to configure Openbox, group: lxde
-    'lxde-common'               # Common files of the LXDE Desktop, group: lxde
-    'lxhotkey'                  # Keyboard shortcuts configurator, xorg: lxde
-    'lxinput'                   # Keyboard and mouse configuration utility, group: lxde
-    'lxrandr'                   # Monitor configuration tool, group: lxde
-    'lxterminal'                # Terminal for LXDE, alt: terminator, group: lxde
-    'openbox'                   # Lightweight X11 window manager, group: lxde
-    'paprefs'                   # Configuration dialog for pulse audio
-    'pavucontrol'               # PulseAudio Volume Control
-    'pnmixer'                   # Volume controls in system tray, repo: cyberlinux
-    'pulseaudio-alsa'           # ALSA Configuration for PulseAudio
-    'tint2'                     # Lightweight taskmanager and system tray
+    'xfwm4'                     # Xfce's window manager
   )
   pkg lite
 }
@@ -119,7 +107,6 @@ package_cyberlinux-xfce-netbook()
     'xfce4-datetime-plugin'     # A date and time display plugin for the Xfce panel
     'xfce4-pulseaudio-plugin'   # Pulseaudio plugin for Xfce4 panel
     'conky'                     # Lightweight system monitor for X
-    'i3lock-color'              # Simple lightweight screen locker
     'light'                     # Control laptop backlights both screen and keyboard
 
     # Media
