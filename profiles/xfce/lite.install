@@ -23,7 +23,28 @@ post_install()
 {
   # XFCE configuration
   # ---------------------------------------------------------------------------
-  echo ""
+
+  # LXDM configuration
+  # ---------------------------------------------------------------------------
+
+  # Modifying the original lxdm script to inject a hook to execute
+  # /usr/bin/pre-xorg for dynamic system adjustments
+  mv -f /usr/sbin_sideload/lxdm /usr/sbin/lxdm
+
+  # - enable numlock on boot
+  # - set /usr/bin/lxsession -s default -e default as the session manager
+  # - set bg=/usr/share/backgrounds/dreamfusion003_1280x1024.jpg
+  # - disabled the user list control
+  # - disabled the bottom panel from being displayed
+  mv -f /etc/lxdm/lxdm.conf_sideload /etc/lxdm/lxdm.conf
+
+  # Modify the default Industrial lxdm theme
+  # - change the prompt to white 18 font size
+  mv -f /usr/share/lxdm/themes/Industrial/gtkrc_sideload /usr/share/lxdm/themes/Industrial/gtkrc
+
+  # Enable lxdm service to start at boot
+  # -f will automatically disable the old display manager
+  systemctl enable -f lxdm
 }
 
 post_upgrade() {
