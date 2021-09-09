@@ -295,6 +295,17 @@ boot/initramfs/installer bash code base is likewise MIT licensed.
 ---
 
 # Backlog <a name="backlog"/></a>
+* Xfce:Lite
+  * xfce4-terminal: settings configured via `~/.config/xfce4/terminal/terminalrc`
+  * xfce4-terminal: dropdown `xfce4-terminal --drop-down`
+  * Keyboard: `Settings >Keyboard` 
+    * Set Repeat delay to `200` and Repeat speed to `80`
+    * Set TaskManager start Crtl+Escape
+    * Set Kill start Super+Escape
+  * HotKeys
+  * Mouse icons: `Settings >Mouse and Touchpad`
+
+
 * Netbook: integrate `xfce-power-manager`
 
 * Desktop: vscode configs are not saved

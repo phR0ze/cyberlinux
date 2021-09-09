@@ -48,6 +48,7 @@ on the [Arch Linux Wiki](https://wiki.archlinux.org/) should work just fine as w
     * [Google Meet Headset](#google-meet-headset)
 * [Display Manager](#display-manager)
   * [LXDM](#lxdm)
+  * [SSDM](#ssdm)
 * [Containers](#containers)
   * [Podman](#podman)
     * [Migrate from Docker](#migrate-from-docker)
@@ -110,7 +111,9 @@ on the [Arch Linux Wiki](https://wiki.archlinux.org/) should work just fine as w
     * [NFS Client Config](#nfs-server-config)
     * [NFS Server Config](#nfs-server-config)
     * [systemd-networkd-wait-online timing out](#systemd-networkd-wait-oneline-timing-out)
-  * [OpenVPN](#openvpn)
+  * [VPNs](#vpns)
+    * [OpenConnect](#openconnect)
+    * [OpenVPN](#openvpn)
     * [Split DNS Resolution](#split-dns-resolution)
 * [Office](#office)
   * [LibreOffice](#libreoffice)
@@ -171,6 +174,9 @@ on the [Arch Linux Wiki](https://wiki.archlinux.org/) should work just fine as w
   * [Check Logs for Errors](#check-logs-for-errors)
   * [Update Old System](#update-old-system)
   * [ldconfig is empty, not checked](#ldconfig-is-empty-not-checked)
+* [Session Manager](#session-manager)
+  * [lxsession](#lxsession)
+  * [xfce4-session](#xfce4-session)
 * [Storage](#storage)
   * [Add Drive](#add-drive)
   * [Clone Drive](#clone-drive)
@@ -198,11 +204,10 @@ on the [Arch Linux Wiki](https://wiki.archlinux.org/) should work just fine as w
 * [VeraCrypt](#veracrypt)
 * [Virtual Box](#virtual-box)
   * [USB Access in VM](#usb-access-in-vm)
-* [VPNs](#vpns)
-  * [OpenConnect](#openconnect)
 * [Window Manager](#window-manager)
   * [Openbox](#openbox)
   * [XFWM](#xfwm)
+    * [XFCE Menu](#xfce-menu)
 * [Wine](docs/WINE.md)
 * [X Windows](#x-windows)
   * [Persist X Configs](#persist-x-configs)
@@ -735,6 +740,17 @@ $ sudo systemctl enable lxdm
 ## LXDM <a name="lxdm"/></a>
 [LXDM](https://wiki.archlinux.org/index.php/LXDM) is a lightweight display manager for the LXDE
 desktop environment.
+
+Config files:
+* `/etc/lxdm/lxdm.conf`
+
+## SDDM <a name="ssdm"/></a>
+[SSDM](https://wiki.archlinux.org/title/SDDM), a.k.a `Simple Display Manager` is the recommended 
+display manager for KDE Plasma and LXQt desktop environments. SSDM defaults to using `systemd-logind` 
+for session management.
+
+Config files:
+* `/etc/ssdm.conf.d/`
 
 # Containers <a name="containers"/></a>
 
@@ -1796,12 +1812,37 @@ EOL
 $ sudo systemctl restart systemd-networkd-wait-online
 ```
 
-## OpenVPN <a name="openvpn"/></a>
-Many VPN services are based on OpenVPN. In this section I'll be working through common configuration
-options.
+## VPN <a name="vpn"/></a>
 
-### OpenVPN Overview <a name="openvpn-overview"/></a>
-OpenVPN client configuration files are stored in `/etc/openvpn/client` usually with the `.ovpn`
+## OpenConnect <a name="openconnect"/></a>
+https://wiki.archlinux.org/index.php/OpenConnect  
+OpenConnect is a client for Cisco's AnyConnect SSL VPN and Pulse Secure's Pulse Connect Secure.
+
+**Note:** I kept wanting to pass in all the fields I could. It works better to use the minimal args
+and OpenConnect will then prompt for information it needs.
+
+```bash
+# Install OpenConnect
+$ sudo pacman -S openconnect vpnc
+
+# Connect to AnyConnect VPN
+$ sudo openconnect --user=<USER-NAME> --authgroup=<AUTH-GROUP> <VPN GATEWAY NAME/IP>
+...
+Please enter your username and password.
+Password:
+# When prompted for `Password:` paste in your ldap password
+Password:
+# When prompted again for `Password:` u may or may not have a second
+Verification code:
+Response:
+# When prompted for `Response:` paste in authy code
+Connect Banner:
+Welcome to Example VPN!
+```
+
+### OpenVPN <a name="openvpn"/></a>
+Many VPN services are based on OpenVPN. In this section I'll be working through common configuration
+options. OpenVPN client configuration files are stored in `/etc/openvpn/client` usually with the `.ovpn`
 extension.
 
 ### Split DNS Resolution <a name="split-dns-resolution"/></a>
@@ -1826,15 +1867,38 @@ that reads from the `dhcp-option` in the server or client config then applies th
 4. Establish the VPN connection with Split DNS Resolution:
    ```bash
    $ sudo openvpn --config /etc/openvpn/client/<client>.ovpn --setenv PATH \
-     '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin' \
-     --script-security 2 --up /etc/openvpn/scripts/update-systemd-resolved \
-     --down /etc/openvpn/scripts/update-systemd-resolved --down-pre
+       '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin' \
+       --script-security 2 --up /etc/openvpn/scripts/update-systemd-resolved \
+       --down /etc/openvpn/scripts/update-systemd-resolved --down-pre
    ```
 5. Check that the Split DNS was configured correctly:
    ```bash
    # Look for new nameserver entries for the vpn
    $ cat /etc/resolv.conf
    ```
+
+#### systemd-resolved and vpn dns
+`systemd-resolved` first checks for system overrides at `/etc/systemd/resolved.conf` then for network
+configuration at `/etc/systemd/network/*.network`, then vpn dns configuration and finally falls back
+on the fallback configuration in `/etc/systemd/resolved.conf`. I've found the most reliable way to
+get vpn dns to work correctly is to not set anything except the fallback configuration so that dns is
+configured by openconnect and when not on the vpn dns is configured by the fallback.
+
+#### systemd-resolved nsswitch configuration
+cyberlinux just worked out of the box but Ubuntu, although using `systemd-resolved` doesn't have
+`nsswitch` setup correctly.
+
+You can verify if it is working by checking the DNS configured with `systemd-resolved --status`. If
+that returns the VPN's dns then your good if not check below as I had to on Ubuntu
+
+The problem is that `/etc/nsswitch.conf` is not configured to use `systemd-resolved` even
+though Ubuntu Pop has systemd-resolved running.  To fix this you need to add
+`resolve` before `[NOTFOUND=return]` on the `hosts` line, no restarts are necessary
+
+Example of fixed:
+```bash
+hosts: files mdns4_minimal resolve [NOTFOUND=return] dns myhostname
+```
 
 # Office <a name="office"/></a>
 ## LibreOffice <a name="libreoffice"/></a>
@@ -2494,6 +2558,21 @@ local files.
 $ sudo pacman -S firefox --overwrite '*'
 ```
 
+# Session Manager <a name="session-manager"/></a>
+
+## lxsession <a name="lxsession"/></a>
+[LXsession](https://wiki.archlinux.org/title/LXDE#Autostart) provides `XDG Autostart` support that 
+executes the following before then running `Openbox`
+* `~/.config/autostart`
+* `/etc/xdg/autostart`
+
+## xfce4-session <a name="xfce4-session"/></a>
+`xfce4-session` is a session manager for Xfce. Its task is to save the state of your desktop (opened 
+applications and their location) and restore them during your next startup.
+
+Provides:
+* Autostat via `~/.config/autostart`
+
 # Storage <a name="storage"/></a>
 
 ## Add Drive <a name="add-drive"/></a>
@@ -2920,59 +2999,6 @@ $ groups
 $ sudo usermod -a -G vboxusers <USER>
 ```
 
-# VPNs <a name="vpns"/></a>
-
-## OpenConnect <a name="openconnect"/></a>
-https://wiki.archlinux.org/index.php/OpenConnect  
-OpenConnect is a client for Cisco's AnyConnect SSL VPN and Pulse Secure's Pulse Connect Secure.
-
-**Note:** I kept wanting to pass in all the fields I could. It works better to use the minimal args
-and OpenConnect will then prompt for information it needs.
-
-```bash
-# Install OpenConnect
-$ sudo pacman -S openconnect vpnc
-
-# Connect to AnyConnect VPN
-$ sudo openconnect --user=<USER-NAME> --authgroup=<AUTH-GROUP> <VPN GATEWAY NAME/IP>
-...
-Please enter your username and password.
-Password:
-# When prompted for `Password:` paste in your ldap password
-Password:
-# When prompted again for `Password:` u may or may not have a second
-Verification code:
-Response:
-# When prompted for `Response:` paste in authy code
-Connect Banner:
-Welcome to Example VPN!
-```
-
-### Trouble shooting DNS failures
-
-#### systemd-resolved and vpn dns
-`systemd-resolved` first checks for system overrides at `/etc/systemd/resolved.conf` then for network
-configuration at `/etc/systemd/network/*.network`, then vpn dns configuration and finally falls back
-on the fallback configuration in `/etc/systemd/resolved.conf`. I've found the most reliable way to
-get vpn dns to work correctly is to not set anything except the fallback configuration so that dns is
-configured by openconnect and when not on the vpn dns is configured by the fallback.
-
-#### systemd-resolved nsswitch configuration
-cyberlinux just worked out of the box but Ubuntu, although using `systemd-resolved` doesn't have
-`nsswitch` setup correctly.
-
-You can verify if it is working by checking the DNS configured with `systemd-resolved --status`. If
-that returns the VPN's dns then your good if not check below as I had to on Ubuntu
-
-The problem is that `/etc/nsswitch.conf` is not configured to use `systemd-resolved` even
-though Ubuntu Pop has systemd-resolved running.  To fix this you need to add
-`resolve` before `[NOTFOUND=return]` on the `hosts` line, no restarts are necessary
-
-Example of fixed:
-```bash
-hosts: files mdns4_minimal resolve [NOTFOUND=return] dns myhostname
-```
-
 # Window Manager <a name="window-manager"/></a>
 A window manager controls the placment and appearance of windows within a windowing system like X
 Windows.
@@ -2984,11 +3010,13 @@ standards support.
 ## XFWM <a name="xfwm"/></a>
 
 ### XFCE Menu <a name="xfce-menu"/></a>
+Xfce's `xfdesktop` app will install a menu file
 XFCE will read from the `~/.config/menus/xfce-applications.menu`
 
 1. Create the menu directory
    ```bash
    $ mkdir -p ~/.config/menus
+   $ mkdir -p ~/.local/share/applications
    ```
 2. Copy the global menu there for editing
    ```bash

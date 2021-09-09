@@ -82,8 +82,11 @@ package_cyberlinux-xfce-lite()
     'thunar-archive-plugin'     # Thunar integration with file-roller
     'thunar-media-tags-plugin'  # Thunar plugin to view media details
     'tumbler'                   # D-Bus thumbnail service for apps like Thunar
+    'xfce4-datetime-plugin'     # A date and time display plugin for the Xfce panel
+    'xfce4-mount-plugin'        # Mount/umount utility for Xfce4 panel
     'xfce4-panel'               # Panel for the Xfce desktop environment
     'xfce4-power-manager'       # Power manager for the Xfce desktop
+    'xfce4-pulseaudio-plugin'   # Pulseaudio plugin for Xfce4 panel
     'xfce4-session'             # Session manager for Xfce
     'xfce4-settings'            # Settings manager for Xfce
     'xfce4-taskmanager'         # Task manager for Xfce
@@ -104,8 +107,6 @@ package_cyberlinux-xfce-netbook()
 
     # Desktop components
     'xfce4-battery-plugin'      # A battery monitor plugin for the Xfce panel
-    'xfce4-datetime-plugin'     # A date and time display plugin for the Xfce panel
-    'xfce4-pulseaudio-plugin'   # Pulseaudio plugin for Xfce4 panel
     'conky'                     # Lightweight system monitor for X
     'light'                     # Control laptop backlights both screen and keyboard
 
