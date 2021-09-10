@@ -9,6 +9,7 @@ reference.
 * [.. up dir](README.md)
 
 ### Testlog <a name="testlog"/></a>
+* xfce:lite: customized Xfce default menus
 * xfce:lite: added `icons/hicolor/scalable/categories/cyberlinux.png` and set as menu icon
 * xfce:lite: `lockscreen` should be invoked before sleep so you have to login on wake
 * xfce:lite: `Super+L` locks screen and xfce4-session has `lockscreen` set

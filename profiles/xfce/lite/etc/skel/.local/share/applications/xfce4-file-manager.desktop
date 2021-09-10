@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.1
+Type=Application
+Name=File Manager
+Icon=Thunar
+OnlyShowIn=XFCE;
+Exec=exo-open --launch FileManager %u
+Actions=
+Categories=Utility;X-XFCE;X-Xfce-Toplevel;
+StartupNotify=true

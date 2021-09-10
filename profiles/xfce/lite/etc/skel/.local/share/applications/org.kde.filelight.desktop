@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.1
+Type=Application
+Name=Filelight
+GenericName=Disk Usage Statistics
+Comment=View disk usage information
+Icon=filelight
+Exec=filelight %f
+Actions=
+MimeType=inode/directory;
+Categories=KDE;Qt;System;

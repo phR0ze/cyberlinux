@@ -69,7 +69,6 @@ package_cyberlinux-xfce-lite()
     # XFCE
     'arcologout'                # Simple clean logout overlay from, repo: cyberlinux
     'exo'                       # Application library for Xfce
-    'gtk2fontsel'               # Simple font viewer
     'garcon'                    # Implementation of the freedesktop menu specification
     'lxdm'                      # Lightweight display manager, xorg: lxde
     'menulibre'                 # Menu editor for XFCE

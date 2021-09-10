@@ -1,0 +1,15 @@
+<!DOCTYPE Menu PUBLIC "-//freedesktop//DTD Menu 1.0//EN"
+    "http://www.freedesktop.org/standards/menu-spec/menu-1.0.dtd">
+<!-- Do not edit manually - generated and managed by xdg-desktop-menu -->
+<Menu>
+    <Name>Applications</Name>
+<Menu>
+    <Name>xfce-multimedia</Name>
+    <Directory>xfce-multimedia.directory</Directory>
+    <Include>
+        <Filename>qv4l2.desktop</Filename>
+        <Filename>qvidcap.desktop</Filename>
+        <Filename>pavucontrol.desktop</Filename>
+    </Include>
+</Menu>
+</Menu>

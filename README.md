@@ -295,7 +295,6 @@ boot/initramfs/installer bash code base is likewise MIT licensed.
 ---
 
 # Backlog <a name="backlog"/></a>
-* Create custom xfce menu
 
 * netbook: battery status in tray
 * Netbook: Bluetooth

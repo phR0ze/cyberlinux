@@ -1,0 +1,20 @@
+<!DOCTYPE Menu PUBLIC "-//freedesktop//DTD Menu 1.0//EN"
+    "http://www.freedesktop.org/standards/menu-spec/menu-1.0.dtd">
+<!-- Do not edit manually - generated and managed by xdg-desktop-menu -->
+<Menu>
+    <Name>Applications</Name>
+<Menu>
+    <Name>xfce-accessories</Name>
+    <Directory>xfce-accessories.directory</Directory>
+    <Include>
+        <Filename>menulibre.desktop</Filename>
+        <Filename>gpicview.desktop</Filename>
+        <Filename>thunar.desktop</Filename>
+        <Filename>xfce4-taskmanager.desktop</Filename>
+        <Filename>xfce4-terminal-emulator.desktop</Filename>
+        <Filename>xfce4-screenshooter.desktop</Filename>
+        <Filename>thunar-bulk-rename.desktop</Filename>
+        <Filename>org.kde.filelight.desktop</Filename>
+    </Include>
+</Menu>
+</Menu>

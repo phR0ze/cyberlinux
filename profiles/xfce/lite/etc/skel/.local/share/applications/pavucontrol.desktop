@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.1
+Type=Application
+Name=PulseAudio Volume Control
+GenericName=Volume Control
+Comment=Adjust the volume level
+Icon=multimedia-volume-control
+Exec=pavucontrol
+Actions=
+Categories=Settings;X-XFCE-HardwareSettings;X-XFCE-SettingsDialog;
+Keywords=pavucontrol;Microphone;Volume;Fade;Balance;Headset;Speakers;Headphones;Audio;Mixer;Output;Input;Devices;Playback;Recording;System Sounds;Sound Card;Settings;Preferences;
+StartupNotify=true

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.1
+Type=Application
+Name=Avahi Zeroconf Browser
+NoDisplay=true
+Comment=Browse for Zeroconf services available on your network
+Icon=network-wired
+Exec=/usr/bin/avahi-discover
+Actions=
+Categories=GNOME;System;
