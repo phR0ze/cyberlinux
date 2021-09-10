@@ -24,15 +24,18 @@ post_install()
   # XFCE configuration
   # ---------------------------------------------------------------------------
 
-  # xfce4-session configuration
-  # /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-session.xml
+  # Lock screen configuration
   # ---------------------------------------------------------------------------
+  # /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-session.xml
 
   # Configured `LockCommand` to `lockscreen`
   # <property name="LockCommand" type="string" value="lockscreen"/>
 
   # Configured Lock screen to be invoked before sleep
   # <property name="LockScreen" type="bool" value="true"/>
+
+  # i3lock-color automation script
+  # /usr/bin/lockscreen
 
   # LXDM configuration
   # ---------------------------------------------------------------------------

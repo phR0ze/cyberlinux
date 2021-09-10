@@ -1816,7 +1816,7 @@ $ sudo systemctl restart systemd-networkd-wait-online
 
 ## VPN <a name="vpn"/></a>
 
-## OpenConnect <a name="openconnect"/></a>
+### OpenConnect <a name="openconnect"/></a>
 https://wiki.archlinux.org/index.php/OpenConnect  
 OpenConnect is a client for Cisco's AnyConnect SSL VPN and Pulse Secure's Pulse Connect Secure.
 
@@ -1840,6 +1840,12 @@ Response:
 # When prompted for `Response:` paste in authy code
 Connect Banner:
 Welcome to Example VPN!
+
+# Route shows correct routing?
+$ route
+
+# Check correct dns
+$ systemd-resolved --status
 ```
 
 ### OpenVPN <a name="openvpn"/></a>

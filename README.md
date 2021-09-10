@@ -296,15 +296,16 @@ boot/initramfs/installer bash code base is likewise MIT licensed.
 
 # Backlog <a name="backlog"/></a>
 
+* netbook: add bluetooth
 * netbook: battery status in tray
-* Netbook: Bluetooth
-* Laptop: wpa ui autostart is disabled
-* Desktop: Added Zoom to the network menu
-* Desktop: vscode configs are not saved
+
+* desktop: added Zoom to the network menu
+* desktop: vscode configs are not saved
+* desktop: add utshushi menu entry
+* desktop: add veracrypt
 * Detect and install braswell config at install time
 * Add slack to desktop
 * Display time in installer using given timezone offset
-* Add veracrypt
 * Document configuring Firefox
 * GTK folder sort settings didn't take
 * ACEPC
@@ -314,9 +315,7 @@ boot/initramfs/installer bash code base is likewise MIT licensed.
     * `vulkaninfo` if you get info about your graphics card its working
 * Add conflicts to PKGBUILD
 * Replace powerline with powerline-go or powerline-rs
-* Add utshushi menu entry
 * devede and asunder icons in Paper are both the same?
-* Add gtk2fontsel to menu in lite
 * clu - cyberlinux automation
   * replace conky scripts, cal.rb, date.rb and radio.rb
   * build in skel copy for updates

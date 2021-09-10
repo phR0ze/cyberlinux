@@ -21,9 +21,32 @@
 
 post_install()
 {
-  # XFCE configuration
+  # Wifi configuration
   # ---------------------------------------------------------------------------
-  echo ""
+  # Set a deterministic name for wifi nic
+  # /etc/systemd/network/10-wlo1.link
+
+  # Set permissions for wpa_supplicant
+  # Allow WPA GUI to update this file with persistent changes
+  # Completely disable P2P/Direct Wifi - security hole
+  # Automatically scan and selet networks matching saved ones
+  # /etc/wpa_supplicant/wpa_supplicant-wlo1.conf
+
+  # Conky configuration
+  # ---------------------------------------------------------------------------
+  # Provide conky scripts for cal, date and radio
+  # /etc/xdg/conky/date.rb
+  # /etc/xdg/conky/cal.rb
+  # /etc/xdg/conky/radio.rb
+
+  # Autostart conky when user logs in
+  # /etc/skel/.config/autostart/conky.desktop
+
+  # Add conky netbook conky settings and set it to active
+  # /etc/skel/.config/conky/netbook
+  pushd /etc/skel/.config/conky
+  ln -sf netbook active
+  popd
 }
 
 post_upgrade() {

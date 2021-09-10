@@ -1,0 +1,5 @@
+[Desktop Entry]
+Type=Application
+Terminal=false
+StartupNotify=true
+Exec=bash -c "sleep 1 && exec conky -c ~/.config/conky/active"

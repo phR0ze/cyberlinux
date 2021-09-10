@@ -9,13 +9,16 @@ reference.
 * [.. up dir](README.md)
 
 ### Testlog <a name="testlog"/></a>
-* xfce:lite: customized Xfce default menus
-* xfce:lite: added `icons/hicolor/scalable/categories/cyberlinux.png` and set as menu icon
-* xfce:lite: `lockscreen` should be invoked before sleep so you have to login on wake
-* xfce:lite: `Super+L` locks screen and xfce4-session has `lockscreen` set
+* xfce:netbook: configured conky
+* xfce:lite: removed pnmixer
+* xfce:lite: set move and resize window hot keys to `Super+Enter` and `Super+Enter+Alt`
 * make theater deployment based on desktop
 
 ### Changelog <a name="changelog"/></a>
+* 2021-09-10:: xfce:lite: customized Xfce default menus
+* 2021-09-10:: xfce:lite: added `icons/hicolor/scalable/categories/cyberlinux.png` and set as menu icon
+* 2021-09-10:: xfce:lite: `lockscreen` should be invoked before sleep so you have to login on wake
+* 2021-09-10:: xfce:lite: `Super+L` locks screen and xfce4-session has `lockscreen` set
 * 2021-09-09:: xfce:lite: switched to Xfwm for better tiling and integration with Xfce
 * 2021-09-09:: xfce:lite: set Arc Dark theme for GTK and Xfwm
 * 2021-09-09:: xfce:lite: integrated power manager for screen brightness

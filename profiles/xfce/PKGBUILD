@@ -74,7 +74,6 @@ package_cyberlinux-xfce-lite()
     'menulibre'                 # Menu editor for XFCE
     'paprefs'                   # Configuration dialog for pulse audio
     'pavucontrol'               # PulseAudio Volume Control
-    'pnmixer'                   # Volume controls in system tray, repo: cyberlinux
     'pulseaudio-alsa'           # ALSA Configuration for PulseAudio
     'thunar'                    # Lightweight File Manager from Xfce
     'thunar-volman'             # Thunar plugin to automatically manage removeable devices

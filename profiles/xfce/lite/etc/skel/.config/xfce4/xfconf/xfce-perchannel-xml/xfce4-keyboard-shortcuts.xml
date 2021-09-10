@@ -134,13 +134,11 @@
       <property name="&lt;Alt&gt;Tab" type="string" value="cycle_windows_key"/>
       <property name="&lt;Primary&gt;&lt;Shift&gt;&lt;Alt&gt;Right" type="string" value="move_window_right_key"/>
       <property name="&lt;Super&gt;Tab" type="string" value="switch_window_key"/>
-      <property name="&lt;Alt&gt;F7" type="string" value="move_window_key"/>
       <property name="Up" type="string" value="up_key"/>
       <property name="&lt;Alt&gt;space" type="string" value="popup_menu_key"/>
       <property name="Escape" type="string" value="cancel_key"/>
       <property name="&lt;Alt&gt;&lt;Shift&gt;Tab" type="string" value="cycle_reverse_windows_key"/>
       <property name="&lt;Primary&gt;&lt;Shift&gt;&lt;Alt&gt;Up" type="string" value="move_window_up_key"/>
-      <property name="&lt;Alt&gt;F8" type="string" value="resize_window_key"/>
       <property name="Left" type="string" value="left_key"/>
       <property name="override" type="bool" value="true"/>
       <property name="&lt;Super&gt;Left" type="string" value="tile_left_key"/>
@@ -174,6 +172,8 @@
       <property name="&lt;Alt&gt;&lt;Super&gt;8" type="string" value="move_window_workspace_8_key"/>
       <property name="&lt;Alt&gt;&lt;Super&gt;9" type="string" value="move_window_workspace_9_key"/>
       <property name="&lt;Alt&gt;&lt;Super&gt;0" type="string" value="move_window_workspace_10_key"/>
+      <property name="&lt;Super&gt;Return" type="string" value="move_window_key"/>
+      <property name="&lt;Alt&gt;&lt;Super&gt;Return" type="string" value="resize_window_key"/>
     </property>
   </property>
   <property name="providers" type="array">
