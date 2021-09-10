@@ -120,8 +120,9 @@ package_cyberlinux-xfce-netbook()
     'blueman'                   # Bluetooth management tool
     'pulseaudio-bluetooth'      # Pulse Audio plugin for bluetooth output
     'freerdp'                   # RDP client plugin for remmina
+    'network-manager-applet'    # Applet for managing network connections
+    'networkmanager-openvpn'    # NetworkManager VPN plugin for OpenVPN
     'remmina'                   # Nice remoting UI for RDP and other protocols
-    'wpa_gui'                   # A Qt frontend to wpa_supplicant, repo: cyberlinux
     'wpa_supplicant'            # A utility providing key negotiation for WPA wireless networks
   )
   pkg netbook

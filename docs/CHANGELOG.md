@@ -9,6 +9,8 @@ reference.
 * [.. up dir](README.md)
 
 ### Testlog <a name="testlog"/></a>
+* standard:base: link `/run/systemd/resolve/resolv.conf` `/etc/resolv.conf`
+* installer: use faster TCP ramp speed to fix Arch Linux slow speed failure
 * xfce:netbook: configured conky
 * xfce:lite: removed pnmixer
 * xfce:lite: set move and resize window hot keys to `Super+Enter` and `Super+Enter+Alt`

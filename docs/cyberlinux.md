@@ -104,9 +104,14 @@ on the [Arch Linux Wiki](https://wiki.archlinux.org/) should work just fine as w
     * [Cloudflare DNS](#cloudflare-dns)
     * [Google DNS](#google-dns)
     * [DNSSEC Validation Failures](#dnssec-validation-failures)
-  * [DHCP Networking](#dhcp-networking)
-  * [Static Networking](#static-networking)
-  * [Wifi Networking](#wifi-networking)
+  * [Network Manager](#network-manager)
+    * [DHCP Networking](#dhcp-networking-network-manager)
+    * [Static Networking](#static-networking-network-manager)
+    * [Wifi Networking](#wifi-networking-network-manager)
+  * [systemd-networkd](#systemd-networkd)
+    * [DHCP Networking](#dhcp-networking-systemd-networkd)
+    * [Static Networking](#static-networking-systemd-networkd)
+    * [Wifi Networking](#wifi-networking-systemd-networkd)
   * [NFS Shares](#nfs-shares)
     * [NFS Client Config](#nfs-server-config)
     * [NFS Server Config](#nfs-server-config)
@@ -589,12 +594,17 @@ $ sudo udevadm trigger /dev/input/event1
 ## Keyboard <a name="keyboard"/></a>
 
 ### Configure Keyboard Rate <a name="configure-keyboard-rate"/></a>
-Set this in your `~/.xprofile`
+This works well for a bare bones system, but I was never able to figure out a reliable way to have it 
+always be set as I think the desktop environment would override it.
 ```bash
+# Set this in your `~/.xprofile`
 # First number is after how many ms the key will start repeating
 # Second number is how many repititions per second, so after 190ms will output 60 a sec
 xset r rate 200 60
 ```
+
+However both `LXDE` and Xfce have their own keyboard control app that allows you to set similar 
+values.
 
 ### Disable Numlock on Boot <a name="disable-numlock-on-boot"/></a>
 LXDM has a nice configuration setting allowing you to enable or disable numlock on boot.
@@ -1549,7 +1559,47 @@ https://wiki.archlinux.org/index.php/Systemd-resolved#DNSSEC
 $ sudo systemctl restart systemd-resolved
 ```
 
-## DHCP Networking <a name="dhcp-networking"/></a>
+## Network Manager <a name="network-managerr"/></a>
+[NetworkManager](https://wiki.archlinux.org/title/NetworkManager) Network Manager is a frontend for 
+backend providers. Network Manager provides a nice system tray icon with UI wizards on par with OSX 
+that then automate the configuration of backend providers like `systemd-networkd`, `wpa_supplicant`, 
+and `openvpn`. NetworkManager has native support for `WireGuard` all it needs is the `wireguard` 
+kernel module.
+
+### Install <a name="install-network-manager"/></a>
+The following installation provides the systemd service `NetworkManager` and 
+`NetworkManager-wait-online` the system tray applet `nm-applet` the graphical editor 
+`nm-connection-editor` support for WiFi devices which NetworkManager default to use `wpa_supplicant` 
+and openvpn integration.
+
+```bash
+$ sudo pacman -S network-manager-applet networkmanager-openvpn wpa_supplicant
+$ sudo systemctl enable NetworkManager
+```
+
+### Split DNS <a name="split-dns-network-manager"/></a>
+NetworkManager will use `systemd-resolved` automatically as its DNS resolver and cache. You just need 
+to ensure that `/etc/resolv.conf` is a symlink to `/run/systemd/resolve/resolv.conf` or you can 
+explicitely enable it via editing `/etc/NetworkManager/conf.d/dns.conf` and adding:
+```
+[main]
+dns=systemd-resolved
+```
+
+Reload the configuration with `nmcli general reload`
+
+### DHCP Networking <a name="dhcp-networking-network-manager"/></a>
+
+### Static Networking <a name="static-networking-network-manager"/></a>
+
+### Wifi Networking <a name="wifi-networking-network-manager"/></a>
+
+## systemd-networkd <a name="systemd-networkd"/></a>
+`systemd-networkd` is a bare bones, light and simple networking configuration. In conjunction with 
+`wpa_supplicant` and `WPA_UI` I've got by just fine. However it does lack some of the elegance 
+heavier weight solutions like Network Manager provide.
+
+### DHCP Networking <a name="dhcp-networking-systemd-networkd"/></a>
 ```bash
 # Create config file
 sudo tee -a /etc/systemd/network/10-static.network <<EOL
@@ -1575,7 +1625,7 @@ sudo systemctl start systemd-networkd systemd-resolved
 sudo systemctl restart systemd-networkd
 ```
 
-## Static Networking <a name="static-networking"/></a>
+### Static Networking <a name="static-networking-systemd-networkd"/></a>
 ```bash
 # Create config file
 sudo tee -a /etc/systemd/network/10-static.network <<EOL
@@ -1594,8 +1644,7 @@ EOL
 sudo systemctl restart systemd-networkd
 ```
 
-## Wifi Networking <a name="wifi-networking"/></a>
-
+### Wifi Networking <a name="wifi-networking-systemd-networkd"/></a>
 1. Ensure kernel driver is accurate:
   ```bash
   inxi -N

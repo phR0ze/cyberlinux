@@ -487,30 +487,34 @@ config_system()
 
     # Configure static LAN
     netmatch='en* eth*'
+    netconf="${NEW_ROOT}/etc/systemd/network/10-static.network"
     if [ "x${NETIP}" != "xDHCP" ]; then
-        local conf="${NEW_ROOT}/etc/systemd/network/10-static.network"
         echo -en ":: Configuring ${cyber}static${none} networking..."
-        echo -e "[Match]\nName=${netmatch}\n" > $conf
-        echo -e "[Network]\nAddress=${NETIP}\nGateway=${gateway}\nDNS=${DNS1}\nDNS=${DNS2}" >> $conf
-        echo -e "IPForward=kernel" >> $conf
-        check_status
+        echo -e "[Match]\nName=${netmatch}\n" > $netconf
+        echo -e "[Network]\nAddress=${NETIP}\nDNS=${DNS1}\nDNS=${DNS2}\nIPForward=kernel\n" >> $netconf
 
     # Configure DHCP LAN
     else
-        local conf="${NEW_ROOT}/etc/systemd/network/20-dhcp.network"
+        netconf="${NEW_ROOT}/etc/systemd/network/20-dhcp.network"
         echo -en ":: Configuring ${cyber}dhcp${none} networking..."
-        echo -e "[Match]\nName=${netmatch}\n" > $conf
-        echo -e "[Network]\nDHCP=ipv4\nIPForward=kernel\n" >> $conf
-        echo -e "[DHCP]\nUseDomains=true" >> $conf
-        check_status
+        echo -e "[Match]\nName=${netmatch}\n" > $netconf
+        echo -e "[Network]\nDHCP=ipv4\nIPForward=kernel\n" >> $netconf
+        echo -e "[DHCP]\nUseDomains=true\n" >> $netconf
+        gateway="_dhcp4"
     fi
 
+    # Speed up the TCP slow-start
+    # https://wiki.archlinux.org/title/systemd-networkd#Speeding_up_TCP_slow-start
+    echo -e "[Route]\nGateway=${gateway}" >> $netconf
+    echo -e "InitialCongestionWindow=30\nInitialAdvertisedReceiveWindow=30" >> $netconf
+    check_status
+
     # Configure wireless
-    local conf="${NEW_ROOT}/etc/systemd/network/30-wireless.network"
+    netconf="${NEW_ROOT}/etc/systemd/network/30-wireless.network"
     echo -en ":: Configuring ${cyber}dhcp wireless${none} networking..."
-    echo -e "[Match]\nName=wl*\n" > $conf
-    echo -e "[Network]\nDHCP=ipv4\nIPForward=kernel\n" >> $conf
-    echo -e "[DHCP]\nRouteMetric=20\nUseDomains=true" >> $conf
+    echo -e "[Match]\nName=wl*\n" > $netconf
+    echo -e "[Network]\nDHCP=ipv4\nIPForward=kernel\n" >> $netconf
+    echo -e "[DHCP]\nRouteMetric=20\nUseDomains=true" >> $netconf
     check_status
 
     # Configure root access for sshd if default deployment
