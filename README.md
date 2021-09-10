@@ -59,7 +59,7 @@ strictly the responsiblity of the user and not the developer/creator of ***cyber
   * [Git-Hook Version Increment](#git-hook-version-increment)
 * [Licenses](#licenses)
 * [Backlog](#backlog)
-* [Testlog](#testlog)
+* [Testlog](docs/CHANGELOG.md#Testlog)
 * [Changelog](docs/CHANGELOG.md)
 
 ---
@@ -295,59 +295,34 @@ boot/initramfs/installer bash code base is likewise MIT licensed.
 ---
 
 # Backlog <a name="backlog"/></a>
-* Xfce:Lite
-  * xfce4-terminal: settings configured via `~/.config/xfce4/terminal/terminalrc`
-  * xfce4-terminal: dropdown `xfce4-terminal --drop-down`
-  * Keyboard: `Settings >Keyboard` 
-    * Set Repeat delay to `200` and Repeat speed to `80`
-    * Set TaskManager start Crtl+Escape
-    * Set Kill start Super+Escape
-  * HotKeys
-  * Mouse icons: `Settings >Mouse and Touchpad`
+* Create custom xfce menu
 
-
-* Netbook: integrate `xfce-power-manager`
-
+* netbook: battery status in tray
+* Netbook: Bluetooth
+* Laptop: wpa ui autostart is disabled
+* Desktop: Added Zoom to the network menu
 * Desktop: vscode configs are not saved
-
 * Detect and install braswell config at install time
 * Add slack to desktop
-* Braswell screen brightness
-* Create screen brightness tool in rust
 * Display time in installer using given timezone offset
-
 * Add veracrypt
-* Guake settings are not taking
 * Document configuring Firefox
-* Add wine packages for gaming
 * GTK folder sort settings didn't take
-* Filezilla initial configs not set
 * ACEPC
   * Need overscan, white line on right of monitor
   * Vulkan support
     * `sudo pacman -S vulkan-intel vulkan-tools`
     * `vulkaninfo` if you get info about your graphics card its working
-* Support profiles depending on each other
 * Add conflicts to PKGBUILD
-
-* Add GTK Arc Dark theme
 * Replace powerline with powerline-go or powerline-rs
 * Add utshushi menu entry
 * devede and asunder icons in Paper are both the same?
-* Switch to XFWM because openbox doesn't have nice window edge control
 * Add gtk2fontsel to menu in lite
 * clu - cyberlinux automation
   * replace conky scripts, cal.rb, date.rb and radio.rb
   * build in skel copy for updates
 * Add cyberlinux-repo README about packages and warnings and how to configure
   * Automate updates to the readme when updating the packages
-* Build a rust replacement for oblogout
-
-# Testing <a name="testing"/></a>
-* Theater based on desktop
-* Netbook: Bluetooth
-* Laptop: wpa ui autostart is disabled
-* Desktop: Added Zoom to the network menu
 
 <!-- 
 vim: ts=2:sw=2:sts=2

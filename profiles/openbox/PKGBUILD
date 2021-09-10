@@ -78,7 +78,6 @@ package_cyberlinux-openbox-lite()
     'lxappearance-obconf'       # Plugin for LXAppearance to configure Openbox, group: lxde
     'lxdm'                      # Lightweight display manager, xorg: lxde
     'lxde-common'               # Common files of the LXDE Desktop, group: lxde
-    'lxhotkey'                  # Keyboard shortcuts configurator, xorg: lxde
     'lxinput'                   # Keyboard and mouse configuration utility, group: lxde
     'lxrandr'                   # Monitor configuration tool, group: lxde
     'lxsession'                 # Enable .desktop files in ~/.config/autostart, /etc/xdg/autostart, group: lxde
@@ -133,7 +132,6 @@ package_cyberlinux-openbox-netbook()
 
     # Desktop
     'conky'                     # Lightweight system monitor for X
-    'i3lock-color'              # Simple lightweight screen locker
     'light'                     # Control laptop backlights both screen and keyboard
     'xfce4-power-manager'       # Power manager for the Xfce desktop
 

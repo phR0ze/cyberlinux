@@ -222,7 +222,7 @@ package_cyberlinux-standard-x11()
   depends=(
     "cyberlinux-standard-shell>=${pkgver}"
 
-    # Utilities
+    # Desktop components
     'dconf'                     # A low-level configuration system
     'dconf-editor'              # General configuration manager that replaces gconf
     'desktop-file-utils'        # Command line utilities for working with desktop entries
@@ -234,6 +234,7 @@ package_cyberlinux-standard-x11()
     'gtk-engines'               # GTK theme engines for cyberlinux theme
     'gtk-engine-murrine'        # GTK theme engine for cyberlinux theme
     'gvfs'                      # Support for Trash and USB, depof: thunar-volman
+    'i3lock-color'              # Simple lightweight screen locker
     'powerline'                 # Status line plugin for bash
     'powerline-fonts'           # Powerline font symbols
     'powerline-gitstatus'       # Powerline plugin for git status, repo: cyberlinux

@@ -71,8 +71,8 @@ package_cyberlinux-xfce-lite()
     'exo'                       # Application library for Xfce
     'gtk2fontsel'               # Simple font viewer
     'garcon'                    # Implementation of the freedesktop menu specification
-    'i3lock-color'              # Simple lightweight screen locker
     'lxdm'                      # Lightweight display manager, xorg: lxde
+    'menulibre'                 # Menu editor for XFCE
     'paprefs'                   # Configuration dialog for pulse audio
     'pavucontrol'               # PulseAudio Volume Control
     'pnmixer'                   # Volume controls in system tray, repo: cyberlinux

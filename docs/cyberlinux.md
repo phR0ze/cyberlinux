@@ -210,6 +210,8 @@ on the [Arch Linux Wiki](https://wiki.archlinux.org/) should work just fine as w
     * [XFCE Menu](#xfce-menu)
 * [Wine](docs/WINE.md)
 * [X Windows](#x-windows)
+  * [Icons](#icons)
+    * [Refresh Icons Cache](#refresh-icon-cache)
   * [Persist X Configs](#persist-x-configs)
     * [xprofile](#xprofile)
     * [XDG Autostart](#xdg-autostart)
@@ -3025,6 +3027,20 @@ XFCE will read from the `~/.config/menus/xfce-applications.menu`
 
 # X Windows <a name="x-windows"/></a>
 X Windows, X Window system, X11 or simply X is the most common windowing system in Linux.
+
+## Icons <a name="icons"/></a>
+Icons are stored at `/usr/share/icons` with `hicolor` being the defaults.
+
+### Refresh Icon Cache <a name="refresh-icon-cache"/></a>
+Each icon theme e.g. `/usr/share/icons/hicolor` has a `/usr/share/icons/hicolor/icon-theme.cache` 
+that appliations will use to view the available icons from that theme. If you add icons to the theme 
+manually they will not show up in your icon viewers until the cache is updated.
+
+Update the timestamp on the icon them directory then trigger the cache updater
+```bash
+$ touch /usr/share/icons/hicolor
+$ sudo gtk-update-icon-cache /usr/share/icons/hicolor
+```
 
 ## Persist X Configs <a name="persist-x-configs"/></a>
 Linux has a plethera of ways to persist configuration depending on which system components your
