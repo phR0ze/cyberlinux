@@ -9,5 +9,5 @@ TryExec=pdfmod
 Exec=pdfmod %U
 Actions=
 MimeType=application/pdf;application/x-bzpdf;application/x-gzpdf;
-Categories=GNOME;GTK;X-XFCE;X-Xfce-Toplevel;
+Categories=Office;
 StartupNotify=true
