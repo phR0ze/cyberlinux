@@ -28,6 +28,7 @@ pkgname=(
     "${pkgbase}-base"
     "${pkgbase}-shell"
     "${pkgbase}-x11"
+    "${pkgbase}-live"
 )
 pkgver=0
 pkgrel=1
@@ -369,6 +370,15 @@ package_cyberlinux-standard-x11()
     'xsel'                      # Tool for getting/setting X selection
   ) 
   pkg x11
+}
+
+package_cyberlinux-standard-live()
+{
+  pkgdesc="Live system - built on top of x11 for recovery"
+  depends=(
+    "cyberlinux-standard-desktop>=${pkgver}"
+  )
+  pkg live
 }
 
 # vim: ts=2:sw=2:sts=2
