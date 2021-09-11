@@ -93,6 +93,12 @@ package_cyberlinux-xfce-lite()
     'xfdesktop'                 # Desktop manager for Xfce
     'xfce4-screenshooter'       # Plugin that makes screenshots for the Xfce panel
     'xfwm4'                     # Xfce's window manager
+
+    # Network
+    'freerdp'                   # RDP client plugin for remmina
+    'network-manager-applet'    # Applet for managing network connections
+    'networkmanager-openvpn'    # NetworkManager VPN plugin for OpenVPN
+    'remmina'                   # Nice remoting UI for RDP and other protocols
   )
   pkg lite
 }
@@ -119,10 +125,6 @@ package_cyberlinux-xfce-netbook()
     # Network
     'blueman'                   # Bluetooth management tool
     'pulseaudio-bluetooth'      # Pulse Audio plugin for bluetooth output
-    'freerdp'                   # RDP client plugin for remmina
-    'network-manager-applet'    # Applet for managing network connections
-    'networkmanager-openvpn'    # NetworkManager VPN plugin for OpenVPN
-    'remmina'                   # Nice remoting UI for RDP and other protocols
     'wpa_supplicant'            # A utility providing key negotiation for WPA wireless networks
   )
   pkg netbook
