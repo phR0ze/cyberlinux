@@ -11,14 +11,14 @@
       "entry": "Install xfce netbook       // Medium env with all needed apps",
       "kernel": "linux",
       "layers": "standard/core,standard/base,standard/shell,standard/x11,xfce/lite,xfce/netbook",
-      "groups": "lp,wheel,network,netdev,storage,users,video,audio,adbusers,uucp,disk"
+      "groups": "lp,wheel,network,storage,users,video,audio,adbusers,uucp,disk"
     },
     {
       "name": "lite",
       "entry": "Install xfce lite          // Lite xfce env with minimal apps",
       "kernel": "linux",
       "layers": "standard/core,standard/base,standard/shell,standard/x11,xfce/lite",
-      "groups": "lp,wheel,network,netdev,storage,users,video,audio,disk"
+      "groups": "lp,wheel,network,storage,users,video,audio,disk"
     }
   ],
   "optionalPkgs": [

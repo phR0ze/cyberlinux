@@ -11,42 +11,42 @@
       "entry": "Install openbox laptop     // Max env for Personal Use Only",
       "kernel": "linux",
       "layers": "standard/core,standard/base,standard/shell,standard/x11,openbox/lite,openbox/netbook,openbox/desktop,openbox/laptop",
-      "groups": "lp,wheel,network,netdev,storage,users,video,audio,adbusers,uucp,disk,docker,vboxusers"
+      "groups": "lp,wheel,network,storage,users,video,audio,adbusers,uucp,disk,docker,vboxusers"
     },
     {
       "name": "theater",
       "entry": "Install openbox theater    // Leanback env for Personal Use Only",
       "kernel": "linux",
       "layers": "standard/core,standard/base,standard/shell,standard/x11,openbox/lite,openbox/netbook,openbox/desktop,openbox/theater",
-      "groups": "lp,wheel,network,netdev,storage,users,video,audio,adbusers,uucp,disk,docker,vboxusers"
+      "groups": "lp,wheel,network,storage,users,video,audio,adbusers,uucp,disk,docker,vboxusers"
     },
     {
       "name": "desktop",
       "entry": "Install openbox desktop    // Full env for Personal Use Only",
       "kernel": "linux",
       "layers": "standard/core,standard/base,standard/shell,standard/x11,openbox/lite,openbox/netbook,openbox/desktop",
-      "groups": "lp,wheel,network,netdev,storage,users,video,audio,adbusers,uucp,disk,docker,vboxusers"
+      "groups": "lp,wheel,network,storage,users,video,audio,adbusers,uucp,disk,docker,vboxusers"
     },
     {
       "name": "netbook",
       "entry": "Install openbox netbook    // Medium env with all needed apps",
       "kernel": "linux",
       "layers": "standard/core,standard/base,standard/shell,standard/x11,openbox/lite,openbox/netbook",
-      "groups": "lp,wheel,network,netdev,storage,users,video,audio,adbusers,uucp,disk"
+      "groups": "lp,wheel,network,storage,users,video,audio,adbusers,uucp,disk"
     },
     {
       "name": "server",
       "entry": "Install openbox server     // Server env for Personal Use Only",
       "kernel": "linux",
       "layers": "standard/core,standard/base,standard/shell,standard/x11,openbox/lite,openbox/server",
-      "groups": "lp,wheel,network,netdev,storage,users,video,audio,docker,disk"
+      "groups": "lp,wheel,network,storage,users,video,audio,docker,disk"
     },
     {
       "name": "lite",
       "entry": "Install openbox lite       // Lite openbox env with minimal apps",
       "kernel": "linux",
       "layers": "standard/core,standard/base,standard/shell,standard/x11,openbox/lite",
-      "groups": "lp,wheel,network,netdev,storage,users,video,audio,disk"
+      "groups": "lp,wheel,network,storage,users,video,audio,disk"
     }
   ],
   "optionalPkgs": [

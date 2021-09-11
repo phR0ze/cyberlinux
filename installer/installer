@@ -485,29 +485,25 @@ config_system()
         check_status
     fi
 
-    # Configure static LAN
-    netmatch='en* eth*'
-    netconf="${NEW_ROOT}/etc/systemd/network/10-static.network"
-    if [ "x${NETIP}" != "xDHCP" ]; then
-        echo -en ":: Configuring ${cyber}static${none} networking..."
-        echo -e "[Match]\nName=${netmatch}\n" > $netconf
-        echo -e "[Network]\nAddress=${NETIP}\nDNS=${DNS1}\nDNS=${DNS2}\nIPForward=kernel\n" >> $netconf
-
-    # Configure DHCP LAN
-    else
-        netconf="${NEW_ROOT}/etc/systemd/network/20-dhcp.network"
-        echo -en ":: Configuring ${cyber}dhcp${none} networking..."
-        echo -e "[Match]\nName=${netmatch}\n" > $netconf
-        echo -e "[Network]\nDHCP=ipv4\nIPForward=kernel\n" >> $netconf
-        echo -e "[DHCP]\nUseDomains=true\n" >> $netconf
-        gateway="_dhcp4"
-    fi
-
-    # Speed up the TCP slow-start
-    # https://wiki.archlinux.org/title/systemd-networkd#Speeding_up_TCP_slow-start
-    echo -e "[Route]\nGateway=${gateway}" >> $netconf
-    echo -e "InitialCongestionWindow=30\nInitialAdvertisedReceiveWindow=30" >> $netconf
+    # Configure DHCP LAN always as a fall back with a lower priority than static
+    netconf="${NEW_ROOT}/etc/NetworkManager/system-connections/dhcp"
+    echo -en ":: Configuring ${cyber}dhcp${none} networking..."
+    echo -e "[connection]\nid=Wired dhcp\nuuid=$(uuidgen)\ntype=ethernet\nautoconnect-priority=0\n" > $netconf
+    echo -e "[ipv4]\nmethod=auto\n" >> $netconf
+    echo -e "[ipv6]\nmethod=disabled" >> $netconf
+    chmod 0600 $netconf
     check_status
+
+    # Configure static LAN if set
+    if [ "x${NETIP}" != "xDHCP" ]; then
+        netconf="${NEW_ROOT}/etc/NetworkManager/system-connections/static"
+        echo -en ":: Configuring ${cyber}static${none} networking..."
+        echo -e "[connection]\nid=Wired static\nuuid=$(uuidgen)\ntype=ethernet\nautoconnect-priority=1\n" > $netconf
+        echo -e "[ipv4]\nmethod=manual\naddress=${NETIP}\nGateway=${GATEWAY}\ndns=${DNS1};${DNS2}\n" >> $netconf
+        echo -e "[ipv6]\nmethod=disabled" >> $netconf
+        chmod 0600 $netconf
+        check_status
+    fi
 
     # Configure wireless
     netconf="${NEW_ROOT}/etc/systemd/network/30-wireless.network"
@@ -676,7 +672,7 @@ installer()
             getinput HOSTNAME 'Enter hostname' $HOSTNAME
             getinput NETIP 'Enter static IP, e.g. 192.168.1.2/24' 'DHCP'
             if [ "x${NETIP}" != "xDHCP" ]; then
-                getinput gateway 'Enter gateway' $(echo $NETIP | awk -F. '{print $1"."$2"."$3".1"}')
+                getinput GATEWAY 'Enter gateway' $(echo $NETIP | awk -F. '{print $1"."$2"."$3".1"}')
             fi
             getinput ENABLE_WIFI 'Enter wifi state' 0
             getinput ENABLE_BLUETOOTH 'Enter bluetooth state' 0

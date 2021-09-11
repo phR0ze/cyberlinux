@@ -1,14 +1,23 @@
 cyberlinux installer documentation
 ====================================================================================================
+<img align="left" width="48" height="48" src="../art/logo_256x256.png">
+**Goals:** *boot speed*, *simplicity*, and *automation*. Installing Linux on a target system 
+typically consists of booting into a full live system and then launch a full GUI with wizard to walk 
+you through the installtion process. The downsides of this are it takes a long time to boot into the 
+live system and it isn't well suited for automating an install process from boot. The other method 
+which I'll use for `cyberlinux` is a minimal graphical environment that launches from a pre-boot 
+environment. Fedora's Anaconda or Ubuntu's minimal ncurses based installers are examples of this. The 
+concept is to build an early user space image typically known as an `initramfs` that will contain 
+enough tooling to setup and install your system.
 
-<img align="left" width="48" height="48" src="../../art/logo_256x256.png">
-Documenting resource documentation around the <b><i>cyberlinux installer</i></b>
+We'll use GRUB to handle booting and presenting the same boot menu regardless of the under lying BIOS
+or UEFI hardware systems. The GRUB menu will then launch our installer.
 
 ### Quick Links
 * [.. up dir](https://github.com/phR0ze/cyberlinux)
-* [Overview](#overview)
-  * [initramfs installer](#initramfs-installer)
-    * [create initramfs](#create-initramfs)
+* [initramfs installer](#initramfs-installer)
+  * [create installer](#create-installer)
+  * [debug installer](#debug-installer)
 * [mkinitcpio](#mkinitcpio)
   * [mkinitcpio-vt-colors](#mkinitcpio-vt-colors)
   * [docker mkinitcpio issues](#docker-mkinitcpio-issues)
@@ -28,21 +37,7 @@ Documenting resource documentation around the <b><i>cyberlinux installer</i></b>
     * [GFXMenu module](#gfxmenu-module)
     * [Trouble-shooting](#trouble-shooting)
 
-# Overview <a name="overview"/></a>
-**Goals:** *boot speed*, *simplicity*, and *automation*
-
-Installing Linux on a target system typically consists of booting into a full live system and then
-launch a full GUI with wizard to walk you through the installtion process. The downsides of this are
-it takes a long time to boot into the live system and it isn't well suited for automating an install
-process from boot. The other method which I'll use for `cyberlinux` is a minimal graphical
-environment that launches from a pre-boot environment. Fedora's Anaconda or Ubuntu's minimal ncurses
-based installers are examples of this. The concept is to build an early user space image typically
-known as an `initramfs` that will contain enough tooling to setup and install your system.
-
-We'll use GRUB to handle booting and presenting the same boot menu regardless of the under lying BIOS
-or UEFI hardware systems. The GRUB menu will then launch our installer.
-
-## initramfs installer <a name="initramfs-installer"/></a>
+# initramfs installer <a name="initramfs-installer"/></a>
 The initial ramdisk is in essence a very small environment (a.k.a early userspace) which contains
 customizable tooling and instructions to load kernel modules as needed to set up necessary things
 before handing over control to `init`. We can leverage this early userspace to build a custom install
@@ -53,9 +48,26 @@ The installer is composed of three files:
 2. `installer.conf` initcpio hook configuration for what to include in the installer hook
 3. `mkinitcpio.conf` configuration file to construct the initramfs early userspace environment
 
-### Create initramfs <a name="create-initramfs"/></a>
+## Create installer <a name="create-installer"/></a>
 An initramfs is made by creating a `cpio` archive, which is an old simple archive format comparable
 to tar. This archive is then compressed using `gzip`.
+
+## Debug installer <a name="debug-installer"/></a>
+1. Enter `exit_end` as the first input option after selecting a deployment. This will install as per 
+   usual the target environment then exit into the `BusyBox` shell.
+2. Chroot into the target environment and source `/root/.bashrc`
+   ```bash
+   $ chroot /new_root
+   $ source /root/.bashrc
+   ```
+3. Now you can experiment with the bits before booting into them, when done
+   ```bash
+   # Exit the chroot
+   $ exit
+
+   # Exit initramfs completing boot process into new target environment
+   $ exit
+   ```
 
 # mkinitcpio <a name="mkinitcpio"/></a>
 

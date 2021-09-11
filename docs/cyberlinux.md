@@ -105,9 +105,10 @@ on the [Arch Linux Wiki](https://wiki.archlinux.org/) should work just fine as w
     * [Google DNS](#google-dns)
     * [DNSSEC Validation Failures](#dnssec-validation-failures)
   * [Network Manager](#network-manager)
-    * [DHCP Networking](#dhcp-networking-network-manager)
-    * [Static Networking](#static-networking-network-manager)
-    * [Wifi Networking](#wifi-networking-network-manager)
+    * [Install](#install-network-manager)
+    * [Configure](#configure-network-manager)
+    * [Keyfile Configs](#keyfile-configs)
+    * [Split DNS](#split-dns-network-manager)
   * [systemd-networkd](#systemd-networkd)
     * [DHCP Networking](#dhcp-networking-systemd-networkd)
     * [Static Networking](#static-networking-systemd-networkd)
@@ -1564,7 +1565,8 @@ $ sudo systemctl restart systemd-resolved
 backend providers. Network Manager provides a nice system tray icon with UI wizards on par with OSX 
 that then automate the configuration of backend providers like `systemd-networkd`, `wpa_supplicant`, 
 and `openvpn`. NetworkManager has native support for `WireGuard` all it needs is the `wireguard` 
-kernel module.
+kernel module. The point of NetworkManager is to make networking configuration and setup as painless 
+and automatic as possible. It should just work.
 
 ### Install <a name="install-network-manager"/></a>
 The following installation provides the systemd service `NetworkManager` and 
@@ -1586,6 +1588,106 @@ and openvpn integration.
    $ sudo systemctl enable NetworkManager
    ```
 
+### Configure <a name="configure-network-manager"/></a>
+Configuration load order with later files overriding ealier ones:
+1. `/usr/lib/NetworkManager/conf.d`
+2. `/run/NetworkManager/conf.d` per boot configuration for one time changes
+3. `/etc/NetworkManager.conf`
+4. `/etc/NetworkManager/conf.d`
+5. `/var/lib/NetworkManager/NetworkManager-intern.conf` not user modifiable but can shadow things
+
+By default if no other connection profiles exist in `/etc/NetworkManager/system-connections` then 
+NetworkManager will create an in-memory DHCP connection called `Wired connection 1`. If you have a 
+pre-configured connection though it won't do this.
+
+References:
+* [Network Manager Settings](https://developer-old.gnome.org/NetworkManager/0.9/ref-settings.html)
+* [NetworkManager.conf](https://developer-old.gnome.org/NetworkManager/stable/NetworkManager.conf.html)
+* [nmcli examples](https://developer-old.gnome.org/NetworkManager/stable/nmcli-examples.html)
+* `man nm-settings`
+* `man nmcli`
+
+**See NetworkManager's current settings:**
+```bash
+$ sudo NetworkManager --print-config
+```
+
+#### Connection Property Defaults <a name="connection-property-defaults"/></a>
+A number of connection properties can have defaults set that will only be used if the connection is 
+configured to explicitely use the defaults on a per property basis. This might be a good place to put 
+`TCP Slow Start` speedups etc...
+
+#### Keyfile Configs <a name="keyfile-configs"/></a>
+NetworkManager will read `/etc/NetworkManager/system-connections` for any manually configured 
+connections via its `keyfile` plugin which is always enabled. Connection files need to be owned by 
+`root` and set to `0600` permissions.
+
+keyfile aliases to keep in mind:
+* `802-3-ethernet` = `ethernet`
+* `802-11-wireless` = `wifi`
+* `802-11-wireless-security` = `wifi-security`
+
+**Connection priority**:  
+We create the `static` connection profile with a higher connection priority than the DHCP connection 
+profile such that it will get tried first if it exists, but we can easily fall back on DHCP by simply 
+manually setting it to the active connection profile. To test this you can bring down the connections 
+with `nmcli con down "Wired dhcp"` and then `sudo systemctl restart NetworkManager` and 
+NetworkManager will restart see the priorities and load the correct one
+
+**Configure DHCP connection:**
+```bash
+$ sudo cat <<EOF >> /etc/NetworkManager/system-connections/dhcp
+[connection]
+id=Wired dhcp
+uuid=$(uuidgen)
+type=ethernet
+autoconnect-priority=0
+
+[ipv4]
+method=auto
+
+[ipv6]
+method=disabled
+EOF
+$ sudo chomd 0600 /etc/NetworkManager/system-connections/dhcp
+```
+
+**Configure Static connection:**
+```bash
+$ sudo cat <<EOF >> /etc/NetworkManager/system-connections/static
+[connection]
+id=Wired static
+uuid=$(uuidgen)
+type=ethernet
+autoconnect-priority=1
+
+[ipv4]
+method=manual
+address=192.168.1.15/24
+gateway=192.162.1.1
+dns=1.1.1.1;1.0.0.1
+
+[ipv6]
+method=disabled
+EOF
+$ sudo chomd 0600 /etc/NetworkManager/system-connections/static
+```
+
+**Reload connections from disk:**
+```bash
+$ nmcli con reload
+```
+
+**Switch to static connection:**
+```bash
+$ nmcli con up "Wire static"
+```
+
+**Switch to dhcp connection:**
+```bash
+$ nmcli con up "Wire dhcp"
+```
+
 ### Split DNS <a name="split-dns-network-manager"/></a>
 NetworkManager will use `systemd-resolved` automatically as its DNS resolver and cache. You just need 
 to ensure that `/etc/resolv.conf` is a symlink to `/run/systemd/resolve/resolv.conf` or you can 
@@ -1596,12 +1698,6 @@ dns=systemd-resolved
 ```
 
 Reload the configuration with `nmcli general reload`
-
-### DHCP Networking <a name="dhcp-networking-network-manager"/></a>
-
-### Static Networking <a name="static-networking-network-manager"/></a>
-
-### Wifi Networking <a name="wifi-networking-network-manager"/></a>
 
 ## systemd-networkd <a name="systemd-networkd"/></a>
 `systemd-networkd` is a bare bones, light and simple networking configuration. In conjunction with 

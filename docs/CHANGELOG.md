@@ -9,7 +9,7 @@ reference.
 * [.. up dir](README.md)
 
 ### Testlog <a name="testlog"/></a>
-* standard:base: link `/run/systemd/resolve/resolv.conf` `/etc/resolv.conf`
+* installer: network manager static IP support
 * installer: use faster TCP ramp speed to fix Arch Linux slow speed failure
 * xfce:netbook: configured conky
 * xfce:lite: removed pnmixer
@@ -17,6 +17,7 @@ reference.
 * make theater deployment based on desktop
 
 ### Changelog <a name="changelog"/></a>
+* 2021-09-11:: standard:base: link `/run/systemd/resolve/resolv.conf` `/etc/resolv.conf`
 * 2021-09-10:: xfce:lite: customized Xfce default menus
 * 2021-09-10:: xfce:lite: added `icons/hicolor/scalable/categories/cyberlinux.png` and set as menu icon
 * 2021-09-10:: xfce:lite: `lockscreen` should be invoked before sleep so you have to login on wake
