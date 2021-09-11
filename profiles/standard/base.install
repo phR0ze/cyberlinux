@@ -93,8 +93,8 @@ post_install()
 
   # Enable core services
   # ---------------------------------------------------------------------------
-  #systemctl enable -f NetworkManager.service
-  #systemctl enable -f NetworkManager-wait-online.service
+  systemctl enable -f NetworkManager.service
+  systemctl enable -f NetworkManager-wait-online.service
   systemctl enable -f systemd-resolved.service
   systemctl enable -f systemd-timesyncd.service
   systemctl enable -f sshd.service
