@@ -95,6 +95,7 @@ package_cyberlinux-standard-base()
     'archlinux-keyring'         # Arch linux keyring for installing packages
     'blackarch-keyring'         # Adding curl command to pull in packer scripts
     'pacman-contrib'            # rankmirrors, pacdiff, pactree, paclist, pacsearch
+    'networkmanager'            # Network connection manager and user applications
     'openssh'                   # SSH server/client, openssl
     'wget'                      # Retrieve files from the Web
     'curl'                      # Adding curl command to pull in packer scripts

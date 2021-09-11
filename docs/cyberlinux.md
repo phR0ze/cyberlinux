@@ -1572,10 +1572,19 @@ The following installation provides the systemd service `NetworkManager` and
 `nm-connection-editor` support for WiFi devices which NetworkManager default to use `wpa_supplicant` 
 and openvpn integration.
 
-```bash
-$ sudo pacman -S network-manager-applet networkmanager-openvpn wpa_supplicant
-$ sudo systemctl enable NetworkManager
-```
+1. Install Network Manager
+   ```bash
+   $ sudo pacman -S network-manager-applet networkmanager-openvpn wpa_supplicant
+   ```
+2. Disable `systemd-networkd`
+   ```bash
+   $ sudo systemctl disable systemctl-networkd
+   $ sudo systemctl stop systemctl-networkd.socket systemctl-networkd
+   ```
+3. Enable and start Network Manager
+   ```bash
+   $ sudo systemctl enable NetworkManager
+   ```
 
 ### Split DNS <a name="split-dns-network-manager"/></a>
 NetworkManager will use `systemd-resolved` automatically as its DNS resolver and cache. You just need 
