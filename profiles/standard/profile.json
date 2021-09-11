@@ -1,6 +1,12 @@
 {
   "deployments": [
     {
+      "name": "live",
+      "entry": "Start live environment     // Recovery env for cyberlinux",
+      "kernel": "linux",
+      "layers": "standard/core,standard/base,standard/shell,standard/x11,standard/live"
+    },
+    {
       "name": "x11",
       "entry": "Install X11 system         // Lite X11 env w/out window manager",
       "kernel": "linux",
