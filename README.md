@@ -295,6 +295,7 @@ boot/initramfs/installer bash code base is likewise MIT licensed.
 ---
 
 # Backlog <a name="backlog"/></a>
+* Restart from initramfs instead of continue booting
 
 * netbook: add bluetooth
 * netbook: battery status in tray

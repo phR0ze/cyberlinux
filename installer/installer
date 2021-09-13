@@ -499,7 +499,7 @@ config_system()
         netconf="${NEW_ROOT}/etc/NetworkManager/system-connections/static"
         echo -en ":: Configuring ${cyber}static${none} networking..."
         echo -e "[connection]\nid=Wired static\nuuid=$(uuidgen)\ntype=ethernet\nautoconnect-priority=1\n" > $netconf
-        echo -e "[ipv4]\nmethod=manual\naddress=${NETIP}\nGateway=${GATEWAY}\ndns=${DNS1};${DNS2}\n" >> $netconf
+        echo -e "[ipv4]\nmethod=manual\naddress=${NETIP}\ngateway=${GATEWAY}\ndns=${DNS1};${DNS2}\n" >> $netconf
         echo -e "[ipv6]\nmethod=disabled" >> $netconf
         chmod 0600 $netconf
         check_status
