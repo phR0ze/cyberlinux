@@ -12,11 +12,12 @@ reference.
 * installer: network manager static IP support
 * installer: use faster TCP ramp speed to fix Arch Linux slow speed failure
 * xfce:netbook: configured conky
-* xfce:lite: removed pnmixer
-* xfce:lite: set move and resize window hot keys to `Super+Enter` and `Super+Enter+Alt`
 * make theater deployment based on desktop
 
 ### Changelog <a name="changelog"/></a>
+* 2021-09-13:: xfce:netbook: added bluetooth management
+* 2021-09-13:: xfce:lite: removed pnmixer
+* 2021-09-13:: xfce:lite: set move and resize window hot keys to `Super+Enter` and `Super+Enter+Alt`
 * 2021-09-11:: standard:base: link `/run/systemd/resolve/resolv.conf` `/etc/resolv.conf`
 * 2021-09-10:: xfce:lite: customized Xfce default menus
 * 2021-09-10:: xfce:lite: added `icons/hicolor/scalable/categories/cyberlinux.png` and set as menu icon
