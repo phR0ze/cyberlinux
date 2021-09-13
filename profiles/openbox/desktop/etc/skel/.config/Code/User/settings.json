@@ -1,0 +1,52 @@
+{
+    "window.zoomLevel": 0,
+    "editor.tabSize": 4,
+    "editor.minimap.enabled": true,
+    "workbench.iconTheme": "vscode-icons",
+
+    "vim.disableAnnoyingNeovimMessage": true,
+    "vsicons.dontShowNewVersionMessage": true,
+
+    "enable-crash-reporter": false,
+    "telemetry.enableTelemetry": false,
+    "telemetry.enableCrashReporter": false,
+
+    "vim.handleKeys": {
+        "<C-a>": false,
+        "<C-b>": false,
+        "<C-c>": false,
+        "<C-e>": false,
+        "<C-f>": false,
+        "<C-h>": false,
+        "<C-i>": false,
+        "<C-j>": false,
+        "<C-k>": false,
+        "<C-n>": false,
+        "<C-p>": false,
+        "<C-s>": false,
+        "<C-t>": false,
+        "<C-u>": false,
+        "<C-v>": false,
+        "<C-o>": false,
+        "<C-w>": false,
+        "<C-x>": false,
+        "<C-y>": false,
+        "<C-z>": false
+    },
+
+    "go.gopath": "~/Projects/go",           // Set the GOPATH to use
+    "go.useLanguageServer": true,           // Use the new gopls language server
+    "[go]": {
+        "editor.snippetSuggestions": "none",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        }
+    },
+    "gopls": {
+        "usePlaceholders": false,           // add parameter placeholders when completing a function
+        "completionDocumentation": true     // for documentation in completion items
+    },
+    "files.eol": "\n",                      // Gopls formatting only supports LF line endings
+    "go.toolsManagement.autoUpdate": true
+}
