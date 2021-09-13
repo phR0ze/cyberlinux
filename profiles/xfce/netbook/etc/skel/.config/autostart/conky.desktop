@@ -1,5 +1,6 @@
 [Desktop Entry]
 Type=Application
+Name=conky
 Terminal=false
 StartupNotify=true
-Exec=conky -p 1 -c ~/.config/conky/active
+Exec=bash -c "conky -p 1 -c ~/.config/conky/active"

@@ -29,9 +29,10 @@ MiscSearchDialogOpacity=100
 MiscShowUnsafePasteDialog=FALSE
 TitleMode=TERMINAL_TITLE_REPLACE
 ScrollingLines=90000
-BackgroundDarkness=0.680000
+BackgroundDarkness=0.850000
 DropdownKeepOpenDefault=TRUE
 DropdownAlwaysShowTabs=FALSE
-DropdownOpacity=80
 ColorBackground=#17e417e417e4
+BackgroundMode=TERMINAL_BACKGROUND_TRANSPARENT
+CommandLoginShell=TRUE
 
