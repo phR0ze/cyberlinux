@@ -703,7 +703,7 @@ installer()
 
             # Prompt for autologin
             if [ "x$AUTOLOGIN" != "x1" ]; then
-                getinput autologin 'Enter autologin' 0
+                getinput AUTOLOGIN 'Enter autologin' 0
             fi
         fi
     fi
