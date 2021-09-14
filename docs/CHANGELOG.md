@@ -11,7 +11,8 @@ reference.
 ### Testlog <a name="testlog"/></a>
 
 ### Changelog <a name="changelog"/></a>
-* 2021-09-13:: xfce:netbook: screen sleep seems to work fine
+* 2021-09-13:: xfce:netbook: closing lid puts it in sleep mode with autolock on wake
+* 2021-09-13:: xfce:netbook: screen dims when left sitting
 * 2021-09-13:: xfce:netbook: wifi via the nm-applet worked out of the box
 * 2021-09-13:: xfce:netbook: display brightness also works well
 * 2021-09-13:: xfce:netbook: battery icon and status looks good

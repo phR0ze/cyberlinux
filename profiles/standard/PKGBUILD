@@ -230,8 +230,6 @@ package_cyberlinux-standard-x11()
     'dconf-editor'              # General configuration manager that replaces gconf
     'desktop-file-utils'        # Command line utilities for working with desktop entries
     'dmenu'                     # Super light weight application runner
-    'filelight'                 # View disk usage information
-    'file-roller'               # System/Compression integrates well in Thunar
     'ffmpegthumbnailer'         # Lightweight video thumbnailer that can be used by file managers
     'galculator'                # Office/Calculator
     'gtk-engines'               # GTK theme engines for cyberlinux theme
@@ -241,9 +239,6 @@ package_cyberlinux-standard-x11()
     'lxdm'                      # Lightweight display manager, xorg: lxde
     'paprefs'                   # Configuration dialog for pulse audio
     'pavucontrol'               # PulseAudio Volume Control
-    'powerline'                 # Status line plugin for bash
-    'powerline-fonts'           # Powerline font symbols
-    'powerline-gitstatus'       # Powerline plugin for git status, repo: cyberlinux
     'pulseaudio-alsa'           # ALSA Configuration for PulseAudio
     'thunar'                    # Lightweight File Manager from Xfce
     'thunar-archive-plugin'     # Thunar integration with file-roller
@@ -251,6 +246,13 @@ package_cyberlinux-standard-x11()
     'thunar-volman'             # Thunar plugin to automatically manage removeable devices
     'tumbler'                   # D-Bus thumbnail service for apps like Thunar
     'qt5-base'                  # A cross-platform application and UI framework, depof: mkvtoolnix-gui
+
+    # Utils
+    'filelight'                 # View disk usage information
+    'file-roller'               # System/Compression integrates well in Thunar
+    'powerline'                 # Status line plugin for bash
+    'powerline-fonts'           # Powerline font symbols
+    'powerline-gitstatus'       # Powerline plugin for git status, repo: cyberlinux
     'xdg-user-dirs'             # Manage user directories like ~/Desktop
     'xdg-utils'                 # Desktop integration utilities
     'xfce4-screenshooter'       # Plugin that makes screenshots for the Xfce panel

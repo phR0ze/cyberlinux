@@ -59,6 +59,17 @@ post_install()
   # show-hidden=true
   # sort-directories-first=true
   # /etc/dconf/db/local.d/02-gtk
+
+  # LXDM configuration
+  # ---------------------------------------------------------------------------
+
+  # Modifying the original lxdm script to inject a hook to execute
+  # /usr/bin/pre-xorg for dynamic system adjustments
+  mv -f /usr/sbin_sideload/lxdm /usr/sbin/lxdm
+
+  # Modify the default Industrial lxdm theme
+  # - change the prompt to white 18 font size
+  mv -f /usr/share/lxdm/themes/Industrial/gtkrc_sideload /usr/share/lxdm/themes/Industrial/gtkrc
 }
 
 post_upgrade() {
