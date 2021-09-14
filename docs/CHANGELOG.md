@@ -11,6 +11,9 @@ reference.
 ### Testlog <a name="testlog"/></a>
 
 ### Changelog <a name="changelog"/></a>
+* 2021-09-13:: xfce:netbook: wifi via the nm-applet worked out of the box
+* 2021-09-13:: xfce:netbook: display brightness also works well
+* 2021-09-13:: xfce:netbook: battery icon and status looks good
 * 2021-09-13:: xfce:netbook: configured conky
 * 2021-09-13:: installer: fix for autologin
 * 2021-09-13:: openbox:server: network manager applet with openvpn
