@@ -71,30 +71,19 @@ package_cyberlinux-openbox-lite()
     "cyberlinux-standard-x11>=${pkgver}"
 
     # LXDE
-    'arcologout'                # Simple clean logout overlay from, repo: cyberlinux
     'gsimplecal'                # Simple calendar like windows systray calendar
     'gtk2fontsel'               # Simple font viewer
     'lxappearance'              # Feature-rich GTK+ theme switcher of the LXDE Desktop, group: lxde
     'lxappearance-obconf'       # Plugin for LXAppearance to configure Openbox, group: lxde
-    'lxdm'                      # Lightweight display manager, xorg: lxde
     'lxde-common'               # Common files of the LXDE Desktop, group: lxde
     'lxinput'                   # Keyboard and mouse configuration utility, group: lxde
     'lxrandr'                   # Monitor configuration tool, group: lxde
     'lxsession'                 # Enable .desktop files in ~/.config/autostart, /etc/xdg/autostart, group: lxde
     'lxterminal'                # Terminal for LXDE, alt: terminator, group: lxde
     'nitrogen'                  # Lightweight wallpaper manager
-    'paprefs'                   # Configuration dialog for pulse audio
-    'pavucontrol'               # PulseAudio Volume Control
     'pnmixer'                   # Volume controls in system tray, repo: cyberlinux
-    'pulseaudio-alsa'           # ALSA Configuration for PulseAudio
     'openbox'                   # Lightweight X11 window manager, group: lxde
     'tint2'                     # Lightweight taskmanager and system tray
-    'thunar'                    # Lightweight File Manager from Xfce
-    'thunar-archive-plugin'     # Thunar integration with file-roller
-    'thunar-media-tags-plugin'  # Thunar plugin to view media details
-    'thunar-volman'             # Thunar plugin to automatically manage removeable devices
-    'tumbler'                   # D-Bus thumbnail service for apps like Thunar
-    'xfce4-screenshooter'       # Plugin that makes screenshots for the Xfce panel
   ) 
   pkg lite
 }

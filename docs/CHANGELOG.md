@@ -9,7 +9,6 @@ reference.
 * [.. up dir](README.md)
 
 ### Testlog <a name="testlog"/></a>
-* make theater deployment based on desktop
 
 ### Changelog <a name="changelog"/></a>
 * 2021-09-13:: xfce:netbook: configured conky

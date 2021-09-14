@@ -2413,6 +2413,8 @@ $ sudo pacman -S barrier
 ```
 
 ### Configure Barrier Server <a name="configure-barrier-server"/></a>
+Debugging in the forground can be done with `barriers -f --enable-crypto`
+
 1. Run ***Barrier*** from the ***Network*** menu
 2. Work through the wizard
 3. Select ***Server (share this computer's mouse and keyboard)*** and click ***Finish***
@@ -2422,27 +2424,24 @@ $ sudo pacman -S barrier
    Note: the name used here must match the 'Client name' used in the Client section  
 7. Navigate to ***File >Save configuration as...*** and save ***barrier.conf*** in your home dir  
 8. Now move it to etc: `sudo mv ~/barrier.conf /etc`
-```
-barriers -f --enable-crypto
-```
 
 ### Configure systemd unit <a name="configure-systemd-unit-barrier"/></a>
-Synergy needs to attach to your user's X session which means it needs to run as your user. Synergy
-provides `/usr/lib/systemd/user/barrier.service` which when run with `systemctl --user
-enable synergys` will create the link `~/.config/systemd/user/default.target.wants/synergys.service`  
-1. Enable synergy: `systemctl --user enable synergys`  
-2. Start synergy: `systemctl --user start synergys`  
+Barrier needs to attach to your user's X session which means it needs to run as your user. 
+Barrier does'nt but should provide `/usr/lib/systemd/user/barriers.service` which when run with 
+`systemctl --user enable barriers` will create the link `~/.config/systemd/user/default.target.wants/barriers.service`  
+1. Enable barriers: `systemctl --user enable barriers`  
+2. Start barriers: `systemctl --user start barriers`  
 
 ### Configure Barrier Client <a name="configure-barrier-client"/></a>
-  a. Launch: `synergy`  
-  b. Click ***Next*** to accept ***English*** as the default language  
-  c. Select ***Client (use another computer's mouse and keyboard)*** then ***Finish***  
-  d. Uncheck ***Auto config***  
-  e. Enter server hostname e.g. ***192.168.1.4***  
-  f. Click ***Start***  
-  g. Navigate to ***Edit >Settings*** and check ***Hide on startup*** then ***OK***  
-  h. Click ***File >Save configuration as...*** and save as ***~/.config/synergy.conf***  
-  i. Create autostart for client: `cp /usr/share/applications/synergy.desktop ~/.config/autostart`
+1. Launch: `barrier`
+2. Click ***Next*** to accept ***English*** as the default language
+3. Select ***Client (use another computer's mouse and keyboard)*** then ***Finish***
+4. Uncheck ***Auto config***
+5. Enter server hostname e.g. ***192.168.1.4***
+6. Click ***Start***
+7. Navigate to ***Edit >Settings*** and check ***Hide on startup*** then ***OK***
+8. Click ***File >Save configuration as...*** and save as ***~/.config/synergy.conf***
+9. Create autostart for client: `cp /usr/share/applications/barrier.desktop ~/.config/autostart`
 
 ## Teamviewer <a name="teamviewer"/></a>
 Typically I configure TV to only be accessible from my LAN and tunnel in.

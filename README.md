@@ -116,7 +116,7 @@ First ensure you satisfy the [Prerequisites](#prerequisites)
    ```
 2. Execute the build:
    ```bash
-   $ ./build.sh -p openbox -a
+   $ ./build.sh -p xfce -a
    ```
 
 ### Burn the ISO to USB <a name="burn-the-iso-to-usb"/></a>
@@ -124,7 +124,11 @@ First ensure you satisfy the [Prerequisites](#prerequisites)
    ```bash
    $ lsblk
    ```
-2. Copy to the dev leaving off the partition
+2. Optionally wipe your USB first
+   ```bash
+   $ sudo wipefs --all --force /dev/sdd
+   ```
+3. Copy to the dev leaving off the partition
    ```bash
    $ sudo dd bs=32M if=temp/output/cyberlinux.iso of=/dev/sdd status=progress oflag=sync
    ```
@@ -295,9 +299,11 @@ boot/initramfs/installer bash code base is likewise MIT licensed.
 ---
 
 # Backlog <a name="backlog"/></a>
+* xfce:netbook: configure wifi
+* xfce:netbook: configure bluetooth
+
 * Load networking in initramfs?
 
-* netbook: add bluetooth
 * netbook: battery status in tray
 
 * desktop: added Zoom to the network menu

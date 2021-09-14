@@ -67,19 +67,9 @@ package_cyberlinux-xfce-lite()
     "cyberlinux-standard-x11>=${pkgver}"
 
     # XFCE
-    'arcologout'                # Simple clean logout overlay from, repo: cyberlinux
     'exo'                       # Application library for Xfce
     'garcon'                    # Implementation of the freedesktop menu specification
-    'lxdm'                      # Lightweight display manager, xorg: lxde
     'menulibre'                 # Menu editor for XFCE
-    'paprefs'                   # Configuration dialog for pulse audio
-    'pavucontrol'               # PulseAudio Volume Control
-    'pulseaudio-alsa'           # ALSA Configuration for PulseAudio
-    'thunar'                    # Lightweight File Manager from Xfce
-    'thunar-volman'             # Thunar plugin to automatically manage removeable devices
-    'thunar-archive-plugin'     # Thunar integration with file-roller
-    'thunar-media-tags-plugin'  # Thunar plugin to view media details
-    'tumbler'                   # D-Bus thumbnail service for apps like Thunar
     'xfce4-datetime-plugin'     # A date and time display plugin for the Xfce panel
     'xfce4-mount-plugin'        # Mount/umount utility for Xfce4 panel
     'xfce4-panel'               # Panel for the Xfce desktop environment
@@ -91,7 +81,6 @@ package_cyberlinux-xfce-lite()
     'xfce4-terminal'            # Termminal for Xfce
     'xfconf'                    # Configuration management system over gconf and dconf
     'xfdesktop'                 # Desktop manager for Xfce
-    'xfce4-screenshooter'       # Plugin that makes screenshots for the Xfce panel
     'xfwm4'                     # Xfce's window manager
   )
   pkg lite
