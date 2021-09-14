@@ -160,7 +160,7 @@ on the [Arch Linux Wiki](https://wiki.archlinux.org/) should work just fine as w
     * [Display Brightness](#display-brightness)
   * [Suspend](#suspend)
 * [Remoting](#remoting)
-  * [Synergy](#synergy)
+  * [Barrier](#barrier)
   * [Teamviewer](#teamviewer)
   * [Zoom](#zoom)
 * [Rescue](#rescue)
@@ -2403,32 +2403,37 @@ Suspend works out of the box with ***systemd*** as the default system manager
 
 # Remoting <a name="remoting"/></a>
 
-## Synergy <a name="synergy"/></a>
-Synergy allows you to share a keyboard and mouse between machines (e.g. desktop and laptop).
+## Barrier <a name="barrier"/></a>
+Barrier allows you to share a keyboard and mouse between machines (e.g. desktop and laptop). It is a 
+fork of the `Synergy 1.9` codebase and the go forward open source solution.
 
-Note: if synergy starts up before xrandr has positioned the windows and thus mousing over to the
-other desktop doesn't work due to inaccurate display layout I've found this can be solved by using
-the Nvidia drivers rather than the free ones.
+### Install Barrier <a name="install-barrier"/></a>
+```bash
+$ sudo pacman -S barrier
+```
 
-1. Configure Main Workstation as Server i.e. has keyboard/mouse
-  a. Install: `sudo pacman -S synergy`  
-  b. Run ***synergy*** from the ***Network*** menu  
-  c. Work through the wizard  
-  d. Select ***Server (share this computer's mouse and keyboard)*** and click ***Finish***  
-     Note: ignore the ***Failed to get local IP address...*** error and click ***OK***  
-  e. Select ***Configure interactively*** and then click ***Configure Server...***  
-  f. Drage a new monitor from top right down to be to the right of ***desktop***  
-  g. Double click the new monitor and name it ***laptop*** and click ***OK***  
-     Note: the name used here must match the 'Client name' used in the Client section  
-  i. Navigate to ***File >Save configuration as...*** and save ***synergy.conf*** in your home dir  
-  j. Now move it to etc: `sudo mv ~/synergy.conf /etc`
-2. Configure systemd unit  
-  Synergy needs to attach to your user's X session which means it needs to run as your user. Synergy
-  provides `/usr/lib/systemd/user/synergys.service` which when run with `systemctl --user
-  enable synergys` will create the link `~/.config/systemd/user/default.target.wants/synergys.service`  
-  a. Enable synergy: `systemctl --user enable synergys`  
-  b. Start synergy: `systemctl --user start synergys`  
-3. Configure Client nodes i.e. don't have keyboard/mouse
+### Configure Barrier Server <a name="configure-barrier-server"/></a>
+1. Run ***Barrier*** from the ***Network*** menu
+2. Work through the wizard
+3. Select ***Server (share this computer's mouse and keyboard)*** and click ***Finish***
+4. Select ***Configure interactively*** and then click ***Configure Server...***
+5. Drag a new monitor from top right down to be to the right of ***desktop***
+6. Double click the new monitor and name it ***laptop*** and click ***OK***
+   Note: the name used here must match the 'Client name' used in the Client section  
+7. Navigate to ***File >Save configuration as...*** and save ***barrier.conf*** in your home dir  
+8. Now move it to etc: `sudo mv ~/barrier.conf /etc`
+```
+barriers -f --enable-crypto
+```
+
+### Configure systemd unit <a name="configure-systemd-unit-barrier"/></a>
+Synergy needs to attach to your user's X session which means it needs to run as your user. Synergy
+provides `/usr/lib/systemd/user/barrier.service` which when run with `systemctl --user
+enable synergys` will create the link `~/.config/systemd/user/default.target.wants/synergys.service`  
+1. Enable synergy: `systemctl --user enable synergys`  
+2. Start synergy: `systemctl --user start synergys`  
+
+### Configure Barrier Client <a name="configure-barrier-client"/></a>
   a. Launch: `synergy`  
   b. Click ***Next*** to accept ***English*** as the default language  
   c. Select ***Client (use another computer's mouse and keyboard)*** then ***Finish***  

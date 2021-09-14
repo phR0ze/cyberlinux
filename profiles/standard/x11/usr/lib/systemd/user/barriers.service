@@ -1,0 +1,10 @@
+[Unit]
+Description=Barrier Server Daemon
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/barriers --no-daemon --enable-crypto
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

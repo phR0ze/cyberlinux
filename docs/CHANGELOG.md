@@ -9,11 +9,11 @@ reference.
 * [.. up dir](README.md)
 
 ### Testlog <a name="testlog"/></a>
-* openbox:server: fix for autologin
-* xfce:netbook: configured conky
 * make theater deployment based on desktop
 
 ### Changelog <a name="changelog"/></a>
+* 2021-09-13:: xfce:netbook: configured conky
+* 2021-09-13:: installer: fix for autologin
 * 2021-09-13:: openbox:server: network manager applet with openvpn
 * 2021-09-13:: installer: network manager static IP support
 * 2021-09-13:: xfce:netbook: added bluetooth management
