@@ -472,13 +472,6 @@ config_system()
     echo $HOSTNAME > "${NEW_ROOT}/etc/hostname"
     check_status
 
-    # Configure wifi before user is created to pick up autostart
-    if [ "x$ENABLE_WIFI" == "x1" ]; then
-        echo -en ":: Enabling Wifi..."
-        chroot ${NEW_ROOT} systemctl enable wpa_supplicant@wlo1 &>/dev/null
-        check_status
-    fi
-
     if [ "x$ENABLE_BLUETOOTH" == "x1" ]; then
         echo -en ":: Enabling Bluetooth..."
         chroot ${NEW_ROOT} systemctl enable bluetooth &>/dev/null
@@ -612,7 +605,6 @@ installer()
     #---------------------------------------------------------------------------
     SSD=0
     DEFAULT="n"
-    ENABLE_WIFI=0
     ENABLE_BLUETOOTH=0
     HOSTNAME="${DISTRO}-${LAYER}"
     NETIP='DHCP'
@@ -674,7 +666,6 @@ installer()
             if [ "x${NETIP}" != "xDHCP" ]; then
                 getinput GATEWAY 'Enter gateway' $(echo $NETIP | awk -F. '{print $1"."$2"."$3".1"}')
             fi
-            getinput ENABLE_WIFI 'Enter wifi state' 0
             getinput ENABLE_BLUETOOTH 'Enter bluetooth state' 0
 
             # Configure time and date

@@ -299,8 +299,6 @@ boot/initramfs/installer bash code base is likewise MIT licensed.
 ---
 
 # Backlog <a name="backlog"/></a>
-* xfce:netbook: background not working?
-* xfce:netbook: configure bluetooth
 * installer: hanges when booting into the Graphical Target
 
 * Load networking in initramfs?

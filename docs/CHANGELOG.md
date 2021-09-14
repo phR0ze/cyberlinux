@@ -9,8 +9,11 @@ reference.
 * [.. up dir](README.md)
 
 ### Testlog <a name="testlog"/></a>
+* xfce:netbook: refactor more into the base x11 layer
+* xfce:netbook: set background using generic `monitor0`
 
 ### Changelog <a name="changelog"/></a>
+* 2021-09-13:: xfce:netbook: configure bluetooth
 * 2021-09-13:: xfce:netbook: closing lid puts it in sleep mode with autolock on wake
 * 2021-09-13:: xfce:netbook: screen dims when left sitting
 * 2021-09-13:: xfce:netbook: wifi via the nm-applet worked out of the box

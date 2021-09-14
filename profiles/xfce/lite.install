@@ -45,7 +45,7 @@ post_install()
   # - set bg=/usr/share/backgrounds/dreamfusion003_1280x1024.jpg
   # - disabled the user list control
   # - disabled the bottom panel from being displayed
-  mv -f /etc/lxdm/lxdm.conf_sideload /etc/lxdm/lxdm.conf
+  mv -f /etc/lxdm/lxdm.conf_xfce_sideload /etc/lxdm/lxdm.conf
 
   # Enable lxdm service to start at boot
   # -f will automatically disable the old display manager
