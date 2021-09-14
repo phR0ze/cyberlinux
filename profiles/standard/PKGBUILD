@@ -116,7 +116,7 @@ package_cyberlinux-standard-shell()
   depends=(
     "cyberlinux-standard-base>=${pkgver}"
 
-    # system tools
+    # System tools
     'cdrtools'                  # isoinfo, mkisofs
     'cyberlinux-screenfetch'    # CLI bash script to show system theme for screenshots
     'dos2unix'                  # Text file format converter
@@ -141,11 +141,11 @@ package_cyberlinux-standard-shell()
     'squashfs-tools'            # mksquashfs, unsquashfs
     'yay'                       # Pacman wrapper and AUR helper written in golang, repo: blackarch
 
-    # recovery tools
+    # Recovery tools
     'ddrescue'                  # GNU data recovery tool
     'testdisk'                  # Checks and undeletes partitions + photorec
 
-    # networking tools
+    # Networking tools
     'bindip'                    # Bind a service to a specifc IP Address, repo: cyberlinux
     'dnsutils'                  # Network utilities dig/host/nslookup
     'gnu-netcat'                # Network piping application
@@ -269,7 +269,11 @@ package_cyberlinux-standard-x11()
     # Network
     'firefox'                   # Standalone web browser from mozilla.org 
     'filezilla'                 # Network/Transfer
+    'freerdp'                   # RDP client plugin for remmina
+    'network-manager-applet'    # Applet for managing network connections
+    'networkmanager-openvpn'    # NetworkManager VPN plugin for OpenVPN
     'openvpn'                   # An easy-to-use, robust and highly configurable VPN (Virtual Private Network)
+    'remmina'                   # Nice remoting UI for RDP and other protocols
     'vopono'                    # Run applications through VPN connections in network namespaces, repo: cyberlinux
     'openvpn-update-systemd-resolved' # OpenVPN systemd-resolved updater, repo: cyberlinux
 

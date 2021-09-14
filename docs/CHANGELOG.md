@@ -9,12 +9,12 @@ reference.
 * [.. up dir](README.md)
 
 ### Testlog <a name="testlog"/></a>
-* installer: network manager static IP support
-* installer: use faster TCP ramp speed to fix Arch Linux slow speed failure
 * xfce:netbook: configured conky
+* openbox:server: network manager applet with openvpn
 * make theater deployment based on desktop
 
 ### Changelog <a name="changelog"/></a>
+* 2021-09-13:: installer: network manager static IP support
 * 2021-09-13:: xfce:netbook: added bluetooth management
 * 2021-09-13:: xfce:lite: removed pnmixer
 * 2021-09-13:: xfce:lite: set move and resize window hot keys to `Super+Enter` and `Super+Enter+Alt`

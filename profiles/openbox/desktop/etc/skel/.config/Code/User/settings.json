@@ -35,6 +35,7 @@
     },
 
     "go.gopath": "~/Projects/go",           // Set the GOPATH to use
+    "go.formatTool": "goimports",           // Use specific external format tool for go
     "go.useLanguageServer": true,           // Use the new gopls language server
     "[go]": {
         "editor.snippetSuggestions": "none",
