@@ -769,12 +769,12 @@ installer()
         echo -e "${cyber}:: *${padleft}${msg}${padright}*${none}"
         echo -e "${cyber}:: $(bash -c "printf '%0.1s' '*'{1..107}")${none}"
 
-        if [ "x$DIRECTIVE" == "xexit_end" ]; then
-            exit_to_shell
-        fi
-
         # Eject media
         eject --force &>/dev/null
+
+        # Simply exit directing user to unplug USB and reboot system
+        echo -e "Please unplug the USB and reboot"
+        exit_to_shell
     fi
 
     # this function will return control back to the initramfs process which
