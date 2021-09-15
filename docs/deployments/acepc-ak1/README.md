@@ -5,8 +5,8 @@ Documenting the steps I went through to deploy <b><i>cyberlinux</i></b> onto the
 configuration changes to enable WiFi 
 <br><br>
 
-### Quick Links
-* [.. up dir](README.md)
+### Quick links
+* [.. up dir](..)
 * [Install cyberlinux](#install-cyberlinux)
 * [Configure cyberlinux](#configure-cyberlinux)
   * [Graphics](#graphics)
@@ -25,7 +25,7 @@ choose an `UEFI` boot option in order to get keyboard support during the install
    d. Ensure it is `Disabled`  
 
 2. Now boot the AK1 from the USB:  
-   a. Plug in the [Multiboot USB](../../README.md#create-multiboot-usb)  
+   a. Plug in the [Multiboot USB](../../../cyberlinux#create-multiboot-usb)  
    b. Press `F7` repeatedly until the boot menu pops up  
    c. Select your `UEFI` device entry e.g. `UEFI: USB Flash Disk 1.00`  
 

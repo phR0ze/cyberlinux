@@ -1,18 +1,22 @@
 # vscode
 ====================================================================================================
-<img align="left" width="48" height="48" src="../../art/logo_256x256.png">
+<img align="left" width="48" height="48" src="../../../art/logo_256x256.png">
 Develop with Visual Studio Code
 <br><br>
 
-### Quick Links
-* [.. up dir](README.md)
+### Quick links
+* [.. up dir](..)
 * [Install](#install)
 * [Install Extensions](#install-extensions)
 * [Keyboard Shortcuts](#keyboard-shortcuts)
 * [General Settings](#general-settings)
 * [Language Config](#language-config)
-  * [Golang Install](#golang-install)
-  * [Golang Config ](#go-config)
+  * [Golang](#golang)
+    * [Install Golang](#install-golang)
+    * [Config Golang](#config-golang)
+  * [Rust](#rust)
+    * [Install Rust](#install-rust)
+    * [Config Rust](#config-rust)
 * [Troubleshooting](#troubleshooting)
   * [Remove All Extensions](#remove-all-extensions)
 
@@ -109,27 +113,16 @@ Hit `Ctrl+Shift+p` and search for `json` and select `Preferences: Open Settings(
 
 # Language Config <a name="language-config"></a>
 
-## Golang Install <a name="golang-install"></a>
+## Golang <a name="golang"></a>
 
-Install golang and dependencies;
+### Install Golang <a name="install-golang"></a>
+Install golang dependencies;
+
 ```bash
-# go                   // golang
-# go-bindata           // go binary data tool
-# dep                  // go dependency manager
-# delve                // go debugger
-$ sudo pacman -S go go-tools go-bindata dep delve
+$ sudo pacman -S go go-tools go-bindata delve
 ```
 
-Install Go Language Server:
-```bash
-# Remove the old go bins
-$ rm -rf ~/Projects/go/bin
-
-# Download the new go language server
-$ go get golang.org/x/tools/gopls
-```
-
-## Golang Config <a name="golang-config"></a>
+### Config Golang <a name="config-golang"></a>
 1. Set go path in `~/.bashrc`:    
    `export GOPATH=~/Projects/go`  
 
@@ -170,6 +163,30 @@ $ go get golang.org/x/tools/gopls
    },
    "files.eol": "\n", // Gopls formatting only supports LF line endings
    ```
+
+## Rust <a name="rust"></a>
+
+### Install Rust <a name="install-rust"></a>
+You'll need rust, the debugger and the musl target
+
+```bash
+$ sudo pacman -S rust rust-musl lldb
+```
+
+### Config Rust <a name="config-rust"></a>
+1. Install and configure language server:
+   a. Install extension `rust-analyzer by matklad.rust-analyzer`  
+   b. Click `Yes` bottom right to install helper tooling  
+2. Install and configure debugger support:
+   a. Install extension `CodeLLDB by Vadim Chugunov`  
+   b. Now switch to debug mode and click drop down `Add Configuration...` then `LLDB`  
+   c. Cargo should popup a dialog click `Yes` which generates   
+   d. Add `"sourceLanguages": ["rust"]` which will add two debug configs
+3. Install and configure crate support:
+   a. Install extension `Better TOML by bungcip`  
+   b. Install extension `crates by Seray Uzgur`  
+4. Install and configure unit test debug launching:
+   a. Install extension `Rust Test Lens by Hannes De Valkeneer`  
 
 ## Troubleshooting <a name="troubleshooting"></a>
 

@@ -4,9 +4,9 @@ cyberlinux specific hardware deployments
 Documenting specific hardware deployments for <b><i>cyberlinux</i></b> 
 <br><br>
 
-### Quick Links
+### Quick links
 * [.. up dir](..)
-* [ACEPC AK1](ACEPC-AK1.md)
-* [Dell XPS 13 9310](Dell-xps-13-9310.md)
-* [HP ZBook 15](HP-ZBook-15.md)
-* [Samsung Chromebook3](Samsung-Chromebook3.md)
+* [ACEPC AK1](acepc-ak1)
+* [Dell XPS 13 9310](dell-xps-13-9310)
+* [HP ZBook 15](hp-zbook-15)
+* [Samsung Chromebook3](samsung-chromebook3)

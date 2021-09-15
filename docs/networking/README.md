@@ -4,8 +4,8 @@ Networking
 Documenting various networking technologies
 <br><br>
 
-### Quick Links
+### Quick links
 * [.. up dir](..)
-* [BlueMan](BluMan.md)
-* [Firefox](Firefox.md)
-* [NetworkManager](NetworkManager.md)
+* [BlueMan](bluMan)
+* [Firefox](firefox)
+* [NetworkManager](networknanager)

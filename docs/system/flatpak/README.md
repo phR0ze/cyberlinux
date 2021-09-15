@@ -13,8 +13,8 @@ for the taking.
 your own risk.  Any damages, issues, losses or problems caused by the use of ***cyberlinux*** are
 strictly the responsiblity of the user and not the developer/creator of ***cyberlinux***.
 
-### Quick Links
-* [.. up dir](README.md)
+### Quick links
+* [.. up dir](..)
 * [Flatpak Overview](#flatpak-overview)
 * [Config flatpak](#config-flatpak)
   * [Install flatpak](#install-flatpak)

@@ -4,8 +4,8 @@ cyberlinux WINE documentation
 Documentation for various wine related settings
 <br><br>
 
-### Quick Links
-* [.. up dir](README.md)
+### Quick links
+* [.. up dir](..)
 * [Overview](#overview)
 * [Install Wine](#install-wine)
 * [Wine Prefixes](#wine-prefixes)

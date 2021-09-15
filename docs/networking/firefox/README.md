@@ -4,8 +4,8 @@ Firefox configuration
 Documenting how I like to configure Firefox
 <br><br>
 
-### Quick Links
-* [.. up dir](README.md)
+### Quick links
+* [.. up dir](..)
 * [Extensions](#extensions)
   * [ublock origin](#ublock-origin)
 

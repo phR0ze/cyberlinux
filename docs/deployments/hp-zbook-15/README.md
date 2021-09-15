@@ -4,8 +4,8 @@ HP ZBook 15 deployment
 Documenting the steps I went through to deploy <b><i>cyberlinux</i></b> onto the HP ZBook 15
 <br><br>
 
-### Quick Links
-* [.. up dir](README.md)
+### Quick links
+* [.. up dir](..)
 * [Install cyberlinux](#install-cyberlinux)
 * [Configure cyberlinux](#configure-cyberlinux)
   * [Graphics](#graphics)
@@ -17,7 +17,7 @@ Documenting the steps I went through to deploy <b><i>cyberlinux</i></b> onto the
 
 ## Install cyberlinux <a name="install-cyberlinux"/></a>
 1. Now boot from the USB:  
-   a. Plug in the [Multiboot USB](../../README.md#create-multiboot-usb)  
+   a. Plug in the [Multiboot USB](../../../cyberlinux#create-multiboot-usb)  
 
 3. Install `cyberlinux`:  
    a. Select the desired deployment type e.g. `Desktop`  

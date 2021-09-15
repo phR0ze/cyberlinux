@@ -1,11 +1,11 @@
 NeoVim
 ====================================================================================================
-<img align="left" width="48" height="48" src="../../art/logo_256x256.png">
+<img align="left" width="48" height="48" src="../../../art/logo_256x256.png">
 NeoVim is a fork of Vim aiming to improve user experience and plugin implementation.
 <br><br>
 
-### Quick Links
-* [.. up dir](README.md)
+### Quick links
+* [.. up dir](..)
 * [Overview](#overview)
   * [Getting started](#getting-started)
     * [Install NeoVim](#install-neovim)

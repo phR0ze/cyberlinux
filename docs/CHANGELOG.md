@@ -5,14 +5,14 @@ Simply documenting changes I've made to the distro and the dates the changes wer
 reference. 
 <br><br>
 
-### Quick Links
-* [.. up dir](README.md)
+### Quick links
+* [.. up dir](..)
 
 ### Testlog <a name="testlog"/></a>
-* xfce:netbook: refactor more into the base x11 layer
 * xfce:netbook: set background using generic `monitor0`
 
 ### Changelog <a name="changelog"/></a>
+* 2021-09-14:: xfce:netbook: refactor more into the base x11 layer
 * 2021-09-13:: xfce:netbook: configure bluetooth
 * 2021-09-13:: xfce:netbook: closing lid puts it in sleep mode with autolock on wake
 * 2021-09-13:: xfce:netbook: screen dims when left sitting

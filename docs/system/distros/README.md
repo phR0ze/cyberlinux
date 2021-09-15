@@ -9,8 +9,8 @@ All of the Distros below are being reviewed in a VirtualBox VM with 4GB of RAM a
 `Intel E5-2637 Cores`. Obviously this will be highly subjective and serves more as a reference for
 myself.
 
-### Quick Links
-* [.. up dir](README.md)
+### Quick links
+* [.. up dir](..)
 * [Arch Linux Distros](#arch-linux-distros)
   * [Arco Linux - Openbox](#arco-linux-openbox)
   * [Hefftor Linux](#hefftor-linux)

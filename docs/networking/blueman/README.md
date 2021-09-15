@@ -5,8 +5,8 @@ BlueMan configuration
 Python using GTK.
 <br><br>
 
-### Quick Links
-* [.. up dir](README.md)
+### Quick links
+* [.. up dir](..)
 * [Overview](#overview)
   * [Install](#install)
 

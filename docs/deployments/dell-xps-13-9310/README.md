@@ -4,8 +4,8 @@ Dell XPS 13 9310 deployment
 Documenting the steps I went through to deploy <b><i>cyberlinux</i></b> onto the Dell XPS 13 9310 
 <br><br>
 
-### Quick Links
-* [.. up dir](README.md)
+### Quick links
+* [.. up dir](..)
 * [Install cyberlinux](#install-cyberlinux)
 * [Configure cyberlinux](#configure-cyberlinux)
   * [Graphics](#graphics)
@@ -26,7 +26,7 @@ firmware that comes with the machine will be cryptographically signed for the ma
    h. Select `EXIT` bottom right of the screen to reboot  
 
 2. Now boot from the USB:  
-   a. Plug in the [Multiboot USB](../../README.md#create-multiboot-usb)  
+   a. Plug in the [Multiboot USB](../../../cyberlinux#create-multiboot-usb)  
    b. Press `F2` while booting  
    c. Select your `UEFI` USB device  
 

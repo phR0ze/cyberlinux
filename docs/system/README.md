@@ -4,8 +4,8 @@ system
 Documentation for various system technologies
 <br><br>
 
-### Quick Links
+### Quick links
 * [.. up dir](..)
-* [Distros](Distros.md)
-* [Flatpak](Flatpak.md)
-* [Wine](Wine.md)
+* [Distros](distros)
+* [Flatpak](flatpak)
+* [Wine](wine)

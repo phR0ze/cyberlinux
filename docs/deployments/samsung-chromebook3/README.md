@@ -5,8 +5,8 @@ Documenting the steps I went through to deploy <b><i>cyberlinux</i></b> onto the
 (CELES) including configuration changes to enable WiFi 
 <br><br>
 
-### Quick Links
-* [.. up dir](README.md)
+### Quick links
+* [.. up dir](..)
 * [Prerequisites](#prerequsites)
 * [Install cyberlinux](#install-cyberlinux)
 * [Configure cyberlinux](#configure-cyberlinux)
@@ -38,7 +38,7 @@ With earlier kernel versions and drivers there were some quirks to work out but 
 and associated Arch Linux packages seem to work pretty smooth.
 
 1. Boot Into the `Setup firmware`:  
-   a. Plug in the [Multiboot USB](../../README.md#create-multiboot-usb)  
+   a. Plug in the [Multiboot USB](../../../cyberlinux#create-multiboot-usb)  
    b. Power on the system and press `Esc` repeatedly until the Setup firmware loads  
    b. Select `Boot Manager`  
    c. Select `EFI USB Device`  
