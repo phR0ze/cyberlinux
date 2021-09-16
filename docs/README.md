@@ -23,6 +23,7 @@ on the [Arch Linux Wiki](https://wiki.archlinux.org/) should work just fine as w
 * [Configuration](#configuration)
   * [dconf](#dconf)
     * [Dump dconf settings to file](#dump-dconf-settings-to-file)
+    * [Load dconf settings from file](#load-dconf-settings-from-file)
 * [Develop](#develop)
   * [Git](#git)
   * [Rewrite Git History](#rewrite-git-history)
@@ -267,13 +268,56 @@ sudo trust anchor CA1.crt
 ## dconf <a name="dconf"/></a>
 
 ### Dump dconf settings to file <a name="dump-dconf-settings-to-file"/></a>
-To get setting persisted from dconf configure the target app as desired then dump the settings out
-and save them in the dconf load location.
+To get setting persisted from dconf configure first reset your configs then configure as desired and 
+dump out your settings to a local file.
 
-Dump out the target app setttings to the load area
+Dump all settings:
+1. Reset all configs to factory defaults:
+   ```bash
+   $ dconf reset -f /
+   ```
+2. Configure target applications as desired then dump out the settings:
+   ```bash
+   $ dconf dump / > settings
+   ```
+
+Dump specific app settings:
 ```bash
+$ dconf dump /org/gtk/settings/file-chooser/ > /etc/dconf/db/local.d/02-gtk
 $ dconf dump /apps/guake/ > /etc/dconf/db/local.d/03-guake
 ```
+
+### Load dconf settings from file <a name="load-dconf-settings-from-file"/></a>
+Use a file dumped from the previous section [Dump dconf settings to file](#dump-dconf-settings-to-file)
+to restore your settings.
+
+Manually restore all settings:
+```bash
+$ dconf load < settings
+```
+
+Manually restore specific app settings:
+```bash
+$ dconf load /org/gtk/settings/file-chooser/ < 02-gtk
+```
+
+[Set values from defaults](https://help.gnome.org/admin/system-admin-guide/stable/dconf-custom-defaults.html.en)
+1. Place settings fil in `/etc/dconf/db/local.d/02-gtk` ensuring keys have full path without root 
+   prefix and slash suffix like is required in manual form e.g. `/org/gtk/` vs `[org/gtk]`
+   ```
+   [org/gtk/settings/file-chooser]
+   show-hidden=true
+   sort-directories-first=true
+   ```
+2. Ensure the file `/etc/dconf/profiles/user` exists with the contents
+   ```
+   user-db:user
+   system-db:local
+   ```
+3. Update
+   ```bash
+   $ sudo dconf update
+   ```
 
 # Develop <a name="develop"/></a>
 

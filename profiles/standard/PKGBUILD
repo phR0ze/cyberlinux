@@ -499,9 +499,9 @@ package_cyberlinux-standard-desktop()
     'simplescreenrecorder'      # Awesome screen recorder
 
     # Network
+    'barrier'                   # Share a single mouse and keyboard between multiple computers
     'chromium'                  # Open source base of Google's Chrome browser
     'qbittorrent'               # BitTorrent client written in C++, based on Qt and libtorrent-rasterbar
-    'synergy'                   # Share a single mouse and keyboard between multiple computers
     'zoom'                      # Video Conferencing and Web Conferencing Service
 
     # Office

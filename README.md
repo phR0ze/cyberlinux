@@ -300,15 +300,10 @@ boot/initramfs/installer bash code base is likewise MIT licensed.
 ---
 
 # Backlog <a name="backlog"/></a>
-* netbook: added Cheese for webcam control
-* netbook: added Zoom to the network menu
-* desktop: add veracrypt
 * netbook: boot on lid open
-* desktop: vscode configs are not saved
-* desktop: add utshushi menu entry
 * netbook: HDMI output
 
-* xfce:netbook: set background using generic `monitor0`
+* xfce:netbook: set background using generic `monitor0` from /etc/lxdm/PreLogin
 * rust: fungus new clone from github
   * use cyberlinux to drive the smallest slice of functionality
   * split out as features
@@ -320,7 +315,6 @@ boot/initramfs/installer bash code base is likewise MIT licensed.
 * Load networking in initramfs?
 
 * Detect and install braswell config at install time
-* Add slack to desktop
 * Display time in installer using given timezone offset
 * Document configuring Firefox
 * GTK folder sort settings didn't take

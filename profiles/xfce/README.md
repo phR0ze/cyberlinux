@@ -43,7 +43,7 @@ applications and configuration.
 * Utilities
   * Android Utils, Docker, VirtualBox, Cinnamon ScreenSaver, Conky
 * Nework
-  * Synergy
+  * Barrier
 * Media
   * Gimp, SMplayer, Mvp, Handbrake, MakeMKV, Audacity, Brasero, DEVEDE, Avidemux, OpenShot,
   InkScape, Scribus, Asunder, Tiny Media Manager

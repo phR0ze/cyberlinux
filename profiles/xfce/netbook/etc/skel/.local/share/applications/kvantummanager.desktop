@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.1
+Type=Application
+Name=Kvantum Manager
+Comment=A simple GUI for installing, selecting and manipulating Kvantum themes
+Icon=kvantum
+Exec=kvantummanager
+Actions=
+Categories=DesktopSettings;LXQt;Qt;Settings;X-GNOME-PersonalSettings;X-XFCE-PersonalSettings;X-XFCE-SettingsDialog;

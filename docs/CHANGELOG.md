@@ -9,13 +9,17 @@ reference.
 * [.. up dir](..)
 
 ### Testlog <a name="testlog"/></a>
-* standard:netbook: added Cheese for webcam control
-* standard:netbook: added Zoom to the network menu
-* standard:desktop: vscode configs should now be the correct location ~/.config/Code
-* standard:desktop: added veracrypt
-* openbox:desktop: added image scan menu entry
+* 2021-09-16:: standard:x11: fix for dconf defaults in local.d
+* 2021-09-16:: xfce:netbook: fix for kvantum icon only in settings
+* 2021-09-16:: standard:desktop: switch synergy for barrier
+* 2021-09-16:: standard:desktop: added veracrypt
+* 2021-09-16:: openbox:desktop: added image scan menu entry
 
 ### Changelog <a name="changelog"/></a>
+* 2021-09-16:: standard:desktop: vscode configs should now be the correct location ~/.config/Code
+* 2021-09-16:: standard:netbook: added kvantum manager
+* 2021-09-16:: standard:netbook: added Zoom to the network menu
+* 2021-09-16:: standard:netbook: added Cheese for webcam control
 * 2021-09-16:: openbox:lite: set Arc-Dark gtk theme as default
 * 2021-09-14:: xfce:netbook: refactor more into the base x11 layer
 * 2021-09-13:: xfce:netbook: configure bluetooth
