@@ -9,10 +9,11 @@ reference.
 * [.. up dir](..)
 
 ### Testlog <a name="testlog"/></a>
-* openbox:desktop: add image scan menu entry
 * standard:netbook: added Cheese for webcam control
 * standard:netbook: added Zoom to the network menu
+* standard:desktop: vscode configs should now be the correct location ~/.config/Code
 * standard:desktop: added veracrypt
+* openbox:desktop: added image scan menu entry
 
 ### Changelog <a name="changelog"/></a>
 * 2021-09-16:: openbox:lite: set Arc-Dark gtk theme as default
