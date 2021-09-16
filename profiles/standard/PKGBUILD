@@ -250,6 +250,7 @@ package_cyberlinux-standard-x11()
     'tumbler'                   # D-Bus thumbnail service for apps like Thunar
     'qt5-base'                  # A cross-platform application and UI framework, depof: mkvtoolnix-gui
     'xfce4-power-manager'       # Power manager for the Xfce desktop
+    'kvantum-qt5'               # SVG-based theme engine for Qt5 includes Arc-Dark
 
     # Utils
     'filelight'                 # View disk usage information
@@ -427,6 +428,7 @@ package_cyberlinux-standard-netbook()
 
     # Media
     'gimp'                      # Excellent image editor
+    'cheese'                    # Take photos and videos with your webcam, with fun graphical effects
 
     # Office
     'hunspell-en_US'            # US dictionaries for spell checking
@@ -437,6 +439,7 @@ package_cyberlinux-standard-netbook()
     'blueman'                   # Bluetooth management tool
     'pulseaudio-bluetooth'      # Pulse Audio plugin for bluetooth output
     'wpa_supplicant'            # A utility providing key negotiation for WPA wireless networks
+    'zoom'                      # Video Conferencing and Web Conferencing Service
   )
   pkg netbook
 }
@@ -452,6 +455,7 @@ package_cyberlinux-standard-desktop()
     'docker'                    # Pack, ship and run any application as a lightweight container
     'gnome-multi-writer'        # Write an ISO file to multiple USB devices at once
     'systemd-docker'            # Wrapper for "docker run" to handle systemd quirks, repo: cyberlinux
+    'veracrypt'                 # Disk encryption with strong security based on TrueCrypt
 
     # Printing
     'cups-pdf'                  # System/Printer Driver with PDF print support

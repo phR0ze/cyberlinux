@@ -300,24 +300,25 @@ boot/initramfs/installer bash code base is likewise MIT licensed.
 ---
 
 # Backlog <a name="backlog"/></a>
+* netbook: added Cheese for webcam control
+* netbook: added Zoom to the network menu
+* desktop: add veracrypt
+* netbook: boot on lid open
+* desktop: vscode configs are not saved
+* desktop: add utshushi menu entry
+* netbook: HDMI output
+
+* xfce:netbook: set background using generic `monitor0`
 * rust: fungus new clone from github
   * use cyberlinux to drive the smallest slice of functionality
   * split out as features
 
 * rust: clu wm xfce set desktop file monitor to use
 
-* netbook: HDMI output
-* netbook: added Cheese for webcam control
-* netbook: boot on lid open
-
 * installer: hanges when booting into the Graphical Target
   * just leave a message rather than autobooting
 * Load networking in initramfs?
 
-* desktop: added Zoom to the network menu
-* desktop: vscode configs are not saved
-* desktop: add utshushi menu entry
-* desktop: add veracrypt
 * Detect and install braswell config at install time
 * Add slack to desktop
 * Display time in installer using given timezone offset

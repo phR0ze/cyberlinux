@@ -15,6 +15,7 @@
       <item label="Geany" icon="/usr/share/icons/Paper/32x32/apps/geany.png"><action name="Execute"><execute>geany</execute></action></item>
       <item label="Multi Writer" icon="/usr/share/icons/Paper/32x32/devices/drive-harddisk-usb.png"><action name="Execute"><execute>sudo gnome-multi-writer</execute></action></item>
       <item label="Screenshot" icon="/usr/share/icons/Paper/32x32/apps/applets-screenshooter.png"><action name="Execute"><execute>xfce4-screenshooter</execute></action></item>
+      <item label="Veracrypt" icon="/usr/share/pixmaps/veracrypt.xpm"><action name="Execute"><execute>veracrypt</execute></action></item>
     </menu>
     <menu id="Development" icon="/usr/share/icons/Paper/32x32/categories/applications-development.png" label="Development">
       <item label="Meld" icon="/usr/share/icons/Paper/32x32/apps/meld.png"><action name="Execute"><execute>meld</execute></action></item>
@@ -34,6 +35,7 @@
       <item label="Audacious" icon="/usr/share/icons/hicolor/32x32/apps/audacious.png"><action name="Execute"><execute>audacious</execute></action></item>
       <item label="Audacity" icon="/usr/share/icons/hicolor/32x32/apps/audacity.png"><action name="Execute"><execute>audacity</execute></action></item>
       <item label="Brasero" icon="/usr/share/icons/hicolor/32x32/apps/brasero.png"><action name="Execute"><execute>brasero</execute></action></item>
+      <item label="Cheese" icon="/usr/share/icons/Paper/32x32/apps/cheese.png"><action name="Execute"><execute>cheese</execute></action></item>
       <item label="DeVeDe" icon="/usr/share/icons/Paper/32x32/apps/devede.png"><action name="Execute"><execute>devede_ng.py</execute></action></item>
       <item label="OpenShot" icon="/usr/share/icons/Paper/32x32/apps/openshot.png"><action name="Execute"><execute>openshot-qt</execute></action></item>
       <item label="Pulse Audio" icon="/usr/share/icons/Paper/32x32/apps/multimedia-volume-control.png"><action name="Execute"><execute>pavucontrol</execute></action></item>
@@ -50,7 +52,7 @@
       <item label="Remmina" icon="/usr/share/icons/Paper/32x32/apps/remmina.png"><action name="Execute"><execute>remmina</execute></action></item>
       <item label="FileZilla" icon="/usr/share/icons/Paper/32x32/apps/filezilla.png"><action name="Execute"><execute>filezilla</execute></action></item>
       <item label="Synergy" icon="/usr/share/icons/Paper/32x32/apps/synergy.png"><action name="Execute"><execute>synergy</execute></action></item>
-      <item label="WPA Gui" icon="/usr/share/icons/hicolor/32x32/apps/wpa_gui.png"><action name="Execute"><execute>sudo wpa_gui</execute></action></item>
+      <item label="Zoom" icon="/usr/share/icons/hicolor/32x32/apps/zoom.png"><action name="Execute"><execute>zoom</execute></action></item>
     </menu>
     <menu id="Office" icon="/usr/share/icons/Paper/32x32/categories/applications-office.png" label="Office">
       <item label="Evince" icon="/usr/share/icons/Paper/32x32/apps/evince.png"><action name="Execute"><execute>evince</execute></action></item>

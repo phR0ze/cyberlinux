@@ -9,9 +9,12 @@ reference.
 * [.. up dir](..)
 
 ### Testlog <a name="testlog"/></a>
-* xfce:netbook: set background using generic `monitor0`
+* netbook: added Cheese for webcam control
+* netbook: added Zoom to the network menu
+* standard:desktop: added veracrypt
 
 ### Changelog <a name="changelog"/></a>
+* 2021-09-16:: openbox:lite: set Arc-Dark gtk theme as default
 * 2021-09-14:: xfce:netbook: refactor more into the base x11 layer
 * 2021-09-13:: xfce:netbook: configure bluetooth
 * 2021-09-13:: xfce:netbook: closing lid puts it in sleep mode with autolock on wake
