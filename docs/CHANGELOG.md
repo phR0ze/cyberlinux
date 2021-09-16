@@ -9,6 +9,7 @@ reference.
 * [.. up dir](..)
 
 ### Testlog <a name="testlog"/></a>
+* 2021-09-16:: xfce:netbook: added desktop launch items
 * 2021-09-16:: xfce:desktop: added desktop launch items
 
 ### Changelog <a name="changelog"/></a>
