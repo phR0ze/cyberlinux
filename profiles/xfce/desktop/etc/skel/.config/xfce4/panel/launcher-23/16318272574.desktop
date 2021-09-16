@@ -1,0 +1,21 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=1.0
+Name=Oracle VM VirtualBox
+GenericName=Virtual Machine
+Type=Application
+Exec=VirtualBox %U
+TryExec=VirtualBox
+Keywords=virtualization;
+MimeType=application/x-virtualbox-vbox;application/x-virtualbox-vbox-extpack;application/x-virtualbox-ovf;application/x-virtualbox-ova;
+DocPath=file:///usr/share/doc/virtualbox/UserManual.pdf
+Icon=virtualbox
+Categories=Emulator;System;
+Actions=Manager;
+StartupWMClass=VirtualBox Manager
+Comment=Run several virtual systems on a single host computer
+X-XFCE-Source=file:///usr/share/applications/virtualbox.desktop
+
+[Desktop Action Manager]
+Exec=VirtualBox
+Name=Open VM Manager
