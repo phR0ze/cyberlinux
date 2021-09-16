@@ -90,24 +90,12 @@ package_cyberlinux-openbox-lite()
 
 package_cyberlinux-openbox-server()
 {
-  pkgdesc="Server x11 system - built on the lite deployment adding server apps"
+  pkgdesc="Openbox server apps including restricted personal use only software"
   depends=(
+    "cyberlinux-standard-server>=${pkgver}"
     "cyberlinux-openbox-lite>=${pkgver}"
 
-    # Utils
-    'docker'                    # Pack, ship and run any application as a lightweight container
-    'systemd-docker'            # Wrapper for "docker run" to handle systemd quirks, repo: cyberlinux
-
-    # Media
-    'handbrake'                 # Video encoding tool for mp4/mkv
-    'handbrake-cli'             # Video encoding tool for mp4/mkv
-    'mkvtoolnix-gui'            # Set of tools to create, edit and inspect MKV files
-
-    # Network
-    'qbittorrent'               # BitTorrent client written in C++, based on Qt and libtorrent-rasterbar
-    'tiny-media-manager'        # Cross platform media manager, repo: cyberlinux
-
-    # Personal use only licensing restriction
+    # Restricted licensing to personal use only
     'teamviewer'                # Excellent remoting software
   )
   pkg server
@@ -115,84 +103,26 @@ package_cyberlinux-openbox-server()
 
 package_cyberlinux-openbox-netbook()
 {
-  pkgdesc="Netbook x11 system - built on the lite deployment adding productivity apps"
+  pkgdesc="Openbox netbook built on the lite package adding productivity apps"
   depends=(
-    "cyberlinux-openbox-lite>=${pkgver}"
     "cyberlinux-standard-netbook>=${pkgver}"
+    "cyberlinux-openbox-lite>=${pkgver}"
   )
   pkg netbook
 }
 
 package_cyberlinux-openbox-desktop()
 {
-  pkgdesc="Full desktop system - built on top of netbook with additional media and productivity apps"
+  pkgdesc="Full openbox system with media and productivity apps including restricted personal use only software"
   depends=(
+    "cyberlinux-standard-desktop>=${pkgver}"
     "cyberlinux-openbox-netbook>=${pkgver}"
 
-    # Utils
-    'catfish'                   # System/File Search - File search tool
     'cyberlinux-plank'          # Light weight, simple clean app dock
-    'docker'                    # Pack, ship and run any application as a lightweight container
-    'idesk'                     # Lightweight desktop icons for X
-    'gnome-multi-writer'        # Write an ISO file to multiple USB devices at once
     'guake'                     # Drop-down python based guake style terminal
-    'systemd-docker'            # Wrapper for "docker run" to handle systemd quirks, repo: cyberlinux
+    'idesk'                     # Lightweight desktop icons for X
 
-    # Printing
-    'cups-pdf'                  # System/Printer Driver with PDF print support
-    'epson-inkjet-printer-escpr2' # Epson printer drivers for newer Workforce printers
-    'system-config-printer'     # A CUPS printer configuration tool and status applet
-
-    # Develop
-    'awf-git'                   # Widget Factory for developing GTK themes, repo: CYBERLINUX
-    'glade'                     # User Interface Builder for GTK+ applications
-    'meld'                      # Develop/Diff Tool - Graphical diff tool cross platform
-    'ripgrep'                   # A search tool combining the usability of ag with speed of grep, depof: vscode
-    'virtualbox'                # Cross platform virtualization with UI
-    'virtualbox-guest-iso'      # VirtualBox guest additions iso image
-    'visual-studio-code-bin'    # Editor for modern development, repo: CYBERLINUX
-
-    # Games
-    'lib32-freetype2'           # TrueType font rendering library (32-bit)
-    'lib32-libpulse'            # A featureful, general-purpose sound server (32-bit client libraries)
-    'lib32-mpg123'              # A console based real time MPEG Audio Player for Layer 1, 2 and 3 (32-bit)
-    'lib32-libusb'              # A cross-platform user library to access USB devices (32-bit)
-    'winetricks'                # Script to install various redistributable runtime libraries in Wine
-    'wine-gecko'                # Wine's built-in replacement for Microsoft's Internet Explorer
-    'wine-mono'                 # Wine's built-in replacement for Microsoft's .NET Framework
-    'zenity'                    # Display graphical dialog boxes from shell scripts
-
-    # Graphics
-    'inkscape'                  # Professional vector graphics editor
-
-    # Media
-    'asunder'                   # A lean and friendly audio CD ripper and encoder
-    'audacity'                  # Audio editor - cross platform, tried and tested
-    'avidemux-qt'               # Graphical tool to edit video (filter/re-encode/split) - Qt GUI
-    'brasero'                   # Burning tool, alt: k3b, xfburn
-    'devede'                    # A program to create VideoDVDs and CDs
-    'handbrake'                 # Video encoding tool for mp4/mkv
-    'handbrake-cli'             # Video encoding tool for mp4/mkv
-    'kodi'                      # A software media player and entertainment hub for digital media
-    'losslesscut-bin'           # Crossplatform GUI tool for lossless trimming/cuttong of video/audio files
-    'mkvtoolnix-gui'            # Set of tools to create, edit and inspect MKV files
-    'openshot'                  # Simple powerful Video Editor, alt: pitivi, kdenlive
-    'simplescreenrecorder'      # Awesome screen recorder
-
-    # Network
-    'chromium'                  # Open source base of Google's Chrome browser
-    'qbittorrent'               # BitTorrent client written in C++, based on Qt and libtorrent-rasterbar
-    'synergy'                   # Share a single mouse and keyboard between multiple computers
-    'zoom'                      # Video Conferencing and Web Conferencing Service
-
-    # Office
-    'fbreader'                  # An e-book reader for linux
-    'hardinfo'                  # A system information and benchmark tool
-    'id3v2'                     # Utility to edit id3v2 tags
-    'kolourpaint'               # Paint application that saves jpg in format for GFXBoot
-    'scribus'                   # Open Source Desktop Publishing
-
-    # Personal use only licensing restriction
+    # Restricted licensing to personal use only
     'teamviewer'                # Excellent remoting software
     'ttf-ms-fonts'              # Core TTF Fonts from Microsoft
   )

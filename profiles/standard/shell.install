@@ -26,7 +26,7 @@ post_install()
 
   # Configured tmux
   # /etc/skel/.tmux.conf
-  echo ""
+  echo -n ""
 }
 
 post_upgrade() {

@@ -4,19 +4,32 @@
       "name": "live",
       "entry": "Start live environment     // Recovery env for cyberlinux",
       "kernel": "linux",
-      "layers": "standard/core,standard/base,standard/shell,standard/x11,standard/netbook,standard/live",
-      "groups": "lp,wheel,network,storage,users,video,audio,adbusers,uucp,disk"
+      "layers": "standard/core,standard/base,standard/shell,standard/x11,standard/netbook,standard/desktop,standard/live"
+    },
+    {
+      "name": "desktop",
+      "entry": "Install X11 desktop        // Desktop apps, no Window Manager",
+      "kernel": "linux",
+      "layers": "standard/core,standard/base,standard/shell,standard/x11,standard/netbook,standard/desktop",
+      "groups": "lp,wheel,network,storage,users,video,audio,adbusers,uucp,disk,docker,vboxusers"
     },
     {
       "name": "netbook",
-      "entry": "Install netbook system     // Netbook apps w/out window manager",
+      "entry": "Install X11 netbook        // Netbook apps, no Window Manager",
       "kernel": "linux",
       "layers": "standard/core,standard/base,standard/shell,standard/x11,standard/netbook",
       "groups": "lp,wheel,network,storage,users,video,audio,adbusers,uucp,disk"
     },
     {
+      "name": "server",
+      "entry": "Install X11 server         // Server apps, no Window Manager",
+      "kernel": "linux",
+      "layers": "standard/core,standard/base,standard/shell,standard/x11,standard/server",
+      "groups": "lp,wheel,network,storage,users,video,audio,adbusers,docker,uucp,disk"
+    },
+    {
       "name": "x11",
-      "entry": "Install X11 base           // No window manager",
+      "entry": "Install X11 base           // No Window Manager",
       "kernel": "linux",
       "layers": "standard/core,standard/base,standard/shell,standard/x11",
       "groups": "lp,wheel,network,storage,users,video,audio,adbusers,uucp,disk"

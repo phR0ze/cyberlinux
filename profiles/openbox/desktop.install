@@ -32,11 +32,6 @@ post_install()
 
   # Openbox menu changes for desktop
   mv -f /etc/skel/.config/openbox/menu.xml_sideload_desktop /etc/skel/.config/openbox/menu.xml
-
-  # Enable system services
-  # ---------------------------------------------------------------------------
-  systemctl enable docker.service
-  systemctl enable org.cups.cupsd.service
 }
 
 post_upgrade() {

@@ -21,11 +21,7 @@
 
 post_install()
 {
-  # Openbox configuration
-  # ---------------------------------------------------------------------------
-
-  # Adding openbox server menu
-  mv -f /etc/skel/.config/openbox/menu.xml_sideload_server /etc/skel/.config/openbox/menu.xml
+  echo -n ""
 }
 
 post_upgrade() {

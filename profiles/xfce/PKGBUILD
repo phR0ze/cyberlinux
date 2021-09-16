@@ -26,6 +26,7 @@ pkgbase=cyberlinux-xfce
 pkgname=(
     "${pkgbase}-lite"
     "${pkgbase}-netbook"
+    "${pkgbase}-desktop"
     "${pkgbase}-live"
 )
 pkgver=0
@@ -62,7 +63,7 @@ pkg()
 
 package_cyberlinux-xfce-lite()
 {
-  pkgdesc="Lite xfce system - a building block specialized xfce deployments"
+  pkgdesc="Lite xfce system to be used as a building block for xfce systems"
   depends=(
     "cyberlinux-standard-x11>=${pkgver}"
 
@@ -88,19 +89,33 @@ package_cyberlinux-xfce-lite()
 
 package_cyberlinux-xfce-netbook()
 {
-  pkgdesc="Netbook xfce system - built on the lite deployment adding productivity apps"
+  pkgdesc="Netbook xfce system with minimal productivity apps"
   depends=(
-    "cyberlinux-xfce-lite>=${pkgver}"
     "cyberlinux-standard-netbook>=${pkgver}"
+    "cyberlinux-xfce-lite>=${pkgver}"
   )
   pkg netbook
+}
+
+package_cyberlinux-xfce-desktop()
+{
+  pkgdesc="Desktop xfce system including full productivity apps and restricted personal use only software"
+  depends=(
+    "cyberlinux-standard-desktop>=${pkgver}"
+    "cyberlinux-xfce-netbook>=${pkgver}"
+
+    # Restricted licensing to personal use only
+    'teamviewer'                # Excellent remoting software
+    'ttf-ms-fonts'              # Core TTF Fonts from Microsoft
+  )
+  pkg desktop
 }
 
 package_cyberlinux-xfce-live()
 {
   pkgdesc="Live system - built on top of desktop for recovery"
   depends=(
-    "cyberlinux-xfce-lite>=${pkgver}"
+    "cyberlinux-xfce-desktop>=${pkgver}"
   )
   pkg live
 }

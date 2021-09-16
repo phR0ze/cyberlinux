@@ -4,27 +4,27 @@
       "name": "live",
       "entry": "Start live environment     // Recovery env for Personal Use Only",
       "kernel": "linux",
-      "layers": "standard/core,standard/base,standard/shell,standard/x11,openbox/lite,openbox/netbook,openbox/desktop,openbox/live"
+      "layers": "standard/core,standard/base,standard/shell,standard/x11,standard/netbook,standard/desktop,openbox/lite,openbox/netbook,openbox/desktop,openbox/live"
     },
     {
       "name": "laptop",
       "entry": "Install openbox laptop     // Max env for Personal Use Only",
       "kernel": "linux",
-      "layers": "standard/core,standard/base,standard/shell,standard/x11,openbox/lite,openbox/netbook,openbox/desktop,openbox/laptop",
+      "layers": "standard/core,standard/base,standard/shell,standard/x11,standard/netbook,standard/desktop,openbox/lite,openbox/netbook,openbox/desktop,openbox/laptop",
       "groups": "lp,wheel,network,storage,users,video,audio,adbusers,uucp,disk,docker,vboxusers"
     },
     {
       "name": "theater",
       "entry": "Install openbox theater    // Leanback env for Personal Use Only",
       "kernel": "linux",
-      "layers": "standard/core,standard/base,standard/shell,standard/x11,openbox/lite,openbox/netbook,openbox/desktop,openbox/theater",
+      "layers": "standard/core,standard/base,standard/shell,standard/x11,standard/netbook,standard/desktop,openbox/lite,openbox/netbook,openbox/desktop,openbox/theater",
       "groups": "lp,wheel,network,storage,users,video,audio,adbusers,uucp,disk,docker,vboxusers"
     },
     {
       "name": "desktop",
       "entry": "Install openbox desktop    // Full env for Personal Use Only",
       "kernel": "linux",
-      "layers": "standard/core,standard/base,standard/shell,standard/x11,openbox/lite,openbox/netbook,openbox/desktop",
+      "layers": "standard/core,standard/base,standard/shell,standard/x11,standard/netbook,standard/desktop,openbox/lite,openbox/netbook,openbox/desktop",
       "groups": "lp,wheel,network,storage,users,video,audio,adbusers,uucp,disk,docker,vboxusers"
     },
     {
@@ -38,7 +38,7 @@
       "name": "server",
       "entry": "Install openbox server     // Server env for Personal Use Only",
       "kernel": "linux",
-      "layers": "standard/core,standard/base,standard/shell,standard/x11,openbox/lite,openbox/server",
+      "layers": "standard/core,standard/base,standard/shell,standard/x11,standard/server,openbox/lite,openbox/server",
       "groups": "lp,wheel,network,storage,users,video,audio,adbusers,docker,uucp,disk"
     },
     {

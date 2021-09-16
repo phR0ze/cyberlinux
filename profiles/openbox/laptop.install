@@ -21,23 +21,11 @@
 
 post_install()
 {
-  # Autostart configuration
-  # ---------------------------------------------------------------------------
-
   # Openbox configuration
   # ---------------------------------------------------------------------------
 
   # Openbox menu changes for desktop
   mv -f /etc/skel/.config/openbox/menu.xml_sideload_laptop /etc/skel/.config/openbox/menu.xml
-
-  # Conky configuration
-  # ---------------------------------------------------------------------------
-
-  # Add conky laptop conky settings and set it to active
-  # /etc/skel/.config/conky/laptop
-  pushd /etc/skel/.config/conky
-  ln -sf laptop active
-  popd
 }
 
 post_upgrade() {

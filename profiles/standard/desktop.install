@@ -21,45 +21,14 @@
 
 post_install()
 {
-  # Nitrogen background
+  # Docker configuration
   # ---------------------------------------------------------------------------
-  # /usr/share/backgrounds/theater_curtains1.jpg
-  mv -f /etc/skel/.config/nitrogen/bg-saved.cfg_theater /etc/skel/.config/nitrogen/bg-saved.cfg
+  # /etc/docker/daemon.json
 
-  # idesk configuration
+  # Enable system services
   # ---------------------------------------------------------------------------
-
-  # Autostart idesk
-  # /etc/skel/.config/autostart/idesk.desktop
-
-  # idesk desktop icons
-  # /etc/skel/.idesktop/browser.lnk
-  # /etc/skel/.idesktop/kodi.lnk
-  # /etc/skel/.idesktop/pandora.lnk
-  # /etc/skel/.idesktop/reboot.lnk
-  # /etc/skel/.idesktop/shutdown.lnk
-  # /etc/skel/.idesktop/smplayer.lnk
-
-  # Xorg configuration
-  # ---------------------------------------------------------------------------
-
-  # Display resolution for theater deployment
-  # /etc/X11/xorg.conf.d/10-display.conf
-
-  # Openbox configuration
-  # ---------------------------------------------------------------------------
-
-  # Openbox menu changes for netbook
-  mv -f /etc/skel/.config/openbox/menu.xml_sideload_theater /etc/skel/.config/openbox/menu.xml
-
-  # Conky configuration
-  # ---------------------------------------------------------------------------
-
-  # Add conky theater conky settings and set it to active
-  # /etc/skel/.config/conky/theater
-  pushd /etc/skel/.config/conky
-  ln -sf theater active
-  popd
+  systemctl enable docker.service
+  systemctl enable org.cups.cupsd.service
 }
 
 post_upgrade() {

@@ -27,6 +27,7 @@ post_install()
   # /etc/xdg/conky/date.rb
   # /etc/xdg/conky/cal.rb
   # /etc/xdg/conky/radio.rb
+  echo -n ""
 }
 
 post_upgrade() {

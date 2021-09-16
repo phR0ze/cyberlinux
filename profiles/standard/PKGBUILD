@@ -28,7 +28,9 @@ pkgname=(
     "${pkgbase}-base"
     "${pkgbase}-shell"
     "${pkgbase}-x11"
+    "${pkgbase}-server"
     "${pkgbase}-netbook"
+    "${pkgbase}-desktop"
     "${pkgbase}-live"
 )
 pkgver=0
@@ -79,7 +81,7 @@ package_cyberlinux-standard-core()
 
 package_cyberlinux-standard-base()
 {
-  pkgdesc="Minimal bash system - a building block for lite deployments"
+  pkgdesc="Minimal bash system - a building block for lite systems"
   depends=(
     "cyberlinux-standard-core>=${pkgver}"
 
@@ -113,7 +115,7 @@ package_cyberlinux-standard-base()
 
 package_cyberlinux-standard-shell()
 {
-  pkgdesc="Full bash system - a building block for heavy deployments"
+  pkgdesc="Full bash system - a building block for heavy systems"
   depends=(
     "cyberlinux-standard-base>=${pkgver}"
 
@@ -221,7 +223,7 @@ package_cyberlinux-standard-shell()
 
 package_cyberlinux-standard-x11()
 {
-  pkgdesc="X11 base system - a building block for specialized x11 deployments"
+  pkgdesc="X11 base system - a window manager-less building block for lite systems"
   depends=(
     "cyberlinux-standard-shell>=${pkgver}"
 
@@ -391,9 +393,30 @@ package_cyberlinux-standard-x11()
   pkg x11
 }
 
+package_cyberlinux-standard-server()
+{
+  pkgdesc="X11 server system - a window manager-less building block for server systems"
+  depends=(
+    "cyberlinux-standard-x11>=${pkgver}"
+
+    # Utils
+    'docker'                    # Pack, ship and run any application as a lightweight container
+    'systemd-docker'            # Wrapper for "docker run" to handle systemd quirks, repo: cyberlinux
+
+    # Media
+    'handbrake'                 # Video encoding tool for mp4/mkv
+    'handbrake-cli'             # Video encoding tool for mp4/mkv
+    'mkvtoolnix-gui'            # Set of tools to create, edit and inspect MKV files
+
+    # Network
+    'qbittorrent'               # BitTorrent client written in C++, based on Qt and libtorrent-rasterbar
+    'tiny-media-manager'        # Cross platform media manager, repo: cyberlinux
+  )
+  pkg server
+}
 package_cyberlinux-standard-netbook()
 {
-  pkgdesc="Netbook x11 system - built on the x11 deployment adding productivity apps"
+  pkgdesc="Netbook x11 system - built on the x11 package adding productivity apps"
   depends=(
     "cyberlinux-standard-x11>=${pkgver}"
 
@@ -415,14 +438,83 @@ package_cyberlinux-standard-netbook()
     'pulseaudio-bluetooth'      # Pulse Audio plugin for bluetooth output
     'wpa_supplicant'            # A utility providing key negotiation for WPA wireless networks
   )
-  pkg live
+  pkg netbook
+}
+
+package_cyberlinux-standard-desktop()
+{
+  pkgdesc="Desktop x11 system - a window manager-less building block for desktop systems"
+  depends=(
+    "cyberlinux-standard-netbook>=${pkgver}"
+
+    # Utils
+    'catfish'                   # System/File Search - File search tool
+    'docker'                    # Pack, ship and run any application as a lightweight container
+    'gnome-multi-writer'        # Write an ISO file to multiple USB devices at once
+    'systemd-docker'            # Wrapper for "docker run" to handle systemd quirks, repo: cyberlinux
+
+    # Printing
+    'cups-pdf'                  # System/Printer Driver with PDF print support
+    'epson-inkjet-printer-escpr2' # Epson printer drivers for newer Workforce printers
+    'system-config-printer'     # A CUPS printer configuration tool and status applet
+
+    # Develop
+    'awf-git'                   # Widget Factory for developing GTK themes, repo: CYBERLINUX
+    'glade'                     # User Interface Builder for GTK+ applications
+    'meld'                      # Develop/Diff Tool - Graphical diff tool cross platform
+    'ripgrep'                   # A search tool combining the usability of ag with speed of grep, depof: vscode
+    'virtualbox'                # Cross platform virtualization with UI
+    'virtualbox-guest-iso'      # VirtualBox guest additions iso image
+    'visual-studio-code-bin'    # Editor for modern development, repo: CYBERLINUX
+
+    # Games
+    'lib32-freetype2'           # TrueType font rendering library (32-bit)
+    'lib32-libpulse'            # A featureful, general-purpose sound server (32-bit client libraries)
+    'lib32-mpg123'              # A console based real time MPEG Audio Player for Layer 1, 2 and 3 (32-bit)
+    'lib32-libusb'              # A cross-platform user library to access USB devices (32-bit)
+    'winetricks'                # Script to install various redistributable runtime libraries in Wine
+    'wine-gecko'                # Wine's built-in replacement for Microsoft's Internet Explorer
+    'wine-mono'                 # Wine's built-in replacement for Microsoft's .NET Framework
+    'zenity'                    # Display graphical dialog boxes from shell scripts
+
+    # Graphics
+    'inkscape'                  # Professional vector graphics editor
+
+    # Media
+    'asunder'                   # A lean and friendly audio CD ripper and encoder
+    'audacity'                  # Audio editor - cross platform, tried and tested
+    'avidemux-qt'               # Graphical tool to edit video (filter/re-encode/split) - Qt GUI
+    'brasero'                   # Burning tool, alt: k3b, xfburn
+    'devede'                    # A program to create VideoDVDs and CDs
+    'handbrake'                 # Video encoding tool for mp4/mkv
+    'handbrake-cli'             # Video encoding tool for mp4/mkv
+    'kodi'                      # A software media player and entertainment hub for digital media
+    'losslesscut-bin'           # Crossplatform GUI tool for lossless trimming/cuttong of video/audio files
+    'mkvtoolnix-gui'            # Set of tools to create, edit and inspect MKV files
+    'openshot'                  # Simple powerful Video Editor, alt: pitivi, kdenlive
+    'simplescreenrecorder'      # Awesome screen recorder
+
+    # Network
+    'chromium'                  # Open source base of Google's Chrome browser
+    'qbittorrent'               # BitTorrent client written in C++, based on Qt and libtorrent-rasterbar
+    'synergy'                   # Share a single mouse and keyboard between multiple computers
+    'zoom'                      # Video Conferencing and Web Conferencing Service
+
+    # Office
+    'fbreader'                  # An e-book reader for linux
+    'hardinfo'                  # A system information and benchmark tool
+    'id3v2'                     # Utility to edit id3v2 tags
+    'kolourpaint'               # Paint application that saves jpg in format for GFXBoot
+    'scribus'                   # Open Source Desktop Publishing
+  )
+  pkg desktop
 }
 
 package_cyberlinux-standard-live()
 {
-  pkgdesc="Live system - built on top of apps for recovery"
+  pkgdesc="Live system - built on top of desktop for recovery"
   depends=(
-    "cyberlinux-standard-apps>=${pkgver}"
+    "cyberlinux-standard-desktop>=${pkgver}"
   )
   pkg live
 }
