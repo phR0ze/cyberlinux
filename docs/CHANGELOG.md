@@ -9,10 +9,10 @@ reference.
 * [.. up dir](..)
 
 ### Testlog <a name="testlog"/></a>
-* 2021-09-16:: xfce:netbook: added desktop launch items
-* 2021-09-16:: xfce:desktop: added desktop launch items
 
 ### Changelog <a name="changelog"/></a>
+* 2021-09-16:: xfce:desktop: added desktop launch items
+* 2021-09-16:: xfce:netbook: added desktop launch items
 * 2021-09-16:: openbox:desktop: added image scan menu entry
 * 2021-09-16:: standard:desktop: switch synergy for barrier
 * 2021-09-16:: standard:desktop: added veracrypt
