@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.1
+Type=Application
+Name=Teamviewer
+NoDisplay=true
+Comment=Remote control and meeting solution
+Icon=teamviewer
+Exec=teamviewer
+Actions=
+Categories=Network;
+StartupNotify=true

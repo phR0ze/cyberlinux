@@ -304,6 +304,10 @@ boot/initramfs/installer bash code base is likewise MIT licensed.
 * netbook: HDMI output
 
 * xfce:netbook: set background using generic `monitor0` from /etc/lxdm/PreLogin
+  * /usr/bin/lockscreen
+    * use xrandr to detect active monitor
+    * read active monitor background from `~/.config/xfce...`
+
 * rust: fungus new clone from github
   * use cyberlinux to drive the smallest slice of functionality
   * split out as features

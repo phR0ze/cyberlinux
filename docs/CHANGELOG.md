@@ -9,13 +9,14 @@ reference.
 * [.. up dir](..)
 
 ### Testlog <a name="testlog"/></a>
-* 2021-09-16:: standard:x11: fix for dconf defaults in local.d
-* 2021-09-16:: xfce:netbook: fix for kvantum icon only in settings
-* 2021-09-16:: standard:desktop: switch synergy for barrier
-* 2021-09-16:: standard:desktop: added veracrypt
-* 2021-09-16:: openbox:desktop: added image scan menu entry
 
 ### Changelog <a name="changelog"/></a>
+* 2021-09-16:: openbox:desktop: added image scan menu entry
+* 2021-09-16:: standard:desktop: switch synergy for barrier
+* 2021-09-16:: standard:desktop: added veracrypt
+* 2021-09-16:: xfce:netbook: fix for kvantum icon only in settings
+* 2021-09-16:: standard:x11: fix for dconf defaults in local.d
+* 2021-09-16:: standard:base: remove dependency on BlackArch
 * 2021-09-16:: standard:desktop: vscode configs should now be the correct location ~/.config/Code
 * 2021-09-16:: standard:netbook: added kvantum manager
 * 2021-09-16:: standard:netbook: added Zoom to the network menu

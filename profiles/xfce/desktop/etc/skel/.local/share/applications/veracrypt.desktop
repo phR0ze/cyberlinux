@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.1
+Type=Application
+Name=VeraCrypt
+Comment=Disk encryption with strong security based on TrueCrypt
+Icon=veracrypt
+Exec=veracrypt
+Actions=
+Categories=FileTools;System;
+StartupNotify=true

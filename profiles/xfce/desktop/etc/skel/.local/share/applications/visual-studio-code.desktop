@@ -1,0 +1,17 @@
+[Desktop Entry]
+Version=1.1
+Type=Application
+Name=Visual Studio Code
+GenericName=Text Editor
+Comment=Code Editing. Refined.
+Icon=visual-studio-code
+Exec=/opt/visual-studio-code/code --no-sandbox --unity-launch %F
+Actions=new-empty-window;
+MimeType=text/plain;inode/directory;application/x-visual-studio-code-workspace;
+Categories=Development;IDE;
+Keywords=vscode;
+StartupWMClass=Code
+
+[Desktop Action new-empty-window]
+Name=New Empty Window
+Exec=/opt/visual-studio-code/code --no-sandbox --new-window %F

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Version=1.1
+Type=Application
+Name=Image Scanner
+Icon=scanner
+Exec=utsushi
+Actions=
+Categories=Office;

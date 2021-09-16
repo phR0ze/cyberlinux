@@ -83,7 +83,10 @@ Resources:
     * [Tarpaulin](#tarpaulin)
 * [Cargo](#cargo)
   * [Examples](#examples)
+    * [Dev dependencies](#dev-dependencies)
   * [Binary Size](#binary-size)
+  * [Dependencies](#dependencies)
+    * [Github dependencies](#github-dependencies)
   * [Workspaces](#workspaces)
   * [Packages](#packages)
   * [Clippy](#clippy)
@@ -164,6 +167,11 @@ opt-level = 0   # Default no optimization
 
 [dependencies]
 libclu = { path = "libclu" }
+```
+
+Test out new project
+```bash
+$ cargo run
 ```
 
 ### 2. Add .vscode/tasks.json <a name="add-vscode-tasks-json"/></a>
@@ -1167,7 +1175,7 @@ In `vscode` you can run them directly or in the debugger. With cargo you can run
 **References**:
 * [Rust examples](http://xion.io/post/code/rust-examples.html)
 
-### dependencies <a name="dependencies"/></a>s
+### Dev dependencies <a name="dev-dependencies"/></a>s
 * `[dev-dependencies]` in Cargo.toml can be used to setup dependencies for `tests`, `examples` and
 `benchmarks` that are separate from the main package.
 
@@ -1189,6 +1197,25 @@ $ cargo run --examples foobar -- arg1
 Build example:
 ```bash
 $ cargo build --examples foobar
+```
+
+## Dependencies <a name="dependencies"/></a>s
+Crates can depend on other libraries from crates.io or other registries, git repos or subdirectories 
+on your local file system and you can even temporarily override the location of a dependency to test 
+out bug fixes.
+
+References:
+* [Cargo Reference - Specifying Dependencies](https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html)
+
+### Github dependencies <a name="github-dependencies"/></a>s
+Cargo has the ability to pull dependencies directly from a github project. After the first build the 
+commit used will be locked in the lock file and you'll need to run a `cargo update` to update the 
+commit to the latest.
+
+```toml
+[dependencies]
+rand = { git = "https://github.com/rust-lang-nursery/rand"}
+rand2 = { git = "https://github.com/rust-lang-nursery/rand", branch = "next"}
 ```
 
 ## Workspace <a name="workspaces"/></a>s

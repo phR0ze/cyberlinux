@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.1
+Type=Application
+Name=Winetricks
+Comment=Work around problems and install applications under Wine
+Icon=winetricks
+Exec=winetricks --gui
+Actions=
+Categories=System;
