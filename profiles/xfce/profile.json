@@ -4,9 +4,7 @@
       "name": "live",
       "entry": "Start live environment     // Recovery env for Personal Use Only",
       "kernel": "linux",
-      "layers": "standard/core,standard/base,standard/shell,standard/x11,xfce/lite",
-      "layers": "standard/core,standard/base,standard/shell,standard/x11,standard/netbook,standard/desktop,xfce/lite,xfce/netbook,xfce/desktop",
-      "groups": "lp,wheel,network,storage,users,video,audio,adbusers,uucp,disk"
+      "layers": "standard/core,standard/base,standard/shell,standard/x11,standard/netbook,standard/desktop,xfce/lite,xfce/netbook,xfce/desktop,xfce/live"
     },
     {
       "name": "desktop",
