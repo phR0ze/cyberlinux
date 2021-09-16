@@ -13,7 +13,6 @@ COPY profiles/standard/base/etc/skel/.config/vim/.vimrc /root/
 COPY config/mkinitcpio.conf /etc/
 COPY config/pacman.conf_2_for_builder /etc/pacman.conf
 COPY profiles/standard/base/etc/pacman.d/archlinux.mirrorlist /etc/pacman.d/
-COPY profiles/standard/base/etc/pacman.d/blackarch.mirrorlist /etc/pacman.d/
 
 # Packages to add for building cyberlinux
 # --------------------------------------------------------------------------------------------------
@@ -40,14 +39,7 @@ COPY profiles/standard/base/etc/pacman.d/blackarch.mirrorlist /etc/pacman.d/
 # `efibootmgr`            provides `efibootmgr` for EFI boot manager entry manipulation
 # `parted`                provides `partprobe` for partition manipulation
 # `multipath-tools`       provides `kpartx` for paritition manipultion
-RUN echo ">> Install blackarch repo" && \
-  curl -s -O https://blackarch.org/keyring/blackarch-keyring.pkg.tar.xz && \
-  pacman -U --noconfirm blackarch-keyring.pkg.tar.xz && \
-  rm -f blackarch-keyring.pkg.tar.xz && \
-  pacman-key --init && \
-  pacman-key --populate archlinux blackarch && \
-  \
-  echo ">> Install builder packages" && \
+RUN echo echo ">> Install builder packages" && \
   mkdir -p /root/repo /root/profiles && \
   pacman -Sy --noconfirm vim grub dosfstools mkinitcpio mkinitcpio-vt-colors efibootmgr \
     rsync gptfdisk linux intel-ucode memtest86+ libisoburn linux-firmware \

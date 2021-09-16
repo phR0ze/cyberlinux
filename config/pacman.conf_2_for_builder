@@ -85,6 +85,3 @@ Include = /etc/pacman.d/archlinux.mirrorlist
 
 [multilib]
 Include = /etc/pacman.d/archlinux.mirrorlist
-
-[blackarch]
-Include = /etc/pacman.d/blackarch.mirrorlist

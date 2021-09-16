@@ -97,7 +97,6 @@ package_cyberlinux-standard-base()
 
     # Essential networking
     'archlinux-keyring'         # Arch linux keyring for installing packages
-    'blackarch-keyring'         # Adding curl command to pull in packer scripts
     'pacman-contrib'            # rankmirrors, pacdiff, pactree, paclist, pacsearch
     'networkmanager'            # Network connection manager and user applications
     'openssh'                   # SSH server/client, openssl
@@ -142,7 +141,7 @@ package_cyberlinux-standard-shell()
     'udisks2'                   # Enumerate and operate on storage devices
     'usbutils'                  # USB device utilities including lsusb
     'squashfs-tools'            # mksquashfs, unsquashfs
-    'yay'                       # Pacman wrapper and AUR helper written in golang, repo: blackarch
+    'yay'                       # Pacman wrapper and AUR helper written in golang, repo: cyberlinux
 
     # Recovery tools
     'ddrescue'                  # GNU data recovery tool

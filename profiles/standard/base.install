@@ -64,10 +64,6 @@ post_install()
   # rankmirrors -n 10 profiles/openbox/base/etc/pacman.d/archlinux.mirrorlist
   # /etc/pacman.d/archlinux.mirrorlist
 
-  # BlackArch linux mirrorlist location
-  # rankmirrors -n 10 profiles/openbox/base/etc/pacman.d/blackarch.mirrorlist
-  # /etc/pacman.d/blackarch.mirrorlist
-
   # Added configuration to make use of multiple CPU cores
   # MAKEFLAGS="-j8" use more parallel threads
   # COMPRESSXZ=(xz -c -z - --threads=0) which enables multi core use
@@ -80,7 +76,6 @@ post_install()
   # Added the cyberlinux repo  
   # Uncommented the multilib repo
   # Switched the repo mirrorlist to /etc/pacman.d/archlinux.mirrorlist
-  # Added the blackarch repo mirrorlist entry
   mv -f /etc/pacman.conf_sideload /etc/pacman.conf
 
   # Network configuration

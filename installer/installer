@@ -564,7 +564,7 @@ config_system()
     check_status
 
     echo -en ":: Populating the pacman keyring..."
-    chroot ${NEW_ROOT} pacman-key --populate archlinux blackarch &>/dev/null
+    chroot ${NEW_ROOT} pacman-key --populate archlinux &>/dev/null
     check_status
 
     # Inject a longer delay for conky if live
