@@ -21,7 +21,11 @@
 
 post_install()
 {
-  echo -n ""
+  # Xfce panel overrides
+  # ---------------------------------------------------------------------------
+  pushd /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml
+  mv -f xfce4-panel.xml_sideload_desktop xfce4-panel.xml
+  popd
 }
 
 post_upgrade() {
