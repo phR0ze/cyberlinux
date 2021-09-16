@@ -9,8 +9,9 @@ reference.
 * [.. up dir](..)
 
 ### Testlog <a name="testlog"/></a>
-* netbook: added Cheese for webcam control
-* netbook: added Zoom to the network menu
+* openbox:desktop: add image scan menu entry
+* standard:netbook: added Cheese for webcam control
+* standard:netbook: added Zoom to the network menu
 * standard:desktop: added veracrypt
 
 ### Changelog <a name="changelog"/></a>

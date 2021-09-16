@@ -56,6 +56,7 @@
     </menu>
     <menu id="Office" icon="/usr/share/icons/Paper/32x32/categories/applications-office.png" label="Office">
       <item label="Evince" icon="/usr/share/icons/Paper/32x32/apps/evince.png"><action name="Execute"><execute>evince</execute></action></item>
+      <item label="Image Scan" icon="/usr/share/icons/Paper/32x32/devices/scanner.png"><action name="Execute"><execute>utsushi</execute></action></item>
       <item label="LibreOffice" icon="/usr/share/icons/Paper/32x32/apps/libreoffice-startcenter.png"><action name="Execute"><execute>libreoffice</execute></action></item>
       <item label="LibreOffice Base" icon="/usr/share/icons/Paper/32x32/apps/libreoffice-base.png"><action name="Execute"><execute>libreoffice --base</execute></action></item>
       <item label="LibreOffice Calc" icon="/usr/share/icons/Paper/32x32/apps/libreoffice-calc.png"><action name="Execute"><execute>libreoffice --calc</execute></action></item>
