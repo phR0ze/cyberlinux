@@ -4,13 +4,14 @@
       "name": "live",
       "entry": "Start live environment     // Recovery env for Personal Use Only",
       "kernel": "linux",
-      "layers": "standard/core,standard/base,standard/shell,standard/x11,xfce/lite"
+      "layers": "standard/core,standard/base,standard/shell,standard/x11,xfce/lite",
+      "groups": "lp,wheel,network,storage,users,video,audio,adbusers,uucp,disk"
     },
     {
       "name": "netbook",
       "entry": "Install xfce netbook       // Medium env with all needed apps",
       "kernel": "linux",
-      "layers": "standard/core,standard/base,standard/shell,standard/x11,xfce/lite,xfce/netbook",
+      "layers": "standard/core,standard/base,standard/shell,standard/x11,standard/netbook,xfce/lite,xfce/netbook",
       "groups": "lp,wheel,network,storage,users,video,audio,adbusers,uucp,disk"
     },
     {
@@ -18,7 +19,7 @@
       "entry": "Install xfce lite          // Lite xfce env with minimal apps",
       "kernel": "linux",
       "layers": "standard/core,standard/base,standard/shell,standard/x11,xfce/lite",
-      "groups": "lp,wheel,network,storage,users,video,audio,disk"
+      "groups": "lp,wheel,network,storage,users,video,audio,adbusers,uucp,disk"
     }
   ],
   "optionalPkgs": [

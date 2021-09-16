@@ -118,27 +118,7 @@ package_cyberlinux-openbox-netbook()
   pkgdesc="Netbook x11 system - built on the lite deployment adding productivity apps"
   depends=(
     "cyberlinux-openbox-lite>=${pkgver}"
-
-    # Desktop
-    'conky'                     # Lightweight system monitor for X
-    'light'                     # Control laptop backlights both screen and keyboard
-    'xfce4-power-manager'       # Power manager for the Xfce desktop
-
-    # Media
-    'gimp'                      # Excellent image editor
-
-    # Office
-    'hunspell-en_US'            # US dictionaries for spell checking
-    'libreoffice-fresh'         # Libreoffice with new features and enhancments
-    'pdfmod'                    # Simple PDF editor
-
-    # Network
-    'blueman'                   # Bluetooth management tool
-    'pulseaudio-bluetooth'      # Pulse Audio plugin for bluetooth output
-    'freerdp'                   # RDP client plugin for remmina
-    'remmina'                   # Nice remoting UI for RDP and other protocols
-    'wpa_gui'                   # A Qt frontend to wpa_supplicant, repo: cyberlinux
-    'wpa_supplicant'            # A utility providing key negotiation for WPA wireless networks
+    "cyberlinux-standard-netbook>=${pkgver}"
   )
   pkg netbook
 }

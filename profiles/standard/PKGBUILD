@@ -1,4 +1,4 @@
-# MIT License
+   # MIT License
 # Copyright (c) 2017-2021 phR0ze
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -28,6 +28,7 @@ pkgname=(
     "${pkgbase}-base"
     "${pkgbase}-shell"
     "${pkgbase}-x11"
+    "${pkgbase}-netbook"
     "${pkgbase}-live"
 )
 pkgver=0
@@ -246,6 +247,7 @@ package_cyberlinux-standard-x11()
     'thunar-volman'             # Thunar plugin to automatically manage removeable devices
     'tumbler'                   # D-Bus thumbnail service for apps like Thunar
     'qt5-base'                  # A cross-platform application and UI framework, depof: mkvtoolnix-gui
+    'xfce4-power-manager'       # Power manager for the Xfce desktop
 
     # Utils
     'filelight'                 # View disk usage information
@@ -389,13 +391,41 @@ package_cyberlinux-standard-x11()
   pkg x11
 }
 
-package_cyberlinux-standard-live()
+package_cyberlinux-standard-netbook()
 {
-  pkgdesc="Live system - built on top of x11 for recovery"
+  pkgdesc="Netbook x11 system - built on the x11 deployment adding productivity apps"
   depends=(
-    "cyberlinux-standard-desktop>=${pkgver}"
+    "cyberlinux-standard-x11>=${pkgver}"
+
+    # Desktop components
+    'xfce4-battery-plugin'      # A battery monitor plugin for the Xfce panel
+    'conky'                     # Lightweight system monitor for X
+    'light'                     # Control laptop backlights both screen and keyboard
+
+    # Media
+    'gimp'                      # Excellent image editor
+
+    # Office
+    'hunspell-en_US'            # US dictionaries for spell checking
+    'libreoffice-fresh'         # Libreoffice with new features and enhancments
+    'pdfmod'                    # Simple PDF editor
+
+    # Network
+    'blueman'                   # Bluetooth management tool
+    'pulseaudio-bluetooth'      # Pulse Audio plugin for bluetooth output
+    'wpa_supplicant'            # A utility providing key negotiation for WPA wireless networks
   )
   pkg live
 }
+
+package_cyberlinux-standard-live()
+{
+  pkgdesc="Live system - built on top of apps for recovery"
+  depends=(
+    "cyberlinux-standard-apps>=${pkgver}"
+  )
+  pkg live
+}
+
 
 # vim: ts=2:sw=2:sts=2

@@ -31,7 +31,7 @@
       "name": "netbook",
       "entry": "Install openbox netbook    // Medium env with all needed apps",
       "kernel": "linux",
-      "layers": "standard/core,standard/base,standard/shell,standard/x11,openbox/lite,openbox/netbook",
+      "layers": "standard/core,standard/base,standard/shell,standard/x11,standard/netbook,openbox/lite,openbox/netbook",
       "groups": "lp,wheel,network,storage,users,video,audio,adbusers,uucp,disk"
     },
     {
@@ -39,14 +39,14 @@
       "entry": "Install openbox server     // Server env for Personal Use Only",
       "kernel": "linux",
       "layers": "standard/core,standard/base,standard/shell,standard/x11,openbox/lite,openbox/server",
-      "groups": "lp,wheel,network,storage,users,video,audio,docker,disk"
+      "groups": "lp,wheel,network,storage,users,video,audio,adbusers,docker,uucp,disk"
     },
     {
       "name": "lite",
       "entry": "Install openbox lite       // Lite openbox env with minimal apps",
       "kernel": "linux",
       "layers": "standard/core,standard/base,standard/shell,standard/x11,openbox/lite",
-      "groups": "lp,wheel,network,storage,users,video,audio,disk"
+      "groups": "lp,wheel,network,storage,users,video,audio,adbusers,uucp,disk"
     }
   ],
   "optionalPkgs": [

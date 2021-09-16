@@ -4,14 +4,22 @@
       "name": "live",
       "entry": "Start live environment     // Recovery env for cyberlinux",
       "kernel": "linux",
-      "layers": "standard/core,standard/base,standard/shell,standard/x11,standard/live"
+      "layers": "standard/core,standard/base,standard/shell,standard/x11,standard/netbook,standard/live",
+      "groups": "lp,wheel,network,storage,users,video,audio,adbusers,uucp,disk"
+    },
+    {
+      "name": "netbook",
+      "entry": "Install netbook system     // Netbook apps w/out window manager",
+      "kernel": "linux",
+      "layers": "standard/core,standard/base,standard/shell,standard/x11,standard/netbook",
+      "groups": "lp,wheel,network,storage,users,video,audio,adbusers,uucp,disk"
     },
     {
       "name": "x11",
-      "entry": "Install X11 system         // Lite X11 env w/out window manager",
+      "entry": "Install X11 base           // No window manager",
       "kernel": "linux",
       "layers": "standard/core,standard/base,standard/shell,standard/x11",
-      "groups": "lp,wheel,network,storage,users,disk"
+      "groups": "lp,wheel,network,storage,users,video,audio,adbusers,uucp,disk"
     },
     {
       "name": "shell",

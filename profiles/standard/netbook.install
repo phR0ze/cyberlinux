@@ -23,15 +23,10 @@ post_install()
 {
   # Conky configuration
   # ---------------------------------------------------------------------------
-
-  # Autostart conky when user logs in
-  # /etc/skel/.config/autostart/conky.desktop
-
-  # Add conky netbook conky settings and set it to active
-  # /etc/skel/.config/conky/netbook
-  pushd /etc/skel/.config/conky
-  ln -sf netbook active
-  popd
+  # Provide conky scripts for cal, date and radio
+  # /etc/xdg/conky/date.rb
+  # /etc/xdg/conky/cal.rb
+  # /etc/xdg/conky/radio.rb
 }
 
 post_upgrade() {

@@ -21,29 +21,20 @@
 
 post_install()
 {
-  # Wifi configuration
-  # ---------------------------------------------------------------------------
-  # Set a deterministic name for wifi nic
-  # /etc/systemd/network/10-wlo1.link
-
-  # Set permissions for wpa_supplicant
-  # Allow WPA GUI to update this file with persistent changes
-  # Completely disable P2P/Direct Wifi - security hole
-  # Automatically scan and selet networks matching saved ones
-  # /etc/wpa_supplicant/wpa_supplicant-wlo1.conf
-
   # Openbox configuration
   # ---------------------------------------------------------------------------
 
   # Openbox menu changes for netbook
   mv -f /etc/skel/.config/openbox/menu.xml_sideload_netbook /etc/skel/.config/openbox/menu.xml
 
+  # Lock screen configuration
+  # ---------------------------------------------------------------------------
+
+  # i3lock-color automation script
+  # /usr/bin/lockscreen
+
   # Conky configuration
   # ---------------------------------------------------------------------------
-  # Provide conky scripts for cal, date and radio
-  # /etc/xdg/conky/date.rb
-  # /etc/xdg/conky/cal.rb
-  # /etc/xdg/conky/radio.rb
 
   # Autostart conky when user logs in
   # /etc/skel/.config/autostart/conky.desktop
@@ -53,12 +44,6 @@ post_install()
   pushd /etc/skel/.config/conky
   ln -sf netbook active
   popd
-
-  # Lock screen configuration
-  # ---------------------------------------------------------------------------
-
-  # i3lock-color automation script
-  # /usr/bin/lockscreen
 }
 
 post_upgrade() {

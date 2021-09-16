@@ -1,16 +1,13 @@
 {
     "window.zoomLevel": 0,
     "editor.tabSize": 4,
+    "editor.insertSpaces": true,
     "editor.minimap.enabled": true,
-    "workbench.iconTheme": "vscode-icons",
-
-    "vim.disableAnnoyingNeovimMessage": true,
-    "vsicons.dontShowNewVersionMessage": true,
-
+    "workbench.iconTheme": "vscode-great-icons",
     "enable-crash-reporter": false,
     "telemetry.enableTelemetry": false,
     "telemetry.enableCrashReporter": false,
-
+    "vim.disableAnnoyingNeovimMessage": true,
     "vim.handleKeys": {
         "<C-a>": false,
         "<C-b>": false,
@@ -33,7 +30,7 @@
         "<C-y>": false,
         "<C-z>": false
     },
-
+    "files.eol": "\n",                      // Gopls formatting only supports LF line endings
     "go.gopath": "~/Projects/go",           // Set the GOPATH to use
     "go.formatTool": "goimports",           // Use specific external format tool for go
     "go.useLanguageServer": true,           // Use the new gopls language server
@@ -48,6 +45,6 @@
         "usePlaceholders": false,           // add parameter placeholders when completing a function
         "completionDocumentation": true     // for documentation in completion items
     },
-    "files.eol": "\n",                      // Gopls formatting only supports LF line endings
-    "go.toolsManagement.autoUpdate": true
+    "go.toolsManagement.autoUpdate": true,
+    "rust-analyzer.inlayHints.enable": true
 }

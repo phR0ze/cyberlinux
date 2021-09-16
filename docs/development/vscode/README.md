@@ -32,16 +32,21 @@ $ sudo pacman -U visual-studio-code-bin-1.8.1-3x86_64.pkg.tar.xz
 ```
 
 # Install Extensions <a name="install-extensions"></a>
-
 1. Launch `code`
 2. Click the button on the left that looks like an extension icon
-3. Install ***Vim vscodevim.vim***
-4. Install ***VSCode Great Icons emmanuelbeziat.vscode-great-icons***
-5. Install ***Code Runner formulahendry.code-runner***
-6. Install ***Go ms-vscode.go***  
-7. Install ***Better TOML bungcip.better-toml***
-8. Install ***Docker Peterjausover.vscode-docker***
-9. Install ***C/C++ ms-vscode.cpptools***
+3. Install General extensions:
+  * `Vim vscodevim.vim`
+  * `VSCode Great Icons emmanuelbeziat.vscode-great-icons`
+  * `Code Runner formulahendry.code-runner`
+  * `Better TOML bungcip.better-toml`
+  * `Docker Peterjausover.vscode-docker`
+4. Install Golang extensions
+  * `Go ms-vscode.go`
+5. Install Rust extensions
+  * `rust-analyzer by matklad.rust-analyzer`  
+  * `CodeLLDB by Vadim Chugunov`  
+  * `crates by Seray Uzgur`  
+  * `Rust Test Lens by Hannes De Valkeneer`  
 
 # Keyboard Shortcuts <a name="keyboard-shortcuts"></a>
 Hit `Ctrl+Shift+p` and search for keyboard then choose `Preferences: Open Keyboard Shortcuts`

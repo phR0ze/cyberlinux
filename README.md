@@ -33,6 +33,7 @@ strictly the responsiblity of the user and not the developer/creator of ***cyber
 <a href="docs/images/cyberlinux-deployment-02.jpg"><img width="820" height="480" src="docs/images/cyberlinux-deployment-02.jpg"></a>
 
 ### Quick Links
+* [Help](docs)
 * [Getting started](#getting-started)
   * [Prerequisites](#prerequisites)
     * [Arch Linux](#arch-linux)
@@ -299,11 +300,19 @@ boot/initramfs/installer bash code base is likewise MIT licensed.
 ---
 
 # Backlog <a name="backlog"/></a>
+* rust: fungus new clone from github
+  * use cyberlinux to drive the smallest slice of functionality
+  * split out as features
+
+* rust: clu wm xfce set desktop file monitor to use
+
+* netbook: HDMI output
+* netbook: added Cheese for webcam control
+* netbook: boot on lid open
+
 * installer: hanges when booting into the Graphical Target
-
+  * just leave a message rather than autobooting
 * Load networking in initramfs?
-
-* netbook: battery status in tray
 
 * desktop: added Zoom to the network menu
 * desktop: vscode configs are not saved

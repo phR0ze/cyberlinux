@@ -33,15 +33,6 @@ post_install()
   # Openbox menu changes for desktop
   mv -f /etc/skel/.config/openbox/menu.xml_sideload_desktop /etc/skel/.config/openbox/menu.xml
 
-  # Conky configuration
-  # ---------------------------------------------------------------------------
-
-  # Add conky desktop conky settings and set it to active
-  # /etc/skel/.config/conky/desktop
-  pushd /etc/skel/.config/conky
-  ln -sf desktop active
-  popd
-
   # Enable system services
   # ---------------------------------------------------------------------------
   systemctl enable docker.service

@@ -88,27 +88,10 @@ package_cyberlinux-xfce-lite()
 
 package_cyberlinux-xfce-netbook()
 {
-  pkgdesc="Netbook x11 system - built on the lite deployment adding productivity apps"
+  pkgdesc="Netbook xfce system - built on the lite deployment adding productivity apps"
   depends=(
     "cyberlinux-xfce-lite>=${pkgver}"
-
-    # Desktop components
-    'xfce4-battery-plugin'      # A battery monitor plugin for the Xfce panel
-    'conky'                     # Lightweight system monitor for X
-    'light'                     # Control laptop backlights both screen and keyboard
-
-    # Media
-    'gimp'                      # Excellent image editor
-
-    # Office
-    'hunspell-en_US'            # US dictionaries for spell checking
-    'libreoffice-fresh'         # Libreoffice with new features and enhancments
-    'pdfmod'                    # Simple PDF editor
-
-    # Network
-    'blueman'                   # Bluetooth management tool
-    'pulseaudio-bluetooth'      # Pulse Audio plugin for bluetooth output
-    'wpa_supplicant'            # A utility providing key negotiation for WPA wireless networks
+    "cyberlinux-standard-netbook>=${pkgver}"
   )
   pkg netbook
 }

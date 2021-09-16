@@ -1,0 +1,3 @@
+#!/bin/bash
+
+# TODO use clu to determine the monitor being used like xrandr
