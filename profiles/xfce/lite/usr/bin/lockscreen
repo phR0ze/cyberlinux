@@ -18,7 +18,8 @@ white='#ffffff'
 # Prepare image and cache it
 #---------------------------------------------------------------------------------------------------
 target="$HOME/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml"
-wallpaper=$(grep -oP -m 1 '(?<=last-image" type="string" value=").*(?="/>)' "$target")
+monitor="monitor$(xrandr | grep -oP -m 1 '.*(?= connected primary)')"
+wallpaper=$(grep -A 6 "$monitor" "$target" | grep -oP -m 1 '(?<=last-image" type="string" value=").*(?="/>)')
 cached_image="${HOME}/.cache/i3lock/$(basename ${wallpaper})"
 
 #rm -f "${cached_image}"
