@@ -104,7 +104,7 @@ build_repo_packages()
   cp "${PROJECT_DIR}/VERSION" "${PROFILES_DIR}"
 
   # Build packages for all profile repos
-  for x in "${PROFILES[@]}"; do
+  for x in ${PROFILES[@]}; do
 
     # makepkg will modify the PKGBUILD to inject the most recent version.
     # saving off the original and replacing it will avoid having that file changed all the time
@@ -329,17 +329,18 @@ build_deployments()
         check
       fi
 
-      # Install target package if necessary
+      # Install target packages
       if [ "$(ls "${layer_dir}")" != "" ]; then
         echo -e ":: Skipping install layer ${cyan}${cont_layer_dir}${none} already exists"
       else
-        local pkg="cyberlinux-${layer//\//-}" # Derive the package name from 'profile/layer' string given
-        echo -e ":: Installing target layer package ${cyan}${pkg}${none} to root ${cyan}${CONT_ROOT_DIR}${none}"
-        # -c use the package cache on the host rather than target
-        # -G avoid copying the host's pacman keyring to the target
-        # -M avoid copying the host's mirrorlist to the target
-        docker_exec ${BUILDER} "pacstrap -c -G -M ${CONT_ROOT_DIR} $pkg"
-        check
+        for pkg in ${PACKAGES[@]}; do
+          echo -e ":: Installing layer package ${cyan}${pkg}${none} to ${cyan}${CONT_ROOT_DIR}${none}"
+          # -c use the package cache on the host rather than target
+          # -G avoid copying the host's pacman keyring to the target
+          # -M avoid copying the host's mirrorlist to the target
+          docker_exec ${BUILDER} "pacstrap -c -G -M ${CONT_ROOT_DIR} $pkg"
+          check
+        done
       fi
 
       # Release the root mount point now that we have fully built the required layers
@@ -491,6 +492,9 @@ read_deployment()
   DE_AUTOLOGIN=$(echo "$layer" | jq -r '.autologin')
   DE_LAYERS=$(echo "$layer" | jq -r '.layers')
   
+  # Create an array out of the packages
+  PACKAGES=($(echo "$layer" | jq -r '.packages | join(" ")'))
+
   # Create an array out of the layers as well
   LAYERS=($(echo "$layer" | jq -r '.layers | split(",") | join(" ")'))
 }
@@ -500,22 +504,30 @@ read_deployment()
 # e.g. openbox standard
 unique_profiles()
 {
+  # Get list of profiles to build packages for
   PROFILES=()
+
+  # Load dependencies i.e. profiles that have packages that this profile depends on and must be built
+  local dependencies=$(echo "$PROFILE_JSON" | jq -r '. | if has("dependencies") then (.dependencies | join(" ")) else null end')
+  if [ "${dependencies}" != "null" ]; then
+
+    # Include the current profile as a dependency
+    for profile in ${dependencies} $PROFILE; do
+
+      # Search the PROFILES array for the given profile
+      local found=0
+      for x in ${PROFILES[@]}; do
+        [[ "${profile}" == "${x}" ]] && found=1
+      done
+
+      # Add the profile if not found
+      [ $found -ne 1 ] && PROFILES+=("${profile}")
+    done
+  fi
 
   # Extract just the layers, split them on comma, add them together as a single array
   # ensuring each entry is unique then join them as a single space delimeted string
-  for layer in $(echo "$DEPLOYMENTS_JSON" | jq -r '[.[].layers | split(",")] | add | unique | join(" ")'); do
-    local profile=${layer%/*}
-
-    # Search the PROFILES array for the given profile
-    local found=0
-    for x in "${PROFILES[@]}"; do
-      [[ "${profile}" == "${x}" ]] && found=1
-    done
-
-    # Add the profile if not found
-    [ $found -ne 1 ] && PROFILES+=("${profile}")
-  done
+  #$(echo "$DEPLOYMENTS_JSON" | jq -r '[.[].layers | split(",")] | add | unique | join(" ")'); do
 }
 
 # Retrieve all deployments in reverse sequential order
