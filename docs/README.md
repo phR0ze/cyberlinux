@@ -7,7 +7,7 @@ Since <b><i>cyberlinux</i></b> is just a preconfigured version of Arch Linux gen
 on the [Arch Linux Wiki](https://wiki.archlinux.org/) should work just fine as well.
 <br>
 
-### Quick Links
+### Quick links
 * [.. up dir](..)
 * [CHANGELOG](CHANGELOG.md)
 * [Deployments](deployments)

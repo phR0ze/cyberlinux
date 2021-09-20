@@ -1,6 +1,4 @@
 cyberlinux
-[![build-badge](https://travis-ci.com/phR0ze/cyberlinux.svg?branch=master)](https://travis-ci.com/phR0ze/cyberlinux)
-[![coverage-badge](https://coveralls.io/repos/github/phR0ze/cyberlinux/badge.svg?branch=master)](https://coveralls.io/github/phR0ze/cyberlinux?branch=master)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 ====================================================================================================
 
@@ -32,7 +30,7 @@ strictly the responsiblity of the user and not the developer/creator of ***cyber
 <a href="docs/images/cyberlinux-deployment-01.jpg"><img width="820" height="480" src="docs/images/cyberlinux-deployment-01.jpg"></a>
 <a href="docs/images/cyberlinux-deployment-02.jpg"><img width="820" height="480" src="docs/images/cyberlinux-deployment-02.jpg"></a>
 
-### Quick Links
+### Quick links
 * [Help](docs)
 * [Getting started](#getting-started)
   * [Prerequisites](#prerequisites)
@@ -49,9 +47,9 @@ strictly the responsiblity of the user and not the developer/creator of ***cyber
   * [HP ZBook 15](docs/deployments/HP-ZBook-15.md)
   * [Samsung Chromebook3 (CELES)](docs/deployments/Samsung-Chromebook3.md)
 * [Advanced concepts](#advanced-concepts)
-  * [cyberlinux help](#cyberlinux-help)
-  * [Roll your own](profiles/README.md)
-  * [cyberlinux-repo](docs/CYBERLINUX_REPO.md)
+  * [cyberlinux help](docs)
+  * [Roll your own](profiles)
+  * [cyberlinux-repo](https://github.com/phR0ze/cyberlinux-repo)
 * [Background](#background)
   * [Evolution](#evolution)
   * [My take on Arch](#my-take-on-arch)
@@ -170,9 +168,9 @@ For the most part deploying ***cyberlinux*** is as simple as:
 6. Rebooting
 
 ## Advancecd concepts <a name="advanced-concepts"/></a>
-* [cyberlinux help](#cyberlinux-help)
-* [Roll your own](profiles/README.md)
-* [cyberlinux-repo](docs/CYBERLINUX_REPO.md)
+* [cyberlinux help](docs)
+* [Roll your own](profiles)
+* [cyberlinux-repo](https://github.com/phR0ze/cyberlinux-repo)
 
 # Background <a name="background"></a>
 ***cyberlinux*** is an evolution of an idea come to fruition.  The origin was the need for an
