@@ -1,6 +1,6 @@
 Samsung Chromebook 3 (CELES) deployment
 ====================================================================================================
-<img align="left" width="48" height="48" src="../../art/logo_256x256.png">
+<img align="left" width="48" height="48" src="../../../art/logo_256x256.png">
 Documenting the steps I went through to deploy <b><i>cyberlinux</i></b> onto the Samsung Chromebook3
 (CELES) including configuration changes to enable WiFi 
 <br><br>

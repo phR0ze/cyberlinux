@@ -124,6 +124,7 @@ package_cyberlinux-standard-shell()
     'dos2unix'                  # Text file format converter
     'dosfstools'                # mkfs.fat, mkfs.vfat, fsck.fat, fsck.vfat
     'gptfdisk'                  # sgdisk, gdisk, cgdisk
+    'fwupd'                     # Simple daemon to allow session software to update firmware
     'logrotate'                 # Rotates system logs automatically
     'inxi'                      # System info display tool for CPUs/RAM/Kernel etc...
     'libisoburn'                # xorriso ISO creation tools
@@ -239,9 +240,6 @@ package_cyberlinux-standard-x11()
     'gvfs'                      # Support for Trash and USB, depof: thunar-volman
     'i3lock-color'              # Simple lightweight screen locker
     'lxdm'                      # Lightweight display manager, xorg: lxde
-    'paprefs'                   # Configuration dialog for pulse audio
-    'pavucontrol'               # PulseAudio Volume Control
-    'pulseaudio-alsa'           # ALSA Configuration for PulseAudio
     'thunar'                    # Lightweight File Manager from Xfce
     'thunar-archive-plugin'     # Thunar integration with file-roller
     'thunar-media-tags-plugin'  # Thunar plugin to view media details
@@ -250,6 +248,13 @@ package_cyberlinux-standard-x11()
     'qt5-base'                  # A cross-platform application and UI framework, depof: mkvtoolnix-gui
     'xfce4-power-manager'       # Power manager for the Xfce desktop
     'kvantum-qt5'               # SVG-based theme engine for Qt5 includes Arc-Dark
+
+    # Sound utilities
+    'alsa-firmware'             # Firmware binaries for greater sound card support
+    'paprefs'                   # Configuration dialog for pulse audio
+    'pavucontrol'               # PulseAudio Volume Control
+    'pulseaudio-alsa'           # ALSA Configuration for PulseAudio
+    'sof-firmware'              # Sound Open Firmware required for Dell XPS 13 9310
 
     # Utils
     'filelight'                 # View disk usage information
