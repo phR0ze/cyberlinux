@@ -217,6 +217,7 @@ package_cyberlinux-standard-shell()
     'go'                        # Compiler and tools for the Go programming lang
     'go-bindata'                # Embed any file as Go code
     'go-tools'                  # Developer tools for the Go programming lang
+    'golangci-lint'             # Multi linter for golang
   )
   pkg shell
 }
