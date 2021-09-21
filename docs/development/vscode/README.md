@@ -190,8 +190,6 @@ $ sudo pacman -S rust rust-musl lldb
 3. Install and configure crate support:
    a. Install extension `Better TOML by bungcip`  
    b. Install extension `crates by Seray Uzgur`  
-4. Install and configure unit test debug launching:
-   a. Install extension `Rust Test Lens by Hannes De Valkeneer`  
 
 ## Troubleshooting <a name="troubleshooting"></a>
 

@@ -8,7 +8,7 @@ on the [Arch Linux Wiki](https://wiki.archlinux.org/) should work just fine as w
 <br>
 
 ### Quick links
-* [.. up dir](..)
+* [.. up dir](https://github.com/phR0ze/cyberlinux)
 * [CHANGELOG](CHANGELOG.md)
 * [Deployments](deployments)
 * [Development](development)
