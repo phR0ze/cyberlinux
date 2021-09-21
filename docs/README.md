@@ -740,20 +740,17 @@ and found the [Image Scan v3](https://wiki.archlinux.org/index.php/SANE/Scanner-
 backend driver support section.
 
 **Working through the driver install process:**
-```bash
-# Install imagescan
-$ sudo pacman -S imagescan
-
-# Download and install the AUR package 
-$ yaourt -S imagescan-plugin-networkscan
-
-# Now edit `/etc/utsushi/utsushi.conf`
-# In the [devices] delete everything also delete the entire [devices.mfp1] if it exists
-# Add the following looking up the actual IP address from your printer.
-# wf7710.udi = esci:networkscan://<ip-address-here>:1865
-# wf7710.vendor = EPSON
-# wf7710.model = WF-7710
-```
+1. Install imagescan
+   ```bash
+   $ sudo pacman -S imagescan imagescan-plugin-networkscan
+   ```
+2. Configure your target scanner editing `/etc/utsushi/utsushi.conf`
+   ```bash
+   [devices]
+   wf7710.udi    = esci:networkscan://192.168.1.94:1865
+   wf7710.vendor = EPSON
+   wf7710.model  = WF-7710
+   ```
 
 **Scan a black and white document:**
 1. Launch the scanner with `utsushi`
