@@ -254,13 +254,7 @@ monitoring widgets.
 Suspend works out of the box with ***systemd*** as the default system manager
 
 ### Sound <a name="sound"/></a>
-Audio required using the [GalliumOS Braswell Config](https://aur.archlinux.org/packages/galliumos-braswell-config/),
-but after that seems to work well for both the speakers as well as headphones with jack detection working correctly.
-
-I adapted the package and made it available in the cyberlinux repo as `cyberlinux-braswell`
-```bash
-$ sudo pacman -S cyberlinux-braswell
-```
+Requires the `alsa-firmware` and `sof-firmware` packages to work. After reboot you should be good.
 
 ### Touchpad <a name="touchpad"/></a>
 Touchpad appears to work fine with the latest Arch Linux `5.13.13` kernel. However it used to have 

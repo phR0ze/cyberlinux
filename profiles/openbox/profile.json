@@ -96,8 +96,5 @@
   ],
   "dependencies": [
     "standard"
-  ],
-  "optionalPkgs": [
-    "cyberlinux-braswell"
   ]
 }
