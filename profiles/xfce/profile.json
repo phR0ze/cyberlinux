@@ -10,6 +10,16 @@
       ]
     },
     {
+      "name": "theater",
+      "entry": "Install xfce theater       // Theater env for Personal Use Only",
+      "kernel": "linux",
+      "layers": "xfce/shell,xfce/x11,xfce/lite,xfce/netbook,xfce/desktop,xfce/theater",
+      "groups": "lp,wheel,network,storage,users,video,audio,adbusers,uucp,disk,docker,vboxusers",
+      "packages": [
+        "cyberlinux-xfce-theater"
+      ]
+    },
+    {
       "name": "desktop",
       "entry": "Install xfce desktop       // Full env for Personal Use Only",
       "kernel": "linux",

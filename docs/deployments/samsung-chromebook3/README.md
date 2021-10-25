@@ -44,8 +44,8 @@ and associated Arch Linux packages seem to work pretty smooth.
    c. Select `EFI USB Device`  
 
 2. Install `cyberlinux`:  
-   a. Select the desired deployment type e.g. `Netbook`  
-   b. Walk through the wizard enabling WiFi on the way  
+   a. Select the desired deployment type e.g. `Install xfce netbook`  
+   b. Walk through the wizard enabling WiFi onlong the way  
    c. Complete out the process and login to your new system  
    d. Unplug the USB, reboot and log back in  
 

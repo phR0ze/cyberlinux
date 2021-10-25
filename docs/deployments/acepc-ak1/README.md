@@ -14,7 +14,7 @@ configuration changes to enable WiFi
   * [Teamviewer](#teamviewer)
   * [Kodi](#kodi)
 
-## Install cyberlinux <a name="install-cyberlinux"/></a>
+# Install cyberlinux <a name="install-cyberlinux"/></a>
 Note because of the `xHCI` USB driver being used by the newer firmware on the ACEPC AK1 you must
 choose an `UEFI` boot option in order to get keyboard support during the install as shown below.
 
@@ -30,19 +30,18 @@ choose an `UEFI` boot option in order to get keyboard support during the install
    c. Select your `UEFI` device entry e.g. `UEFI: USB Flash Disk 1.00`  
 
 3. Install `cyberlinux`:  
-   a. Select the desired deployment type e.g. `Desktop`  
-   b. Walk through the wizard enabling WiFi on the way  
-   c. Complete out the process and login to your new system  
-   d. Unplug the USB, reboot and log back in  
+   a. Select the desired deployment type e.g. `Install xfce desktop`  
+   b. Complete out the process and login to your new system  
+   c. Unplug the USB, reboot and log back in  
 
-## Configure cyberlinux <a name="configure-cyberlinux"/></a>
+# Configure cyberlinux <a name="configure-cyberlinux"/></a>
 1. Copy over ssh keys to `~/.ssh`
 2. Copy over any wallpaper to `/usr/share/backgrounds`
 
-### Graphics <a name="graphics"/></a>
+## Graphics <a name="graphics"/></a>
 [Hardware Video Acceleration](https://wiki.archlinux.org/title/Hardware_video_acceleration)
 
-1. Install hardwar acceleration drivers:
+1. Install hardware acceleration drivers:
    ```bash
    $ sudo pacman -S xf86-video-intel libva-intel-driver libvdpau-va-gl liva-utils vdpauinfo
    ```
@@ -55,7 +54,15 @@ choose an `UEFI` boot option in order to get keyboard support during the install
    $ vdpauinfo
    ```
 
-### WiFi <a name="wifi"/></a>
+## WiFi <a name="wifi"/></a>
+
+### WiFi for Xfce <a name="wifi-for-xfce"/></a>
+In Xfce we use NetworkManager rather than systemd-networkd which is heavier but it gives a nice user 
+experience for Wifi connectivity
+
+1. 
+
+### WiFi for Openbox <a name="wifi-for-openbox"/></a>
 1. WPA GUI will be launched automatically
 2. Select `Scan >Scan` then doblue click the chosen `SSID`
 3. Enter the pre-shared secret `PSK` and click `Add`
@@ -77,13 +84,13 @@ choose an `UEFI` boot option in order to get keyboard support during the install
    $ sudo systemctl restart systemd-networkd
    ```
 
-### Teamviewer <a name="teamviewer"/></a>
+## Teamviewer <a name="teamviewer"/></a>
 1. Launch Teamviewer from the tray icon
 2. Navigate to `Extras >Options`
 3. Set `Choose a theme` to `Dark` and hit `Apply`
 4. Navigate to `Advanced` and set `Personal password` and hit `OK`
 
-### Kodi <a name="kodi"/></a>
+## Kodi <a name="kodi"/></a>
 1. Hover over selecting `Remove this main menu item` for those not used `Muic Videos, TV, Radio, Games, Favourites`  
 2. Add NFS shares as desired  
 3. Navigate to `Movies > Enter files selection > Files >Add videos...`  

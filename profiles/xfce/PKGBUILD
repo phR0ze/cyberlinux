@@ -27,6 +27,7 @@ pkgname=(
     "${pkgbase}-lite"
     "${pkgbase}-netbook"
     "${pkgbase}-desktop"
+    "${pkgbase}-theater"
     "${pkgbase}-live"
 )
 pkgver=0
@@ -109,6 +110,15 @@ package_cyberlinux-xfce-desktop()
     'ttf-ms-fonts'              # Core TTF Fonts from Microsoft
   )
   pkg desktop
+}
+
+package_cyberlinux-xfce-theater()
+{
+  pkgdesc="Theater system using Xfce built on 'Desktop' including restricted personal use only software"
+  depends=(
+    "cyberlinux-xfce-desktop>=${pkgver}"
+  )
+  pkg theater
 }
 
 package_cyberlinux-xfce-live()

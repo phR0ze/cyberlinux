@@ -62,7 +62,7 @@ firmware that comes with the machine will be cryptographically signed for the ma
 
 3. Install `cyberlinux`:  
    a. Select the desired deployment option e.g. `Install xfce desktop`  
-   b. Walk through the wizard enabling WiFi on the way  
+   b. Walk through the wizard enabling WiFi onlong the way  
    c. Complete out the process and login to your new system  
    d. Unplug the USB, reboot and log back in  
 

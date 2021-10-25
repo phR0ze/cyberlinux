@@ -20,8 +20,8 @@ Documenting the steps I went through to deploy <b><i>cyberlinux</i></b> onto the
    a. Plug in the [Multiboot USB](../../../cyberlinux#create-multiboot-usb)  
 
 3. Install `cyberlinux`:  
-   a. Select the desired deployment type e.g. `Desktop`  
-   b. Walk through the wizard enabling WiFi on the way  
+   a. Select the desired deployment type e.g. `Install xfce desktop`  
+   b. Walk through the wizard enabling WiFi onlong the way  
    c. Complete out the process and login to your new system  
    d. Unplug the USB, reboot and log back in  
 
