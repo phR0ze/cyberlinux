@@ -8,7 +8,7 @@ fully customized automated offline multi-deployment ISO. Leveraging Arch Linux's
 system and some scripting cyberlinux is able to provide a completely customizable and automated
 build of Arch Linux filesystems bundled as distinct deployment options on a BIOS/UEFI bootable ISO.
 This includes opinionated builds of common use cases out of the box, but the option to build your own
-infinitely flexible deployment is yours for the taking. <br>
+infinitely flexible deployment is yours for the taking. <br><br>
 
 <b><i>Please fork this repo and create your own variations as you see fit.</i></b> The profiles included by
 default, though fully functional, are reference implementations only with highly opinionated designs
