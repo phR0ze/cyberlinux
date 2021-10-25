@@ -9,7 +9,7 @@ system and some scripting cyberlinux is able to provide a completely customizabl
 build of Arch Linux filesystems bundled as distinct deployment options on a BIOS/UEFI bootable ISO.
 This includes opinionated builds of common use cases out of the box, but the option to build your own
 infinitely flexible deployment is yours for the taking.
-
+<br>
 ***Please fork this repo and create your own variations as you see fit.*** The profiles included by
 default, though fully functional, are reference implementations only with highly opinionated designs
 for my personal use cases. If you find the reference deployments useful note that any PRs, though
