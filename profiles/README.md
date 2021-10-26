@@ -23,6 +23,8 @@ to upgrade existing deployments.
     * [Create a new deployment](#create-a-new-deployment)
   * [Wallpaper](#wallpaper)
     * [Default Xfce Wallpaper](#default-xfce-wallpaper)
+  * [Xorg](#xorg)
+    * [Default Resolution](#default-resolution)
 * [Backlog](#backlog)
 
 ---
@@ -133,6 +135,29 @@ Example for our new `theater` deployment:
    pushd /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml
    mv xfce4-desktop.xml.theater xfce4-desktop.xml
    popd
+   ```
+
+## Xorg <a name="xorg"/></a>
+Xorg configuration is controlled by config files dropped in the `/etc/X11/xorg.conf.d` directory
+
+### Default Resolution <a name="default-resolution"/></a>
+1. Navigate to your target profile directory
+   ```bash
+   $ cd cyberlinux/profiles/xfce
+   ```
+2. Create the Xorg config directory for your target deployment
+   ```bash
+   $ mkdir -p theater/etc/X11/xorg.conf.d
+   ```
+3. Create the default resolution configuration file `theater/etc/X11/xorg.conf.d/10-display.conf`
+   ```
+   Section "Screen"
+       Identifier "Screen0"
+       SubSection "Display"
+           Depth 24
+           Modes "1920x1080"
+       EndSubSection
+   EndSection
    ```
 
 # Backlog <a name="backlog"/></a>
