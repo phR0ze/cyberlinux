@@ -108,7 +108,32 @@ Wallpaper is stored at `/usr/share/backgrounds`. Both `Xfce` and `Nitrogen`, in 
 have been configured to source that directory for wallpaper.
 
 ### Default Xfce wallpaper <a name="default-xfce-wallpaper"/></a>
+Xfce's wallpaper is set in the `~/.config/xfce4/xfce-perchannel-xml/xfce4-desktop.xml` file per 
+monitor per workspace which doesn't translate well to a pre-installed default. We don't know what an 
+end user's monitor is so the only way I've been able to do this is to set a default wallpaper image 
+for all common monitor types which is cumbersome and annoying but it works.
 
+Example for our new `theater` deployment:
+1. Navigate to the Xfce profile root:
+   ```bash
+   $ cd cyberlinux/profiles/xfce
+   ```
+1. Create the theater directory path
+   ```bash
+   $ mkdir -p mkdir -p theater/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml
+   ```
+2. Copy the lite example to the theater deployment using deployment specific suffix:
+   ```bash
+   $ cp lite/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml theater/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml.theater
+   ```
+3. Edit `theater/etc/skel/.config/xfce4/xfce-perhannel-xml/xfce4-desktop.xml.theater` and search replace the `last-image` value to your new image e.g. `theater_curtains1.jpg` made available in `profiles/standard/x11/usr/share/backgrounds`
+4. Modify the post install script `theater.install` adding the install instructions
+   ```bash
+   # Set wallpaper
+   pushd /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml
+   mv xfce4-desktop.xml.theater xfce4-desktop.xml
+   popd
+   ```
 
 # Backlog <a name="backlog"/></a>
 * Document profile syntax
