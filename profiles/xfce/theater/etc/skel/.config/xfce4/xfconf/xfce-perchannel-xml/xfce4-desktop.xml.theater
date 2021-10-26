@@ -185,5 +185,6 @@
   <property name="desktop-icons" type="empty">
     <property name="icon-size" type="uint" value="48"/>
     <property name="show-thumbnails" type="bool" value="true"/>
+    <property name="style" type="int" value="0"/>
   </property>
 </channel>
