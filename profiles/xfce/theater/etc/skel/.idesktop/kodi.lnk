@@ -1,0 +1,7 @@
+table Icon
+  Icon: /usr/share/icons/hicolor/256x256/apps/kodi.png
+  X: 0
+  Y: 2
+  Command[0]: kodi
+end
+

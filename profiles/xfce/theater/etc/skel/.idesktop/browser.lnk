@@ -1,0 +1,7 @@
+table Icon
+  Icon: /usr/share/icons/hicolor/128x128/apps/firefox.png
+  X: 64
+  Y: 286
+  Command[0]: firefox
+end
+

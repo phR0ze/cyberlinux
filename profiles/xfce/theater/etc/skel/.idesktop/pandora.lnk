@@ -1,0 +1,7 @@
+table Icon
+  Icon: /usr/share/icons/hicolor/custom/apps/pandora_110x110.png
+  X: 299
+  Y: 26
+  Command[0]: firefox http://www.pandora.com
+end
+

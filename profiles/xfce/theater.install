@@ -30,6 +30,20 @@ post_install()
   pushd /etc/skel/.config/conky
   ln -sf theater active
   popd
+
+  # idesk configuration
+  # ---------------------------------------------------------------------------
+
+  # Autostart idesk
+  # /etc/skel/.config/autostart/idesk.desktop
+
+  # idesk desktop icons
+  # /etc/skel/.idesktop/browser.lnk
+  # /etc/skel/.idesktop/kodi.lnk
+  # /etc/skel/.idesktop/pandora.lnk
+  # /etc/skel/.idesktop/reboot.lnk
+  # /etc/skel/.idesktop/shutdown.lnk
+  # /etc/skel/.idesktop/smplayer.lnk
 }
 
 post_upgrade() {
