@@ -117,6 +117,9 @@ package_cyberlinux-xfce-theater()
   pkgdesc="Theater system using Xfce built on 'Desktop' including restricted personal use only software"
   depends=(
     "cyberlinux-xfce-desktop>=${pkgver}"
+    "vulkan-intel"              # Support for Steam's vulkan integration
+    "lib32-vulkan-intel"        # Support for Steam's vulkan integration
+    "steam"                     # Awesome online gaming store
   )
   pkg theater
 }

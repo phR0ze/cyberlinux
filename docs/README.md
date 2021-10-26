@@ -70,6 +70,7 @@ on the [Arch Linux Wiki](https://wiki.archlinux.org/) should work just fine as w
   * [HedgeWars](#hedgewars)
     * [Install HedgeWars](#install-hedgewars)
     * [libGL nvidia-340xx fix](#libgl-nvidia-340xx-fix)
+  * [Steam](#steam)
 * [Grub](#grub)
   * [Boot Kernel](#boot-kernel)
     * [BIOS Boot](#bios-boot)
@@ -961,6 +962,17 @@ sudo rm /usr/lib32/libGL.so.1
 sudo ln -s /usr/lib/nvidia/libGL.so.1 /usr/lib/libGL.so.1
 sudo ln -s /usr/lib32/nvidia/libGL.so.1 /usr/lib32/libGL.so.1
 ```
+
+## Steam <a name="steam"/></a>
+
+**Resources:**
+* [Arch Linux Steam Wiki page](https://wiki.archlinux.org/title/Steam)
+
+1. Install steam on VirtualBox
+   ```bash
+   $ sudo pacman -S steam vulkan-intel lib32-vulkan-intel
+   ```
+
 
 # Grub <a name="Grub"/></a>
 I was using syslinux as my go to bootloader as it is so simple and liteweight, but found that grub
