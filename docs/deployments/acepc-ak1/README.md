@@ -14,6 +14,7 @@ configuration changes to enable WiFi
   * [Graphics](#graphics)
   * [Teamviewer](#teamviewer)
   * [Kodi](#kodi)
+  * [Warcraft 2](#warcraft-2)
 
 # Install cyberlinux <a name="install-cyberlinux"/></a>
 Note because of the `xHCI` USB driver being used by the newer firmware on the ACEPC AK1 you must
@@ -78,7 +79,7 @@ experience for Wifi connectivity
 
 1. Install hardware acceleration drivers:
    ```bash
-   $ sudo pacman -S xf86-video-intel libva-intel-driver libvdpau-va-gl liva-utils vdpauinfo
+   $ sudo pacman -S xf86-video-intel libva-intel-driver libvdpau-va-gl libva-utils vdpauinfo
    ```
 2. Valid output from `vainfo` should show your acceleration is working
    ```bash
@@ -108,6 +109,17 @@ experience for Wifi connectivity
 10. Set `Choose information provider` and set `Local information only`  
 11. Set `Movies are in separate folders that match the movie title` and select `OK`  
 12. Repeat for any other NFS share paths your server has  
+
+## Warcraft 2 <a name="warcraft-2"/></a>
+1. Follow the [instructions here](../../system/wine/README.md)
+2. Create the bash script `~/bin/warcraft2`
+   ```bash
+   #!/bin/bash
+
+   WINEARCH=win32 WINEPREFIX=~/.wine/prefixes/warcraft2 wine ~/.wine/prefixes/warcraft2/drive_c/GOG\ Games/Warcraft\ II\ BNE/Warcraft\ II\ BNE_dx.exe
+   ```
+3. Make the script executable `chmod +x ~/bin/warcraft2`
+4. Launch warcaft by pressing Super+R and entering `warcraft2`
 
 <!-- 
 vim: ts=2:sw=2:sts=2

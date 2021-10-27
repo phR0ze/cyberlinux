@@ -158,7 +158,7 @@ will be `~/.wine/prefixes/warcraft2/drive_c/GOG\ Games/Warcraft\ II\ BNE/`
    b. Select your `Primary Interface` e.g. `enp1s0`  
    c. Select your `Network adapters` e.g. `enp1s0`  
    d. Ensure `Enable Interface` is checked  
-   e. Ensure `Enable Windows 95 SO_BROADCAST but` is checked  
+   e. Ensure `Enable Windows 95 SO_BROADCAST bug` is checked  
    f. Ensure `Automatically create Windows Firewall exceptions` is checked  
    g. Click `Apply` then `OK`  
 
