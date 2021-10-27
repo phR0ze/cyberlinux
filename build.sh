@@ -167,7 +167,7 @@ build_multiboot()
       #echo -e "  sleep 5" >> "${BOOT_CFG_PATH}"
 
       # Add in optionals which will be default on the installer side if missing
-      echo -en "  linux	/boot/vmlinuz-${DE_KERNEL} kernel=${DE_KERNEL} layers=${DE_LAYERS}" >> "${BOOT_CFG_PATH}"
+      echo -en "  linux	/boot/vmlinuz-${DE_KERNEL} version=${VERSION} kernel=${DE_KERNEL} layers=${DE_LAYERS}" >> "${BOOT_CFG_PATH}"
       [ ${DE_PARAMS} != "null" ] && echo -en " params=${DE_PARAMS}" >> "${BOOT_CFG_PATH}"
       [ ${DE_DISTRO} != "null" ] && echo -en " distro=${DE_DISTRO}" >> "${BOOT_CFG_PATH}"
       [ ${DE_TIMEZONE} != "null" ] && echo -en " timezone=${DE_TIMEZONE}" >> "${BOOT_CFG_PATH}"
@@ -641,7 +641,8 @@ docker_kill() {
 # -------------------------------------------------------------------------------------------------
 header()
 {
-  echo -e "${cyan}CYBERLINUX${none} builder automation for a multiboot installer ISO"
+  VERSION=$(cat VERSION)
+  echo -e "${cyan}CYBERLINUX v${VERSION}${none} builder for a multiboot installer ISO"
   echo -e "${cyan}------------------------------------------------------------------${none}"
 }
 usage()

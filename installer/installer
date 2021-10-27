@@ -590,6 +590,7 @@ installer()
     echo -e "${cyber}:: $(bash -c "printf '%0.1s' '*'{1..107}")${none}"
 
     # Print out the given params
+    echo -e "${cyber}:: v${VERSION}${none}"
     echo -e ":: Incoming deployment options"
     echo -e "   deployment=$LAYER"
     for x in ${PARAMS}; do
@@ -791,6 +792,7 @@ run_hook()
     for x in ${PARAMS}; do
         case "${x}" in
             'kernel'=*) KERNEL=${x//kernel=} ;;
+            'version'=*) VERSION=${x//version=} ;;
             'layers'=*) LAYERS=${x//layers=} ;;
             'params'=*) KERNEL_PARAMS=${x//params=} ;;
             'distro'=*) DISTRO=${x//distro=} ;;
