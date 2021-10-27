@@ -193,6 +193,7 @@ on the [Arch Linux Wiki](https://wiki.archlinux.org/) should work just fine as w
 * [Storage](#storage)
   * [Add Drive](#add-drive)
   * [Clone Drive](#clone-drive)
+  * [Backup Drive](#backup-drive)
   * [Securely Wipe Drive](#securely-wipe-drive)
   * [RAID Drives](#raid-drives)
   * [Test Drive](#test-drive)
@@ -2853,6 +2854,14 @@ sudo dd if=/dev/sdX of=/dev/sdY bs=1M conv=sync,noerror
 # Watch clone in another with
 watch -n10 'sudo kill -USR1 $(pgrep ^dd)'
 ```
+
+## Backup Drive <a name="backup-drive"/></a>
+One of the simplest and least expensive ways to backup your data is to get a single hot swappable 
+bay, buy a couple large drives and load one in and copy your data as desired then pull it out and 
+store it in an anti-static/shock proof caddy.
+
+1. Load your drive into the hot swappable bay
+
 
 ## Securely Wipe Drive <a name="securely-wipe-drive"/></a>
 To securely shred all data on a drive you can use the shred tool:
