@@ -9,8 +9,9 @@ configuration changes to enable WiFi
 * [.. up dir](..)
 * [Install cyberlinux](#install-cyberlinux)
 * [Configure cyberlinux](#configure-cyberlinux)
-  * [Graphics](#graphics)
   * [WiFi](#wifi)
+  * [General](#general)
+  * [Graphics](#graphics)
   * [Teamviewer](#teamviewer)
   * [Kodi](#kodi)
 
@@ -35,24 +36,6 @@ choose an `UEFI` boot option in order to get keyboard support during the install
    c. Unplug the USB, reboot and log back in  
 
 # Configure cyberlinux <a name="configure-cyberlinux"/></a>
-1. Copy over ssh keys to `~/.ssh`
-2. Copy over any wallpaper to `/usr/share/backgrounds`
-
-## Graphics <a name="graphics"/></a>
-[Hardware Video Acceleration](https://wiki.archlinux.org/title/Hardware_video_acceleration)
-
-1. Install hardware acceleration drivers:
-   ```bash
-   $ sudo pacman -S xf86-video-intel libva-intel-driver libvdpau-va-gl liva-utils vdpauinfo
-   ```
-2. Valid output from `vainfo` should show your acceleration is working
-   ```bash
-   $ vainfo
-   ```
-3. Valid output from `vdpauinfo` should show your acceleration is working
-   ```bash
-   $ vdpauinfo
-   ```
 
 ## WiFi <a name="wifi"/></a>
 
@@ -60,7 +43,9 @@ choose an `UEFI` boot option in order to get keyboard support during the install
 In Xfce we use NetworkManager rather than systemd-networkd which is heavier but it gives a nice user 
 experience for Wifi connectivity
 
-1. 
+1. Left click on the NetworkManager applet in the syste tray
+2. Select your WiFi endpoint
+3. Enter in your password and done
 
 ### WiFi for Openbox <a name="wifi-for-openbox"/></a>
 1. WPA GUI will be launched automatically
@@ -82,6 +67,26 @@ experience for Wifi connectivity
 6. Restart networking
    ```bash
    $ sudo systemctl restart systemd-networkd
+   ```
+
+## General <a name="general"/></a>
+1. Copy over ssh keys to `~/.ssh`
+2. Copy over any wallpaper to `/usr/share/backgrounds`
+
+## Graphics <a name="graphics"/></a>
+[Hardware Video Acceleration](https://wiki.archlinux.org/title/Hardware_video_acceleration)
+
+1. Install hardware acceleration drivers:
+   ```bash
+   $ sudo pacman -S xf86-video-intel libva-intel-driver libvdpau-va-gl liva-utils vdpauinfo
+   ```
+2. Valid output from `vainfo` should show your acceleration is working
+   ```bash
+   $ vainfo
+   ```
+3. Valid output from `vdpauinfo` should show your acceleration is working
+   ```bash
+   $ vdpauinfo
    ```
 
 ## Teamviewer <a name="teamviewer"/></a>
