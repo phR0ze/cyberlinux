@@ -2861,7 +2861,17 @@ bay, buy a couple large drives and load one in and copy your data as desired the
 store it in an anti-static/shock proof caddy.
 
 1. Load your drive into the hot swappable bay
-
+2. Determine the device path with `lsblk`
+3. [Format the storage drive if needed](#add-drive)
+4. Mount your device using `noatime` to speed up transfers a bit
+   ```bash
+   $ sudo mount -o defaults,noatime /dev/sdd1 /mnt/backup
+   ```
+5. Ensure the drive and all its data is owned by your user
+   ```bash
+   $ sudo chown USER: -R /mnt/backup
+   ```
+6. Launch `FileZilla` or your transfer app of choice and copy your data over
 
 ## Securely Wipe Drive <a name="securely-wipe-drive"/></a>
 To securely shred all data on a drive you can use the shred tool:
