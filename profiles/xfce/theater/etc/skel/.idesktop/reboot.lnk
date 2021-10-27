@@ -1,7 +1,0 @@
-table Icon
-  Icon: /usr/share/icons/hicolor/96x96/actions/system-reboot.png
-  X: 190
-  Y: 935
-  Command[0]: systemctl reboot
-end
-

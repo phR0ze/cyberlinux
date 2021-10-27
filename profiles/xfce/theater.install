@@ -21,29 +21,16 @@
 
 post_install()
 {
-  # Set wallpaper
+  # Set Xfce wallpaper and panel icons
   pushd /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml
   mv xfce4-desktop.xml.theater xfce4-desktop.xml
+  mv xfce4-panel.xml.theater xfce4-panel.xml
   popd
 
   # Set active conky configuration
   pushd /etc/skel/.config/conky
   ln -sf theater active
   popd
-
-  # idesk configuration
-  # ---------------------------------------------------------------------------
-
-  # Autostart idesk
-  # /etc/skel/.config/autostart/idesk.desktop
-
-  # idesk desktop icons
-  # /etc/skel/.idesktop/browser.lnk
-  # /etc/skel/.idesktop/kodi.lnk
-  # /etc/skel/.idesktop/pandora.lnk
-  # /etc/skel/.idesktop/reboot.lnk
-  # /etc/skel/.idesktop/shutdown.lnk
-  # /etc/skel/.idesktop/smplayer.lnk
 }
 
 post_upgrade() {
