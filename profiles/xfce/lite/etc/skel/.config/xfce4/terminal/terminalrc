@@ -34,5 +34,3 @@ DropdownKeepOpenDefault=TRUE
 DropdownAlwaysShowTabs=FALSE
 ColorBackground=#17e417e417e4
 BackgroundMode=TERMINAL_BACKGROUND_TRANSPARENT
-CommandLoginShell=TRUE
-
