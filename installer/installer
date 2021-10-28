@@ -624,19 +624,16 @@ installer()
         DESTDEV=$(echo ${DISKS_DETAILED} | jq -rc '[.[].name]|map("/dev/"+.)|.[0]')
 
         # Determine if this is a default deployment
+        #-----------------------------------------------------------------------
         echo -e "\n${cyber}:: Automatically deploy with defaults?${none}"
-        getinput DIRECTIVE 'Use automatic mode with defaults' 'n'
-
-        # Build in a way to pass optional params for testing
-        if [ "x$DIRECTIVE" != "xn" ]; then
-            DEFAULT="y"
-        fi
-
+        getinput DEFAULT 'Use automatic mode with defaults' 'n'
         if [ "x$DEFAULT" == "xy" ]; then
             AUTOLOGIN=1
-        else
-            # Collect install destination device
-            #-----------------------------------------------------------------------
+        fi
+
+        # Collect install destination device
+        #-----------------------------------------------------------------------
+        if [ "x$DEFAULT" != "xy" ]; then
             echo -e "\n${cyber}:: Select a disk as your install destination:${none}"
             local i=0
             echo $DISKS_DETAILED | jq -rc '.[]' | while read x; do
@@ -649,17 +646,19 @@ installer()
                 echo ""
             done
             getsel DESTDEV "$DISKS"
+        fi
 
-            # Determine the type of storage from the three most common types:
-            # Non SCSI type storage either NVMe or MMC both use a similar partition naming
-            # convention so we really only need to determine if its SCSI or not.
-            # SCSI: /dev/sda        partition1: /dev/sda1
-            # NVMe: /dev/nvme0n1    partition1: /dev/nvme0n1p1
-            # MMC: /dev/mmcblk0     partition1: /dev/mmcblk0p1
-            [[ ${DESTDEV} =~ "/dev/sd" ]] && SCSI=1
+        # Determine the type of storage from the three most common types:
+        # Non SCSI type storage either NVMe or MMC both use a similar partition naming
+        # convention so we really only need to determine if its SCSI or not.
+        # SCSI: /dev/sda        partition1: /dev/sda1
+        # NVMe: /dev/nvme0n1    partition1: /dev/nvme0n1p1
+        # MMC: /dev/mmcblk0     partition1: /dev/mmcblk0p1
+        [ -z "${DESTDEV##*/dev/sd*}" ] && SCSI=1
 
-            # Configure networking
-            #----------------------------------------------------------------------
+        # Configure networking
+        #----------------------------------------------------------------------
+        if [ "x$DEFAULT" != "xy" ]; then
             echo -e "\n${cyber}:: Configure networking:${none}"
             getinput HOSTNAME 'Enter hostname' $HOSTNAME
             getinput NETIP 'Enter static IP, e.g. 192.168.1.2/24' 'DHCP'
@@ -667,9 +666,11 @@ installer()
                 getinput GATEWAY 'Enter gateway' $(echo $NETIP | awk -F. '{print $1"."$2"."$3".1"}')
             fi
             getinput ENABLE_BLUETOOTH 'Enter bluetooth state' 0
+        fi
 
-            # Configure time and date
-            #----------------------------------------------------------------------
+        # Configure time and date
+        #----------------------------------------------------------------------
+        if [ "x$DEFAULT" != "xy" ]; then
             echo -e "\n${cyber}:: Configure time and date:${none}"
             getinput TIMEZONE 'Enter timezone' "$TIMEZONE"
             getinput TIMEDATE_SET "Change time ${cyber}$(date --iso-8601=seconds) UTC${none}" 'n'
@@ -680,9 +681,11 @@ installer()
                     [ $? -eq 0 ] && break
                 done
             fi
+        fi
 
-            # Create new user account
-            #----------------------------------------------------------------------
+        # Create new user account
+        #----------------------------------------------------------------------
+        if [ "x$DEFAULT" != "xy" ]; then
             echo -e "\n${cyber}:: Create new user account:${none}"
             getinput USER 'Enter new username' $USER
             while true; do
@@ -691,8 +694,11 @@ installer()
                 [ "x$PASS" == "x$PASS2" ] && break
                 echo -e "   ${red}Passwords don't match, please try again${none}"
             done
+        fi
 
-            # Prompt for autologin
+        # Prompt for autologin
+        #----------------------------------------------------------------------
+        if [ "x$DEFAULT" != "xy" ]; then
             if [ "x$AUTOLOGIN" != "x1" ]; then
                 getinput AUTOLOGIN 'Enter autologin' 0
             fi
