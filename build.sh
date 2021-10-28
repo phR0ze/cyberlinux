@@ -423,7 +423,12 @@ clean()
 {
   docker_kill ${BUILDER}
 
-  for x in ${1//,/ }; do
+  local targets="$1"
+  if [ "${1}" == "most" ]; then
+    targets="$targets,iso,layers,output,repo" 
+  fi
+
+  for x in ${targets//,/ }; do
     local target="${TEMP_DIR}/${x}"
 
     # Clean everything not covered in other specific cases
@@ -652,22 +657,23 @@ usage()
   echo -e "Options:"
   echo -e "  -a               Build all components for the given profile"
   echo -e "  -b               Run the builder attaching to standard input and output"
-  echo -e "  -d DEPLOYMENTS   Build deployments, comma delimited (all|shell|lite)"
+  echo -e "  -d DEPLOYMENTS   Build deployments, comma delimited (all,shell,lite)"
   echo -e "  -i               Build the initramfs installer"
   echo -e "  -m               Build the grub multiboot environment"
   echo -e "  -I               Build the acutal ISO image"
   echo -e "  -p               Set the profile to use (default: openbox)"
   echo -e "  -r               Build repo packages for deployment/s and/or profile"
-  echo -e "  -c               Clean build artifacts, commad delimited (all|builder|iso|layers/openbox/core)"
+  echo -e "  -c               Clean artifacts, comma delimited (all,most,cache,iso,layers/openbox/core)"
+  echo -e "                   'most' will clean everything except the cache and docker images"
   echo -e "  -h               Display usage help\n"
   echo -e "Examples:"
   echo -e "  ${green}Build full Xfce ISO:${none} ./${SCRIPT} -p xfce -a"
   echo -e "  ${green}Build full Openbox ISO:${none} ./${SCRIPT} -p openbox -a"
   echo -e "  ${green}Build just bootable installer:${none} ./${SCRIPT} -imI"
+  echo -e "  ${green}Rebuild all:${none} ./${SCRIPT} -c most; ./${SCRIPT} -p xfce -a"
   echo -e "  ${green}Rebuild deployment:${none} ./${SCRIPT} -c layers/xfce/theater,repo; ./${SCRIPT} -p xfce -d theater -rimI"
   echo -e "  ${green}Build installable Xfce theater deployment:${none} ./${SCRIPT} -p xfce -d theater -rimI"
   echo -e "  ${green}Clean openbox core,base layers:${none} ./${SCRIPT} -c layers/openbox/core,layers/openbox/base"
-  echo -e "  ${green}Rebuild builder, multiboot and installer:${none} ./${SCRIPT} -c all -p openbox -m -i"
   echo -e "  ${green}Don't automatically destroy the build container:${none} RELEASED=1 ./${SCRIPT} -d base"
   echo -e "  ${green}Run the build container attaching to input/output:${none} ./${SCRIPT} -b"
   echo
