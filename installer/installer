@@ -590,7 +590,6 @@ installer()
     echo -e "${cyber}:: $(bash -c "printf '%0.1s' '*'{1..107}")${none}"
 
     # Print out the given params
-    echo -e "${cyber}:: v${VERSION}${none}"
     echo -e ":: Incoming deployment options"
     echo -e "   deployment=$LAYER"
     for x in ${PARAMS}; do
