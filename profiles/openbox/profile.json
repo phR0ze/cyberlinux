@@ -47,8 +47,8 @@
       "layers": "openbox/shell,openbox/x11,openbox/lite,openbox/netbook",
       "groups": "lp,wheel,network,storage,users,video,audio,adbusers,uucp,disk",
       "packages": [
-        "cyberlinux-standard-netbok",
-        "cyberlinux-openbox-netbok"
+        "cyberlinux-standard-netbook",
+        "cyberlinux-openbox-netbook"
       ]
     },
     {
