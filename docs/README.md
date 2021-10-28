@@ -2309,23 +2309,25 @@ Note: I removed the step to bind mount to `/var/cache/pacman/pkg` as this causes
 the `tmp-fs` service. Instead I simply mount it at `/mnt/Cache` and setup pacman to use it.
 
 1. Setup an NFS share see [Share Package Cache](#share-package-cache) on your server
-2. Setup your client system to use the server's NFS share see [NFS Client Config](#nfs-client-config)
-3. Double check that the server config for the `Cache` share has the following properties set:
-   * `/srv/nfs/Cache       192.168.1.0/24(rw,no_root_squash,insecure,no_subtree_check)`
-4. Ensure your `/etc/fstab` config for the `Cache` share has the following properties set:
-   ```
-   192.168.1.2:/srv/nfs/Cache /mnt/Cache nfs auto,noacl,noatime,nodiratime,rsize=8192,wsize=8192,timeo=15,_netdev 0 0
-   ```
-5. Now mount the share manually and check that it worked:
+2. Ensure your NFS client is installed and can see the server shares:
    ```bash
-   # First clear out the existing cache
-   $ sudo pacman -Scc
-
-   # Create the mount dir
-   $ sudo mkdir /mnt/Cache
-
-   # Manually mount
+   $ showmount -e 192.168.1.3
+   Export list for 192.168.1.3:
+   /srv/nfs/Cache 192.168.1.3
+   ```
+3. Create a local mount point:
+   ```bash
+   $ sudo mkdir -p /mnt/Cache
+   $ sudo chown -R USER: /mnt/Cache
+   ```
+4. Setup automounting on boot:
+   ```
+   $ echo "192.168.1.3:/srv/nfs/Cache /mnt/Cache nfs auto,noacl,noatime,nodiratime,rsize=8192,wsize=8192,timeo=15,_netdev 0 0" > /etc/fstab
    $ sudo mount -a
+   ```
+5. Clear out the existing pacman cache:
+   ```bash
+   $ sudo pacman -Scc
    ```
 6. Edit the pacman config `/etc/pacman.conf` and change the cache directory
    ```

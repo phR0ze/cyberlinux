@@ -46,6 +46,7 @@ strictly the responsiblity of the user and not the developer/creator of ***cyber
   * [Dell XPS 13 9310](docs/dell-xps-13-9310)
   * [HP ZBook 15](docs/deployments/hp-zbook-15)
   * [Samsung Chromebook3 (CELES)](docs/deployments/samsung-chromebook3)
+  * [Package Deployment](#package-deployment)
 * [Advanced concepts](#advanced-concepts)
   * [cyberlinux help](docs)
   * [Roll your own](profiles)
@@ -155,9 +156,6 @@ First ensure you satisfy the [Prerequisites](#prerequisites)
    b. Browse to and select the `usb.vmdk` you just created  
    c. Start up the new VM  
 
-# Download cyberlinux ISO <a name="download-cyberlinux-iso"/></a>
-***cyberlinux*** ISOs are being hosted at https://osdn.net/projects/cyberlinux
-
 # Deploy cyberlinux <a name="deploy-cyberlinux"/></a>
 For the most part deploying ***cyberlinux*** is as simple as:
 1. Booting from the USB or ISO you created in the [Create multiboot USB](#create-multiboot-usb) section
@@ -166,6 +164,25 @@ For the most part deploying ***cyberlinux*** is as simple as:
 4. Waiting for the install to complet
 5. Removing the USB
 6. Rebooting
+
+## Package Deployment <a name="package-deployment"/></a>
+The pre-built `cyberlinux-*` packages available in the [cyberlinux-repo](https://github.com/phR0ze/cyberlinux-repo)
+are highly opinionated and in some cases will modify system configuration with cyberlinux defaults
+and as such they are ***only recommended to be installed with new systems*** or to
+***upgrade existing cyberlinux based systems*** and are
+***not to be used directly on pre-existing non-cyberlinux systems***.
+
+1. Install desired end state package e.g.
+   ```bash
+   $ sudo pacman -S cyberlinux-xfce-theater
+   ```
+2. Update user configuration: ***WARNING this is destructive backup your configs first***
+   ```bash
+   $ mv -rf ~/.config ~/Downloads
+   $ mv -rf ~/.local ~/Downloads
+   $ shopt -s dotglob
+   $ cp -r /etc/skel/* /home/USER
+   ```
 
 ## Advancecd concepts <a name="advanced-concepts"/></a>
 * [cyberlinux help](docs)

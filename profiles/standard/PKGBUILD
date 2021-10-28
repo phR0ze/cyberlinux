@@ -343,6 +343,12 @@ package_cyberlinux-standard-x11()
     'ttf-liberation'            # Red Hats Liberation fonts. 
     'ttf-nerd-fonts-symbols'    # Nerd Font Symbols, repo: cyberlinux
 
+    # xorg video drivers
+    'xf86-video-ati'            # Open source 3D acceleration drivers for ATI cards
+    'xf86-video-amdgpu'         # Open source 3D acceleration drivers for AMD cards
+    'xf86-video-intel'          # Open source 3D acceleration drivers for Intel cards
+    'xf86-video-nouveau'        # Open source 3D acceleration drivers for nVidia cards
+
     # xorg
     'xf86-input-libinput'       # x.org generic input driver, group: xorg-drivers
     'xf86-video-vesa'           # x.org vesa video driver, group: xorg, xorg-drivers
