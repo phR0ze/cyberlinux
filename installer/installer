@@ -222,14 +222,14 @@ partition_and_mount_disk()
     check_status
 
     # Set partition identifiers
-    if [ "x${SSD}" == "x1" ]; then
-        PART_BOOT="${DESTDEV}p1"
-        PART_SWAP="${DESTDEV}p2"
-        PART_ROOT="${DESTDEV}p3"
-    else
+    if [ "x${SCSI}" == "x1" ]; then
         PART_BOOT="${DESTDEV}1"
         PART_SWAP="${DESTDEV}2"
         PART_ROOT="${DESTDEV}3"
+    else
+        PART_BOOT="${DESTDEV}p1"
+        PART_SWAP="${DESTDEV}p2"
+        PART_ROOT="${DESTDEV}p3"
     fi
 
     # EFI: Create a ESP boot partition EF00
@@ -604,7 +604,7 @@ installer()
 
     # Set defaults for live and default deployments
     #---------------------------------------------------------------------------
-    SSD=0
+    SCSI=0
     DEFAULT="n"
     ENABLE_BLUETOOTH=0
     HOSTNAME="${DISTRO}-${LAYER}"
@@ -652,12 +652,12 @@ installer()
             getsel DESTDEV "$DISKS"
 
             # Determine the type of storage from the three most common types:
-            # SSD type storage either NVMe or MMC both use a similar partition naming
-            # convention so we really only need to determine if its not an HDD.
+            # Non SCSI type storage either NVMe or MMC both use a similar partition naming
+            # convention so we really only need to determine if its SCSI or not.
             # SCSI: /dev/sda        partition1: /dev/sda1
             # NVMe: /dev/nvme0n1    partition1: /dev/nvme0n1p1
             # MMC: /dev/mmcblk0     partition1: /dev/mmcblk0p1
-            [ ${DESTDEV//sda} != "/dev/" ] && SSD=1
+            [ -z "${DESTDEV##*/dev/sd*}" ] && SCSI=1
 
             # Configure networking
             #----------------------------------------------------------------------
@@ -721,6 +721,7 @@ installer()
     echo -e "   timezone=${cyber}${TIMEZONE}${none}"
     echo -e "   autologin=${cyber}${AUTOLOGIN}${none}"
     echo -e "   install_dev=${cyber}${DESTDEV}${none}"
+    echo -e "   SCSI=${cyber}${SCSI}${none}"
     echo -e "   EFI=${cyber}${EFI}${none}"
 
     if [ $LAYER == "live" ]; then
