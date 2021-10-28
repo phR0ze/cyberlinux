@@ -298,8 +298,8 @@ git config core.hooksPath .githooks
 
 ## Licenses <a name="licenses"/></a>
 Because of the nature of ***cyberlinux*** any licensing will be of a mixed nature.  In some cases as
-called out below such as ***reduce*** and the ***boot/initramfs/installer***, created by phR0ze, the
-license is MIT. In other cases works i leveraged from else where using licenses such as GPLv2.
+called out below such as ***build.sh*** and the ***installer/installer***, created by phR0ze, the
+license is MIT. In other cases works I leveraged from else where using licenses such as GPLv2.
 
 ### ART work <a name="art-work"/></a>
 All art work used in the distribution have been carefully selected to be either creative commons,
@@ -307,17 +307,16 @@ public domain, have permission from the original authors, or lay claim on fair u
 some reason a licensing mistake has been made please let me know and I'll review the claim immediately.
 
 ### Configure, Build and Install Scripts <a name="configuration-build-install-scripts"/></a>
-***reduce*** and all Ruby code related to it is licensed below via MIT additionally the
-boot/initramfs/installer bash code base is likewise MIT licensed.
+All scripting and code created for the cyberlinux project is licensed below via MIT.
 
 [LICENSE-MIT](LIENSE-MIT)
 
 ---
 
 # Backlog <a name="backlog"/></a>
-* netbook: boot on lid open
-* netbook: HDMI output
+* grub not booting for xfce shell
 
+* netbook: HDMI output
 * xfce:netbook: set background using generic `monitor0` from /etc/lxdm/PreLogin
   * /usr/bin/lockscreen
     * use xrandr to detect active monitor
@@ -329,12 +328,6 @@ boot/initramfs/installer bash code base is likewise MIT licensed.
 
 * rust: clu wm xfce set desktop file monitor to use
 
-* installer: hanges when booting into the Graphical Target
-  * just leave a message rather than autobooting
-* Load networking in initramfs?
-
-* Detect and install braswell config at install time
-* Display time in installer using given timezone offset
 * Document configuring Firefox
 * GTK folder sort settings didn't take
 * ACEPC
