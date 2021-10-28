@@ -656,7 +656,7 @@ installer()
             # SCSI: /dev/sda        partition1: /dev/sda1
             # NVMe: /dev/nvme0n1    partition1: /dev/nvme0n1p1
             # MMC: /dev/mmcblk0     partition1: /dev/mmcblk0p1
-            [[ ${DESTDEV} == "/dev/sd"* ]] && SCSI=1
+            [[ ${DESTDEV} =~ "/dev/sd" ]] && SCSI=1
 
             # Configure networking
             #----------------------------------------------------------------------
