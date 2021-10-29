@@ -1898,7 +1898,7 @@ https://wiki.archlinux.org/index.php/NFS
 $ showmount -e 192.168.1.3
 
 # Create local mount points
-$ sudo mkdir -p /mnt/{Cache,Documents,Educational,Family,Install,Movies,Pictures,TV}
+$ sudo mkdir -p /mnt/{Cache,Documents,Educational,Family,Install,Kids,Movies,Pictures,TV}
 
 # Set local mount point ownership to your user
 $ sudo chown -R <user-name>: /mnt/{Cache,Documents,Educational,Family,Install,Movies,Pictures,TV}
