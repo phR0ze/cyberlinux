@@ -42,6 +42,17 @@
       ]
     },
     {
+      "name": "server",
+      "entry": "Install xfce server        // Server env for Personal Use Only",
+      "kernel": "linux",
+      "layers": "xfce/shell,xfce/x11,xfce/lite,xfce/server",
+      "groups": "lp,wheel,network,storage,users,video,audio,adbusers,uucp,disk,docker,vboxusers",
+      "packages": [
+        "cyberlinux-standard-server",
+        "cyberlinux-xfce-server"
+      ]
+    },
+    {
       "name": "lite",
       "entry": "Install xfce lite          // Lite xfce env with minimal apps",
       "kernel": "linux",

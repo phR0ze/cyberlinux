@@ -25,6 +25,7 @@
 pkgbase=cyberlinux-xfce
 pkgname=(
     "${pkgbase}-lite"
+    "${pkgbase}-server"
     "${pkgbase}-netbook"
     "${pkgbase}-desktop"
     "${pkgbase}-theater"
@@ -88,14 +89,23 @@ package_cyberlinux-xfce-lite()
   pkg lite
 }
 
+package_cyberlinux-xfce-server()
+{
+  pkgdesc="Lite server xfce system including restricted for personal use only software"
+  depends=(
+    "cyberlinux-xfce-lite>=${pkgver}"
+  )
+  pkg netbook
+}
+
 package_cyberlinux-xfce-netbook()
 {
   pkgdesc="Netbook xfce system with minimal productivity apps"
   depends=(
-    "cyberlinux-standard-netbook>=${pkgver}"
+    "cyberlinux-standard-server>=${pkgver}"
     "cyberlinux-xfce-lite>=${pkgver}"
   )
-  pkg netbook
+  pkg server
 }
 
 package_cyberlinux-xfce-desktop()
