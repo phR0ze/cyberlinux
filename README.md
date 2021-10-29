@@ -45,6 +45,7 @@ strictly the responsiblity of the user and not the developer/creator of ***cyber
   * [ACEPC AK1](docs/deployments/acepc-ak1)
   * [Dell XPS 13 9310](docs/dell-xps-13-9310)
   * [HP ZBook 15](docs/deployments/hp-zbook-15)
+  * [nVidia Quadro FX 3800](docs/deployments/nvidia-quadro-fx-3800)
   * [Samsung Chromebook3 (CELES)](docs/deployments/samsung-chromebook3)
   * [Package Deployment](#package-deployment)
 * [Advanced concepts](#advanced-concepts)
