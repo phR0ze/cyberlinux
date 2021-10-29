@@ -94,7 +94,7 @@ on the [Arch Linux Wiki](https://wiki.archlinux.org/) should work just fine as w
     * [Burning an DVD](#burning-an-dvd)
     * [Encode DVD to x265](#encode-dvd-to-x265)
     * [Cut Video w/out Re-encoding](#cut-video-without-re-encoding)
-    * [Rotate Video](#rotate-video)
+    * [Lossless Rotate](#lossless-rotate)
     * [Strip GPS Location](#strip-gps-location)
 * [Mount](#mount)
   * [Mount Busy](#mount-busy)
@@ -498,7 +498,7 @@ Graphics:  Card-1: NVIDIA GT200GL [Quadro FX 3800]
 $ yay -Ga nvidia-340xx-utils
 $ cd nvidia-340xx-utils
 $ makepkg -s
-$ sudo pacman -U nvidia-340xx-utils-340.108-1-x86_64.pkg.tar.xz
+$ sudo pacman -U nvidia-340xx-utils-340.108-1-x86_64.pkg.tar.zst
 
 $ yay -Ga lib32-nvidia-340xx-utils
 $ cd lib32-nvidia-340xx-utils
@@ -1324,20 +1324,17 @@ Note often when doing a full dvd backup the first chapter will be the menu
 8. Right click on this new expanded chapter and choose `Include ONLY this segment in export`
 9. Click `Export` button validate settins and click `Export` again
 
-### Rotate Video <a name="rotate-video"/></a>
-* `0` Rotate by 90 degrees counter-clockwise and flip vertically. This is the default.
-* `1` Rotate by 90 degrees clockwise.
-* `2` Rotate by 90 degrees counter-clockwise.
-* `3` Rotate by 90 degrees clockwise and flip vertically.
+### Lossless Rotate <a name="lossless-rotate"/></a>
+This just sets the metadata for the video. Its up to your player to play it with the correct rotation
 
 Rotate clockwise by 90 degrees
 ```bash
-$ ffmpeg -i input.mp4 -vf "transpose=1" output.mp4
+$ ffmpeg -i $INPUTVIDEO -metadata:s:v rotate="90" -codec copy $OUTPUTVIDEO
 ```
 
-Rotate clockwise by 180 degrees
+Rotate clockwise by 270 degrees
 ```bash
-$ ffmpeg -i input.mp4 -vf "transpose=1,transpose=1" output.mp4
+$ ffmpeg -i $INPUTVIDEO -metadata:s:v rotate="270" -codec copy $OUTPUTVIDEO
 ```
 
 ### Strip GPS Location <a name="strip-gps-location"/></a>
