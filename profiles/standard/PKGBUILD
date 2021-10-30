@@ -408,6 +408,7 @@ package_cyberlinux-standard-server()
     # Utils
     'docker'                    # Pack, ship and run any application as a lightweight container
     'systemd-docker'            # Wrapper for "docker run" to handle systemd quirks, repo: cyberlinux
+    'veracrypt'                 # Disk encryption with strong security based on TrueCrypt
 
     # Media
     'handbrake'                 # Video encoding tool for mp4/mkv
@@ -415,8 +416,12 @@ package_cyberlinux-standard-server()
     'mkvtoolnix-gui'            # Set of tools to create, edit and inspect MKV files
 
     # Network
+    'chromium'                  # Open source base of Google's Chrome browser
     'qbittorrent'               # BitTorrent client written in C++, based on Qt and libtorrent-rasterbar
     'tiny-media-manager'        # Cross platform media manager, repo: cyberlinux
+
+    # Office
+    'fbreader'                  # An e-book reader for linux
   )
   pkg server
 }

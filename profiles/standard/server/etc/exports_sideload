@@ -4,6 +4,7 @@
 /srv/nfs/Educational 192.168.1.0/24(ro,all_squash,insecure,no_subtree_check)
 /srv/nfs/Family      192.168.1.0/24(ro,all_squash,insecure,no_subtree_check)
 /srv/nfs/Install     192.168.1.0/24(ro,all_squash,insecure,no_subtree_check)
+/srv/nfs/Kids        192.168.1.0/24(ro,all_squash,insecure,no_subtree_check)
 /srv/nfs/Movies      192.168.1.0/24(ro,all_squash,insecure,no_subtree_check)
 /srv/nfs/Pictures    192.168.1.0/24(ro,all_squash,insecure,no_subtree_check)
 /srv/nfs/TV          192.168.1.0/24(ro,all_squash,insecure,no_subtree_check)
