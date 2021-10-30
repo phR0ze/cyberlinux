@@ -39,7 +39,7 @@ conky.config = {
 
     -- Position
     alignment = 'top_right',                -- Align window on the desktop
-    maximum_width = 325,                    -- Maximum width of conky window
+    maximum_width = 450,                    -- Maximum width of conky window
     gap_x = 20,                             -- Gap in pixels between right or left border of screen
     gap_y = 20,                             -- Gap in pixels between top or bottom of screen
 
@@ -62,17 +62,18 @@ conky.text = [[
 #-------------------------------------------------------------------------------
 # Time/Date/Calendar
 #-------------------------------------------------------------------------------
-${voffset -38}\
-${font Designer Block:bold:size=100}${color1}${time %I}\
-${offset 3}${voffset -38}${font Designer Block:bold:size=50}${color3}:${time %M}\
-${font Designer Block:bold:size=14}${time %p}\
-${offset -110}${voffset 13}${font Designer Block:bold:size=35}${color1}${time %a} ${time %d}\
-${voffset -10}${font Designer Block:bold:size=20}${exec /etc/xdg/conky/date.rb}
+${offset 20}${voffset -38}\
+${font Designer Block:bold:size=120}${color1}${time %I}\
+${offset 3}${voffset -50}${font Designer Block:bold:size=55}${color3}:${time %M}\
+${font Designer Block:bold:size=20}${time %p}\
+${offset -120}${voffset 27}${font Designer Block:bold:size=35}${color1}${time %a} ${time %d}\
+${voffset -15}${font Designer Block:bold:size=20}${exec /etc/xdg/conky/date.rb}
 # Month/Year
-${voffset 25}\
-${font Designer Block:normal:size=24}${color1}${time %B}.${time %Y} ${hr 2}
+${offset 30}${voffset 25}\
+${font Designer Block:normal:size=28}${color1}${time %B}.${time %Y} ${hr 2}
 # Day names
-${font Liberation Mono:bold:size=14}${color2}  Su  Mo  Tu  We  Th  Fr  Sa
+${voffset -15}\
+${font Liberation Mono:bold:size=20}${color2}  Su  Mo  Tu  We  Th  Fr  Sa
 # Days
-${font Liberation Mono:size=14}${color1}${execp /etc/xdg/conky/cal.rb 2 0}
+${font Liberation Mono:size=20}${color1}${execp /etc/xdg/conky/cal.rb 2 0}
 ]];
