@@ -95,6 +95,10 @@ package_cyberlinux-xfce-server()
   depends=(
     "cyberlinux-standard-server>=${pkgver}"
     "cyberlinux-xfce-lite>=${pkgver}"
+
+    # Restricted licensing to personal use only
+    'teamviewer'                # Excellent remoting software
+    'ttf-ms-fonts'              # Core TTF Fonts from Microsoft
   )
   pkg netbook
 }

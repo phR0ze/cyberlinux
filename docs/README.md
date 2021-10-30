@@ -1403,15 +1403,14 @@ $ lsblk
 $ sudo bash -c 'blkid >> /etc/fstab'
 
 # Edit /etc/fstab
-# Remove boot device from the list
-# Use: UUID=ba6619b0-c3a6-493e-92f0-14bf313d15a3 /mnt/storage1 ext4 defaults,noatime,nodiratime 0 0
+# fstab usage: UUID=ba6619b0-c3a6-493e-92f0-14bf313d15a3 /mnt/storage1 ext4 defaults,noatime,nodiratime 0 0
 $ sudo vim /etc/fstab
 
 # Manually mount
 $ sudo mount -a
 
 # Set ownership if needed
-$ sudo chown -R phR0ze: /mnt/storage1 /mnt/storage2
+$ sudo chown -R USER: /mnt/storage1 /mnt/storage2
 ```
 
 # Network <a name="network"/></a>
@@ -1960,7 +1959,7 @@ $ sudo mount --bind /mnt/storage/Movies /srv/nfs/Movies
 
 # Auto Bind mount directories
 $ sudo tee -a /etc/fstab <<EOL
-/mnt/storage/Cache /srv/nfs/Documents none bind 0 0
+/mnt/storage/Cache /srv/nfs/Cache none bind 0 0
 /mnt/storage/Documents /srv/nfs/Documents none bind 0 0
 /mnt/storage/Educational /srv/nfs/Educational none bind 0 0
 /mnt/storage/Family /srv/nfs/Family none bind 0 0
@@ -2336,7 +2335,7 @@ the `tmp-fs` service. Instead I simply mount it at `/mnt/Cache` and setup pacman
    ```
 4. Setup automounting on boot:
    ```
-   $ echo "192.168.1.3:/srv/nfs/Cache /mnt/Cache nfs auto,noacl,noatime,nodiratime,rsize=8192,wsize=8192,timeo=15,_netdev 0 0" > /etc/fstab
+   $ sudo bash -c 'echo "192.168.1.3:/srv/nfs/Cache /mnt/Cache nfs auto,noacl,noatime,rsize=8192,wsize=8192,timeo=15,_netdev 0 0" >> /etc/fstab'
    $ sudo mount -a
    ```
 5. Clear out the existing pacman cache:

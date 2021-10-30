@@ -21,7 +21,11 @@
 
 post_install()
 {
-  echo ""
+  # Xfce window manager overrides
+  # ---------------------------------------------------------------------------
+  pushd /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml
+  mv -f xfwm4.xml.server xfwm4.xml
+  popd
 }
 
 post_upgrade() {
