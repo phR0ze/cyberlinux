@@ -9,6 +9,7 @@ Develop with Visual Studio Code
 * [Install](#install)
 * [Install Extensions](#install-extensions)
 * [Keyboard Shortcuts](#keyboard-shortcuts)
+  * [tasks.json](#tasks-json)
 * [General Settings](#general-settings)
 * [Language Config](#language-config)
   * [Golang](#golang)
@@ -17,6 +18,7 @@ Develop with Visual Studio Code
   * [Rust](#rust)
     * [Install Rust](#install-rust)
     * [Config Rust](#config-rust)
+    * [Rust tasks](#rust-tasks)
 * [Troubleshooting](#troubleshooting)
   * [Remove All Extensions](#remove-all-extensions)
 
@@ -72,9 +74,20 @@ Keyboard shortcut overrides are found in: `~/.config/Code/User/keybindings.json`
     {
         "key": "ctrl+shift+t",
         "command": "workbench.action.tasks.test"
+    },
+    {
+        "key": "ctrl+shift+r",
+        "command": "workbench.action.tasks.runTask",
+        "args": "Run"
     }
 ]
 ```
+
+## tasks.json <a name="tasks-json"></a>
+Every project requires the creation of the `.vscode/tasks.json` file to map keybindings to your 
+specific project.
+
+* see [Rust tasks](#rust-tasks)
 
 # General Settings <a name="general-settings"></a>
 Configuration is saved at `~/.config/Code/User/settings.json`
@@ -190,6 +203,48 @@ $ sudo pacman -S rust rust-musl lldb
 3. Install and configure crate support:
    a. Install extension `Better TOML by bungcip`  
    b. Install extension `crates by Seray Uzgur`  
+
+### Rust tasks <a name="rust-tasks"></a>
+If you use a `workbench.action.tasks.runTask` in your keybindings it points to your local 
+`.vscode/tasks.json` file which you can then associate to a specific task using the keybinding's 
+`args` to your tasks.json's `label` mapping. `Build` and `Test` are predetermined labels that vscode 
+already understands.
+
+```json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build",
+      "type": "shell",
+      "command": [
+        "cargo build --all-features",
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "Test",
+      "type": "shell",
+      "command": "cargo test --all-features",
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "Run",
+      "type": "shell",
+      "command": "cargo run",
+      "group": {
+        "kind": "test",
+      }
+    }
+  ]
+}
+```
 
 ## Troubleshooting <a name="troubleshooting"></a>
 

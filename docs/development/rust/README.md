@@ -136,7 +136,6 @@ edition = "2018"
 authors = ["phR0ze"]
 license = "MIT OR Apache-2.0"
 description = "Automation for the Arch Linux ecosystem"
-readme = "README.md"
 homepage = "https://github.com/phR0ze/clu"
 repository = "https://github.com/phR0ze/clu"
 exclude = [
@@ -277,7 +276,7 @@ To add a library to the workspace do the following:
    ```
 
 ### 5. Add git commit and build date <a name="add-git-commit-and-build-date"/></a>
-I like to include the git commit and build date in my appliation version output to get something like
+I like to include the git commit and build date in my application version output to get something like
 the following:
 ```
 CLU - Automation for the Arch Linux ecosystem
