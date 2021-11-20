@@ -9,17 +9,19 @@ Documenting various networking technologies
 * [BlueMan](bluMan)
 * [Firefox](firefox)
 * [iptables](#iptables)
-* [Nameservers](#nameservers)
-  * [DNS status](#dns-status)
+* [DNS](#dns)
+  * [DNS commands](#dns-commands)
+    * [DNS status](#dns-status)
+    * [DNS Lookup](#dns-lookup)
   * [DNS routing](#dns-routing)
     * [Default Route](#default-route)
-  * [DNS Lookup](#dns-lookup)
-  * [/etc/resolv.conf](#etc-resolv-conf)
-  * [Configure DNS](#configure-dns)
-  * [Quad9 DNS](#quad9-dns)
-  * [Cloudflare DNS](#cloudflare-dns)
-  * [Google DNS](#google-dns)
-  * [DNSSEC Validation Failures](#dnssec-validation-failures)
+    * [Add domain route](#add-domain-route)
+    * [/etc/resolv.conf](#etc-resolv-conf)
+  * [Nameservers](#nameservers)
+    * [Quad9 DNS](#quad9-dns)
+    * [Cloudflare DNS](#cloudflare-dns)
+    * [Google DNS](#google-dns)
+    * [DNSSEC Validation Failures](#dnssec-validation-failures)
 * [Network Interfaces](#network-interfaces)
   * [Bind to NIC](#bind-to-nic)
   * [Configure Multiple IPs](#configure-multiple-ips)
@@ -32,6 +34,10 @@ Documenting various networking technologies
   * [NFS Client Config](#nfs-server-config)
   * [NFS Server Config](#nfs-server-config)
   * [systemd-networkd-wait-online timing out](#systemd-networkd-wait-oneline-timing-out)
+* [Remoting](#remoting)
+  * [Barrier](#barrier)
+  * [Teamviewer](#teamviewer)
+  * [Zoom](#zoom)
 * [SSH](#ssh)
   * [Port Forwarding](#ssh-port-forwarding)
 * [sshuttle](#sshuttle)
@@ -86,7 +92,8 @@ sudo iptables -A OUTPUT -p tcp --dport 443 -j DROP
 * `-j ACCEPT` - indicates the action to take
 * `--dport 80` - indicates requests bound for destination port 80
 
-# Nameservers <a name="nameservers"/></a>
+# DNS <a name="dns"/></a>
+[Arch Linux Wiki on Resolved](https://wiki.archlinux.org/index.php/Systemd-resolved#Setting_DNS_servers)
 [Arch Linux Wiki on nameservers](https://wiki.archlinux.org/index.php/Alternative_DNS_services)
 Systemd's `resolved` service configured it's Fallback DNS by default to use Cloudflare then Quad9 then
 Google so that DNS will always work.
@@ -97,9 +104,16 @@ $ sudo systemd-resolve --statistics
 $ nmcli -p connection modify MY_VPN_CONNECTION ipv4.dns-priority -42
 ```
 
-## DNS status <a name="dns-status"/></a>
+## DNS commands <a name="dns-commands"/></a>
+
+### DNS status <a name="dns-status"/></a>
 ```bash
 $ resolvectl status
+```
+
+### DNS Lookup <a name="dns-lookup"/></a>
+```bash
+$ resolvectl query archlinux.org
 ```
 
 ## DNS routing <a name="dns-routing"/></a>
@@ -134,6 +148,18 @@ Link 2 (eno1): 1.1.1.1 1.0.0.1
 Link 18 (tun0): 10.45.248.15 10.38.5.26
 ```
 
+Configure DNS (for all links):
+```bash
+# Edit resolved config
+$ cat /etc/systemd/resolved.conf
+[Resolve]
+DNS=1.1.1.1 1.0.0.1
+FallbackDNS=8.8.8.8 8.8.4.4
+
+# Restart service
+$ sudo systemctl restart systemd-resolved
+```
+
 ### Default Route <a name="default-route"/></a>
 The `default-route` property is a simple boolean value that may be set on an interface to indicate 
 that any DNS lookup for which no matching routing or search domains exist are routed to this 
@@ -160,88 +186,37 @@ $ sudo resolvectl default-route tun0 false
 $ sudo resolvectl dns tun0 192.0.2.1
 ```
 
-## DNS Lookup <a name="dns-lookup"/></a>
-```bash
-$ resolvectl query archlinux.org
-```
-
-## /etc/resolv.conf <a name="etc-resolv-conf"/></a>
+### /etc/resolv.conf <a name="etc-resolv-conf"/></a>
 Some older software still uses `/etc/resolv.conf` directly. To plug this older mechanism into the 
 newer `sytemd-resolved` system you need to setup a link to the resolved stub
 ```bash
 $ sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 ```
 
-## Configure DNS <a name="configure-dns"/></a>
-https://wiki.archlinux.org/index.php/Systemd-resolved#Setting_DNS_servers
+## Nameservers <a name="nameservers"/></a>
 
-DNS is managed first by the network manager which in cyberlinux's case means `systemd-networkd`
-which if not specified will fallback on the network router's DNS configuration. It can be overridden
-with resolved configuration if desired but is probably simpler to just go with the network manager
-settings.
-
-Configure Network Wide at Router:
-1. Set network wide DNS picked up by DHCP clients at your router
-2. Restart clients `sudo systemctl restart systemd-resolved`
-
-Configure DNS directly locally (for target link):
-```bash
-# Edit the target network config ensuring that UseDNS=false is set
-# Note that to not use the DHCP dns you must set UseDNS=false
-$ cat /etc/systemd/network/30-wireless.network
-[Match]
-Name=wl*
-
-[Network]
-DHCP=ipv4
-IPForward=kernel
-DNS=8.8.8.8
-
-[DHCP]
-UseDNS=false
-RouteMetric=20
-UseDomains=true
-
-# Restart services
-$ sudo systemctl restart systemd-networkd systemd-resolved
-```
-
-Configure DNS directly locally (for all links):
-```bash
-# Edit resolved config
-$ cat /etc/systemd/resolved.conf
-[Resolve]
-DNS=1.1.1.1 1.0.0.1
-FallbackDNS=1.1.1.1 1.0.0.1 9.9.9.9 8.8.8.8
-
-# Change the DNS= line to your target dns e.g. DNS=8.8.8.8 8.8.4.4
-
-# Restart service
-$ sudo systemctl restart systemd-resolved
-```
-
-## Cloudflare DNS <a name="cloudflare-dns"/></a>
+### Cloudflare DNS <a name="cloudflare-dns"/></a>
 [Cloudflare's DNS](https://blog.cloudflare.com/announcing-1111/) heralded as the Internet's fastest,
 privacy-first consumer DNS service.
 
 * ***1.1.1.1***
 * ***1.0.0.1***
 
-## Quad9 DNS <a name="quad9-dns"/></a>
+### Quad9 DNS <a name="quad9-dns"/></a>
 [Quad9's DNS](https://quad9.net/) is a DNS service founed by IBM and a few others with the primary
 unique feature of a malicious blocklist.
 
 * ***9.9.9.9***
 * ***9.9.9.10***
 
-## Google DNS <a name="google-dns"/></a>
+### Google DNS <a name="google-dns"/></a>
 [Google DNS](https://developers.google.com/speed/public-dns/) claims to speed up browsing and offer
 better security, however nothing is called out around privacy as they like to monitor heavily.
 
 * ***8.8.8.8***
 * ***8.8.4.4***
 
-## DNSSEC Validation Failures <a name="dnssec-validation-failures"/></a>
+### DNSSEC Validation Failures <a name="dnssec-validation-failures"/></a>
 After updating to the latest bits 5.2.11 kernel for reference I started getting DNS failures:
 
 ```bash
@@ -263,6 +238,7 @@ https://wiki.archlinux.org/index.php/Systemd-resolved#DNSSEC
 # Then restart the service
 $ sudo systemctl restart systemd-resolved
 ```
+
 
 # Network Interfaces <a name="network-interfaces"/></a>
 
@@ -428,7 +404,7 @@ autoconnect-priority=1
 method=manual
 address=192.168.1.15/24
 gateway=192.162.1.1
-dns=1.1.1.1;1.0.0.1
+dns=127.0.0.53
 
 [ipv6]
 method=disabled
@@ -464,6 +440,98 @@ dns=systemd-resolved
 Reload the configuration with `nmcli general reload`
 
 WIP
+
+# Remoting <a name="remoting"/></a>
+
+## Barrier <a name="barrier"/></a>
+Barrier allows you to share a keyboard and mouse between machines (e.g. desktop and laptop). It is a 
+fork of the `Synergy 1.9` codebase and the go forward open source solution.
+
+### Install Barrier <a name="install-barrier"/></a>
+```bash
+$ sudo pacman -S barrier
+```
+
+### Configure Barrier Server <a name="configure-barrier-server"/></a>
+Note: debugging in the forground can be done with `barriers -f --enable-crypto`
+
+1. From your workstation launch ***Barrier*** from the ***Network*** menu
+2. Work through the wizard
+3. Select ***Server (share this computer's mouse and keyboard)*** and click ***Finish***
+4. Select ***Configure interactively*** and then click ***Configure Server...***
+5. Drag a new monitor from top right down to be to the right of ***desktop***
+6. Double click the new monitor and name it ***laptop*** and click ***OK***
+   Note: the name used here must match the 'Client name' used in the Client section  
+7. Navigate to ***File >Save configuration as...*** and save ***barrier.conf*** in your home dir  
+8. Now move it to etc: `sudo mv ~/barrier.conf /etc`
+
+### Configure systemd unit <a name="configure-systemd-unit-barrier"/></a>
+Barrier needs to attach to your user's X session which means it needs to run as your user. 
+cyberlinux provides `/usr/lib/systemd/user/barriers.service` which when run with 
+`systemctl --user enable barriers` will create the link `~/.config/systemd/user/default.target.wants/barriers.service`  
+1. Enable barriers: `systemctl --user enable barriers`  
+2. Start barriers: `systemctl --user start barriers`  
+
+### Configure Barrier Client <a name="configure-barrier-client"/></a>
+1. Launch: `barrier`
+2. Click ***Next*** to accept ***English*** as the default language
+3. Select ***Client (use another computer's mouse and keyboard)*** then ***Finish***
+4. Uncheck ***Auto config***
+5. Enter server hostname e.g. ***192.168.1.4***
+6. Click ***Start***
+7. Navigate to ***Edit >Settings*** and check ***Hide on startup*** then ***OK***
+8. Click ***File >Save configuration as...*** and save as ***~/.config/barrier.conf***
+9. Create autostart for client: `cp /usr/share/applications/barrier.desktop ~/.config/autostart`
+
+## Teamviewer <a name="teamviewer"/></a>
+Typically I configure TV to only be accessible from my LAN and tunnel in.
+
+1. Install Teamviewer
+  ```bash
+  sudo pacman -S teamviewer
+  sudo systemctl enable teamviewerd
+  sudo systemctl start teamviewerd
+  ```
+2. Autostart Teamviewer
+  ```bash
+  cp /usr/share/applications/teamviewer.desktop ~/.config/autostart
+  ```
+3. Configure Teamviewer  
+  a. Start teamviewer: `teamviewer`  
+  b. Click ***Accept License Agreement***  
+  c. Navigate to ***Extras >Options***  
+  d. Click ***General*** tab on left  
+  e. Set ***Your Display Name***  
+  f. Check the box ***Start Teamviwer with system***  
+  g. Set drop down ***Incoming LAN connections*** to ***accept exclusively***  
+  h. Click ***Security*** tab   
+  i. Set ***Password*** and ***Confirm Password***  
+  j. Leave ***Start Teamviewer with Windows*** checked and click ***OK*** then ***OK***  
+  k. Click ***Advanced*** tab on left  
+  l. Disable log files  
+  m. Check ***Disable TeamViewer shutdown***  
+  n. Click ***OK***  
+
+## Zoom <a name="zoom"/></a>
+Seems to be a pretty good quality app.  I simply installed it and selected my plantronics headset
+and audio worked great.  My laptop webcam also worked without doing anything.
+
+**Install Manually**
+```bash
+$ yaourt -G zoom; cd zoom
+$ makepkg -s
+$ sudo pacman -U zoom-2.4.121350.0816-1-x86_64.pkg.tar.xz
+```
+
+**Install from cyberlinux-repo**
+```bash
+$ sudo tee -a /etc/pacman.conf <<EOL
+[cyberlinux]
+SigLevel = Optional TrustAll
+Server = https://phR0ze.github.io/cyberlinux-repo/$repo/$arch
+EOL
+$ sudo pacman -Sy zoom
+```
 
 # SSH <a name="ssh"/></a>
 

@@ -138,10 +138,6 @@ on the [Arch Linux Wiki](https://wiki.archlinux.org/) should work just fine as w
     * [Battery Status](#battery-status)
     * [Display Brightness](#display-brightness)
   * [Suspend](#suspend)
-* [Remoting](#remoting)
-  * [Barrier](#barrier)
-  * [Teamviewer](#teamviewer)
-  * [Zoom](#zoom)
 * [Rescue](#rescue)
   * [Switch to TTY](#switch-to-tty)
   * [Graphical Target](#graphical-target)
@@ -1724,98 +1720,6 @@ monitoring widgets.
 
 ## Suspend <a name="suspend"/></a>
 Suspend works out of the box with ***systemd*** as the default system manager
-
-# Remoting <a name="remoting"/></a>
-
-## Barrier <a name="barrier"/></a>
-Barrier allows you to share a keyboard and mouse between machines (e.g. desktop and laptop). It is a 
-fork of the `Synergy 1.9` codebase and the go forward open source solution.
-
-### Install Barrier <a name="install-barrier"/></a>
-```bash
-$ sudo pacman -S barrier
-```
-
-### Configure Barrier Server <a name="configure-barrier-server"/></a>
-Debugging in the forground can be done with `barriers -f --enable-crypto`
-
-1. Run ***Barrier*** from the ***Network*** menu
-2. Work through the wizard
-3. Select ***Server (share this computer's mouse and keyboard)*** and click ***Finish***
-4. Select ***Configure interactively*** and then click ***Configure Server...***
-5. Drag a new monitor from top right down to be to the right of ***desktop***
-6. Double click the new monitor and name it ***laptop*** and click ***OK***
-   Note: the name used here must match the 'Client name' used in the Client section  
-7. Navigate to ***File >Save configuration as...*** and save ***barrier.conf*** in your home dir  
-8. Now move it to etc: `sudo mv ~/barrier.conf /etc`
-
-### Configure systemd unit <a name="configure-systemd-unit-barrier"/></a>
-Barrier needs to attach to your user's X session which means it needs to run as your user. 
-Barrier does'nt but should provide `/usr/lib/systemd/user/barriers.service` which when run with 
-`systemctl --user enable barriers` will create the link `~/.config/systemd/user/default.target.wants/barriers.service`  
-1. Enable barriers: `systemctl --user enable barriers`  
-2. Start barriers: `systemctl --user start barriers`  
-
-### Configure Barrier Client <a name="configure-barrier-client"/></a>
-1. Launch: `barrier`
-2. Click ***Next*** to accept ***English*** as the default language
-3. Select ***Client (use another computer's mouse and keyboard)*** then ***Finish***
-4. Uncheck ***Auto config***
-5. Enter server hostname e.g. ***192.168.1.4***
-6. Click ***Start***
-7. Navigate to ***Edit >Settings*** and check ***Hide on startup*** then ***OK***
-8. Click ***File >Save configuration as...*** and save as ***~/.config/synergy.conf***
-9. Create autostart for client: `cp /usr/share/applications/barrier.desktop ~/.config/autostart`
-
-## Teamviewer <a name="teamviewer"/></a>
-Typically I configure TV to only be accessible from my LAN and tunnel in.
-
-1. Install Teamviewer
-  ```bash
-  sudo pacman -S teamviewer
-  sudo systemctl enable teamviewerd
-  sudo systemctl start teamviewerd
-  ```
-2. Autostart Teamviewer
-  ```bash
-  cp /usr/share/applications/teamviewer.desktop ~/.config/autostart
-  ```
-3. Configure Teamviewer  
-  a. Start teamviewer: `teamviewer`  
-  b. Click ***Accept License Agreement***  
-  c. Navigate to ***Extras >Options***  
-  d. Click ***General*** tab on left  
-  e. Set ***Your Display Name***  
-  f. Check the box ***Start Teamviwer with system***  
-  g. Set drop down ***Incoming LAN connections*** to ***accept exclusively***  
-  h. Click ***Security*** tab   
-  i. Set ***Password*** and ***Confirm Password***  
-  j. Leave ***Start Teamviewer with Windows*** checked and click ***OK*** then ***OK***  
-  k. Click ***Advanced*** tab on left  
-  l. Disable log files  
-  m. Check ***Disable TeamViewer shutdown***  
-  n. Click ***OK***  
-
-## Zoom <a name="zoom"/></a>
-Seems to be a pretty good quality app.  I simply installed it and selected my plantronics headset
-and audio worked great.  My laptop webcam also worked without doing anything.
-
-**Install Manually**
-```bash
-$ yaourt -G zoom; cd zoom
-$ makepkg -s
-$ sudo pacman -U zoom-2.4.121350.0816-1-x86_64.pkg.tar.xz
-```
-
-**Install from cyberlinux-repo**
-```bash
-$ sudo tee -a /etc/pacman.conf <<EOL
-[cyberlinux]
-SigLevel = Optional TrustAll
-Server = https://phR0ze.github.io/cyberlinux-repo/$repo/$arch
-EOL
-$ sudo pacman -Sy zoom
-```
 
 # Rescue <a name="rescue"/></a>
 
