@@ -226,7 +226,7 @@ To add a library to the workspace do the following:
    [package]
    name = "libclu"
    version = "0.0.1"
-   edition = "2018"
+   edition = "2021"
    authors = ["phR0ze"]
    license = "MIT OR Apache-2.0"
    description = "Automation for the Arch Linux ecosystem"
@@ -297,13 +297,25 @@ root of the project will cause cargo to compile it and run it before building th
    use std::process::Command;
    
    fn main() {
-       // Set the APP_BUILD_DATE
+       // APP_BUILD_DATE
        let local: DateTime<Local> = Local::now();
        println!("cargo:rustc-env=APP_BUILD_DATE={}.{:0>2}.{:0>2}", local.year(), local.month(), local.day());
    
-       // Set the APP_GIT_COMMIT
-       let output = Command::new("git").args(&["rev-parse", "HEAD"]).output().unwrap();
-       let git_hash = String::from_utf8(output.stdout).unwrap();
+       // APP_GIT_COMMIT
+       // ---------------------------------------------------------------------
+       // Extract the last git commit SHA if in a git repo.
+       // Target SHA is the second value in the last line of the HEAD logs file
+       let mut git_hash = "NOT-FOUND".to_string();
+       let head = Path::new(".git/logs/HEAD");
+       if head.exists() {
+           if let Ok(data) = fs::read_to_string(head) {
+               if let Some(lastline) = data.lines().rev().next() {
+                   if let Some(hash) = lastline.split_ascii_whitespace().skip(1).next() {
+                       git_hash = hash.to_string();
+                   }
+               }
+           }
+       }
        println!("cargo:rustc-env=APP_GIT_COMMIT={}", git_hash);
    }
    ```

@@ -321,6 +321,9 @@ ip a
 ```
 
 # Network Manager <a name="network-managerr"/></a>
+I've switched over to using NetworkManager with cyberlinux due to the user friendlyness of the 
+system and its native support for wireguard.
+
 [NetworkManager](https://wiki.archlinux.org/title/NetworkManager) Network Manager is a frontend for 
 backend providers. Network Manager provides a nice system tray icon with UI wizards on par with OSX 
 that then automate the configuration of backend providers like `systemd-networkd`, `wpa_supplicant`, 
@@ -340,8 +343,8 @@ and openvpn integration.
    ```
 2. Disable `systemd-networkd`
    ```bash
-   $ sudo systemctl disable systemctl-networkd
-   $ sudo systemctl stop systemctl-networkd.socket systemctl-networkd
+   $ sudo systemctl disable systemd-networkd
+   $ sudo systemctl stop systemd-networkd.socket systemd-networkd
    ```
 3. Enable and start Network Manager
    ```bash
@@ -396,7 +399,7 @@ NetworkManager will restart see the priorities and load the correct one
 
 **Configure DHCP connection:**
 ```bash
-$ sudo cat <<EOF >> /etc/NetworkManager/system-connections/dhcp
+$ sudo cat <<EOF > /etc/NetworkManager/system-connections/dhcp
 [connection]
 id=Wired dhcp
 uuid=$(uuidgen)
@@ -409,12 +412,12 @@ method=auto
 [ipv6]
 method=disabled
 EOF
-$ sudo chomd 0600 /etc/NetworkManager/system-connections/dhcp
+$ sudo chmod 0600 /etc/NetworkManager/system-connections/dhcp
 ```
 
 **Configure Static connection:**
 ```bash
-$ sudo cat <<EOF >> /etc/NetworkManager/system-connections/static
+$ sudo cat <<EOF > /etc/NetworkManager/system-connections/static
 [connection]
 id=Wired static
 uuid=$(uuidgen)
@@ -430,22 +433,23 @@ dns=1.1.1.1;1.0.0.1
 [ipv6]
 method=disabled
 EOF
-$ sudo chomd 0600 /etc/NetworkManager/system-connections/static
+$ sudo chmod 0600 /etc/NetworkManager/system-connections/static
 ```
 
 **Reload connections from disk:**
 ```bash
-$ nmcli con reload
+$ sudo nmcli con reload
 ```
+Note: if your new connecdtions don't show up check their permission bits are correct `0600`
 
 **Switch to static connection:**
 ```bash
-$ nmcli con up "Wire static"
+$ sudo nmcli con up "Wire static"
 ```
 
 **Switch to dhcp connection:**
 ```bash
-$ nmcli con up "Wire dhcp"
+$ sudo nmcli con up "Wire dhcp"
 ```
 
 ## Split DNS <a name="split-dns-network-manager"/></a>
