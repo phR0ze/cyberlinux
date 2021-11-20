@@ -12,7 +12,8 @@ Documenting various networking technologies
 * [DNS](#dns)
   * [DNS commands](#dns-commands)
     * [DNS status](#dns-status)
-    * [DNS Lookup](#dns-lookup)
+    * [DNS lookup](#dns-lookup)
+    * [DNS flush](#dns-flush)
   * [DNS routing](#dns-routing)
     * [Default Route](#default-route)
     * [Add domain route](#add-domain-route)
@@ -29,7 +30,7 @@ Documenting various networking technologies
   * [Install](#install-network-manager)
   * [Configure](#configure-network-manager)
   * [Keyfile Configs](#keyfile-configs)
-  * [Split DNS](#split-dns-network-manager)
+  * [Network Manager and resolved](#network-manager-and-resolved)
 * [NFS Shares](#nfs-shares)
   * [NFS Client Config](#nfs-server-config)
   * [NFS Server Config](#nfs-server-config)
@@ -98,12 +99,6 @@ sudo iptables -A OUTPUT -p tcp --dport 443 -j DROP
 Systemd's `resolved` service configured it's Fallback DNS by default to use Cloudflare then Quad9 then
 Google so that DNS will always work.
 
-```bash
-$ sudo resolvectl flush-caches
-$ sudo systemd-resolve --statistics
-$ nmcli -p connection modify MY_VPN_CONNECTION ipv4.dns-priority -42
-```
-
 ## DNS commands <a name="dns-commands"/></a>
 
 ### DNS status <a name="dns-status"/></a>
@@ -111,12 +106,18 @@ $ nmcli -p connection modify MY_VPN_CONNECTION ipv4.dns-priority -42
 $ resolvectl status
 ```
 
-### DNS Lookup <a name="dns-lookup"/></a>
+### DNS lookup <a name="dns-lookup"/></a>
 ```bash
 $ resolvectl query archlinux.org
 ```
 
+### DNS flish <a name="dns-flush"/></a>
+```bash
+$ sudo resolvectl flush-caches
+```
+
 ## DNS routing <a name="dns-routing"/></a>
+
 [systemd-resolved and VPNs](https://systemd.io/RESOLVED-VPNS/)
 There are two flavors of domains attached to a network interface: `routing domains` and `search 
 domains`. They both specify that a given domain and any subdomains are appropriate for that 
@@ -159,6 +160,17 @@ FallbackDNS=8.8.8.8 8.8.4.4
 # Restart service
 $ sudo systemctl restart systemd-resolved
 ```
+
+### Debug dns <a name="debug-dns"/></a>
+1. Check the logs
+   ```bash
+   $ journalctl -u systemd-resolved -b --no-pager
+   # or 
+   $ journalctl -u systemd-resolved --since="-2 minutes"
+   -- Journal begins at Thu 2021-09-16 21:39:04 MDT, ends at Sat 2021-11-20 15:41:19 MST. --
+   Nov 20 15:39:29 main4 systemd-resolved[8699]: Using degraded feature set UDP instead of TCP for DNS server 8.8.8.8.
+   Nov 20 15:39:35 main4 systemd-resolved[8699]: Using degraded feature set TCP instead of UDP for DNS server 8.8.8.8.
+   ```
 
 ### Default Route <a name="default-route"/></a>
 The `default-route` property is a simple boolean value that may be set on an interface to indicate 
@@ -320,6 +332,7 @@ and openvpn integration.
 2. Disable `systemd-networkd`
    ```bash
    $ sudo systemctl disable systemd-networkd
+   $ sudo systemctl disable systemd-networkd-wait-online
    $ sudo systemctl stop systemd-networkd.socket systemd-networkd
    ```
 3. Enable and start Network Manager
@@ -359,7 +372,7 @@ configured to explicitely use the defaults on a per property basis. This might b
 ### Keyfile Configs <a name="keyfile-configs"/></a>
 NetworkManager will read `/etc/NetworkManager/system-connections` for any manually configured 
 connections via its `keyfile` plugin which is always enabled. Connection files need to be owned by 
-`root` and set to `0600` permissions.
+`root` and set to `0600` permissions or they won't be displayed in the list.
 
 keyfile aliases to keep in mind:
 * `802-3-ethernet` = `ethernet`
@@ -428,7 +441,7 @@ $ sudo nmcli con up "Wire static"
 $ sudo nmcli con up "Wire dhcp"
 ```
 
-## Split DNS <a name="split-dns-network-manager"/></a>
+## Network Manager and resolved <a name="network-manager-and-resolved"/></a>
 NetworkManager will use `systemd-resolved` automatically as its DNS resolver and cache. You just need 
 to ensure that `/etc/resolv.conf` is a symlink to `/run/systemd/resolve/stub-resolv.conf` or you can 
 explicitely enable it via editing `/etc/NetworkManager/conf.d/dns.conf` and adding:
@@ -437,9 +450,7 @@ explicitely enable it via editing `/etc/NetworkManager/conf.d/dns.conf` and addi
 dns=systemd-resolved
 ```
 
-Reload the configuration with `nmcli general reload`
-
-WIP
+Then reload the configuration with: `sudo nmcli general reload`
 
 # Remoting <a name="remoting"/></a>
 
@@ -562,6 +573,22 @@ https://github.com/sshuttle/sshuttle
 `systemd-networkd` is a bare bones, light and simple networking configuration. In conjunction with 
 `wpa_supplicant` and `WPA_UI` I've got by just fine. However it does lack some of the elegance 
 heavier weight solutions like Network Manager provide.
+
+## Install systemd-networkd <a name="install-systemd-networkd"/></a>
+1. Disable `NetworkManager`
+   ```bash
+   $ sudo systemctl disable NetworkManager
+   $ sudo systemctl disable NetworkManager-wait-online
+   ```
+2. Disable `nm-applet`
+   ```bash
+   $ sudo rm /etc/xdg/autostart/nm-applet.desktop
+   ```
+3. Enable `systemd-networkd`
+   ```bash
+   $ sudo systemctl enable systemd-networkd
+   $ sudo systemctl enable systemd-networkd-wait-online
+   ```
 
 ## DHCP Networking <a name="dhcp-networking-systemd-networkd"/></a>
 ```bash

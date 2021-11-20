@@ -47,11 +47,6 @@ post_install()
   # FallbackNTP=0.pool.ntp.org 1.pool.ntp.org 0.fr.pool.ntp.org
   mv -f /etc/systemd/timesyncd.conf_sideload /etc/systemd/timesyncd.conf
 
-  # Configure DNS to use CloudFlare by default and fallback on Google
-  # DNS=1.1.1.1 1.0.0.1
-  # FallbackDNS=8.8.8.8 8.8.4.4
-  mv -f /etc/systemd/resolved.conf_sideload /etc/systemd/resolved.conf
-
   # Link resolved as resolver for /etc/resolv.conf
   ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 
