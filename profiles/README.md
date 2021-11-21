@@ -14,6 +14,9 @@ to upgrade existing deployments.
 ### Quick links
 * [.. up dir](..)
 * [Profiles](#profiles)
+  * [Packages](#packages)
+    * [Build Packages](#build-packages)
+    * [Publish Packages](#publish-packages)
   * [profile.json](#profile-json)
     * [deployments](#deployments)
     * [dependencies](#dependencies)
@@ -30,6 +33,27 @@ to upgrade existing deployments.
 ---
 
 # Profiles <a name="profiles"/></a>
+
+## Packages <a name="packages"/></a>
+
+### Build Packages <a name="build-packages"/></a>
+1. Clone `cyberlinux` locally
+2. Change directory into the `cyberlinux` directory
+3. Execute: `./build.sh -p xfce -r`
+
+### Publish Packages <a name="publish-packages"/></a>
+1. Copy the resulting packages to the repo clone
+   ```bash
+   $ cd ~/Projects/cyberlinux-repo/cyberlinux/x86_64
+   $ rm *xfce*
+   $ rm *standard*
+   $ cp ~/Projects/cyberlinux/temp/repo/cyberlinux*.tar.zst .
+   ```
+2. Rebuild the repo and push the commit back to github
+   ```bash
+   $ rm cyberlinux.*
+   $ repo-add cyberlinux.db.tar.gz *.pkg.tar.*
+   ```
 
 ## profile.json <a name="profile-json"/></a>
 The `profile.json` is the heart of the profile describing the installable `deployments` that will 
