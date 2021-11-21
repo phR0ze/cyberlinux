@@ -3,7 +3,7 @@ Description=Barrier Server Daemon
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/barriers --no-daemon
+ExecStart=/usr/bin/barriers --no-daemon --disable-crypto
 Restart=on-failure
 
 [Install]

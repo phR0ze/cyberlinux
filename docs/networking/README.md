@@ -468,7 +468,8 @@ $ sudo pacman -S barrier
 ```
 
 ### Barrier Server <a name="barrier-server"/></a>
-Note: you can watch the logs with `journalctl --user -u barriers -f`
+Note: you can watch the logs with `journalctl --user -u barriers -f` or use
+`barriers -f -c /etc/barrier.conf --disable-crypto` for foreground debugging
 
 1. From your workstation launch ***Barrier*** from the ***Network*** menu
 2. Work through the wizard
@@ -482,22 +483,8 @@ Note: you can watch the logs with `journalctl --user -u barriers -f`
 9. Enable barriers: `systemctl --user enable barriers`  
 10. Start barriers: `systemctl --user start barriers`  
 
-### SSL cert error <a name="ssl-cert-error"/></a>
-When running `systemctl --user status barriers` and you see the following error
-```
-Nov 21 06:32:32 main4 barriers[152187]: [2021-11-21T06:32:32] INFO: OpenSSL 1.1.1l  24 Aug 2021
-Nov 21 06:32:32 main4 barriers[152187]: [2021-11-21T06:32:32] ERROR: ssl certificate doesn't exist: /home/USER/.local/share/barrier/SSL/Barrier.pem
-```
-
-**Solution:**
-```bash
-mkdir -p ~/.local/share/barrier/SSL/Fingerprints
-openssl req -x509 -nodes -days 7300 -subj /CN=Barrier -newkey rsa:1024 -keyout ~/.local/share/barrier/SSL/Barrier.pem -out ~/.local/share/barrier/SSL/Barrier.pem
-openssl x509 -fingerprint -sha1 -noout -in ~/.local/share/barrier/SSL/Barrier.pem > ~/.local/share/barrier/SSL/Fingerprints/Local.txt
-```
-
 ### Barrier Client <a name="barrier-client"/></a>
-1. Launch: `barrier`
+1. Launch: `barrierc --disble-crypto IP-ADDRESS-SERVER`
 2. Click ***Next*** to accept ***English*** as the default language
 3. Select ***Client (use another computer's mouse and keyboard)*** then ***Finish***
 4. Uncheck ***Auto config***
