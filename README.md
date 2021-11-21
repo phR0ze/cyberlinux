@@ -315,20 +315,25 @@ All scripting and code created for the cyberlinux project is licensed below via 
 ---
 
 # Backlog <a name="backlog"/></a>
+* VSCode powerline console fonts are not working
+* Set xfce clock to be digital by default
+* `/etc/skel/.config/conky/netbook` is missing
+* install warnings and failures
+```
+warning: could not get file information for etc/hosts_sideload
+Failed to enable unit: Unit file org.cups.cupsd.service does not exist.
+error: command failed to execute correctly
+```
 * grub not booting for xfce shell
-
 * netbook: HDMI output
 * xfce:netbook: set background using generic `monitor0` from /etc/lxdm/PreLogin
   * /usr/bin/lockscreen
     * use xrandr to detect active monitor
     * read active monitor background from `~/.config/xfce...`
-
 * rust: fungus new clone from github
   * use cyberlinux to drive the smallest slice of functionality
   * split out as features
-
 * rust: clu wm xfce set desktop file monitor to use
-
 * Document configuring Firefox
 * GTK folder sort settings didn't take
 * ACEPC
