@@ -37,6 +37,8 @@ Documenting various networking technologies
   * [systemd-networkd-wait-online timing out](#systemd-networkd-wait-oneline-timing-out)
 * [Remoting](#remoting)
   * [Barrier](#barrier)
+    * [Barrier Server](#barrier-server)
+    * [Barrier Client](#barrier-client)
   * [Teamviewer](#teamviewer)
   * [Zoom](#zoom)
 * [SSH](#ssh)
@@ -49,6 +51,8 @@ Documenting various networking technologies
 * [VPNs](#vpns)
   * [OpenConnect](#openconnect)
   * [OpenVPN](#openvpn)
+    * [Connect via Commandline](#connect-via-commandline)
+    * [Connect via NetworkManager](#connect-via-command-line)
   * [Split DNS Resolution](#split-dns-resolution)
 * [WireGuard](#wireguard)
   * [WireGuard Client](#wireguard-client)
@@ -463,8 +467,8 @@ fork of the `Synergy 1.9` codebase and the go forward open source solution.
 $ sudo pacman -S barrier
 ```
 
-### Configure Barrier Server <a name="configure-barrier-server"/></a>
-Note: debugging in the forground can be done with `barriers -f --enable-crypto`
+### Barrier Server <a name="barrier-server"/></a>
+Note: debugging in the forground can be done with `barriers -f`
 
 1. From your workstation launch ***Barrier*** from the ***Network*** menu
 2. Work through the wizard
@@ -475,15 +479,24 @@ Note: debugging in the forground can be done with `barriers -f --enable-crypto`
    Note: the name used here must match the 'Client name' used in the Client section  
 7. Navigate to ***File >Save configuration as...*** and save ***barrier.conf*** in your home dir  
 8. Now move it to etc: `sudo mv ~/barrier.conf /etc`
+9. Enable barriers: `systemctl --user enable barriers`  
+10. Start barriers: `systemctl --user start barriers`  
 
-### Configure systemd unit <a name="configure-systemd-unit-barrier"/></a>
-Barrier needs to attach to your user's X session which means it needs to run as your user. 
-cyberlinux provides `/usr/lib/systemd/user/barriers.service` which when run with 
-`systemctl --user enable barriers` will create the link `~/.config/systemd/user/default.target.wants/barriers.service`  
-1. Enable barriers: `systemctl --user enable barriers`  
-2. Start barriers: `systemctl --user start barriers`  
+### SSL cert error <a name="ssl-cert-error"/></a>
+When running `systemctl --user status barriers` and you see the following error
+```
+Nov 21 06:32:32 main4 barriers[152187]: [2021-11-21T06:32:32] INFO: OpenSSL 1.1.1l  24 Aug 2021
+Nov 21 06:32:32 main4 barriers[152187]: [2021-11-21T06:32:32] ERROR: ssl certificate doesn't exist: /home/USER/.local/share/barrier/SSL/Barrier.pem
+```
 
-### Configure Barrier Client <a name="configure-barrier-client"/></a>
+**Solution:**
+```bash
+mkdir -p ~/.local/share/barrier/SSL/Fingerprints
+openssl req -x509 -nodes -days 7300 -subj /CN=Barrier -newkey rsa:1024 -keyout ~/.local/share/barrier/SSL/Barrier.pem -out ~/.local/share/barrier/SSL/Barrier.pem
+openssl x509 -fingerprint -sha1 -noout -in ~/.local/share/barrier/SSL/Barrier.pem > ~/.local/share/barrier/SSL/Fingerprints/Local.txt
+```
+
+### Barrier Client <a name="barrier-client"/></a>
 1. Launch: `barrier`
 2. Click ***Next*** to accept ***English*** as the default language
 3. Select ***Client (use another computer's mouse and keyboard)*** then ***Finish***
@@ -893,10 +906,10 @@ Many VPN services are based on OpenVPN. In this section I'll be working through 
 options. OpenVPN client configuration files are stored in `/etc/openvpn/client` usually with the `.ovpn`
 extension.
 
-## Split DNS Resolution <a name="split-dns-resolution"/></a>
-Split DNS resolution allows for using the VPN's DNS name servers for resolution for all things over
-the VPN and your normal DNS name servers for everything else.
-[update-systemd-resolved](https://github.com/jonathanio/update-systemd-resolved) is a helper script
+### Connect via Commandline <a name="connect-via-commandline"/></a>
+This is a `Split DNS` solution meaning we will use the VPN's DNS for resolution for all things over
+the VPN and your normal DNS name servers for everything else. This is accomplished using the helper
+[update-systemd-resolved](https://github.com/jonathanio/update-systemd-resolved) script
 that reads from the `dhcp-option` in the server or client config then applies them dynamically to
 `systemd` via the `dbus`.
 
@@ -927,12 +940,28 @@ that reads from the `dhcp-option` in the server or client config then applies th
    Current DNS Server: <NAMESERVER 1>
    ```
 
+### Connect via NetworkManager <a name="connect-via-networkmanager"/></a>
+1. Install NetworkManager openvpn plugin
+   ```bash
+   $ sudo pacman -S networkmanager-openvpn
+   ```
+2. Left click on the NetworkManager applet in the tray and choose `VPN Connections > Add a VPN 
+   connection...`
+3. Choose the VPN Connection Type as `Import a saved VPN configuration...` and choose `Create...`
+4. Navigate to your `ovpn` file e.g. `/etc/openvpn/client/TARGET.ovpn`
+5. Set your `User name` and `Password`
+6. Switch to the `IPv4 Settings tab`
+7. Change the `Method` drop down from `Automatic (VPN)` i.e. send all traffic over the VPN to 
+   `Automatic (VPN) addresses only` which will only send vpn address ranges over the VPN.
+8. Also set the `DNS servers` and `search domains` to use as desired
+9. Click `Save`
+
 ### systemd-resolved and vpn dns
 `systemd-resolved` first checks for system overrides at `/etc/systemd/resolved.conf` then for network
 configuration at `/etc/systemd/network/*.network`, then vpn dns configuration and finally falls back
 on the fallback configuration in `/etc/systemd/resolved.conf`. I've found the most reliable way to
 get vpn dns to work correctly is to not set anything except the fallback configuration so that dns is
-configured by openconnect and when not on the vpn dns is configured by the fallback.
+configured by the vpn and when not on the vpn dns is configured by the fallback.
 
 ### systemd-resolved nsswitch configuration
 cyberlinux just worked out of the box but Ubuntu, although using `systemd-resolved` doesn't have
