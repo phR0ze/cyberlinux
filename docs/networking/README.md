@@ -468,7 +468,7 @@ $ sudo pacman -S barrier
 ```
 
 ### Barrier Server <a name="barrier-server"/></a>
-Note: debugging in the forground can be done with `barriers -f`
+Note: you can watch the logs with `journalctl --user -u barriers -f`
 
 1. From your workstation launch ***Barrier*** from the ***Network*** menu
 2. Work through the wizard

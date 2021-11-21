@@ -48,8 +48,8 @@ conky.config = {
     uppercase = false,                      -- User upper case text
     default_color = 'ffffff',               -- Default font color to use
     color1 = 'ffffff',                      -- White
-    color2 = '8d423f',                      -- Theater red
-    color3 = '8d423f',                      -- Theater red
+    color2 = '3CB0FD',                      -- cyber blue
+    color3 = '0a6da6',                      -- Dark cyber blue
 
     -- Bars/Graphs
     default_bar_width= 300,                 -- Default width for bars
