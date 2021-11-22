@@ -668,7 +668,7 @@ usage()
   echo -e "  -h               Display usage help\n"
   echo -e "Examples:"
   echo -e "  ${green}Build full Xfce ISO:${none} ./${SCRIPT} -p xfce -a"
-  echo -e "  ${green}Build Xfce packages:${none} ./${SCRIPT} -p xfce -r"
+  echo -e "  ${green}Rebuild Xfce packages:${none} ./${SCRIPT} -p xfce -c repo -r"
   echo -e "  ${green}Build just bootable installer:${none} ./${SCRIPT} -imI"
   echo -e "  ${green}Rebuild all:${none} ./${SCRIPT} -c most; ./${SCRIPT} -p xfce -a"
   echo -e "  ${green}Rebuild deployment:${none} ./${SCRIPT} -c layers/xfce/theater,repo; ./${SCRIPT} -p xfce -d theater -rimI"

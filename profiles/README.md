@@ -22,6 +22,9 @@ to upgrade existing deployments.
     * [dependencies](#dependencies)
 * [Layers](#layers)
 * [Guides](#guides)
+  * [Apps](#apps)
+    * [Add new app](#add-new-app)
+    * [VSCode powerline fonts](#vscode-powerline-fonts)
   * [Deployment](#deployment)
     * [Create a new deployment](#create-a-new-deployment)
   * [Wallpaper](#wallpaper)
@@ -39,7 +42,7 @@ to upgrade existing deployments.
 ### Build Packages <a name="build-packages"/></a>
 1. Clone `cyberlinux` locally
 2. Change directory into the `cyberlinux` directory
-3. Execute: `./build.sh -p xfce -r`
+3. Re-build packages: `./build.sh -p xfce -c repo -r`
 
 ### Publish Packages <a name="publish-packages"/></a>
 1. Copy the resulting packages to the repo clone
@@ -93,6 +96,29 @@ that have been joined using the overlay fs technique. This allows for a lot of f
 deployment options while saving space on your ISO media.
 
 # Guides <a name="guides"/></a>
+
+## Apps <a name="apps"/></a>
+
+### Add new app <a name="add-new-app"/></a>
+To add a new application to the requirements for cyberlinux all you need to do is:
+
+1. Determine which deployment to include it in. In this example we'll use `rust-asm` and `rust-src` 
+   which are standard system packages so I'll include them in the `standard/shell` profile
+2. Edit the target profile's `standard/PKGBUILD` and in the `shell` section add:
+   ```
+   'rust-asm'                  # WebAssembly targets for Rust
+   'rust-src'                  # Source code for the Rust standard library
+   ```
+3. Commit out your changes so you get a version bump
+   ```bash
+   $ git add .
+   $ git commit -m "Adding rust asm targets and std source"
+   ```
+3. [Build Packages](#build-packages)
+4. [Publish Packages](#publish-packages)
+
+### VSCode powerline fonts <a name="vscode-powerline-fonts"/></a>
+
 
 ## Deployment <a name="deployment"/></a>
 
