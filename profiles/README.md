@@ -57,6 +57,13 @@ to upgrade existing deployments.
    $ rm cyberlinux.*
    $ repo-add cyberlinux.db.tar.gz *.pkg.tar.*
    ```
+3. Commit the changes and push the commit
+   ```bash
+   $ cd ../../
+   $ git add .
+   $ git commit -m "Adding rust-adm and rust-src as standard/shell dependencies"
+   $ git push
+   ```
 
 ## profile.json <a name="profile-json"/></a>
 The `profile.json` is the heart of the profile describing the installable `deployments` that will 
@@ -106,8 +113,8 @@ To add a new application to the requirements for cyberlinux all you need to do i
    which are standard system packages so I'll include them in the `standard/shell` profile
 2. Edit the target profile's `standard/PKGBUILD` and in the `shell` section add:
    ```
-   'rust-asm'                  # WebAssembly targets for Rust
    'rust-src'                  # Source code for the Rust standard library
+   'rust-wasm'                 # WebAssembly targets for Rust
    ```
 3. Commit out your changes so you get a version bump
    ```bash

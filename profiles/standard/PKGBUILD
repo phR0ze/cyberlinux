@@ -210,9 +210,9 @@ package_cyberlinux-standard-shell()
     # Rust
     'lldb'                      # Next generation, high-performance debugger
     'rust'                      # Systems programming language focused on safety, speed and concurrency
-    'rust-asm'                  # WebAssembly targets for Rust
     'rust-musl'                 # Musl target for Rust
     'rust-src'                  # Source code for the Rust standard library
+    'rust-wasm'                 # WebAssembly targets for Rust
 
     # Golang
     'delve'                     # A debugger for the Go Programming Language
