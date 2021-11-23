@@ -202,10 +202,10 @@ Typically the process for persisting a configuration is to make the change then 
 config file to this location then do a diff to see what changed. For example changing the LCD clock 
 style went like this:
 
-1. Made the change via right clicking on the clock widget and adjusting the style
-2. Copied `~/.config/xfce4/xfconf/xfce-perhannel-xml/xfce4-panel.xml` to
+1. Change the clock widget to be the LCD style via right clicking on it and choosing `Properties`
+2. Copy `~/.config/xfce4/xfconf/xfce-perhannel-xml/xfce4-panel.xml` to
    `~/Projects/cyberlinux/profiles/xfce/lite/etc/skel/.config/xfce4/xfconf/xfce-perhannel-xml/xfce4-panel.xml`
-3. Then ran a diff `git diff` and saw the following properties changed
+3. Run a diff `git diff` and saw the following properties changed
    ```diff
        <property name="plugin-12" type="string" value="clock">
    -      <property name="mode" type="uint" value="2"/>
@@ -218,6 +218,36 @@ style went like this:
    ```bash
    $ git checkout profiles/xfce/lite/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
    ```
+
+### Cycle through workspaces <a name="cycle-through-workspaces"/></a>
+We'll be setting up `Super+Tab` to cycle through the existing workspaces forward and 
+`Super+Shift+Tab` to cycle backward.
+
+**Set keyboard binding**:
+1. Open `Settings >Window Manager`
+2. Switch to the `Keyboard` tab
+3. Scroll down to the `Previous workspace` binding and set it to `Super+Shift+Tab`
+3. Scroll down to the `Next workspace` binding and set it to `Super+Tab`
+
+**Set keyboard binding**:
+1. Open `Window Manager Tweaks`
+2. Switch to the `Workspaces` tab
+3. Enable `Wrap workspaces when the first or the last workspace is reached`
+
+**Preserve the changes in cyberlinux**:
+1. Copy `~/.config/xfce4/xfconf/xfce-perhannel-xml/xfce4-keyboard-shortcuts.xml` and
+   `~/.config/xfce4/xfconf/xfce-perhannel-xml/xfce4-desktop.xml` to
+   `~/Projects/cyberlinux/profiles/xfce/lite/etc/skel/.config/xfce4/xfconf/xfce-perhannel-xml/`
+3. Run a diff `git diff` and saw the following properties changed
+   ```diff
+   +      <property name="&lt;Super&gt;Tab" type="string" value="next_workspace_key"/>
+   +      <property name="&lt;Shift&gt;&lt;Super&gt;ISO_Left_Tab" type="string" value="prev_workspace_key"/>
+   ```
+4. Now we can revert the changes and manually re-apply just the ones desired
+   ```bash
+   $ git checkout profiles/xfce/lite/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
+   ```
+
 
 ## Xorg <a name="xorg"/></a>
 Xorg configuration is controlled by config files dropped in the `/etc/X11/xorg.conf.d` directory
