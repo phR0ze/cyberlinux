@@ -205,7 +205,7 @@ style went like this:
 1. Change the clock widget to be the LCD style via right clicking on it and choosing `Properties`
 2. Copy `~/.config/xfce4/xfconf/xfce-perhannel-xml/xfce4-panel.xml` to
    `~/Projects/cyberlinux/profiles/xfce/lite/etc/skel/.config/xfce4/xfconf/xfce-perhannel-xml/xfce4-panel.xml`
-3. Run a diff `git diff` and saw the following properties changed
+3. Run a diff `git diff` to find the target changes
    ```diff
        <property name="plugin-12" type="string" value="clock">
    -      <property name="mode" type="uint" value="2"/>
@@ -214,7 +214,7 @@ style went like this:
    +      <property name="show-meridiem" type="bool" value="false"/>
         </property>
    ```
-4. Now we can revert the changes and manually re-apply just the ones desired
+4. Now we can revert all changes and manually re-apply just the desired changes
    ```bash
    $ git checkout profiles/xfce/lite/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
    ```
@@ -236,18 +236,22 @@ We'll be setting up `Super+Tab` to cycle through the existing workspaces forward
 
 **Preserve the changes in cyberlinux**:
 1. Copy `~/.config/xfce4/xfconf/xfce-perhannel-xml/xfce4-keyboard-shortcuts.xml` and
-   `~/.config/xfce4/xfconf/xfce-perhannel-xml/xfce4-desktop.xml` to
+   `~/.config/xfce4/xfconf/xfce-perhannel-xml/xfce4.xml` to
    `~/Projects/cyberlinux/profiles/xfce/lite/etc/skel/.config/xfce4/xfconf/xfce-perhannel-xml/`
-3. Run a diff `git diff` and saw the following properties changed
+3. Run a diff `git diff` to see the target changes
    ```diff
+   # w/profiles/xfce/lite/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm-keyboard-shortcuts.xml
    +      <property name="&lt;Super&gt;Tab" type="string" value="next_workspace_key"/>
    +      <property name="&lt;Shift&gt;&lt;Super&gt;ISO_Left_Tab" type="string" value="prev_workspace_key"/>
+   w/profiles/xfce/lite/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml
+   -    <property name="wrap_cycle" type="bool" value="false"/>
+   +    <property name="wrap_cycle" type="bool" value="true"/>
    ```
-4. Now we can revert the changes and manually re-apply just the ones desired
+4. Now we can revert all changes and manually re-apply just the desired changes
    ```bash
-   $ git checkout profiles/xfce/lite/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
+   $ git checkout profiles/xfce/lite/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4.xml
+   $ git checkout profiles/xfce/lite/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml
    ```
-
 
 ## Xorg <a name="xorg"/></a>
 Xorg configuration is controlled by config files dropped in the `/etc/X11/xorg.conf.d` directory
