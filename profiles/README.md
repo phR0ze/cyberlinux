@@ -27,8 +27,9 @@ to upgrade existing deployments.
     * [VSCode powerline fonts](#vscode-powerline-fonts)
   * [Deployment](#deployment)
     * [Create a new deployment](#create-a-new-deployment)
-  * [Wallpaper](#wallpaper)
-    * [Default Xfce Wallpaper](#default-xfce-wallpaper)
+  * [Xfce](#xfce)
+    * [Default Wallpaper](#default-wallpaper)
+    * [LCD clock style](#lcd-clock-style)
   * [Xorg](#xorg)
     * [Default Resolution](#default-resolution)
 * [Backlog](#backlog)
@@ -162,11 +163,12 @@ You can create a new deployment with the following steps:
 6. Clean repo packages `./build.sh -p xfce -c repo`
 7. Build `./build.sh -p xfce -d theater -rimI`
 
-## Wallpaper <a name="wallpaper"/></a>
+## Xfce <a name="xfce"/></a>
+
+### Default wallpaper <a name="default-wallpaper"/></a>
 Wallpaper is stored at `/usr/share/backgrounds`. Both `Xfce` and `Nitrogen`, in the Openbox profile, 
 have been configured to source that directory for wallpaper.
 
-### Default Xfce wallpaper <a name="default-xfce-wallpaper"/></a>
 Xfce's wallpaper is set in the `~/.config/xfce4/xfce-perchannel-xml/xfce4-desktop.xml` file per 
 monitor per workspace which doesn't translate well to a pre-installed default. We don't know what an 
 end user's monitor is so the only way I've been able to do this is to set a default wallpaper image 
@@ -192,6 +194,29 @@ Example for our new `theater` deployment:
    pushd /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml
    mv xfce4-desktop.xml.theater xfce4-desktop.xml
    popd
+   ```
+
+### LCD clock style <a name="lcd-clock-style"/></a>
+Most of Xfce's custom configuration is stored in `~/.config/xfce4/xfconf/xfce-perhannel-xml`. 
+Typically the process for persisting a configuration is to make the change then copy over the related 
+config file to this location then do a diff to see what changed. For example changing the LCD clock 
+style went like this:
+
+1. Made the change via right clicking on the clock widget and adjusting the style
+2. Copied `~/.config/xfce4/xfconf/xfce-perhannel-xml/xfce4-panel.xml` to
+   `~/Projects/cyberlinux/profiles/xfce/lite/etc/skel/.config/xfce4/xfconf/xfce-perhannel-xml/xfce4-panel.xml`
+3. Then ran a diff `git diff` and saw the following properties changed
+   ```diff
+       <property name="plugin-12" type="string" value="clock">
+   -      <property name="mode" type="uint" value="2"/>
+   +      <property name="mode" type="uint" value="4"/>
+   +      <property name="show-military" type="bool" value="false"/>
+   +      <property name="show-meridiem" type="bool" value="false"/>
+        </property>
+   ```
+4. Now we can revert the changes and manually re-apply just the ones desired
+   ```bash
+   $ git checkout profiles/xfce/lite/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
    ```
 
 ## Xorg <a name="xorg"/></a>
