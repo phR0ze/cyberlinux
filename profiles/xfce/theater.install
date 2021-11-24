@@ -22,7 +22,9 @@
 post_install()
 {
   # Set display manager wallpaper
-  mv /etc/lxdm/lxdm.conf_theater /etc/lxdm/lxdm.conf
+  pushd /etc/lxdm
+  ln -sf lxdm.conf_theater lxdm.conf
+  popd
 
   # Set Xfce wallpaper and panel icons
   pushd /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml

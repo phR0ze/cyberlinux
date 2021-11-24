@@ -24,7 +24,7 @@ post_install()
   # Xfce panel overrides
   # ---------------------------------------------------------------------------
   pushd /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml
-  mv -f xfce4-panel.xml_netbook xfce4-panel.xml
+  ln -sf xfce4-panel.xml_netbook xfce4-panel.xml
   popd
 
   # Conky configuration

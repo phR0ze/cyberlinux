@@ -208,7 +208,6 @@ We'll be setting up `Super+Tab` to cycle through the existing workspaces forward
    ./lite/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml
    ```
 
-
 ### Default wallpaper <a name="default-wallpaper"/></a>
 Wallpaper is stored at `/usr/share/backgrounds`. Both `Xfce` and `Nitrogen`, in the Openbox profile, 
 have been configured to source that directory for wallpaper.
