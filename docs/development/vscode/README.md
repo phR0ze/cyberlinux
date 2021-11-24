@@ -11,10 +11,12 @@ Develop with Visual Studio Code
 * [Keyboard Shortcuts](#keyboard-shortcuts)
   * [tasks.json](#tasks-json)
 * [General Settings](#general-settings)
+  * [Powerline glyphs in terminal](#powerline-glyphs-in-terminal)
 * [Language Config](#language-config)
   * [Golang](#golang)
     * [Install Golang](#install-golang)
     * [Config Golang](#config-golang)
+    * [Debug with dlv](#debug-with-dlv)
   * [Rust](#rust)
     * [Install Rust](#install-rust)
     * [Config Rust](#config-rust)
@@ -138,6 +140,35 @@ Hit `Ctrl+Shift+p` and search for `json` and select `Preferences: Open Settings(
 }
 ```
 
+## Powerline glyphs in terminal <a name="powerline-glyphs-in-terminal"/></a>
+Powerline depends on fonts that support the particular glyphs that it uses. In order to get them to 
+show up properly you need to install the right fonts then set VSCode to use the correct fonts for the 
+terminal.
+
+1. Install dependency fonts
+   ```bash
+   $ sudo pacman -S nerd-fonts-inconsolata-go
+   ```
+2. Determine the font name to use
+   ```bash
+   $ fc-list | grep -i inconsolata
+   /usr/share/fonts/TTF/ttf-inconsolata-g.ttf: Inconsolata\-g:style=g
+   ...
+   /usr/share/fonts/TTF/InconsolataGo Nerd Font Complete Mono.ttf: InconsolataGo Nerd Font Mono:style=Regular
+   ```
+3. Copy out the portion after the first colon
+   ```
+   Inconsolata-g
+   InconsolataGo Nerd Font Mono
+   ```
+3. Hit `Ctrl+Shift+p` and choose `Preferences: Open Settigns (JSON)` then add
+   ```json
+   "editor.fontFamily": "Inconsolata-g"
+   "editor.fontSize": 14
+   "terminal.integrated.fontFamily": "InconsolataGo Nerd Font Mono"
+   "terminal.integrated.fontSize": 16
+   ```
+
 # Language Config <a name="language-config"></a>
 
 ## Golang <a name="golang"></a>
@@ -190,6 +221,32 @@ $ sudo pacman -S go go-tools go-bindata delve
    },
    "files.eol": "\n", // Gopls formatting only supports LF line endings
    ```
+
+### Debug with dlv <a name="debug-with-dlv"></a>
+The golang extension that we installed ealier will fire the first time you open a golang project and 
+ask if you want to download the missing helper tools, say yes to all and it will install `dlv-dap` 
+into your go path and keep it up to date i.e. `~/Projects/go/bin` for cyberlinux.
+
+`dlv-dep` should just work out of the box once you have a config setup below.
+
+**Create a new debug config, example replace `PACKAGE` below with your package**
+```
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/PACKAGE",
+            "env": { },
+            "args": [
+            ]
+        }
+    ]
+}
+```
 
 ## Rust <a name="rust"></a>
 

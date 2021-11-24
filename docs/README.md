@@ -77,9 +77,10 @@ on the [Arch Linux Wiki](https://wiki.archlinux.org/) should work just fine as w
     * [UEFI Boot](#uefi-boot)
   * [Boot Resolution](#boot-resolution)
 * [Fonts](#fonts)
+  * [Install Fonts](#install-fonts)
+  * [Find Font Name](#find-font-name)
   * [Distro Fonts](#distro-fonts)
   * [Fontconfig](#fongconfig)
-  * [Manually Install Fonts](#manually-install-fonts)
 * [Kernel](#kernel)
   * [Switch Kernel](#switch-kernel)
 * [Launchers](#launchers)
@@ -1054,7 +1055,33 @@ EndSection
 # Fonts <a name="fonts"/></a>
 https://wiki.archlinux.org/index.php/fonts
 
-## Xorg Fonts <a name="xorg-fonts"/></a>
+## Install Fonts <a name="install-fonts"/></a>
+
+### Install manually <a name="install-manually"/></a>
+1. Copy fonts to `/usr/share/fonts`
+2. Set permissions to at least `0444` for files and `0555` for directories
+
+### Install from a package <a name="install-from-a-package"/></a>
+`sudo pacman -S ttf-<package>`
+
+### Update font cache <a name="update-font-cache"/></a>
+Update font cache: `fc-cache`
+
+
+## Find Font Name <a name="find-font-name"/></a>
+Many applications in Linux require you to set the font by name via entering a text string rather than 
+picking from a widget list. This is problematic if you don't know the exact name of the font. To 
+figure this out you can.
+
+1. List out and grep for your target font
+   ```bash
+   $ fc-list | grep -i inconsolata
+   ```
+2. Copy out the portion after the first colon example
+   ```
+   /usr/share/fonts/TTF/InconsolataGo Nerd Font Complete Mono.ttf: InconsolataGo Nerd Font Mono:style=Regular
+   InconsolataGo Nerd Font Mono
+   ```
 
 ## Fontconfig <a name="fontconfig"/></a>
 https://wiki.archlinux.org/index.php/font_configuration
@@ -1096,20 +1123,9 @@ $ fc-list : file
 Font presets are installed in the directory `/etc/fonts/conf.avail` and can be enabled by creating
 symbolic links to them in the `/etc/fonts/conf.d` directory.
 
-### Font Anti-aliasing <a name="font-anti-aliasing"/></a>
-
-### Font Hinting <a name="font-hinting"/></a>
-
-### Font Autohinter <a name="font-auto-hinter"/></a>
-
 ### Subpixel Rendering <a name="subpixel-rendering"/></a>
 Subpixel rendering a.k.a. `ClearType` is covered by Microsoft patents and **disabled** by default on
 Arch Linux. To enable it, you have to use the `freetype2-cleartype` AUR package.
-
-## Manually Install Fonts <a name="manually-install-fonts"/></a>
-1. Copy fonts to `/usr/share/fonts`
-2. Set permissions to at least `0444` for files and `0555` for directories
-3. Update font cache: `fc-cache`
 
 ## Distro Fonts <a name="distro-fonts"/></a>
 Fonts are tricky due to licensing, despite being free for commercial use many are only free for

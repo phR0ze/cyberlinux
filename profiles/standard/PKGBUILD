@@ -215,7 +215,6 @@ package_cyberlinux-standard-shell()
     'rust-wasm'                 # WebAssembly targets for Rust
 
     # Golang
-    'delve'                     # A debugger for the Go Programming Language
     'go'                        # Compiler and tools for the Go programming lang
     'go-bindata'                # Embed any file as Go code
     'go-tools'                  # Developer tools for the Go programming lang
@@ -333,6 +332,7 @@ package_cyberlinux-standard-x11()
 
     # X11-fonts
     'adobe-source-code-pro-fonts'  # Mono-spaced coding environments
+    'nerd-fonts-inconsolata-go' # Inconsolata with nerd fonts built in, repo: cyberlinux
     'terminus-font'             # Monospace bitmap font for consoles
     'ttf-bitstream-vera'        # Bitstream vera fonts
     'ttf-dejavu'                # Bitstream Vera Fonts w/more characters

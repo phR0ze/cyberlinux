@@ -9,6 +9,15 @@ reference.
 * [.. up dir](..)
 
 ### Testlog <a name="testlog"/></a>
+* 2021.11.24
+* VSCode powerline console fonts are not working
+  * Build and publish `nerd-fonts-inconsolata-go` to cyberlinux-repo
+  * Add `nerd-fonts-inconsolata-go` to x11 base
+  * Add vscode configs for `editor` font to be `Inconsolata-g`
+  * Add vscode configs for `terminal` font to be `InconsolataGo Nerd Font Mono`
+* 2021.11.23
+  * Set xfce clock to LCD style
+  * Configure xfce workspaces cycling with Super+Tab and Super+Shift+Tab
 
 ### Changelog <a name="changelog"/></a>
 * 2021.11.21

@@ -315,8 +315,7 @@ All scripting and code created for the cyberlinux project is licensed below via 
 ---
 
 # Backlog <a name="backlog"/></a>
-* VSCode powerline console fonts are not working
-* Set xfce clock to be digital by default
+
 * `/etc/skel/.config/conky/netbook` is missing
 * install warnings and failures
 ```
