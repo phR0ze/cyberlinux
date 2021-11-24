@@ -31,6 +31,7 @@ to upgrade existing deployments.
     * [Default Wallpaper](#default-wallpaper)
     * [LCD clock style](#lcd-clock-style)
   * [Xorg](#xorg)
+    * [Auto login](#auto-login)
     * [Default Resolution](#default-resolution)
 * [Backlog](#backlog)
 
@@ -266,6 +267,12 @@ Example for our new `theater` deployment:
 
 ## Xorg <a name="xorg"/></a>
 Xorg configuration is controlled by config files dropped in the `/etc/X11/xorg.conf.d` directory
+
+### Auto login <a name="auto-login"/></a>
+By default cyberlinux uses `lxdm` as its display manager which provides a nice autologin feature if 
+you toggle a switch in `/etc/lxdm/lxdm.conf` however updating to the latest packages will revert that 
+change every time. To get around this I've put inplace a hacky check that if 
+`/etc/lxdm/lxdm.conf_persist` exists then the target will not be wrote over.
 
 ### Default Resolution <a name="default-resolution"/></a>
 1. Navigate to your target profile directory

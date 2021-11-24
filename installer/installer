@@ -551,6 +551,7 @@ config_system()
             echo -en ":: Enable autologin for LXDM..."
             sed -i -e "s/^#\s*autologin=.*/autologin=${USER}/" "${NEW_ROOT}/etc/lxdm/lxdm.conf"
             check_status
+            touch "${NEW_ROOT}/etc/lxdm/lxdm.conf_persist"
         fi
     fi
 

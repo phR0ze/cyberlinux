@@ -10,6 +10,7 @@ reference.
 
 ### Testlog <a name="testlog"/></a>
 * 2021.11.24
+  * lxdm autologin configs are lost on package update
   * `/etc/skel/.config/conky/netbook` is missing
 
 ### Changelog <a name="changelog"/></a>

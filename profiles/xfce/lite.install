@@ -45,7 +45,7 @@ post_install()
   # - disabled the user list control
   # - disabled the bottom panel from being displayed
   pushd /etc/lxdm
-  ln -sf lxdm.conf_lite lxdm.conf
+  [ ! -f lxdm.conf_persist ] ln -sf lxdm.conf_lite lxdm.conf
   popd
 
   # Enable lxdm service to start at boot
