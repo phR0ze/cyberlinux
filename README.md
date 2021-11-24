@@ -183,6 +183,7 @@ and as such they are ***only recommended to be installed with new systems*** or 
    $ mv -rf ~/.local ~/Downloads
    $ shopt -s dotglob
    $ cp -r /etc/skel/* ~/
+   $ sudo reboot
    ```
 
 ## Advancecd concepts <a name="advanced-concepts"/></a>
@@ -315,8 +316,9 @@ All scripting and code created for the cyberlinux project is licensed below via 
 ---
 
 # Backlog <a name="backlog"/></a>
-* lxdm autologin configs are lost on package update
+* Move LibreMath launch from Educational menu to Office
 
+# Sometime <a name="sometime"/></a>
 * grub not booting for xfce shell
 * netbook: HDMI output
 * xfce:netbook: set background using generic `monitor0` from /etc/lxdm/PreLogin

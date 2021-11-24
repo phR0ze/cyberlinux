@@ -9,12 +9,11 @@ reference.
 * [.. up dir](..)
 
 ### Testlog <a name="testlog"/></a>
-* 2021.11.24
-  * lxdm autologin configs are lost on package update
-  * `/etc/skel/.config/conky/netbook` is missing
 
 ### Changelog <a name="changelog"/></a>
 * 2021.11.24
+  * lxdm autologin configs are lost on package update
+  * Fix for `/etc/skel/.config/conky/netbook` missing
   * Fix for using the wrong `cups.service`
   * VSCode powerline console fonts are not working
     * Build and publish `nerd-fonts-inconsolata-go` to cyberlinux-repo
