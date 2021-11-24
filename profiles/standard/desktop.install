@@ -28,7 +28,7 @@ post_install()
   # Enable system services
   # ---------------------------------------------------------------------------
   systemctl enable docker.service
-  systemctl enable org.cups.cupsd.service
+  systemctl enable cups.service
 }
 
 post_upgrade() {

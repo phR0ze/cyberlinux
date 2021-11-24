@@ -22,12 +22,12 @@
 post_install()
 {
   # Set display manager wallpaper
-  mv /etc/lxdm/lxdm.conf.xfce.theater /etc/lxdm/lxdm.conf
+  mv /etc/lxdm/lxdm.conf_theater /etc/lxdm/lxdm.conf
 
   # Set Xfce wallpaper and panel icons
   pushd /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml
-  mv xfce4-desktop.xml.theater xfce4-desktop.xml
-  mv xfce4-panel.xml.theater xfce4-panel.xml
+  mv xfce4-desktop.xml_theater xfce4-desktop.xml
+  mv xfce4-panel.xml_theater xfce4-panel.xml
   popd
 
   # Set active conky configuration

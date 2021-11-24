@@ -196,9 +196,18 @@ We'll be setting up `Super+Tab` to cycle through the existing workspaces forward
    ```
 4. Now we can revert all changes and manually re-apply just the desired changes
    ```bash
-   $ git checkout profiles/xfce/lite/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4.xml
+   $ git checkout profiles/xfce/lite/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml
    $ git checkout profiles/xfce/lite/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml
+
+   $ cd ~/Projects/cyberlinux/profiles/xfce
+   $ find . -name xfwm4.xml*
+   ./lite/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml
+   ./server/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml_server
+
+   $ find . -name xfce4-keyboard-shortcuts.xml*
+   ./lite/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml
    ```
+
 
 ### Default wallpaper <a name="default-wallpaper"/></a>
 Wallpaper is stored at `/usr/share/backgrounds`. Both `Xfce` and `Nitrogen`, in the Openbox profile, 
@@ -247,6 +256,13 @@ Example for our new `theater` deployment:
 4. Now we can revert all changes and manually re-apply just the desired changes
    ```bash
    $ git checkout profiles/xfce/lite/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
+
+   $ cd ~/Projects/cyberlinux/profiles/xfce
+   $ find . -name xfce4-panel.xml*
+   ./lite/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
+   ./netbook/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml_netbook
+   ./desktop/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml_desktop
+   ./theater/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml_theater
    ```
 
 ## Xorg <a name="xorg"/></a>

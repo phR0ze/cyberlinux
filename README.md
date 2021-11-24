@@ -177,12 +177,12 @@ and as such they are ***only recommended to be installed with new systems*** or 
    ```bash
    $ sudo pacman -S cyberlinux-xfce-theater
    ```
-2. Update user configuration: ***WARNING this is destructive backup your configs first***
+2. Update user configuration: ***WARNING this is destructive. Please backup your configs first***
    ```bash
    $ mv -rf ~/.config ~/Downloads
    $ mv -rf ~/.local ~/Downloads
    $ shopt -s dotglob
-   $ cp -r /etc/skel/* /home/USER
+   $ cp -r /etc/skel/* ~/
    ```
 
 ## Advancecd concepts <a name="advanced-concepts"/></a>
@@ -315,13 +315,12 @@ All scripting and code created for the cyberlinux project is licensed below via 
 ---
 
 # Backlog <a name="backlog"/></a>
+* lxdm autologin configs are lost on package update
 
 * `/etc/skel/.config/conky/netbook` is missing
 * install warnings and failures
 ```
 warning: could not get file information for etc/hosts_sideload
-Failed to enable unit: Unit file org.cups.cupsd.service does not exist.
-error: command failed to execute correctly
 ```
 * grub not booting for xfce shell
 * netbook: HDMI output

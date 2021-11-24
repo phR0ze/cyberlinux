@@ -36,13 +36,12 @@
       <property name="autohide-behavior" type="uint" value="1"/>
       <property name="position" type="string" value="p=9;x=631;y=23"/>
       <property name="length" type="uint" value="1"/>
-      <property name="position-locked" type="bool" value="false"/>
-      <property name="size" type="uint" value="60"/>
+      <property name="position-locked" type="bool" value="true"/>
+      <property name="size" type="uint" value="36"/>
       <property name="plugin-ids" type="array">
         <value type="int" value="17"/>
         <value type="int" value="18"/>
         <value type="int" value="20"/>
-        <value type="int" value="24"/>
         <value type="int" value="8"/>
         <value type="int" value="5"/>
         <value type="int" value="13"/>
@@ -64,12 +63,8 @@
     <property name="plugin-6" type="string" value="systray">
       <property name="square-icons" type="bool" value="true"/>
       <property name="known-legacy-items" type="array">
-        <value type="string" value="networkmanager applet"/>
         <value type="string" value="xfce4-power-manager"/>
         <value type="string" value="xfce terminal"/>
-      </property>
-      <property name="known-items" type="array">
-        <value type="string" value="TeamViewer"/>
       </property>
     </property>
     <property name="plugin-9" type="string" value="power-manager-plugin"/>
@@ -78,7 +73,9 @@
       <property name="style" type="uint" value="0"/>
     </property>
     <property name="plugin-12" type="string" value="clock">
-      <property name="mode" type="uint" value="2"/>
+      <property name="mode" type="uint" value="4"/>
+      <property name="show-military" type="bool" value="false"/>
+      <property name="show-meridiem" type="bool" value="false"/>
     </property>
     <property name="plugin-17" type="string" value="launcher">
       <property name="items" type="array">
@@ -152,11 +149,6 @@
     <property name="plugin-23" type="string" value="launcher">
       <property name="items" type="array">
         <value type="string" value="16318272574.desktop"/>
-      </property>
-    </property>
-    <property name="plugin-24" type="string" value="launcher">
-      <property name="items" type="array">
-        <value type="string" value="16353012531.desktop"/>
       </property>
     </property>
   </property>
