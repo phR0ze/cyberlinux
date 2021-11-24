@@ -317,11 +317,6 @@ All scripting and code created for the cyberlinux project is licensed below via 
 # Backlog <a name="backlog"/></a>
 * lxdm autologin configs are lost on package update
 
-* `/etc/skel/.config/conky/netbook` is missing
-* install warnings and failures
-```
-warning: could not get file information for etc/hosts_sideload
-```
 * grub not booting for xfce shell
 * netbook: HDMI output
 * xfce:netbook: set background using generic `monitor0` from /etc/lxdm/PreLogin

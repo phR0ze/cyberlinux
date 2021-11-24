@@ -100,7 +100,7 @@ package_cyberlinux-xfce-server()
     'teamviewer'                # Excellent remoting software
     'ttf-ms-fonts'              # Core TTF Fonts from Microsoft
   )
-  pkg netbook
+  pkg server
 }
 
 package_cyberlinux-xfce-netbook()
@@ -110,7 +110,7 @@ package_cyberlinux-xfce-netbook()
     "cyberlinux-standard-netbook>=${pkgver}"
     "cyberlinux-xfce-lite>=${pkgver}"
   )
-  pkg server
+  pkg netbook
 }
 
 package_cyberlinux-xfce-desktop()
