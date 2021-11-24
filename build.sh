@@ -670,7 +670,7 @@ usage()
   echo -e "  ${green}Build full Xfce ISO:${none} ./${SCRIPT} -p xfce -a"
   echo -e "  ${green}Rebuild Xfce packages:${none} ./${SCRIPT} -p xfce -c repo -r"
   echo -e "  ${green}Build just bootable installer:${none} ./${SCRIPT} -imI"
-  echo -e "  ${green}Rebuild full Xfce ISO:${none} ./${SCRIPT} -c most -p xfce -a"
+  echo -e "  ${green}Rebuild full Xfce ISO:${none} ./${SCRIPT} -p xfce -c most -a"
   echo -e "  ${green}Rebuild deployment:${none} ./${SCRIPT} -c layers/xfce/theater,repo; ./${SCRIPT} -p xfce -d theater -rimI"
   echo -e "  ${green}Build installable Xfce theater deployment:${none} ./${SCRIPT} -p xfce -d theater -rimI"
   echo -e "  ${green}Clean openbox core,base layers:${none} ./${SCRIPT} -c layers/openbox/core,layers/openbox/base"

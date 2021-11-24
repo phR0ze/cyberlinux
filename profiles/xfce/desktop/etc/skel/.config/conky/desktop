@@ -1,0 +1,78 @@
+--MIT License
+--Copyright (c) 2017-2021 phR0ze
+
+--Permission is hereby granted, free of charge, to any person obtaining a copy
+--of this software and associated documentation files (the "Software"), to deal
+--in the Software without restriction, including without limitation the rights
+--to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+--copies of the Software, and to permit persons to whom the Software is
+--furnished to do so, subject to the following conditions:
+
+--The above copyright notice and this permission notice shall be included in all
+--copies or substantial portions of the Software.
+
+--THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+--IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+--FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+--AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+--LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+--OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+--SOFTWARE.
+
+---------------------------------------------------------------------------------
+-- Conky Configuration 1.10 syntax
+-- https://github.com/brndnmtthws/conky/wiki/Default-Config
+-- https://github.com/brndnmtthws/conky/wiki/Configuration-Settings
+---------------------------------------------------------------------------------
+conky.config = {
+    -- General
+    no_buffers = true,
+    update_interval = 1,                    -- Update interval for conky in seconds
+
+    -- Window settings for Xfwm with compositor
+    double_buffer = true,                   -- Double buffer to avoid flickering
+    own_window = true,                      -- Use a separate window rather than draw on desktop
+    own_window_type = 'normal',             -- Use a regular window then use hints to control it
+    own_window_argb_visual = true,          -- Use compositor argb values
+    own_window_argb_value = 0,              -- Set the alpha opacity level to 0%
+    own_window_hints = 'undecorated,sticky,below,skip_taskbar,skip_pager',
+
+    -- Position
+    alignment = 'top_right',                -- Align window on the desktop
+    maximum_width = 325,                    -- Maximum width of conky window
+    gap_x = 20,                             -- Gap in pixels between right or left border of screen
+    gap_y = 20,                             -- Gap in pixels between top or bottom of screen
+
+    -- Fonts
+    use_xft = true,                         -- Anti-aliased fonts
+    uppercase = false,                      -- User upper case text
+    default_color = 'ffffff',               -- Default font color to use
+    color1 = 'ffffff',                      -- White
+    color2 = '3CB0FD',                      -- cyber blue
+    color3 = '0a6da6',                      -- Dark cyber blue
+
+    -- Bars/Graphs
+    default_bar_width= 300,                 -- Default width for bars
+    default_bar_height = 15,                -- Default height for bars
+    default_graph_width= 640,               -- Default width for graphs
+    default_graph_height = 100,             -- Default height for graphs
+};
+
+conky.text = [[
+#-------------------------------------------------------------------------------
+# Time/Date/Calendar
+#-------------------------------------------------------------------------------
+${voffset -38}\
+${font Designer Block:bold:size=100}${color1}${time %I}\
+${offset 3}${voffset -38}${font Designer Block:bold:size=50}${color3}:${time %M}\
+${font Designer Block:bold:size=14}${time %p}\
+${offset -110}${voffset 13}${font Designer Block:bold:size=35}${color1}${time %a} ${time %d}\
+${voffset -10}${font Designer Block:bold:size=20}${exec /etc/xdg/conky/date.rb}
+# Month/Year
+${voffset 25}\
+${font Designer Block:normal:size=24}${color1}${time %B}.${time %Y} ${hr 2}
+# Day names
+${font Liberation Mono:bold:size=14}${color2}  Su  Mo  Tu  We  Th  Fr  Sa
+# Days
+${font Liberation Mono:size=14}${color1}${execp /etc/xdg/conky/cal.rb 2 0}
+]];

@@ -26,6 +26,15 @@ post_install()
   pushd /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml
   mv -f xfce4-panel.xml_sideload_desktop xfce4-panel.xml
   popd
+
+  # Conky configuration
+  # ---------------------------------------------------------------------------
+
+  # Add conky netbook conky settings and set it to active
+  # /etc/skel/.config/conky/desktop
+  pushd /etc/skel/.config/conky
+  ln -sf desktop active
+  popd
 }
 
 post_upgrade() {
