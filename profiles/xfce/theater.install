@@ -23,7 +23,7 @@ post_install()
 {
   # Set display manager wallpaper
   pushd /etc/lxdm
-  [ ! -f lxdm.conf_persist ] && ln -sf lxdm.conf_theater lxdm.conf
+  [ ! -f lxdm.conf_persist ] && mv -f lxdm.conf_theater lxdm.conf
   popd
 
   # Set Xfce wallpaper and panel icons
