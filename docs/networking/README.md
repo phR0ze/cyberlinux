@@ -35,6 +35,7 @@ Documenting various networking technologies
   * [NFS Client Config](#nfs-server-config)
   * [NFS Server Config](#nfs-server-config)
   * [systemd-networkd-wait-online timing out](#systemd-networkd-wait-oneline-timing-out)
+* [Privoxy](privoxy)
 * [Remoting](#remoting)
   * [Barrier](#barrier)
     * [Barrier Server](#barrier-server)
