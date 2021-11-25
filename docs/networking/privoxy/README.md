@@ -18,6 +18,11 @@ ads and other obnoxious internet junk.
 
 # Getting started <a name="getting-started"/></a>
 
+## Build <a name="build"/></a>
+It's necessary to build privoxy to get the `https-inspection` feature and include the `--with-openssl` flag
+
+1. Download the tarball from https://sourceforge.net/projects/ijbswa/files/latest/download
+
 ## Install <a name="install"/></a>
 ```bash
 $ sudo pacman -S privoxy
