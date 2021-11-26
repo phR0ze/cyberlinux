@@ -1,6 +1,7 @@
 {
     // General configuration
     "explorer.confirmDelete": false,
+    "explorer.confirmDragAndDrop": false,
     "telemetry.enableTelemetry": false,
     "telemetry.enableCrashReporter": false,
     "workbench.iconTheme": "vscode-great-icons",
@@ -56,5 +57,5 @@
     "files.eol": "\n",                      // gopls formatting only supports LF line endings
 
     // Rust configuration
-    "rust-analyzer.inlayHints.enable": true,
+    "rust-analyzer.inlayHints.enable": false, // turn off the inline types
 }
