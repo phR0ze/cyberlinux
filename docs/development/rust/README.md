@@ -22,13 +22,14 @@ Resources:
   * [Configure VSCode](#configure-vscode)
   * [Create new project](#create-new-project)
     * [1. Configure Cargo.toml](#configure-cargo-toml)
-    * [2. Add .vscode/tasks.json](#add-vscode-tasks-json)
-    * [3. Configure .gitignore](#configure-gitignore)
-    * [4. Add library to bin](#add-library-to-bin)
-    * [5. Add git commit and build date](#add-git-commit-and-build-date)
-    * [6. Add Githook Auto Version Increment](#add-githook-auto-version-increment)
-    * [7. Link to github repo](#link-to-github-repo)
-    * [8. Project Structure](#project-structure)
+    * [2. Configure .gitignore](#configure-gitignore)
+    * [3. Add Githook Auto Version Increment](#add-githook-auto-version-increment)
+    * [4. Add git commit and build date](#add-git-commit-and-build-date)
+    * [5. Add library to bin](#add-library-to-bin)
+    * [6. Add logging](#add-logging)
+    * [7. Add model module](#add-model-module)
+    * [8. Link to github repo](#link-to-github-repo)
+    * [9. Project Structure](#project-structure)
   * [Configure Github Actions](#configure-github-actions)
   * [Configure Codecov](#configure-codecov)
     * [Tarpaulin](#tarpaulin)
@@ -39,10 +40,6 @@ Resources:
 * [Best Practices](#best-practices)
   * [Builder Pattern](#builder-pattern)
   * [Panics](#panics)
-  * [Logging](#logging)
-    * [Logging requirments](#logging-requirements)
-    * [Logging crates](#logging-crates)
-    * [Logging in libraries](#logging-in-libraries)
   * [Errors](#errors)
   * [Configuration](#configuration)
 * [Idiomatic Rust](#idiomatic-rust)
@@ -132,7 +129,7 @@ All `path` dependencies in in the workspace e.g. `path = "libclu"` will be inclu
 [package]
 name = "clu"
 version = "0.0.1"
-edition = "2018"
+edition = "2021"
 authors = ["phR0ze"]
 license = "MIT OR Apache-2.0"
 description = "Automation for the Arch Linux ecosystem"
@@ -166,6 +163,10 @@ opt-level = 0   # Default no optimization
 
 [dependencies]
 libclu = { path = "libclu" }
+
+# Examples, tests and build.rs are built with these dependencies
+[build-dependencies]
+chrono = "0.4"
 ```
 
 Test out new project
@@ -173,39 +174,7 @@ Test out new project
 $ cargo run
 ```
 
-### 2. Add .vscode/tasks.json <a name="add-vscode-tasks-json"/></a>
-```bash
-$ mkdir -p .vscode
-tee .vscode/tasks.json <<EOL
-{
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "Build",
-            "type": "shell",
-            "command": [
-                "cargo build --all-features",
-            ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
-        },
-        {
-            "label": "Test",
-            "type": "shell",
-            "command": "cargo test --all-features",
-            "group": {
-                "kind": "test",
-                "isDefault": true
-            }
-        }
-    ]
-}
-EOL
-```
-
-### 3. Configure .gitignore <a name="configure-gitignore"/></a>
+### 2. Configure .gitignore <a name="configure-gitignore"/></a>
 ```
 /target/
 **/*.rs.bk
@@ -213,69 +182,31 @@ tests/temp/
 bin/
 ```
 
-### 4. Add library to bin <a name="add-library-to-bin"/></a>
-To add a library to the workspace do the following:
+### 3. Add Githook Auto Version Increment <a name="add-githook-auto-version-increment"/></a>
 
-1. Add library to binary project
+1. Add the githooks to your project
    ```bash
-   $ cd clu
-   $ cargo new libclu --lib 
+   # Copy .githooks
+   $ cp -R ~/Projects/githooks/hooks .githooks
    ```
-2. Update its `Cargo.toml` with the following:
-   ```toml
-   [package]
-   name = "libclu"
-   version = "0.0.1"
-   edition = "2021"
-   authors = ["phR0ze"]
-   license = "MIT OR Apache-2.0"
-   description = "Automation for the Arch Linux ecosystem"
-   readme = "README.md"
-   homepage = "https://github.com/phR0ze/clu/libclu"
-   repository = "https://github.com/phR0ze/clu/libclu"
-   exclude = [
-     "docs",
-     "examples",
-     ".git",
-     ".githooks",
-     ".github",
-     "tests",
-     "benches",
-     "target",
-     ".vscode"
-   ]
-   
-   [dependencies]
-   
-   # Examples and tests are built with these dependencies
-   [dev-dependencies]
-   
-   # build.rs is built with these dependencies
-   [build-dependencies]
-   chrono = "0.4"
+2. Update target files and match regex:
+   a. Edit `.githooks/commit-msg`  
+   b. Change the `get_version` line to  
+      ```
+      get_version 'Cargo.toml' '.*version =.*"([0-9]+\.[0-9]+\.[0-9]+)".*' ver
+      ```
+   c. Edit `.githooks/pre-commit`  
+   d. Change the `increment_version` line to  
+      ```
+      increment_version 'Cargo.toml' '(.*version =.*")([0-9]+\.[0-9]+\.[0-9]+)(".*)'
+      ```
+   e. Add an additional `increment_version` line for each target  
+3. Configure githooks to now take effect
    ```
-4. Add `libclu` as a dependency to the top level `Cargo.toml` file:
-   ```toml
-   [dependencies]
-    libclu = { path = "libclu" }
-   ```
-5. Add the following function to file `libclu/src/lib.rs`:
-   ```rust
-   pub fn test() {
-       println!(r#"From the lib"#);
-   }
-   ```
-6. Add the following to the `src/main.rs`. Because `test()` is defined as `pub` and is
-   in the top level of the library it is available from the library scope.
-   ```
-   use libclu;
-
-   fn main() {
-     libclu::test();
-   }
+   $ git config core.hooksPath .githooks
    ```
 
-### 5. Add git commit and build date <a name="add-git-commit-and-build-date"/></a>
+### 4. Add git commit and build date <a name="add-git-commit-and-build-date"/></a>
 I like to include the git commit and build date in my application version output to get something like
 the following:
 ```
@@ -291,7 +222,7 @@ runs to pre-compile C/C++ appliations or do other pre-work. The presence of the 
 root of the project will cause cargo to compile it and run it before building the package.
 * [pre-build scripts](https://doc.rust-lang.org/cargo/reference/build-scripts.html)
 
-1. Add the following build file `build.rs` to your library project e.g. `libclu`
+1. Add the following build file `build.rs` to your app
    ```rust
    use chrono::prelude::*;
    use std::process::Command;
@@ -320,39 +251,30 @@ root of the project will cause cargo to compile it and run it before building th
    }
    ```
 
-2. Add the `chrono = "0.4"` to your `[build-dependencies]` section of your library `Cargo.toml`
+2. Add the `chrono = "0.4"` to your `[build-dependencies]` section of your `Cargo.toml`:
    ```toml
    [build-dependencies]
    chrono = "0.4"
    ```
 
-3. Add the following to `libclu/src/lib.rs` in your library crate:
+3. Add the following to `src/main.rs`:
    ```rust
-   pub const APP_NAME: &str = "cre";
+   pub const APP_NAME: &str = "clu";
    pub const APP_VERSION: &str = env!("CARGO_PKG_VERSION");
    pub const APP_DESCRIPTION: &str = env!("CARGO_PKG_DESCRIPTION");
    pub const APP_GIT_COMMIT: &str = env!("APP_GIT_COMMIT");
    pub const APP_BUILD_DATE: &str = env!("APP_BUILD_DATE");
-   ```
-
-4. Replace the content of `src/main.rs` in your binary crate at the root with the following:
-   ```rust
-   use libclu;
 
    fn main() {
-       println!("{} - {}", libclu::APP_NAME, libclu::APP_DESCRIPTION);
+       println!("{} - {}", APP_NAME, APP_DESCRIPTION);
        println!("{:->w$}", "-", w = 60);
-       println!("{:<w$} {}", "Version:", libclu::APP_VERSION, w = 18);
-       println!("{:<w$} {}", "Build Date:", libclu::APP_BUILD_DATE, w = 18);
-       println!("{:<w$} {}", "Git Commit:", libclu::APP_GIT_COMMIT, w = 18);
-
-       libclu::test();
+       println!("{:<w$} {}", "Version:", APP_VERSION, w = 18);
+       println!("{:<w$} {}", "Build Date:", APP_BUILD_DATE, w = 18);
+       println!("{:<w$} {}", "Git Commit:", APP_GIT_COMMIT, w = 18);
    }
    ```
-5. Build the project by pressing `Ctrl+Shift+b`
-6. Execute your new application:
+4. Execute your new application hit `Ctrl+Shift+r`:
    ```bash
-   $ cargo run -q
    CLU - Automation for the Arch Linux ecosystem
    ------------------------------------------------------------
    Version:           0.0.2
@@ -360,43 +282,143 @@ root of the project will cause cargo to compile it and run it before building th
    Git Commit:        d7e27829e00dc8d292bd6445d5e88c4f6a0c26f7
    From the lib
    ```
-7. Update the githoook to include the lib autoversion
+
+### 5. Add library to bin <a name="add-library-to-bin"/></a>
+To add a library to the workspace do the following:
+
+1. Add library to binary project
+   ```bash
+   $ cd clu
+   $ cargo new libclu --lib 
+   ```
+
+2. Update its `Cargo.toml` with the following:
+   ```toml
+   [package]
+   name = "libclu"
+   version = "0.0.1"
+   edition = "2021"
+   authors = ["phR0ze"]
+   license = "MIT OR Apache-2.0"
+   description = "Automation for the Arch Linux ecosystem"
+   readme = "README.md"
+   homepage = "https://github.com/phR0ze/clu/libclu"
+   repository = "https://github.com/phR0ze/clu/libclu"
+   exclude = [
+     "docs",
+     "examples",
+     "tests",
+     "benches",
+   ]
+   
+   [dependencies]
+   
+   # Examples and tests are built with these dependencies
+   [dev-dependencies]
+   ```
+4. Add `libclu` as a dependency to the top level `Cargo.toml` file:
+   ```toml
+   [dependencies]
+   libclu = { path = "libclu" }
+   ```
+5. Add the following function to file `libclu/src/lib.rs`:
+   ```rust
+   pub fn test() {
+       println!(r#"From the lib"#);
+   }
+   ```
+
+6. Add the library use statement to the top of `src/main.rs`. Because `test()` is defined as `pub` 
+   and is in the top level of the library it is available from the library scope.
+   ```
+   use libclu;
+   ```
+
+7. Add the test function to the body of main in `src/main.rs`
+   ```
+   fn main() {
+     ...
+     libclu::test();
+   }
+   ```
+
+8. Update the githoook to include the lib autoversion
    ```
    increment_version 'libclu/Cargo.toml' '(.*version =.*")([0-9]+\.[0-9]+\.[0-9]+)(".*)'
    ```
 
-### 6. Add Githook Auto Version Increment <a name="add-githook-auto-version-increment"/></a>
+### 6. Add logging <a name="add-logging"/></a>
+Libraries should only rely on the `tracing` crate and use the provided macros and types. This allows 
+apps that use the library to decide which kind of logging they would like to support.
 
-1. Add the githooks to your project
-   ```bash
-   # Copy .githooks
-   $ cp -R ~/Projects/githooks/hooks .githooks
-   ```
-2. Update target files and match regex:
-   a. Edit `.githooks/commit-msg`  
-   b. Change the `get_version` line to  
-      ```
-      get_version 'Cargo.toml' '.*version =.*"([0-9]+\.[0-9]+\.[0-9]+)".*' ver
-      ```
-   c. Edit `.githooks/pre-commit`  
-   d. Change the `increment_version` line to  
-      ```
-      increment_version 'Cargo.toml' '(.*version =.*")([0-9]+\.[0-9]+\.[0-9]+)(".*)'
-      ```
-   e. Add an additional `increment_version` line for each target  
-3. Configure githooks to now take effect
-   ```
-   $ git config core.hooksPath .githooks
+1. Add the `tracing-subscriber` and `tracing` packages to your app `Cargo.toml`
+   ```toml
+   [dependencies]
+   tracing = "0.1"
+   tracing-subscriber = "0.3"
    ```
 
-### 7. Link to github repo <a name="link-to-github-repo"/></a>
+2. Add the logging configuration file to your app `src/logger.rs`
+   ```rust
+   use std::env;
+   use tracing::Level;
+   use tracing_subscriber;
+   
+   // Configure logging
+   pub fn init() {
+       let loglevel = match env::var("LOG_LEVEL") {
+           Ok(val) => val.parse().unwrap_or(Level::INFO),
+           Err(_e) => Level::INFO, // default to Info
+       };
+       tracing_subscriber::fmt()
+           .with_target(false) // turn off file name
+           .with_max_level(loglevel) // set max level to log
+           //.json() // uncomment this line to convert it into json output
+           .init();
+   }
+   ```
+
+3. Update your `src/main.rs` to call the new logger init
+   ```rust
+   mod logger;
+   ...
+   fn main() {
+     logger::init()
+     ...
+   }
+   ```
+
+4. Add the `tracing` package only to your library `Cargo.toml`
+   ```toml
+   [dependencies]
+   tracing = "0.1"
+   ```
+
+5. Example of a library logging entry
+   ```rust
+   use tracing::{debug, error, info, span, warn, Level};
+   
+   pub fn shave_yak() {
+       info!(excitement = "yay!", "hello! I'm gonna shave a yak.");
+       debug!("calculating probability of finding a yak");
+       warn!("could not locate yak!");
+   }
+   ```
+
+### 7. Add model module <a name="add-model-module"/></a>
+1. Create a new directory `libclu/src/model`
+2. Create a new model file `libclu/src/model/display.rs`
+   ```rust
+   ```
+
+### 8. Link to github repo <a name="link-to-github-repo"/></a>
 ```bash
 $ git remote add upstream git@github.com:phR0ze/clu
 ```
 
-### 8. Project structure <a name="project-structure"/></a>
+### 9. Project structure <a name="project-structure"/></a>
 ```
-<project>
+clu
 ├── .git
 ├── .githooks
 │   ├── commit-msg
@@ -405,18 +427,23 @@ $ git remote add upstream git@github.com:phR0ze/clu
 ├── .github
 │   └── workflows
 │       └── build.yaml
-├── libcre
-│   ├── build.rs
+├── libclu
+│   ├── src
+│   │   ├── model
+│   │   │   ├── display.rs
+│   │   │   └── mod.rs
+│   │   └── lib.rs
 │   ├── Cargo.toml
 │   ├── LICENSE-APACHE
 │   ├── LICENSE-MIT
-│   └── src
-│       └── lib.rs
+│   └── README.md
 ├── src
+│   ├── logger.rs
 │   └── main.rs
 ├── .vscode
 │   ├── launch.json
 │   └── tasks.json
+├── build.rs
 ├── Cargo.lock
 ├── Cargo.toml
 ├── .gitignore
@@ -464,65 +491,6 @@ References:
 * [Panic Resilience](https://towardsdatascience.com/how-to-design-for-panic-resilience-in-rust-55d5fd2478b9)
 
 We should be able to catch a `Ctrl+c` or `panic!` and execute handling before going down.
-
-## Logging <a name="logging"/></a>
-
-### Logging requirements <a name="logging-requirements"/></a>
-I need a simple logging library that supports:
-
-* timestamp, module name, function name, line number
-* log levels
-* structured logs
-* optional colorization
-
-### Logging crates <a name="logging-crates"/></a>
-* [rust-lang/log](https://github.com/rust-lang/log) lightweight logging facade.
-* [slog-rs/slog](https://github.com/slog-rs/slog) echosystem of reusable components for structured logging
-  * [slog-json](https://github.com/slog-rs/json)
-  * [sloggers](https://github.com/sile/sloggers)
-* [tokio-rs/Tracing](https://github.com/tokio-rs/tracing) a framework for instrumenting Rust programs
-
-### Logging in libraries <a name="logging-in-libraries"/></a>
-Libraries should only rely on the `tracing` crate and use the provided macros and types to collect
-whatever information might be useful to downstream consumers.
-
-```toml
-[dependencies]
-tracing = "0.1"
-```
-
-Note: Libraries should `NOT` install a collector by using a method that calls `set_global_default()`, as
-this will cause conflicts when executables try to set the default later.
-
-* https://github.com/tokio-rs/tracing
-
-```rust
-use std::{error::Error, io};
-use tracing::{debug, error, info, span, warn, Level};
-
-// the `#[tracing::instrument]` attribute creates and enters a span
-// every time the instrumented function is called. The span is named after the
-// the function or method. Parameters passed to the function are recorded as fields.
-#[tracing::instrument]
-pub fn shave(yak: usize) -> Result<(), Box<dyn Error + 'static>> {
-    // this creates an event at the DEBUG level with two fields:
-    // - `excitement`, with the key "excitement" and the value "yay!"
-    // - `message`, with the key "message" and the value "hello! I'm gonna shave a yak."
-    //
-    // unlike other fields, `message`'s shorthand initialization is just the string itself.
-    debug!(excitement = "yay!", "hello! I'm gonna shave a yak.");
-    if yak == 3 {
-        warn!("could not locate yak!");
-        // note that this is intended to demonstrate `tracing`'s features, not idiomatic
-        // error handling! in a library or application, you should consider returning
-        // a dedicated `YakError`. libraries like snafu or thiserror make this easy.
-        return Err(io::Error::new(io::ErrorKind::Other, "shaving yak failed!").into());
-    } else {
-        debug!("yak shaved successfully");
-    }
-    Ok(())
-}
-```
 
 ## Errors <a name="errors"/></a>
 see github.com/phR0ze/errors ?

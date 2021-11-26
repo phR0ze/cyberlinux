@@ -316,29 +316,29 @@ All scripting and code created for the cyberlinux project is licensed below via 
 ---
 
 # Backlog <a name="backlog"/></a>
-* Move LibreMath launch from Educational menu to Office
+* `Super + plus` to resize window to custom size
+* `Super + Enter` to position in the center
+
+* Tool to merge skel configs
+  * skip `~/.local/share/gem`
+* Inject system wide configuration change via strategic edits rather than file replaces
+  * This would aleviate loosing custom changes in files such as `/etc/pacman.conf` and 
+  `/etc/lxdm/lxdm.conf`
 
 # Sometime <a name="sometime"/></a>
 * grub not booting for xfce shell
 * netbook: HDMI output
-* xfce:netbook: set background using generic `monitor0` from /etc/lxdm/PreLogin
-  * /usr/bin/lockscreen
-    * use xrandr to detect active monitor
-    * read active monitor background from `~/.config/xfce...`
-* rust: fungus new clone from github
-  * use cyberlinux to drive the smallest slice of functionality
-  * split out as features
-* rust: clu wm xfce set desktop file monitor to use
-* Document configuring Firefox
+* clu to sync wallpaper
+  * `/etc/lxdm/lxdm.conf`
+  * `/usr/bin/lockscreen`
+  * `~/.conf/xfce4/xfconf/.../xfce4-desktop.xml`
 * GTK folder sort settings didn't take
 * ACEPC
-  * Need overscan, white line on right of monitor
   * Vulkan support
     * `sudo pacman -S vulkan-intel vulkan-tools`
     * `vulkaninfo` if you get info about your graphics card its working
 * Add conflicts to PKGBUILD
 * Replace powerline with powerline-go or powerline-rs
-* devede and asunder icons in Paper are both the same?
 * clu - cyberlinux automation
   * replace conky scripts, cal.rb, date.rb and radio.rb
   * build in skel copy for updates

@@ -250,6 +250,7 @@ package_cyberlinux-standard-x11()
     'qt5-base'                  # A cross-platform application and UI framework, depof: mkvtoolnix-gui
     'xfce4-power-manager'       # Power manager for the Xfce desktop
     'kvantum-qt5'               # SVG-based theme engine for Qt5 includes Arc-Dark
+    'wmctrl'                    # Control your EWMH compliant window manager from command line
 
     # Sound utilities
     'alsa-firmware'             # Firmware binaries for greater sound card support
@@ -395,7 +396,6 @@ package_cyberlinux-standard-x11()
     'xorg-xwd'                  # X Window System image dumping utility, group: xorg
     'xorg-xwininfo'             # Command-line util to print info about windows, group: xorg, xorg-apps
     'xorg-xwud'                 # X Window System image undumping utility, group: xorg
-    'wmctrl'                    # Control your EWMH compliant window manager from command line
     'xsel'                      # Tool for getting/setting X selection
   ) 
   pkg x11

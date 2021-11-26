@@ -90,9 +90,11 @@ on the [Arch Linux Wiki](https://wiki.archlinux.org/) should work just fine as w
     * [Convert HEIC to JPEG](#convert-heic-to-jpeg)
   * [Screen Recorder](#screen-recorder)
   * [Video](#video)
+    * [Backup a Blu-ray](#backup-a-bluray)
     * [Backup a DVD](#backup-a-dvd)
     * [Extracting specific chapters](#extracting-specific-chapters)
     * [Burning an DVD](#burning-an-dvd)
+    * [Encode Blu-ray to x265](#encode-blu-ray-to-x265)
     * [Encode DVD to x265](#encode-dvd-to-x265)
     * [Cut Video w/out Re-encoding](#cut-video-without-re-encoding)
     * [Lossless Rotate](#lossless-rotate)
@@ -191,6 +193,7 @@ on the [Arch Linux Wiki](https://wiki.archlinux.org/) should work just fine as w
   * [Openbox](#openbox)
   * [XFWM](#xfwm)
     * [XFCE Menu](#xfce-menu)
+  * [wmctrl](#wmctrl)
 * [Wine](system/wine)
 * [X Windows](#x-windows)
   * [Icons](#icons)
@@ -1199,7 +1202,32 @@ $ rm *.heic
 
 ## Video <a name="video"/></a>
 
+### Backup a Blu-ray <a name="backup-a-bluray"/></a>
+Instructions for backing up your legally purchased personal collection.
+
+1. Build and install the latest bits
+   ```bash
+   $ yay -Ga makemkv
+   $ cd makemkv
+   $ makepkg -s
+   $ sudo pacman -U makemkv-1.16.5-1-x86_64.pkg.tar.zst
+   $ sudo pacman -S ccextractor
+   ```
+
+2. Register makemkv
+   a. Launch `makemkv`  
+   b. Navigate to the [MakeMKV Forum](https://forum.makemkv.com/forum/viewtopic.php?t=1053)  
+   c. Use the key in the app at `Help >Register`  
+
+3. Backup your Blu-ray
+   a. Hit thie big button to open up the Blu-ray  
+   b. Setup the output directory on the right  
+   c. Uncheck everything but the largest title on the left  
+   d. Drill in and uncheck any audio and sub-title languages you don't want  
+   e. Hit the `Save selected titles` button on the right  
+
 ### Backup a DVD <a name="backup-a-dvd"/></a>
+Instructions for backing up your legally purchased personal collection.
 
 1. First install the tooling:
    ```bash
@@ -1274,6 +1302,29 @@ Note often when doing a full dvd backup the first chapter will be the menu
    ```bash
    $ growisofs -dvd-compat -Z /dev/sr0=image.iso
    ```
+
+### Encode Blu-ray to x265 <a name="encode-bluray-to-x265"/></a>
+1. Install: `sudo pacman -S handbrake`
+2. Launch: `ghb`
+3. Configure main page settings  
+   a. Click `Open Source`  
+   b. Navigate to the target `mkv` file and double click it  
+   c. Set `Preset` to `Official > General >Super HQ 1080p30 Surround`  
+   d. Change `Format` to `Matroska (avformat)`  
+   e. Change the `Save As` location to `~/Downloads`  
+4. Select the `Dimensions` tab  
+   a. Ensure that `Automatic` is selected  
+5. Select the `Video` tab  
+   a. Ensure that `Video Encoder` is set to `H.265 10-bit (x265)`  
+   b. Set `Framerate` to `Same as source` and enable `Variable Framerate`  
+   c. Set `Constant Quality` value to `RF: 20` and `Preset` to `slower`  
+   d. Set `Tune` to `animation` if applicable  
+6. Select the `Audio` tab  
+   a. Ensure the `Track List` includes your desired language  
+7. Select the `Subtitles` tab  
+   a. Ensure the `Track List` says `Foreign Audio Scan -> Burned into Video (Forced Subtitles Only)`  
+8. Name the output file  
+   a. e.g. `Title (Year) [1080p.x265.AC3.rf20].mkv`  
 
 ### Encode DVD to x265 <a name="encode-dvd-to-x265"/></a>
 1. Install: `sudo pacman -S handbrake`
@@ -2450,6 +2501,21 @@ XFCE will read from the `~/.config/menus/xfce-applications.menu`
    ```bash
    $ cp /etc/xdg/menus/xfce-applications.menu ~/.config/menus
    ```
+
+## wmctrl <a name="wmctrl"/></a>
+CLI automation for working with X11 window managers
+
+### Resize current window <a name="resize-current-window"/></a>
+You can resize the current window with `wmctrl` cli tool
+
+Example:
+```bash
+wmctrl -r :ACTIVE: -b remove,maximized_horz,maximized_vert -e 0,0,0,1920,1080
+```
+
+* `-r :ACTIVE:` designates the current window
+* `-b remove,maximized_horz,maximized_vert` remove restrictions that may impact a resize/move
+* `-e 0,0,0,1920,1080` gravity usually zero, x, y, width, height
 
 # X Windows <a name="x-windows"/></a>
 X Windows, X Window system, X11 or simply X is the most common windowing system in Linux.

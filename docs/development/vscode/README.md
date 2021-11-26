@@ -303,10 +303,7 @@ already understands.
     {
       "label": "Run",
       "type": "shell",
-      "command": "cargo run",
-      "group": {
-        "kind": "test",
-      }
+      "command": "cargo run"
     }
   ]
 }
