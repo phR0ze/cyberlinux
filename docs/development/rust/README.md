@@ -409,6 +409,31 @@ apps that use the library to decide which kind of logging they would like to sup
 1. Create a new directory `libclu/src/model`
 2. Create a new model file `libclu/src/model/display.rs`
    ```rust
+   pub struct Display {
+       pub width: u16,
+       pub height: u16,
+   }
+   ```
+3. Create a new module accessor file `libclu/src/model/mod.rs`
+   ```rust
+   mod display;
+
+   // Exports
+   pub use display::*;
+   ```
+4. Update the `libclu/src/lib.rs` file to surface the model module outside the lib crate
+   ```rust
+   pub mod model;
+
+   /// All essential symbols in a simple consumable form
+   ///
+   /// ### Examples
+   /// ```
+   /// use libclu::prelude::*;
+   /// ```
+   pub mod prelude {
+     pub use crate::model;
+   }
    ```
 
 ### 8. Link to github repo <a name="link-to-github-repo"/></a>
