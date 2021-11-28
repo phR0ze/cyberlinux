@@ -306,7 +306,9 @@ If you use a `workbench.action.tasks.runTask` in your keybindings it points to y
 `args` to your tasks.json's `label` mapping. `Build` and `Test` are predetermined labels that vscode 
 already understands.
 
-```json
+```bash
+$ mkdir -p .vscode
+tee .vscode/tasks.json <<EOL
 {
   "version": "2.0.0",
   "tasks": [
@@ -337,6 +339,7 @@ already understands.
     }
   ]
 }
+EOL
 ```
 
 ## Troubleshooting <a name="troubleshooting"></a>

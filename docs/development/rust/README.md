@@ -23,13 +23,11 @@ Resources:
   * [Create new project](#create-new-project)
     * [1. Configure Cargo.toml](#configure-cargo-toml)
     * [2. Configure .gitignore](#configure-gitignore)
-    * [3. Add Githook Auto Version Increment](#add-githook-auto-version-increment)
+    * [3. Add library to bin](#add-library-to-bin)
     * [4. Add git commit and build date](#add-git-commit-and-build-date)
-    * [5. Add library to bin](#add-library-to-bin)
-    * [6. Add logging](#add-logging)
-    * [7. Add model module](#add-model-module)
-    * [8. Link to github repo](#link-to-github-repo)
-    * [9. Project Structure](#project-structure)
+    * [5. Add Githook Auto Version Increment](#add-githook-auto-version-increment)
+    * [6. Link to github repo](#link-to-github-repo)
+    * [7. Project Structure](#project-structure)
   * [Configure Github Actions](#configure-github-actions)
   * [Configure Codecov](#configure-codecov)
     * [Tarpaulin](#tarpaulin)
@@ -123,20 +121,20 @@ $ cargo new <name> --bin
 
 Edit the Cargo.toml and add the basics. We'll add the `[workspace]` in a later step.
 
-All `path` dependencies in in the workspace e.g. `path = "libclu"` will be included in the workspace.
+All `path` dependencies in in the workspace e.g. `rivia-vfs = {path = "vfs"}` will be included in the workspace.
 * https://doc.rust-lang.org/cargo/reference/workspaces.html#the-workspace-section
 
 **Cargo.yaml Example:**
 ```
 [package]
-name = "clu"
+name = "rivia"
 version = "0.0.1"
 edition = "2021"
 authors = ["phR0ze"]
 license = "MIT OR Apache-2.0"
-description = "Automation for the Arch Linux ecosystem"
-homepage = "https://github.com/phR0ze/clu"
-repository = "https://github.com/phR0ze/clu"
+description = "Rust utilities to reduce code verbosity"
+homepage = "https://github.com/phR0ze/rivia"
+repository = "https://github.com/phR0ze/rivia"
 exclude = [
   "docs",
   "examples",
@@ -164,7 +162,7 @@ debug = true    # Enable debug symbols for witcher
 opt-level = 0   # Default no optimization
 
 [dependencies]
-libclu = { path = "libclu" }
+rivia-vfs = { path = "vfs" }
 
 # Examples, tests and build.rs are built with these dependencies
 [build-dependencies]
@@ -184,35 +182,62 @@ tests/temp/
 bin/
 ```
 
-### 3. Add Githook Auto Version Increment <a name="add-githook-auto-version-increment"/></a>
+### 3. Add library to bin <a name="add-library-to-bin"/></a>
+To add a library to the workspace do the following:
 
 1. Add the githooks to your project
    ```bash
-   # Copy .githooks
-   $ cp -R ~/Projects/githooks/hooks .githooks
+   $ cd rivia
+   $ cargo new rivia-vfs --lib 
+   $ mv rivia-vfs vfs
    ```
-2. Update target files and match regex:
-   a. Edit `.githooks/commit-msg`  
-   b. Change the `get_version` line to  
-      ```
-      get_version 'Cargo.toml' '.*version =.*"([0-9]+\.[0-9]+\.[0-9]+)".*' ver
-      ```
-   c. Edit `.githooks/pre-commit`  
-   d. Change the `increment_version` line to  
-      ```
-      increment_version 'Cargo.toml' '(.*version =.*")([0-9]+\.[0-9]+\.[0-9]+)(".*)'
-      ```
-   e. Add an additional `increment_version` line for each target  
-3. Configure githooks to now take effect
+2. Update its `Cargo.toml` with the following:
+   ```toml
+   [package]
+   name = "rivia-vfs"
+   version = "0.0.1"
+   edition = "2021"
+   authors = ["phR0ze"]
+   license = "MIT OR Apache-2.0"
+   description = "Virtual File System"
+   readme = "README.md"
+   homepage = "https://github.com/phR0ze/rivia"
+   repository = "https://github.com/phR0ze/rivia"
+   exclude = [
+     "examples",
+     "tests",
+     "benches",
+   ]
+   
+   [dependencies]
+   
    ```
-   $ git config core.hooksPath .githooks
+4. Add `rivia-vfs` as a dependency to the top level `Cargo.toml` file:
+   ```toml
+   [dependencies]
+   rivia-vfs = { path = "vfs" }
+   ```
+5. Add the following function to file `vfs/src/lib.rs`:
+   ```rust
+   pub fn test() {
+       println!(r#"vfs here"#);
+   }
+   ```
+6. Add the following to the `src/main.rs`. Because `test()` is defined as `pub` and is
+   in the top level of the library it is available from the library scope.
+   ```
+   use rivia_vfs as vfs;
+
+   fn main() {
+     vfs::test();
+   }
    ```
 
 ### 4. Add git commit and build date <a name="add-git-commit-and-build-date"/></a>
 I like to include the git commit and build date in my application version output to get something like
 the following:
 ```
-CLU - Automation for the Arch Linux ecosystem
+Rivia - Rust utilities to reduce code verbosity
 ------------------------------------------------------------
 Version:           0.0.1
 Build Date:        2020.02.03
@@ -224,10 +249,10 @@ runs to pre-compile C/C++ appliations or do other pre-work. The presence of the 
 root of the project will cause cargo to compile it and run it before building the package.
 * [pre-build scripts](https://doc.rust-lang.org/cargo/reference/build-scripts.html)
 
-1. Add the following build file `build.rs` to your app
+1. Add the following build file `build.rs` to the root project e.g. `rivia`
    ```rust
    use chrono::prelude::*;
-   use std::process::Command;
+   use std::{fs, path::Path};
    
    fn main() {
        // APP_BUILD_DATE
@@ -253,15 +278,17 @@ root of the project will cause cargo to compile it and run it before building th
    }
    ```
 
-2. Add the `chrono = "0.4"` to your `[build-dependencies]` section of your `Cargo.toml`:
+2. Add the `chrono = "0.4"` to your `[build-dependencies]` section of your `Cargo.toml`
    ```toml
    [build-dependencies]
    chrono = "0.4"
    ```
 
-3. Add the following to `src/main.rs`:
+3. Add the following to `src/main.rs` in your library crate:
    ```rust
-   pub const APP_NAME: &str = "clu";
+   use rivia_vfs as vfs;
+
+   pub const APP_NAME: &str = "cre";
    pub const APP_VERSION: &str = env!("CARGO_PKG_VERSION");
    pub const APP_DESCRIPTION: &str = env!("CARGO_PKG_DESCRIPTION");
    pub const APP_GIT_COMMIT: &str = env!("APP_GIT_COMMIT");
@@ -273,11 +300,13 @@ root of the project will cause cargo to compile it and run it before building th
        println!("{:<w$} {}", "Version:", APP_VERSION, w = 18);
        println!("{:<w$} {}", "Build Date:", APP_BUILD_DATE, w = 18);
        println!("{:<w$} {}", "Git Commit:", APP_GIT_COMMIT, w = 18);
+       vfs::test();
    }
    ```
 4. Execute your new application hit `Ctrl+Shift+r`:
    ```bash
-   CLU - Automation for the Arch Linux ecosystem
+   $ cargo run -q
+   Rivia - Rust utilities to reduce code verbosity
    ------------------------------------------------------------
    Version:           0.0.2
    Build Date:        2020.11.07
@@ -349,9 +378,7 @@ To add a library to the workspace do the following:
    increment_version 'libclu/Cargo.toml' '(.*version =.*")([0-9]+\.[0-9]+\.[0-9]+)(".*)'
    ```
 
-### 6. Add logging <a name="add-logging"/></a>
-Libraries should only rely on the `tracing` crate and use the provided macros and types. This allows 
-apps that use the library to decide which kind of logging they would like to support.
+### 5. Add Githook Auto Version Increment <a name="add-githook-auto-version-increment"/></a>
 
 1. Add the `tracing-subscriber` and `tracing` packages to your app `Cargo.toml`
    ```toml
@@ -360,92 +387,14 @@ apps that use the library to decide which kind of logging they would like to sup
    tracing-subscriber = "0.3"
    ```
 
-2. Add the logging configuration file to your app `src/logger.rs`
-   ```rust
-   use std::env;
-   use tracing::Level;
-   use tracing_subscriber;
-   
-   // Configure logging
-   pub fn init() {
-       let loglevel = match env::var("LOG_LEVEL") {
-           Ok(val) => val.parse().unwrap_or(Level::INFO),
-           Err(_e) => Level::INFO, // default to Info
-       };
-       tracing_subscriber::fmt()
-           .with_target(false) // turn off file name
-           .with_max_level(loglevel) // set max level to log
-           //.json() // uncomment this line to convert it into json output
-           .init();
-   }
-   ```
-
-3. Update your `src/main.rs` to call the new logger init
-   ```rust
-   mod logger;
-   ...
-   fn main() {
-     logger::init()
-     ...
-   }
-   ```
-
-4. Add the `tracing` package only to your library `Cargo.toml`
-   ```toml
-   [dependencies]
-   tracing = "0.1"
-   ```
-
-5. Example of a library logging entry
-   ```rust
-   use tracing::{debug, error, info, span, warn, Level};
-   
-   pub fn shave_yak() {
-       info!(excitement = "yay!", "hello! I'm gonna shave a yak.");
-       debug!("calculating probability of finding a yak");
-       warn!("could not locate yak!");
-   }
-   ```
-
-### 7. Add model module <a name="add-model-module"/></a>
-1. Create a new directory `libclu/src/model`
-2. Create a new model file `libclu/src/model/display.rs`
-   ```rust
-   pub struct Display {
-       pub width: u16,
-       pub height: u16,
-   }
-   ```
-3. Create a new module accessor file `libclu/src/model/mod.rs`
-   ```rust
-   mod display;
-
-   // Exports
-   pub use display::*;
-   ```
-4. Update the `libclu/src/lib.rs` file to surface the model module outside the lib crate
-   ```rust
-   pub mod model;
-
-   /// All essential symbols in a simple consumable form
-   ///
-   /// ### Examples
-   /// ```
-   /// use libclu::prelude::*;
-   /// ```
-   pub mod prelude {
-     pub use crate::model;
-   }
-   ```
-
-### 8. Link to github repo <a name="link-to-github-repo"/></a>
+### 6. Link to github repo <a name="link-to-github-repo"/></a>
 ```bash
-$ git remote add upstream git@github.com:phR0ze/clu
+$ git remote add upstream git@github.com:phR0ze/rivia
 ```
 
-### 9. Project structure <a name="project-structure"/></a>
+### 7. Project structure <a name="project-structure"/></a>
 ```
-clu
+rivia
 ├── .git
 ├── .githooks
 │   ├── commit-msg
@@ -454,26 +403,22 @@ clu
 ├── .github
 │   └── workflows
 │       └── build.yaml
-├── libclu
+├── .vscode
+│   ├── launch.json
+│   └── tasks.json
+├── vfs
 │   ├── src
-│   │   ├── model
-│   │   │   ├── display.rs
-│   │   │   └── mod.rs
 │   │   └── lib.rs
 │   ├── Cargo.toml
 │   ├── LICENSE-APACHE
 │   ├── LICENSE-MIT
 │   └── README.md
 ├── src
-│   ├── logger.rs
 │   └── main.rs
-├── .vscode
-│   ├── launch.json
-│   └── tasks.json
+├── .gitignore
 ├── build.rs
 ├── Cargo.lock
 ├── Cargo.toml
-├── .gitignore
 ├── LICENSE-APACHE
 ├── LICENSE-MIT
 └── README.md
@@ -509,6 +454,8 @@ Rust nightly and codecov because coveralls doesn't seem to have an easy github a
 
 ## Builder Pattern <a name="builder-pattern"/></a>
 https://doc.rust-lang.org/1.0.0/style/ownership/builders.html
+
+Essentially your simply providing setters that return the original object
 
 ## Panics <a name="panics"/></a>
 I don't agree with the notion that a panic is a valid answer. It is always better to exit with an
