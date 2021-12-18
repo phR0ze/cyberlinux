@@ -798,7 +798,7 @@ $ rustc --version
 ```
 
 ## Documenation <a name="documentation"/></a>
-You can open the Ruest Book at any point locally and its the same exact thing as remote.
+You can open the Rust Book at any point locally and its the same exact thing as remote.
 ```bash
 $ rustup docs --book
 ```

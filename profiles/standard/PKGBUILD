@@ -250,7 +250,7 @@ package_cyberlinux-standard-x11()
     'qt5-base'                  # A cross-platform application and UI framework, depof: mkvtoolnix-gui
     'xfce4-power-manager'       # Power manager for the Xfce desktop
     'kvantum-qt5'               # SVG-based theme engine for Qt5 includes Arc-Dark
-    'wmctrl'                    # Control your EWMH compliant window manager from command line
+    'wmctl'                     # Rust X11 automation
 
     # Sound utilities
     'alsa-firmware'             # Firmware binaries for greater sound card support
