@@ -57,8 +57,10 @@ Resources:
     * [Pass Path over String](#pass-path-over-string)
 * [Language](#language)
   * [Version](#version)
+  * [Concurrency](CONCURRENCY.md)
   * [Dependency Hell](#dependency-hell)
   * [Documentation](#documentation)
+  * [Formatting (rustfmt)](#formatting-rustfmt)
   * [Mailing List](#mailing-list)
   * [Generics](#generics)
   * [Macros](#macros)
@@ -497,10 +499,11 @@ Rust nightly and codecov because coveralls doesn't seem to have an easy github a
    ```bash
    $ cargo install cargo-tarpaulin
    ```
+
 2. Run tarpaulin
-```bash
-$ cargo tarpaulin -v
-```
+   ```bash
+   $ cargo tarpaulin -v
+   ```
 
 # Best Practices <a name="best-practices"/></a>
 
@@ -837,6 +840,40 @@ libc = { version = "0.2.*", optional = true }
 In the case where the two libc versions are not compatible Rust will include them both in the
 resulting binary to make it still work and have them use the appropriate one as needed through name
 managling.
+
+## Formatting (rustfmt) <a name="formatting-rustfmt"/></a>
+[rustfmt](https://github.com/rust-lang/rustfmt) is the Rust tool for formatting Rust code accoridng 
+to style guidelines.
+
+Resources:
+* [Official documentation by version](https://rust-lang.github.io/rustfmt/?version=v1.4.38&search=)
+
+### rustfmt version <a name="rustfmt-version"/></a>
+The rustfmt version will dictate the features its supports
+```bash
+$ rustfmt --version
+rustfmt 1.4.37-
+```
+
+### generate rustfmt.toml <a name="generate-rustfmt.toml"/></a>
+Between the two of the options below you should be able to build yourself a relatively complete and 
+documented `rustfmt.toml`. Although the two don't seem to be entirely in sync.
+
+```bash
+# Print out a default config
+$ rustfmt --print-config=default > rustfmt.toml
+
+# Show help for the config
+$ rustfmt --help=config
+```
+
+### run rustfmt on save <a name="run-rustfmt-on-save"/></a>
+To configure `rust-analyzer` to run `rustfmt` on save you need to configure
+
+### run rustfmt manually <a name="run-rustfmt-manually"/></a>
+```bash
+$ cargo fmt
+```
 
 ## Mailing List <a name="mailing-list"/></a>
 https://this-week-in-rust.org/

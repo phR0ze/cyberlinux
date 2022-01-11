@@ -14,13 +14,16 @@ to upgrade existing deployments.
 ### Quick links
 * [.. up dir](..)
 * [Profiles](#profiles)
-  * [Packages](#packages)
-    * [Build Packages](#build-packages)
-    * [Publish Packages](#publish-packages)
   * [profile.json](#profile-json)
     * [deployments](#deployments)
     * [dependencies](#dependencies)
-* [Layers](#layers)
+  * [Packages](#packages)
+    * [Build Packages](#build-packages)
+    * [Publish Packages](#publish-packages)
+    * [PKGBUILD](#pkgbuild)
+  * [Configuration](#configuration)
+    * [write](#write)
+  * [Layers](#layers)
 * [Guides](#guides)
   * [Apps](#apps)
     * [Add new app](#add-new-app)
@@ -39,7 +42,36 @@ to upgrade existing deployments.
 
 # Profiles <a name="profiles"/></a>
 
+## profile.json <a name="profile-json"/></a>
+The `profile.json` is the heart of the profile describing the installable `deployments` that will 
+show up on your multi-boot ISO when the build completes.
+
+### deployments <a name="deployments"/></a>
+A `deployment` defines an installable option as listed in the booted ISO menu. It calls out the 
+composition of the deployment as follows:
+
+* `name` is the name of the deployment levaragable as a key in various commands
+* `entry` is the description of the deployment that shows up in the ISO menu at boot time
+* `kernel` is the kernel to use for the deployment and is largly a default at this point
+* `layers` is the file system layers this deployment is composed of
+* `groups` is the groups that new users should be part of for the installed deployment
+* `packages` is a list of packages that should be installed as part of this deployment
+
+### dependencies <a name="dependencies"/></a>
+The `dependecies` section of the profile indicates if there are any other profiles that this profile 
+depends on. This is useful when you have packages built in another profile that your profile depends 
+on. For example the default Xfce profile's shell deployment depends on the standard packages for 
+core, base and shell which will be installed and compose the Xfce shell layer. Note that layers 
+cannot cross the profile boundary. In this example we depended on the standard profile's packages but 
+we did not simply reference the standard profile's layers.
+
+Call out profiles in the `dependencies` section will trigger them to be built first before your 
+profile.
+
 ## Packages <a name="packages"/></a>
+As part of a `cyberlinux` build `build.sh` will build the packages defined in `profiles/<profile>/PKGBUILD`.
+These packages are then made available to be installed during the `deployment` build as called out in 
+the `profile.json` deployment packages property.
 
 ### Build Packages <a name="build-packages"/></a>
 1. Clone `cyberlinux` locally
@@ -67,33 +99,139 @@ to upgrade existing deployments.
    $ git push
    ```
 
-## profile.json <a name="profile-json"/></a>
-The `profile.json` is the heart of the profile describing the installable `deployments` that will 
-show up on your multi-boot ISO when the build completes.
+### PKGBUILD <a name="pkgbuild"/></a>
+The profile's `PKGBUILD` simply leverages Arch Linux packaging. Each `deployment`, as defined in the 
+`profile.json`, has its own `package_cyberlinux-<PROFILE>-<DEPLOYMENT>` entry in the `PKGBUILD` 
+describing the applications you desire on your system coupled with configuration called out on disk 
+for the deployment i.e. `profiles/<PROFILE>/<DEPLOYMENT>`. For instance the `xfce/lite` deployment 
+has a `profile.json` entry `lite` called out and a `package_cyberlinux-xfce-lite` function defined in 
+the `PKGBUILD` and a corresponding configuration directory `profiles/xfce/lite` to be included in the 
+package `cyberlinux-xfce-lite` being built.
 
-## deployments <a name="deployments"/></a>
-A `deployment` defines an installable option as listed in the booted ISO menu. It calls out the 
-composition of the deployment as follows:
+## Configuration <a name="configuration"/></a>
+The crux of the cyberlinux distro is the ability to easily use custom configuration to customize your 
+system as you would like in an upgradable way. In many cases simply including the right configuration 
+files in the corresponding configuration directory will be sufficient to write your custom 
+configuration i.e. `add` it to your system otherwise a `modification` of existing configuration will 
+be necessary.
 
-* `name` is the name of the deployment levaragable as a key in various commands
-* `entry` is the description of the deployment that shows up in the ISO menu at boot time
-* `kernel` is the kernel to use for the deployment and is largly a default at this point
-* `layers` is the file system layers this deployment is composed of
-* `groups` is the groups that new users should be part of for the installed deployment
-* `packages` is a list of packages that should be installed as part of this deployment
+**Add Config**:  
+Adding configuration files to `profiles/<PROFILE>/<DEPLOYMENT>` you will cause the files to be 
+included in the resulting profile packages to be layed down on the target system when installed. If 
+the file doesn't already exist on the system and no other package owns that file then your good 
+otherwise see [Modify Config](#modify-config)
 
-## dependencies <a name="dependencies"/></a>
-The `dependecies` section of the profile indicates if there are any other profiles that this profile 
-depends on. This is useful when you have packages built in another profile that your profile depends 
-on. For example the default Xfce profile's shell deployment depends on the standard packages for 
-core, base and shell which will be installed and compose the Xfce shell layer. Note that layers 
-cannot cross the profile boundary. In this example we depended on the standard profile's packages but 
-we did not simply reference the standard profile's layers.
+**Modify Config**:  
+When replacing or modifying existing files the Arch Linux packaging system is constrained such that a 
+single package must own a given file. Additionally we want to support custom user changes and not 
+simply overwrite them every time with a full file replacement. This necessitates a more advanced 
+mechanism beyond the typical Arch Linux packaging. We can however take advantage of the `install` 
+file directives i.e. `profiles/<PROFILE>/<DEPLOYMENT>.install` to trigger the `cyberlinux utility (CLU)`
+a more advanced configuration tool. `clu` makes use of the `declarative configuration` described 
+below to intelligently merge changes into existing configuration. `clu` does so by detecting if 
+ignore markers have been set to indicate the change should be ignored.
 
-Call out profiles in the `dependencies` section will trigger them to be built first before your 
-profile.
+**Declarative configuration**:  
+`cyberlinux` makes use of and advanced declarative syntax to specify how configuration should be 
+customized post install/upgrade. This declarative syntax is stored as as toml files on disk at
+`/etc/cyberlinux/<PROFILE>/<DEPLOYMENT>/*.toml`. The toml files are executed consecutively in alpha 
+numeric order by filename. Each toml file defines configuration as needed using the `Array of Tables` 
+toml syntax. cyberlinux defines the root as an array of tables called `config`. Each config `block` 
+in the config array will be executed in the order it exists in the toml file. 
 
-# Layers <a name="layers"/></a>
+All config blocks share a common structure including a `cmd` directive indicating the operation to 
+perform and a `scope` directive indicating whether the operaton should be performed at install time 
+upgrade time or both.
+
+**Examples**:
+```toml
+# First configuration instruction
+[[config]]
+cmd = "write"
+scope = "install"
+path = "/etc/lxdm/lxdm.conf"
+
+# Second configuration instruction
+[[config]]
+cmd = "append"
+scope = "both"
+path = "/etc/lxdm/lxdm.conf"
+```
+
+### ignore <a name="ignore"/></a>
+In some cases you may want to make a change that collides with the changes that the cyberlinux 
+utility will make during an upgrade. In these cases `clu` can be instructed to ignore changes to 
+target files, blocks of configuration or a single configuration line using the following ignore 
+markers.
+
+**Single line marker**  
+Including a comment of `clu-disable-line` either before a line or at the end of a line will instruct 
+`clu` to skip that instruction and move on to the next.
+
+Example to skip changing the login background in `/etc/lxdm/lxdm.conf`
+```
+## clu-disable-line: background of the greeter
+bg=/usr/share/backgrounds/dreamfusion003_1280x1024.jpg
+```
+
+**Block markers**  
+Including a comment of `clu-disable-block-start` before an intended block of configuration that 
+should be skipped with a corresponding `clu-disable-block-end` comment to close out the block that 
+should be ignored will allow large blocks of configuration to be left unchanged.
+
+Example to skip multiple lines of configuration in `/etc/lxdm/lxdm.conf`
+```
+## clu-disable-line: background of the greeter
+bg=/usr/share/backgrounds/dreamfusion003_1280x1024.jpg
+```
+
+**Full file marker**  
+Including a comment of `clu-disable-file` somewhere in the file will instruct `clu` to skip any 
+instructions that would modify that file.
+
+Example to skip changing anything in `/etc/lxdm/lxdm.conf`
+```
+## clu-disable-file
+[base]
+```
+
+### append <a name="append"/></a>
+The `append` command will append the given data to the given path without truncating it. If the 
+target path doesn't exist it will be created first.
+
+**Parameters**:
+* `path` is the target file we are creating or appending to
+* `data` optionally the content to append to the target file
+
+### write <a name="write"/></a>
+The `write` command will create a file or truncate an existing file and then write the given data
+to the file.
+
+**Parameters**:
+* `path` is the target file we are creating/truncating
+* `data` optionally the content to write to the target file
+
+**Example**:  
+Configure a user's default home directories by truncating the existing file and and writing out the 
+given data.
+```toml
+[[config]]
+cmd = write
+path = "/etc/xdg/user-dirs.defaults"
+data = """
+# Default settings for user directories
+#
+# The values are relative pathnames from the home directory and
+# will be translated on a per-path-element basis into the users locale
+DOWNLOAD=Downloads
+DOCUMENTS=Documents
+MUSIC=Music
+PICTURES=Pictures
+PROJECTS=Projects
+SCRIPTS=bin"""
+```
+
+## Layers <a name="layers"/></a>
 A `layer` referres to the squashfs image of the file system at a particular point in time. These 
 layers are then overlaid on top of each other using the overlay file system to incrementally build up 
 a complete file system. In this was a minimal shell type system can be created and stored as a squash 

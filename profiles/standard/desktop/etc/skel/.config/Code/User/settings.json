@@ -12,8 +12,10 @@
     "editor.tabSize": 4,
     "editor.insertSpaces": true,
     "editor.minimap.enabled": true,
-    "editor.fontFamily": "Inconsolata-g",
     "editor.fontSize": 14,
+    "editor.fontFamily": "Inconsolata-g",
+    "editor.formatOnPaste": true,
+    "editor.formatOnSave": true,
 
     "vim.handleKeys": {
         "<C-a>": false,

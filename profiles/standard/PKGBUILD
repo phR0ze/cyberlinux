@@ -1,5 +1,5 @@
    # MIT License
-# Copyright (c) 2017-2021 phR0ze
+# Copyright (c) 2017-2022 phR0ze
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -278,6 +278,7 @@ package_cyberlinux-standard-x11()
     'smplayer'                  # UI wrapper around mplayer with click to pause, alt: vlc
     'smplayer-skins'            # Skins for SMPlayer
     'smplayer-themes'           # Themes for SMPlayer
+    'soundkonverter'            # Front-end to various audio converters
     'vlc'                       # Multi-platform MPEG, VCD/DVD, and DivX player
     'winff'                     # GUI for ffmpeg, repo: cyberlinux
     'xnviewmp'                  # A digital photo organizer, repo: cyberlinux

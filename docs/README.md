@@ -86,7 +86,9 @@ on the [Arch Linux Wiki](https://wiki.archlinux.org/) should work just fine as w
 * [Launchers](#launchers)
   * [Plank](#plank)
 * [Media](#media)
-  * [Convert Images](#convert-images)
+  * [Audio](#audio)
+    * [Convert WAV to MP3](#convert-wav-to-mp3)
+  * [Images](#images)
     * [Convert HEIC to JPEG](#convert-heic-to-jpeg)
   * [Screen Recorder](#screen-recorder)
   * [Video](#video)
@@ -170,6 +172,7 @@ on the [Arch Linux Wiki](https://wiki.archlinux.org/) should work just fine as w
   * [Test Drive](#test-drive)
 * [System](#system)
   * [Powerline](#powerline)
+    * [Powerline GitStatus](#powerline-gitstatus)
     * [Troubleshooting Powerline](#troubleshooting-powerline)
   * [System Update](#system-update)
   * [Systemd Boot Performance](#systemd-boot-performance)
@@ -1186,7 +1189,21 @@ Plank can be configured via the `dconf-editor`
 
 # Media <a name="media"/></a>
 
-## Convert Images <a name="convert-images"/></a>
+## Audio <a name="audio"/></a>
+
+### Convert WAV to MP3 <a name="convert-wav-to-mp3"/></a>
+1. Install Sound Konverter
+   ```bash
+   $ sudo pacman -S soundkonverter
+   ```
+2. Launch `soundkonverter`
+3. Navigate to `File >Add folder...` and select your target audio file directory
+4. Click `Proceed` to have it automatically select all audio file types
+5. Set `Qualtity: High`, `Destination` directory and hit `OK`
+6. Click `Start`
+
+## Images <a name="images"/></a>
+
 ### Convert HEIC to JPEG <a name="convert-heic-to-jpeg"/></a>
 Image conversions are easily done with `imagemagick`
 ```bash
@@ -2092,9 +2109,9 @@ watch -n10 'sudo kill -USR1 $(pgrep ^dd)'
 ```
 
 ## Backup Drive <a name="backup-drive"/></a>
-One of the simplest and least expensive ways to backup your data is to get a single hot swappable 
-bay, buy a couple large drives and load one in and copy your data as desired then pull it out and 
-store it in an anti-static/shock proof caddy.
+One of the simplest and least expensive ways to backup your data is to buy a single hot swappable 
+bay and a couple of large drives. Then just load one in and copy your data as desired then pull it 
+out and store it in an anti-static/shock proof caddy.
 
 1. Load your drive into the hot swappable bay
 2. Determine the device path with `lsblk`
@@ -2205,6 +2222,22 @@ https://powerline.readthedocs.io/en/latest/usage/shell-prompts.html#bash-prompt
    fi
    ```
 
+### Powerline Git Status <a name="powerline-gitstatus"/></a>
+When the version of python rolls the gitstatus libraries are not findable and you get error messages 
+like below indicating that the corresponding site-package doesn't exist.
+```
+2021-12-28 09:30:11,240:ERROR:shell:segment_generator:Failed to import attr gitstatus from module powerline_gitstatus: No module named 'powerline_gitstatus'
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/site-packages/powerline/__init__.py", line 392, in get_module_attr
+```
+
+Solution is to re-build the package:
+1. Clone the [cyberlinux-aur](https://github.com/phR0ze/cyberlinux-aur) repo
+2. Navigate to `powerline-gitstatus`
+3. Edit `PKGBUILD` and increment the `pkgrel` value
+4. Run: `makepkg -s`
+5. Upgrade: `sudo pacman -U powerline-gitstatus-1.3.1-3-any.pkg.tar.zst`
+
 ### Toubleshooting Powerline <a name="troubleshooting-powerline"/></a>
 Try linting the configuration:
 ```bash
@@ -2234,7 +2267,7 @@ Try killing the daemon then running a command in a shell with powerline already 
    ImportError: Failed to obtain segment function
    ```
 3. Notice that the `powerline_gitstatus` module is missing for python 3.9
-4. Rebuilding the `powerline-gitstatus` packages and updating fixed it
+4. To get a clean bash terminal you'll need to disable powerline in `~/.bashrc` then open a new shell
 
 ## System Update <a name="system-update"/></a>
 1. Update keyring first

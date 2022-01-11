@@ -106,15 +106,24 @@ Configuration is saved at `~/.config/Code/User/settings.json`
 Hit `Ctrl+Shift+p` and search for `json` and select `Preferences: Open Settings(JSON)`
 ```json
 {
-    "window.zoomLevel": 0,
-    "go.gopath": "~/Projects/go",
-    "http.proxyStrictSSL": false,
-    "editor.minimap.enabled": true,
-    "editor.tabSize": 4,
-    "editor.insertSpaces": true,
-    "workbench.iconTheme": "vscode-great-icons",
+    // General configuration
+    "explorer.confirmDelete": false,
+    "explorer.confirmDragAndDrop": false,
     "telemetry.enableTelemetry": false,
     "telemetry.enableCrashReporter": false,
+    "workbench.iconTheme": "vscode-great-icons",
+    "terminal.integrated.fontFamily": "InconsolataGo Nerd Font Mono",
+    "terminal.integrated.fontSize": 16,
+
+    // Editor configuration
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "editor.minimap.enabled": true,
+    "editor.fontSize": 14,
+    "editor.fontFamily": "Inconsolata-g",
+    "editor.formatOnPaste": true,
+    "editor.formatOnSave": true,
+
     "vim.handleKeys": {
         "<C-a>": false,
         "<C-b>": false,
@@ -136,7 +145,28 @@ Hit `Ctrl+Shift+p` and search for `json` and select `Preferences: Open Settings(
         "<C-x>": false,
         "<C-y>": false,
         "<C-z>": false
-    }
+    },
+
+    // Golang configuration
+    "go.gopath": "~/Projects/go",           // Set the GOPATH to use
+    "go.formatTool": "goimports",           // Use specific external format tool for go
+    "go.useLanguageServer": true,           // Use the new gopls language server
+    "[go]": {
+        "editor.snippetSuggestions": "none",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        }
+    },
+    "gopls": {
+        "usePlaceholders": false,           // add parameter placeholders when completing a function
+        "completionDocumentation": true     // for documentation in completion items
+    },
+    "go.toolsManagement.autoUpdate": true,  // autoupdate gopls tools
+    "files.eol": "\n",                      // gopls formatting only supports LF line endings
+
+    // Rust configuration
+    "rust-analyzer.inlayHints.enable": false, // turn off the inline types
 }
 ```
 
