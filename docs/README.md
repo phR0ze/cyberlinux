@@ -180,6 +180,8 @@ on the [Arch Linux Wiki](https://wiki.archlinux.org/) should work just fine as w
     * [Rank services by startup time](#rank-services-by-startup-time)
     * [Remove lvm2 service](#remove-lvm2-service)
   * [Systemd Debug Shell](#systemd-debug-shell)
+  * [Systemd Timers](#systemd-timers)
+    * [Shutdown Timer](#shutdown-timer)
 * [Time/Date](#time-date)
   * [Set Time/Date](#set-time-date)
 * [Troubleshooting](#troubleshooting)
@@ -2397,6 +2399,66 @@ $ sudo systemctl enable debug-shell
 $ systemctl status
 
 # See which apps are hanging
+```
+
+## Systemd Timers <a name="systemd-timers"/></a>
+Timers are `systemd` unit files with a `.timer` suffix and are systemd's replacement for cron. 
+`Realtime timers` activate on a calendar event similar to cronjobs. The `OnCalendar=` option is used 
+to define them. Transient timer units can be used via `systemd-run` to run a command without having 
+the timer and service units.
+
+**List all timers:**
+```bash
+$ systemctl list-timers --all
+```
+
+**Inspect timer:**
+```bash
+$ systemctl cat <timer>.timer
+```
+
+**Start timer:**
+```bash
+$ sudo systemctl start <timer>.timer
+```
+
+### Shutdown Timer <a name="shutdown-timer"/></a>
+We can create a timer to shutdown the system at a particular time on week days.
+Test with `systemd-analyze calendar "Mon..Fri 14:00"`
+Note: the timer unit and the service unit must have the same name.
+
+1. Create the timer unit
+```bash
+sudo tee /usr/lib/systemd/system/shutdown.timer <<EOL
+[Unit]
+Description=Shutdown on week days
+
+[Timer]
+OnCalendar=Mon..Fri 14:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+EOL
+```
+
+2. Create the service unit
+```bash
+sudo tee /usr/lib/systemd/system/shutdown.service <<EOL
+[Unit]
+Description=Shutdown on week days
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/poweroff
+EOL
+```
+
+3. Reload the systemd daemon, enable and start the timer
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable shutdown.timer
+sudo systemctl start shutdown.timer
 ```
 
 # Time/Date <a name="time-date"/></a>
