@@ -1106,7 +1106,7 @@ Supports:
 * codecov format
 
 ### Tarpaulin <a name="tarpaulin"/></a>
-`tarpaulin` works well enough on, but only on `x86_64` machines
+`tarpaulin` works well enough but only on `x86_64` machines
 
 Supports:
 * local runs
@@ -1120,7 +1120,8 @@ $ cargo install cargo-tarpaulin
 
 #### Run Tarpaulin from command line <a name="run-tarpaulin-from-command-line"/></a>
 ```bash
-$ cargo taarpaulin -v
+$ cargo tarpaulin -o html
+$ firefox tarpaulin-report.html
 ```
 
 # Cargo <a name="cargo"/></a>
