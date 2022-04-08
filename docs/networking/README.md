@@ -23,6 +23,8 @@ Documenting various networking technologies
     * [Cloudflare DNS](#cloudflare-dns)
     * [Google DNS](#google-dns)
     * [DNSSEC Validation Failures](#dnssec-validation-failures)
+* [Internet Archive](#internet-archive)
+  * [wget bulk downloads](#wget-bulk-downloads)
 * [Network Interfaces](#network-interfaces)
   * [Bind to NIC](#bind-to-nic)
   * [Configure Multiple IPs](#configure-multiple-ips)
@@ -256,6 +258,28 @@ https://wiki.archlinux.org/index.php/Systemd-resolved#DNSSEC
 $ sudo systemctl restart systemd-resolved
 ```
 
+
+# Internet Archive <a name="internet-archive"/></a>
+
+## wget bulk downloads <a name="wget-bulk-downloads"/></a>
+[Internet Archive blog source](https://blog.archive.org/2012/04/26/downloading-in-bulk-using-wget/)
+
+**wget options:**
+* `-r` - recursive download
+* `-H` - go to foreign hosts when recursive
+* `-nc` - skip downloads that would overwrite existing files
+* `-np` - don't ascend to the parent directory
+* `-nH` - don't create host directories
+* `--cut-dirs=1` - ignore 1 remote directory components
+* `-A .mp4` - comma-separated list of accepted extensions
+* `-e robots=off` - ignore robot exclusion directives
+* `-l1` - set max recursion depth to 1
+* `-i episodelist.csv` - csv of download links to process
+* `-B 'r/http://archive.org/download'` - resolve links relative to this base URL
+
+```bash
+$ wget -r -H -nc -np -nH --cut-dirs=1 -A .mp4 -e robots=off -l1 -i episodelist.csv -B 'r/http://archive.org/download/'
+```
 
 # Network Interfaces <a name="network-interfaces"/></a>
 
