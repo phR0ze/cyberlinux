@@ -6,6 +6,7 @@ Documenting various development technologies
 
 ### Quick Links
 * [.. up dir](..)
+* [Github](github)
 * [Neovim](neovim)
 * [Rust](rust)
 * [VS Code](vscode)

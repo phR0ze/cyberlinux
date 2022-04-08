@@ -1,12 +1,19 @@
 {
+    // Default settings
+    // https://code.visualstudio.com/docs/getstarted/settings#_default-settings
+
     // General configuration
     "explorer.confirmDelete": false,
     "explorer.confirmDragAndDrop": false,
-    "telemetry.enableTelemetry": false,
-    "telemetry.enableCrashReporter": false,
+    "telemetry.telemetryLevel": "off",
     "workbench.iconTheme": "vscode-great-icons",
-    "terminal.integrated.fontFamily": "InconsolataGo Nerd Font Mono",
+
+    // Terminal configuration
+    "terminal.explorerKind": "integrated",
     "terminal.integrated.fontSize": 16,
+    "terminal.integrated.fontFamily": "InconsolataGo Nerd Font Mono",
+    "terminal.integrated.tabs.enabled": false,
+    "terminal.integrated.enablePersistentSessions": false,
 
     // Editor configuration
     "editor.tabSize": 4,
@@ -59,5 +66,8 @@
     "files.eol": "\n",                      // gopls formatting only supports LF line endings
 
     // Rust configuration
-    "rust-analyzer.inlayHints.enable": false, // turn off the inline types
+    "rust-analyzer.inlayHints.enable": false,
+    "rust-analyzer.hoverActions.run": false,
+    "rust-analyzer.hoverActions.debug": false,
+    "rust-analyzer.assist.importEnforceGranularity": true,
 }

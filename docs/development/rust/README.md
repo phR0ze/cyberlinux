@@ -46,6 +46,8 @@ Resources:
   * [Combinators](#combinators)
   * [Iterators](#iterators)
     * [IntoIterator](#into-iterator)
+  * [Mutability](#mutability)
+    * [Interior mutability](#interior-mutability)
   * [Strings](#strings)
     * [Accept &str](#accept-str)
     * [Accept Into String](#accept-into-string)
@@ -71,6 +73,7 @@ Resources:
   * [Web Scraping](#web-scraping)
 * [rustup](#rustup)
   * [Update Tools](#update-tools)
+  * [Install Nightly Toolchain](#install-nightly-toolchain)
 * [CI/CD](#ci-cd)
   * [Github Actions](#github-actions)
   * [Code Coverage Reporting](#code-coverage-reporting)
@@ -447,7 +450,7 @@ Rust nightly and codecov because coveralls doesn't seem to have an easy github a
 
 2. Run tarpaulin
    ```bash
-   $ cargo tarpaulin -v
+   $ cargo tarpaulin -o html
    ```
 
 # Best Practices <a name="best-practices"/></a>
@@ -624,6 +627,23 @@ impl IntoIterator for &mut Vec<T> {
     fn into_iter(self) -> Iterator<Item=&mut T> { ... }
 }
 ```
+
+## Mutability <a name="mutability"/></a>
+
+### Interior Mutability <a name="interior-mutability"/></a>
+`Interior mutability` is a design pattern the allows a value's methods to mutate its inner values 
+while appearing immutable to outside code. As a programmer you can guarntee the borrowing rules are 
+followed at runtime when the compiler can't guarntee they are followed at build time using special 
+Rust types e.g. `RefCell<T>` that bend the rules.
+
+**References**
+* [Interior mutability - Ricardo Martins](https://ricardomartins.cc/2016/06/08/interior-mutability)
+* [Interior mutability pattern - Rust Book](https://doc.rust-lang.org/book/ch15-05-interior-mutability.html)
+
+`RefCell<T>` exposes the `borrow_mut()` method call that allows one to mutate the value. This means 
+that `self` can be an immutable reference but we can get mutable references to the values it 
+contains. For example you can have an immutable reference to a struct but then get a mutable 
+reference to its internal fields to modify its internal state.
 
 ## Strings <a name="strings"/></a>
 * If the function never takes ownership accept `&str`
