@@ -1,6 +1,6 @@
 distro comparison
 ====================================================================================================
-<img align="left" width="48" height="48" src="../art/logo_256x256.png">
+<img align="left" width="48" height="48" src="../../../art/logo_256x256.png">
 Reviewing the various Linux distros that have caught my eye and the components they are composed
 from.
 <br><br>

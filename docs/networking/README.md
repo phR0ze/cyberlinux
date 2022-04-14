@@ -929,26 +929,35 @@ that reads from the `dhcp-option` in the server or client config then applies th
    ```bash
    $ sudo pacman -S openvpn-update-systemd-resolved
    ```
+
 2. Install OpenVPN client configuration file:
    ```bash
    $ sudo mv <client>.ovpn /etc/openvpn/client
    ```
+
 3. Revoke read permissions on the client config to keep secrets secure:
    ```bash
    $ sudo chmod og-r /etc/openvpn/client/<client>.ovpn
    ```
+
 4. Establish the VPN connection with Split DNS Resolution:
    ```bash
    $ sudo openvpn --config /etc/openvpn/client/<client>.ovpn --setenv PATH \
        '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin' \
-       --script-security 2 --up /etc/openvpn/scripts/update-systemd-resolved \
+       --script-security 2 --up /etc/openvpn/scripts/update-systemd-resolved --up-restart \
        --down /etc/openvpn/scripts/update-systemd-resolved --down-pre
    ```
+
 5. Check that the Split DNS was configured correctly:
    ```bash
    # Look for new nameserver entries for the vpn
    $ sudo resolvectl status
-   Link 18 (tun0)
+   Link 3 (enp1s0)
+   ...
+   Current DNS Server: 1.1.1.1
+   ...
+   Link 6 (tun0)
+   ...
    Current DNS Server: <NAMESERVER 1>
    ```
 

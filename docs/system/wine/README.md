@@ -1,6 +1,6 @@
 cyberlinux WINE documentation
 ====================================================================================================
-<img align="left" width="48" height="48" src="../art/logo_256x256.png">
+<img align="left" width="48" height="48" src="../../../art/logo_256x256.png">
 Documentation for various wine related settings
 <br><br>
 
