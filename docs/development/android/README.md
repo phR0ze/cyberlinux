@@ -195,9 +195,9 @@ Note: ignore the WARNING output. It seems to do the right thing
    $ ~/Android/Sdk/ndk-bundle/build/tools/make_standalone_toolchain.py --api 24 --arch x86_64 --install-dir ~/Android/Ndk/x86_64
    $ ~/Android/Sdk/ndk-bundle/build/tools/make_standalone_toolchain.py --api 24 --arch x86 --install-dir ~/Android/Ndk/x86
    ```
-1. Navigate to `File >Project Structure...`
-2. Select the `SDK Location` section on the left
-3. Click the `Download` button below the `Android NDK Location` section
+2. Navigate to `File >Project Structure...`
+3. Select the `SDK Location` section on the left
+4. Click the `Download` button below the `Android NDK Location` section
 
 ## Install Cargo plugin for building Android apks
 ```bash
@@ -212,7 +212,17 @@ $ export NDK_HOME=/home/$USER/Android/Ndk
    $ cd ~/Projects
    $ cargo new demo --bin
    ```
+2. Determine Android SDK to build with i.e. should always be the latest   
+   a. Open Android Studio launch `android-studio`  
+   b. Navigate to `Tools >SDK Manager`  
+   c. Make updates and write down API version e.g. `33`  
+   d. Use this value as the `android_version` below
 2. Edit the `Cargo.toml`
+   ```toml
+   android_version = 33
+   target_sdk_version = 24
+   min_sdk_version = 24
+   ```
 
 ## Debugging Rust application
 All the `warn!`, `info!` and `debug!` MacroQuad messages will go into the android system messages. 
