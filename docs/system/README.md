@@ -22,6 +22,8 @@ Documentation for various system technologies
   * [Systemd Timers](#systemd-timers)
     * [Shutdown Timer](#shutdown-timer)
 * [System Update](#system-update)
+* [Thunar](#thunar)
+  * [Thunar webp thumbnails](#thunar-webp-thumbnails)
 * [Wine](wine)
 
 # Powerline
@@ -282,6 +284,43 @@ sudo systemctl daemon-reload
 sudo systemctl enable shutdown.timer
 sudo systemctl start shutdown.timer
 ```
+
+# Thunar
+
+## Thunar webp thumbnails
+* [Preview WebP in Thunar](https://spacebums.co.uk/thunar-webp-thumbnails/)
+
+1. Install prerequisites
+   ```bash
+   $ sudo pacman -S libwebp tumbler
+   ```
+2. Create thumbnailer entry at `/usr/share/thumbnailers/webp.thumbnailer`
+   ```
+   [Thumbnailer Entry]
+   Version=1.0
+   Encoding=UTF-8
+   Type=X-Thumbnailer
+   Name=webp Thumbnailer
+   MimeType=image/webp;
+   Exec=/usr/bin/convert -thumbnail %s %i %o
+   ```
+3. Create the new mime type at `~/.local/share/mime/packages/webp.xml`
+   ```xml
+   <?xml version="1.0" encoding="UTF-8"?>
+   <mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+       <mime-type type="image/webp">
+           <comment>WebP file</comment>
+           <icon name="image"/>
+           <glob-deleteall/>
+           <glob pattern="*.webp"/>
+       </mime-type>
+   </mime-info>
+   ```
+4. Run the mime updater
+   ```bash
+   $ update-mime-database ~/.local/share/mime
+   ```
+5. Relog
 
 <!-- 
 vim: ts=2:sw=2:sts=2

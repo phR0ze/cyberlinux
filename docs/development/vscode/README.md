@@ -281,11 +281,26 @@ into your go path and keep it up to date i.e. `~/Projects/go/bin` for cyberlinux
 ## Rust <a name="rust"></a>
 
 ### Install Rust <a name="install-rust"></a>
-You'll need rust, the debugger and the musl target
+The Rust `toolchain` is all the necessary build components for your local system while a `target` is 
+the ability to cross compile to another platform.
 
-```bash
-$ sudo pacman -S rust rust-musl lldb
-```
+1. Install rust via rustup and the rust debugger lldb
+   ```bash
+   $ sudo pacman -S rustup lldb
+   $ rustup default stable
+   ```
+2. List all available targets and see which are installed
+   ```bash
+   $ rustup target list
+   ```
+3. Install musl target
+   ```bash
+   $ rustup target add x86_64-unknown-linux-musl
+   ```
+3. Install android targets for NDK dev
+   ```bash
+   $ rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android
+   ```
 
 ### Config Rust <a name="config-rust"></a>
 1. Install and configure language server:

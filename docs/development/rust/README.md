@@ -104,19 +104,19 @@ Resources:
 * [Language Interop](#language-interop)
   * [Go Interop](#go-interop)
 
-# Getting Started <a name="getting-started"/></a>
+# Getting Started
 
-## Install Rust <a name="install-rust"/></a>
+## Install Rust
 see [Install Rust](../vscode#install-rust)
 
-## Configure VScode<a name="configure-vscode"/></a>
+## Configure VScode
 see [Config Rust](../vscode#config-rust)
 
-## Create new project <a name="create-new-project"/></a>
+## Create new project
 Always start with a binary project and then use `[workspace]` to split the structure up. This allows
 for your cli to pull in dependencies that don't affect the library.
 
-### 1. Configure Cargo.toml <a name="configure-cargo-toml"/></a>
+### 1. Configure Cargo.toml
 Create the binary project
 ```bash
 $ cargo new <name> --bin
@@ -177,7 +177,7 @@ Test out new project
 $ cargo run
 ```
 
-### 2. Configure .gitignore <a name="configure-gitignore"/></a>
+### 2. Configure .gitignore
 ```
 /target/
 **/*.rs.bk
@@ -185,7 +185,7 @@ tests/temp/
 bin/
 ```
 
-### 3. Add library to bin <a name="add-library-to-bin"/></a>
+### 3. Add library to bin
 To add a library to the workspace do the following:
 
 1. Add the githooks to your project
@@ -236,7 +236,7 @@ To add a library to the workspace do the following:
    }
    ```
 
-### 4. Add git commit and build date <a name="add-git-commit-and-build-date"/></a>
+### 4. Add git commit and build date
 I like to include the git commit and build date in my application version output to get something like
 the following:
 ```
@@ -317,7 +317,7 @@ root of the project will cause cargo to compile it and run it before building th
    From the lib
    ```
 
-### 5. Add library to bin <a name="add-library-to-bin"/></a>
+### 5. Add library to bin
 To add a library to the workspace do the following:
 
 1. Add library to binary project
@@ -381,7 +381,7 @@ To add a library to the workspace do the following:
    increment_version 'libclu/Cargo.toml' '(.*version =.*")([0-9]+\.[0-9]+\.[0-9]+)(".*)'
    ```
 
-### 5. Add Githook Auto Version Increment <a name="add-githook-auto-version-increment"/></a>
+### 5. Add Githook Auto Version Increment
 
 1. Add the `tracing-subscriber` and `tracing` packages to your app `Cargo.toml`
    ```toml
@@ -390,12 +390,12 @@ To add a library to the workspace do the following:
    tracing-subscriber = "0.3"
    ```
 
-### 6. Link to github repo <a name="link-to-github-repo"/></a>
+### 6. Link to github repo
 ```bash
 $ git remote add upstream git@github.com:phR0ze/rivia
 ```
 
-### 7. Project structure <a name="project-structure"/></a>
+### 7. Project structure
 ```
 rivia
 ├── .git
@@ -427,10 +427,10 @@ rivia
 └── README.md
 ```
 
-## Configure Github Actions <a name="configure-github-actions"/></a>
+## Configure Github Actions
 see [Github Actions](github.md#actions)
 
-## Configure Codecov <a name="configure-codecov"/></a>
+## Configure Codecov
 Codecov is the online SaaS tool for viewing code coverage for others with a badge but to get the
 actual coverate numbers you need to use `tarpaulin`. I'm using `tarpaulin` because `grcov` requires
 Rust nightly and codecov because coveralls doesn't seem to have an easy github action.
@@ -442,7 +442,7 @@ Rust nightly and codecov because coveralls doesn't seem to have an easy github a
 4. Switch back to github and navigate to `Settings >Secrets`
 5. Click `New Repository Secret` Add the `CODECOV_TOKEN` secret with the copied value
 
-### Configure Tarpaulin <a name="configure-tarpaulin"/></a>
+### Configure Tarpaulin
 1. Install tarpaulin
    ```bash
    $ cargo install cargo-tarpaulin
@@ -453,14 +453,14 @@ Rust nightly and codecov because coveralls doesn't seem to have an easy github a
    $ cargo tarpaulin -o html
    ```
 
-# Best Practices <a name="best-practices"/></a>
+# Best Practices
 
-## Builder Pattern <a name="builder-pattern"/></a>
+## Builder Pattern
 https://doc.rust-lang.org/1.0.0/style/ownership/builders.html
 
 Essentially your simply providing setters that return the original object
 
-## Panics <a name="panics"/></a>
+## Panics
 I don't agree with the notion that a panic is a valid answer. It is always better to exit with an
 error code and a controlled stack trace than to bail with a panic. All errors should be bubbled up
 the stack allowing handlers to fire correctly before the process shuts down.
@@ -470,17 +470,17 @@ References:
 
 We should be able to catch a `Ctrl+c` or `panic!` and execute handling before going down.
 
-## Errors <a name="errors"/></a>
+## Errors
 see github.com/phR0ze/errors ?
 
-## Configuration <a name="configuration"/></a>
+## Configuration
 YAML configuration file in `~/.config`
 
 * [config](https://crates.io/crates/config)
 
-# Idiomatic Rust <a name="idiomatic-rust"/></a>
+# Idiomatic Rust
 
-## Collections <a name="collections"/></a>
+## Collections
 A `Vec<T>` is an owning collection of `T`. Vectors always allocate their data on the heap.  `Vectors`
 are to `Slices` what `String` is to `&str`. A `Slice` is a reference or view into an array or vector.
 They are useful for allowing safe, efficient access to an array or portion of an array without
@@ -488,10 +488,10 @@ copying it. You can take a slice of a vector, String or &str because they are ba
 Slices are a borrowed collection of `T` have a type `&[T]`. Vectors can be implicitly dereferenced
 from `&Vec<T>` to `&[T]`. 
 
-### Return slices over vectors <a name="return-slices-over-vectors"/></a>
+### Return slices over vectors
 Return a `&[T]` or `impl Iterator<Item=` for ergonomic returns
 
-### Pass slices over vectors <a name="pass-slices-over-vectors"/></a>
+### Pass slices over vectors
 To accept a collection type ergonomically use a slice `&[T]` with a `AsRef<T>` which allows for
 accepting static slice references for testing as well as `Vec<T>`.
 
@@ -548,16 +548,16 @@ fn main() {
 
 ```
 
-### Return slices over vectors <a name="return-slices-over-vectors"/></a>
+### Return slices over vectors
 
 ```rust
 ```
 
 
-## Combinators <a name="combinators"/></a>
+## Combinators
 Combinators can be used instead of the more verbose `match` and `if let` syntax.
 
-## opt.or(y) <a name="opt-or"/></a>
+## opt.or(y)
 You can convert match syntax that simply defaults an option with `or()`
 ```rust
 match opt {
@@ -573,11 +573,11 @@ if let Some(x) = opt { foo(x) } === opt.map_or((), foo)
 if let Some(x) = opt { x } else { foo() } === opt.unwrap_or_else(foo)
 ```
 
-## Iterators <a name="iterators"/></a>
+## Iterators
 **References:**
 * [rust for loops](http://xion.io/post/code/rust-for-loop.html)
 
-### IntoIterator <a name="into-iterator"/></a>
+### IntoIterator
 `v.iter()` is the same thing as `IntoIterator::into_iter(&v)`
 
 Why do we need `IntoIterator` and how do we loop on custom types like `Vec` e.g.
@@ -628,9 +628,9 @@ impl IntoIterator for &mut Vec<T> {
 }
 ```
 
-## Mutability <a name="mutability"/></a>
+## Mutability
 
-### Interior Mutability <a name="interior-mutability"/></a>
+### Interior Mutability
 `Interior mutability` is a design pattern the allows a value's methods to mutate its inner values 
 while appearing immutable to outside code. As a programmer you can guarntee the borrowing rules are 
 followed at runtime when the compiler can't guarntee they are followed at build time using special 
@@ -645,12 +645,12 @@ that `self` can be an immutable reference but we can get mutable references to t
 contains. For example you can have an immutable reference to a struct but then get a mutable 
 reference to its internal fields to modify its internal state.
 
-## Strings <a name="strings"/></a>
+## Strings
 * If the function never takes ownership accept `&str`
 * If the function ever takes ownership accept `T: Into<String>`
 * If the method refers to an owned String return `&str`
 
-### Accept &str <a name="accept-str"/></a>
+### Accept &str
 Use `&str` for functions that don't take ownership of the string as this allows for the most ergonic
 appearance and still allows for accepting both a `static' &str` and `String`. Some would argue that
 `AsRef<str>` is better but although it can accept more types and convert them the internal
@@ -673,7 +673,7 @@ fn foo<T: AsRef<str>>(arg: T)
 }
 ```
 
-### Accept Into String <a name="accept-into-string"/></a>
+### Accept Into String
 In the rare case where the function may own the string internally always use `Into<String>` which
 allows for the most ergonomic usage while still making it clear that the function takes onwership.
 I favor `impl Into<String>` as is aligns more clearly with other languages.
@@ -694,18 +694,18 @@ fn foo<T: Into<String>>(arg: T)
 }
 ```
 
-### Return &str where possible <a name="return-str-where-possible"/></a>
+### Return &str where possible
 
 
-### Use to\_owned over to\_string <a name="use-to-owned-over-to-string"/></a>
+### Use to\_owned over to\_string
 When want a `String` type and you have a reference always use the `to_owned()` function rather than
 the `to_string()` function. The reason is that the `to_owned()` will have less overhead. The
 `to_string()` invokes the `fmt::Display` trait to convert the value into a `String` while the
 `to_owned()` will do minimal coercion to get the right value.
 
-## Paths <a name="paths"/></a>
+## Paths
 
-### Pass Path over String <a name="pass-path-over-string"/></a>
+### Pass Path over String
 When working with paths always prefer the `AsRef<Path>` form to allow for the use of as many
 conversion types as possible e.g. `Path`, `PathBuf`, `String`, `&str` and other forms that are
 convertable. This allows for the more ergonomic usage.
@@ -720,7 +720,7 @@ where
 }
 ```
 
-# Language <a name="language"/></a>
+# Language
 In [one benchmark](https://medium.com/sean3z/rest-api-node-vs-rust-c75aa8c96343) comparing REST API
 performance (using [Rocket](https://rocket.rs/) and [Restify](http://restify.com/) for Node.js),
 Ruest handled ***72,000*** requests per second compared to Node.js's ***8,000*** and used just over
@@ -760,14 +760,14 @@ Cons
 References:
 * https://www.rust-lang.org/learn
 
-## Version <a name="version"/></a>
+## Version
 The rust version can be found by checking the compiler
 
 ```bash
 $ rustc --version
 ```
 
-## Documenation <a name="documentation"/></a>
+## Documenation
 You can open the Rust Book at any point locally and its the same exact thing as remote.
 ```bash
 $ rustup docs --book
@@ -778,7 +778,7 @@ You can view package documentation with:
 $ cargo doc --open
 ```
 
-## Dependency Hell <a name="dependency-hell"/></a>
+## Dependency Hell
 The question answered here is if crate A depends on libc and crate B depends on libc will there be
 two versions of libc included in my final binary? If they are compatible versions then one and only 
 one is included.
@@ -808,47 +808,61 @@ In the case where the two libc versions are not compatible Rust will include the
 resulting binary to make it still work and have them use the appropriate one as needed through name
 managling.
 
-## Formatting (rustfmt) <a name="formatting-rustfmt"/></a>
+## Formatting (rustfmt)
 [rustfmt](https://github.com/rust-lang/rustfmt) is the Rust tool for formatting Rust code accoridng 
 to style guidelines.
 
 Resources:
 * [Official documentation by version](https://rust-lang.github.io/rustfmt/?version=v1.4.38&search=)
 
-### rustfmt version <a name="rustfmt-version"/></a>
+### use nightly rustfmt
+1. Install the nightly toolchain
+   ```bash
+   $ rustup toolchain install nightly-x86_64-unknown-linux-gnu
+   ```
+2. Switch over to nightly just for rustfmt
+   ```bash
+   $ cargo +nightly fmt
+   ```
+3. Update `~/.bashrc` to have `#$HOME/.cargo/bin` in your path before `/usr/bin`
+   ```bash
+   $ export PATH=$HOME/.cargo/bin:$PATH
+   ```
+
+### rustfmt version
 The rustfmt version will dictate the features its supports
 ```bash
 $ rustfmt --version
 rustfmt 1.4.37-
 ```
 
-### generate rustfmt.toml <a name="generate-rustfmt.toml"/></a>
+### generate rustfmt.toml
 Between the two of the options below you should be able to build yourself a relatively complete and 
 documented `rustfmt.toml`. Although the two don't seem to be entirely in sync.
 
 ```bash
 # Print out a default config
-$ rustfmt --print-config=default > rustfmt.toml
+$ rustfmt --print-config=default | sort > rustfmt.toml
 
 # Show help for the config
 $ rustfmt --help=config
 ```
 
-### run rustfmt on save <a name="run-rustfmt-on-save"/></a>
+### run rustfmt on save
 To configure `rust-analyzer` to run `rustfmt` on save you need to configure
 
-### run rustfmt manually <a name="run-rustfmt-manually"/></a>
+### run rustfmt manually
 ```bash
 $ cargo fmt
 ```
 
-## Mailing List <a name="mailing-list"/></a>
+## Mailing List
 https://this-week-in-rust.org/
 
-## Generics <a name="generics"/></a>
+## Generics
 Functions can take generic type parameters instead of concreate types. 
 
-## Macros <a name="macros"/></a>
+## Macros
 `Macros` allow you to invent your own syntax and write code that writes more code. In other words
 they are freakin awesome. This is called `metaprogramming`, which allows for syntatic surgar that
 make your code shorter and easier to use.
@@ -910,10 +924,10 @@ let v: Vec<u32> = {
 };
 ```
 
-### Macro TT Repetition <a name="macro-tt-repetition"/></a>
+### Macro TT Repetition
 `$($tail::tt)*` is called a tt repetition and losslessly captures anything
 
-## Ownership <a name="ownership"/></a>
+## Ownership
 
 https://doc.rust-lang.org/1.8.0/book/ownership.html  
 Rust is unique in how it approaches memory clean up. It uses a compile time borrow checker to
@@ -922,11 +936,11 @@ longer pointed to.
 
 When a ownership is transferred to another binding or to a function it is said to have been `moved`.
 
-### Copy types <a name="copy-types"/></a>
+### Copy types
 All primative types implement the `Copy` trait which allows you to create copies of the data when
 assignments are made and thus owneship is not moved as before.
 
-### Borrowing <a name="borrowing"/></a>
+### Borrowing
 Borrowing occurs by specifying that a function takes references as its input arguments then passing
 in references. The binding is able to use the value then on end of scope the borrow completes. The
 type `&T` is known as a reference. References are immutable and can not be changed at all.
@@ -948,7 +962,7 @@ let answer = foo(&v1, &v2);
 // we can use v1 and v2 here!
 ```
 
-### Mutable <a name="mutable"/></a>
+### Mutable
 By default Rust variables are immutable, meaning that you can't change the value of the variable
 after it is defined unless specifically calling out that it should be allowed.
 
@@ -964,7 +978,7 @@ let mut i: i32 = 1;
 i = 2;
 ```
 
-### Mutable Reference <a name="mutable-reference"/></a>
+### Mutable Reference
 A mutable reference is a borrow of any type `mut T`, allowing mutation of `T` through that
 reference. To create a mutable reference you would borrow i.e. `&mut x` where `x` is the original
 `mut T` type. A `borrow` is automatically dropped on block scopes which will allow then another
@@ -979,18 +993,18 @@ fn main() {
 }
 ```
 
-### Field-level Mutability <a name="field-level-mutability"/></a>
+### Field-level Mutability
 You cannot have a struct with some fields mutable and others not. The mutability of a struct is in
 its bindings.
 
-### Interior vs Exterior Mutability <a name="interior-vs-exterior-mutability"/></a>
+### Interior vs Exterior Mutability
 
 
-### Lifetimes <a name="lifetimes"/></a>
+### Lifetimes
 Lifetime of `'static` is a special lifetime. It signals that something has the lifetime of the
 entire program.
 
-## Templating <a name="templating"/></a>
+## Templating
 * ***tera***
 * ***mustache***
 * ***liquid***
@@ -1003,7 +1017,7 @@ entire program.
 * ***typed-html***
 
 
-## Parsers <a name="parsers"/></a>
+## Parsers
 Functional programming using a technique known as ***parser combinators***. `nom` is the most widely
 used Rust implementation which is what we'll use in this section.
 
@@ -1023,7 +1037,7 @@ The benefits of using parser combinators is that they are:
 * highly readable
 * highly maintainable
 
-### Tag parser <a name="tag-parser"/></a>
+### Tag parser
 Nom tag parsers recognize a listeral string or `tag` of text. The tag parser `tag("hello")` is a
 function object that recognizes the text "hello".
 
@@ -1031,7 +1045,7 @@ Nom parsers typically take an input `&str` and return an `IResult<&str, &str>` w
 being the first return param and the the matched value as the second.
 
 
-## Web Frameworks <a name="web-frameworks"/></a>
+## Web Frameworks
 https://github.com/flosse/rust-web-framework-comparison
 
 High level:
@@ -1049,7 +1063,7 @@ Lower level:
 * ***Iron*** - based on hyper
 * ***Nickel*** - based on hyper
 
-## Web Scraping <a name="web-scraping"/></a>
+## Web Scraping
 * ***actix-web***
 * ***reqwest***
 * ***scraper***
@@ -1061,19 +1075,19 @@ Lower level:
 * ***isahc***
 * ***hyper***
 
-## CSS Selectors <a name="css-selectors"/></a>
+## CSS Selectors
 Grabbing content by css selectors is one of the easiest ways to select html content. The Chrome
 extension [Selector Gadget](http://selectorgadget.com/) makes it easy to navigate to a page and get a
 selector for content you can use in your app.
 
-# rustup <a name="rustup"/></a>
+# rustup
 
-## Update Tools <a name="update-tools"/></a>
+## Update Tools
 ```bash
 $ rustup update
 ```
 
-## Install Nightly Toolchain <a name="install-nightly-toolchain"/></a>
+## Install Nightly Toolchain
 Installs the nightly toolchain but doesn't activate it
 ```bash
 $ rustup toolchain install nightly
@@ -1094,30 +1108,30 @@ Use cargo with nighly as one off:
 $ cargo +nightly expand 
 ```
 
-# CI/CD <a name="ci-cd"/></a>
+# CI/CD
 
-## Github Actions <a name="github-actions"/></a>
+## Github Actions
 
-## Code Coverage Reporting <a name="code-coverage-reporting"/></a>
+## Code Coverage Reporting
 Oneline code coverage reporting tools
 
-### Codecov <a name="codecov"/></a>
+### Codecov
 * More popular now than coveralls
 * More stable than coveralls
 * Better github integration
 * Easy to see per commit coverage
 * Free for public repositories
 
-### Coveralls <a name="coveralls"/></a>
+### Coveralls
 Codecov doesn't seem to have a simple github action
 
 * Github integration
 * Free for public repositories
 
-## Code Coverage Generation <a name="code-coverage-generation"/></a>
+## Code Coverage Generation
 A quick overview of some of the code coverages tools available for Rust
 
-### grcov <a name="grcov"/></a>
+### grcov
 The newest entry into the Rust scene is Mozilla's `grcov` used to gather coverage for Firefox. 
 Seems to have more buzz than tarpaulin but requires Rust nightly to work so no go
 
@@ -1125,7 +1139,7 @@ Supports:
 * coveralls format
 * codecov format
 
-### Tarpaulin <a name="tarpaulin"/></a>
+### Tarpaulin
 `tarpaulin` works well enough but only on `x86_64` machines
 
 Supports:
@@ -1133,18 +1147,18 @@ Supports:
 * uploads to https://coveralls.io
 * uploads to https://codecov.io
 
-#### Install Tarpaulin <a name="install-tarpaulin"/></a>
+#### Install Tarpaulin
 ```bash
 $ cargo install cargo-tarpaulin
 ```
 
-#### Run Tarpaulin from command line <a name="run-tarpaulin-from-command-line"/></a>
+#### Run Tarpaulin from command line
 ```bash
 $ cargo tarpaulin -o html
 $ firefox tarpaulin-report.html
 ```
 
-# Cargo <a name="cargo"/></a>
+# Cargo
 ***Cargo*** is the official Rust dependency manager. Cargo is similar to tools like NPM or Maven, and
 has some interesting features that make it a really high quality dependency manager. Cargo is
 responsible for downloading Rust libraries, called ***Crates***, that your project depends on, and
@@ -1176,7 +1190,7 @@ If multiple versions of a crate are used in your application that don't match a 
 your dependency file then Cargo simply includes them both and uses `name mangling` to allow them both
 to be callable.
 
-## Examples <a name="examples"/></a>s
+## Examples
 Examples in Rust are really cool. They provide a way to package up code as binaries that you can run
 as tests or debug to drive your main project. They provide examples of how to you use your project.
 In `vscode` you can run them directly or in the debugger. With cargo you can run them directly.
@@ -1184,7 +1198,7 @@ In `vscode` you can run them directly or in the debugger. With cargo you can run
 **References**:
 * [Rust examples](http://xion.io/post/code/rust-examples.html)
 
-### Dev dependencies <a name="dev-dependencies"/></a>s
+### Dev dependencies
 * `[dev-dependencies]` in Cargo.toml can be used to setup dependencies for `tests`, `examples` and
 `benchmarks` that are separate from the main package.
 
@@ -1192,7 +1206,7 @@ In `vscode` you can run them directly or in the debugger. With cargo you can run
 be available for examples to leverage with simple `use` statements. Nothing is required by the
 example code other than the `use` call outs.
 
-### run and build examples <a name="run-and-build-exmaples"/></a>s
+### run and build examples
 Examples can be run with cargo by name
 
 Run example:
@@ -1208,7 +1222,7 @@ Build example:
 $ cargo build --examples foobar
 ```
 
-## Dependencies <a name="dependencies"/></a>s
+## Dependencies
 Crates can depend on other libraries from crates.io or other registries, git repos or subdirectories 
 on your local file system and you can even temporarily override the location of a dependency to test 
 out bug fixes.
@@ -1216,7 +1230,7 @@ out bug fixes.
 References:
 * [Cargo Reference - Specifying Dependencies](https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html)
 
-### Github dependencies <a name="github-dependencies"/></a>s
+### Github dependencies
 Cargo has the ability to pull dependencies directly from a github project. After the first build the 
 commit used will be locked in the lock file and you'll need to run a `cargo update` to update the 
 commit to the latest.
@@ -1227,12 +1241,12 @@ rand = { git = "https://github.com/rust-lang-nursery/rand"}
 rand2 = { git = "https://github.com/rust-lang-nursery/rand", branch = "next"}
 ```
 
-## Workspace <a name="workspaces"/></a>s
+## Workspace
 A workspace is used when your existing crate is large enough you want to split it up into multiple
 library crates. Workspaces help manage multiple related library crates that are developed in tandem.
 In this way the library crates will share the same version and other properties.
 
-### Create a new workspace <a name="create-a-new-workspace"/></a>
+### Create a new workspace
 The goal here is to encapsulate all my re-usable Rust code into a single workspace that I can then
 version together.
 
@@ -1281,27 +1295,27 @@ rs:
    ]
    ```
 
-## Packages <a name="packages"/></a>
+## Packages
 Packages are a cargo feature that lets you build, test and share crates as related groups. It is
 composed of onr or more crates that provide a set of functionality. A package contains a `Cargo.toml`
 file that describes how to build those crates. Packages can only contain at most one library crate.
 It may contain one or more binary crates. It is really meant to be a set of related binaries.
 
-## Clippy <a name="clippy"/></a>
+## Clippy
 Clippy runs some linting against your project to detect code smells
 
 ```bash
 $ cargo clippy
 ```
 
-## Crates <a name="crates"/></a>
+## Crates
 Crates are a tree of modules that produces an executable i.e. binary or a library. The `crate root` is
 a source file that the Rust compiler starts from and makes up the root module of your crate.
 
-## Modules <a name="modules"/></a>
+## Modules
 Modules let you control the organization, scope and privacy of paths.
 
-## Expand Macros <a name="expand-macros"/></a>
+## Expand Macros
 The `expand` subcommand requires the nightly compiler though but will automatically find and use it
 if its installed but not activated.
 
@@ -1322,7 +1336,7 @@ $ cargo expand macros
 $ cargo expand macros --tests --lib
 ```
 
-## Static Binary <a name="static-binary"/></a>
+## Static Binary
 To build a 64-bit statically linked binary for Linux, you need to cross compile for hte
 `x86_64-unknown-linux-musl` target. To cross compile you'll need standard crates i.e. libstd cross
 compiled to that target, which can be installed with `rustup`.
@@ -1345,9 +1359,9 @@ $ sudo pacman -S musl
 $ cargo build --target x86_64-unknown-linux-musl
 ```
 
-## Tests <a name="tests"/></a>
+## Tests
 
-### Unit Tests <a name="unit-tests"/></a>
+### Unit Tests
 Unit tests are pretty simple just follow the following guide lines.
 
 Pro Tips:
@@ -1355,11 +1369,11 @@ Pro Tips:
 * Keep unit tests specific to the source in the same file
 * Nest unit tests in their own `tests` module being `#[cfg(test)]` only included for test
 
-### Documentation Tests <a name="documentation-tests"/></a>
+### Documentation Tests
 Documentation tests are extremely slow. It has the same problem as integration tests. Each one is
 built as a separate binary and linked.
 
-### Integration Tests <a name="integration-tests"/></a>
+### Integration Tests
 Integration tests are more complicated to get right as there are performance compilation issues to
 worry about. First of all integration tests are stored in the top level `tests` folder and deal with
 the entire project from the outside to gets your project as a whole i.e. black box while unit tests
@@ -1402,7 +1416,7 @@ code call out in your entry point with `crate::` references. Freaking cool.
    use crate::common::*;
    ```
 
-# Crates.io <a name="crates-io"/></a>
+# Crates.io
 Note before you publish ensure you are ready as published crates are there forever with no way to
 delete them.
 
@@ -1412,7 +1426,7 @@ delete them.
 4. Open the `Account Settings` page
 5. Enter an email address and verify it
 
-## Download crate <a name="download-crate"/></a>
+## Download crate
 Using the crate.io REST API we can download a crate by name and version. Since crates are simply
 source tarballs its simply a matter of a quick extract and we can look at the source for code that
 was once published maybe inadvertently as crates.io never deletes anything.
@@ -1425,7 +1439,7 @@ https://crates.io/api/v1/crates/<crate-name>/<crate-version>/download
 https://crates.io/api/v1/crates/match-downcast/0.1.2/download
 ```
 
-# Cross Platform <a name="cross-platform"/></a>
+# Cross Platform
 At Visly they wrote an article explaining why they chose ***Rust*** as their Cross-Platform language of
 choice over ***C, C++, Go, Kotlin or JavaScript***. Rust has fantastic support for cross compilation
 and doesn't include the monsterous VMs that Go and other languages require.
@@ -1437,10 +1451,10 @@ Refernces:
 JavaScript, Go and Kotlin require large runtimes which don't make them ideal for libraries that are
 supposed to be embedded everywhere. This really only leaves Rust.
 
-# Language Interop <a name="language-interop"/></a>
+# Language Interop
 Since Rust is still relativily new and has a smaller community sometimes its helpful to borrow code
 from another ecosystem. Rust makes working with c type libs a breeze.
 
-## Go Interop <a name="go-interop"/></a>
+## Go Interop
 Compile your Go code as a C Shared library https://github.com/vladimirvivien/go-cshared-examples then
 simply call it from Rust.
