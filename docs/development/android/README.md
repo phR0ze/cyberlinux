@@ -16,8 +16,6 @@ Documenting my learning experience with Android
   * [Create a new virtual device](#create-a-new-virtua-device)
   * [Logging](#logging)
     * [System out](#system-out)
-* [Rust on Android](#rust-on-android)
-  * [Install Android NDK](#install-android-ndk)
 * [Android Devevelopment](#android-development)
   * [SDK](#sdk)
     * [Update SDK](#update-sdk)
@@ -130,14 +128,14 @@ Activities are simply screen views
 
 1. Create a new project directory
    ```shell
-   $ mkdir ~/Projects/muse
+   $ mkdir ~/Projects/mrsa
    ```
 
 2. Create a new project in Android Studio
    a. Select `Create a New Project` from the IDE  
    b. Choose `Empty Activity`  
-   c. Set `Package name` to `com.example.muse`  
-   d. Set `Save location` to our projecdt `~/Projects/muse`  
+   c. Set `Package name` to `com.example.mrsa`  
+   d. Set `Save location` to our projecdt `~/Projects/mrsa`  
    e. Choose `Language` as `Kotlin`  
    f. Choose minimum SDK as `API 24: Android 7.0 (Nougat)`  
 
@@ -167,72 +165,6 @@ var exists = false
 println("hello world: $exists")
 println("hello world: ${exists.toString()}")
 ```
-
-# Rust on Android
-The Android platform supports developing native OS components in Rust.
-
-**References**
-* [Java interop with Miniquad](https://macroquad.rs/articles/java/)
-* [Publishing a Rust game on Android](https://macroquad.rs/tutorials/android/)
-* [Integrating Rust modules in Android](https://blog.logrocket.com/integrating-rust-module-android-app/)
-
-## Install Rust Android targets
-```bash
-$ rustup target add aarch64-linux-android
-$ rustup target add armv7-linux-androideabi
-$ rustup target add i686-linux-android
-$ rustup target add x86_64-linux-android
-```
-
-## Install Android NDK
-Note: ignore the WARNING output. It seems to do the right thing
-
-1. Download the NDK components
-   ```bash
-   $ mkdir ~/Android/Ndk
-   $ ~/Android/Sdk/ndk-bundle/build/tools/make_standalone_toolchain.py --api 24 --arch arm64 --install-dir ~/Android/Ndk/arm64
-   $ ~/Android/Sdk/ndk-bundle/build/tools/make_standalone_toolchain.py --api 24 --arch arm --install-dir ~/Android/Ndk/arm
-   $ ~/Android/Sdk/ndk-bundle/build/tools/make_standalone_toolchain.py --api 24 --arch x86_64 --install-dir ~/Android/Ndk/x86_64
-   $ ~/Android/Sdk/ndk-bundle/build/tools/make_standalone_toolchain.py --api 24 --arch x86 --install-dir ~/Android/Ndk/x86
-   ```
-2. Navigate to `File >Project Structure...`
-3. Select the `SDK Location` section on the left
-4. Click the `Download` button below the `Android NDK Location` section
-
-## Install Cargo plugin for building Android apks
-```bash
-$ cargo install cargo-quad-apk
-$ export ANDROID_HOME=/home/$USER/Android/Sdk
-$ export NDK_HOME=/home/$USER/Android/Ndk
-```
-
-## Create Rust Android project
-1. Create a new rust project named `demo`
-   ```bash
-   $ cd ~/Projects
-   $ cargo new demo --bin
-   ```
-2. Determine Android SDK to build with i.e. should always be the latest   
-   a. Open Android Studio launch `android-studio`  
-   b. Navigate to `Tools >SDK Manager`  
-   c. Make updates and write down API version e.g. `33`  
-   d. Use this value as the `android_version` below
-2. Edit the `Cargo.toml`
-   ```toml
-   android_version = 33
-   target_sdk_version = 24
-   min_sdk_version = 24
-   ```
-
-## Debugging Rust application
-All the `warn!`, `info!` and `debug!` MacroQuad messages will go into the android system messages. 
-You can access them with `adb logcat`
-
-Filter by tag
-```
-adb logcat -v brief SAPP:V "*:S"
-```
-
 
 # Android Development
 

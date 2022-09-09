@@ -1,12 +1,15 @@
 Dell XPS 13 9310 deployment
 ====================================================================================================
 <img align="left" width="48" height="48" src="../../../art/logo_256x256.png">
-Documenting the steps I went through to deploy <b><i>cyberlinux XFCE Desktop</i></b> onto the `Dell XPS 13 9310`
+Documenting the steps I went through to deploy <b><i>cyberlinux XFCE Desktop</i></b> onto the `Dell 
+XPS 13 9310` and additional configuration and maintenance I've done on this system.
 <br><br>
 
 ### Quick links
 * [.. up dir](..)
-* [Device specs](#device-specs)
+* [Device](#device)
+  * [Specs](#Specs)
+  * [Open chassis covere](#open-chassis-cover)
   * [SSD Upgrade](#ssd-upgrade)
 * [Install cyberlinux](#install-cyberlinux)
 * [Configure cyberlinux](#configure-cyberlinux)
@@ -16,9 +19,22 @@ Documenting the steps I went through to deploy <b><i>cyberlinux XFCE Desktop</i>
     * [Backgrounds](#backgrounds)
   * [Graphics](#graphics)
   * [WiFi](#wifi)
+* [Troubleshooting](#troubleshooting)
+  * [Boot from live USB](#boot-from-live-usb)
+  * [Stuck on Dell boot logo](#stuck-on-dell-boot-logo)
 
-# Device specs <a name="device-specs"/></a>
+# Device
+**Resources:**
+* [Tear down of XPS 9310](https://www.youtube.com/watch?v=Dzf4R3vr22M)
+  * Shows battery removal
+  * CPU heatsink and fan removal
+  * Covers screen replacment as well
+  * Covers motherboard replacement as well
+  * States that modern laptops like 9310 don't have CMOS battery but instead run directly off the 
+  main battery
+* [Service Manual PDF](https://dl.dell.com/topicspdf/xps-13-9310-laptop_service-manual_en-us.pdf)
 
+## Specs
 * CPU: `Intel 11th Gen EVO Core i7-1185G7@3.00GHz`
 * BIOS came with: `2.2.0`
 * Microcode Version: `86`
@@ -27,24 +43,28 @@ Documenting the steps I went through to deploy <b><i>cyberlinux XFCE Desktop</i>
 * Video BIOS: `GOP 1055`
 * Audio controller: `Realtek ALC3281-CG`
 
-## SSD Upgrade <a name="ssd-upgrade"/></a>
+## Open chassis cover
+1. Turn the laptop over
+2. Remove the 8 Torx T5 screws
+3. Use a guitar pick to gently pry off the case starting from the front two edges and along front
+   then lift up the front.
+
+## SSD Upgrade
 The SSD options that dell provides are small, slow and way to expensive. I bought the
 `Samsung V-NAND SSD 970 EVO Plus NVMe M.2 2TB` SSD from Amazon and it fits and works perfectly.
 
-1. Turn the laptop over
-2. Remove the 8 Torx T5 screws
-3. Gently pry off the case starting in the front using a guitar pick
-4. Remove the PH0 screw holding the SSD
-5. Remove the old SSD
-6. Bend the smaller bracket contraints flat to allow for the larger SSD
-7. Install the new SSD and re-assemble
+1. [Remove the chassis cover](#open-chassis-cover)
+2. Remove the PH0 screw holding the SSD
+3. Remove the old SSD
+4. Bend the smaller bracket contraints flat to allow for the larger SSD
+5. Install the new SSD and re-assemble
 
-# Install cyberlinux <a name="install-cyberlinux"/></a>
+# Install cyberlinux
 You need to disable UEFI secure boot in order to install cyberlinux as only the Ubuntu factory
 firmware that comes with the machine will be cryptographically signed for the machine.
 
 1. Boot Into the `Setup firmware`:  
-   a. Press `F2` while booting  
+   a. Press `F2` while booting (no need to press `Fn` key)  
    b. In the left hand navigation select `Boot Configuration`  
    c. On the right side scroll down to `Secure Boot`  
    d. Flip the toggle on `Enable Secure Boot` to `OFF`  
@@ -66,7 +86,7 @@ firmware that comes with the machine will be cryptographically signed for the ma
    c. Complete out the process and login to your new system  
    d. Unplug the USB, reboot and log back in  
 
-# Configure cyberlinux <a name="configure-cyberlinux"/></a>
+# Configure cyberlinux
 * [Arch Linux Dell XPS 13 (9310)](https://wiki.archlinux.org/title/Dell_XPS_13_(9310))
 
 First results:
@@ -82,9 +102,9 @@ First results:
 * Problems
   * Locks up and keyboard input doesn't work
 
-## Settings <a name="settings"/></a>
+## Settings
 
-### Flash BIOS to latest <a name="flash-bios-to-latest"/></a>
+### Flash BIOS to latest
 `fwupd` is a simple daemon that allows large vendors like Dell and Logitech to distribute firemware 
 to Linux devices using what they call `Linux Vendor Firmware Service (LVFS)`
 
@@ -108,21 +128,21 @@ References:
 
 Upgrade to `3.0.4`
 
-### SSH Keys <a name="ssh-keys"/></a>
+### SSH Keys
 Copy over ssh keys
 ```bash
 $ scp -r USER@IP-ADDRESSS:~/.ssh .
 ```
 
-### Backgrounds <a name="backgrounds"/></a>
+### Backgrounds
 Copy over any wallpaper to `/usr/share/backgrounds`
 
-## Audio <a name="audio"/></a>
+## Audio
 Requires the `alsa-firmware` and `sof-firmware` packages to work. After reboot you should be good.
 
 * Volume Control buttons seem to work great
 
-## Graphics <a name="graphics"/></a>
+## Graphics
 [Hardware Video Acceleration](https://wiki.archlinux.org/title/Hardware_video_acceleration)
 
 1. Install hardware acceleration drivers:
@@ -138,11 +158,34 @@ Requires the `alsa-firmware` and `sof-firmware` packages to work. After reboot y
    $ vdpauinfo
    ```
 
-## WiFi <a name="wifi"/></a>
+## WiFi
 Work perfectly with NetworkManager and the applet.
 
 All you have to do is just left click on the `nm-applet` icon in the tray and select your WiFi SSID. 
 Entry your password and you should be greeted with a connection pop up.
+
+# Troubleshooting
+
+## Boot from live USB
+1. Plug your live USB stick into a USB-C adapter and then into your laptop
+2. Press the power button to boot then start pressing `F12` (no need to press `Fn` key)
+3. Once the `One-Time Boot Settings` loads select your USB drive and press `Enter`
+
+## Stuck on Dell boot logo
+According to the [Dell XPS 13 9310 tear down](https://www.youtube.com/watch?v=Dzf4R3vr22M) video the 
+9310 doesn't have a CMOS battery but rather simply uses the main battery. This means that to clear 
+the CMOS out all you have to do is disconnect the main battery and wait for some time for the CMOS to 
+discharge.
+
+NOTE: this solution will supposedly fix a lot of BIOS issues. However my system was actually 
+suffering from a 2 amber 4 white light issue which is bad RAM which is soldered to the motherboard. 
+So calling support for this one.
+
+1. [Remove the chassis cover](#open-chassis-cover)
+2. Disconnect the main battery
+3. Flip the unit over on a non-metalic surface 
+4. Hold the power down for at least 30sec
+5. Re-connect the main battery
 
 <!-- 
 vim: ts=2:sw=2:sts=2

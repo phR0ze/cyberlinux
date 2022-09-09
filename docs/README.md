@@ -154,7 +154,8 @@ on the [Arch Linux Wiki](https://wiki.archlinux.org/) should work just fine as w
     * [Try logging in while tailing the logs](#try-logging-in-while-tailing-the-logs)
     * [Try running openbox directly](#try-running-openbox-directly)
     * [Try reinstalling the target video driver](#try-reinstallig-the-target-video-driver)
-  * [Boot from Live USB](#boot-from-live-usb)
+  * [chroot into target disk](#chroot-into-target-disk)
+    * [Unable to chroot into disk](#unable-to-chroot-into-disk)
     * [Rebuild initramfs-linux](#rebuild-initramfs-linux)
   * [Black Screen](#black-screen)
   * [Check Logs for Errors](#check-logs-for-errors)
@@ -196,17 +197,17 @@ on the [Arch Linux Wiki](https://wiki.archlinux.org/) should work just fine as w
     * [xprofile](#xprofile)
     * [XDG Autostart](#xdg-autostart)
 
-# Apps to use <a name="apps-to-use"/></a>
+# Apps to use
 [List of apps to use from Arch Linux Wiki](https://wiki.archlinux.org/index.php/List_of_applications/Utilities)
 
-# Bash <a name="bash"/></a>
+# Bash
 Although bash isn't the most elegant or fastest scripting language out there it has the largest reach 
 and most pervasive install base and most importantly is almost never changes. For this reason it is 
 an excellent technology for small scripts that you want to just work over an extended period of time.
 
-## heredoc <a name="heredoc"/></a>
+## heredoc
 
-### Save heredoc into a variable <a name="save-here-doc-into-a-variable"/></a>
+### Save heredoc into a variable
 Changing `EOF` to `'EOF'` ignores variable expansion
 
 ```bash
@@ -218,9 +219,9 @@ EOF
 )
 ```
 
-# Certificates <a name="certificates"/></a>
+# Certificates
 
-## Add Root CA <a name="add-root-ca"/></a>
+## Add Root CA
 ```bash
 # Download certs
 wget --no-check-certificate -P ~/Downloads https://example.com/CAs/CA1.zip
@@ -232,10 +233,10 @@ unzip CA1.zip && rename CA1.cer CA1.crt
 sudo trust anchor CA1.crt
 ```
 
-# Configuration <a name="configuration"/></a>
-## dconf <a name="dconf"/></a>
+# Configuration
+## dconf
 
-### Dump dconf settings to file <a name="dump-dconf-settings-to-file"/></a>
+### Dump dconf settings to file
 To get setting persisted from dconf configure first reset your configs then configure as desired and 
 dump out your settings to a local file.
 
@@ -255,7 +256,7 @@ $ dconf dump /org/gtk/settings/file-chooser/ > /etc/dconf/db/local.d/02-gtk
 $ dconf dump /apps/guake/ > /etc/dconf/db/local.d/03-guake
 ```
 
-### Load dconf settings from file <a name="load-dconf-settings-from-file"/></a>
+### Load dconf settings from file
 Use a file dumped from the previous section [Dump dconf settings to file](#dump-dconf-settings-to-file)
 to restore your settings.
 
@@ -287,9 +288,9 @@ $ dconf load /org/gtk/settings/file-chooser/ < 02-gtk
    $ sudo dconf update
    ```
 
-# Develop <a name="develop"/></a>
+# Develop
 
-## Git <a name="git"/></a>
+## Git
 Common git config across repos
 
 ```bash
@@ -300,7 +301,7 @@ git config --global push.default simple
 git config core.hooksPath .githooks
 ```
 
-## Rewrite Git History <a name="rewrite-git-history"/></a>
+## Rewrite Git History
 Hammer to rewrite committer and author for all history
 
 ```bash
@@ -311,7 +312,7 @@ GIT_COMMITTER_NAME='NEW_USER'; GIT_COMMITTER_EMAIL='NEW_USER@EXAMPLE.COM';" HEAD
 git push origin -f
 ```
 
-## Github Personal Access Tokens <a name="github-personal-access-tokens"/></a>
+## Github Personal Access Tokens
 Personal access tokens provide a secure way to access your account with the ability to lock down the
 token to only particular access.
 
@@ -327,9 +328,9 @@ EOL
 ```
 5. Then you can just use e.g. `git clone phR0ze/cyberlinux`
 
-# Devices <a name="devices"/></a>
+# Devices
 
-## Android <a name="android"/></a>
+## Android
 Configure minimal android support on your cyberlinux box
 
 ```bash
@@ -343,9 +344,9 @@ $ sudo gpasswd -a <user> adbusers
 $ su - <user>
 ```
 
-## Display <a name="display"/></a>
+## Display
 
-### Adapt Output Toggle <a name="adapt-output-toggle"/></a>
+### Adapt Output Toggle
 cyberlinux uses the ***/opt/cyberlinux/bin/toggle*** script to toggle external displays on and off.
 
 You can adapt it for you system by looking up the output port you want and setting that.
@@ -365,7 +366,7 @@ DP-2 connected (normal left inverted right x axis y axis)
 $ toggle display
 ```
 
-### Dual Output <a name="dual-output"/></a>
+### Dual Output
 Many workstations will have more than one monitor. In order to have Linux configure them both
 accurately you have to set some ***xrandr*** rules post login:
 
@@ -391,7 +392,7 @@ xrandr --output DP-3 --mode 2560x1600 --rate 59.97 --primary --output DP-2 --mod
 EOL
 ```
 
-### VGA Output <a name="vga-output"/></a>
+### VGA Output
 Many laptops have a VGA output port that can be hooked up to a projector or other external video
 device. To tell Linux you want to use that external port:
 
@@ -412,7 +413,7 @@ xrandr --output VGA-1 --off --output eDP-1 --auto
 # Select resolution of 1280x1024 for both monitors
 ```
 
-### Quadro K600 <a name="quadro-k600"/></a>
+### Quadro K600
 Use the `nvidia-340xx` driver in the cyberlinux repo
 ```bash
 $ inxi -G
@@ -424,7 +425,7 @@ $ sudo pacman -S nvidia-340xx
 $ sudo cp /usr/share/nvidia-340xx/20-nvidia.conf /etc/X11/xorg.conf.d/10-nvidia.conf
 ```
 
-### Quadro FX 880M <a name="quadro-fx-880m"/></a>
+### Quadro FX 880M
 The driver for this card i.e. `nvidia-340xx` is no longer carried in the Arch Linux repos, but has a
 maintained version in the cyberlinux repo.
 
@@ -447,7 +448,7 @@ $ sudo cp /usr/share/nvidia-340xx/20-nvidia.conf /etc/X11/xorg.conf.d/10-nvidia.
 $ sudo reboot
 ```
 
-### Quadro FX 3800 <a name="quadro-fx-3800"/></a>
+### Quadro FX 3800
 The driver for this card i.e. `nvidia-340xx` is no longer carried in the Arch Linux repos, but has a
 maintained version in the cyberlinux repo.
 
@@ -493,7 +494,7 @@ $ sudo cp /usr/share/nvidia-340xx/20-nvidia.conf /etc/X11/xorg.conf.d/10-nvidia.
 $ sudo reboot
 ```
 
-### Nvidia Proprietary <a name="nvidia-proprietary"/></a>
+### Nvidia Proprietary
 1. Determine Graphics Card
   ```bash
   inxi -G
@@ -509,7 +510,7 @@ $ sudo reboot
   e. Install driver: ***sudo pacman -S nvidia***  
   f. Reboot  
 
-### Overscan/Underscan <a name="overscan-underscan"/></a>
+### Overscan/Underscan
 I'm using the term `Underscan` to mean reducing the display image and `Overscan` to increase the
 display image as relates to the defaults.  `Offset` in this context means what location related to
 the origin top left i.e. +0+0 to draw the display.
@@ -542,9 +543,9 @@ the origin top left i.e. +0+0 to draw the display.
    EndSection
    ```
 
-## Mouse <a name="mouse"/></a>
+## Mouse
 
-### Configure Mouse Speed <a name="configure-mouse-speed"/></a>
+### Configure Mouse Speed
 [Arch Linux Wiki](https://wiki.archlinux.org/index.php/Mouse_acceleration#Using_xinput)
 The xorg input config file at `/etc/X11/xorg.conf.d/40-input.conf` sets up the mouse speed and
 accuracy.
@@ -579,7 +580,7 @@ libinput Accel Speed (361):	0.300000
 xinput --set-prop 10 'libinput Accel Speed' 0.6
 ```
 
-### Configure Mouse Scroll <a name="configure-mouse-scroll"/></a>
+### Configure Mouse Scroll
 Although libinput doesn't have a nice property to change the scrolling speed. You can at the systemd
 udev level modify the scroll speed.
 
@@ -609,9 +610,9 @@ $ sudo udevadm hwdb --update
 $ sudo udevadm trigger /dev/input/event1
 ```
 
-## Keyboard <a name="keyboard"/></a>
+## Keyboard
 
-### Configure Keyboard Rate <a name="configure-keyboard-rate"/></a>
+### Configure Keyboard Rate
 This works well for a bare bones system, but I was never able to figure out a reliable way to have it 
 always be set as I think the desktop environment would override it.
 ```bash
@@ -624,13 +625,13 @@ xset r rate 200 60
 However both `LXDE` and Xfce have their own keyboard control app that allows you to set similar 
 values.
 
-### Disable Numlock on Boot <a name="disable-numlock-on-boot"/></a>
+### Disable Numlock on Boot
 LXDM has a nice configuration setting allowing you to enable or disable numlock on boot.
 
 1. Edit `/etc/lxdm/lxdm.conf`
 2. Set `numlock=0` to disable
 
-## Printer <a name="printer"/></a>
+## Printer
 Any printer will require the default CUPS installation
 
 ```bash
@@ -645,7 +646,7 @@ $ sudo systemctl start cups
 $ groups
 ```
 
-### Workforce WF-7710 <a name="printer-workforce-wf-7710"/></a>
+### Workforce WF-7710
 The package that works for the WF-7710 is actually a wrapped version that comes from Epson directly
 
 1. Download and install the correct Epson driver  
@@ -665,13 +666,13 @@ The package that works for the WF-7710 is actually a wrapped version that comes 
   c. Click `Forward`  
   d. Click `Apply`  
 
-### Pending - Out of Paper <a name="pending-out-of-paper"/></a>
+### Pending - Out of Paper
 The printer driver got stuck after one failed print and continually reported the printer was out of
 paper. Opening the `Printer Preferences` i.e. `system-config-printer` app showed a yellow caution
 overlay indicating the problem. I right clicked on it and set it to `enabled` and double clicked to
 establish a connection and it started working after that.
 
-## Scanner <a name="scanner"/></a>
+## Scanner
 https://wiki.archlinux.org/index.php/SANE
 
 SANE is the defacto standard in the Linux community for scanning software.
@@ -727,16 +728,16 @@ backend driver support section.
 4. Set `Image Type` to `Grayscale`
 5. Click `Scan` and choose the pdf destination
 
-## Sound <a name="sound"/></a>
+## Sound
 
-### Simultaneous output to multiple devices <a name="simultaneous-output-to-multiple-devices"/></a>
+### Simultaneous output to multiple devices
 [Simultaneous output to multiple devices](https://wiki.archlinux.org/index.php/PulseAudio/Troubleshooting#Simultaneous_output_to_multiple_sound_cards_/_devices)
 
 1. Install: `sudo pacman -S paprefs`
 2. Click the `Simultaneous Output` tab
 2. Check `Add virtual output device for simultaneous output on all local sound cards`
 
-### Google Meet Headset <a name="google-meet-headset"/></a>
+### Google Meet Headset
 I prefer plantronics devices for their superior noise cancelation, but any headset will work here.
 The goal is to simply get your mic and headset output working through a browser for google meet. I
 tend to use Firefox for speed and privacy but other will be similar.
@@ -753,7 +754,7 @@ tend to use Firefox for speed and privacy but other will be similar.
    c. Switch to the `Recording` tab and switch `Firefox: AudioCallbackDriver from` to use your headset  
 4. Test the call in google meet
 
-# Display Manager <a name="display-manager"/></a>
+# Display Manager
 A [display manager](https://wiki.archlinux.org/index.php/Display_manager) is a graphical user
 interface that is displayed at the end of the boot process in place of the default shell.
 ***cyberlinux*** uses systemd as its init system which invokes LXDM as the `display-manager.service`.
@@ -764,14 +765,14 @@ Systemd will create the `display-manager.service` link to LXDM for you with:
 $ sudo systemctl enable lxdm
 ```
 
-## LXDM <a name="lxdm"/></a>
+## LXDM
 [LXDM](https://wiki.archlinux.org/index.php/LXDM) is a lightweight display manager for the LXDE
 desktop environment.
 
 Config files:
 * `/etc/lxdm/lxdm.conf`
 
-## SDDM <a name="ssdm"/></a>
+## SDDM
 [SSDM](https://wiki.archlinux.org/title/SDDM), a.k.a `Simple Display Manager` is the recommended 
 display manager for KDE Plasma and LXQt desktop environments. SSDM defaults to using `systemd-logind` 
 for session management.
@@ -779,15 +780,15 @@ for session management.
 Config files:
 * `/etc/ssdm.conf.d/`
 
-# Containers <a name="containers"/></a>
+# Containers
 
-## Podman <a name="podman"/></a>
+## Podman
 Podman replaces the docker cli and docker daemon with a cli that emulates the docker cli but calls
 the registry etc... directly via `runC` rather than using a go between daemon as docker does. This
 has all kinds of advantages, one being no daemon running in the background consuming resources on
 development machines.
 
-### Migrate from Docker <a name="migrate-from-docker"/></a>
+### Migrate from Docker
 1. Remove all docker volumes, images and containers:
    ```bash
    $ docker system prune
@@ -813,7 +814,7 @@ development machines.
    $ sudo echo '{ "default": [{"type": "insecureAcceptAnything"}] }' > /etc/containers/policy.json
    ```
 
-## Docker ipv6 issue <a name="docker-ipv6-issue"/></a>
+## Docker ipv6 issue
 `Docker v20.10.6` is [borked](https://github.com/moby/moby/issues/42288) and no longer works on
 systems that have kernal parameter `ipv6.disable=1` set.
 
@@ -830,14 +831,14 @@ systems that have kernal parameter `ipv6.disable=1` set.
    IgnorePkg = docker
    ```
 
-## Build container <a name="build-container"/></a>
+## Build container
 From the directory that contains your ***Dockerfile*** run:
 
 ```bash
 $ docker build -t alpine-base:latest  .
 ```
 
-### Build from filesystem <a name="build-from-filesystem"/></a>
+### Build from filesystem
 You can create a container image from a fileystem
 
 Navigate to the directory of your filesystem then run:
@@ -845,17 +846,17 @@ Navigate to the directory of your filesystem then run:
 $ sudo tar -c . | docker import - builder
 ```
 
-## Run container <a name="run-container"/></a>
+## Run container
 ```bash
 $ docker run --rm -it alpine-base:latest bash
 ```
 
-### Shell into a running container <a name="shell-into-a-running-container"/></a>
+### Shell into a running container
 ```bash
 $ docker exec -it builder bash
 ```
 
-### Check if container exists <a name="check-if-container-exists"/></a>
+### Check if container exists
 You can check if a container exists in a programatic way using Docker Go templating and JSON output 
 with the `jq` binary for extracing key information.
 
@@ -863,7 +864,7 @@ with the `jq` binary for extracing key information.
 $ docker container ls --format='{{json .}}' | jq
 ```
 
-## Upload container <a name="upload-cyberlinux-container"/></a>
+## Upload container
 1. Build and deploy a cyberlinux container see [Build cyberlinux container](#build-cyberlinux-container)
 2. List out your docker images: `docker images`
 3. Login to dockerhub.com: `docker login`
@@ -878,7 +879,7 @@ $ docker container ls --format='{{json .}}' | jq
   $ docker push phr0ze/cyberlinux-net:latest
   ```
 
-## Remove images <a name="remove-images"/></a>
+## Remove images
 Removing images with podman is easier than docker as it has the `--all` flag.
 Images are stored at `~/.local/share/containers`.
 
@@ -886,7 +887,7 @@ Images are stored at `~/.local/share/containers`.
 $ docker rmi --all
 ```
 
-## Build cyberlinux container <a name="build-cyberlinux-container"/></a>
+## Build cyberlinux container
 Build, deploy and run a cyberlinux container
 
 ```bash
@@ -900,17 +901,17 @@ $ sudo ./reduce deploy net -p containers
 $ docker run --rm -it net-0.2.197:latest bash
 ```
 
-# Games <a name="games"/></a>
-## HedgeWars <a name="hedgewars"/></a>
+# Games
+## HedgeWars
 HedgeWars is a Worms clone and a lot of fun.
 
-### Install HedgeWars <a name="install-hedgewars"/></a>
+### Install HedgeWars
 Install:
 ```bash
 $ sudo pacman -S hedgewars
 ```
 
-### libGL nvidia-340xx fix <a name="libgl-nvidia-340xx-fix"/></a>
+### libGL nvidia-340xx fix
 Unfortunately when using the older `nvidia-340xx` proprietary driver it has issues with `libGL`
 [library linkage](https://forum.manjaro.org/t/hedgewars-nvidia-problem-with-proprietary-driver-cant-launch-game-libglnvd-conflict/45955).
 
@@ -930,7 +931,7 @@ sudo ln -s /usr/lib/nvidia/libGL.so.1 /usr/lib/libGL.so.1
 sudo ln -s /usr/lib32/nvidia/libGL.so.1 /usr/lib32/libGL.so.1
 ```
 
-## Steam <a name="steam"/></a>
+## Steam
 
 **Resources:**
 * [Arch Linux Steam Wiki page](https://wiki.archlinux.org/title/Steam)
@@ -941,11 +942,11 @@ sudo ln -s /usr/lib32/nvidia/libGL.so.1 /usr/lib32/libGL.so.1
    ```
 
 
-# Grub <a name="Grub"/></a>
+# Grub
 I was using syslinux as my go to bootloader as it is so simple and liteweight, but found that grub
 handled install splash screens and menus better and the transition from gfx to xorg better.
 
-## Boot Kernel <a name="boot-kernel"/></a>
+## Boot Kernel
 When BIOS is used the boot grub config ends up in `/boot/grub/grub.cfg` where as on an EFI system the
 grub boot files are stored on the ESP mount point.
 
@@ -960,7 +961,7 @@ Device         Start      End  Sectors  Size Type
 /dev/mmcblk0p2 22528 30777310 30754783 14.7G Linux filesystem
 ```
 
-### BIOS Boot <a name="bios-boot"/></a>
+### BIOS Boot
 ```bash
 # Install grub package
 $ sudo pacman -S cyberlinux-grub
@@ -1001,7 +1002,7 @@ menuentry "cyberlinux" {
 $ sudo reboot
 ```
 
-### UEFI Boot <a name="uefi-boot"/></a>
+### UEFI Boot
 System like the Samsung Chromebook 3 boot in UEFI mode which reads the bootloader from the boot
 partition EFI System.
 
@@ -1031,7 +1032,7 @@ $ sudo umount /mnt/tmp
 $ sudo reboot
 ```
 
-## Boot Resolution <a name="boot-resolution"/></a>
+## Boot Resolution
 Grub has the ability to configure the boot resolution that is used during boot and inherited by LXDM.
 To configure this modify the `/boot/grub/grub.cfg` file.
 
@@ -1049,23 +1050,23 @@ Section "Screen"
 EndSection
 ```
 
-# Fonts <a name="fonts"/></a>
+# Fonts
 https://wiki.archlinux.org/index.php/fonts
 
-## Install Fonts <a name="install-fonts"/></a>
+## Install Fonts
 
-### Install manually <a name="install-manually"/></a>
+### Install manually
 1. Copy fonts to `/usr/share/fonts`
 2. Set permissions to at least `0444` for files and `0555` for directories
 
-### Install from a package <a name="install-from-a-package"/></a>
+### Install from a package
 `sudo pacman -S ttf-<package>`
 
-### Update font cache <a name="update-font-cache"/></a>
+### Update font cache
 Update font cache: `fc-cache`
 
 
-## Find Font Name <a name="find-font-name"/></a>
+## Find Font Name
 Many applications in Linux require you to set the font by name via entering a text string rather than 
 picking from a widget list. This is problematic if you don't know the exact name of the font. To 
 figure this out you can.
@@ -1080,7 +1081,7 @@ figure this out you can.
    InconsolataGo Nerd Font Mono
    ```
 
-## Fontconfig <a name="fontconfig"/></a>
+## Fontconfig
 https://wiki.archlinux.org/index.php/font_configuration
 
 Fontconfig is a library designed for provide a list of available fonts to applications, and also for
@@ -1096,7 +1097,7 @@ The process for making Fontconfig configurations changes is:
 2. Build Fontconfig's configuration, run: `fc-cache`
 3. Close and reopen applications that you want to see updated
 
-### Replace or Set Defaut Fonts <a name="replace-or-set-default-fonts"/></a>
+### Replace or Set Defaut Fonts
 ```xml
 ...
  <match target="pattern">
@@ -1106,7 +1107,7 @@ The process for making Fontconfig configurations changes is:
 ...
 ```
 
-### Font paths <a name="font-paths"/></a>
+### Font paths
 Fontconfig recogizes the following font paths and scans them recursively:
 * `/usr/share/fonts`
 * `~/local/share/fonts`
@@ -1116,15 +1117,15 @@ List out existing fonts known to Fontconfig
 $ fc-list : file
 ```
 
-### Font Presets <a name="font-presets"/></a>
+### Font Presets
 Font presets are installed in the directory `/etc/fonts/conf.avail` and can be enabled by creating
 symbolic links to them in the `/etc/fonts/conf.d` directory.
 
-### Subpixel Rendering <a name="subpixel-rendering"/></a>
+### Subpixel Rendering
 Subpixel rendering a.k.a. `ClearType` is covered by Microsoft patents and **disabled** by default on
 Arch Linux. To enable it, you have to use the `freetype2-cleartype` AUR package.
 
-## Distro Fonts <a name="distro-fonts"/></a>
+## Distro Fonts
 Fonts are tricky due to licensing, despite being free for commercial use many are only free for
 individual users and can not be included in a distribution.  That said here are some awesome techno
 fonts that you may want to individually use.
@@ -1153,11 +1154,11 @@ fonts that you may want to individually use.
 * https://www.1001fonts.com/anita-semi-square-font.html
 * https://www.1001fonts.com/audiowide-font.html
 
-## Conky Fonts <a name="conky-fonts"/></a>
+## Conky Fonts
 Conky will need to be restarted to pick up new fonts
 
-# Kernel <a name="kernel"/></a>
-## Switch Kernel <a name="switch-kernel"/></a>
+# Kernel
+## Switch Kernel
 1. Install the target kernel
    ```bash
    $ sudo pacman -S linux-lts linux-lts-headers
@@ -1170,19 +1171,19 @@ Conky will need to be restarted to pick up new fonts
    $ sudo reboot
    ```
 
-# Launchers <a name="launchers"/></a>
-## Plank <a name="plank"/></a>
+# Launchers
+## Plank
 Plank can be configured via the `dconf-editor`
 
 1. Launch `dconf-editor`
 2. Navigate to `net/launchpad/plank/docks/dock1`
 3. Flip switches as desired
 
-# Media <a name="media"/></a>
+# Media
 
-## Audio <a name="audio"/></a>
+## Audio
 
-### Convert WAV to MP3 <a name="convert-wav-to-mp3"/></a>
+### Convert WAV to MP3
 1. Install Sound Konverter
    ```bash
    $ sudo pacman -S soundkonverter
@@ -1193,9 +1194,9 @@ Plank can be configured via the `dconf-editor`
 5. Set `Qualtity: High`, `Destination` directory and hit `OK`
 6. Click `Start`
 
-## Images <a name="images"/></a>
+## Images
 
-### Convert HEIC to JPEG <a name="convert-heic-to-jpeg"/></a>
+### Convert HEIC to JPEG
 Image conversions are easily done with `imagemagick`
 ```bash
 # Install imagemagick
@@ -1208,9 +1209,9 @@ $ mogrify -format jpg *.heic
 $ rm *.heic
 ```
 
-## Video <a name="video"/></a>
+## Video
 
-### Backup a Blu-ray <a name="backup-a-bluray"/></a>
+### Backup a Blu-ray
 Instructions for backing up your legally purchased personal collection.
 
 1. Build and install the latest bits
@@ -1234,7 +1235,7 @@ Instructions for backing up your legally purchased personal collection.
    d. Drill in and uncheck any audio and sub-title languages you don't want  
    e. Hit the `Save selected titles` button on the right  
 
-### Backup a DVD <a name="backup-a-dvd"/></a>
+### Backup a DVD
 Instructions for backing up your legally purchased personal collection.
 
 1. First install the tooling:
@@ -1265,7 +1266,7 @@ Instructions for backing up your legally purchased personal collection.
    $ mplayer dvd::// -dvd-device image.iso
    ```
 
-### Extracting specific chapters <a name="extracting-specific-chapters"/></a>
+### Extracting specific chapters
 Note often when doing a full dvd backup the first chapter will be the menu
 
 1. Follow the instructions from [Backup a DVD](#backup-a-dvd) to get a local copy to work with
@@ -1303,7 +1304,7 @@ Note often when doing a full dvd backup the first chapter will be the menu
    $ for i in {1..21}; do dvdbackup -i backup -t 1 -s $((i+1)) -e $((i+1)) -n "Chapter-0${i}"
    ```
 
-### Burning a DVD <a name="burning-a-dvd"/></a>
+### Burning a DVD
 1. Use step 2 from [Backup a DVD](#backup-a-dvd) to determine your device name
 
 2. Use `growisofs` to burn the image to a disc:
@@ -1311,7 +1312,7 @@ Note often when doing a full dvd backup the first chapter will be the menu
    $ growisofs -dvd-compat -Z /dev/sr0=image.iso
    ```
 
-### Encode Blu-ray to x265 <a name="encode-bluray-to-x265"/></a>
+### Encode Blu-ray to x265
 1. Install: `sudo pacman -S handbrake`
 2. Launch: `ghb`
 3. Configure main page settings  
@@ -1334,7 +1335,7 @@ Note often when doing a full dvd backup the first chapter will be the menu
 8. Name the output file  
    a. e.g. `Title (Year) [1080p.x265.AC3.rf20].mkv`  
 
-### Encode DVD to x265 <a name="encode-dvd-to-x265"/></a>
+### Encode DVD to x265
 1. Install: `sudo pacman -S handbrake`
 2. Launch: `ghb`
 3. Configure main page settings  
@@ -1355,7 +1356,7 @@ Note often when doing a full dvd backup the first chapter will be the menu
 8. Name the output file  
    a. e.g. `Title (Year) [480p.x265.AC3.rf19].mkv`  
 
-### Cut Video w/out Re-encoding <a name="cut-video-without-re-encoding"/></a>
+### Cut Video w/out Re-encoding
 1. Install: `sudo pacman -S losslesscut-bin`
 2. Launch: `losslesscut`
 3. Drag and drop your `mkv` file from [Encode DVD to x265](#encode-dvd-to-x265) into the main window
@@ -1366,7 +1367,7 @@ Note often when doing a full dvd backup the first chapter will be the menu
 8. Right click on this new expanded chapter and choose `Include ONLY this segment in export`
 9. Click `Export` button validate settins and click `Export` again
 
-### Lossless Rotate <a name="lossless-rotate"/></a>
+### Lossless Rotate
 This just sets the metadata for the video. Its up to your player to play it with the correct rotation
 
 Rotate clockwise by 90 degrees
@@ -1379,12 +1380,12 @@ Rotate clockwise by 270 degrees
 $ ffmpeg -i $INPUTVIDEO -metadata:s:v rotate="270" -codec copy $OUTPUTVIDEO
 ```
 
-### Strip GPS Location <a name="strip-gps-location"/></a>
+### Strip GPS Location
 1. Install: `sudo pacman -S perl-image-exiftool`
 2. List out the existing exif info: `exiftool <file>`
 3. Remove gps exif data: `exiftool -all= <file>`
 
-## Screen Recorder <a name="screen-recorder"/></a>
+## Screen Recorder
 The two best are ***SimpleScreenRecorder*** and ***RecordMyDesktop***
 
 1. Install: `sudo pacman -S simplescreenrecorder`
@@ -1400,19 +1401,19 @@ The two best are ***SimpleScreenRecorder*** and ***RecordMyDesktop***
 11. Click ***Continue***
 12. Click ***Start Recording***
 
-# Mount <a name="mount"/></a>
+# Mount
 
-## Mount Busy <a name="mount-busy"/></a>
+## Mount Busy
 How do you deal with a mount point that is busy e.g.
 
 `umount: cyberlinux/temp/work/deployments/shell/dev: target is busy.`
 
-### lsof <a name="lsof"/></a>
+### lsof
 See the open files for the given mount path
 
 `lsof <mount path that is busy>`
 
-### fuser <a name="fuser"/></a>
+### fuser
 `fuser` provided by the `psmisc` package is a command line utility for identifying processes using
 resources.
 
@@ -1428,7 +1429,7 @@ resources.
    ```
 2. 
 
-## Add Automount using FSTAB <a name="add-automount-using-fstab"/></a>
+## Add Automount using FSTAB
 https://www.freedesktop.org/software/systemd/man/systemd.mount.html
 
 According to systemd documentation `/etc/fstab` entries will be automatically converted to systemd unit
@@ -1455,14 +1456,14 @@ $ sudo mount -a
 $ sudo chown -R USER: /mnt/storage1 /mnt/storage2
 ```
 
-# Office <a name="office"/></a>
-## LibreOffice <a name="libreoffice"/></a>
+# Office
+## LibreOffice
 
-### Config Navigation <a name="config-navigation"/></a>
+### Config Navigation
 1. Display navigation select ***View >Navigator***  
 2. Dock press ***Ctrl+Shift+F10***  
 
-### Keyboard Shortcuts <a name="keyboard-shortcuts"/></a>
+### Keyboard Shortcuts
 `~/.config/libreoffice/4/user/registrymodifications.xcu`
 
 1. Navigate to ***Tools >Customize... >Keyboard***  
@@ -1491,28 +1492,28 @@ $ sudo chown -R USER: /mnt/storage1 /mnt/storage2
   b. Navigate to ***Category >View >Functions >Zoom Out***  
   c. Click ***Modify*** in the top right to set shortcut function  
 
-### Set Default Template <a name="set-default-template"/></a>
+### Set Default Template
 1. Save your template as ***~/.config/libreoffice/4/user/template/standard.ott***  
 2. Launch ***libreoffice*** and navigate to ***File >Templates >Manage Templates***  
 3. Right click on ***standard*** and choose ***Set As Default***  
 4. Cancel dialog and your done  
 
-### Turn off Smart Quotes <a name="turn-off-smart-quotes"/></a>
+### Turn off Smart Quotes
 1. Navigate to ***Tools >AutoCorrect >AutoCorrect Options...***  
 2. Select the ***Localization Options*** tab  
 3. Uncheck ***Replace*** for both types of quotes  
 
-### Turn off Replace Dashes <a name="turn-off-replace-dashes"/></a>
+### Turn off Replace Dashes
 1. Navigate to ***Tools >AutoCorrect >AutoCorrect Options...***  
 2. Select the ***Options*** tab  
 3. Uncheck ***Replace dashes***  
 
-### Turn off Automatic Strikeout <a name="turn-off-automatic-strikeout"/></a>
+### Turn off Automatic Strikeout
 1. Navigate to ***Tools >AutoCorrect >AutoCorrect Options...***  
 2. Select the ***Options*** tab  
 3. Uncheck ***Automatic bold,italic,strikeout,underline***   
 
-### Fix Spellcheck Issue <a name="fix-spellcheck-issue"/></a>
+### Fix Spellcheck Issue
 LibreWriter has a notorious issue with getting the spell checker to work correctly when you it `F7`.
 The problem is that first of all LibreWriter allows the default language to be set in multiple places
 and second that you have to have your curser on a line that has text before pressing `F7` or it won't
@@ -1532,7 +1533,7 @@ Ensure the paragraph style is set correctly in any custom templates:
 7. Click `Save as Template...`
 8. Choose `My Templates` and name `standard`
 
-### Repeatable Config <a name="repeatable-config"/></a>
+### Repeatable Config
 LibreOffice stores its user configuration in the `~/.config/libreoffice/4/user/registrymodifications.xdu` file.
 To detect the settings you desire and apply them to a future system you can remove the config and use
 git to detect the diffs between the defaults and any changes you make.
@@ -1541,23 +1542,23 @@ git to detect the diffs between the defaults and any changes you make.
 # Remove the existing configuration to have it defaulted
 ```
 
-## OCR <a name="ocr"/></a>
+## OCR
 
-### Tesseract <a name="tesseract"/></a>
+### Tesseract
 ```bash
 $ tesseract input.png out
 ```
 
-## PDFs <a name="pdfs"/></a>
+## PDFs
 
-### PDF Manipulation <a name="pdf-manipulation"/></a>
+### PDF Manipulation
 For general PDF manipulation `pdfmod` works well
 
 ```bash
 $ sudo pacman -S pdfmod
 ```
 
-### Combine PDFs <a name="combine-pdfs"/></a>
+### Combine PDFs
 ```bash
 # Install pdfjoin
 $ sudo pacman -S pdfjoin
@@ -1566,12 +1567,12 @@ $ sudo pacman -S pdfjoin
 $ pdfjoin 1.pdf 2.pdf -o combined.pdf
 ```
 
-### Rotate PDFs <a name="rotate-pdfs"/></a>
+### Rotate PDFs
 ```bash
 $ qpdf in.pdf out.pdf --rotate=[+|-]angle[:page-range]
 ```
 
-### Convert Images to PDF <a name="convert-images-to-pdf"/></a>
+### Convert Images to PDF
 ```bash
 # Install imagemagick
 $ sudo pacman -S imagemagick
@@ -1585,10 +1586,10 @@ $ sudo vim /etc/ImageMagick-7/policy.xml
 $ convert -resize 50% -quality 98 -units pixelsperinch -density 150 image1.jpg image2.jpg output.pdf
 ```
 
-# pacman packages <a name="pacman-packages"/></a>
+# pacman packages
 * Create repo: `repo-add cyberlinux.db.tar.gz *.pkg.tar.*`
 
-## Init database <a name="init-database"/></a>
+## Init database
 ***cyberlinux*** is configured out of the box with initial keys and databases; however should the
 need arise to clean it and start fresh this is what you do.
 
@@ -1606,7 +1607,7 @@ $ sudo pacman -Sy
 $ sudo pkgfile --update
 ```
 
-## Update mirrorlist <a name="update-mirrorlist"/></a>
+## Update mirrorlist
 Install latest mirrorlist and rank by fastest 20
 
 ```bash
@@ -1622,7 +1623,7 @@ $ sudo bash -c 'rankmirrors -n 20 /etc/pacman.d/mirrorlist > /etc/pacman.d/archl
 $ sudo rm /etc/pacman.d/mirrorlist
 ```
 
-## Create Repo Database <a name="create-repo-database"/></a>
+## Create Repo Database
 Creating a repo database from a directory of packages is a simple process:
 ```bash
 # Navigate into the target directory
@@ -1635,7 +1636,7 @@ $ rm -rf cyberlinux.*
 $ repo-add cyberlinux.db.tar.gz *.pkg.tar.*
 ```
 
-## Share Package Cache <a name="share-package-cache"/></a>
+## Share Package Cache
 When running more than one arch linux based machine sharing the package cache can be usefull to
 reduce the number of packages being downloaded.
 
@@ -1673,7 +1674,7 @@ the `tmp-fs` service. Instead I simply mount it at `/mnt/Cache` and setup pacman
    $ sudo paccache -rk 1
    ```
 
-## Download packages only <a name="download-packages-only"/></a>
+## Download packages only
 Sometimes its useful to download packages ahead of time to use in an offline usecase. For example
 Docker has a limitation that it can't mount a volume during build and we'd really like to cache
 package downloading so we're not constantly downloading the same packages over and over again. Its
@@ -1690,9 +1691,9 @@ $ docker run --name builder --rm -it -v "${pwd}/temp":/var/cache/pacman/pkg arch
 $ pacman -Syw --noconfirm grub
 ```
 
-## BlackArch repo <a name="blackarch-repo"/></a>
+## BlackArch repo
 
-### Configure BlackArch repo <a name="configure-blackarch-repo"/></a>
+### Configure BlackArch repo
 In order to configure the black arch repo you'll need to download their `blackarch-keyring` package
 and their mirrorlist. The blackarch [strap.sh script](https://blackarch.org/strap.sh) gives some
 insight as to how to do that.
@@ -1714,7 +1715,7 @@ insight as to how to do that.
    $ curl -O https://blackarch.org/blackarch-mirrorlist
    ```
 
-### BlackArch Signature issue <a name="blackarch-signature-issue"/></a>
+### BlackArch Signature issue
 To fix the issue below delete ***/var/lib/pacman/sync/*.sig***
 
 Example: 
@@ -1724,20 +1725,20 @@ error: failed to update blackarch (invalid or corrupted database (PGP signature)
 error: database 'blackarch' is not valid (invalid or corrupted database (PGP signature))
 ```
 
-# Panels <a name="panels"/></a>
+# Panels
 
-## Tint2 <a name="tint2"/></a>
+## Tint2
 
-## XFCE4 Panel <a name="xfce4-panel"/></a>
+## XFCE4 Panel
 
-### Install XFCE4 Panel <a name="install-xfce4-panel"/></a>
+### Install XFCE4 Panel
 ```bash
 $ sudo pacman -S xfce4-panel xfce4-pulseaudio-plugin xfce4-battery-plugin xfce4-datetime-plugin
 ```
 
-# Patching <a name="patching"/></a>
+# Patching
 
-## Create Patch <a name="create-patch"/></a>
+## Create Patch
 ```bash
 # Copy code to a
 $ cp -a <code> a
@@ -1749,17 +1750,17 @@ $ cp -a a b
 $ diff -ruN a b > <patch-name>.patch
 ```
 
-## Apply Patch <a name="apply-patch"/></a>
+## Apply Patch
 ```bash
 $ patch -Np1 -i <patch-name>.patch
 ```
 
-# Power Management <a name="power-management"/></a>
+# Power Management
 Originally I was using conky and a few scripts to handle battery status and screen dimness, but I 
 kept loosing track of the script names and keyboard shortcuts. I'm switching over to use XFCE's Power 
 Management application.
 
-## XFCE4 Power Manager <a name="xfce4-power-manager"/></a>
+## XFCE4 Power Manager
 Note the icon is called `/usr/share/icons/hicolor/48x48/apps/org.xfce.powermanager.png` and has no 
 `32x32` size option.
 
@@ -1777,13 +1778,13 @@ Note the icon is called `/usr/share/icons/hicolor/48x48/apps/org.xfce.powermanag
    b. Set `Status notification` on  
    c. Set `System tray icon` on  
 
-### Battery Status <a name="battery-status"/></a>
+### Battery Status
 To keep the OS as light as possible I decided to use 
 [conky](https://github.com/phR0ze/cyberlinux/blob/master/profiles/openbox/desktop/etc/skel/conky/netbook) to 
 provide ***Date***, ***Time***, ***Calendar***, and ***Battery status*** as well as a few other 
 monitoring widgets.
 
-### Display Brightness <a name="display-brightness"/></a>
+### Display Brightness
 1. Launch power manager
    ```bash
    $ xfce4-power-manager-settings
@@ -1793,12 +1794,12 @@ monitoring widgets.
    b. Set `Status notification` on  
    c. Set `System tray icon` on  
 
-## Suspend <a name="suspend"/></a>
+## Suspend
 Suspend works out of the box with ***systemd*** as the default system manager
 
-# Rescue <a name="rescue"/></a>
+# Rescue
 
-## Switch to TTY <a name="switch-to-tty"/></a>
+## Switch to TTY
 Bare Metal:
 * `ctrl+alt+F2` should switch to console  
 * `ctrl+alt+F1` should switch back to UI
@@ -1807,12 +1808,12 @@ VirtualBox:
 * `right ctrl+F2` should switch to console  
 * `right ctrl+F1` should switch back to UI
 
-## Graphical Target <a name="graphical-target"/></a>
+## Graphical Target
 When you're system boots the last thing you'll see before the display manager is loaded is that the
 `Graphical Target` is being started. If it hangs here its safe to say either LXDM is failing or Xorg
 is failing to start.
 
-### Switch to console <a name="switch-to-console"/></a>
+### Switch to console
 1. First thing to do is to switch over to the console using the key sequene `ctrl+alt+F2`
 
 2. Persist the use of the console and reboot
@@ -1826,7 +1827,7 @@ is failing to start.
    $ sudo systemctl isolate graphical.target
    ```
 
-### Check Xorg logs <a name="check-xorg-logs"/></a>
+### Check Xorg logs
 The Xorg logs are often telling when unable you get black screens or hanging at the Graphical Target.
 Often this will be a video driver issue. You can check your video card with `inxi -G`.
 
@@ -1839,7 +1840,7 @@ $ cat /var/log/Xorg.0.log | grep EE
 [     3.935] (EE) Failed to load module "fbdev" (module does not exist, 0)
 ```
 
-### Reset Xorg settings <a name="check-xorg-settings"/></a>
+### Reset Xorg settings
 Often there will be old settings from a previous driver in the `xorg.conf`
 
 ```bash
@@ -1851,7 +1852,7 @@ $ sudo rm /etc/X11/xorg.conf
 $ sudo rm -rf /etc/X11/xorg.conf.d/*
 ```
 
-### Opensource Driver <a name="opensource-driver"/></a>
+### Opensource Driver
 Frequently the settings on Nvidia's proprietary drivers will get screwed up. If you just want to
 validate that the problem is indeed the video driver you can temporarily switch to the opensource
 driver to check.
@@ -1864,20 +1865,20 @@ $ sudo pacman -Rns nvidia-340xx nvidia-340xx-utils
 $ sudo pacman -Rns mesa xf86-video-nouveau
 ```
 
-## Unable to Login <a name="unable-to-login"/></a>
+## Unable to Login
 If you are unable to login via LXDM but have got past the Graphicl target that means your video
 driver is working properly. In this case it may be something in the chain of scripts and apps that
 boot the desktop i.e. LXDM settings, `startx` or user scripts like `.bashrc`. I've seen powerline
 initialization in `.bashrc` fail causing the login to fail.
 
-### Try logging in while tailing the logs <a name="try-logging-in-while-tailing-the-logs"/></a>
+### Try logging in while tailing the logs
 1. Switch to TTY and get the ip of the system then loging and tail the logs
    ```bash
    $ journalctl -f
    ```
 2. Switch back to LXDM and attempt to loging and watch the logs
 
-### Try running openbox directly <a name="try-running-openbox-directly"/></a>
+### Try running openbox directly
 This will eliminate possiblities
 1. Use one of the methods below to get shell access.
 2. Disable LXDM `sudo systemctl disable lxdm`
@@ -1885,7 +1886,7 @@ This will eliminate possiblities
 4. Install xinit `sudo pacman -S xorg-xinit`
 5. Launch `startx openbox-session`
 
-### Try an aternate window manager <a name="try-an-alternate-window-manager"/></a>
+### Try an aternate window manager
 If this works you know you might have an openbox issue or in my case I had a lxdm issue that that I
 fixed by uninstalling `lxdm` and instead installing `lxdm-gtk3`.
 
@@ -1894,35 +1895,48 @@ $ sudo pacman -S xfwm4 xfce4-session xfce4-settings
 $ startxfce4
 ```
 
-### Try reinstalling the target video driver <a name="try-reinstallig-the-target-video-driver"/></a>
+### Try reinstalling the target video driver
 I noticed that when I tried reinstalling the correct video driver that the `dkms` module failed to
 compile and install with the new kernel. So I rebuilt the drivers and installed the new one and it
 worked. So apparently the dkms doesn't always work.
 
-## Boot from Live USB <a name="boot-from-live-usb"/></a>
-```bash
-# Mount the HDD
-$ lsblk
-$ sudo mount /dev/sda3 /mnt
+## chroot into target disk
+Some times your system won't boot. You can boot from a live usb and chroot into the target disk to 
+troubleshoot the issue further
 
-# Chroot into HDD
-$ sudo arch-chroot /mnt
+1. Plugin your live USB and boot from it
+2. Determine your target disk with `lsblk`
+3. Mount your target disk e.g. `sudo mount /dev/sda3 /mnt`
+4. Chroot into the disk: `sudo arch-chroot /mnt`
 
-# Check current boot target
-$ sudo systemctl get-default
-graphical.target
+### Unable to chroot into disk
+If you are unable to `arch-chroot` into your target disk it's most likely because of a corrupted arch 
+linux install e.g. lost power during boot files update or something. In this case you'll need to 
+rebuild it from a Live USB.
 
-# Change to mult-user (console)
-$ sudo systemctl set-default multi-user
+1. Boot from Live USB
+2. Update your mirrorlist
+   ```bash
+   $ sudo pacman -Sy
+   $ sudo pacman -S archlinux-keyring
+   $ sudo pacman -S pacman-mirrorlist
+   ```
+3. Mount your target disk
+   ```bash
+   $ lsblk
+   $ sudo mount /dev/sda3 /mnt
+   $ sudo mount /dev/sda1 /mnt/boot
+   ```
+4. Remove the pacman lock, which might exist in failed install cases
+   ```bash
+   $ sudo rm /mnt/var/lib/pacman/db.lock
+   ```
+3. Reinstall the basics for the target system
+   ```bash
+   $ sudo pacstrap -c -G /mnt base linux linux-firmware 
+   ```
 
-# Exit the chroot
-$ exit
-
-# Reboot to the HDD
-$ sudo reboot
-```
-
-### Rebuild initramfs-linux <a name="rebuild-initramfs-linux"/></a>
+### Rebuild initramfs-linux
 During a failed kernel install I ended up with a 0 byte `/boot/initramfs-linux.img` and at some point
 apparently the same thing had happened to `/boot/initramfs-linux-fallback.img` so my system wouldn't
 boot at all.
@@ -1954,7 +1968,7 @@ boot at all.
    $ sudo mkinitcpio -k 5.11.10-arch1-1 -g /boot/initramfs-linux-fallback.img
    ```
 
-## Black Screen <a name="black-screen"/></a>
+## Black Screen
 If you get a black screen after upgrading downgrade to lts kernel
 
 ```bash
@@ -1970,7 +1984,7 @@ Adding `nomodeset` to grub will bypass KMS but that sucks:
 sudo grub-mkconfig -o /boot/grub/grub.cfg
 ```
 
-## Check Logs for Errors <a name="check-logs-for-errors"/></a>
+## Check Logs for Errors
 ```bash
 # Check LXDM unit logs
 $ sudo systemctl status lxdm
@@ -1991,7 +2005,7 @@ $ journalctl --system
 $ journalctl -b
 ```
 
-## Update Old System <a name="update-old-system"/></a>
+## Update Old System
 When updating a really old system you'll need to do a few things:
 1. Get the keyring updated
    ```bash
@@ -2010,7 +2024,7 @@ When updating a really old system you'll need to do a few things:
    $ sudo ./pacman-static -Syu
    ```
 
-## ldconfig is empty, not checked <a name="ldconfig-is-empty-not-checked"/></a>
+## ldconfig is empty, not checked
 After a failed pacman update I noticed ldconfig was throwing all kinds of errors similar to:
 ```bash
 ldconfig: File /usr/lib/libnautilus-extension.so is empty, not checked.
@@ -2027,24 +2041,24 @@ local files.
 $ sudo pacman -S firefox --overwrite '*'
 ```
 
-# Session Manager <a name="session-manager"/></a>
+# Session Manager
 
-## lxsession <a name="lxsession"/></a>
+## lxsession
 [LXsession](https://wiki.archlinux.org/title/LXDE#Autostart) provides `XDG Autostart` support that 
 executes the following before then running `Openbox`
 * `~/.config/autostart`
 * `/etc/xdg/autostart`
 
-## xfce4-session <a name="xfce4-session"/></a>
+## xfce4-session
 `xfce4-session` is a session manager for Xfce. Its task is to save the state of your desktop (opened 
 applications and their location) and restore them during your next startup.
 
 Provides:
 * Autostat via `~/.config/autostart`
 
-# Storage <a name="storage"/></a>
+# Storage
 
-## Add Drive <a name="add-drive"/></a>
+## Add Drive
 1. Get device names
    ```bash
    $ lsblk
@@ -2089,7 +2103,7 @@ Provides:
 
 6. [Automount using FSTAB](#add-automount-using-fstab)
 
-## Clone Drive <a name="clone-drive"/></a>
+## Clone Drive
 ```bash
 # Kick off clone in one terminal
 # conv=sync,noerror means in the case of an error ensure length of original data is preserved and don't fail
@@ -2099,7 +2113,7 @@ sudo dd if=/dev/sdX of=/dev/sdY bs=1M conv=sync,noerror
 watch -n10 'sudo kill -USR1 $(pgrep ^dd)'
 ```
 
-## Backup Drive <a name="backup-drive"/></a>
+## Backup Drive
 One of the simplest and least expensive ways to backup your data is to buy a single hot swappable 
 bay and a couple of large drives. Then just load one in and copy your data as desired then pull it 
 out and store it in an anti-static/shock proof caddy.
@@ -2117,7 +2131,7 @@ out and store it in an anti-static/shock proof caddy.
    ```
 6. Launch `FileZilla` or your transfer app of choice and copy your data over
 
-## Securely Wipe Drive <a name="securely-wipe-drive"/></a>
+## Securely Wipe Drive
 To securely shred all data on a drive you can use the shred tool:
 * `-v` - verbose output
 * `-z` - add a final pass of zeros to hide shredding
@@ -2127,13 +2141,13 @@ To securely shred all data on a drive you can use the shred tool:
 sudo shred -vzn 3 --random-source=/dev/urandom /dev/sdX
 ```
 
-## RAID Drives <a name="raid-drives"/></a>
+## RAID Drives
 The standard URE rate of 1 in 10^14 failure in modern drives has made RAID 5 an almost 100% fail with
 larger drives. RAID 6 although tolerable will also be too high a risk with larger drives.  The only
 option for RAID is RAID 10 if you value your data.  Otherwise forget RAID and make regular backups.
 Once configured partition and format like any other drive.
 
-## Test Drive <a name="test-drive"/></a>
+## Test Drive
 Using the SMART monitor tools and the built in diagnostics in drives we can determine their health.
 SMART offers two different tests, according to specification type. Each of these tests can be
 performed in two modes:
@@ -2193,22 +2207,22 @@ Num  Test_Description    Status                  Remaining  LifeTime(hours)  LBA
 # 3  Extended offline    Aborted by host               90%         2         -
 ```
 
-# Time/Date <a name="time-date"/></a>
+# Time/Date
 Time and dates are controlled on Arch Linux by  `timedatectl`
 
-# Set Time/Date <a name="set-time-date"/></a>
+# Set Time/Date
 ```bash
 # timedatectl set-time "yyyy-MM-dd hh:mm:ss"
 sudo timedatectl set-time "2019-01-17 09:12:20"
 ```
 
-# Troubleshooting <a name="troubleshooting"/></a>
+# Troubleshooting
 
-## GVFS Slow Start <a name="gvfs-slow-start"/></a>
+## GVFS Slow Start
 Pretty much any GTK app that uses a file dialog especially Thunar and Handbrake were taking 20sec to
 startup, but after the initial start ran fine. 
 
-### libblockdev fix <a name="libblockdev-fix"/></a>
+### libblockdev fix
 By tailing the journal `journalctl -f` while I started `thunar` I was able to tell that it launched gvfs
 which in turn launched `udisks2` which fails. Running `sudo systemctl status udisks2` shows that it
 is failing with a symbol lookup error.
@@ -2221,7 +2235,7 @@ Removing `gvfs` and all its dependencies fixes the issue but I'd rather have tha
 Turns out that my version of `libblockdev` that I hacked to remove the `lvm` dependency was out of
 date and causing this issue. Once updated to the latest `udisks2` starts up fine.
 
-### xdg-desktop-portal <a name="xdg-desktop-portal"/></a>
+### xdg-desktop-portal
 The [libblockdev fix](#libblockdev-fix) solved the `Thurnar` and `Kodi` issue I was seeing but I also
 noticed that `evince` takes forever to start and saw tailing the logs with `journalctl -f` that I'm
 also getting a failure to start the `xdg-desktopportal.service`.
@@ -2240,9 +2254,9 @@ Removed /etc/systemd/user/sockets.target.wants/pipewire.socket.
 ...
 ```
 
-# Users/Groups <a name="users-groups"/></a>
+# Users/Groups
 
-## Add user <a name="add-user"/></a>
+## Add user
 https://wiki.archlinux.org/index.php/users_and_groups#Example_adding_a_system_user
 
 Add a user without a home directory or ability to login for running daemons
@@ -2251,14 +2265,14 @@ Add a user without a home directory or ability to login for running daemons
 useradd -r -s /usr/bin/nologin teamviewer
 ```
 
-## Rename user <a name="rename-user"/></a>
+## Rename user
 1. Login using root
 2. Rename user `usermod -l newname oldname`
 3. Rename user home directory `mv /home/oldname /home/newname`
 4. Change user home `usermod -d /home/newname -m newname`
 5. Rename user group `groupmod -n newname oldname`
 
-# VeraCrypt <a name="veracrypt"/></a>
+# VeraCrypt
 VeraCrypt is the go forward fork of TrueCrypt providing virtual drives with encryption you can
 safely store your data in. Many of the issues with the original TrueCrypt code audits have been
 fixed.
@@ -2291,9 +2305,9 @@ Create a new ***100GB Volume***
 6. Configure autostart for veracrypt  
   `cp /usr/share/applications/veracrypt.desktop ~/.config/autostart`
 
-# Virtual Box <a name="virtual-box"/></a>
+# Virtual Box
 
-## USB Access in VM <a name="usb-access-in-vm"/></a>
+## USB Access in VM
 [Accessing host USB devices in guest](https://wiki.archlinux.org/index.php/VirtualBox#Accessing_host_USB_devices_in_guest)
 requires that your user be part of the vboxusers group.
 
@@ -2305,17 +2319,17 @@ $ groups
 $ sudo usermod -a -G vboxusers <USER>
 ```
 
-# Window Manager <a name="window-manager"/></a>
+# Window Manager
 A window manager controls the placment and appearance of windows within a windowing system like X
 Windows.
 
-## Openbox <a name="openbox"/></a>
+## Openbox
 Openbox is a lightweight, powerful and highly configurable stacking window manager with extensive
 standards support.
 
-## XFWM <a name="xfwm"/></a>
+## XFWM
 
-### XFCE Menu <a name="xfce-menu"/></a>
+### XFCE Menu
 Xfce's `xfdesktop` app will install a menu file
 XFCE will read from the `~/.config/menus/xfce-applications.menu`
 
@@ -2329,10 +2343,10 @@ XFCE will read from the `~/.config/menus/xfce-applications.menu`
    $ cp /etc/xdg/menus/xfce-applications.menu ~/.config/menus
    ```
 
-## wmctrl <a name="wmctrl"/></a>
+## wmctrl
 CLI automation for working with X11 window managers
 
-### Resize current window <a name="resize-current-window"/></a>
+### Resize current window
 You can resize the current window with `wmctrl` cli tool
 
 Example:
@@ -2344,13 +2358,13 @@ wmctrl -r :ACTIVE: -b remove,maximized_horz,maximized_vert -e 0,0,0,1920,1080
 * `-b remove,maximized_horz,maximized_vert` remove restrictions that may impact a resize/move
 * `-e 0,0,0,1920,1080` gravity usually zero, x, y, width, height
 
-# X Windows <a name="x-windows"/></a>
+# X Windows
 X Windows, X Window system, X11 or simply X is the most common windowing system in Linux.
 
-## Icons <a name="icons"/></a>
+## Icons
 Icons are stored at `/usr/share/icons` with `hicolor` being the defaults.
 
-### Refresh Icon Cache <a name="refresh-icon-cache"/></a>
+### Refresh Icon Cache
 Each icon theme e.g. `/usr/share/icons/hicolor` has a `/usr/share/icons/hicolor/icon-theme.cache` 
 that appliations will use to view the available icons from that theme. If you add icons to the theme 
 manually they will not show up in your icon viewers until the cache is updated.
@@ -2361,12 +2375,12 @@ $ touch /usr/share/icons/hicolor
 $ sudo gtk-update-icon-cache /usr/share/icons/hicolor
 ```
 
-## Persist X Configs <a name="persist-x-configs"/></a>
+## Persist X Configs
 Linux has a plethera of ways to persist configuration depending on which system components your
 using. I'm documenting here the components in use in ***cyberlinux*** and the recommended use based
 on ordering and pros/cons of the technologies in play.
 
-### Execution order <a name="execution-order"/></a>
+### Execution order
 The order of execution from start to running desktop is as follows
 
 1. The kernel starts `systemd` as the init process running as `PID 1`
@@ -2405,7 +2419,7 @@ The order of execution from start to running desktop is as follows
    [XDG Autostart](https://wiki.archlinux.org/title/XDG_Autostart) with dependency `python-pyxdg`
    then executes its own startup scripts as follows:
 
-### X Configs <a name="x-configs"/></a>
+### X Configs
 The best way to persist X11 configuration is by dropping in the appropriate changes into the
 `/etc/X11/xorg.conf.d` directory. Each file there will be read in and applied in the order they are
 found.
@@ -2415,7 +2429,7 @@ found.
 $ sudo cp /usr/share/nvidia-340xx/20-nvidia.conf /etc/X11/xorg.conf.d/10-nvidia.conf
 ```
 
-### profile.d <a name="profile.d"/></a>
+### profile.d
 The shell scripts in `/etc/profile.d` get sourced by `/etc/profile` when its sourced. This follows
 the new granular drop in file pattern and is one of the best ways to add system boot configuration.
 One thing to note is that the files are sourced in the context of the logged in user so `$HOME` will
@@ -2438,7 +2452,7 @@ don't want to include things here meant only for X11 sessions as it will be extr
 Use this for environment configuration that you'd like present in your system regardless of the entry
 point i.e. login shells or LXDM.
 
-### xprofile <a name="xprofile"/></a>
+### xprofile
 An [xprofile](https://wiki.archlinux.org/index.php/Xprofile) file `~/.xprofile` and `/etc/xprofile`
 allow you to execute commands at the begining of the X user session before the window manager is
 started as it is run by LXDM after X11 but before Openbox.
@@ -2450,7 +2464,7 @@ Doesn't get read by login shells only via LXDM.
 Use for configuration specific to X11 you want during your session and use `~/.profile` or
 `/etc/profile.d` for configuration you want for all logins or LXDM entry points.
 
-### Openbox Autostart <a name="openbox-autostart"/></a>
+### Openbox Autostart
 Openbox provides an autostart mechanism by:
 1. Sourcing `/etc/xdg/openbox/environment`
 2. Sourcing `~/.config/openbox/environment`
@@ -2467,7 +2481,7 @@ ssh sessions as well as Openbox and use `~/.xprofile` or `/etc/xprofile` for con
 for your X11 Openbox session. `lxsession` provides an excellent mechanism implementing the `XDG Autostart`
 specification and thus there is no need to use Openbox's autostart or environment configs at all.
 
-### XDG Autostart <a name="xdg-autostart"/></a>
+### XDG Autostart
 LXSession supports the `XDG Autostart` specification which calls out `/etc/xdg/autostart` and
 `~/.config/autostart` as locations where you can store desktop files that will get executed at
 startup.  Since timing/ordering of X components being started isn't guaranteed there may be UI

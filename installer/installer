@@ -1,6 +1,6 @@
 #!/bin/bash
 # MIT License
-# Copyright (c) 2017-2021 phR0ze
+# Copyright (c) 2017-2022 phR0ze
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -232,7 +232,8 @@ partition_and_mount_disk()
         PART_ROOT="${DESTDEV}p3"
     fi
 
-    # EFI: Create a ESP boot partition EF00
+    # EFI: Create an ESP (EFI system partition) using linux code EF00
+    # to act as a storage place for the EFI bootloaders to be launched by the UEFI firmware.
     # https://wiki.archlinux.org/index.php/EFI_System_Partition#Create_the_partition
     if [ "x${EFI}" == "x1" ]; then
         echo -en ":: Creating ${cyber}${PART_BOOT}${none} as ${cyber}ESP boot partition${none}..."
@@ -287,16 +288,16 @@ partition_and_mount_disk()
     mount -o noatime ${PART_ROOT} ${NEW_ROOT} &>/dev/null
     check_status
 
-    # UEFI: boot partition needs to be mounted over the root at /boot to capture the Arch Linus
+    # UEFI: boot partition needs to be mounted over the root at /boot to capture the Arch Linux
     # standard boot file install e.g. kernel and initramfs. We keep them on the same partition
     # as the EFI/BOOT/BOOTX64.efi as EFI can't mount a ext4 filesystem.
-    # BIOS: boot partition shouldn't be formatted or mounted in this case as its just for the MBR
     if [ "x${EFI}" == "x1" ]; then
         echo -en ":: Mounting ${cyber}${PART_BOOT}${none} (ESP) as ${cyber}${NEW_ROOT}/boot${none}..."
         mkdir -p ${NEW_ROOT}/boot
         mount ${PART_BOOT} ${NEW_ROOT}/boot &>/dev/null
         check_status
     fi
+    # BIOS: boot partition shouldn't be formatted or mounted in this case as its just for the MBR
 }
 
 # Install the appropriate bootloader for BIOS and UEFI systems
@@ -305,10 +306,12 @@ install_bootloader()
     echo -e "\n:: Installing bootloader to ${cyber}${PART_BOOT}${none}..."
     echo -e "${cyber}:: $(bash -c "printf '%0.1s' '-'{1..107}")${none}"
 
+    # systemd-boot: is lighter than GRUB and provides support for passing kernel parameters.
     # bootctl will copy the systemd-boot loader to the wellknown EFI boot file EFI/BOOT/BOOTX64.efi
     # location and its own EFI/systemd-bootx64.efi and will set systemd-boot as the default EFI
     # entry. The bootloader will use the configuration stored at $esp/loader/loader.conf to find the
     # default configuration to load.
+    # https://wiki.archlinux.org/title/Systemd-boot
     if [ "x${EFI}" == "x1" ]; then
         local esp_mnt="${NEW_ROOT}/boot"
         local boot_conf="${NEW_ROOT}/boot/loader/entries/arch.conf"
