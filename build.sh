@@ -124,7 +124,11 @@ EOF
   echo -e "${yellow}:: Build the builder repo...${none}"
   cat <<EOF | docker exec --privileged -i ${BUILDER} sudo -u build bash
   cd "${CONT_REPO_DIR}"
-  repo-add builder.db.tar.gz *.pkg.tar.*
+  if [ $(find . -maxdepth 1 -name "*.pkg.tar.*" | wc -l) -eq 0 ]; then
+    repo-add builder.db.tar.gz
+  else
+    repo-add builder.db.tar.gz *.pkg.tar.*
+  fi
 EOF
   check
 }

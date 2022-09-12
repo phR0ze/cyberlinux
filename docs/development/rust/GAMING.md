@@ -227,7 +227,7 @@ engine from the ground up in Rust
 * [HyperMaze](https://github.com/elo-siema/HyperMaze)
   * First person maze 3d walls
 
-## Install OpenJDK
+## Install OpenJDK - Not compatible yet
 Android Studio 4.2 released in 2021 and onwards uses `OpenJDK 11`
 
 1. Install OpenJDK11
@@ -287,7 +287,6 @@ Warning: The Cargo plugin `quad-apk` needs to have Macroquad version `0.3.23` or
    ```toml
    [dependencies]
    macroquad = "0.3.23"
-   egui-macroquad = "../egui-macroquad"
    ```
 2. Now add the Android target values to your `Cargo.toml`
    ```toml
@@ -342,13 +341,14 @@ Problems to fix:
    $ docker run --rm -v $(pwd):/root/src -w /root/src cargo-quad-apk:latest cargo quad-apk build
    $ docker run --rm -v $(pwd):/root/src -w /root/src cargo-quad-apk:latest cargo quad-apk build --release
 
-   # An apk will be in target/android-artifacts/debug/apk
+   # An apk will be in target/android-artifacts/release/apk
    $ NDK_HOME=/opt/android-ndk JAVA_HOME=/usr/lib/jvm/java-8-openjdk ANDROID_HOME=~/Downloads/temp/sdk-r29 cargo quad-apk build
 
    # An apk will be in target/android-artifacts/release/apk
    cargo quad-apk build --release
    ```
-5. Install apk in emulator
+5. Start `android-studio` and start the emulator
+6. Install apk in emulator
    ```bash
    $ adb install target/android-artifacts/debug/apk/mrsa.apk
    ```

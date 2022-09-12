@@ -1921,20 +1921,87 @@ rebuild it from a Live USB.
    $ sudo pacman -S archlinux-keyring
    $ sudo pacman -S pacman-mirrorlist
    ```
-3. Mount your target disk
+3. Optionally format your target root partition
+   ```bash
+   $ sudo mkfs.ext4 -F -m 0 -L CYBERLINUX /dev/sda3
+   ```
+4. Mount your target disk root disk
    ```bash
    $ lsblk
    $ sudo mount /dev/sda3 /mnt
-   $ sudo mount /dev/sda1 /mnt/boot
    ```
-4. Remove the pacman lock, which might exist in failed install cases
+5. Remove the pacman lock if necessary
    ```bash
    $ sudo rm /mnt/var/lib/pacman/db.lock
    ```
-3. Reinstall the basics for the target system
+6. Install the base system
    ```bash
-   $ sudo pacstrap -c -G /mnt base linux linux-firmware 
+   $ sudo pacstrap -c -G /mnt base
    ```
+7. Mount the boot disk and install the kernel
+   ```bash
+   $ sudo mount /dev/sda1 /mnt/boot
+   $ sudo pacstrap -c -G /mnt linux linux-firmware 
+   ```
+8. Install bootloader and configure user password
+   ```bash
+   $ sudo mkdir -p /mnt/sys/firmware/efi/efivars
+   $ sudo mount -o bind /sys/firmware/efi/efivars /mnt/sys/firmware/efi/efivars
+   $ sudo arch-chroot /mnt
+   $ bootctrl install
+   $ passwd
+   ```
+
+### Rebuild initramfs-linux
+During a failed kernel install I ended up with a 0 byte `/boot/initramfs-linux.img` and at some point
+apparently the same thing had happened to `/boot/initramfs-linux-fallback.img` so my system wouldn't
+boot at all.
+
+1. Boot from Live USB and chroot into your system
+   ```bash
+   # Mount the HDD
+   $ lsblk
+   $ sudo mount /dev/sda3 /mnt
+
+   # Chroot into HDD
+   $ sudo arch-chroot /mnt
+   ```
+
+2. Ensure the kernel is properly installed:
+   ```bash
+   $ sudo pacman -S linux-headers
+   $ sudo pacman -S linux
+   ```
+
+3. Rebuild the initramfs-linux image
+   ```bash
+   # First determine the correct kernel version
+   $ ls /lib/modules
+   5.11.10-arch1-1
+
+   # Next rebuild the initramfs-linux image
+   $ sudo mkinitcpio -k 5.11.10-arch1-1 -g /boot/initramfs-linux.img
+   $ sudo mkinitcpio -k 5.11.10-arch1-1 -g /boot/initramfs-linux-fallback.img
+   ```
+
+## Black Screen
+If you get a black screen after upgrading downgrade to lts kernel
+
+```bash
+sudo pacman -S linux-lts linux-lts-docs linux-lts-headers
+sudo reboot
+```
+
+Adding `nomodeset` to grub will bypass KMS but that sucks:
+```bash
+# Update GRUB configuration
+# sudo vim /etc/default/grub
+# Ensure GRUB_CMDLINE_LINUX="nomodeset"
+sudo grub-mkconfig -o /boot/grub/grub.cfg
+```
+
+## Check Logs for Errors
+```bash
 
 ### Rebuild initramfs-linux
 During a failed kernel install I ended up with a 0 byte `/boot/initramfs-linux.img` and at some point
