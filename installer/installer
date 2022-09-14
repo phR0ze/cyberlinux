@@ -320,7 +320,7 @@ install_bootloader()
         chroot ${NEW_ROOT} bootctl install &>/dev/null
         check_status
 
-        echo -en ":: Setting default boot entry to be ${cyber}${boot_conf}/${none}..."
+        echo -en ":: Setting default boot entry to be ${cyber}${boot_conf}${none}..."
         mkdir -p ${NEW_ROOT}/boot/loader &>/dev/null
         echo "default arch.conf" > ${NEW_ROOT}/boot/loader/loader.conf
         check_status
@@ -605,9 +605,10 @@ installer()
     #---------------------------------------------------------------------------
     mount_install_device
 
-    # Set defaults for live and default deployments
+    # Set global defaults
     #---------------------------------------------------------------------------
     SCSI=0
+    DEBUG=0
     DEFAULT="n"
     ENABLE_BLUETOOTH=0
     HOSTNAME="${DISTRO}-${LAYER}"

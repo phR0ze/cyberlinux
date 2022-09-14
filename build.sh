@@ -122,9 +122,10 @@ EOF
 
   # Build the builder repo if it doesn't exist
   echo -e "${yellow}:: Build the builder repo...${none}"
+  local PKG_COUNT=$(find $REPO_DIR -name "*.pkg.tar.*" | wc -l)
   cat <<EOF | docker exec --privileged -i ${BUILDER} sudo -u build bash
   cd "${CONT_REPO_DIR}"
-  if [ $(find . -maxdepth 1 -name "*.pkg.tar.*" | wc -l) -eq 0 ]; then
+  if [ $PKG_COUNT -eq 0 ]; then
     repo-add builder.db.tar.gz
   else
     repo-add builder.db.tar.gz *.pkg.tar.*
@@ -210,7 +211,7 @@ build_multiboot()
   echo -e ":: Concatenate cdboot.img to bios.img to create CD-ROM bootable image $CONT_BUILD_DIR/eltorito.img..."
   cat /usr/lib/grub/i386-pc/cdboot.img "$CONT_BUILD_DIR/bios.img" > "$CONT_ISO_DIR/boot/grub/i386-pc/eltorito.img"
 
-  echo -e ":: Concatenate boot.img to bios.img to create embedded boot $CONT_BUILD_DIR/embedded.img..."
+  echo -en ":: Concatenate boot.img to bios.img to create embedded boot $CONT_BUILD_DIR/embedded.img..."
   cat /usr/lib/grub/i386-pc/boot.img "$CONT_BUILD_DIR/bios.img" > "$CONT_ISO_DIR/boot/grub/i386-pc/embedded.img"
 EOF
   check
@@ -279,7 +280,7 @@ EOF
   docker_cp "${INSTALLER_DIR}/mkinitcpio.conf" "$BUILDER:/etc"
 
   # Build a sorted array of kernels such that the first is the newest
-  echo -en "${yellow}:: Build the initramfs based installer...${none}"
+  echo -e "${yellow}:: Build the initramfs based installer...${none}"
   local kernels=($(docker_exec ${BUILDER} "ls /lib/modules | sort -r | tr '\n' ' '"))
   docker_exec ${BUILDER} "mkinitcpio -k ${kernels[0]} -g /root/installer"
   check
@@ -417,7 +418,7 @@ build_iso()
     -isohybrid-gpt-basdat                           `# Announces esp.img is FAT GPT i.e. ESP` \
     \
     `# Specify the output iso file path and location to turn into an ISO` \
-    -o "${CONT_OUTPUT_DIR}/cyberlinux.iso" "$CONT_ISO_DIR"
+    -o "${CONT_OUTPUT_DIR}/cyberlinux-${VERSION}-${PROFILE}.iso" "$CONT_ISO_DIR"
 EOF
   check
 }
@@ -651,8 +652,9 @@ docker_kill() {
 header()
 {
   VERSION=$(cat VERSION)
-  echo -e "${cyan}CYBERLINUX v${VERSION}${none} builder for a multiboot installer ISO"
+  echo -e "${cyan}CYBERLINUX BUILDER v${VERSION}${none}"
   echo -e "${cyan}------------------------------------------------------------------${none}"
+  echo -e "Create your own multiboot ISO installer\n"
 }
 usage()
 {
