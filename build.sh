@@ -432,10 +432,11 @@ EOF
 clean()
 {
   docker_kill ${BUILDER}
+  echo -e "${yellow}>> Cleaning build artifacts${none}"
 
   local targets="$1"
   if [ "${1}" == "most" ]; then
-    targets="$targets,iso,layers,output,repo" 
+    targets="iso,layers,output,repo" 
   fi
 
   for x in ${targets//,/ }; do
@@ -444,30 +445,33 @@ clean()
     # Clean everything not covered in other specific cases
     if [ "${x}" == "all" ]; then
       target="${TEMP_DIR}"
-      echo -e "${yellow}>> Cleaning docker image ${cyan}archlinux:base-devel${none}"
+      echo -e ":: Cleaning docker image ${cyan}archlinux:base-devel${none}"
       docker_rmi archlinux:base-devel
     fi
 
     # Clean the builder docker image
     if [ "${x}" == "all" ] || [ "${x}" == "${BUILDER}" ]; then
-      echo -e "${yellow}>> Cleaning docker image ${cyan}${BUILDER}${none}"
+      echo -e ":: Cleaning docker image ${cyan}${BUILDER}${none}"
       docker_rmi ${BUILDER}
     fi
 
     # Clean the squashfs staged images from temp/iso/images if layer called out
     if [ "${x}" == "all" ] || [ "${x%%/*}" == "layers" ]; then
       if [ "${x}" == "all" ] || [ "${x}" == "layers" ]; then
-        echo -e "${yellow}>> Cleaning all layer images${none}"
+        echo -en ":: Cleaning ${cyan}${IMAGES_DIR}${none}"
         sudo rm -rf "${IMAGES_DIR}"
+        check
       else
         local layer_image="${IMAGES_DIR}/${x#*/}.sqfs" # e.g. .../images/openbox/core.sqfs
-        echo -e "${yellow}>> Cleaning sqfs layer image${none} ${cyan}${layer_image}${none}"
+        echo -en ":: Cleaning layer image ${cyan}${layer_image}${none}"
         sudo rm -f "${layer_image}"
+        check
       fi
     fi
 
-    echo -e "${yellow}>> Cleaning build artifacts${none} ${cyan}${target}${none}"
+    echo -en ":: Cleaning ${cyan}${target}${none}"
     sudo rm -rf "${target}"
+    check
   done
 }
 
@@ -505,13 +509,14 @@ read_deployment()
   DE_DNS1=$(echo "$layer" | jq -r '.dns1')
   DE_DNS2=$(echo "$layer" | jq -r '.dns2')
   DE_AUTOLOGIN=$(echo "$layer" | jq -r '.autologin')
+
+  # Create an array and a string of the packages
+  # Injecting the profile into the layers to align the paths on the ISO
+  LAYERS=($(echo "$layer" | jq -r '.layers | split(",") | map("'$PROFILE'/"+.) | join(" ")'))
   DE_LAYERS=$(echo "$layer" | jq -r '.layers | split(",") | map("'$PROFILE'/"+.) | join(",")')
   
   # Create an array out of the packages
   PACKAGES=($(echo "$layer" | jq -r '.packages | join(" ")'))
-
-  # Create an array out of the layers as well
-  LAYERS=($(echo "$layer" | jq -r '.layers | split(",") | map("'$PROFILE'/"+.) | join(" ")'))
 }
 
 # Populate PROFILES as a distinct array of all profiles implicated in the current run
