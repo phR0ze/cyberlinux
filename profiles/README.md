@@ -29,6 +29,7 @@ to upgrade existing deployments.
     * [Add new app](#add-new-app)
   * [Deployment](#deployment)
     * [Test minimal deployment](#test-minimal-deployment)
+    * [Incrementally build profile](#incrementally-build-profile)
     * [Create a new deployment](#create-a-new-deployment)
   * [Xfce](#xfce)
     * [Cycle through workspaces](#cycle-through-workspaces)
@@ -285,6 +286,20 @@ system. This can be accomplished using the `standard` profile's `base` deploymen
 3. Boot from the USB and choose the `Install base` entry
 4. Once the installer loads enter `y` and press enter to have the defaults installed
 5. Check that the system can boot
+
+### Incrementally build profile
+This section builds on [Test minimal deployment](#test-minimal-deployment). Having proven that the 
+minimal deployment works we can now move on to building and testing the `shell` deployment which 
+builds on the `base` deployment.
+
+Build out the additional `shell` deployment
+```bash
+$ ./build.sh -p standard -d shell -imI 
+```
+
+Note that here we are simply calling out the additional deployment to add but we do have to re-build 
+the installer `-i`, multi-boot interface `-m` and the final ISO `-I` to include the new deployment in 
+the final bits correctly.
 
 ### Create a new deployment
 You can create a new deployment with the following steps:

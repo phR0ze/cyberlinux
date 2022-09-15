@@ -367,7 +367,7 @@ build_deployments()
       if [ -f "${IMAGES_DIR}/${layer}.sqfs" ]; then
         echo -e ":: Squashfs image ${cyan}${cont_layer_image}${none} already exists"
       else
-        echo -en ":: Compressing layer ${cyan}${cont_layer_dir}${none} into ${cyan}${cont_layer_image}${none}"
+        echo -e ":: Compressing layer ${cyan}${cont_layer_dir}${none} into ${cyan}${cont_layer_image}${none}"
         # Stock settings pulled from ArchISO
         # -noappend           // overwrite destination image rather than adding to it
         # -b 1M               // use a larger block size for higher performance

@@ -20,6 +20,9 @@ XPS 13 9310` and additional configuration and maintenance I've done on this syst
   * [Graphics](#graphics)
   * [WiFi](#wifi)
 * [Troubleshooting](#troubleshooting)
+  * [Info](#info)
+    * [SSD is directly bootable with cyberlinux](#ssd-is-direcctly-bootable-with-cyberlinux)
+    * [Ctrl Alt Delete works from cyberlinux installer](#ctrl-alt-delete-works-from-cyberlinux-installer)
   * [Boot from live USB](#boot-from-live-usb)
   * [Stuck on Dell boot logo](#stuck-on-dell-boot-logo)
 
@@ -166,6 +169,17 @@ Entry your password and you should be greeted with a connection pop up.
 
 # Troubleshooting
 
+## Info
+
+### SSD is directly bootable with cyberlinux
+`cyberlinux` makes your SSD directly bootable from the BIOS via its UEFI support. This means when 
+doing a one-time boot with `F12` you can simply select the SSD unlike the default Dell Ubuntu install 
+which only boots via its separate `ubuntu` bootloader entry.
+
+### Ctrl Alt Delete works from cyberlinux installer
+Once the `cyberlinux` install is complete you can simply hit `Ctrl+Alt+Delete` to reboot the device. 
+It will seem to take a couple seconds to entry reset mode but it always works.
+
 ## Boot from live USB
 1. Plug your live USB stick into a USB-C adapter and then into your laptop
 2. Press the power button to boot then start pressing `F12` (no need to press `Fn` key)
@@ -217,6 +231,12 @@ Debugging strange installer issues I'm seeing.
   * Tested for bad blocks and corruption all passed
 5. Minimal standard base install works - `success`
   * MUST be something in the more complicated installs
+6. Trying the next layer i.e. `shell` - `failed`
+  * Booting from Knoppix
+  * mounting NVMe
+  * /mnt/boot/loader/loader.conf is a default value
+  * /mnt/boot/loader/entries/arch.conf doesn't exist
+  * `MY bootloader changes don't seem to have been run`
 
 
 <!-- 
