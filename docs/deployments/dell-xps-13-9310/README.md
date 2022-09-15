@@ -237,6 +237,8 @@ Debugging strange installer issues I'm seeing.
   * /mnt/boot/loader/loader.conf is a default value
   * /mnt/boot/loader/entries/arch.conf doesn't exist
   * `MY bootloader changes don't seem to have been run`
+7. Manually filling out shell install of 0.1.39 - `WORKS!`
+8. Auto install of shell 0.1.39?
 
 
 <!-- 
