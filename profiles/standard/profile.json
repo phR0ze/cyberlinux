@@ -4,7 +4,7 @@
       "name": "live",
       "entry": "Start live environment     // Recovery env for cyberlinux",
       "kernel": "linux",
-      "layers": "standard/core,standard/base,standard/shell,standard/x11,standard/netbook,standard/desktop,standard/live",
+      "layers": "core,base,shell,x11,netbook,desktop,live",
       "packages": [
         "cyberlinux-standard-live"
       ]
@@ -13,7 +13,7 @@
       "name": "desktop",
       "entry": "Install X11 desktop        // Desktop apps, no Window Manager",
       "kernel": "linux",
-      "layers": "standard/core,standard/base,standard/shell,standard/x11,standard/netbook,standard/desktop",
+      "layers": "core,base,shell,x11,netbook,desktop",
       "groups": "lp,wheel,network,storage,users,video,audio,adbusers,uucp,disk,docker,vboxusers",
       "packages": [
         "cyberlinux-standard-desktop"
@@ -23,7 +23,7 @@
       "name": "netbook",
       "entry": "Install X11 netbook        // Netbook apps, no Window Manager",
       "kernel": "linux",
-      "layers": "standard/core,standard/base,standard/shell,standard/x11,standard/netbook",
+      "layers": "core,base,shell,x11,netbook",
       "groups": "lp,wheel,network,storage,users,video,audio,adbusers,uucp,disk",
       "packages": [
         "cyberlinux-standard-netbook"
@@ -33,7 +33,7 @@
       "name": "server",
       "entry": "Install X11 server         // Server apps, no Window Manager",
       "kernel": "linux",
-      "layers": "standard/core,standard/base,standard/shell,standard/x11,standard/server",
+      "layers": "core,base,shell,x11,server",
       "groups": "lp,wheel,network,storage,users,video,audio,adbusers,docker,uucp,disk",
       "packages": [
         "cyberlinux-standard-server"
@@ -43,7 +43,7 @@
       "name": "x11",
       "entry": "Install X11 base           // No Window Manager",
       "kernel": "linux",
-      "layers": "standard/core,standard/base,standard/shell,standard/x11",
+      "layers": "core,base,shell,x11",
       "groups": "lp,wheel,network,storage,users,video,audio,adbusers,uucp,disk",
       "packages": [
         "cyberlinux-standard-x11"
@@ -53,7 +53,7 @@
       "name": "shell",
       "entry": "Install openbox shell      // Minimal bash system to build from",
       "kernel": "linux",
-      "layers": "standard/core,standard/base,standard/shell",
+      "layers": "core,base,shell",
       "groups": "lp,wheel,network,storage,users,disk",
       "packages": [
         "cyberlinux-standard-shell"
@@ -63,7 +63,7 @@
       "name": "base",
       "entry": "Install openbox base       // Bare bash system with pacman",
       "kernel": "linux",
-      "layers": "standard/core,standard/base",
+      "layers": "core,base",
       "groups": "lp,wheel,network,storage,users,disk",
       "packages": [
         "cyberlinux-standard-base"
@@ -72,7 +72,7 @@
     {
       "name": "core",
       "entry": "Minimal bash container",
-      "layers": "standard/core",
+      "layers": "core",
       "packages": [
         "cyberlinux-standard-core"
       ]

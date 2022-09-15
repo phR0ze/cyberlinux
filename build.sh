@@ -505,17 +505,16 @@ read_deployment()
   DE_DNS1=$(echo "$layer" | jq -r '.dns1')
   DE_DNS2=$(echo "$layer" | jq -r '.dns2')
   DE_AUTOLOGIN=$(echo "$layer" | jq -r '.autologin')
-  DE_LAYERS=$(echo "$layer" | jq -r '.layers')
+  DE_LAYERS=$(echo "$layer" | jq -r '.layers | split(",") | map("'$PROFILE'/"+.) | join(",")')
   
   # Create an array out of the packages
   PACKAGES=($(echo "$layer" | jq -r '.packages | join(" ")'))
 
   # Create an array out of the layers as well
-  LAYERS=($(echo "$layer" | jq -r '.layers | split(",") | join(" ")'))
+  LAYERS=($(echo "$layer" | jq -r '.layers | split(",") | map("'$PROFILE'/"+.) | join(" ")'))
 }
 
-# Based on the given profile process all deployments and determine which
-# profiles are referenced and set a distinct array of them.
+# Populate PROFILES as a distinct array of all profiles implicated in the current run
 # e.g. openbox standard
 unique_profiles()
 {

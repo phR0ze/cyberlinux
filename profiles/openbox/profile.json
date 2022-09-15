@@ -4,7 +4,7 @@
       "name": "live",
       "entry": "Start live environment     // Recovery env for Personal Use Only",
       "kernel": "linux",
-      "layers": "openbox/shell,openbox/x11,openbox/lite,openbox/netbook,openbox/desktop,openbox/live",
+      "layers": "shell,x11,lite,netbook,desktop,live",
       "packages": [
         "cyberlinux-openbox-live"
       ]
@@ -13,7 +13,7 @@
       "name": "laptop",
       "entry": "Install openbox laptop     // Max env for Personal Use Only",
       "kernel": "linux",
-      "layers": "openbox/shell,openbox/x11,openbox/lite,openbox/netbook,openbox/desktop,openbox/laptop",
+      "layers": "shell,x11,lite,netbook,desktop,laptop",
       "groups": "lp,wheel,network,storage,users,video,audio,adbusers,uucp,disk,docker,vboxusers",
       "packages": [
         "cyberlinux-openbox-laptop"
@@ -23,7 +23,7 @@
       "name": "theater",
       "entry": "Install openbox theater    // Leanback env for Personal Use Only",
       "kernel": "linux",
-      "layers": "openbox/shell,openbox/x11,openbox/lite,openbox/netbook,openbox/desktop,openbox/theater",
+      "layers": "shell,x11,lite,netbook,desktop,theater",
       "groups": "lp,wheel,network,storage,users,video,audio,adbusers,uucp,disk,docker,vboxusers",
       "packages": [
         "cyberlinux-openbox-theater"
@@ -33,7 +33,7 @@
       "name": "desktop",
       "entry": "Install openbox desktop    // Full env for Personal Use Only",
       "kernel": "linux",
-      "layers": "openbox/shell,openbox/x11,openbox/lite,openbox/netbook,openbox/desktop",
+      "layers": "shell,x11,lite,netbook,desktop",
       "groups": "lp,wheel,network,storage,users,video,audio,adbusers,uucp,disk,docker,vboxusers",
       "packages": [
         "cyberlinux-standard-desktop",
@@ -44,7 +44,7 @@
       "name": "netbook",
       "entry": "Install openbox netbook    // Medium env with all needed apps",
       "kernel": "linux",
-      "layers": "openbox/shell,openbox/x11,openbox/lite,openbox/netbook",
+      "layers": "shell,x11,lite,netbook",
       "groups": "lp,wheel,network,storage,users,video,audio,adbusers,uucp,disk",
       "packages": [
         "cyberlinux-standard-netbook",
@@ -55,7 +55,7 @@
       "name": "server",
       "entry": "Install openbox server     // Server env for Personal Use Only",
       "kernel": "linux",
-      "layers": "openbox/shell,openbox/x11,openbox/lite,openbox/server",
+      "layers": "shell,x11,lite,server",
       "groups": "lp,wheel,network,storage,users,video,audio,adbusers,docker,uucp,disk",
       "packages": [
         "cyberlinux-openbox-server"
@@ -65,7 +65,7 @@
       "name": "lite",
       "entry": "Install openbox lite       // Lite openbox env with minimal apps",
       "kernel": "linux",
-      "layers": "openbox/shell,openbox/x11,openbox/lite",
+      "layers": "shell,x11,lite",
       "groups": "lp,wheel,network,storage,users,video,audio,adbusers,uucp,disk",
       "packages": [
         "cyberlinux-openbox-lite"
@@ -75,7 +75,7 @@
       "name": "x11",
       "entry": "Install X11 base           // No Window Manager",
       "kernel": "linux",
-      "layers": "openbox/shell,openbox/x11",
+      "layers": "shell,x11",
       "groups": "lp,wheel,network,storage,users,video,audio,adbusers,uucp,disk",
       "packages": [
         "cyberlinux-standard-x11"
@@ -85,7 +85,7 @@
       "name": "shell",
       "entry": "Install base shell         // Minimal bash system to build from",
       "kernel": "linux",
-      "layers": "openbox/shell",
+      "layers": "shell",
       "groups": "lp,wheel,network,storage,users,disk",
       "packages": [
         "cyberlinux-standard-core",

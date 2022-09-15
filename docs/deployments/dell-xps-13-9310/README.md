@@ -187,6 +187,36 @@ So calling support for this one.
 4. Hold the power down for at least 30sec
 5. Re-connect the main battery
 
+## Installer debugging
+Debugging strange installer issues I'm seeing.
+
+1. Installed with Dell Ubuntu USB twice - `Success`
+  * Pulled USB at end and rebooted and it booted fine 
+  * The chances of a flakey SSD working both times are low so concluding SSD is good
+  * Further inspection revealed the Dell Ubuntu installer created a new EFI boot entry `ubuntu` and 
+  made it the first install priority
+  * Probing this install option a bit
+    * Rebooted and used `F12` to select `SSD` - `failed`
+    * Rebooted and used `F12` to select new `ubuntu` - `success`
+  * NOTE: the dell tuned OS re-enabled secure boot in BIOS
+2. Installing via Cyberlinux installer - `failed to boot`
+  * Using `F12` booted into one time boot then BIOS
+  * Removed all EFI entries except SSD and USB
+  * Installing `base shell` for speed
+  * Booted into a USB live system and found:
+    * that the boot files were not correct
+    * some /usr/lib files were zero bytes - what?
+3. Testing the installer in a UEFI enabled VM works fine
+  * Note the VM doesn't have a NVMe device
+  * Live system is failing with a docker bug
+    ```
+    [FAILED] Failed to start Docker Application Container Engine
+    overlayfs: filesystem on '/var/lib/docker/check-overlayfs-support../upper' not supported as upperdir
+    ```
+
+3. Testing USB flash drive for badblocks = ??
+
+
 <!-- 
 vim: ts=2:sw=2:sts=2
 -->

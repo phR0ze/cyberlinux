@@ -40,45 +40,45 @@ to upgrade existing deployments.
 
 ---
 
-# Profiles <a name="profiles"/></a>
+# Profiles
 
-## profile.json <a name="profile-json"/></a>
-The `profile.json` is the heart of the profile describing the installable `deployments` that will 
-show up on your multi-boot ISO when the build completes.
+## profile.json
+The `profile.json` is the main configuration file for a profile describing the installable 
+`deployments` that will show up on your multi-boot ISO when the build completes.
 
-### deployments <a name="deployments"/></a>
-A `deployment` defines an installable option as listed in the booted ISO menu. It calls out the 
-composition of the deployment as follows:
+### deployments
+A `deployment` defines an installable entry as listed in the booted ISO menu. A deployment
+is composed of the following components:
 
 * `name` is the name of the deployment levaragable as a key in various commands
 * `entry` is the description of the deployment that shows up in the ISO menu at boot time
-* `kernel` is the kernel to use for the deployment and is largly a default at this point
+* `kernel` is the kernel to use and is largely a place holder for the future
 * `layers` is the file system layers this deployment is composed of
 * `groups` is the groups that new users should be part of for the installed deployment
 * `packages` is a list of packages that should be installed as part of this deployment
 
-### dependencies <a name="dependencies"/></a>
+### dependencies
 The `dependecies` section of the profile indicates if there are any other profiles that this profile 
 depends on. This is useful when you have packages built in another profile that your profile depends 
 on. For example the default Xfce profile's shell deployment depends on the standard packages for 
 core, base and shell which will be installed and compose the Xfce shell layer. Note that layers 
-cannot cross the profile boundary. In this example we depended on the standard profile's packages but 
-we did not simply reference the standard profile's layers.
+cannot cross the profile boundary. For example the Xfce shell deployment depends on the standard 
+profile's packages but did not simply reference the standard profile layers directly.
 
-Call out profiles in the `dependencies` section will trigger them to be built first before your 
-profile.
+Calling out profiles in the `dependencies` section will trigger the referenced profile's packages to 
+be built first so that they are available for install in the current profile see [Packages](#packages)
 
-## Packages <a name="packages"/></a>
+## Packages
 As part of a `cyberlinux` build `build.sh` will build the packages defined in `profiles/<profile>/PKGBUILD`.
 These packages are then made available to be installed during the `deployment` build as called out in 
 the `profile.json` deployment packages property.
 
-### Build Packages <a name="build-packages"/></a>
+### Build Packages
 1. Clone `cyberlinux` locally
 2. Change directory into the `cyberlinux` directory
 3. Re-build packages: `./build.sh -p xfce -c repo -r`
 
-### Publish Packages <a name="publish-packages"/></a>
+### Publish Packages
 1. Copy the resulting packages to the repo clone
    ```bash
    $ cd ~/Projects/cyberlinux-repo/cyberlinux/x86_64
@@ -99,7 +99,7 @@ the `profile.json` deployment packages property.
    $ git push
    ```
 
-### PKGBUILD <a name="pkgbuild"/></a>
+### PKGBUILD
 The profile's `PKGBUILD` simply leverages Arch Linux packaging. Each `deployment`, as defined in the 
 `profile.json`, has its own `package_cyberlinux-<PROFILE>-<DEPLOYMENT>` entry in the `PKGBUILD` 
 describing the applications you desire on your system coupled with configuration called out on disk 
@@ -108,7 +108,7 @@ has a `profile.json` entry `lite` called out and a `package_cyberlinux-xfce-lite
 the `PKGBUILD` and a corresponding configuration directory `profiles/xfce/lite` to be included in the 
 package `cyberlinux-xfce-lite` being built.
 
-## Configuration <a name="configuration"/></a>
+## Configuration
 The crux of the cyberlinux distro is the ability to easily use custom configuration to customize your 
 system as you would like in an upgradable way. In many cases simply including the right configuration 
 files in the corresponding configuration directory will be sufficient to write your custom 
@@ -158,7 +158,7 @@ scope = "both"
 path = "/etc/lxdm/lxdm.conf"
 ```
 
-### ignore <a name="ignore"/></a>
+### ignore
 In some cases you may want to make a change that collides with the changes that the cyberlinux 
 utility will make during an upgrade. In these cases `clu` can be instructed to ignore changes to 
 target files, blocks of configuration or a single configuration line using the following ignore 
@@ -195,7 +195,7 @@ Example to skip changing anything in `/etc/lxdm/lxdm.conf`
 [base]
 ```
 
-### append <a name="append"/></a>
+### append
 The `append` command will append the given data to the given path without truncating it. If the 
 target path doesn't exist it will be created first.
 
@@ -203,7 +203,7 @@ target path doesn't exist it will be created first.
 * `path` is the target file we are creating or appending to
 * `data` optionally the content to append to the target file
 
-### write <a name="write"/></a>
+### write
 The `write` command will create a file or truncate an existing file and then write the given data
 to the file.
 
@@ -231,7 +231,7 @@ PROJECTS=Projects
 SCRIPTS=bin"""
 ```
 
-## Layers <a name="layers"/></a>
+## Layers
 A `layer` referres to the squashfs image of the file system at a particular point in time. These 
 layers are then overlaid on top of each other using the overlay file system to incrementally build up 
 a complete file system. In this was a minimal shell type system can be created and stored as a squash 
@@ -242,11 +242,11 @@ deployments. For example a full desktop environment may be composed of a series 
 that have been joined using the overlay fs technique. This allows for a lot of flexibility for 
 deployment options while saving space on your ISO media.
 
-# Guides <a name="guides"/></a>
+# Guides
 
-## Apps <a name="apps"/></a>
+## Apps
 
-### Add new app <a name="add-new-app"/></a>
+### Add new app
 To add a new application to the requirements for cyberlinux all you need to do is:
 
 1. Determine which deployment to include it in. In this example we'll use `rust-asm` and `rust-src` 
@@ -264,9 +264,9 @@ To add a new application to the requirements for cyberlinux all you need to do i
 3. [Build Packages](#build-packages)
 4. [Publish Packages](#publish-packages)
 
-## Deployment <a name="deployment"/></a>
+## Deployment
 
-### Create a new deployment <a name="deployment"/></a>
+### Create a new deployment
 You can create a new deployment with the following steps:
 
 1. Navigate to your target profile e.g. `cd cyberlinux/profiles/xfce`
@@ -299,13 +299,13 @@ You can create a new deployment with the following steps:
 6. Clean repo packages `./build.sh -p xfce -c repo`
 7. Build `./build.sh -p xfce -d theater -rimI`
 
-## Xfce <a name="xfce"/></a>
+## Xfce
 Most of Xfce's custom configuration is stored in the dir `~/.config/xfce4/xfconf/xfce-perhannel-xml`. 
 Typically the process for persisting a configuration is to make the change then copy over the related 
 config file to this location then do a diff to see what changed. For example changing the LCD clock 
 style went like this:
 
-### Cycle through workspaces <a name="cycle-through-workspaces"/></a>
+### Cycle through workspaces
 We'll be setting up `Super+Tab` to cycle through the existing workspaces forward and 
 `Super+Shift+Tab` to cycle backward.
 
@@ -347,7 +347,7 @@ We'll be setting up `Super+Tab` to cycle through the existing workspaces forward
    ./lite/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml
    ```
 
-### Default wallpaper <a name="default-wallpaper"/></a>
+### Default wallpaper
 Wallpaper is stored at `/usr/share/backgrounds`. Both `Xfce` and `Nitrogen`, in the Openbox profile, 
 have been configured to source that directory for wallpaper.
 
@@ -378,7 +378,7 @@ Example for our new `theater` deployment:
    popd
    ```
 
-### LCD clock style <a name="lcd-clock-style"/></a>
+### LCD clock style
 1. Change the clock widget to be the LCD style via right clicking on it and choosing `Properties`
 2. Copy `~/.config/xfce4/xfconf/xfce-perhannel-xml/xfce4-panel.xml` to
    `~/Projects/cyberlinux/profiles/xfce/lite/etc/skel/.config/xfce4/xfconf/xfce-perhannel-xml/xfce4-panel.xml`
@@ -403,16 +403,16 @@ Example for our new `theater` deployment:
    ./theater/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml_theater
    ```
 
-## Xorg <a name="xorg"/></a>
+## Xorg
 Xorg configuration is controlled by config files dropped in the `/etc/X11/xorg.conf.d` directory
 
-### Auto login <a name="auto-login"/></a>
+### Auto login
 By default cyberlinux uses `lxdm` as its display manager which provides a nice autologin feature if 
 you toggle a switch in `/etc/lxdm/lxdm.conf` however updating to the latest packages will revert that 
 change every time. To get around this I've put inplace a hacky check that if 
 `/etc/lxdm/lxdm.conf_persist` exists then the target will not be wrote over.
 
-### Default Resolution <a name="default-resolution"/></a>
+### Default Resolution
 1. Navigate to your target profile directory
    ```bash
    $ cd cyberlinux/profiles/xfce
@@ -432,7 +432,7 @@ change every time. To get around this I've put inplace a hacky check that if
    EndSection
    ```
 
-# Backlog <a name="backlog"/></a>
+# Backlog
 * Document profile syntax
 
 <!-- 

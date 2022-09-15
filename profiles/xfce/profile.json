@@ -4,7 +4,7 @@
       "name": "live",
       "entry": "Start live environment     // Recovery env for Personal Use Only",
       "kernel": "linux",
-      "layers": "xfce/shell,xfce/x11,xfce/lite,xfce/netbook,xfce/desktop,xfce/live",
+      "layers": "shell,x11,lite,netbook,desktop,live",
       "packages": [
         "cyberlinux-xfce-live"
       ]
@@ -13,7 +13,7 @@
       "name": "theater",
       "entry": "Install xfce theater       // Theater env for Personal Use Only",
       "kernel": "linux",
-      "layers": "xfce/shell,xfce/x11,xfce/lite,xfce/netbook,xfce/desktop,xfce/theater",
+      "layers": "shell,x11,lite,netbook,desktop,theater",
       "groups": "lp,wheel,network,storage,users,video,audio,adbusers,uucp,disk,docker,vboxusers",
       "packages": [
         "cyberlinux-xfce-theater"
@@ -23,7 +23,7 @@
       "name": "desktop",
       "entry": "Install xfce desktop       // Full env for Personal Use Only",
       "kernel": "linux",
-      "layers": "xfce/shell,xfce/x11,xfce/lite,xfce/netbook,xfce/desktop",
+      "layers": "shell,x11,lite,netbook,desktop",
       "groups": "lp,wheel,network,storage,users,video,audio,adbusers,uucp,disk,docker,vboxusers",
       "packages": [
         "cyberlinux-standard-desktop",
@@ -34,7 +34,7 @@
       "name": "netbook",
       "entry": "Install xfce netbook       // Medium env with all needed apps",
       "kernel": "linux",
-      "layers": "xfce/shell,xfce/x11,xfce/lite,xfce/netbook",
+      "layers": "shell,x11,lite,netbook",
       "groups": "lp,wheel,network,storage,users,video,audio,adbusers,uucp,disk",
       "packages": [
         "cyberlinux-standard-netbook",
@@ -45,7 +45,7 @@
       "name": "server",
       "entry": "Install xfce server        // Server env for Personal Use Only",
       "kernel": "linux",
-      "layers": "xfce/shell,xfce/x11,xfce/lite,xfce/server",
+      "layers": "shell,x11,lite,server",
       "groups": "lp,wheel,network,storage,users,video,audio,adbusers,uucp,disk,docker,vboxusers",
       "packages": [
         "cyberlinux-standard-server",
@@ -56,7 +56,7 @@
       "name": "lite",
       "entry": "Install xfce lite          // Lite xfce env with minimal apps",
       "kernel": "linux",
-      "layers": "xfce/shell,xfce/x11,xfce/lite",
+      "layers": "shell,x11,lite",
       "groups": "lp,wheel,network,storage,users,video,audio,adbusers,uucp,disk",
       "packages": [
         "cyberlinux-xfce-lite"
@@ -66,7 +66,7 @@
       "name": "x11",
       "entry": "Install X11 base           // No Window Manager",
       "kernel": "linux",
-      "layers": "xfce/shell,xfce/x11",
+      "layers": "shell,x11",
       "groups": "lp,wheel,network,storage,users,video,audio,adbusers,uucp,disk",
       "packages": [
         "cyberlinux-standard-x11"
@@ -76,7 +76,7 @@
       "name": "shell",
       "entry": "Install base shell         // Minimal bash system to build from",
       "kernel": "linux",
-      "layers": "xfce/shell",
+      "layers": "shell",
       "groups": "lp,wheel,network,storage,users,disk",
       "packages": [
         "cyberlinux-standard-core",

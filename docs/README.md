@@ -171,6 +171,7 @@ on the [Arch Linux Wiki](https://wiki.archlinux.org/) should work just fine as w
   * [Securely Wipe Drive](#securely-wipe-drive)
   * [RAID Drives](#raid-drives)
   * [Test Drive](#test-drive)
+  * [Test USB Drive](#test-usb-drive)
 * [System](system)
 * [Time/Date](#time-date)
   * [Set Time/Date](#set-time-date)
@@ -2273,6 +2274,34 @@ Num  Test_Description    Status                  Remaining  LifeTime(hours)  LBA
 # 2  Extended offline    Completed without error       00%     30356         -
 # 3  Extended offline    Aborted by host               90%         2         -
 ```
+
+## Test USB Drive
+1. Locate your drive with `lsblk`
+   ```bash
+   $ lsblk
+   NAME   MAJ:MIN RM   SIZE RO TYPE MOUNTPOINTS
+   ...
+   sdb      8:64   1   7.2G  0 disk 
+   └─sdb1   8:65   1   3.8G  0 part 
+   ```
+2. Run `badblocks` against it
+   ```bash
+   $ sudo badblocks -w -s /dev/sdb
+   ```
+3. Test with f3
+   ```bash
+   # Install the f3 tools
+   $ yay -Ga f3; cd f3; makepkg -s; sudo pacman -U f3-8.0-2-x86_64.pkg.tar.zst
+
+   # Partition and format FAT32
+   $ sudo wipefs --all --force /dev/sdd
+   $ sudo sgdisk -n 0:0 -t 0:0700 -c 0:"flash" /dev/sdd
+   $ sudo mkfs.vfat /dev/sdd1
+
+   # Execute the tests on the automount location
+   $ sudo f3write /run/media/USER/AB4C-86A3
+   $ sudo f3read /run/media/USER/AB4C-86A3
+   ```
 
 # Time/Date
 Time and dates are controlled on Arch Linux by  `timedatectl`
