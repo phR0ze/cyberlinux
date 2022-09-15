@@ -213,8 +213,10 @@ Debugging strange installer issues I'm seeing.
     [FAILED] Failed to start Docker Application Container Engine
     overlayfs: filesystem on '/var/lib/docker/check-overlayfs-support../upper' not supported as upperdir
     ```
-
-3. Testing USB flash drive for badblocks = ??
+4. Testing USB flash drive health
+  * Tested for bad blocks and corruption all passed
+5. Minimal standard base install works - `success`
+  * MUST be something in the more complicated installs
 
 
 <!-- 

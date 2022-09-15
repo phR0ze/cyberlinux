@@ -28,6 +28,7 @@ to upgrade existing deployments.
   * [Apps](#apps)
     * [Add new app](#add-new-app)
   * [Deployment](#deployment)
+    * [Test minimal deployment](#test-minimal-deployment)
     * [Create a new deployment](#create-a-new-deployment)
   * [Xfce](#xfce)
     * [Cycle through workspaces](#cycle-through-workspaces)
@@ -265,6 +266,25 @@ To add a new application to the requirements for cyberlinux all you need to do i
 4. [Publish Packages](#publish-packages)
 
 ## Deployment
+
+### Test minimal deployment
+When you are just starting building deployments or are working on the installer its often nice to 
+have just a minimal deployment to install and prove out end to end that you can install a bootable 
+system. This can be accomplished using the `standard` profile's `base` deployment.
+
+1. Build the standard base deployment as an installable entry
+   ```bash
+   $ ./build.sh -c most -p standard -d base -rimI
+   ```
+2. Now burn the resulting image to a USB
+   ```bash
+   $ lsblk # FIND YOUR DEVICE ID and REPLACE /dev/sdd below
+   $ sudo wipefs --all --force /dev/sdd
+   $ sudo dd bs=32M if=temp/output/cyberlinux.iso of=/dev/sdd status=progress oflag=sync
+   ```
+3. Boot from the USB and choose the `Install base` entry
+4. Once the installer loads enter `y` and press enter to have the defaults installed
+5. Check that the system can boot
 
 ### Create a new deployment
 You can create a new deployment with the following steps:

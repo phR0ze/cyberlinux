@@ -51,7 +51,7 @@
     },
     {
       "name": "shell",
-      "entry": "Install openbox shell      // Minimal bash system to build from",
+      "entry": "Install shell              // Minimal bash system to build from",
       "kernel": "linux",
       "layers": "core,base,shell",
       "groups": "lp,wheel,network,storage,users,disk",
@@ -61,7 +61,7 @@
     },
     {
       "name": "base",
-      "entry": "Install openbox base       // Bare bash system with pacman",
+      "entry": "Install base               // Bare bash system with pacman",
       "kernel": "linux",
       "layers": "core,base",
       "groups": "lp,wheel,network,storage,users,disk",

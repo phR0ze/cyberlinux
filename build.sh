@@ -78,10 +78,9 @@ trap release SIGINT
 # docker run --name builder --rm -it archlinux:base-devel bash
 build_env()
 {
-  echo -en "${yellow}>> Configuring build environment${none}"
-
   # Build the builder image
   if ! docker_image_exists ${BUILDER}; then
+    echo -en "${yellow}>> Configuring build container${none}"
     docker_kill ${BUILDER}
     # Use the same user id as the one runing the docker build so we don't get mixed up
     docker build --build-arg USER_ID=$(id -u) --force-rm -t ${BUILDER} "${PROJECT_DIR}"
@@ -89,6 +88,7 @@ build_env()
 
   # Attach to builder if set
   if [ ! -z ${RUN_BUILDER+x} ]; then
+    echo -en "${yellow}>> Debug run/attach of build container${none}"
     docker_run ${BUILDER}
     docker exec --privileged -it ${BUILDER} bash
   fi
@@ -100,7 +100,7 @@ build_repo_packages()
 {
   [ -f "$REPO_DIR/builder.db" ] && return
 
-  echo -e "${yellow}>> Caching package artifacts..."
+  echo -e "${yellow}>> Caching package artifacts...${none}"
   docker_run ${BUILDER}
   cp "${PROJECT_DIR}/VERSION" "${PROFILES_DIR}"
 
@@ -109,7 +109,7 @@ build_repo_packages()
 
     # makepkg will modify the PKGBUILD to inject the most recent version.
     # saving off the original and replacing it will avoid having that file changed all the time
-    echo -e "${yellow}>> Building packages for profile ${none}${cyan}${x}${none}..."
+    echo -e ":: Building packages for profile ${cyan}${x}${none}..."
     cat <<EOF | docker exec --privileged -i ${BUILDER} sudo -u build bash
   cp "${CONT_PROFILES_DIR}/${x}/PKGBUILD" "${CONT_BUILD_DIR}/PKGBUILD"
   cd "${CONT_PROFILES_DIR}/${x}"
@@ -122,12 +122,13 @@ EOF
   done
 
   # Build the builder repo if it doesn't exist
-  echo -e "${yellow}>> Build the builder repo...${none}"
+  echo -e ":: Build the builder repo for version ..."
   local PKG_COUNT=$(find $REPO_DIR -name "*.pkg.tar.*" | wc -l)
   cat <<EOF | docker exec --privileged -i ${BUILDER} sudo -u build bash
   cd "${CONT_REPO_DIR}"
   if [ $PKG_COUNT -eq 0 ]; then
-    repo-add builder.db.tar.gz
+    echo -e ">> ${red}Failed to find any packages and there should always be some${none}..."
+    exit 1
   else
     repo-add builder.db.tar.gz *.pkg.tar.*
   fi
@@ -278,14 +279,12 @@ EOF
     docker_kill ${BUILDER}
   fi
 
-  echo -e "${yellow}>> Stage files for building initramfs based installer...${none}"
+  # Build a sorted array of kernels such that the first is the newest
+  echo -e "${yellow}>> Build the initramfs based installer...${none}"
   docker_run ${BUILDER}
   docker_cp "${INSTALLER_DIR}/installer" "$BUILDER:/usr/lib/initcpio/hooks"
   docker_cp "${INSTALLER_DIR}/installer.conf" "$BUILDER:/usr/lib/initcpio/install/installer"
   docker_cp "${INSTALLER_DIR}/mkinitcpio.conf" "$BUILDER:/etc"
-
-  # Build a sorted array of kernels such that the first is the newest
-  echo -e "${yellow}>> Build the initramfs based installer...${none}"
   local kernels=($(docker_exec ${BUILDER} "ls /lib/modules | sort -r | tr '\n' ' '"))
   docker_exec ${BUILDER} "mkinitcpio -k ${kernels[0]} -g /root/installer"
   check
@@ -456,7 +455,7 @@ clean()
     fi
 
     # Clean the squashfs staged images from temp/iso/images if layer called out
-    if [ "${x}" == "all" ] || [ "${x%%/*}" == "layers" ]; then
+    if [ "${x}" == "all" ] || [ "${x%%/*}" == "layers" ] && [ "${1}" != "most" ]; then
       if [ "${x}" == "all" ] || [ "${x}" == "layers" ]; then
         echo -en ":: Cleaning ${cyan}${IMAGES_DIR}${none}"
         sudo rm -rf "${IMAGES_DIR}"
@@ -524,7 +523,8 @@ read_deployment()
 unique_profiles()
 {
   # Get list of profiles to build packages for
-  PROFILES=()
+  # Should always include the target profile at a minimum
+  PROFILES=("$PROFILE")
 
   # Load dependencies i.e. profiles that have packages that this profile depends on and must be built
   local dependencies=$(echo "$PROFILE_JSON" | jq -r '. | if has("dependencies") then (.dependencies | join(" ")) else null end')
