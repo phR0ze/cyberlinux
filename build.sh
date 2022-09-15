@@ -676,21 +676,22 @@ usage()
   echo -e "  -i               Build the initramfs installer"
   echo -e "  -m               Build the grub multiboot environment"
   echo -e "  -I               Build the acutal ISO image"
-  echo -e "  -p PROFILE       Set the profile to use (default: openbox)"
+  echo -e "  -p PROFILE       Set the profile to use (default: xfce)"
   echo -e "  -r               Build repo packages for deployment/s and/or profile"
   echo -e "  -c TARGETS       Clean artifacts, comma delimited (all,most,cache,iso,layers/openbox/core)"
   echo -e "                   'most' will clean everything except the cache and docker images"
   echo -e "  -h               Display usage help\n"
   echo -e "Examples:"
-  echo -e "  ${green}Build full Xfce ISO:${none} ./${SCRIPT} -p xfce -a"
+  echo -e "  ${green}Build full Xfce ISO:${none} ./${SCRIPT} -a"
+  echo -e "  ${green}Rebuild full Xfce ISO:${none} ./${SCRIPT} -c most -a"
+  echo -e "  ${green}Build minimal base deployment:${none} ./${SCRIPT} -c most -p standard -d base -rimI"
+  echo -e "  ${green}Build full OpenBox ISO:${none} ./${SCRIPT} -p openbox -a"
   echo -e "  ${green}Rebuild Xfce packages:${none} ./${SCRIPT} -p xfce -c repo -r"
   echo -e "  ${green}Build just bootable installer:${none} ./${SCRIPT} -imI"
-  echo -e "  ${green}Rebuild full Xfce ISO:${none} ./${SCRIPT} -p xfce -c most -a"
   echo -e "  ${green}Rebuild deployment:${none} ./${SCRIPT} -c layers/xfce/theater,repo; ./${SCRIPT} -p xfce -d theater -rimI"
-  echo -e "  ${green}Build installable Xfce theater deployment:${none} ./${SCRIPT} -p xfce -d theater -rimI"
-  echo -e "  ${green}Clean openbox core,base layers:${none} ./${SCRIPT} -c layers/openbox/core,layers/openbox/base"
+  echo -e "  ${green}Clean openbox core, base layers:${none} ./${SCRIPT} -c layers/openbox/core,layers/openbox/base"
+  echo -e "  ${green}Run or attach to the build container with standard IO:${none} ./${SCRIPT} -b"
   echo -e "  ${green}Don't automatically destroy the build container:${none} RELEASED=1 ./${SCRIPT} -d base"
-  echo -e "  ${green}Run the build container attaching to input/output:${none} ./${SCRIPT} -b"
   echo
   RELEASED=1
   exit 1
@@ -719,7 +720,7 @@ header
 [ ! -z ${TEST+x} ] && testing
 
 # Default profile if not set
-[ -z ${PROFILE+x} ] && PROFILE=standard
+[ -z ${PROFILE+x} ] && PROFILE=xfce
 read_profile "$PROFILE"
 
 # Optionally clean artifacts
