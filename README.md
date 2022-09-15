@@ -120,19 +120,6 @@ First ensure you satisfy the [Prerequisites](#prerequisites)
    $ ./build.sh -p xfce -a
    ```
 
-NOTE: i've a bug somewhere that causes the UEFI creation to fail the first time. So if you see
-```bash
-:: Creating UEFI boot files...
-:: Copying builder:/usr/lib/grub/x86_64-efi to /home/<USER>/Projects/cyberlinux/temp/iso/boot/grub...success!
-:: Creating ESP with the BOOTX64.EFI binary
-:: Attempting to mount /home/build/iso/boot/grub/esp.img as /home/build/temp
-mount: /home/build/temp: failed to setup loop device for /home/build/iso/boot/grub/esp.img.
-umount: /home/build/temp: not mounted.
-failed!
-:: Killing docker builder container...success!
-```
-just run `./build.sh -p xfce -a` again and it will pick up where it left off
-
 ### Burn the ISO to USB <a name="burn-the-iso-to-usb"/></a>
 1. Determine the correct USB device
    ```bash

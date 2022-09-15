@@ -47,7 +47,7 @@ CONT_PROFILES_DIR="${CONT_BUILD_DIR}/profiles" # Location to mount profiles insi
 
 # Ensure the current user has passwordless sudo access
 if ! sudo -l | grep -q "NOPASSWD: ALL"; then
-  echo -e ":: ${red}Failed${none} - Passwordless sudo access is required see README.md..."
+  echo -e ">> ${red}Failed${none} - Passwordless sudo access is required see README.md"
   exit
 fi
 
@@ -78,7 +78,7 @@ trap release SIGINT
 # docker run --name builder --rm -it archlinux:base-devel bash
 build_env()
 {
-  echo -e "${yellow}:: Configuring build environment...${none}"
+  echo -en "${yellow}>> Configuring build environment${none}"
 
   # Build the builder image
   if ! docker_image_exists ${BUILDER}; then
@@ -92,6 +92,7 @@ build_env()
     docker_run ${BUILDER}
     docker exec --privileged -it ${BUILDER} bash
   fi
+  check
 }
 
 # Build repo packages if needed
@@ -99,7 +100,7 @@ build_repo_packages()
 {
   [ -f "$REPO_DIR/builder.db" ] && return
 
-  echo -e "${yellow}:: Caching package artifacts..."
+  echo -e "${yellow}>> Caching package artifacts..."
   docker_run ${BUILDER}
   cp "${PROJECT_DIR}/VERSION" "${PROFILES_DIR}"
 
@@ -108,7 +109,7 @@ build_repo_packages()
 
     # makepkg will modify the PKGBUILD to inject the most recent version.
     # saving off the original and replacing it will avoid having that file changed all the time
-    echo -e "${yellow}:: Building packages for profile ${none}${cyan}${x}${none}..."
+    echo -e "${yellow}>> Building packages for profile ${none}${cyan}${x}${none}..."
     cat <<EOF | docker exec --privileged -i ${BUILDER} sudo -u build bash
   cp "${CONT_PROFILES_DIR}/${x}/PKGBUILD" "${CONT_BUILD_DIR}/PKGBUILD"
   cd "${CONT_PROFILES_DIR}/${x}"
@@ -121,7 +122,7 @@ EOF
   done
 
   # Build the builder repo if it doesn't exist
-  echo -e "${yellow}:: Build the builder repo...${none}"
+  echo -e "${yellow}>> Build the builder repo...${none}"
   local PKG_COUNT=$(find $REPO_DIR -name "*.pkg.tar.*" | wc -l)
   cat <<EOF | docker exec --privileged -i ${BUILDER} sudo -u build bash
   cd "${CONT_REPO_DIR}"
@@ -138,7 +139,7 @@ EOF
 # the ISO bootable as a CD or USB stick on BIOS and UEFI systems with the same presentation.
 build_multiboot()
 {
-  echo -e "${yellow}:: Building multiboot components...${none}"
+  echo -e "${yellow}>> Building multiboot components...${none}"
 
   # Clean up the prior build
   rm -rf "${ISO_DIR}/boot"
@@ -186,10 +187,11 @@ build_multiboot()
       echo -e "}" >> "${BOOT_CFG_PATH}"
     fi
   done
+  check
 
   # Creating BIOS boot files
   # ------------------------------------------------------------------------------------------------
-  echo -e "${yellow}:: Creating BIOS boot files...${none}"
+  echo -e "${yellow}>> Creating BIOS boot files...${none}"
   local shared_modules="iso9660 part_gpt ext2"
 
   # Stage the grub modules
@@ -208,10 +210,10 @@ build_multiboot()
   grub-mkimage --format i386-pc -d /usr/lib/grub/i386-pc -p /boot/grub \
     -o "$CONT_BUILD_DIR/bios.img" biosdisk ${shared_modules}
 
-  echo -e ":: Concatenate cdboot.img to bios.img to create CD-ROM bootable image $CONT_BUILD_DIR/eltorito.img..."
+  echo -e ":: Concatenate cdboot.img to bios.img to create CD-ROM bootable image $CONT_BUILD_DIR/eltorito.img"
   cat /usr/lib/grub/i386-pc/cdboot.img "$CONT_BUILD_DIR/bios.img" > "$CONT_ISO_DIR/boot/grub/i386-pc/eltorito.img"
 
-  echo -en ":: Concatenate boot.img to bios.img to create embedded boot $CONT_BUILD_DIR/embedded.img..."
+  echo -e ":: Concatenate boot.img to bios.img to create embedded boot $CONT_BUILD_DIR/embedded.img"
   cat /usr/lib/grub/i386-pc/boot.img "$CONT_BUILD_DIR/bios.img" > "$CONT_ISO_DIR/boot/grub/i386-pc/embedded.img"
 EOF
   check
@@ -222,7 +224,7 @@ EOF
   # need to create the EFI System Partition i.e. ESP and mount it for GRUB2 to deposit the binary in.
   # Then the resulting ESP is saved as the esp.img and used by xorriso.
   # ------------------------------------------------------------------------------------------------
-  echo -e "${yellow}:: Creating UEFI boot files...${none}"
+  echo -e "${yellow}>> Creating UEFI boot files...${none}"
   mkdir -p "${ISO_DIR}/EFI/BOOT"
 
   # Stage the grub modules
@@ -245,11 +247,14 @@ EOF
   truncate -s 8M "${CONT_ESP}"
   mkfs.vfat "${CONT_ESP}" &>/dev/null
   mkdir -p "${CONT_TEMP_DIR}"
-  while :; do
-    echo -e ":: Attempting to mount ${CONT_ESP} as ${CONT_TEMP_DIR}"
-    sleep 1 && sudo mount "${CONT_ESP}" "${CONT_TEMP_DIR}"
-    [ $? -eq 0 ] && break
-  done
+
+  # In order to guarantee mounting of loop devices work correctly inside a container
+  # the losetup and mknod steps needed to be executed first
+  # https://forums.docker.com/t/can-only-create-one-loop-mount-inside-of-container/109498/4
+  echo -e ":: Attempting to mount ${CONT_ESP} as ${CONT_TEMP_DIR}"
+  sudo losetup -f &>/dev/null
+  sudo mknod /dev/loop0 b 7 28 &>/dev/null 
+  sudo mount "${CONT_ESP}" "${CONT_TEMP_DIR}"
   sudo mkdir -p "${CONT_TEMP_DIR}/EFI/BOOT"
   sudo cp "$CONT_ISO_DIR/EFI/BOOT/BOOTX64.EFI" "${CONT_TEMP_DIR}/EFI/BOOT"
   sudo umount "${CONT_TEMP_DIR}"
@@ -263,7 +268,7 @@ build_installer()
   if [ ${OPTIONAL_PKGS} != "null" ]; then
     build_repo_packages
     docker_run ${BUILDER}
-    echo -e "${yellow}:: Downloading optional install packages...${none}"
+    echo -e "${yellow}>> Downloading optional install packages...${none}"
     cat <<EOF | docker exec --privileged -i ${BUILDER} bash
   mkdir -p ${CONT_PKGS_DIR}
   sed -i 's|#CacheDir.*|CacheDir = ${CONT_PKGS_DIR}|g' /etc/pacman.conf
@@ -273,14 +278,14 @@ EOF
     docker_kill ${BUILDER}
   fi
 
-  echo -e "${yellow}:: Stage files for building initramfs based installer...${none}"
+  echo -e "${yellow}>> Stage files for building initramfs based installer...${none}"
   docker_run ${BUILDER}
   docker_cp "${INSTALLER_DIR}/installer" "$BUILDER:/usr/lib/initcpio/hooks"
   docker_cp "${INSTALLER_DIR}/installer.conf" "$BUILDER:/usr/lib/initcpio/install/installer"
   docker_cp "${INSTALLER_DIR}/mkinitcpio.conf" "$BUILDER:/etc"
 
   # Build a sorted array of kernels such that the first is the newest
-  echo -e "${yellow}:: Build the initramfs based installer...${none}"
+  echo -e "${yellow}>> Build the initramfs based installer...${none}"
   local kernels=($(docker_exec ${BUILDER} "ls /lib/modules | sort -r | tr '\n' ' '"))
   docker_exec ${BUILDER} "mkinitcpio -k ${kernels[0]} -g /root/installer"
   check
@@ -292,7 +297,7 @@ EOF
 build_deployments() 
 {
   build_repo_packages
-  echo -e "${yellow}:: Building deployments${none} ${cyan}${1}${none}..."
+  echo -e "${yellow}>> Building deployments${none} ${cyan}${1}${none}..."
   docker_run ${BUILDER}
   docker_exec ${BUILDER} "mkdir -p ${CONT_ROOT_DIR}"
 
@@ -304,7 +309,7 @@ build_deployments()
     # Build each of the deployment's layers
     for i in "${!LAYERS[@]}"; do
       local layer="${LAYERS[$i]}"
-      echo -e ":: Building layer ${cyan}${layer}${none}..."
+      echo -e ":: Building layer ${cyan}${layer}${none}"
 
       # Ensure the layer destination path exists and is owned by root to avoid warnings
       local layer_dir="${LAYERS_DIR}/${layer}"
@@ -314,7 +319,7 @@ build_deployments()
 
       # Mount the layer destination path 
       if [ ${i} -eq 0 ]; then
-        echo -en ":: Bind mount layer ${cyan}${cont_layer_dir}${none} to ${cyan}${CONT_ROOT_DIR}${none}..."
+        echo -en ":: Bind mount layer ${cyan}${cont_layer_dir}${none} to ${cyan}${CONT_ROOT_DIR}${none}"
         docker_exec ${BUILDER} "mount --bind $cont_layer_dir $CONT_ROOT_DIR"
         check
       else
@@ -329,7 +334,7 @@ build_deployments()
         # `lowerdir` is a colon : separated list of read-only dirs the right most is the lowest
         # `workdir`  is an empty dir used to prepare files and has to be on the same file system as upperdir
         # the last param is the merged or resulting filesystem after layering to work with
-        echo -en ":: Mounting layer ${cyan}${cont_layer_dir}${none} over ${cyan}${cont_lower_dirs}${none}..."
+        echo -en ":: Mounting layer ${cyan}${cont_layer_dir}${none} over ${cyan}${cont_lower_dirs}${none}"
         docker_exec ${BUILDER} "mount -t overlay overlay -o lowerdir=${cont_lower_dirs},upperdir=${cont_layer_dir},workdir=${CONT_WORK_DIR} ${CONT_ROOT_DIR}"
         check
       fi
@@ -349,7 +354,7 @@ build_deployments()
       fi
 
       # Release the root mount point now that we have fully built the required layers
-      echo -en ":: Releasing overlay ${cyan}${CONT_ROOT_DIR}${none}..."
+      echo -en ":: Releasing overlay ${cyan}${CONT_ROOT_DIR}${none}"
       docker_exec ${BUILDER} "umount -fR $CONT_ROOT_DIR"
       check
       docker_exec ${BUILDER} "rm -rf $CONT_WORK_DIR"
@@ -363,7 +368,7 @@ build_deployments()
       if [ -f "${IMAGES_DIR}/${layer}.sqfs" ]; then
         echo -e ":: Squashfs image ${cyan}${cont_layer_image}${none} already exists"
       else
-        echo -en ":: Compressing layer ${cyan}${cont_layer_dir}${none} into ${cyan}${cont_layer_image}${none}..."
+        echo -en ":: Compressing layer ${cyan}${cont_layer_dir}${none} into ${cyan}${cont_layer_image}${none}"
         # Stock settings pulled from ArchISO
         # -noappend           // overwrite destination image rather than adding to it
         # -b 1M               // use a larger block size for higher performance
@@ -390,7 +395,7 @@ build_deployments()
 # https://www.0xf8.org/2020/03/recreating-isos-that-boot-from-both-dvd-and-mass-storage-such-as-usb-sticks-and-in-both-legacy-bios-and-uefi-environments/
 build_iso()
 {
-  echo -e "${yellow}:: Building an ISOHYBRID bootable image...${none}"
+  echo -e "${yellow}>> Building an ISOHYBRID bootable image...${none}"
   docker_run ${BUILDER}
   cat <<EOF | docker exec --privileged -i ${BUILDER} sudo -u build bash
   cd ~/
@@ -439,29 +444,29 @@ clean()
     # Clean everything not covered in other specific cases
     if [ "${x}" == "all" ]; then
       target="${TEMP_DIR}"
-      echo -e "${yellow}:: Cleaning docker image ${cyan}archlinux:base-devel${none}"
+      echo -e "${yellow}>> Cleaning docker image ${cyan}archlinux:base-devel${none}"
       docker_rmi archlinux:base-devel
     fi
 
     # Clean the builder docker image
     if [ "${x}" == "all" ] || [ "${x}" == "${BUILDER}" ]; then
-      echo -e "${yellow}:: Cleaning docker image ${cyan}${BUILDER}${none}"
+      echo -e "${yellow}>> Cleaning docker image ${cyan}${BUILDER}${none}"
       docker_rmi ${BUILDER}
     fi
 
     # Clean the squashfs staged images from temp/iso/images if layer called out
     if [ "${x}" == "all" ] || [ "${x%%/*}" == "layers" ]; then
       if [ "${x}" == "all" ] || [ "${x}" == "layers" ]; then
-        echo -e "${yellow}:: Cleaning all layer images${none}"
+        echo -e "${yellow}>> Cleaning all layer images${none}"
         sudo rm -rf "${IMAGES_DIR}"
       else
         local layer_image="${IMAGES_DIR}/${x#*/}.sqfs" # e.g. .../images/openbox/core.sqfs
-        echo -e "${yellow}:: Cleaning sqfs layer image${none} ${cyan}${layer_image}${none}"
+        echo -e "${yellow}>> Cleaning sqfs layer image${none} ${cyan}${layer_image}${none}"
         sudo rm -f "${layer_image}"
       fi
     fi
 
-    echo -e "${yellow}:: Cleaning build artifacts${none} ${cyan}${target}${none}"
+    echo -e "${yellow}>> Cleaning build artifacts${none} ${cyan}${target}${none}"
     sudo rm -rf "${target}"
   done
 }
@@ -477,10 +482,10 @@ check_fail()
 check()
 {
   if [ $? -ne 0 ]; then
-    echo -e "${red}failed!${none}"
+    echo -e "...${red}failed!${none}"
     exit 1
   else
-    echo -e "${green}success!${none}"
+    echo -e "...${green}success!${none}"
   fi
 }
 
@@ -543,7 +548,7 @@ unique_profiles()
 # Retrieve all deployments in reverse sequential order
 read_deployments()
 {
-  echo -e "${yellow}:: Reading in all deployments${none}..."
+  echo -e "${yellow}>> Reading in all deployments${none}"
   DEPLOYMENTS=$(echo "$DEPLOYMENTS_JSON" | jq -r '[reverse[].name] | join(",")')
 }
 
@@ -553,7 +558,7 @@ read_profile()
 {
   PROFILE_DIR="${PROFILES_DIR}/${1}"
   PROFILE_PATH="${PROFILE_DIR}/profile.json"
-  echo -en "${yellow}:: Using profile${none} ${cyan}${PROFILE_PATH}${none}..."
+  echo -en "${yellow}>> Using profile${none} ${cyan}${PROFILE_PATH}${none}"
   PROFILE_JSON=$(jq -r '.' "$PROFILE_PATH")
   check
   DEPLOYMENTS_JSON=$(echo "$PROFILE_JSON" | jq -r '.deployments')
@@ -593,7 +598,7 @@ docker_container_running() {
 # $1 source file
 # $2 destination file
 docker_cp() {
-  echo -en ":: Copying ${cyan}${1}${none} to ${cyan}$2${none}..."
+  echo -en ":: Copying ${cyan}${1}${none} to ${cyan}$2${none}"
   docker cp "$1" "$2"
   check
 }
@@ -602,7 +607,7 @@ docker_cp() {
 # $1 repository name
 docker_rmi() {
   if docker_image_exists ${1}; then
-    echo -en ":: Removing the given image ${cyan}${1}${none}..."
+    echo -en ":: Removing the given image ${cyan}${1}${none}"
     docker image rm $1
     check
   fi
@@ -614,7 +619,7 @@ docker_rmi() {
 # $2 additional params to include e.g. "-v "${REPO_DIR}":/var/cache/builder"
 docker_run() {
   docker_container_running ${BUILDER} && return
-  echo -en ":: Running docker container in loop: ${cyan}${1}${none}..."
+  echo -en ":: Running docker container in loop: ${cyan}${1}${none}"
   
   # Docker will need additional privileges to allow mount to work inside a container
   local params="-e TERM=xterm -v /var/run/docker.sock:/var/run/docker.sock --privileged"
@@ -641,7 +646,7 @@ docker_run() {
 # $1 container name to kill
 docker_kill() {
   if docker_container_running ${1}; then
-    echo -en ":: Killing docker ${cyan}${1}${none} container..."
+    echo -en ":: Killing docker ${cyan}${1}${none} container"
     docker kill ${1} &>/dev/null
     check
   fi
@@ -662,7 +667,7 @@ usage()
   echo -e "Usage: ${cyan}./$(basename $0)${none} [options]\n"
   echo -e "Options:"
   echo -e "  -a               Build all components for the given profile"
-  echo -e "  -b               Run the builder attaching to standard input and output"
+  echo -e "  -b               Run or attach to running builder with standard IO"
   echo -e "  -d DEPLOYMENTS   Build deployments, comma delimited (all,shell,lite)"
   echo -e "  -i               Build the initramfs installer"
   echo -e "  -m               Build the grub multiboot environment"
