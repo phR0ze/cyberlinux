@@ -71,11 +71,11 @@ wait_for_any_key()
 
     if [ "x${DEBUG}" == "x1" ]; then
         echo -e "${yellow}>> NEXT STEP: $msg${none}"
-        echo -e "${yellow}>> Continue [y/n]: ${none}"
+        echo -en "${yellow}>> Continue y/n [y]: ${none}"
         while [ true ]; do
-            read -s -n 1 input_char
-            [ "$input_char" == "y" ] && break
-            [ "$input_char" == "n" ] && exit_to_shell
+            read -s -n 1 key 
+            [ "$key" == "y" ] || [ "$key" == "" ] && echo ''  && break
+            [ "$key" == "n" ] && echo '' && exit_to_shell
         done
     fi
 }
@@ -89,22 +89,27 @@ getinput()
     local result=$3                                 # Default value to use if not set
     local silent=$4                                 # Don't echo when set
 
+    # Notify user as directed
     echo -en "   ${input} (default=${cyber}${result}${none}): "
+
+    # Defaulting settings is true then add a newline format nicely
     [ "x$DEFAULT" == "xy" ] && echo ''
+
+    # Handle non default options 
     if [ "x$DEFAULT" == "xn" ]; then
         if [ $silent ]; then
-            read -s input_value
+            read -s value
             echo ''
         else
-            read input_value
+            read value
         fi
 
         # Handle debug user input
-        [ "$input_value" == "exit" ] && exit_to_shell
-        [[ "$input_value" == *"-d"* ]] && DEBUG=1
+        [ "$value" == "debug" ] && DEBUG=1 && value=""
+        [ "$value" == "exit" ] && exit_to_shell
 
         # Handle normal user input
-        [ "x$input_value" != "x" ] && local result="$input_value"
+        [ "x$value" != "x" ] && local result="$value"
     fi
 
     eval "$_result"="$result"
@@ -653,6 +658,7 @@ installer()
     USER='admin'
     PASS='admin'
     DEFAULT_PASS='admin'
+    NEW_ROOT="${1}"     # /new_root passed in as 1st param from initcpio porcess
 
     # Ask for user input if not live deployment
     #---------------------------------------------------------------------------
@@ -675,13 +681,13 @@ installer()
 
         # Drop out debug variables if in debug mode
         #-----------------------------------------------------------------------
-        log_d ">> Entring debug mode"
+        log_d ">> Entering debug mode"
         log_d "   In debug mode all text in yellow is debugging."
         log_d "   Each step will be paused until directed to continue."
         log_d ">> Debug variables"
-        log_d "  NEW_ROOT:  $NEW_ROOT"
-        log_d "  ISO_MNT:   $ISO_MNT"
-        log_d "  WRITE_MNT: $WRITE_MNT"
+        log_d "   NEW_ROOT:  $NEW_ROOT"
+        log_d "   ISO_MNT:   $ISO_MNT"
+        log_d "   WRITE_MNT: $WRITE_MNT"
 
         # Collect install destination device
         #-----------------------------------------------------------------------
@@ -763,7 +769,6 @@ installer()
 
     # Mount live system / Install to local disk
     #---------------------------------------------------------------------------
-    NEW_ROOT="${1}"     # /new_root passed in as 1st param from initcpio porcess
     local rw_ram_size="75%"
     local mode=$([ "$LAYER" == 'live' ] && echo 'Starting' || echo 'Installing')
     echo -e "\n${cyber}:: $(bash -c "printf '%0.1s' '-'{1..107}")${none}"

@@ -84,6 +84,7 @@ build_env()
     docker_kill ${BUILDER}
     # Use the same user id as the one runing the docker build so we don't get mixed up
     docker build --build-arg USER_ID=$(id -u) --force-rm -t ${BUILDER} "${PROJECT_DIR}"
+    check
   fi
 
   # Attach to builder if set
@@ -92,7 +93,6 @@ build_env()
     docker_run ${BUILDER}
     docker exec --privileged -it ${BUILDER} bash
   fi
-  check
 }
 
 # Build repo packages if needed
