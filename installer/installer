@@ -36,6 +36,7 @@ exit_to_shell()
     alias ll='ls -lah'
     export PS1="${cyber}[rootfs:\w]\$ ${none}"
     echo -e "\n${cyber}:: Interactive Shell${none}"
+    debug_vars
     launch_interactive_shell
 }
 
@@ -52,6 +53,16 @@ check_status()
     else
         [ "$1" != "nomsg" ] && echo -e "${green}success!${none}"
     fi
+}
+
+# Dump out debug variables
+debug_vars()
+{
+    log_d ">> Debug variables"
+    log_d "   NEW_ROOT:  $NEW_ROOT"
+    log_d "   ISO_MNT:   $ISO_MNT"
+    log_d "   WRITE_MNT: $WRITE_MNT"
+    log_d "   READ_MNT:  $READ_MNT"
 }
 
 # Takes the value in $1 and prints it out if in debug mode
@@ -71,7 +82,7 @@ wait_for_any_key()
 
     if [ "x${DEBUG}" == "x1" ]; then
         echo -e "${yellow}>> NEXT STEP: $msg${none}"
-        echo -en "${yellow}>> Continue y/n [y]: ${none}"
+        echo -en "${yellow}>> Continue [y/n] (default=y): ${none}"
         while [ true ]; do
             read -s -n 1 key 
             [ "$key" == "y" ] || [ "$key" == "" ] && echo ''  && break
@@ -358,7 +369,6 @@ install_bootloader()
         check_status
 
         echo -en ":: Setting default boot entry to be ${cyber}${boot_conf}${none}..."
-        mkdir -p ${NEW_ROOT}/boot/loader &>/dev/null
         echo "default arch.conf" > ${NEW_ROOT}/boot/loader/loader.conf
         check_status
 
@@ -684,10 +694,7 @@ installer()
         log_d ">> Entering debug mode"
         log_d "   In debug mode all text in yellow is debugging."
         log_d "   Each step will be paused until directed to continue."
-        log_d ">> Debug variables"
-        log_d "   NEW_ROOT:  $NEW_ROOT"
-        log_d "   ISO_MNT:   $ISO_MNT"
-        log_d "   WRITE_MNT: $WRITE_MNT"
+        debug_vars
 
         # Collect install destination device
         #-----------------------------------------------------------------------
@@ -811,27 +818,27 @@ installer()
         echo -e "\n:: Copying deployment overlay ${cyber}${READ_MNT}/root${none} to destination ${cyber}${NEW_ROOT}${none}"
         echo -e "${cyber}:: $(bash -c "printf '%0.1s' '-'{1..107}")${none}"
         rsync -ah --info=progress2 ${READ_MNT}/root/* ${NEW_ROOT}
+        check_status
     fi
 
-    # Install bootloader and initramfs
-    #---------------------------------------------------------------------------
-    wait_for_any_key "Mount chroot dirs"
+    # Mount chroot dirs for configuration
     mount_chroot_dirs
-    if [ $LAYER != "live" ]; then
-        wait_for_any_key "Install bootloader"
-        install_bootloader
-    fi
 
     # Configure system
     #---------------------------------------------------------------------------
     wait_for_any_key "Configure system"
     config_system
 
+    # Install bootloader and initramfs
+    #---------------------------------------------------------------------------
+    if [ $LAYER != "live" ]; then
+        wait_for_any_key "Install bootloader"
+        install_bootloader
+    fi
+
     # Unmount chroot dirs for either
     wait_for_any_key "Unmount everything"
     umount_chroot_dirs
-
-    # Umount everything after install only
     [ $LAYER != "live" ] && umount_all
 
     # Successfully deployed
