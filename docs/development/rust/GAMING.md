@@ -234,6 +234,8 @@ engine from the ground up in Rust
   * Some basic ui widgets - text box and button
 * [Tamerz Gotcha](https://github.com/1sra3l/tamerzgotcha)
   * Some drag widgets
+* [Ray casting sandbox](https://github.com/nathanielfernandes/ray-casting-sandbox)
+  * Neat Wolf 3D type playground
 
 ## Install OpenJDK - Not compatible yet
 Android Studio 4.2 released in 2021 and onwards uses `OpenJDK 11`
