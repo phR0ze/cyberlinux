@@ -828,6 +828,13 @@ installer()
     fi
 
     # Flush caches to disk and unmount
+    #---------------------------------------------------------------------------
+    # In the dozens of different device types and manufacturers I'd never run across
+    # any that required this until my Dell XPS 13 with a Samsung 970 EVO Plus SSD.
+    # For some reason the boot loader custom values that get installed just before
+    # the final write were not getting flushed to disk before the reboot and thus
+    # were lost. This left the system unbootable. Explicitly calling 'sync' fixes
+    # this issue.
     echo -e "\n${cyber}:: Flush caches to disk and umount:${none}"
     echo -en ":: Calling sync..."
     sync

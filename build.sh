@@ -105,7 +105,7 @@ build_repo_packages()
   cp "${PROJECT_DIR}/VERSION" "${PROFILES_DIR}"
 
   # Build packages for all profile repos
-  echo -e ":: Build packages for ${cyan}${PROFILES[@]}${none}"
+  echo -e ":: Target profiles for packages ${cyan}${PROFILES[@]}${none}..."
   for x in ${PROFILES[@]}; do
     echo -e ":: Building packages for profile ${cyan}${x}${none}..."
     # <profile>/PKGBUILD will use the latest cyberlinux/VERSION value for package versions.
