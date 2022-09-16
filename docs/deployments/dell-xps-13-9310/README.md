@@ -237,8 +237,25 @@ Debugging strange installer issues I'm seeing.
   * /mnt/boot/loader/loader.conf is a default value
   * /mnt/boot/loader/entries/arch.conf doesn't exist
   * `MY bootloader changes don't seem to have been run`
-7. Manually filling out shell install of 0.1.39 - `WORKS!`
-8. Auto install of shell 0.1.39?
+7. Debug mode and not umounting at end with shell install 0.1.39 - `WORKS!`
+  * Repeating it in manual mode but not debug
+    * And it `FAILED`
+  * Repeating debug install and exited before final unmount
+    * same as last time with shell nd 0.1.39 and `WORKED again`
+  * Repeating same thing but going to let it finish instead of exit before final unmount
+    * allowed the unmount and it still worked find - `WORKS!!`
+    * TIMING introduced with debug????
+  * Same bits but automated install
+    * going to mount boot and check files exist before rebooting
+    * hmm, `/new_root/dev` not getting umounted which left partitions mounted
+    * files were there and works!!!!
+  * Same automated install
+    * not going to check and just reboot
+    * `FaILED`
+  * standard 0.1.40 shell with umount at end removed
+    * try 1 - automated install and just reboot - `FAILED`
+    * try 2 - debug install and just reboot - `FAILED`
+    * try 3 - automated install and check `sync; cat /new_root/boot/loader/loader.conf` - ``
 
 
 <!-- 

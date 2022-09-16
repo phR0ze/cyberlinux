@@ -116,8 +116,8 @@ getinput()
         fi
 
         # Handle debug user input
-        [ "$value" == "debug" ] && DEBUG=1 && value=""
-        [ "$value" == "exit" ] && exit_to_shell
+        [[ "$value" == *"debug"* ]] && DEBUG=1 && value=""
+        [[ "$value" == *"exit"* ]] && exit_to_shell
 
         # Handle normal user input
         [ "x$value" != "x" ] && local result="$value"
@@ -447,15 +447,6 @@ umount_chroot_dirs()
 
     for x in "dev/pts dev proc sys"; do
         umount -f ${NEW_ROOT}/${x} &>/dev/null
-    done
-}
-
-umount_all()
-{
-    for x in ${MOUNTS}; do
-        echo -en ":: Unmounting ${x}..."
-        umount -f ${x} &>/dev/null
-        check_status
     done
 }
 
@@ -836,10 +827,20 @@ installer()
         install_bootloader
     fi
 
-    # Unmount chroot dirs for either
-    wait_for_any_key "Unmount everything"
+    # Flush caches to disk and unmount
+    echo -e "\n${cyber}:: Flush caches to disk and umount:${none}"
+    echo -en ":: Calling sync..."
+    sync
+    check_status
+
     umount_chroot_dirs
-    [ $LAYER != "live" ] && umount_all
+    if [ $LAYER != "live" ]; then
+        for x in ${MOUNTS}; do
+            echo -en ":: Unmounting ${x}..."
+            umount -f ${x} &>/dev/null
+            check_status
+        done
+    fi
 
     # Successfully deployed
     #---------------------------------------------------------------------------

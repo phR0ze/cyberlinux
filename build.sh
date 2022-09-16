@@ -105,11 +105,11 @@ build_repo_packages()
   cp "${PROJECT_DIR}/VERSION" "${PROFILES_DIR}"
 
   # Build packages for all profile repos
+  echo -e ":: Build packages for ${cyan}${PROFILES[@]}${none}"
   for x in ${PROFILES[@]}; do
-
-    # makepkg will modify the PKGBUILD to inject the most recent version.
-    # saving off the original and replacing it will avoid having that file changed all the time
     echo -e ":: Building packages for profile ${cyan}${x}${none}..."
+    # <profile>/PKGBUILD will use the latest cyberlinux/VERSION value for package versions.
+    # Saving off the original and replacing it will avoid having that file changed all the time
     cat <<EOF | docker exec --privileged -i ${BUILDER} sudo -u build bash
   cp "${CONT_PROFILES_DIR}/${x}/PKGBUILD" "${CONT_BUILD_DIR}/PKGBUILD"
   cd "${CONT_PROFILES_DIR}/${x}"
@@ -523,8 +523,7 @@ read_deployment()
 unique_profiles()
 {
   # Get list of profiles to build packages for
-  # Should always include the target profile at a minimum
-  PROFILES=("$PROFILE")
+  PROFILES=()
 
   # Load dependencies i.e. profiles that have packages that this profile depends on and must be built
   local dependencies=$(echo "$PROFILE_JSON" | jq -r '. | if has("dependencies") then (.dependencies | join(" ")) else null end')
@@ -544,9 +543,8 @@ unique_profiles()
     done
   fi
 
-  # Extract just the layers, split them on comma, add them together as a single array
-  # ensuring each entry is unique then join them as a single space delimeted string
-  #$(echo "$DEPLOYMENTS_JSON" | jq -r '[.[].layers | split(",")] | add | unique | join(" ")'); do
+  # Always append the target profile
+  PROFILES+=("${PROFILE}")
 }
 
 # Retrieve all deployments in reverse sequential order
