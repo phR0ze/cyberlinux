@@ -226,6 +226,14 @@ engine from the ground up in Rust
   * Android features for testing
 * [HyperMaze](https://github.com/elo-siema/HyperMaze)
   * First person maze 3d walls
+* [Arena gungeon](https://github.com/Redfox/arena-gungeon)
+  * Simple map movements top down background
+* [Rusty Sandbox](https://github.com/JSKitty/rusty-sandbox)
+  * Sand simulation
+* [Room for growth](https://github.com/volbot/room-for-growth)
+  * Some basic ui widgets - text box and button
+* [Tamerz Gotcha](https://github.com/1sra3l/tamerzgotcha)
+  * Some drag widgets
 
 ## Install OpenJDK - Not compatible yet
 Android Studio 4.2 released in 2021 and onwards uses `OpenJDK 11`
