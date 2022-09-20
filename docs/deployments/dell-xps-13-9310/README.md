@@ -13,12 +13,16 @@ XPS 13 9310` and additional configuration and maintenance I've done on this syst
   * [SSD Upgrade](#ssd-upgrade)
 * [Install cyberlinux](#install-cyberlinux)
 * [Configure cyberlinux](#configure-cyberlinux)
-  * [Settings](#settings)
+  * [Hardware](#hardware)
     * [Flash BIOS to latest](#flash-bios-to-latest)
+    * [Audio](#audio)
+    * [Graphics](#graphics)
+    * [WiFi](#wifi)
+    * [Keyboard](#keyboard)
+    * [Bluetooth](#bluetooth)
+  * [Settings](#settings)
     * [SSH Keys](#ssh-keys)
     * [Backgrounds](#backgrounds)
-  * [Graphics](#graphics)
-  * [WiFi](#wifi)
 * [Troubleshooting](#troubleshooting)
   * [Info](#info)
     * [SSD is directly bootable with cyberlinux](#ssd-is-direcctly-bootable-with-cyberlinux)
@@ -103,9 +107,9 @@ First results:
   * Audio works after firmware install and restart
   * Audio keyboard buttons work
 * Problems
-  * Locks up and keyboard input doesn't work
+  * Locks up and keyboard input doesn't work see [Keyboard](#keyboard)
 
-## Settings
+## Hardware
 
 ### Flash BIOS to latest
 `fwupd` is a simple daemon that allows large vendors like Dell and Logitech to distribute firemware 
@@ -129,20 +133,12 @@ References:
    $ sudo fwupdmgr update
    ```
 
-Upgrade to `3.0.4`
-
-### SSH Keys
-Copy over ssh keys
-```bash
-$ scp -r USER@IP-ADDRESSS:~/.ssh .
-```
-
-### Backgrounds
-Copy over any wallpaper to `/usr/share/backgrounds`
+Upgraded to `3.0.4`
 
 ## Audio
-Requires the `alsa-firmware` and `sof-firmware` packages to work. After reboot you should be good.
+Included in the latest cyberlinux builds
 
+Requires the `alsa-firmware` and `sof-firmware` packages to work. After reboot you should be good.
 * Volume Control buttons seem to work great
 
 ## Graphics
@@ -162,10 +158,71 @@ Requires the `alsa-firmware` and `sof-firmware` packages to work. After reboot y
    ```
 
 ## WiFi
-Work perfectly with NetworkManager and the applet.
+Works perfectly with NetworkManager and the applet. All you have to do is just left click on the 
+`nm-applet` icon in the tray and select your WiFi SSID. Entry your password and you should be greeted 
+with a connection pop up.
 
-All you have to do is just left click on the `nm-applet` icon in the tray and select your WiFi SSID. 
-Entry your password and you should be greeted with a connection pop up.
+## Keyboard
+99.9% of the time the keyboard works great. 0.01% of the time it freezes and doesn't respond at all 
+or if you Alt+F4 and app it freezes immediately. For this reason I just avoid Alt+F4 and if it every 
+freezes I have added a Restart icon to my launcher and since the mouse still works I'll just restart 
+and it its good
+
+## Bluetooth
+BlueTooth seems to work fine out of the box
+
+1. Install Bluetooth management tool and pulse audio plugin
+   ```bash
+   $ sudo pacman -S blueman bluez-utils pulseaudio-bluetooth
+   ```
+2. Enable Bluetooth
+   ```bash
+   $ sudo systemctl enable bluetooth
+   $ sudo systemctl start bluetooth
+   ```
+3. Pair with device
+   * Left click the Bluetooth icon in the tray
+   * Click `Search` in the Bluetooth Devices window that pops up
+   * Select your device then click the key button to pair
+
+## Settings
+Custom changes not included in cyberlinux builds
+
+### SSH Keys
+Copy over ssh keys
+```bash
+$ scp -r USER@IP-ADDRESS:~/.ssh .
+```
+
+### Backgrounds
+Copy over wallpaper
+```bash
+$ sudo scp USER@IP-ADDRESS:~/Storage/Install/Configs/Wallpaper/* /usr/share/backgrounds
+```
+
+### Configure hotkeys
+* Set `insert` as drop down terminal activation key
+  * Navigate to `Apps >Settings >Keyboard`
+  * Select the `Application Shortcuts` tab
+  * Scroll down to `xfce4-terminal --drop-down` and click `Remove`
+  * Click `Add` and enter `xfce4-terminal --drop-down` and set `insert`
+
+### Configure git
+* Set user name `git config user.name <USER_NAME>`
+* Set user email `git config user.email <EMAIL_ADDRESS>`
+
+### Clone any data
+* Documents
+  ```bash
+  $ rmdir ~/Documents
+  $ git clone ssh://USER@IP-ADDRESS:/mnt/storage/Documents
+  ```
+* Pictures
+  ```bash
+  $ cd ~/Pictures
+  $ git clone ssh://USER@IP-ADDRESS:/mnt/storage/Pictures/2021
+  $ git clone ssh://USER@IP-ADDRESS:/mnt/storage/Pictures/2022
+  ```
 
 # Troubleshooting
 

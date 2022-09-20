@@ -53,6 +53,7 @@ on the [Arch Linux Wiki](https://wiki.archlinux.org/) should work just fine as w
     * [Google Meet Headset](#google-meet-headset)
 * [Display Manager](#display-manager)
   * [LXDM](#lxdm)
+    * [Set lxdm background](#set-lxdm-background)
   * [SSDM](#ssdm)
 * [Containers](#containers)
   * [Podman](#podman)
@@ -758,7 +759,7 @@ tend to use Firefox for speed and privacy but other will be similar.
 # Display Manager
 A [display manager](https://wiki.archlinux.org/index.php/Display_manager) is a graphical user
 interface that is displayed at the end of the boot process in place of the default shell.
-***cyberlinux*** uses systemd as its init system which invokes LXDM as the `display-manager.service`.
+***cyberlinux*** uses systemd as its init system and invokes LXDM as the `display-manager.service`.
 LXDM works in conjunction with the systemd service `systemd-logind` managed with `loginctl`.
 
 Systemd will create the `display-manager.service` link to LXDM for you with:
@@ -772,6 +773,11 @@ desktop environment.
 
 Config files:
 * `/etc/lxdm/lxdm.conf`
+
+### Set lxdm background
+1. Run `sudo lxdm-config`
+2. And change the background to whatever you want
+3. Then simply close. It saves the changes automatically
 
 ## SDDM
 [SSDM](https://wiki.archlinux.org/title/SDDM), a.k.a `Simple Display Manager` is the recommended 

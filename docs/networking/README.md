@@ -103,7 +103,7 @@ sudo iptables -A OUTPUT -p tcp --dport 443 -j DROP
 # DNS <a name="dns"/></a>
 [Arch Linux Wiki on Resolved](https://wiki.archlinux.org/index.php/Systemd-resolved#Setting_DNS_servers)
 [Arch Linux Wiki on nameservers](https://wiki.archlinux.org/index.php/Alternative_DNS_services)
-Systemd's `resolved` service configured it's Fallback DNS by default to use Cloudflare then Quad9 then
+Systemd's `resolved` service configures it's Fallback DNS by default to use Cloudflare then Quad9 then
 Google so that DNS will always work.
 
 ## DNS commands <a name="dns-commands"/></a>
@@ -119,6 +119,8 @@ $ resolvectl query archlinux.org
 ```
 
 ### DNS flish <a name="dns-flush"/></a>
+Flushes all DNS resource record caches the service maintains locally
+
 ```bash
 $ sudo resolvectl flush-caches
 ```
@@ -128,7 +130,7 @@ $ sudo resolvectl flush-caches
 [systemd-resolved and VPNs](https://systemd.io/RESOLVED-VPNS/)
 There are two flavors of domains attached to a network interface: `routing domains` and `search 
 domains`. They both specify that a given domain and any subdomains are appropriate for that 
-interface. Search domains have the additional function that single-label names are suffixed with taht 
+interface. Search domains have the additional function that single-label names are suffixed with that 
 search domain before being resolved e.g. `server` would resolve to `server.example.com` for the 
 search domain of `example.com`. In ***systemd-resolved*** config files, routing domains are prefixed 
 with the tilda `~` character.
@@ -187,19 +189,30 @@ lookups except for the ones matched with their searching/routing domains. Finall
 doesn't have this property is automatically considered for all lookups if a match has not been found 
 yet.
 
+You can see the current default route with `-DefaultRoute` for false and `+DefaultRoute` for true
+```bash
+$ sudo resolvectl
+    ...
+    Protocols: +DefaultRoute
+    ...
+```
+
+Network Manager will set VPNs as the default route, if you'd like it otherwise set
+```bash
+$ sudo resolvectl default-route tun0 false
+$ sudo resolvectl default-route wlp0s20f3 true
+```
+
 ### Add domain route <a name="add-domain-route"/></a>
 In order to get all traffic for `company.com` to resolve over the `tun0` interface you'd need to 
 configure a routing domain of `~company.com`. To further only consider this route for `company.com` 
-traffice and not other traffice you'd need to add the `default-route: false` property.
+traffic and not other traffic you'd need to add the `default-route: false` property.
 
 **resolvectl** provides a wrapper around the `D-Bus` and can be used to instruct `systemd-resolved` 
 dynamically rather than updating the config file statically.
 ```bash
 # Set the routing domains to use
 $ sudo resolvectl domain tun0 '~foo1.company.com' '~foo2.company.com'
-
-# Set the interface to not be considered except for routing domain matches
-$ sudo resolvectl default-route tun0 false
 
 # Set the nameserver to use excplicitly
 $ sudo resolvectl dns tun0 192.0.2.1
@@ -985,7 +998,7 @@ get vpn dns to work correctly is to not set anything except the fallback configu
 configured by the vpn and when not on the vpn dns is configured by the fallback.
 
 ### systemd-resolved nsswitch configuration
-cyberlinux just worked out of the box but Ubuntu, although using `systemd-resolved` doesn't have
+cyberlinux just worked out of the box, but Ubuntu although using `systemd-resolved` doesn't have
 `nsswitch` setup correctly.
 
 You can verify if it is working by checking the DNS configured with `systemd-resolved --status`. If

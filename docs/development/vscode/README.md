@@ -299,7 +299,7 @@ the ability to cross compile to another platform.
    ```
 3. Install android targets for NDK dev
    ```bash
-   $ rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android
+   $ rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
    ```
 
 ### Config Rust <a name="config-rust"></a>
@@ -314,6 +314,7 @@ the ability to cross compile to another platform.
 3. Install and configure crate support:
    a. Install extension `Better TOML by bungcip`  
    b. Install extension `crates by Seray Uzgur`  
+4. Configure Rust Analyzer to not show automatic types
 
 ### Rust tasks <a name="rust-tasks"></a>
 If you use a `workbench.action.tasks.runTask` in your keybindings it points to your local 

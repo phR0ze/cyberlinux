@@ -316,6 +316,8 @@ All scripting and code created for the cyberlinux project is licensed below via 
 ---
 
 # Backlog <a name="backlog"/></a>
+* Configure rust analyzer to not show types
+* Use `Gnome Disks` i.e. `sudo pacman -S gnome-disk-utility`
 * `Super + plus` to resize window to custom size
 * `Super + Enter` to position in the center
 
@@ -326,7 +328,6 @@ All scripting and code created for the cyberlinux project is licensed below via 
   `/etc/lxdm/lxdm.conf`
 
 # Sometime <a name="sometime"/></a>
-* grub not booting for xfce shell
 * netbook: HDMI output
 * clu to sync wallpaper
   * `/etc/lxdm/lxdm.conf`
