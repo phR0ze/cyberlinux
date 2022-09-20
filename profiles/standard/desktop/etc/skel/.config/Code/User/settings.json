@@ -66,8 +66,7 @@
     "files.eol": "\n",                      // gopls formatting only supports LF line endings
 
     // Rust configuration
-    "rust-analyzer.inlayHints.enable": false,
-    "rust-analyzer.hoverActions.run": false,
-    "rust-analyzer.hoverActions.debug": false,
-    "rust-analyzer.assist.importEnforceGranularity": true,
+    "rust-analyzer.hover.actions.enable": false,
+    "rust-analyzer.inlayHints.typeHints.enable": false,
+    "rust-analyzer.inlayHints.parameterHints.enable": false,
 }

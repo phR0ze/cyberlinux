@@ -74,7 +74,6 @@ Hit `Ctrl+Shift+p` and search for keyboard then choose `Preferences: Open Keyboa
 | F12            | Go to Definition        |
 | Ctrl+Shift+t   | Run Test Task           |
 
-
 Keyboard shortcut overrides are found in: `~/.config/Code/User/keybindings.json`
 ```json
 [
