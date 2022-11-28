@@ -165,7 +165,9 @@ Hit `Ctrl+Shift+p` and search for `json` and select `Preferences: Open Settings(
     "files.eol": "\n",                      // gopls formatting only supports LF line endings
 
     // Rust configuration
-    "rust-analyzer.inlayHints.enable": false, // turn off the inline types
+    "rust-analyzer.hover.actions.enable": false,
+    "rust-analyzer.inlayHints.typeHints.enable": false,
+    "rust-analyzer.inlayHints.parameterHints.enable": false,
 }
 ```
 
