@@ -9,20 +9,23 @@ Documenting various networking technologies
 * [BlueMan](bluMan)
 * [Firefox](firefox)
 * [iptables](#iptables)
-* [DNS](#dns)
-  * [DNS commands](#dns-commands)
-    * [DNS status](#dns-status)
-    * [DNS lookup](#dns-lookup)
-    * [DNS flush](#dns-flush)
+* [DNS systemd-resolved](#dns-systemd-resolved)
+  * [resolved overview](#resolved-overview)
+    * [Modern DNS with nss-resolve](#modern-dns-with-nss-resolve)
+    * [Traditional DNS with nss-dns](#traditional-dns-with-nss-dns)
   * [DNS routing](#dns-routing)
     * [Default Route](#default-route)
+    * [Split DNS](#split-dns)
     * [Add domain route](#add-domain-route)
-    * [/etc/resolv.conf](#etc-resolv-conf)
   * [Nameservers](#nameservers)
     * [Quad9 DNS](#quad9-dns)
     * [Cloudflare DNS](#cloudflare-dns)
     * [Google DNS](#google-dns)
     * [DNSSEC Validation Failures](#dnssec-validation-failures)
+  * [DNS commands](#dns-commands)
+    * [DNS status](#dns-status)
+    * [DNS lookup](#dns-lookup)
+    * [DNS flush](#dns-flush)
 * [Internet Archive](#internet-archive)
   * [wget bulk downloads](#wget-bulk-downloads)
 * [Network Interfaces](#network-interfaces)
@@ -56,12 +59,11 @@ Documenting various networking technologies
   * [OpenVPN](#openvpn)
     * [Connect via Commandline](#connect-via-commandline)
     * [Connect via NetworkManager](#connect-via-command-line)
-  * [Split DNS Resolution](#split-dns-resolution)
 * [WireGuard](#wireguard)
   * [WireGuard Client](#wireguard-client)
   * [WireGuard Server](#wireguard-server)
 
-# iptables <a name="iptables"/></a>
+# iptables
 `netfilter` controls access to and from the network stack at the Linux kernel module level. The
 primary command line tool for managing netfilter hooks has been iptables rulesets. However since the
 syntax needed to invoke those rules is complicated various user friendly tols like `ufw` and
@@ -73,12 +75,12 @@ Pro tips:
 * iptable rules don't persist by default
 * `sudo iptables -S` - list out current iptables
 
-## iptables reset <a name="iptables-reset"/></a>
+## iptables reset
 ```bash
 $ sudo systemctl restart iptables
 ```
 
-## kiosk <a name="kiosk"/></a>
+## kiosk
 To illustrate iptables let's imagine we want to setup a Kiosk for a local school. The intent is that
 students would be able to use a browser in a limited way to complete school related work. The kiosks
 would need access to `ixl.com`. To keep the example simple we'll ignore all other protocols and
@@ -100,32 +102,65 @@ sudo iptables -A OUTPUT -p tcp --dport 443 -j DROP
 * `-j ACCEPT` - indicates the action to take
 * `--dport 80` - indicates requests bound for destination port 80
 
-# DNS <a name="dns"/></a>
-[Arch Linux Wiki on Resolved](https://wiki.archlinux.org/index.php/Systemd-resolved#Setting_DNS_servers)
-[Arch Linux Wiki on nameservers](https://wiki.archlinux.org/index.php/Alternative_DNS_services)
-Systemd's `resolved` service configures it's Fallback DNS by default to use Cloudflare then Quad9 then
-Google so that DNS will always work.
+# DNS systemd-resolved
 
-## DNS commands <a name="dns-commands"/></a>
+**References**
+* [systemd-resolved split dns](https://blogs.gnome.org/mcatanzaro/2020/12/17/understanding-systemd-resolved-split-dns-and-vpn-configuration/)
 
-### DNS status <a name="dns-status"/></a>
-```bash
-$ resolvectl status
+## resolved overview
+
+### Modern DNS with nss-resolve
+**/etc/nsswitch.conf**  
+Modern `/etc/nsswitch.conf` which controls which `glibc Name Service Switch` (NSS) modules are 
+invoked by glibc when performing name resolution now look like:
 ```
-
-### DNS lookup <a name="dns-lookup"/></a>
-```bash
-$ resolvectl query archlinux.org
+hosts: mymachines resolve [!UNAVAIL=return] files myhostname dns
 ```
+which means first invoke `nss-mymachines` which resolves container names registered with 
+`systemd-machined`. Next and most commonly used `nss-resolve` uses `systemd-resolved` to resolve 
+hostnames via its `varlink API` as of version 247. Older versions used the D-Bus. Finally 
+`[!UNAVAIL=return]` says that if `systemd-resolved` is running stop there even if no result is found. 
+Only if resolve is not running then use the traditional `nss-files`, `nss-myhostname` and `nss-dns` 
+modules which are now obsoleted on most modern nix systems.
 
-### DNS flish <a name="dns-flush"/></a>
-Flushes all DNS resource record caches the service maintains locally
+**Note** checking that your `/etc/msswitch.conf` is setup to use `resolve` is the first thing to 
+check if `systemd-resolved` doesn't appear to be taking affect. This was the case with Ubuntu which 
+doesn't have `resolve` set properly.
 
-```bash
-$ sudo resolvectl flush-caches
+**/etc/resolv.conf**  
+When `nss-resolve` is used `/etc/resolv.conf` is totally ignored and should just be a link to 
+`/run/systemd/resolve/stub-resolv.conf` which is controlled by `systemd-resolved` for apps that 
+attempt to do their own DNS resolving.
+
+### Traditional DNS with nss-dns
+**/etc/nsswitch.conf**  
+Traditionally `/etc/nsswitch.conf` controlled which `glibc Name Service Switch` (NSS) modules are 
+invoked by glibc when performing name resolution and looked like:
 ```
+hosts: files mdns4_minimal [NOTFOUND=return] dns myhostname
+```
+which meant first invoke `nss-files` which looks at `/etc/hosts` to see if the hostname is hardcoded 
+there then if not invoke `nss-mdns4_minimal` which uses `avahi` to implement mDNS resolution. 
+`[NOTFOUND=return]` allowed for returning early for queries to `.local` domains, which should never 
+go to the remaining nss modules. Next and most commonly used DNS resolution is performed by 
+`nss-dns`. Finally `nss-myhostname` simply ensures that the local hostname is always resolvable. 
+`nss-dns` is what reads `/etc/resolv.conf`.
 
-## DNS routing <a name="dns-routing"/></a>
+**/etc/resolv.conf**  
+`/etc/resolv.conf` contains a list of up to three DNS servers to use. The servers are attempted in 
+order. If the first server in the list is down then the second server will be used and so on. If the 
+third server is down DNS won't work as nothing beyond the third is tried. Commonly the file was 
+simply a flat file managed by `NetworkManager` and looked like:
+```
+# Generated by NetworkManager
+nameserver 192.168.122.1
+```
+which simply meant the network was setup via DHCP to your home router by NetworkManger and so then 
+NetworkManager added the router IP to your `/etc/resolv.conf`.
+
+## DNS routing
+**WARNING**: don't get confused with DNS routing. This is for DNS lookup only and doesn't imply IP 
+routing of actual traffic.
 
 [systemd-resolved and VPNs](https://systemd.io/RESOLVED-VPNS/)
 There are two flavors of domains attached to a network interface: `routing domains` and `search 
@@ -135,30 +170,45 @@ search domain before being resolved e.g. `server` would resolve to `server.examp
 search domain of `example.com`. In ***systemd-resolved*** config files, routing domains are prefixed 
 with the tilda `~` character.
 
-**Example:**  
-Your VPN interface `tun0` has a search domain of `private.company.com` and a routing domain of 
-`~company.com`. If you ask for `mail.private.company.com` it is matched by both domains and will be 
-routed to `tun0`. Additionally requests for `www.company.com` would match the routing domain and be 
-routed over `tun0` as well.
+Use resolvectl to see current settings, run: `resolvectl`
+```
+Global
+           Protocols: +LLMNR +mDNS -DNSOverTLS DNSSEC=no/unsupported
+    resolv.conf mode: stub
+  Current DNS Server: 1.1.1.1
+         DNS Servers: 1.1.1.1 1.0.0.1
+Fallback DNS Servers: 8.8.8.8 8.8.4.4
 
-Determine current domain routing with:
-```bash
-$ resolvectl domain
-Global:
-Link 2 (eno1):
-Link 18 (tun0): company.com
+Link 2 (eno1)
+Current Scopes: none
+     Protocols: -DefaultRoute +LLMNR -mDNS -DNSOverTLS DNSSEC=no/unsupported
+
+Link 3 (enp1s0)
+    Current Scopes: DNS LLMNR/IPv4
+         Protocols: +DefaultRoute +LLMNR -mDNS -DNSOverTLS DNSSEC=no/unsupported
+Current DNS Server: 1.1.1.1
+       DNS Servers: 1.1.1.1 1.0.0.1
 ```
 
-In the domain routing list above anything ending in `company.com` would resolve over the `tun0` link. 
-And you can check the name servers that will be used per link as well.
-```bash
-$ resolvectl dns
-Global: 1.1.1.1 1.0.0.1
-Link 2 (eno1): 1.1.1.1 1.0.0.1
-Link 18 (tun0): 10.45.248.15 10.38.5.26
-```
+### Default Route
+The `+DefaultRoute` property in the example above is a simple boolean value that may be set on an 
+interface to indicate that any DNS lookup for which no matching routing or search domains exist 
+should be routed to this interface. If set to `-DefaultRoute` then the DNS servers on this interface 
+are not considered for routing lookups except for the ones matched with their searching/routing 
+domains. Finally an interface that doesn't have this property is automatically considered for all 
+lookups if a match has not been found yet.
 
-Configure DNS (for all links):
+### Split DNS
+Split DNS is a common way to refer to sending some DNS requests to one DNS names server while sending 
+other DNS requests to another DNS name server. A common use case for this is when using a corporate 
+VPN to connect to company resources. DNS would be configured to send DNS requests for resources on 
+the VPN to use DNS for the VPN. Failure to devide the DNS requests will result in being unable to 
+connect to coporate resources on the VPN or worse flowing personal DNS requests over the corporate 
+VPN to be monitored by coporate IT.
+
+see 
+
+### Configure DNS for all links
 ```bash
 # Edit resolved config
 $ cat /etc/systemd/resolved.conf
@@ -170,8 +220,13 @@ FallbackDNS=8.8.8.8 8.8.4.4
 $ sudo systemctl restart systemd-resolved
 ```
 
-### Debug dns <a name="debug-dns"/></a>
-1. Check the logs
+### Debug dns
+1. Check resolved's configuration, run
+   ```
+   $ resolvectl
+   ```
+
+2. Check the logs
    ```bash
    $ journalctl -u systemd-resolved -b --no-pager
    # or 
@@ -181,29 +236,7 @@ $ sudo systemctl restart systemd-resolved
    Nov 20 15:39:35 main4 systemd-resolved[8699]: Using degraded feature set TCP instead of UDP for DNS server 8.8.8.8.
    ```
 
-### Default Route <a name="default-route"/></a>
-The `default-route` property is a simple boolean value that may be set on an interface to indicate 
-that any DNS lookup for which no matching routing or search domains exist are routed to this 
-interfaces. If set to `false` then the DNS servers on this interface are not considered for routing 
-lookups except for the ones matched with their searching/routing domains. Finally an interface that 
-doesn't have this property is automatically considered for all lookups if a match has not been found 
-yet.
-
-You can see the current default route with `-DefaultRoute` for false and `+DefaultRoute` for true
-```bash
-$ sudo resolvectl
-    ...
-    Protocols: +DefaultRoute
-    ...
-```
-
-Network Manager will set VPNs as the default route, if you'd like it otherwise set
-```bash
-$ sudo resolvectl default-route tun0 false
-$ sudo resolvectl default-route wlp0s20f3 true
-```
-
-### Add domain route <a name="add-domain-route"/></a>
+### Add domain route
 In order to get all traffic for `company.com` to resolve over the `tun0` interface you'd need to 
 configure a routing domain of `~company.com`. To further only consider this route for `company.com` 
 traffic and not other traffic you'd need to add the `default-route: false` property.
@@ -218,37 +251,30 @@ $ sudo resolvectl domain tun0 '~foo1.company.com' '~foo2.company.com'
 $ sudo resolvectl dns tun0 192.0.2.1
 ```
 
-### /etc/resolv.conf <a name="etc-resolv-conf"/></a>
-Some older software still uses `/etc/resolv.conf` directly. To plug this older mechanism into the 
-newer `sytemd-resolved` system you need to setup a link to the resolved stub
-```bash
-$ sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
-```
+## Nameservers
 
-## Nameservers <a name="nameservers"/></a>
-
-### Cloudflare DNS <a name="cloudflare-dns"/></a>
+### Cloudflare DNS
 [Cloudflare's DNS](https://blog.cloudflare.com/announcing-1111/) heralded as the Internet's fastest,
 privacy-first consumer DNS service.
 
 * ***1.1.1.1***
 * ***1.0.0.1***
 
-### Quad9 DNS <a name="quad9-dns"/></a>
+### Quad9 DNS
 [Quad9's DNS](https://quad9.net/) is a DNS service founed by IBM and a few others with the primary
 unique feature of a malicious blocklist.
 
 * ***9.9.9.9***
 * ***9.9.9.10***
 
-### Google DNS <a name="google-dns"/></a>
+### Google DNS
 [Google DNS](https://developers.google.com/speed/public-dns/) claims to speed up browsing and offer
 better security, however nothing is called out around privacy as they like to monitor heavily.
 
 * ***8.8.8.8***
 * ***8.8.4.4***
 
-### DNSSEC Validation Failures <a name="dnssec-validation-failures"/></a>
+### DNSSEC Validation Failures
 After updating to the latest bits 5.2.11 kernel for reference I started getting DNS failures:
 
 ```bash
@@ -271,10 +297,27 @@ https://wiki.archlinux.org/index.php/Systemd-resolved#DNSSEC
 $ sudo systemctl restart systemd-resolved
 ```
 
+## DNS commands
 
-# Internet Archive <a name="internet-archive"/></a>
+### DNS status
+```bash
+$ resolvectl status
+```
 
-## wget bulk downloads <a name="wget-bulk-downloads"/></a>
+### DNS lookup
+```bash
+$ resolvectl query archlinux.org
+```
+
+### DNS flush
+Flushes all DNS resource record caches the service maintains locally
+```bash
+$ sudo resolvectl flush-caches
+```
+
+# Internet Archive
+
+## wget bulk downloads
 [Internet Archive blog source](https://blog.archive.org/2012/04/26/downloading-in-bulk-using-wget/)
 
 **wget options:**
@@ -294,9 +337,9 @@ $ sudo systemctl restart systemd-resolved
 $ wget -r -H -nc -np -nH --cut-dirs=1 -A .mp4 -e robots=off -l1 -i episodelist.csv -B 'r/http://archive.org/download/'
 ```
 
-# Network Interfaces <a name="network-interfaces"/></a>
+# Network Interfaces
 
-## Bind to NIC <a name="bind-to-nic"/></a>
+## Bind to NIC
 Many Linux apps will by default bind to all available network interfaces. This is a nightmare for
 end users that want control of which nics are used. To get around this many techniques have been
 developed to replace code at runtime using LD_PRELOAD shims to inform the dynamic linker to first
@@ -326,7 +369,7 @@ netstat -nl | grep 5938
 tcp        0      0 10.33.234.133:5938      0.0.0.0:*               LISTEN     
 ```
 
-## Configure Multiple IPs <a name="configure-multiple-ips"/></a>
+## Configure Multiple IPs
 In Linux its easy to add more than one ip address to a given NIC. But if your service binds to all
 NICs then your not going to get an open port, use [Bind to NIC](#bind-to-nic) to limit the service
 to a specific IP address then create another to forward ports to.
@@ -350,7 +393,7 @@ ip a
 # inet 192.168.0.2/24 brd 192.168.0.255 scope global enp0s25
 ```
 
-# Network Manager <a name="network-managerr"/></a>
+# Network Manager
 I've switched over to using NetworkManager with cyberlinux due to the user friendlyness of the 
 system and its native support for wireguard.
 
@@ -361,7 +404,7 @@ and `openvpn`. NetworkManager has native support for `WireGuard` all it needs is
 kernel module. The point of NetworkManager is to make networking configuration and setup as painless 
 and automatic as possible. It should just work.
 
-## Install <a name="install-network-manager"/></a>
+## Install
 The following installation provides the systemd service `NetworkManager` and 
 `NetworkManager-wait-online` the system tray applet `nm-applet` the graphical editor 
 `nm-connection-editor` support for WiFi devices which NetworkManager default to use `wpa_supplicant` 
@@ -382,7 +425,7 @@ and openvpn integration.
    $ sudo systemctl enable NetworkManager
    ```
 
-## Configure <a name="configure-network-manager"/></a>
+## Configure
 Configuration load order with later files overriding ealier ones:
 1. `/usr/lib/NetworkManager/conf.d`
 2. `/run/NetworkManager/conf.d` per boot configuration for one time changes
@@ -406,12 +449,12 @@ References:
 $ sudo NetworkManager --print-config
 ```
 
-### Connection Property Defaults <a name="connection-property-defaults"/></a>
+### Connection Property Defaults
 A number of connection properties can have defaults set that will only be used if the connection is 
 configured to explicitely use the defaults on a per property basis. This might be a good place to put 
 `TCP Slow Start` speedups etc...
 
-### Keyfile Configs <a name="keyfile-configs"/></a>
+### Keyfile Configs
 NetworkManager will read `/etc/NetworkManager/system-connections` for any manually configured 
 connections via its `keyfile` plugin which is always enabled. Connection files need to be owned by 
 `root` and set to `0600` permissions or they won't be displayed in the list.
@@ -483,7 +526,7 @@ $ sudo nmcli con up "Wire static"
 $ sudo nmcli con up "Wire dhcp"
 ```
 
-## Network Manager and resolved <a name="network-manager-and-resolved"/></a>
+## Network Manager and resolved
 NetworkManager will use `systemd-resolved` automatically as its DNS resolver and cache. You just need 
 to ensure that `/etc/resolv.conf` is a symlink to `/run/systemd/resolve/stub-resolv.conf` or you can 
 explicitely enable it via editing `/etc/NetworkManager/conf.d/dns.conf` and adding:
@@ -494,18 +537,18 @@ dns=systemd-resolved
 
 Then reload the configuration with: `sudo nmcli general reload`
 
-# Remoting <a name="remoting"/></a>
+# Remoting
 
-## Barrier <a name="barrier"/></a>
+## Barrier
 Barrier allows you to share a keyboard and mouse between machines (e.g. desktop and laptop). It is a 
 fork of the `Synergy 1.9` codebase and the go forward open source solution.
 
-### Install Barrier <a name="install-barrier"/></a>
+### Install Barrier
 ```bash
 $ sudo pacman -S barrier
 ```
 
-### Barrier Server <a name="barrier-server"/></a>
+### Barrier Server
 Note: you can watch the logs with `journalctl --user -u barriers -f` or use
 `barriers -f -c /etc/barrier.conf --disable-crypto` for foreground debugging
 
@@ -521,7 +564,7 @@ Note: you can watch the logs with `journalctl --user -u barriers -f` or use
 9. Enable barriers: `systemctl --user enable barriers`  
 10. Start barriers: `systemctl --user start barriers`  
 
-### Barrier Client <a name="barrier-client"/></a>
+### Barrier Client
 1. Launch: `barrierc --disble-crypto IP-ADDRESS-SERVER`
 2. Click ***Next*** to accept ***English*** as the default language
 3. Select ***Client (use another computer's mouse and keyboard)*** then ***Finish***
@@ -532,7 +575,7 @@ Note: you can watch the logs with `journalctl --user -u barriers -f` or use
 8. Click ***File >Save configuration as...*** and save as ***~/.config/barrier.conf***
 9. Create autostart for client: `cp /usr/share/applications/barrier.desktop ~/.config/autostart`
 
-## Teamviewer <a name="teamviewer"/></a>
+## Teamviewer
 Typically I configure TV to only be accessible from my LAN and tunnel in.
 
 1. Install Teamviewer
@@ -561,7 +604,7 @@ Typically I configure TV to only be accessible from my LAN and tunnel in.
   m. Check ***Disable TeamViewer shutdown***  
   n. Click ***OK***  
 
-## Zoom <a name="zoom"/></a>
+## Zoom
 Seems to be a pretty good quality app.  I simply installed it and selected my plantronics headset
 and audio worked great.  My laptop webcam also worked without doing anything.
 
@@ -582,9 +625,9 @@ EOL
 $ sudo pacman -Sy zoom
 ```
 
-# SSH <a name="ssh"/></a>
+# SSH
 
-## Port Forwarding <a name="ssh-port-forwarding"/></a>
+## Port Forwarding
 Securely forwarding ports via ssh is simple just hard to remember.
 
 ```bash
@@ -604,15 +647,15 @@ tcp        0      0 192.168.0.1:5938        0.0.0.0:*               LISTEN
 tcp        0      0 10.33.234.133:5938      0.0.0.0:*               LISTEN     
 ```
 
-# sshuttle <a name="sshuttle"/></a>
+# sshuttle
 https://github.com/sshuttle/sshuttle
 
-# systemd-networkd <a name="systemd-networkd"/></a>
+# systemd-networkd
 `systemd-networkd` is a bare bones, light and simple networking configuration. In conjunction with 
 `wpa_supplicant` and `WPA_UI` I've got by just fine. However it does lack some of the elegance 
 heavier weight solutions like Network Manager provide.
 
-## Install systemd-networkd <a name="install-systemd-networkd"/></a>
+## Install systemd-networkd
 1. Disable `NetworkManager`
    ```bash
    $ sudo systemctl disable NetworkManager
@@ -628,7 +671,7 @@ heavier weight solutions like Network Manager provide.
    $ sudo systemctl enable systemd-networkd-wait-online
    ```
 
-## DHCP Networking <a name="dhcp-networking-systemd-networkd"/></a>
+## DHCP Networking
 ```bash
 # Create config file
 sudo tee -a /etc/systemd/network/10-static.network <<EOL
@@ -654,7 +697,7 @@ sudo systemctl start systemd-networkd systemd-resolved
 sudo systemctl restart systemd-networkd
 ```
 
-## Static Networking <a name="static-networking-systemd-networkd"/></a>
+## Static Networking
 ```bash
 # Create config file
 sudo tee -a /etc/systemd/network/10-static.network <<EOL
@@ -673,7 +716,7 @@ EOL
 sudo systemctl restart systemd-networkd
 ```
 
-## Wifi Networking <a name="wifi-networking-systemd-networkd"/></a>
+## Wifi Networking
 1. Ensure kernel driver is accurate:
   ```bash
   inxi -N
@@ -731,10 +774,10 @@ sudo systemctl restart systemd-networkd
    e. Enter the `PSK` and click `Add`  
    f. Click `Close` and you should see it is already `Completed` i.e. connected  
 
-# NFS Shares <a name="nfs-shares"/></a>
+# NFS Shares
 https://wiki.archlinux.org/index.php/NFS
 
-## NFS Client Config <a name="nfs-client-config"/></a>
+## NFS Client Config
 * ***nfs*** – calls out the type of technology being used
 * ***auto*** – maps the share immediately rather than waiting until it is accessed
 * ***noacl*** – turns off all ACL processing, if your not woried about security i.e. home network this is find to turn off
@@ -772,7 +815,7 @@ EOL
 sudo mount -a
 ```
 
-## NFS Server Config <a name="nfs-server-config"/></a>
+## NFS Server Config
 Kodi recommends the `(rw,all_squash,insecure)` for the export options. In my experience the nfs root
 was also required `/srv/nfs             192.168.1.0/24(rw,fsid=0,no_subtree_check)` and although the
 linux nfs client worked fine without it, Kodi wouldn't work until it was added.
@@ -832,7 +875,7 @@ $ sudo exportfs -r
 $ sudo exportfs -v
 ```
 
-## systemd-networkd-wait-online timing out <a name="systemd-networkd-wait-online-timing-out"/></a>
+## systemd-networkd-wait-online timing out
 While trouble shooting a NFS share failing to mount I ran into this interesting tid bit of
 information. Turns out that `systemd-networkd-wait-online` by default will wait for all network
 interfaces to be ready. This means if you have a system with multiple nics and only use one the
@@ -892,9 +935,9 @@ EOL
 $ sudo systemctl restart systemd-networkd-wait-online
 ```
 
-# VPN <a name="vpn"/></a>
+# VPN
 
-## OpenConnect <a name="openconnect"/></a>
+## OpenConnect
 https://wiki.archlinux.org/index.php/OpenConnect  
 OpenConnect is a client for Cisco's AnyConnect SSL VPN and Pulse Secure's Pulse Connect Secure.
 
@@ -926,17 +969,17 @@ $ route
 $ systemd-resolved --status
 ```
 
-## OpenVPN <a name="openvpn"/></a>
+## OpenVPN
 Many VPN services are based on OpenVPN. In this section I'll be working through common configuration
 options. OpenVPN client configuration files are stored in `/etc/openvpn/client` usually with the `.ovpn`
 extension.
 
-### Connect via Commandline <a name="connect-via-commandline"/></a>
-This is a `Split DNS` solution meaning we will use the VPN's DNS for resolution for all things over
-the VPN and your normal DNS name servers for everything else. This is accomplished using the helper
+### Connect via Commandline
+This is a `Split DNS` solution meaning we will use the VPN's DNS resolver for all things over the VPN 
+and your normal DNS resolver for everything else. This is accomplished using the helper 
 [update-systemd-resolved](https://github.com/jonathanio/update-systemd-resolved) script
-that reads from the `dhcp-option` in the server or client config then applies them dynamically to
-`systemd` via the `dbus`.
+that reads from the `dhcp-option` field in the server or client config then applies them dynamically 
+to `systemd` via the `dbus`.
 
 1. Install from the cyberlinux repo:
    ```bash
@@ -974,10 +1017,10 @@ that reads from the `dhcp-option` in the server or client config then applies th
    Current DNS Server: <NAMESERVER 1>
    ```
 
-### Connect via NetworkManager <a name="connect-via-networkmanager"/></a>
+### Connect via NetworkManager
 1. Install NetworkManager openvpn plugin
    ```bash
-   $ sudo pacman -S networkmanager-openvpn
+   $ sudo pacman -S networkmanager-openvpn gnome-keyring
    ```
 2. Left click on the NetworkManager applet in the tray and choose `VPN Connections > Add a VPN 
    connection...`
@@ -990,6 +1033,34 @@ that reads from the `dhcp-option` in the server or client config then applies th
 8. Also set the `DNS servers` and `search domains` to use as desired
 9. Click `Save`
 
+
+VPN connections can be configured to only receive traffic for internal company resources. To use this 
+mode with NetworkManager check the box `Use this connection only for resources on its network` at the 
+bottom of the IPv4 VPN's configuration.
+
+**Example:**  
+Your VPN interface `tun0` has a search domain of `private.company.com` and a routing domain of 
+`~company.com`. If you ask for `mail.private.company.com` it is matched by both domains and will be 
+routed to `tun0`. Additionally requests for `www.company.com` would match the routing domain and be 
+routed over `tun0` as well.
+
+Determine current domain routing with:
+```bash
+$ resolvectl domain
+Global:
+Link 2 (eno1):
+Link 18 (tun0): company.com
+```
+
+In the domain routing list above anything ending in `company.com` would resolve over the `tun0` link. 
+And you can check the name servers that will be used per link as well.
+```bash
+$ resolvectl dns
+Global: 1.1.1.1 1.0.0.1
+Link 2 (eno1): 1.1.1.1 1.0.0.1
+Link 18 (tun0): 10.45.248.15 10.38.5.26
+```
+
 ### systemd-resolved and vpn dns
 `systemd-resolved` first checks for system overrides at `/etc/systemd/resolved.conf` then for network
 configuration at `/etc/systemd/network/*.network`, then vpn dns configuration and finally falls back
@@ -997,23 +1068,7 @@ on the fallback configuration in `/etc/systemd/resolved.conf`. I've found the mo
 get vpn dns to work correctly is to not set anything except the fallback configuration so that dns is
 configured by the vpn and when not on the vpn dns is configured by the fallback.
 
-### systemd-resolved nsswitch configuration
-cyberlinux just worked out of the box, but Ubuntu although using `systemd-resolved` doesn't have
-`nsswitch` setup correctly.
-
-You can verify if it is working by checking the DNS configured with `systemd-resolved --status`. If
-that returns the VPN's dns then your good if not check below as I had to on Ubuntu
-
-The problem is that `/etc/nsswitch.conf` is not configured to use `systemd-resolved` even
-though Ubuntu Pop has systemd-resolved running.  To fix this you need to add
-`resolve` before `[NOTFOUND=return]` on the `hosts` line, no restarts are necessary
-
-Example of fixed:
-```bash
-hosts: files mdns4_minimal resolve [NOTFOUND=return] dns myhostname
-```
-
-# WireGuard <a name="wireguard"/></a>
+# WireGuard
 [WireGuard](https://www.wireguard.com/) is a secure networking tunnel. It can be used as a VPN, for 
 connecting datacenters together across the internet any place where you need to join two networks 
 together. It was initially released for the Linux kernel, it is now cross-platform (Windows, macOS, 
@@ -1035,16 +1090,16 @@ Features:
 * Can't scan for it on the internet, its undetectable unless you know where it is
 * Has a very small code base that can fit into the kernel
 
-## WireGuard Client <a name="wireguard-client"/></a>
+## WireGuard Client
 
-### Install WireGuard <a name="install-wireguard"/></a>
+### Install WireGuard
 ```bash
 $ sudo pacman -S wireguard-tools
 ```
 
-### Generate private/public key pair <a name="setup-wireguard"/></a>
+### Generate private/public key pair
 
-### Configure all traffic tunnel <a name="configure-all-traffic-tunnel"/></a>
+### Configure all traffic tunnel
 ```
 cat /etc/wireguard/wg0.conf
 [Interface]
@@ -1061,13 +1116,13 @@ Endpoint = `PUBLICVPNSERVERIP`:`PORT`
 PersistentKeepalive = 25
 ```
 
-### Starting WireGuard <a name="starting-wireguard"/></a>
+### Starting WireGuard
 ```bash
 $ sudo systemctl enable wg-quick@wg0
 $ sudo systemctl start wg-quick@wg0
 ```
 
-## WireGuard Server <a name="wireguard-server"/></a>
+## WireGuard Server
 1. Enable kernel ipv4 forwarding
    ```bash
    $ echo "net.ipv4.ip_forward = 1" | sudo tee -a /etc/sysctl.d/10-ipv4-forwarding.conf

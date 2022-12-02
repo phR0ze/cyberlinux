@@ -24,6 +24,7 @@
     "editor.formatOnPaste": true,
     "editor.formatOnSave": true,
 
+    "vim.textwidth": 100,
     "vim.handleKeys": {
         "<C-a>": false,
         "<C-b>": false,
