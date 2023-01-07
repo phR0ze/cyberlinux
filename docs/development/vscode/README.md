@@ -17,6 +17,8 @@ Develop with Visual Studio Code
     * [Install Golang](#install-golang)
     * [Config Golang](#config-golang)
     * [Debug with dlv](#debug-with-dlv)
+  * [Ruby](#ruby)
+    * [Config Ruby](#config-ruby)
   * [Rust](#rust)
     * [Install Rust](#install-rust)
     * [Config Rust](#config-rust)
@@ -278,6 +280,19 @@ into your go path and keep it up to date i.e. `~/Projects/go/bin` for cyberlinux
     ]
 }
 ```
+
+## Ruby <a name="ruby"></a>
+
+### Config Ruby <a name="config-ruby"></a>
+1. Install language gems
+  * `gem install solargraph`
+2. Install language extensions
+  * `Ruby by Peng Lv`
+  * `VSCode Ruby by Stafford Brunk`
+  * `endwise by Kai Wood`
+  * `Rails by CHINESE GLIPHS`
+  * `Rails DB Schema by aki77`
+  * `Ruby Solargraph by Castwide`
 
 ## Rust <a name="rust"></a>
 

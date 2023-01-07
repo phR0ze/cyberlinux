@@ -33,6 +33,7 @@ on the [Arch Linux Wiki](https://wiki.archlinux.org/) should work just fine as w
     * [Adapt Output Toggle](#adapt-output-toggle)
     * [Dual Output](#dual-output)
     * [VGA Output](#vga-output)
+    * [GTX 650 Ti](#gtx-650-ti)
     * [Quadro K600](#quadro-k600)
     * [Quadro FX 880M](#quadro-fx-880m)
     * [Quadro FX 3800](#quadro-fx-3800)
@@ -71,11 +72,11 @@ on the [Arch Linux Wiki](https://wiki.archlinux.org/) should work just fine as w
     * [Install HedgeWars](#install-hedgewars)
     * [libGL nvidia-340xx fix](#libgl-nvidia-340xx-fix)
   * [Steam](#steam)
-* [Grub](#grub)
+* [Bootloader](#bootloader)
+  * [Grub](#grub)
   * [Boot Kernel](#boot-kernel)
-    * [BIOS Boot](#bios-boot)
-    * [UEFI Boot](#uefi-boot)
   * [Boot Resolution](#boot-resolution)
+  * [Add Kernel params](#add-kernel-params)
 * [Fonts](#fonts)
   * [Install Fonts](#install-fonts)
   * [Find Font Name](#find-font-name)
@@ -415,6 +416,31 @@ xrandr --output VGA-1 --off --output eDP-1 --auto
 # Select resolution of 1280x1024 for both monitors
 ```
 
+### GTX 650 Ti
+[Nvidia - Arch linux wiki](https://wiki.archlinux.org/title/NVIDIA)
+
+1. Determine you graphics card
+   ```
+   $ lspci -k | grep -A 2 -E "(VGA|3D)"
+   05:00.0 VGA compatible controller: NVIDIA Corporation GK106 [GeForce GTX 650 Ti] (rev a1)
+     Subsystem: ZOTAC International (MCO) Ltd. Device 2294
+     Kernel driver in use: nouveau
+   ```
+2. Determine the drver you'll need using [Nvidia's Download page](https://www.nvidia.com/Download/index.aspx)  
+   a. Product Type: `GeForce`  
+   b. Product Series: `GeForce 600 Series`  
+   c. Product: `GeForce GTX 650 Ti`  
+   d. Operating System: `Linux 64-bit`  
+   e. Click the `Search` button  
+   f. Note the resulting `Version` i.e. `470.161.03`
+3. Update kernel params in the boot loader [add kernel params](#add-kernel-params) to add `ibt=off`
+4. Step 1 gave us `GK106` and Step 2 gave use version `470` both of which line up to the `Kelper` 
+   series which uses the Arch Linux `nvidia-470xx-dkms` package.
+5. Install packages
+   ```
+   $ sudo pacman -S 
+   ```
+
 ### Quadro K600
 Use the `nvidia-340xx` driver in the cyberlinux repo
 ```bash
@@ -736,8 +762,9 @@ backend driver support section.
 [Simultaneous output to multiple devices](https://wiki.archlinux.org/index.php/PulseAudio/Troubleshooting#Simultaneous_output_to_multiple_sound_cards_/_devices)
 
 1. Install: `sudo pacman -S paprefs`
-2. Click the `Simultaneous Output` tab
-2. Check `Add virtual output device for simultaneous output on all local sound cards`
+2. Launch the app: `paprefs`
+3. Click the `Simultaneous Output` tab
+4. Check `Add virtual output device for simultaneous output on all local sound cards`
 
 ### Google Meet Headset
 I prefer plantronics devices for their superior noise cancelation, but any headset will work here.
@@ -949,26 +976,34 @@ sudo ln -s /usr/lib32/nvidia/libGL.so.1 /usr/lib32/libGL.so.1
    ```
 
 
-# Grub
-I was using syslinux as my go to bootloader as it is so simple and liteweight, but found that grub
-handled install splash screens and menus better and the transition from gfx to xorg better.
+# Bootloader
 
-## Boot Kernel
-When BIOS is used the boot grub config ends up in `/boot/grub/grub.cfg` where as on an EFI system the
+## Grub
+I was using syslinux as my goto bootloader as it is so simple and liteweight, but found that grub
+handled install splash screens and menus better and the transition from gfx to xorg better so I 
+switched over to `Grub`.
+
+### Boot Kernel
+On BIOS systems the boot grub config ends up in `/boot/grub/grub.cfg` where as on an EFI system the
 grub boot files are stored on the ESP mount point.
 
-You can tell which your system is simply by looking at the partitions on your disk:
+You can tell which firmware system you have by simply looking at the partitions on your disk:
+
+**EFI System** - is the EFI partition that contains the bootloader
 ```bash
-# As we see below the 'EFI System' is the EFI partition that contains the bootloader and
-# bootloader configuration.
 $ sudo fdisk -l
-...
 Device         Start      End  Sectors  Size Type
 /dev/mmcblk0p1  2048    22527    20480   10M EFI System
-/dev/mmcblk0p2 22528 30777310 30754783 14.7G Linux filesystem
 ```
 
-### BIOS Boot
+**BIOS boot** - is the BIOS partition that contains the bootloader
+```bash
+$ sudo fdisk -l
+Device       Start       End   Sectors   Size Type
+/dev/sda1     2048      6143      4096     2M BIOS boot
+```
+
+#### Create the BIOS boot partition
 ```bash
 # Install grub package
 $ sudo pacman -S cyberlinux-grub
@@ -1009,8 +1044,8 @@ menuentry "cyberlinux" {
 $ sudo reboot
 ```
 
-### UEFI Boot
-System like the Samsung Chromebook 3 boot in UEFI mode which reads the bootloader from the boot
+### Create the EFI System partition
+Systems like the Samsung Chromebook 3 boot in UEFI mode which reads the bootloader from the boot
 partition EFI System.
 
 ```bash
@@ -1039,7 +1074,7 @@ $ sudo umount /mnt/tmp
 $ sudo reboot
 ```
 
-## Boot Resolution
+### Boot Resolution
 Grub has the ability to configure the boot resolution that is used during boot and inherited by LXDM.
 To configure this modify the `/boot/grub/grub.cfg` file.
 
@@ -1055,6 +1090,20 @@ Section "Screen"
     Modes "1024x600"
   EndSubSection
 EndSection
+```
+
+### Add Kernel params
+Adding a kernel to the boot process can be done with Grub as follows:
+
+**BIOS**
+1. Edit `/boot/grub/grub.cfg`
+2. Modify the `linux /boot/vmlinuz-linux` line e.g. adding `ibt=off` below
+```
+menuentry "CYBERLINUX" {
+    ...
+    linux /boot/vmlinuz-linux root=LABEL=CYBERLINUX rw rd.systemd.show_status=auto rd.udev.log_priority=3 ipv6.disable=1 ibt=off
+    ...
+}
 ```
 
 # Fonts
