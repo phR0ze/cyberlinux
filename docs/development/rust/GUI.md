@@ -1,10 +1,11 @@
-Rust Gaming
+Rust GUI
 ====================================================================================================
 <img align="left" width="48" height="48" src="../../../art/logo_256x256.png">
 Documenting my learning experience with Rust GUIs. Specifically I'm looking for cross-platform i.e. 
-Android, WASM and Linux support using Arch Linux as my devlopment environment. As I develved further 
+Android, WASM and Linux support using Arch Linux as my devlopment environment. As I delved further 
 into this space I've realized that the kind of custom graphics manipulation that I'm interested is 
-more readily available in the Gaming community.
+more readily available in the Gaming community. However immediate mode UI frameworks more prevalent
+in gaming are not as battery conscious.
 <br><br>
 
 ### Quick links
