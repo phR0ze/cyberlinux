@@ -11,14 +11,15 @@ Web development research
 * [Web Framework](#web-framework)
   * [Overview](#overview)
   * [Frontend](#frontend)
-    * [Dioxus](#dioxus)
-    * [Yew](#yew)
+    * [Dioxus frontend](#dioxus-frontend)
+    * [Yew frontend](#yew-frontend)
   * [Backend](#backend)
 * [WASM](#wasm)
   * [Setup Rust for WASM](#setup-rust-for-wasm)
   * [WASM Bundlers](#wasm-bundlers)
   * [WASM with Macroquad](#wasm-with-macroquad)
-
+  * [Dioxus](#dioxus)
+  * [Yew](#yew)
 * [Web Platform](#web-platform)
   * [Wordpress](#wordpress)
 
@@ -122,7 +123,7 @@ package crates that target Wasm.
 * [MoonZoon 1.3k](https://github.com/MoonZoon/MoonZoon)
 * Tauri
 
-### Dioxus
+### Dioxus frontend
 [Dioxus 6.6k](https://github.com/DioxusLabs/dioxus/) has a rapidly growing community.
 * a virtual DOM-based UI with React-like design
 * cross platform for web, mobile, and desktop.
@@ -133,28 +134,12 @@ package crates that target Wasm.
 * Cross platform support, but mobile is weak
 * Uses unstable Rust
 
-### Yew
+### Yew frontend
 Yew is a web app only framework and doesn't have desktop support
 
 * [Trunk](https://trunkrs.dev/)
 * [Ybc](https://github.com/thedodd/ybc)
 * [Bulma](https://bulma.io/)
-
-#### Yew setup
-1. Install WASM target
-2. Install Yew dependencies
-   ```
-   $ cargo install --locked trunk
-   $ cargo install --locked wasm-bindgen-cli
-   ```
-3. Run examples
-   ```
-   $ git clone https://github.com/yewstack/yew
-   $ cd yew/examples/router
-   $ trunk serve --release 
-   ```
-
-
 
 ## Backend
 
@@ -246,6 +231,88 @@ option i.e. pure Rust.
    ```
 4. Open a browser to `127.0.0.1:8080`
 
+## Dioxus
+[Dioxus 6.6k](https://github.com/DioxusLabs/dioxus/) has a rapidly growing community.
+* React like design maps extremely well into Rust
+* Cross platform for web, mobile, and desktop
+* Memory efficient and ergonomic
+* Comprehensive inline documentation
+* But it uses unstable Rust
+
+References:
+* [Dioxus web docs](https://dioxuslabs.com/reference/web/)
+* [Dioxus recommends Trunk](https://trunkrs.dev/)
+  * Builds wasm apps
+
+### Dioxus setup
+1. Install WAM target
+   ```
+   $ rustup target add wasm32-unknown-unknown
+   ```
+2. Install Trunk
+   ```
+   $ cargo install trunk
+   $ cargo install wasm-bindgen-cli
+   ```
+3. Create a new project
+   ```
+   $ cargo new --bin dioxus-app
+   $ cd dioxus-app
+   $ cargo add dioxus
+   $ cargo add dioxus-web
+   ```
+4. Add index to use for Trunk
+   ```html
+   <!DOCTYPE html>
+   <html>
+     <head>
+      <meta charset="utf-8">
+       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     </head>
+     <body>
+       <div id="main"> </div>
+     </body>
+   </html>
+   ```
+5. Set `main.rs` to:
+   ```rust
+   use dioxus::prelude::*;
+   
+   fn main() {
+       dioxus::web::launch(app);
+   }
+   
+   fn app(cx: Scope) -> Element {
+       cx.render(rsx!{
+           div { "hello, wasm!" }
+       })
+   }
+   ```
+6. Serve your app
+   ```
+   $ trunk serve
+   ```
+
+## Yew
+Yew is a web app only framework and doesn't have desktop support
+
+* [Trunk](https://trunkrs.dev/)
+* [Ybc](https://github.com/thedodd/ybc)
+* [Bulma](https://bulma.io/)
+
+### Yew setup
+1. Install WASM target
+2. Install Yew dependencies
+   ```
+   $ cargo install --locked trunk
+   $ cargo install --locked wasm-bindgen-cli
+   ```
+3. Run examples
+   ```
+   $ git clone https://github.com/yewstack/yew
+   $ cd yew/examples/router
+   $ trunk serve --release 
+   ```
 
 # Web Platform
 A web platform is a turn key style blog or content mangement system that only requires content. Which 
