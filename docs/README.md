@@ -217,7 +217,7 @@ Changing `EOF` to `'EOF'` ignores variable expansion
 local DOC=$(cat << 'EOF'
 [cyberlinux]
 SigLevel = Optional TrustAll
-Server = https://phr0ze.github.io/cyberlinux-repo/$repo/$arch
+Server = https://cyberlinux.bitbucket.io/packages/$repo/$arch
 EOF
 )
 ```

@@ -72,7 +72,7 @@ LocalFileSigLevel = Optional
 
 [cyberlinux]
 SigLevel = Optional TrustAll
-Server = https://phr0ze.github.io/cyberlinux-repo/$repo/$arch
+Server = https://cyberlinux.bitbucket.io/packages/$repo/$arch
 
 [core]
 Include = /etc/pacman.d/archlinux.mirrorlist

@@ -82,7 +82,7 @@ build_env()
   if ! docker_image_exists ${BUILDER}; then
     echo -en "${yellow}>> Configuring build container${none}"
     docker_kill ${BUILDER}
-    # Use the same user id as the one runing the docker build so we don't get mixed up
+    # Use the same user id as the one running the docker build so we don't get mixed up
     docker build --build-arg USER_ID=$(id -u) --force-rm -t ${BUILDER} "${PROJECT_DIR}"
     check
   fi

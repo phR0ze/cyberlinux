@@ -24,6 +24,7 @@ to upgrade existing deployments.
   * [Configuration](#configuration)
     * [write](#write)
   * [Layers](#layers)
+    * [Rebuild failed layer](#rebuild-failed-layer)
 * [Guides](#guides)
   * [Apps](#apps)
     * [Add new app](#add-new-app)
@@ -83,7 +84,7 @@ the `profile.json` deployment packages property.
 ### Publish Packages
 1. Copy the resulting packages to the repo clone
    ```bash
-   $ cd ~/Projects/cyberlinux-repo/cyberlinux/x86_64
+   $ cd ~/Projects/cyberlinux.bitbucket.io/packages/cyberlinux/x86_64
    $ rm *xfce*
    $ rm *standard*
    $ cp ~/Projects/cyberlinux/temp/repo/cyberlinux*.tar.zst .
@@ -92,6 +93,10 @@ the `profile.json` deployment packages property.
    ```bash
    $ rm cyberlinux.*
    $ repo-add cyberlinux.db.tar.gz *.pkg.tar.*
+
+   # Hard link db files as a work around for bitbucket
+   $ ln -f cyberlinux.db.tar.gz cyberlinux.db
+   $ ln -f cyberlinux.files.tar.gz cyberlinux.files
    ```
 3. Commit the changes and push the commit
    ```bash
@@ -234,7 +239,7 @@ SCRIPTS=bin"""
 ```
 
 ## Layers
-A `layer` referres to the squashfs image of the file system at a particular point in time. These 
+A `layer` referes to the squashfs image of the file system at a particular point in time. These 
 layers are then overlaid on top of each other using the overlay file system to incrementally build up 
 a complete file system. In this was a minimal shell type system can be created and stored as a squash 
 fs image i.e. layer to then be used as the foundation on which a full linux desktop environment could 
@@ -243,6 +248,22 @@ separate deployment on the ISO. In this way we can re-use configs and applicatio
 deployments. For example a full desktop environment may be composed of a series of lower level layers 
 that have been joined using the overlay fs technique. This allows for a lot of flexibility for 
 deployment options while saving space on your ISO media.
+
+### Rebuild failed layer
+While building an ISO is common to have a failure in a particular layer e.g. while building `x11` 
+deployment you might have a failure in the `xfce/x11` layer which is layered over the `xfce/shell` 
+layer. 
+
+**Example:**
+```
+:: unable to satisfy dependency 'qt5-webkit' required by xnviewmp
+:: unable to satisfy dependency 'xnviewmp' required by cyberlinux-standard-x11
+```
+
+In this case we need to do a few things.
+1. Rebuild the `xnviewmp` package with the latest bits that don't depend on `qt5-webkit`
+2. Upload the new `xnviewmp` package to your target repo e.g. `github.com/phR0ze/cyberlinux-repo`
+3. Re-run the original build command to continue `./build.sh -p xfce -a` 
 
 # Guides
 
