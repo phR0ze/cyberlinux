@@ -131,7 +131,7 @@ First ensure you satisfy the [Prerequisites](#prerequisites)
    ```
 3. Copy to the dev leaving off the partition
    ```bash
-   $ sudo dd bs=32M if=temp/output/cyberlinux.iso of=/dev/sdd status=progress oflag=sync
+   $ sudo dd bs=4M if=temp/output/cyberlinux.iso of=/dev/sdd status=progress conv=fsync oflag=direct
    ```
 
 ### Test the USB in VirtualBox <a name="test-the-usb-in-virtualbox"/></a>

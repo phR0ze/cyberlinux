@@ -15,6 +15,7 @@ PROJECT_DIR=$(readlink -f $(dirname $BASH_SOURCE[0]))
 # Temp build locations
 TEMP_DIR="${PROJECT_DIR}/temp"            # Temp directory for build artifacts
 ISO_DIR="${TEMP_DIR}/iso"                 # Build location for staging iso/boot files
+MISC_DIR="${TEMP_DIR}/misc"               # Miscalaneous build artifacts
 REPO_DIR="${TEMP_DIR}/repo"               # Local repo location to stage packages being built
 CACHE_DIR="${TEMP_DIR}/cache"             # Local location to cache packages used in building deployments
 LAYERS_DIR="${TEMP_DIR}/layers"           # Layered filesystems to include in the ISO
@@ -35,6 +36,7 @@ CONT_BUILD_DIR="/home/build"              # Build location for layer components
 CONT_TEMP_DIR="/home/build/temp"          # Build location for layer components
 CONT_ROOT_DIR="${CONT_BUILD_DIR}/root"    # Root mount point to build layered filesystems
 CONT_ISO_DIR="${CONT_BUILD_DIR}/iso"      # Build location for staging iso/boot files
+CONT_MISC_DIR="${CONT_BUILD_DIR}/misc"    # Build location for caching miscalaneus build artifacts
 CONT_ESP="${CONT_ISO_DIR}/boot/grub/esp.img" # Build location for staging iso/boot files
 CONT_IMAGES_DIR="${CONT_ISO_DIR}/images"  # Final iso sqfs image locations
 CONT_PKGS_DIR="${CONT_ISO_DIR}/pkgs"      # Optional install time packages downloaded and stored on the ISO
@@ -54,6 +56,7 @@ fi
 # Create the necessary directories upfront
 make_env_directories() {
   mkdir -p "${ISO_DIR}"
+  mkdir -p "${MISC_DIR}"
   mkdir -p "${REPO_DIR}"
   mkdir -p "${OUTPUT_DIR}"
   mkdir -p "${LAYERS_DIR}"
@@ -136,8 +139,10 @@ EOF
   check
 }
 
-# Configure grub theme and build supporting BIOS and EFI boot images required to make
+# Configure GRUB theme and build supporting BIOS and EFI boot images required to make
 # the ISO bootable as a CD or USB stick on BIOS and UEFI systems with the same presentation.
+# GRUB will boot the system and present a menu of options. The user's selection will then be passed
+# on to the initramfs installer code.
 build_multiboot()
 {
   echo -e "${yellow}>> Building multiboot components...${none}"
@@ -193,7 +198,7 @@ build_multiboot()
   # Creating BIOS boot files
   # ------------------------------------------------------------------------------------------------
   echo -e "${yellow}>> Creating BIOS boot files...${none}"
-  local shared_modules="iso9660 part_gpt ext2"
+  local shared_modules="iso9660 part_gpt"
 
   # Stage the grub modules
   # GRUB doesn't have a stble binary ABI so modules from one version can't be used with another one
@@ -202,20 +207,22 @@ build_multiboot()
   rm -f "${ISO_DIR}/boot/grub/i386-pc"/*.img
 
   # We need to create our core image i.e bios.img that contains just enough code to find the grub
-  # configuration and grub modules in /boot/grub/i386-pc directory
-  # -p /boot/grub                 Directory to find grub once booted, default is /boot/grub
-  # -c /boot/grub/grub.cfg        Location of the config to use, default is /boot/grub/grub.cfg
+  # configuration and grub modules in /boot/grub/i386-pc directory.
+  # NOTE: embedded.img can not be on the ISO so moving it to the cache directory
+  # -O i386-pc                    Format of image to build
   # -d /usr/lib/grub/i386-pc      Use resources from this location when building the boot image
+  # -p /boot/grub                 Directory to find grub once booted, default is /boot/grub
   # -o $CONT_BUILD_DIR/bios.img   Output destination
+  # last parameter are the modules to include, normal, multiboot
   cat <<EOF | docker exec --privileged -i ${BUILDER} sudo -u build bash
-  grub-mkimage --format i386-pc -d /usr/lib/grub/i386-pc -p /boot/grub \
-    -o "$CONT_BUILD_DIR/bios.img" biosdisk ${shared_modules}
+  grub-mkimage -O i386-pc -d /usr/lib/grub/i386-pc -p /boot/grub \
+    -o "$CONT_MISC_DIR/bios.img" biosdisk part_msdos ${shared_modules}
 
-  echo -e ":: Concatenate cdboot.img to bios.img to create CD-ROM bootable image $CONT_BUILD_DIR/eltorito.img"
-  cat /usr/lib/grub/i386-pc/cdboot.img "$CONT_BUILD_DIR/bios.img" > "$CONT_ISO_DIR/boot/grub/i386-pc/eltorito.img"
+  echo -e ":: Concatenate cdboot.img to bios.img to create CD-ROM bootable image $CONT_MISC_DIR/eltorito.img"
+  cat /usr/lib/grub/i386-pc/cdboot.img "$CONT_MISC_DIR/bios.img" > "$CONT_ISO_DIR/boot/grub/i386-pc/eltorito.img"
 
-  echo -e ":: Concatenate boot.img to bios.img to create embedded boot $CONT_BUILD_DIR/embedded.img"
-  cat /usr/lib/grub/i386-pc/boot.img "$CONT_BUILD_DIR/bios.img" > "$CONT_ISO_DIR/boot/grub/i386-pc/embedded.img"
+  echo -e ":: Concatenate boot.img to bios.img to create embedded boot $CONT_MISC_DIR/embedded.img"
+  cat /usr/lib/grub/i386-pc/boot.img "$CONT_MISC_DIR/bios.img" > "$CONT_MISC_DIR/embedded.img"
 EOF
   check
 
@@ -242,7 +249,7 @@ EOF
   # -o "$CONT_ISO_DIR/EFI/BOOT/BOOTX64.EFI"     Using wellknown EFI location for fallback compatibility
   cat <<EOF | docker exec --privileged -i ${BUILDER} sudo -u build bash
   grub-mkimage --format x86_64-efi -d /usr/lib/grub/x86_64-efi -p /boot/grub \
-    -o "$CONT_ISO_DIR/EFI/BOOT/BOOTX64.EFI" fat efi_gop efi_uga ${shared_modules}
+    -o "$CONT_ISO_DIR/EFI/BOOT/BOOTX64.EFI" fat efi_gop efi_uga ext2 ${shared_modules}
 
   echo -e ":: Creating ESP with the BOOTX64.EFI binary"
   truncate -s 8M "${CONT_ESP}"
@@ -392,6 +399,13 @@ build_deployments()
 # https://wiki.osdev.org/El-Torito
 # https://lukeluo.blogspot.com/2013/06/grub-how-to-2-make-boot-able-iso-with.html
 # https://www.0xf8.org/2020/03/recreating-isos-that-boot-from-both-dvd-and-mass-storage-such-as-usb-sticks-and-in-both-legacy-bios-and-uefi-environments/
+#
+# Creating a rescue iso to compare agaisnt can be done with: grub-mkrescue -o grub.iso
+#
+# Test with:
+# sudo pacman -S qemu-base
+# qemu-system-x86_64 -cdrom cyberlinux-0.1.48-xfce.iso
+# qemu-system-x86_64 -hda cyberlinux-0.1.48-xfce.iso
 build_iso()
 {
   echo -e "${yellow}>> Building an ISOHYBRID bootable image...${none}"
@@ -404,14 +418,17 @@ build_iso()
     -as mkisofs                                     `# Use -as mkisofs to support options like grub-mkrescue does` \
     -volid CYBERLINUX_INSTALLER                     `# Identifier installer uses to find the install drive` \
     --modification-date=$(date -u +%Y%m%d%H%M%S00)  `# Date created YYYYMMDDHHmmsscc e.g. 2021071223322500` \
+    --sort-weight 0 / --sort-weight 1 /boot         `# Moves files in /boot closer to beginning of CD_ROM` \
     -r -iso-level 3 -full-iso9660-filenames         `# Use Rock Ridge and level 3 for standard ISO features` \
     \
     `# Configure BIOS bootable settings` \
+    `# eltorito.img path is relative to the iso root e.g. temp/iso` \
+    `# embedded.img path must be outside the iso root e.g. temp/misc` \
     -b boot/grub/i386-pc/eltorito.img               `# a.k.a -eltorito-boot enables BIOS boot` \
     -no-emul-boot                                   `# Image is not emulating floppy mode` \
     -boot-load-size 4                               `# Specifies (4) 512byte blocks: 2048 total` \
     -boot-info-table                                `# Updates boot image with boot info table` \
-    --embedded-boot iso/boot/grub/i386-pc/embedded.img  `# Copy 32768 bytes to the start of the ISO` \
+    --embedded-boot "${CONT_MISC_DIR}/embedded.img" `# Copy 32768 bytes to the start of the ISO` \
     --protective-msdos-label                        `# Seals off the MBR boot space` \
     \
     `# Configure UEFI bootable settings` \
@@ -435,7 +452,7 @@ clean()
 
   local targets="$1"
   if [ "${1}" == "most" ]; then
-    targets="iso,layers,output,repo" 
+    targets="iso,misc,layers,output,repo"
   fi
 
   for x in ${targets//,/ }; do
@@ -632,6 +649,7 @@ docker_run() {
   #    also using it to mount the custom repo into the container
   docker run -d --name ${BUILDER} --rm ${params} ${2} \
     -v "${ISO_DIR}":"${CONT_ISO_DIR}" \
+    -v "${MISC_DIR}":"${CONT_MISC_DIR}" \
     -v "${REPO_DIR}":"${CONT_REPO_DIR}" \
     -v "${CACHE_DIR}":"${CONT_CACHE_DIR}" \
     -v "${LAYERS_DIR}":"${CONT_LAYERS_DIR}" \
