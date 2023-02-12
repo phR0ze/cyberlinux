@@ -33,6 +33,8 @@ to upgrade existing deployments.
     * [Incrementally build profile](#incrementally-build-profile)
     * [Create a new deployment](#create-a-new-deployment)
   * [Xfce](#xfce)
+    * [Autostart](#autostart)
+    * [Disable xfwm compositing](#disable-xfwm-compositing)
     * [Cycle through workspaces](#cycle-through-workspaces)
     * [Default Wallpaper](#default-wallpaper)
     * [LCD clock style](#lcd-clock-style)
@@ -360,6 +362,15 @@ Most of Xfce's custom configuration is stored in the dir `~/.config/xfce4/xfconf
 Typically the process for persisting a configuration is to make the change then copy over the related 
 config file to this location then do a diff to see what changed. For example changing the LCD clock 
 style went like this:
+
+### Autostart
+Applications can be automatically started in a number of location, cyberlinux uses the following:
+* `profiles/xfce/netbook/etc/xdg/autostart`
+* `profiles/xfce/netbook/etc/skel/.conf/autostart`
+
+### Disable xfwm compositing
+1. Edit `profiles/xfce/lite/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml`
+   1. Change the `use_compositing` value to `false` 
 
 ### Cycle through workspaces
 We'll be setting up `Super+Tab` to cycle through the existing workspaces forward and 
