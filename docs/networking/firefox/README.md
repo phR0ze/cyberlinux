@@ -7,19 +7,29 @@ Documenting how I like to configure Firefox
 ### Quick links
 * [.. up dir](..)
 * [Config](#config)
+  * [View Markdown](#view-markdown)
   * [Recent tab switching](#recent-tab-switching)
 * [Extensions](#extensions)
   * [ublock origin](#ublock-origin)
 
-# Config <a name="config"/></a>
+# Config
 
-## Recent tab switching <a name="recent-tab-switching"/></a>
+## View Markdown
+1. Browse to `about:config`
+2. Search for `helpers.private_mime_types_file` which show the mime path `~/.mime.types`
+3. Create the file `~/.mime.types`
+   ```
+   text/plain       md txt
+   ```
+4. Download and install [Markdown viewer](https://addons.mozilla.org/en-US/firefox/addon/markdown-viewer-chrome/)
+
+## Recent tab switching
 1. Navigate to `MENU >Settings`
 2. Check `General >Ctrl+Tab cycles through tabs in recently used order`
 
-# Extensions <a name="extensions"/></a>
+# Extensions
 
-## ublock origin <a name="ublock-origin"/></a>
+## ublock origin
 1. Navigate to `MENU >Add-ons and themes`
 2. Punch into the search `ublock origin`
 3. Click through and then `Add to Firefox >Add`

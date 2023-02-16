@@ -113,64 +113,98 @@ see [Install Rust](../vscode#install-rust)
 see [Config Rust](../vscode#config-rust)
 
 ## Create new project
-Always start with a binary project and then use `[workspace]` to split the structure up. This allows
-for your cli to pull in dependencies that don't affect the library.
+Always start with a new project directory and add crates to it using `[workspace]` to split the 
+structure up. This allows for crates to pull in dependencies that don't affect other crates in the 
+same workspace.
 
-### 1. Configure Cargo.toml
-Create the binary project
+### 1. Create new project structure
+1. Create new project directory
+   ```bash
+   $ cd ~/Projects/examples-rs/web
+   $ mkdir actix-demo
+   ```
+2. Create `Cargo.toml` with workspace defined
+   ```
+   [workspace]
+   members = [
+       "actix-api",
+       "actix-cli",
+   ]
+   ```
+3. Create api as a library for more flexibility
+   1. Create the new lib crate
+      ```bash
+      $ cargo new actix-api --lib
+      ```
+4. Create cli as binary runner
+   1. Create the new binary crate
+      ```bash
+      $ cargo new actix-cli --bin
+      ```
+   2. Add `actix-lib` as a dependency in `actix-api/Cargo.yaml`
+      ```toml
+      [dependencies]
+      api = { path = "../actix-api" }
+      ```
+5. Now build from the top level projet directory
+   ```bash
+   $ cargo build
+   ```
+
+
+   ```toml
+   [package]
+   name = "actix-demo"
+   version = "0.0.1"
+   edition = "2021"
+   authors = ["phR0ze"]
+   license = "MIT OR Apache-2.0"
+   description = "Demo actix functionality"
+   homepage = "https://github.com/phR0ze/examples-rs"
+   repository = "https://github.com/phR0ze/examples-rs"
+   exclude = [
+     "docs",
+     "examples",
+     ".git",
+     ".githooks",
+     ".github",
+     "tests",
+     "benches",
+     "target",
+     ".vscode"
+   ]
+   
+   # Spliting the crates with workspaces allows for a separation of dependencies so the binary 
+   # dependencies aren't required for the library
+   [workspace]
+   members = [
+       "rivia-vfs",
+       "rivia-cli",
+   ]
+   
+   # Higher the opt-level value the slower the compile time
+   [profile.release]
+   opt-level = 3   # Optimize for speed over size
+   lto = true      # Futher assist in optimization
+   debug = true    # Enable debug symbols for witcher
+   
+   [profile.dev]
+   opt-level = 0   # Default no optimization
+   
+   [dependencies]
+   rivia-vfs = { path = "vfs" }
+   
+   # Examples, tests and build.rs are built with these dependencies
+   [build-dependencies]
+   chrono = "0.4"
+   ```
+
+### 2. Create a binary crate
+Create the binary crate
 ```bash
 $ cargo new <name> --bin
 ```
 
-Edit the Cargo.toml and add the basics. We'll add the `[workspace]` in a later step.
-
-All `path` dependencies in in the workspace e.g. `rivia-vfs = {path = "vfs"}` will be included in the workspace.
-* https://doc.rust-lang.org/cargo/reference/workspaces.html#the-workspace-section
-
-**Cargo.yaml Example:**
-```
-[package]
-name = "rivia"
-version = "0.0.1"
-edition = "2021"
-authors = ["phR0ze"]
-license = "MIT OR Apache-2.0"
-description = "Rust utilities to reduce code verbosity"
-homepage = "https://github.com/phR0ze/rivia"
-repository = "https://github.com/phR0ze/rivia"
-exclude = [
-  "docs",
-  "examples",
-  ".git",
-  ".githooks",
-  ".github",
-  "tests",
-  "benches",
-  "target",
-  ".vscode"
-]
-
-# Spliting the library from the binary with workspaces allows for a separation of
-# dependencies so the binary dependencies aren't required for the library.
-# path = <dependency> entries in dependencies are automatically included
-[workspace]
-
-# Higher the opt-level value the slower the compile time
-[profile.release]
-opt-level = 3   # Optimize for speed over size
-lto = true      # Futher assist in optimization
-debug = true    # Enable debug symbols for witcher
-
-[profile.dev]
-opt-level = 0   # Default no optimization
-
-[dependencies]
-rivia-vfs = { path = "vfs" }
-
-# Examples, tests and build.rs are built with these dependencies
-[build-dependencies]
-chrono = "0.4"
-```
 
 Test out new project
 ```bash
