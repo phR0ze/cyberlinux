@@ -13,11 +13,12 @@ Documenting the steps I went through to deploy <b><i>cyberlinux</i></b> onto a s
   * [Teamviewer](#teamviewer)
   * [Storage Drive](#storage-drive)
   * [NFS Shares](#nfs-shares)
+  * [Pathfinder-rb](#pathfinder-rb)
   * [qBittorrent](#qbittorrent)
   * [Tiny Media Manager](#tiny-media-manager)
   * [Configure Vopono](#configure-vopono)
 
-# Install cyberlinux <a name="install-cyberlinux"/></a>
+# Install cyberlinux
 1. Boot from the USB:  
    a. Plug in the [Multiboot USB](../../../cyberlinux#create-multiboot-usb)  
    b. Power on the system and wait for the boot into the USB  
@@ -27,24 +28,24 @@ Documenting the steps I went through to deploy <b><i>cyberlinux</i></b> onto a s
    b. Complete out the process and unplug the USB  
    c. Reboot your system usually `Ctrl+Alt+Delete` and login  
 
-# Configure cyberlinux <a name="configure-cyberlinux"/></a>
+# Configure cyberlinux
 
-## General <a name="general"/></a>
+## General
 1. Copy over ssh keys to `~/.ssh`
 2. Ensure the ssh keys are only readable by the user `chmod og-rwx -R ~/.ssh`
 2. Copy over any wallpaper to `/usr/share/backgrounds`
 
-## Graphics <a name="graphics"/></a>
+## Graphics
 1. Turn off Xfwm's compositing to improve your remote desktop experience
 2. Set the power manager to never `Blank after` your display and set it to `Presentation mode`
 
-## Teamviewer <a name="teamviewer"/></a>
+## Teamviewer
 1. Launch Teamviewer from the tray icon
 2. Navigate to `Extras >Options`
 3. Set `Choose a theme` to `Dark` and hit `Apply`
 4. Navigate to `Advanced` and set `Personal password` and hit `OK`
 
-## Storage Drive <a name="storage-drive"/></a>
+## Storage Drive
 HP Z620s have a built in Intel Rapid Storage Manager option ROM Configuration utility. You press 
 `Ctrl+I` during the boot when prompted to enter the setup utility. Work through the utilty to create 
 your RAID. I chose RAID 1 a.k.a Mirror. This is a `Fake RAID` i.e. is looks like its hardware but its 
@@ -99,7 +100,9 @@ a failure before the system is ever booted.
    $ ln -s /mnt/storage ~/Storage
    ```
 
-## NFS Shares <a name="nfs-shares"/></a>
+## NFS Shares
+Backup can be restored from `storage/Backup/{exports,fstab}`
+
 1. Create bind mount paths as necessary to match your storage drive
    ```bash
    $ sudo mkdir -p /srv/nfs/{Cache,Documents,Movies,TV}
@@ -136,7 +139,22 @@ EOL
    $ sudo exportfs -v
    ```
 
-## qBittorrent <a name="qbittorrent"/></a>
+## Pathfinder-rb
+1. Restore pathfinder project data
+   ```bash
+   $ cp ~/Storage/Backup/development.sqlite3 ~/Storage/Projects/pathfinder-rb/db
+   ```
+2. Restore pathfinder image
+   ```bash
+   $ docker load < ~/Storage/Backup/pathfinder-rb-image.tar.gz 
+   ```
+3. Launch the app
+   ```bash
+   $ cd ~/Storage/Projects/pathfinder-rb
+   $ docker run --rm -v $(pwd):/usr/src/app -p 3000:3000 -e TZ=America/Boise pathfinder-rb
+   ```
+
+## qBittorrent
 1. Restore torrent cache
    ```bash
    $ mv ~/Storage/Backup/torrents ~/Downloads
@@ -145,10 +163,10 @@ EOL
    ```bash
    $ mkdir -p ~/.local/share/data
    $ cp -a ~/Storage/Backup/.config/qBittorrent ~/.config
-   $ cp -a ~/Storage/Backup/.local/share/data/qBittorrent ~/.local/share/data
+   $ cp -a ~/Storage/Backup/.local/share/qBittorrent ~/.local/share
    ```
 
-## Tiny Media Manager <a name="tiny-media-manager"/></a>
+## Tiny Media Manager
 1. Restore tiny media manager data
    ```bash
    $ sudo cp -a ~/Storage/Backup/tiny-media-manager/data /usr/share/tiny-media-manager/data
@@ -158,7 +176,7 @@ EOL
    $ sudo cp -a ~/Storage/Backup/tiny-media-manager/cache /usr/share/tiny-media-manager/cache
    ```
 
-## Configure Vopono <a name="configure-vopono"/></a>
+## Configure Vopono
 1. Configure vopono run: `vopono sync PrivateInternetAccess`
 2. Choose the `Strong` UDP option
 2. Enter your username and password
