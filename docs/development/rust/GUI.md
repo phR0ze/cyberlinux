@@ -90,6 +90,20 @@ user interfaces in Rust. It is built on top of Tauri. Tauri provides the underly
 allows for a lot more choice but requires more effort to get started. Dioxus layers on top providing 
 a simplified one-size fits all approach that will be easier to get started with.
 
+**Dioxus references**
+* [Bulma with Dioxus](https://github.com/mrxiaozhuox/dioxus-bulma/blob/main/examples/full.rs)
+* [Fetch images example](https://github.com/DioxusLabs/dioxus/blob/master/examples/suspense.rs)
+* [Desktop Window Builder](https://docs.rs/dioxus-desktop/latest/dioxus_desktop/struct.WindowBuilder.html#method.with_menu)
+* [Example of WASM and Desktop](https://github.com/LyonSyonII/dioxus-tailwindcss)
+* [Window Decorations](https://github.com/DioxusLabs/dioxus/blob/master/examples/overlay.rs)
+* [Full featured mail client](https://github.com/jkelleyrtp/blazemail)
+* [Uplink - P2P chat](https://github.com/Satellite-im/Uplink)
+  * Run with: `cargo run`
+
+**Dioxus questions**
+* dioxus-web vs dioxus-html
+* global state management - Fermi
+
 ## Setup Dioxus
 
 ### Install Dioxus CLI
@@ -105,7 +119,7 @@ $ cargo install cargo-add
 ### Install Dioxus VSCode Extension
 Install the `dioxus` extension
 
-## Create a new Dioxus project
+## Create a new Dioxus WASM project
 1. Create the project
    ```
    $ cargo new --bin wasm
@@ -136,6 +150,53 @@ Install the `dioxus` extension
        })
    }
    ```
+
+## Make a Dioxus WASM and Desktop project
+My original intent with learning Dioxus was to write an app that can span the Web, Desktop and 
+Mobile. The core code can stay the same hopefully but some conditional crates and logic will need to 
+be included per platform.
+
+### Conditional platform code
+Conditional platform code is used for CSS imports. WASM will pick up the CSS from the index.html 
+configuration and local files while the desktop version will need to import it via the `launch_cfg` 
+configuration.
+
+```rust
+#[cfg(target_family = "wasm")]
+dioxus_web::launch(Root);
+
+#[cfg(any(windows, unix))]
+dioxus_desktop::launch_cfg(Root, dioxus_desktop::Config::new().with_custom_head(r#"<link rel="stylesheet" href="public/tailwind.css">"#.to_string()));
+```
+
+### Conditional platform crate imports
+By using conditional crate imports we can include specific code per platform while keeping the UI and 
+core code shared. The `dioxus-<platform>` crates are key to making this happen.
+
+```toml
+[target.'cfg(any(unix, windows))'.dependencies]
+dioxus-desktop = { version = "0.3.0" }
+
+[target.'cfg(target_family = "wasm")'.dependencies]
+dioxus-web = { version = "0.3.1" }
+```
+
+### Set the window properties
+You can set the window's name, size and other window properties using the 
+`dioxus_desktop::WindowBuilder` builder object.
+
+```rust
+dioxus_desktop::launch_cfg(
+  App,
+  dioxus_desktop::Config::new()
+    .with_window(
+        dioxus_desktop::WindowBuilder::new()
+          .with_title("diper")
+          .with_decorations(false)
+          .with_inner_size(dioxus_desktop::LogicalSize::new(300.0, 300.0)),
+    )
+);
+```
 
 ## Build and run
 1. Build and run
