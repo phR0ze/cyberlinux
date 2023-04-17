@@ -106,6 +106,21 @@ a simplified one-size fits all approach that will be easier to get started with.
 
 ## Setup Dioxus
 
+### Install Arch system libs
+```
+sudo pacman -S --needed \
+    webkit2gtk-4.1 \
+    base-devel \
+    curl \
+    wget \
+    openssl \
+    appmenu-gtk-module \
+    gtk3 \
+    libappindicator-gtk3 \
+    librsvg \
+    libvips
+```
+
 ### Install Dioxus CLI
 ```
 $ cargo install dioxus-cli
