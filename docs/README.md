@@ -185,8 +185,7 @@ on the [Arch Linux Wiki](https://wiki.archlinux.org/) should work just fine as w
   * [Add user](#add-user)
   * [Rename user](#rename-user)
 * [VeraCrypt](#veracrypt)
-* [Virtual Box](#virtual-box)
-  * [USB Access in VM](#usb-access-in-vm)
+* [Virtualization](virtualization)
 * [Window Manager](#window-manager)
   * [Openbox](#openbox)
   * [XFWM](#xfwm)
@@ -1683,13 +1682,17 @@ $ sudo rm /etc/pacman.d/mirrorlist
 Creating a repo database from a directory of packages is a simple process:
 ```bash
 # Navigate into the target directory
-$ cd ~/Projects/cyberlinux-repo/cyberlinux/x86_64
+$ cd ~/Projects/cyberlinux.bitbucket.io/packages/cyberlinux/x86_64
 
 # Remove prior database files
 $ rm -rf cyberlinux.*
 
 # Create the database
 $ repo-add cyberlinux.db.tar.gz *.pkg.tar.*
+
+# Replace symbolic links with hard links
+$ ln -f cyberlinux.db.tar.gz cyberlinux.db
+$ ln -f cyberlinux.files.tar.gz cyberlinux.files
 ```
 
 ## Share Package Cache
@@ -2455,20 +2458,6 @@ Create a new ***100GB Volume***
   a. Browse to ***/mnt/veracrypt1*** and drag and drop it to ***Places***  
 6. Configure autostart for veracrypt  
   `cp /usr/share/applications/veracrypt.desktop ~/.config/autostart`
-
-# Virtual Box
-
-## USB Access in VM
-[Accessing host USB devices in guest](https://wiki.archlinux.org/index.php/VirtualBox#Accessing_host_USB_devices_in_guest)
-requires that your user be part of the vboxusers group.
-
-```bash
-# Check which groups your user is in
-$ groups
-
-# Add your use to the vboxusers group
-$ sudo usermod -a -G vboxusers <USER>
-```
 
 # Window Manager
 A window manager controls the placment and appearance of windows within a windowing system like X
