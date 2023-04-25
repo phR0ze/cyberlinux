@@ -106,6 +106,7 @@ on the [Arch Linux Wiki](https://wiki.archlinux.org/) should work just fine as w
   * [Mount Busy](#mount-busy)
     * [fuser](#fuser)
   * [Add Automount using FSTAB](#add-automount-using-fstab)
+* [Multimedia](multimedia)
 * [Networking](networking)
 * [Office](#office)
   * [LibreOffice](#libreoffice)
