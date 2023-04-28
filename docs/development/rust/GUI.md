@@ -16,6 +16,14 @@ Android, WASM and Linux support using Arch Linux as my devlopment environment.
 * [Tauri](#tauri)
   * [Install Tauri Dependencies](#install-tauri-dependencies)
 * [Dioxus](#dioxus)
+  * [Setup Dioxus](#setup-dioxus)
+  * [Create a new Dioxus WASM project](#create-a-new-dioxus-wasm-project)
+  * [Make a Dioxus WASM and Desktop project](#make-a-dioxus-wasm-and-desktop-project)
+  * [Build and run a Dioxus WASM app](#build-and-run-a-dioxus-wasm-app)
+* [Tailwind CSS](#tailwind-css)
+  * [Tailwind Overview](#tailwind-overview)
+    * [Tailwind Reset](#tailwind-reset)
+* [BULMA CSS](#bulma-css)
 
 # Overview
 
@@ -92,12 +100,12 @@ rather than baked in ones.
 
 # Dioxus
 Dioxus is a React inspired portable, performant and ergonomic framework for building cross-platform 
-user interfaces in Rust. It is built on top of Tauri. Tauri provides the underlying infrstructure and 
-allows for a lot more choice but requires more effort to get started. Dioxus layers on top providing 
-a simplified one-size fits all approach that will be easier to get started with.
+user interfaces in Rust. It is built on top of Tauri which provides the cross-platform aspects. Tauri 
+could be used directly but then you loose Dioxus's convenient works out of the box paradigm. Dioxus 
+layers on top making it just work and adding the React capablities.
 
 **Dioxus references**
-* [Bulma with Dioxus](https://github.com/mrxiaozhuox/dioxus-bulma/blob/main/examples/full.rs)
+* [Dioxus Bulma](https://github.com/mrxiaozhuox/dioxus-bulma)
 * [Fetch images example](https://github.com/DioxusLabs/dioxus/blob/master/examples/suspense.rs)
 * [Desktop Window Builder](https://docs.rs/dioxus-desktop/latest/dioxus_desktop/struct.WindowBuilder.html#method.with_menu)
 * [Example of WASM and Desktop](https://github.com/LyonSyonII/dioxus-tailwindcss)
@@ -236,12 +244,57 @@ dioxus_desktop::launch_cfg(
 );
 ```
 
-## Build and run
+## Build and run a Dioxus WASM app
 1. Build and run
    ```
    dioxus serve --hot-reload
    ```
 2. Browse to `http://localhost:8080/`
+
+# Tailwind CSS
+A utility-first CSS framework packed with classes like `flex`, `pt-4`, `text-center` and `rotate-90` 
+that can be composed to build any design, directly in your markup.
+
+**References**
+* [Tailwind docs](https://tailwindcss.com/docs/installation)
+* [Tailwind showcase](https://tailwindcss.com/showcase)
+
+## Tailwind Overview
+
+### Tailwind Reset
+Tailwind CSS comes with a great CSS Reset, called Preflight. It starts with the awesome Normalize.css 
+project then nukes all default margins, styling, and borders for ever HTML element. This is so that 
+you have a consistent, predictable starting point with which to apply your visual utility classes 
+separate from the semantic element names.
+
+```css
+@tailwind base; /* Preflight will be injected here */
+@tailwind components;
+@tailwind utilities;
+```
+
+**References**
+* [Tailwind CSS Un-reset](https://dev.to/swyx/how-and-why-to-un-reset-tailwind-s-css-reset-46c5)
+
+## Tailwind in Dioxus
+```html
+<!-- style stuff -->
+<!-- <script src="https://cdn.tailwindcss.com"></script> -->
+<link data-trunk rel="css" href="tailwind.css" />
+```
+
+# BULMA CSS
+Bulma is a free, open source framework that provides ready-to-use frontend components that you can 
+easily combine to build responsive web interfaces.
+
+* 100% responsive mobile first
+* Just import what you need
+* Modern, build with Flexbox
+
+**References**
+* [Bulma github](https://github.com/jgthms/bulma)
+* [Bulma docs](https://bulma.io/documentation/)
+* [Dioxus Bulma github](https://github.com/mrxiaozhuox/dioxus-bulma)
 
 <!-- 
 vim: ts=2:sw=2:sts=2
