@@ -9,6 +9,7 @@ Android, WASM and Linux support using Arch Linux as my devlopment environment.
 * [.. up dir](..)
 * [Overview](#overview)
   * [Requirements](#requirements)
+  * [General UI Design](#general-ui-design)
 * [Install prerequisites](#install-prerequisites)
   * [Install Rust](#install-rust)
   * [Install Rust Android targets](#install-rust-android-targets)
@@ -23,6 +24,11 @@ Android, WASM and Linux support using Arch Linux as my devlopment environment.
 * Media processing capabiliies
 * As much pure Rust as possible
 * Cross-platform support including Android, Linux and WASM
+
+## General UI Design
+
+**References**
+* [UI Glossary](https://www.uxdesigninstitute.com/blog/ui-glossary/)
 
 # Install pre-requisites
 
@@ -98,7 +104,10 @@ a simplified one-size fits all approach that will be easier to get started with.
 * [Window Decorations](https://github.com/DioxusLabs/dioxus/blob/master/examples/overlay.rs)
 * [Full featured mail client](https://github.com/jkelleyrtp/blazemail)
 * [Uplink - P2P chat](https://github.com/Satellite-im/Uplink)
-  * Run with: `cargo run`
+* [Blazemail](https://github.com/jkelleyrtp/blazemail)
+* [Rummy Nights](https://github.com/arqalite/rummy-nights)
+* [SpideyClick](http://demo.spideyclick.net/)
+* [Karaty](https://github.com/mrxiaozhuox/karaty)
 
 **Dioxus questions**
 * dioxus-web vs dioxus-html
@@ -171,19 +180,6 @@ My original intent with learning Dioxus was to write an app that can span the We
 Mobile. The core code can stay the same hopefully but some conditional crates and logic will need to 
 be included per platform.
 
-### Conditional platform code
-Conditional platform code is used for CSS imports. WASM will pick up the CSS from the index.html 
-configuration and local files while the desktop version will need to import it via the `launch_cfg` 
-configuration.
-
-```rust
-#[cfg(target_family = "wasm")]
-dioxus_web::launch(Root);
-
-#[cfg(any(windows, unix))]
-dioxus_desktop::launch_cfg(Root, dioxus_desktop::Config::new().with_custom_head(r#"<link rel="stylesheet" href="public/tailwind.css">"#.to_string()));
-```
-
 ### Conditional platform crate imports
 By using conditional crate imports we can include specific code per platform while keeping the UI and 
 core code shared. The `dioxus-<platform>` crates are key to making this happen.
@@ -194,6 +190,33 @@ dioxus-desktop = { version = "0.3.0" }
 
 [target.'cfg(target_family = "wasm")'.dependencies]
 dioxus-web = { version = "0.3.1" }
+```
+
+### Conditional platform code
+Conditional platform code is used for CSS imports. WASM will pick up the CSS from the index.html 
+configuration and local files while the desktop version will need to import it via the `launch_cfg` 
+configuration.
+
+```rust
+#![allow(non_snake_case)]
+
+use dioxus::prelude::*;
+
+fn main() {
+   #[cfg(target_family = "wasm")]
+   dioxus_web::launch(App);
+
+   #[cfg(any(windows, unix))]
+   dioxus_desktop::launch_cfg(Root, dioxus_desktop::Config::new());
+}
+
+fn App(cx: Scope) -> Element {
+   cx.render(rsx! {
+       div {
+           "Hello, world!"
+       }
+   })
+}
 ```
 
 ### Set the window properties
