@@ -24,6 +24,7 @@ Android, WASM and Linux support using Arch Linux as my devlopment environment.
   * [Tailwind Overview](#tailwind-overview)
     * [Tailwind Reset](#tailwind-reset)
 * [BULMA CSS](#bulma-css)
+* [DaisyUI](#daisyui)
 
 # Overview
 
@@ -37,6 +38,7 @@ Android, WASM and Linux support using Arch Linux as my devlopment environment.
 
 **References**
 * [UI Glossary](https://www.uxdesigninstitute.com/blog/ui-glossary/)
+* [React Icons for lookup](https://react-icons.github.io/react-icons/search?q=arrow)
 
 # Install pre-requisites
 
@@ -105,6 +107,7 @@ could be used directly but then you loose Dioxus's convenient works out of the b
 layers on top making it just work and adding the React capablities.
 
 **Dioxus references**
+* [Awesome Dioxus](https://github.com/DioxusLabs/awesome-dioxus)
 * [Dioxus Bulma](https://github.com/mrxiaozhuox/dioxus-bulma)
 * [Fetch images example](https://github.com/DioxusLabs/dioxus/blob/master/examples/suspense.rs)
 * [Desktop Window Builder](https://docs.rs/dioxus-desktop/latest/dioxus_desktop/struct.WindowBuilder.html#method.with_menu)
@@ -116,6 +119,18 @@ layers on top making it just work and adding the React capablities.
 * [Rummy Nights](https://github.com/arqalite/rummy-nights)
 * [SpideyClick](http://demo.spideyclick.net/)
 * [Karaty](https://github.com/mrxiaozhuox/karaty)
+* [Hangman online](https://github.com/lennartkloock/hangman-online)
+* [Dioxus use future with fermi](https://github.com/DioxusLabs/dioxus/pull/161/files)
+* [Dioxus manual future restart](https://github.com/DioxusLabs/dioxus/issues/149)
+* [ER Mule Copier](https://github.com/pubnoconst/er_mule_copier)
+* [CSS Primer impl](https://github.com/purton-tech/cloak/tree/main/crates/primer-rsx)
+* [TwitVault](https://github.com/terhechte/twitvault)
+* [Pomodoro timer](https://github.com/kualta/pomo)
+* [Emoji Browser from Dioxus Class](https://github.com/edger-dev/dioxus-class)
+* [Dioxus hooks helpers](https://github.com/oovm/dioxus-hooks)
+* [React hook recipes](https://usehooks.com/)
+* [Dioxus starter](https://github.com/mrxiaozhuox/dioxus-starter)
+* [Real World example](https://github.com/dxps/fullstack-rust-axum-dioxus-rwa)
 
 **Dioxus questions**
 * dioxus-web vs dioxus-html
@@ -251,37 +266,128 @@ dioxus_desktop::launch_cfg(
    ```
 2. Browse to `http://localhost:8080/`
 
+## Dioxus global state - fermi
+
+### State rendering events
+The `fermi` project provide a convenient way to access global state by object type. However in order 
+to be efficient you need to be careful in how you construct and use this global state as Dioxus will 
+be triggering the re-render of components based on their use of state that has also changed. This 
+means that it is problematic to use a centralized state object for all state as any part of the 
+system that uses the same state object will automatically trigger component updates even when they 
+shouldn't be triggered. As a result the best practice for this is to use granular objects for state. 
+Potentially a state object per type use-case. In this way we can avoid un-related component 
+re-renders.
+
 # Tailwind CSS
-A utility-first CSS framework packed with classes like `flex`, `pt-4`, `text-center` and `rotate-90` 
-that can be composed to build any design, directly in your markup.
+A utility-first CSS framework packed with utility type classes that can be composed to build any 
+design with infinite flexibility. Nothing is pre-styled; not even headings or links. You have to 
+create everything from scratch, giving you the opportunity to create something unique. Typically a 
+designer will create sets of semantic classes that group the appropriate utiltiy classes for 
+component types e.g. `btn`, `btn-primary` etc... and use those everywhere and don't use the utility 
+classes directly. `Tailwind UI` though is a higher level set of pre-styled components such as `hero`, 
+`sections`, `CTA` etc... more like Bulma or Bootstrap but are based on the utility classes of 
+Tailwind CSS. Notably though Tailwind UI is not free. However `daisyUI` and `Flowbite` are both built
+on top of Tailwind CSS providing pre-styled components similar to Tailwind UI but for free
 
 **References**
 * [Tailwind docs](https://tailwindcss.com/docs/installation)
 * [Tailwind showcase](https://tailwindcss.com/showcase)
+* [Tailwind CSS Un-reset](https://dev.to/swyx/how-and-why-to-un-reset-tailwind-s-css-reset-46c5)
+* [daislyUI](https://daisyui.com/components/alert/)
+* [Flowbite components](https://flowbite.com/docs/components/alerts/)
+* [Versoly UI](https://versoly.com/versoly-ui/components/alert)
+* [Tailwind Stamps](https://tailwindcss.5balloons.info/components/alerts/)
+* [Tailwind Elements](https://tailwind-elements.com/docs/standard/components/alerts/)
+* [Tailblocks](https://tailblocks.cc/)
+* [Tailwind templates](https://tailwindtemplates.co/)
+* [Hyper UI](https://www.hyperui.dev/components/application-ui/alerts)
+* [Tailwind Components](https://tailwindcomponents.com/)
+* [Meraki UI](https://merakiui.com/components)
+* [Tailwind Toolbox](https://www.tailwindtoolbox.com/)
 
 ## Tailwind Overview
+Latest version 3.3.2
 
 ### Tailwind Reset
 Tailwind CSS comes with a great CSS Reset, called Preflight. It starts with the awesome Normalize.css 
 project then nukes all default margins, styling, and borders for ever HTML element. This is so that 
 you have a consistent, predictable starting point with which to apply your visual utility classes 
-separate from the semantic element names.
-
-```css
-@tailwind base; /* Preflight will be injected here */
-@tailwind components;
-@tailwind utilities;
-```
-
-**References**
-* [Tailwind CSS Un-reset](https://dev.to/swyx/how-and-why-to-un-reset-tailwind-s-css-reset-46c5)
+separate from the semantic element names. Preflight is included as part of the `base` tailwind 
+module.
 
 ## Tailwind in Dioxus
-```html
-<!-- style stuff -->
-<!-- <script src="https://cdn.tailwindcss.com"></script> -->
-<link data-trunk rel="css" href="tailwind.css" />
+
+### Include Tailwind
+Tailwind provides the ability to only include what you use. However to do this you'll need to have a 
+tailwind minify `npx` operation run during build time to scan your codebase to determine what is 
+being used to generate the final `output.css`.
+
+Note: alternatively you can install `tailwindcss` rather than executing with `npx` but it gives you 
+the exact same options and is of no benefit.
+
+#### Fast include for dev
+```shell
+$ npx tailwindcss -o tailwind.min.css --minify
 ```
+
+#### Optimiazing for Production
+* [Setup tailwind for yew](https://dev.to/arctic_hen7/how-to-set-up-tailwind-css-with-yew-and-trunk-il9)
+* [Optimizing for Production](https://tailwindcss.com/docs/optimizing-for-production)
+
+1. Initialize TailwindCSS to create `tailwind.config.js`
+   ```shell
+   $ cd ~/Projects/tailwind
+   $ npx tailwindcss init
+   ```
+2. Update `tailwind.config.js` to search your code
+   ```javascript
+   /** @type {import('tailwindcss').Config} */
+   module.exports = {
+     content: ["./src/**/*.{html,rs}"],
+     theme: {
+       extend: {},
+     },
+     plugins: [],
+   } 
+   ```
+3. Create module call out `src/input.css`
+   ```css
+   @tailwind base;
+   @tailwind components;
+   @tailwind utilities;
+   ```
+4. Include in your project
+   ```rust
+   pub fn get_tailwind_css() -> &'static str {
+       include_str!("../dist/output.css")
+   }
+
+   fn App(cx: Scope) -> Element {
+       cx.render(rsx! {
+           style: { "{get_tailwind_css()}" },
+           div {
+               class: "w-full h-screen bg-gray-300 flex items-center justify-center",
+               "Hello, world!"
+           }
+       })
+   }
+   ```
+5. Run the minify operation
+  ```shell
+  $ npx tailwindcss --minify -c ./src/tailwind.config.js -i ./src/input.css -o ./dist/output.css --minify
+  ```
+
+## Daisy UI
+Tailwind.css provides the tools to build beautiful UIs with infinite customization. DaisyUI is a 
+Tailwind plugin that provides a number of pre-created components along the lines of Bulma CSS that 
+use Tailwind to allow you to get up and running faster and use fewer class names.
+
+* lkj
+
+**References**
+* [DaisyUI Components](https://daisyui.com/components/)
+
+
 
 # BULMA CSS
 Bulma is a free, open source framework that provides ready-to-use frontend components that you can 

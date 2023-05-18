@@ -90,6 +90,32 @@ of CAD work. You can customize workbenches and move tools from one to another.
 The BIM workbench is essentially the Arch workbench with additional tooling and settings to help with 
 BIM.
 
+* [BIM roof](https://www.youtube.com/watch?v=XCPUkXVqNQ8&list=PLU9HicgJ9hhJvYJso3a6w2TlSLfQvFhzW&index=1)
+
+#### Move with host
+BIM components that are built off a base rectangle like walls and slabs have a property called `Move 
+With Host` that can be set to true to keep them together when you move the base rectangle
+
+#### Selection Planes
+Create selection planes for technical views that will show up in the `Techdraw Workbench`
+
+1. Select all the components you'd like in the View
+2. Hide any sub-components you don't want to show up
+3. Click the `Selection Plane` button
+4. Switch over to the `TechDraw` workbench
+
+### TechDraw Workbench
+The TechDraw workbench is used to make a 2D technical drawing of your work based on the selection 
+planes you created with BIM.
+
+* [Techdraw 15 min](https://www.youtube.com/watch?v=02Gv4gN117M)
+
+1. Switch to the `TechDraw workbench`
+2. Click the `Insert Default Page` button top left
+3. Double click the `Page > Template` object and select a new template `USLetter_Landscape_blank.svg`
+3. Select your selection planes and click `Insert Arch Workbench Object`
+4. Select th enew `ArchView` and change its scale in its properties from `1.0` to `0.005`
+
 ## Sweet Home 3D
 
 # Audio
