@@ -20,6 +20,7 @@ Android, WASM and Linux support using Arch Linux as my devlopment environment.
   * [Create a new Dioxus WASM project](#create-a-new-dioxus-wasm-project)
   * [Make a Dioxus WASM and Desktop project](#make-a-dioxus-wasm-and-desktop-project)
   * [Build and run a Dioxus WASM app](#build-and-run-a-dioxus-wasm-app)
+  * [Dioxus CLI config](#dioxus-cli-config)
 * [Tailwind CSS](#tailwind-css)
   * [Tailwind Overview](#tailwind-overview)
     * [Tailwind Reset](#tailwind-reset)
@@ -131,6 +132,7 @@ layers on top making it just work and adding the React capablities.
 * [React hook recipes](https://usehooks.com/)
 * [Dioxus starter](https://github.com/mrxiaozhuox/dioxus-starter)
 * [Real World example](https://github.com/dxps/fullstack-rust-axum-dioxus-rwa)
+* [Material Icons browser](https://mui.com/material-ui/material-icons/)
 
 **Dioxus questions**
 * dioxus-web vs dioxus-html
@@ -278,6 +280,12 @@ shouldn't be triggered. As a result the best practice for this is to use granula
 Potentially a state object per type use-case. In this way we can avoid un-related component 
 re-renders.
 
+## Dioxus CLI config
+The `dioxus` cli binary we installed earlier in the process provides the ability to build our project 
+and stage it to be served by a production server like `axum` to do this though we need to create the 
+`Dioxus.toml` configuration file and specify where the static assets should end up. By default this 
+is the `dist` directory inside your frontend project.
+
 # Tailwind CSS
 A utility-first CSS framework packed with utility type classes that can be composed to build any 
 design with infinite flexibility. Nothing is pre-styled; not even headings or links. You have to 
@@ -286,8 +294,9 @@ designer will create sets of semantic classes that group the appropriate utiltiy
 component types e.g. `btn`, `btn-primary` etc... and use those everywhere and don't use the utility 
 classes directly. `Tailwind UI` though is a higher level set of pre-styled components such as `hero`, 
 `sections`, `CTA` etc... more like Bulma or Bootstrap but are based on the utility classes of 
-Tailwind CSS. Notably though Tailwind UI is not free. However `daisyUI` and `Flowbite` are both built
-on top of Tailwind CSS providing pre-styled components similar to Tailwind UI but for free
+Tailwind CSS. Notably though Tailwind UI is not free. However there are a host of others like 
+`daisyUI` or `Flowbite` that are built on top of Tailwind CSS providing pre-styled components similar 
+to Tailwind UI for free.
 
 **References**
 * [Tailwind docs](https://tailwindcss.com/docs/installation)
@@ -308,6 +317,8 @@ on top of Tailwind CSS providing pre-styled components similar to Tailwind UI bu
 ## Tailwind Overview
 Latest version 3.3.2
 
+* [Tailwind CSS releases](https://github.com/tailwindlabs/tailwindcss/releases)
+
 ### Tailwind Reset
 Tailwind CSS comes with a great CSS Reset, called Preflight. It starts with the awesome Normalize.css 
 project then nukes all default margins, styling, and borders for ever HTML element. This is so that 
@@ -319,29 +330,26 @@ module.
 
 ### Include Tailwind
 Tailwind provides the ability to only include what you use. However to do this you'll need to have a 
-tailwind minify `npx` operation run during build time to scan your codebase to determine what is 
-being used to generate the final `output.css`.
+tailwind minify operation run during build time to scan your codebase to determine what is being used 
+to generate the final `tailwind.min.css`.
 
-Note: alternatively you can install `tailwindcss` rather than executing with `npx` but it gives you 
+**tailwindcss as alternate to npx**
+You can install `tailwindcss` and use it instead of executing `npx` commands but it gives you 
 the exact same options and is of no benefit.
 
-#### Fast include for dev
-```shell
-$ npx tailwindcss -o tailwind.min.css --minify
-```
-
-#### Optimiazing for Production
 * [Setup tailwind for yew](https://dev.to/arctic_hen7/how-to-set-up-tailwind-css-with-yew-and-trunk-il9)
 * [Optimizing for Production](https://tailwindcss.com/docs/optimizing-for-production)
+* [Tailwindcss docs - Installation](https://tailwindcss.com/docs/installation)
 
 1. Initialize TailwindCSS to create `tailwind.config.js`
    ```shell
-   $ cd ~/Projects/tailwind
+   $ cd ~/Projects/<project>
    $ npx tailwindcss init
    ```
-2. Update `tailwind.config.js` to search your code
+2. Update `tailwind.config.js`. Any missing sections will fall back to the default configuration
+   * [Default Tailwind Config](https://github.com/tailwindlabs/tailwindcss/blob/master/stubs/config.full.js)
+   * Use `npx tailwindcss init --full` to get a full default config
    ```javascript
-   /** @type {import('tailwindcss').Config} */
    module.exports = {
      content: ["./src/**/*.{html,rs}"],
      theme: {
@@ -350,16 +358,38 @@ $ npx tailwindcss -o tailwind.min.css --minify
      plugins: [],
    } 
    ```
-3. Create module call out `src/input.css`
+3. Create module call out `tailwind.input.css`
    ```css
    @tailwind base;
    @tailwind components;
    @tailwind utilities;
    ```
-4. Include in your project
+4. Run the minify operation manually to generate `tailwind.min.css` for your project to start from
+  ```shell
+  $ npx tailwindcss -c tailwind.config.js -i tailwind.input.css -o tailwind.min.css --minify
+  ```
+5. Automate the building of it in your project, create `build.rs`
+   ```rust
+   use std::process::Command;
+   
+   fn main() {
+       Command::new("npx")
+           .arg("tailwindcss")
+           .arg("-c")
+           .arg("./tailwind.config.js")
+           .arg("-i")
+           .arg("./tailwind.input.css")
+           .arg("-o")
+           .arg("./tailwind.min.css")
+           .arg("--minify")
+           .output()
+           .expect("Error running tailwindcss");
+   }
+   ```
+6. Include in your project
    ```rust
    pub fn get_tailwind_css() -> &'static str {
-       include_str!("../dist/output.css")
+       include_str!("../tailwind.min.css")
    }
 
    fn App(cx: Scope) -> Element {
@@ -372,10 +402,6 @@ $ npx tailwindcss -o tailwind.min.css --minify
        })
    }
    ```
-5. Run the minify operation
-  ```shell
-  $ npx tailwindcss --minify -c ./src/tailwind.config.js -i ./src/input.css -o ./dist/output.css --minify
-  ```
 
 ## Daisy UI
 Tailwind.css provides the tools to build beautiful UIs with infinite customization. DaisyUI is a 

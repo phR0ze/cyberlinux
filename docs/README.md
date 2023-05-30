@@ -1387,7 +1387,11 @@ $ pdfjoin 1.pdf 2.pdf -o combined.pdf
 
 ### Rotate PDFs
 ```bash
-$ qpdf in.pdf out.pdf --rotate=[+|-]angle[:page-range]
+# Install texlive-core
+$ sudo pacman -S texlive-core
+
+# Rotate pdf
+$ pdfjam --landscape --angle 90 input.pdf
 ```
 
 ### Convert Images to PDF

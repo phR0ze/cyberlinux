@@ -82,6 +82,7 @@ Resources:
   * [Code Coverage Generation](#code-coverage-generation)
     * [Tarpaulin](#tarpaulin)
 * [Cargo](#cargo)
+  * [Manifest format](#manifest-format)
   * [Examples](#examples)
     * [Dev dependencies](#dev-dependencies)
   * [Binary Size](#binary-size)
@@ -105,6 +106,9 @@ Resources:
   * [Go Interop](#go-interop)
 
 # Getting Started
+
+**References**
+[Google Rust Course](https://google.github.io/comprehensive-rust/welcome.html)
 
 ## Install Rust
 see [Install Rust](../vscode#install-rust)
@@ -1204,9 +1208,9 @@ References:
 
 Module System:
 * ***Workspaces:*** A workspace is a set of packages that share the same `Cargo.lock`
-* ***Packages:*** A Cargo feature that lets you build, test, and share crates. Also a synonym for crate
-* ***Crates:*** A tree of modules that produces a library or executable
-* ***Modules and use:*** Let you control the organization, scope, and privacy of paths
+* ***Packages:*** Sharable or deliverable unit. All crates are packages but not all packages are crates
+* ***Crates:*** A tree of modules that produces a library or executable essentially a synonym for package
+* ***Modules:*** Let you control the organization, scope, and privacy of `Paths`
 * ***Paths:*** A way of naming an item, such as a struct, function, or module
 
 The `Cargo.toml` file for each package, a.k.a crate, is called its `manifest`, a.k.a `cargo manifest`:
@@ -1223,6 +1227,9 @@ log = "0.4.*"
 If multiple versions of a crate are used in your application that don't match a version called out in
 your dependency file then Cargo simply includes them both and uses `name mangling` to allow them both
 to be callable.
+
+## Manifest format
+* [Cargo manifest format](https://doc.rust-lang.org/cargo/reference/manifest.html)
 
 ## Examples
 Examples in Rust are really cool. They provide a way to package up code as binaries that you can run
