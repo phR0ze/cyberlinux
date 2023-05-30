@@ -5,7 +5,7 @@ Documenting various multimedia technologies
 <br><br>
 
 ### Quick links
-* [.. up dir](https://github.com/phR0ze/cyberlinux)
+* [.. up dir](../README.md)
 * [3D Computer Graphics](#3d-computer-graphics)
   * [FreeCAD](FREECAD.md)
   * [Sweet Home 3D](#sweet-home-3d)
