@@ -28,6 +28,7 @@ to upgrade existing deployments.
 * [Guides](#guides)
   * [Apps](#apps)
     * [Add new app](#add-new-app)
+    * [Remove an app](#remove-an-app)
   * [Deployment](#deployment)
     * [Test minimal deployment](#test-minimal-deployment)
     * [Incrementally build profile](#incrementally-build-profile)
@@ -87,8 +88,8 @@ the `profile.json` deployment packages property.
 1. Copy the resulting packages to the repo clone
    ```bash
    $ cd ~/Projects/cyberlinux.bitbucket.io/packages/cyberlinux/x86_64
-   $ rm *xfce*
-   $ rm *standard*
+   $ rm cyberlinux-xfce*
+   $ rm cyberlinux-standard*
    $ cp ~/Projects/cyberlinux/temp/repo/cyberlinux*.tar.zst .
    ```
 2. Rebuild the repo and push the commit back to github
@@ -102,7 +103,7 @@ the `profile.json` deployment packages property.
    ```
 3. Commit the changes and push the commit
    ```bash
-   $ cd ../../
+   $ cd ../../..
    $ git add .
    $ git commit -m "Adding rust-adm and rust-src as standard/shell dependencies"
    $ git push
@@ -264,8 +265,9 @@ layer.
 
 In this case we need to do a few things.
 1. Rebuild the `xnviewmp` package with the latest bits that don't depend on `qt5-webkit`
-2. Upload the new `xnviewmp` package to your target repo e.g. `github.com/phR0ze/cyberlinux-repo`
-3. Re-run the original build command to continue `./build.sh -p xfce -a` 
+2. Upload the new `xnviewmp` package to your target repo e.g. `cyberlinux.bitbucket.io/packages`
+3. Clean the failed layer `./build -c layers/xfce/x11`
+4. Re-run the original build command to continue `./build.sh -p xfce -a` 
 
 # Guides
 
@@ -286,6 +288,18 @@ To add a new application to the requirements for cyberlinux all you need to do i
    $ git add .
    $ git commit -m "Adding rust asm targets and std source"
    ```
+3. [Build Packages](#build-packages)
+4. [Publish Packages](#publish-packages)
+
+### Remove an app
+Removing an app is just the inverse of the add
+
+1. Determine which deployment it is in right now e.g. I'm removing `teamviewer` in this example
+   ```bash
+   $ cd cyberlinux/profiles
+   $ grep -r teamviewer
+   ```
+2. Using the grep output remove the references
 3. [Build Packages](#build-packages)
 4. [Publish Packages](#publish-packages)
 

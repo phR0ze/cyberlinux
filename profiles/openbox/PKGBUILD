@@ -1,5 +1,5 @@
 # MIT License
-# Copyright (c) 2017-2021 phR0ze
+# Copyright (c) 2017-2023 phR0ze
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -94,9 +94,6 @@ package_cyberlinux-openbox-server()
   depends=(
     "cyberlinux-standard-server>=${pkgver}"
     "cyberlinux-openbox-lite>=${pkgver}"
-
-    # Restricted licensing to personal use only
-    'teamviewer'                # Excellent remoting software
   )
   pkg server
 }
@@ -123,7 +120,6 @@ package_cyberlinux-openbox-desktop()
     'idesk'                     # Lightweight desktop icons for X
 
     # Restricted licensing to personal use only
-    'teamviewer'                # Excellent remoting software
     'ttf-ms-fonts'              # Core TTF Fonts from Microsoft
   )
   pkg desktop

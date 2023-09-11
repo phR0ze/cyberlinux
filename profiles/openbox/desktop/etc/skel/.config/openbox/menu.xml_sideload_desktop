@@ -53,7 +53,6 @@
       <item label="Firefox" icon="/usr/share/icons/Paper/32x32/apps/firefox.png"><action name="Execute"><execute>firefox</execute></action></item>
       <item label="Remmina" icon="/usr/share/icons/Paper/32x32/apps/remmina.png"><action name="Execute"><execute>remmina</execute></action></item>
       <item label="FileZilla" icon="/usr/share/icons/Paper/32x32/apps/filezilla.png"><action name="Execute"><execute>filezilla</execute></action></item>
-      <item label="TeamViewer" icon="/usr/share/icons/hicolor/32x32/apps/TeamViewer.png"><action name="Execute"><execute>teamviewer</execute></action></item>
       <item label="Zoom" icon="/usr/share/icons/hicolor/32x32/apps/zoom.png"><action name="Execute"><execute>zoom</execute></action></item>
     </menu>
     <menu id="Office" icon="/usr/share/icons/Paper/32x32/categories/applications-office.png" label="Office">

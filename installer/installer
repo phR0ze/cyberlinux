@@ -1,6 +1,6 @@
 #!/bin/bash
 # MIT License
-# Copyright (c) 2017-2022 phR0ze
+# Copyright (c) 2017-2023 phR0ze
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,10 +20,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+# tput requires the $TERMINFO to be set and exist so it can lookup the $TERM
+# there and find the terminal options
+export TERMINFO=/usr/lib/terminfo
+
 # Configure color codes using tput which requires terminfo set
 # I've overridden bold using the mkinitcpio-vt-colors package to cyberlinux blue
-# which is why simply using blue here will give use cyberlinux blue.
-export TERMINFO=/usr/lib/terminfo
+# which is why simply using bold here will give use cyberlinux blue.
 _bold=$(tput bold)
 none=$(tput sgr0)
 red=${_bold}$(tput setaf 1)

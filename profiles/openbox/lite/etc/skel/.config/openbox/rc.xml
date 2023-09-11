@@ -830,13 +830,6 @@
       </position>
     </application>
 
-    <!-- Force teamviewer into iconic mode -->
-    <!--
-    <application name="TeamViewer">
-      <iconic>yes</iconic>
-    </application>
-    -->
-
     <!-- Position arcologout on second monitor -->
     <!-- 
     <application name="arcologout">

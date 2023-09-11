@@ -131,7 +131,7 @@ First ensure you satisfy the [Prerequisites](#prerequisites)
    ```
 3. Copy to the dev leaving off the partition
    ```bash
-   $ sudo dd bs=4M if=temp/output/cyberlinux.iso of=/dev/sdd status=progress conv=fsync oflag=direct
+   $ sudo dd bs=4M if=temp/output/cyberlinux-0.1.62-xfce.iso of=/dev/sdd status=progress conv=fsync oflag=direct
    ```
 
 ### Test the USB in VirtualBox <a name="test-the-usb-in-virtualbox"/></a>
@@ -141,21 +141,21 @@ First ensure you satisfy the [Prerequisites](#prerequisites)
    ```
 2. Create a raw vmdk boot stub from the USB
    ```
-   $ sudo vboxmanage internalcommands createrawvmdk -filename usb.vmdk -rawdisk /dev/sdd
-   RAW host disk access VMDK file usb.vmdk created successfully.
+   $ sudo vboxmanage convertfromraw /dev/sdd usb.vmdk --format vmdk
 
    # Change ownership of new image to your user
    $ sudo chown $USER: usb.vmdk
 
-   # Add your user to the disk group
-   $ sudo usermod -a -G disk $USER
-
+   # Add your user to the disk group then
    # Logout and back in and launch virtualbox
+   $ sudo usermod -a -G disk $USER
    ```
-3. Create a new VM in VirtualBox  
-   a. On the `Virtual Hard Disk` option choose `Use existing hard disk`  
-   b. Browse to and select the `usb.vmdk` you just created  
-   c. Start up the new VM  
+3. Create a new VM in VirtualBox then after
+   1. Ensure your VM is not using `EFI`
+   1. Click `Settings` then choose `Storage1`
+   2. Under `Storage Devices` click the `Adds hard disk` button to the `Controller: IDE`
+   3. Browse to and select the `usb.vmdk` you just created
+   4. Start up the new VM
 
 # Deploy cyberlinux <a name="deploy-cyberlinux"/></a>
 For the most part deploying ***cyberlinux*** is as simple as:

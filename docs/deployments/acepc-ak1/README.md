@@ -6,7 +6,7 @@ configuration changes to enable WiFi
 <br><br>
 
 ### Quick links
-* [.. up dir](..)
+* [.. up dir](../README.md)
 * [Install cyberlinux](#install-cyberlinux)
 * [Configure cyberlinux](#configure-cyberlinux)
   * [WiFi](#wifi)

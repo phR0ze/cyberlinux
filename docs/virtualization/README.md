@@ -6,9 +6,15 @@ Documenting various virtualization technologies
 
 ### Quick links
 * [.. up dir](https://github.com/phR0ze/cyberlinux)
+* [QEMU](#qemu)
 * [ProxMox](#prox-mox)
 * [Virtual Box](#virtual-box)
   * [USB Access in VM](#usb-access-in-vm)
+
+# QEMU
+Quick EMUlator is a command line virtual machine system.
+
+## 
 
 # ProxMox
 ProxMox Virtual Environment is an open source server virtualization management solution based on 
@@ -43,6 +49,15 @@ $ groups
 # Add your use to the vboxusers group
 $ sudo usermod -a -G vboxusers <USER>
 ```
+
+# Virt Manager
+
+## VDA hard disk
+Virt Manager seems to create `vda` devices by default rather than `sda` devices.
+
+
+## Release keyboard capture
+Press `Ctrl+Alt`
 
 <!-- 
 vim: ts=2:sw=2:sts=2
