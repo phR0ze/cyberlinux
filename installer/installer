@@ -669,8 +669,8 @@ installer()
     if [ "$LAYER" != 'live' ]; then
 
         # Read in the destination disk options to present to the user filtering out
-        # the USB installer device $SRCDEV e.g. /dev/sda
-        DISKS_DETAILED=$(lsblk -dn -o NAME,SIZE,MODEL,TYPE -x NAME --json | \
+        # loop (7) and floppy (2) and the USB/CD/ISO installer device $SRCDEV e.g. /dev/sda
+        DISKS_DETAILED=$(lsblk -dn -e 7,2 -o NAME,SIZE,MODEL,TYPE -x NAME --json | \
             jq -rc --arg SRCDEV "${SRCDEV//\/dev\/}" '[.blockdevices[]|select(.type=="disk" and .name!=$SRCDEV)]')
         DISKS=$(echo ${DISKS_DETAILED} | jq -rc '[.[].name]|map("/dev/"+.)|.[]')
         DESTDEV=$(echo ${DISKS_DETAILED} | jq -rc '[.[].name]|map("/dev/"+.)|.[0]')

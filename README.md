@@ -34,14 +34,14 @@ strictly the responsiblity of the user and not the developer/creator of ***cyber
 * [Help](docs)
 * [Getting started](#getting-started)
   * [Prerequisites](#prerequisites)
-    * [Arch Linux](#arch-linux)
-    * [Ubuntu](#ubuntu)
+    * [Configure Arch Linux for build](#configure-arch-linux-for-build)
+    * [Configure Ubuntu for build](#configure-ubuntu-for-build)
   * [Create multiboot USB](#create-multiboot-usb)
     * [Build the ISO](#build-the-iso)
     * [Burn the ISO to USB](#burn-the-iso-to-usb)
     * [Test the USB in VirtualBox](#test-the-usb-in-virtualbox)
-  * [Download cyberlinux ISO](#download-cyberlinux-iso)
 * [Deploy cyberlinux](#deploy-cyberlinux)
+  * [QEMU VM](#qemu-vm)
   * [ACEPC AK1](docs/deployments/acepc-ak1)
   * [Dell XPS 13 9310](docs/deployments/dell-xps-13-9310)
   * [HP ZBook 15](docs/deployments/hp-zbook-15)
@@ -65,15 +65,15 @@ strictly the responsiblity of the user and not the developer/creator of ***cyber
 
 ---
 
-# Getting started <a name="getting-started"/></a>
+# Getting started
 
-## Prerequisites <a name="prerequisites"/></a>
+## Prerequisites
 The multiboot ISO is built almost entirely in a docker container with data cached on the local host
 for quicker rebuilds. This makes it possible to build on systmes with a minimal dependencies. All
 that is required is ***passwordless sudo***, ***jq***, and ***docker***. Optionally use Virtualbox or
 another hypervisor solution to test out the resulting ISO/USB.
 
-### Arch Linux <a name="arch-linux"/></a>
+### Configure Arch Linux for build
 1. Passwordless sudo access is required for automation:
    ```bash
    $ sudo bash -c "echo '$USER ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/10-passwordless"
@@ -91,7 +91,7 @@ another hypervisor solution to test out the resulting ISO/USB.
    $ sudo usermod -aG disk,docker,vboxusers $USER
    ```
 
-### Ubuntu <a name="ubuntu"/></a>
+### Configure Ubuntu for build
 1. Passwordless sudo access is required for automation:
    ```bash
    $ sudo bash -c "echo 'YOUR_USER ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/10-passwordless"
@@ -106,10 +106,10 @@ another hypervisor solution to test out the resulting ISO/USB.
    $ sudo usermod -aG disk,docker,vboxusers $USER
    ```
 
-## Create multiboot USB <a name="create-multiboot-usb"/></a>
+## Create multiboot USB
 First ensure you satisfy the [Prerequisites](#prerequisites)
 
-### Build the ISO <a name="build-the-iso"/></a>
+### Build the ISO
 1. Clone the repo:
    ```bash
    $ cd ~/Projects
@@ -120,7 +120,7 @@ First ensure you satisfy the [Prerequisites](#prerequisites)
    $ ./build.sh -p xfce -a
    ```
 
-### Burn the ISO to USB <a name="burn-the-iso-to-usb"/></a>
+### Burn the ISO to USB
 1. Determine the correct USB device
    ```bash
    $ lsblk
@@ -134,7 +134,7 @@ First ensure you satisfy the [Prerequisites](#prerequisites)
    $ sudo dd bs=4M if=temp/output/cyberlinux-0.1.62-xfce.iso of=/dev/sdd status=progress conv=fsync oflag=direct
    ```
 
-### Test the USB in VirtualBox <a name="test-the-usb-in-virtualbox"/></a>
+### Test the USB in VirtualBox
 1. Determine which device is your USB
    ```bash
    $ lsblk
@@ -157,7 +157,7 @@ First ensure you satisfy the [Prerequisites](#prerequisites)
    3. Browse to and select the `usb.vmdk` you just created
    4. Start up the new VM
 
-# Deploy cyberlinux <a name="deploy-cyberlinux"/></a>
+# Deploy cyberlinux
 For the most part deploying ***cyberlinux*** is as simple as:
 1. Booting from the USB or ISO you created in the [Create multiboot USB](#create-multiboot-usb) section
 2. Selecting your desired deployment configuration
@@ -166,7 +166,24 @@ For the most part deploying ***cyberlinux*** is as simple as:
 5. Removing the USB
 6. Rebooting
 
-## Package Deployment <a name="package-deployment"/></a>
+## QEMU VM
+Note: QEMU use disk named `vda`
+
+1. Create new virtual disk
+   ```bash
+   $ qemu-img create -f qcow2 arch1.qcow2 20G
+   ```
+2. Install ISO to new virtual disk
+   ```bash
+   $ qemu-system-x86_64 \
+       -enable-kvm \
+       -m 4G \
+       -nic user,model=virtio \
+       -drive file=arch1.qcow2,media=disk,if=virtio \
+       -cdrom cyberlinux-0.1.62-xfce.iso
+   ```
+
+## Package Deployment
 The pre-built `cyberlinux-*` packages available in the [cyberlinux-repo](https://github.com/phR0ze/cyberlinux-repo)
 are highly opinionated and in some cases will modify system configuration with cyberlinux defaults
 and as such they are ***only recommended to be installed with new systems*** or to
@@ -186,19 +203,19 @@ and as such they are ***only recommended to be installed with new systems*** or 
    $ sudo reboot
    ```
 
-## Advancecd concepts <a name="advanced-concepts"/></a>
+## Advancecd concepts
 * [cyberlinux help](docs)
 * [Roll your own](profiles)
 * [cyberlinux-repo](https://github.com/phR0ze/cyberlinux-repo)
 
-# Background <a name="background"></a>
+# Background
 ***cyberlinux*** is an evolution of an idea come to fruition.  The origin was the need for an
 automated installer that would be able to install a completely pre-configured and ready to use
 system customized for a handful of common use cases (e.g. desktop, theater, server...) in an offline
 environment. As time passed the need for simpler maintainability and access to larger more
 up-to-date software repositories drove the search for the ideal Linux distribution.
 
-### Evolution <a name="evolution"></a>
+### Evolution
 
 **Ubuntu Online Install**  
 In the beginning I would deploy a super lightweight Ubuntu server system and then launch a custom
@@ -241,7 +258,7 @@ issue I had with Arch of no installer and so it was a natural progression to swi
 from Manjaro to be based directly on Arch Linux. This made BlackArch and Antergos repos directly
 available and put me in a bigger support community with newer updates and packages.
 
-### My take on Arch <a name="my-take-on-arch"></a>
+### My take on Arch
 ***Arch Linux kills!*** I've never used a distribution as transparent, clean and documented to use as 
 Arch.  The packages are plentiful, up-to-date and easily managed. The community is huge and active, 
 providing almost every package known to man in the Arch User Repository or you can easily build your 
@@ -274,7 +291,7 @@ Antergos is based on Arch and 100% compatible but also has a few developments of
 slick custom isolinux boot and installer.  They also offer a number of prebuilt AUR packages in
 their custom repos.
 
-### Distro requirements <a name="distro-requirements"></a>
+### Distro requirements
 I boiled down my requirements for ***cyberlinux*** as follows:
 
 * Single configuration file (i.e. profile) to drive ISO creation
@@ -286,11 +303,11 @@ I boiled down my requirements for ***cyberlinux*** as follows:
 * Hardware boot and diagnostics options e.g. RAM validation
 * As light as possible while still offering an elegant solution
 
-# Contributions <a name="contributions"/></a>
+# Contributions
 Pull requests are always welcome.  However understand that they will be evaluated purely on whether
 or not the change fits with my goals/ideals for the project.
 
-## Git-Hook Version Increment <a name="git-hook-version-increment"/></a>
+## Git-Hook Version Increment
 Enable the githooks to have automatic version increments
 
 ```bash
@@ -298,24 +315,24 @@ cd ~/Projects/cyberlinux
 git config core.hooksPath .githooks
 ```
 
-## Licenses <a name="licenses"/></a>
+## Licenses
 Because of the nature of ***cyberlinux*** any licensing will be of a mixed nature.  In some cases as
 called out below such as ***build.sh*** and the ***installer/installer***, created by phR0ze, the
 license is MIT. In other cases works I leveraged from else where using licenses such as GPLv2.
 
-### ART work <a name="art-work"/></a>
+### ART work
 All art work used in the distribution have been carefully selected to be either creative commons,
 public domain, have permission from the original authors, or lay claim on fair use licensing. If for
 some reason a licensing mistake has been made please let me know and I'll review the claim immediately.
 
-### Configure, Build and Install Scripts <a name="configuration-build-install-scripts"/></a>
+### Configure, Build and Install Scripts
 All scripting and code created for the cyberlinux project is licensed below via MIT.
 
 [LICENSE-MIT](LIENSE-MIT)
 
 ---
 
-# Backlog <a name="backlog"/></a>
+# Backlog
 * Configure rust analyzer to not show types
 * Use `Gnome Disks` i.e. `sudo pacman -S gnome-disk-utility`
 * `Super + plus` to resize window to custom size
@@ -327,7 +344,7 @@ All scripting and code created for the cyberlinux project is licensed below via 
   * This would aleviate loosing custom changes in files such as `/etc/pacman.conf` and 
   `/etc/lxdm/lxdm.conf`
 
-# Sometime <a name="sometime"/></a>
+# Sometime
 * netbook: HDMI output
 * clu to sync wallpaper
   * `/etc/lxdm/lxdm.conf`
