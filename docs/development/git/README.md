@@ -48,6 +48,7 @@ git documentation including public hosting such as github, gitlab and bitbucket
   * [Github Pages](#github-pages)
   * [Github Large File Storage](#github-large-file-storage)
   * [Security](#security)
+    * [Public key](#public-key)
     * [Codeowners](#codeowners)
 * [Gitlab](#gitlab)
   * [Gitlab Pages](#gitlab-pages)
@@ -601,6 +602,24 @@ text pointers inside Git, while storing the file contents on a remote server lik
    ```
 
 ## Security
+
+### Public key
+Github requires a configured public key for your account before you can clone repos using the 
+`git@github.com` syntax or that you need to specifically call out a user token in the URL.
+
+1. You can check if you have a public key already configured on you local system
+   ```bash
+   $ ssh -T git@github.com
+   Hi USERNAME! You've successfully authenticated...
+   ```
+2. If instead you get the `Permission denied (publickey)` you then need:
+   1. [Generate a new RSA key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
+   2. Login to your Github Account
+   3. Navigate to `Settings`
+   4. In the `Access` section of the sidebar click `SSH and GPG keys`
+   5. Click `New SSH key`
+   6. Paste in your public key
+   7. Authorize it if necessary with your organization
 
 ### Codeowners
 [CODEOWNERS](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners) 
