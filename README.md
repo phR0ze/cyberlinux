@@ -16,11 +16,10 @@ for my personal use cases. If you find the reference deployments useful note tha
 welcome, will be evaluated in that context and will need to align with my goals.
 
 ### Warning
-The pre-built `cyberlinux-*` packages available in the [cyberlinux-repo](https://github.com/phR0ze/cyberlinux-repo)
+The pre-built `cyberlinux-*` packages available in the [cyberlinux-aur](https://github.com/phR0ze/cyberlinux-aur)
 are highly opinionated and in some cases will modify system configuration with cyberlinux defaults
 and as such they are ***only recommended to be installed with new systems*** or to
-***upgrade existing cyberlinux based systems*** and are
-***not to be used directly on pre-existing non-cyberlinux systems***.
+***upgrade existing cyberlinux based systems*** and are ***not to be used directly on pre-existing non-cyberlinux systems***.
 
 ### Disclaimer
 ***cyberlinux*** comes with absolutely no guarantees or support of any kind. It is to be used at
@@ -333,6 +332,8 @@ All scripting and code created for the cyberlinux project is licensed below via 
 ---
 
 # Backlog
+* Write Rust version of [pdfmod](https://wiki.gnome.org/Attic/PdfMod)
+
 * Configure rust analyzer to not show types
 * Use `Gnome Disks` i.e. `sudo pacman -S gnome-disk-utility`
 * `Super + plus` to resize window to custom size
@@ -345,7 +346,6 @@ All scripting and code created for the cyberlinux project is licensed below via 
   `/etc/lxdm/lxdm.conf`
 
 # Sometime
-* netbook: HDMI output
 * clu to sync wallpaper
   * `/etc/lxdm/lxdm.conf`
   * `/usr/bin/lockscreen`

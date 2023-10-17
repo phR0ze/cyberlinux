@@ -65,7 +65,6 @@
       <item label="LibreOffice Impress" icon="/usr/share/icons/Paper/32x32/apps/libreoffice-impress.png"><action name="Execute"><execute>libreoffice --impress</execute></action></item>
       <item label="LibreOffice Math" icon="/usr/share/icons/Paper/32x32/apps/libreoffice-math.png"><action name="Execute"><execute>libreoffice --math</execute></action></item>
       <item label="LibreOffice Writer" icon="/usr/share/icons/Paper/32x32/apps/libreoffice-writer.png"><action name="Execute"><execute>libreoffice --writer</execute></action></item>
-      <item label="PDFMod" icon="/usr/share/icons/Paper/32x32/apps/pdfmod.png"><action name="Execute"><execute>pdfmod</execute></action></item>
       <item label="Scribus" icon="/usr/share/icons/Paper/32x32/apps/scribus.png"><action name="Execute"><execute>scribus</execute></action></item>
     </menu>
     <menu id="Settings" icon="/usr/share/icons/Paper/32x32/categories/applications-accessories.png" label="Settings">

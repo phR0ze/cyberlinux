@@ -461,13 +461,13 @@ clean()
     # Clean everything not covered in other specific cases
     if [ "${x}" == "all" ]; then
       target="${TEMP_DIR}"
-      echo -e ":: Cleaning docker image ${cyan}archlinux:base-devel${none}"
+      echo -en ":: Cleaning docker image ${cyan}archlinux:base-devel${none}"
       docker_rmi archlinux:base-devel
     fi
 
     # Clean the builder docker image
     if [ "${x}" == "all" ] || [ "${x}" == "${BUILDER}" ]; then
-      echo -e ":: Cleaning docker image ${cyan}${BUILDER}${none}"
+      echo -en ":: Cleaning docker image ${cyan}${BUILDER}${none}"
       docker_rmi ${BUILDER}
     fi
 
@@ -626,10 +626,10 @@ docker_cp() {
 # $1 repository name
 docker_rmi() {
   if docker_image_exists ${1}; then
-    echo -en ":: Removing the given image ${cyan}${1}${none}"
+    echo -en "\n   Removing image ${cyan}${1}${none}"
     docker image rm $1
-    check
   fi
+  check
 }
 
 # Pull the builder container if it doesn't exist then run it in a sleep loop so we can work with
@@ -700,6 +700,7 @@ usage()
   echo -e "Examples:"
   echo -e "  ${green}Build full Xfce ISO:${none} ./${SCRIPT} -a"
   echo -e "  ${green}Rebuild full Xfce ISO:${none} ./${SCRIPT} -c most -a"
+  echo -e "  ${green}Build missing components for full Xfce ISO:${none} ./${SCRIPT} -a"
   echo -e "  ${green}Build minimal base deployment:${none} ./${SCRIPT} -c most -p standard -d base -rimI"
   echo -e "  ${green}Build full OpenBox ISO:${none} ./${SCRIPT} -p openbox -a"
   echo -e "  ${green}Rebuild Xfce packages:${none} ./${SCRIPT} -p xfce -c repo -r"

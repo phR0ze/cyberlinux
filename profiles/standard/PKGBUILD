@@ -1,5 +1,5 @@
    # MIT License
-# Copyright (c) 2017-2022 phR0ze
+# Copyright (c) 2017-2023 phR0ze
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -249,7 +249,7 @@ package_cyberlinux-standard-x11()
     'tumbler'                   # D-Bus thumbnail service for apps like Thunar
     'qt5-base'                  # A cross-platform application and UI framework, depof: mkvtoolnix-gui
     'xfce4-power-manager'       # Power manager for the Xfce desktop
-    'kvantum-qt5'               # SVG-based theme engine for Qt5 includes Arc-Dark
+    'kvantum'                   # SVG-based theme engine for Qt5/Qt6 including Arc-Dark
     'wmctl'                     # Rust X11 automation
 
     # Sound utilities
@@ -446,7 +446,6 @@ package_cyberlinux-standard-netbook()
     # Office
     'hunspell-en_US'            # US dictionaries for spell checking
     'libreoffice-fresh'         # Libreoffice with new features and enhancments
-    'pdfmod'                    # Simple PDF editor
 
     # Network
     'blueman'                   # Bluetooth management tool
