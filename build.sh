@@ -700,7 +700,7 @@ usage()
   echo -e "Examples:"
   echo -e "  ${green}Build full Xfce ISO:${none} ./${SCRIPT} -a"
   echo -e "  ${green}Rebuild full Xfce ISO:${none} ./${SCRIPT} -c most -a"
-  echo -e "  ${green}Build missing components for full Xfce ISO:${none} ./${SCRIPT} -a"
+  echo -e "  ${green}Clean layer and continue building full Xfce ISO:${none} ./${SCRIPT} -c layers/xfce/x11,repo; ./${SCRIPT} -a"
   echo -e "  ${green}Build minimal base deployment:${none} ./${SCRIPT} -c most -p standard -d base -rimI"
   echo -e "  ${green}Build full OpenBox ISO:${none} ./${SCRIPT} -p openbox -a"
   echo -e "  ${green}Rebuild Xfce packages:${none} ./${SCRIPT} -p xfce -c repo -r"
