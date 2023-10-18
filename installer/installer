@@ -708,13 +708,17 @@ installer()
             getsel DESTDEV "$DISKS"
         fi
 
-        # Determine the type of storage from the three most common types:
-        # Non SCSI type storage either NVMe or MMC both use a similar partition naming
-        # convention so we really only need to determine if its SCSI or not.
+        # Determine the storage drive partition pattern.
+        # https://wiki.archlinux.org/title/Device_file#Block_devices
+        # Typically this is of the form device name followed by a number or device name
+        # followed by a number with a 'p' prefix. I've only seen two different styles so far.
         # SCSI: /dev/sda        partition1: /dev/sda1
+        # QEMU: /dev/vda        partition1: /dev/vda1
         # NVMe: /dev/nvme0n1    partition1: /dev/nvme0n1p1
-        # MMC: /dev/mmcblk0     partition1: /dev/mmcblk0p1
-        [ -z "${DESTDEV##*/dev/sd*}" ] && SCSI=1
+        # MMC:  /dev/mmcblk0    partition1: /dev/mmcblk0p1
+
+        # Match DESTDEV with /dev/sda and /dev/vda
+        [ -z "${DESTDEV##*/dev/sd*}" ] || [ -z "${DESTDEV##*/dev/vd*}" ] && SCSI=1
 
         # Configure networking
         #----------------------------------------------------------------------
