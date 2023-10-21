@@ -36,7 +36,6 @@ cyber=$(tput bold)
 
 exit_to_shell()
 {
-    alias ll='ls -lah'
     export PS1="${cyber}[rootfs:\w]\$ ${none}"
     echo -e "\n${cyber}:: Interactive Shell${none}"
     debug_vars

@@ -1,5 +1,5 @@
 # MIT License
-# Copyright (c) 2017-2021 phR0ze
+# Copyright (c) 2017-2023 phR0ze
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -74,10 +74,5 @@ cyber="\[\e[1;38;5;67m\]"
 export PS1="${cyber}[\u@\h:\w]\$${none} "
 export PATH=$PATH:$HOME/bin:$GOPATH/bin:/opt/cyberlinux/bin
 
-# Powerline configuration
-if [[ $(tty) != *"tty"* ]] && [ -f /usr/bin/powerline ]; then
-  powerline-daemon -q
-  POWERLINE_BASH_CONTINUATION=1
-  POWERLINE_BASH_SELECT=1
-  . /usr/share/powerline/bindings/bash/powerline.sh
-fi
+# Starship configuration
+eval "$(starship init bash)"

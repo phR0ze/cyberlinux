@@ -262,9 +262,8 @@ package_cyberlinux-standard-x11()
     # Utils
     'filelight'                 # View disk usage information
     'file-roller'               # System/Compression integrates well in Thunar
-    'powerline'                 # Status line plugin for bash
+    'starship'                  # Status line plugin for bash
     'powerline-fonts'           # Powerline font symbols
-    'powerline-gitstatus'       # Powerline plugin for git status, repo: cyberlinux
     'xdg-user-dirs'             # Manage user directories like ~/Desktop
     'xdg-utils'                 # Desktop integration utilities
     'xfce4-screenshooter'       # Plugin that makes screenshots for the Xfce panel

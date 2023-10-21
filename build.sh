@@ -618,7 +618,7 @@ docker_container_running() {
 # $2 destination file
 docker_cp() {
   echo -en ":: Copying ${cyan}${1}${none} to ${cyan}$2${none}"
-  docker cp "$1" "$2"
+  docker cp -q "$1" "$2"
   check
 }
 

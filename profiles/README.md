@@ -29,6 +29,7 @@ to upgrade existing deployments.
   * [Apps](#apps)
     * [Add new app](#add-new-app)
     * [Remove an app](#remove-an-app)
+    * [Starship](#starship)
   * [Deployment](#deployment)
     * [Test minimal deployment](#test-minimal-deployment)
     * [Incrementally build profile](#incrementally-build-profile)
@@ -302,6 +303,40 @@ Removing an app is just the inverse of the add
 2. Using the grep output remove the references
 3. [Build Packages](#build-packages)
 4. [Publish Packages](#publish-packages)
+
+### Starship
+Starship is an excellent replacement for Powerline. While powerline's dependency on python gets 
+broken almost every time python is upgraded Starship with its Rust heritage should never break in 
+that way.
+
+To replace Powerline with Starship
+1. Search for powerline in the profiles directory with grep and find
+   ```bash
+   $ cd cyberlinux/profiles
+   $ grep -r powerline
+   standard/PKGBUILD:    'powerline'                 # Status line plugin for bash
+   standard/PKGBUILD:    'powerline-fonts'           # Powerline font symbols
+   standard/PKGBUILD:    'powerline-gitstatus'       # Powerline plugin for git status, repo: cyberlinux
+   standard/core/etc/skel/.bashrc_sideload:if [[ $(tty) != *"tty"* ]] && [ -f /usr/bin/powerline ]; then
+   standard/core/etc/skel/.bashrc_sideload:  powerline-daemon -q
+   standard/core/etc/skel/.bashrc_sideload:  . /usr/share/powerline/bindings/bash/powerline.sh
+   standard/x11/etc/skel/.config/powerline/themes/shell/default.json:                "function": "powerline.segments.common.net.hostname",
+   standard/x11/etc/skel/.config/powerline/themes/shell/default.json:                "function": "powerline.segments.common.env.user",
+   standard/x11/etc/skel/.config/powerline/themes/shell/default.json:                "function": "powerline_gitstatus.gitstatus",
+   standard/x11/etc/skel/.config/powerline/themes/shell/default.json:                "function": "powerline.segments.shell.cwd",
+   standard/x11/etc/skel/.config/powerline/themes/shell/default.json:                "function": "powerline.segments.shell.jobnum",
+
+   $ find . -iname "*powerline*"
+   ./standard/x11/etc/skel/.config/powerline
+   ```
+2. Replace `standard/PKGBUILD:    'powerline'` with `starship`
+3. Keep `standard/PKGBUILD:    'powerline-fonts'` as starship depends on good nerd like fonts
+4. Remove `standard/PKGBUILD:    'powerline-gitstatus'` as starhip has a built in module for this
+5. Replace the `standard/core/etc/skel/.bashrc_sideload` power line entries with starship's init
+   ```bash
+   eval "$(starship init bash)"
+   ```
+6. Replace the `standard/x11/etc/skel/.config/powerline` config dir with staship's config `standard/x11/etc/skel/.config/starship.toml`
 
 ## Deployment
 
