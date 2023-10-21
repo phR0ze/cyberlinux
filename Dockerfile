@@ -9,7 +9,7 @@ COPY profiles/standard/core/etc/skel/.bash_profile_sideload /root/.bash_profile
 COPY profiles/standard/core/etc/skel/.bashrc_sideload /root/.bashrc
 COPY profiles/standard/base/etc/skel/.config/vim/.vimrc /root/
 
-# Configure pacman
+# Configure pacmastarship n
 COPY config/mkinitcpio.conf /etc/
 COPY config/pacman.conf_2_for_builder /etc/pacman.conf
 COPY profiles/standard/base/etc/pacman.d/archlinux.mirrorlist /etc/pacman.d/
@@ -27,7 +27,7 @@ COPY profiles/standard/base/etc/pacman.d/archlinux.mirrorlist /etc/pacman.d/
 # `mkinitcpio`            provides the tooling to build the initramfs early userspace installer
 # `mkinitcpio-vt-colors`  required for the initramfs installer to use cyberlinux blue output
 # `rsync`                 used by the installer to copy install data to the install target
-# `gptfdisk`              used by the installer to prepare target media for install
+# `gptfdisk`              used by the installer tstarship o prepare target media for install
 # `linux`                 need to load the kernel to satisfy GRUB
 # `intel-ucode`           standard practice to load the intel-ucode
 # `memtest86+`            boot memory tester tool
@@ -39,11 +39,12 @@ COPY profiles/standard/base/etc/pacman.d/archlinux.mirrorlist /etc/pacman.d/
 # `efibootmgr`            provides `efibootmgr` for EFI boot manager entry manipulation
 # `parted`                provides `partprobe` for partition manipulation
 # `multipath-tools`       provides `kpartx` for paritition manipultion
+# `starship`              bash prompt awesomeness
 RUN echo echo ">> Install builder packages" && \
   mkdir -p /root/repo /root/profiles && \
-  pacman -Sy --noconfirm vim grub dosfstools mkinitcpio mkinitcpio-vt-colors efibootmgr \
-    rsync gptfdisk linux intel-ucode memtest86+ libisoburn linux-firmware \
-    arch-install-scripts squashfs-tools jq parted multipath-tools && \
+  pacman -Sy --noconfirm cyberlinux/ncurses vim grub dosfstools mkinitcpio mkinitcpio-vt-colors \
+    efibootmgr rsync gptfdisk linux intel-ucode memtest86+ libisoburn linux-firmware \
+    arch-install-scripts squashfs-tools jq parted multipath-tools starship && \
   \
   # New user is created with: \
   # -r            to not create a mail directory \
