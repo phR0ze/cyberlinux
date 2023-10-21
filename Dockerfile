@@ -8,6 +8,7 @@ ARG USER_ID
 COPY profiles/standard/core/etc/skel/.bash_profile_sideload /root/.bash_profile
 COPY profiles/standard/core/etc/skel/.bashrc_sideload /root/.bashrc
 COPY profiles/standard/base/etc/skel/.config/vim/.vimrc /root/
+COPY profiles/standard/base/etc/skel/.config/starship.toml /root/.config/
 
 # Configure pacmastarship n
 COPY config/mkinitcpio.conf /etc/
